@@ -1,0 +1,127 @@
+﻿@using System
+@using Oqtane.Services
+@using Oqtane.Modules
+@using Oqtane.Models
+@using Oqtane.Shared
+@using System.Linq
+@inject IUserService UserService
+@inject IModuleService ModuleService
+@inject IModuleDefinitionService ModuleDefinitionService
+
+<div class="@paneadminborder">
+    @((MarkupString)panetitle)
+    @DynamicComponent
+</div>
+
+@functions {
+    [CascadingParameter]
+    protected PageState PageState { get; set; }
+
+    [Parameter]
+    private string Name { get; set; }
+
+    RenderFragment DynamicComponent { get; set; }
+
+    string paneadminborder = "";
+    string panetitle = "";
+
+    protected override void OnInit()
+    {
+        if (UserService.IsAuthorized(PageState.User, PageState.Page.EditPermissions) && Name != Constants.AdminPane)
+        {
+            paneadminborder = "pane-admin-border";
+            panetitle = "<div class=\"pane-admin-title\">" + Name + " Pane</div>";
+        }
+
+        DynamicComponent = builder =>
+        {
+            if (PageState.ModuleId != -1 && PageState.Control != "")
+            {
+                if (Name == Constants.AdminPane)
+                {
+                    Module module = PageState.Modules.Where(item => item.ModuleId == PageState.ModuleId).FirstOrDefault();
+                    if (module != null)
+                    {
+                        string typename = module.ModuleType;
+                        if (PageState.Control == "Settings")
+                        {
+                            typename = Constants.DefaultSettingsControl;
+                        }
+                        Type moduleType = Type.GetType(typename);
+                        if (moduleType != null)
+                        {
+                            var moduleobject = Activator.CreateInstance(moduleType);
+                            // verify security access level for this module control
+                            SecurityAccessLevelEnum SecurityAccessLevel = (SecurityAccessLevelEnum)moduleType.GetProperty("SecurityAccessLevel").GetValue(moduleobject, null);
+                            bool authorized = false;
+                            switch (SecurityAccessLevel)
+                            {
+                                case SecurityAccessLevelEnum.Anonymous:
+                                    authorized = true;
+                                    break;
+                                case SecurityAccessLevelEnum.View:
+                                    authorized = UserService.IsAuthorized(PageState.User, module.ViewPermissions);
+                                    break;
+                                case SecurityAccessLevelEnum.Edit:
+                                    authorized = UserService.IsAuthorized(PageState.User, module.EditPermissions);
+                                    break;
+                                case SecurityAccessLevelEnum.Admin:
+                                    authorized = UserService.IsAuthorized(PageState.User, Constants.AdminRole);
+                                    break;
+                                case SecurityAccessLevelEnum.Host:
+                                    authorized = PageState.User.IsSuperUser;
+                                    break;
+                            }
+                            if (authorized)
+                            {
+                                // get module control title
+                                string title = (string)moduleType.GetProperty("Title").GetValue(moduleobject);
+                                if (title != "")
+                                {
+                                    module.Title = title;
+                                }
+                                builder.OpenComponent(0, Type.GetType(Constants.DefaultContainer));
+                                builder.AddAttribute(1, "ModuleState", module);
+                                builder.CloseComponent();
+                            }
+                        }
+                        else
+                        {
+                            // module control does not exist with name specified
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (PageState.ModuleId != -1)
+                {
+                    Module module = PageState.Modules.Where(item => item.ModuleId == PageState.ModuleId).FirstOrDefault();
+                    if (module != null && module.Pane == Name)
+                    {
+                        // check if user is authorized to view module
+                        if (UserService.IsAuthorized(PageState.User, module.ViewPermissions))
+                        {
+                            builder.OpenComponent(0, Type.GetType(Constants.DefaultContainer));
+                            builder.AddAttribute(1, "ModuleState", module);
+                            builder.CloseComponent();
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (Module module in PageState.Modules.Where(item => item.Pane == Name).OrderBy(x => x.Order).ToArray())
+                    {
+                        // check if user is authorized to view module
+                        if (UserService.IsAuthorized(PageState.User, module.ViewPermissions))
+                        {
+                            builder.OpenComponent(0, Type.GetType(Constants.DefaultContainer));
+                            builder.AddAttribute(1, "ModuleState", module);
+                            builder.CloseComponent();
+                        }
+                    }
+                }
+            };
+        };
+    }
+}

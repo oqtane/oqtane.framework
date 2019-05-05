@@ -1,0 +1,40 @@
+﻿@using Oqtane.Services
+@using Oqtane.Models
+@using Oqtane.Modules
+@using Oqtane.Client.Modules.Controls
+@inherits ModuleBase
+
+@inject IPageService PageService
+
+@if (PageState.Pages == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th> </th>
+                <th>Path</th>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in PageState.Pages)
+            {
+                <tr>
+                    <td><ActionLink Action="Edit" Parameters="@($"id=" + p.PageId.ToString())" /></td>
+                    <td><ActionLink Action="Delete" Parameters="@($"id=" + p.PageId.ToString())" /></td>
+                    <td>@p.Path</td>
+                    <td>@p.Name</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <ActionLink Action="Add" Text="Add Page" />
+}
+
+@functions {
+    public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Admin; } }
+}

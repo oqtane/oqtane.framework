@@ -1,0 +1,26 @@
+﻿@using Oqtane.Client.Modules.HtmlText.Services
+@using Oqtane.Modules
+@using Oqtane.Shared.Modules.HtmlText.Models
+@using System.Net.Http;
+@using Oqtane.Client.Modules.Controls
+@inherits ModuleBase
+@inject HttpClient http
+@inject IUriHelper UriHelper
+
+@((MarkupString)content)
+
+<br /><ActionLink Action="Edit" /><br /><br />
+
+@functions {
+    string content;
+
+    protected override async Task OnInitAsync()
+    {
+        HtmlTextService htmltextservice = new HtmlTextService(http, UriHelper);
+        List<HtmlTextInfo> htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
+        if (htmltext != null)
+        {
+            content = htmltext.FirstOrDefault().Content;
+        }
+    }
+}

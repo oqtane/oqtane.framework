@@ -1,0 +1,67 @@
+﻿@using Microsoft.AspNetCore.Components.Routing
+@using Oqtane.Modules
+@using Oqtane.Services
+@using Oqtane.Shared
+@inherits ModuleBase
+@inject IUserService UserService
+
+@if (authorized)
+{
+    <NavLink class="btn btn-primary" href="@url">@text</NavLink>
+}
+
+@functions {
+    [Parameter]
+    private string Action { get; set; }
+
+    [Parameter]
+    private string Text { get; set; } // optional
+
+    [Parameter]
+    private string Parameters { get; set; } // optional
+
+    string text = "";
+    string url = "";
+    string parameters = "";
+    bool authorized = false;
+
+    protected override void OnInit()
+    {
+        text = Action;
+        if (!String.IsNullOrEmpty(Text))
+        {
+            text = Text;
+        }
+        if (!String.IsNullOrEmpty(Parameters))
+        {
+            parameters = Parameters;
+        }
+        url = EditUrl(Action, parameters);
+
+        string typename = ModuleState.ModuleType.Replace(Utilities.GetTypeNameClass(ModuleState.ModuleType) + ",", Action + ",");
+        Type moduleType = Type.GetType(typename);
+        if (moduleType != null)
+        {
+            var moduleobject = Activator.CreateInstance(moduleType);
+            SecurityAccessLevelEnum SecurityAccessLevel = (SecurityAccessLevelEnum)moduleType.GetProperty("SecurityAccessLevel").GetValue(moduleobject, null);
+            switch (SecurityAccessLevel)
+            {
+                case SecurityAccessLevelEnum.Anonymous:
+                    authorized = true;
+                    break;
+                case SecurityAccessLevelEnum.View:
+                    authorized = UserService.IsAuthorized(PageState.User, ModuleState.ViewPermissions);
+                    break;
+                case SecurityAccessLevelEnum.Edit:
+                    authorized = UserService.IsAuthorized(PageState.User, ModuleState.EditPermissions);
+                    break;
+                case SecurityAccessLevelEnum.Admin:
+                    authorized = UserService.IsAuthorized(PageState.User, Constants.AdminRole);
+                    break;
+                case SecurityAccessLevelEnum.Host:
+                    authorized = PageState.User.IsSuperUser;
+                    break;
+            }
+        }
+    }
+}

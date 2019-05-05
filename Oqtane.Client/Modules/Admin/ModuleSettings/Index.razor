@@ -1,0 +1,115 @@
+﻿@using Microsoft.AspNetCore.Components.Routing
+@using Oqtane.Services
+@using Oqtane.Models
+@using Oqtane.Modules
+@using Oqtane.Shared
+@using Oqtane.Client.Modules.Controls
+@inherits ModuleBase
+@inject IUriHelper UriHelper
+@inject ISkinService SkinService
+@inject IModuleService ModuleService
+@inject IPageModuleService PageModuleService
+
+<table class="form-group">
+    <tr>
+        <td>
+            <label for="Title" class="control-label">Title: </label>
+        </td>
+        <td>
+            <input type="text" name="Title" class="form-control" bind="@title" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Container" class="control-label">Container: </label>
+        </td>
+        <td>
+            <select class="form-control" bind="@containertype">
+                <option value="">&lt;Select Container&gt;</option>
+                @foreach (KeyValuePair<string, string> container in containers)
+                {
+                    <option value="@container.Key">@container.Value</option>
+                }
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="ViewPermissions" class="control-label">View Permissions: </label>
+        </td>
+        <td>
+            <input type="text" name="ViewPermissions" class="form-control" bind="@viewpermissions" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="EditPermissions" class="control-label">Edit Permissions: </label>
+        </td>
+        <td>
+            <input type="text" name="EditPermissions" class="form-control" bind="@editpermissions" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Page" class="control-label">Page: </label>
+        </td>
+        <td>
+            <select class="form-control" bind="@pageid">
+                @foreach (Page p in PageState.Pages)
+                {
+                    <option value="@p.PageId">@p.Name</option>
+                }
+            </select>
+        </td>
+    </tr>
+</table>
+<button class="btn btn-success" onclick="@SaveModule">Save</button>
+<NavLink class="btn btn" href="@NavigateUrl()">Cancel</NavLink>
+
+@functions {
+    public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Edit; } }
+
+    Dictionary<string, string> containers = new Dictionary<string, string>();
+    string title;
+    string containertype;
+    string viewpermissions;
+    string editpermissions;
+    string pageid;
+
+    protected override async Task OnInitAsync()
+    {
+        title = ModuleState.Title;
+        List<Skin> Skins = await SkinService.GetSkinsAsync();
+        foreach (Skin skin in Skins)
+        {
+            foreach (string container in skin.ContainerControls.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                containers.Add(container, skin.Name + " - " + @Utilities.GetTypeNameClass(container));
+            }
+        }
+        containertype = ModuleState.ContainerType;
+        viewpermissions = ModuleState.ViewPermissions;
+        editpermissions = ModuleState.EditPermissions;
+        pageid = ModuleState.PageId.ToString();
+    }
+
+    private async Task SaveModule()
+    {
+        Module module = ModuleState;
+        module.ViewPermissions = viewpermissions;
+        module.EditPermissions = editpermissions;
+        await ModuleService.UpdateModuleAsync(module);
+
+        PageModule pagemodule = new PageModule();
+        pagemodule.PageModuleId = ModuleState.PageModuleId;
+        pagemodule.PageId = Int32.Parse(pageid);
+        pagemodule.ModuleId = ModuleState.ModuleId;
+        pagemodule.Title = title;
+        pagemodule.Pane = ModuleState.Pane;
+        pagemodule.Order = ModuleState.Order;
+        pagemodule.ContainerType = containertype;
+        await PageModuleService.UpdatePageModuleAsync(pagemodule);
+
+        UriHelper.NavigateTo(NavigateUrl(true));
+    }
+}

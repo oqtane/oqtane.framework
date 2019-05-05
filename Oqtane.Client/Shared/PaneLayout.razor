@@ -1,0 +1,28 @@
+﻿@using System
+@using Oqtane.Shared
+
+@DynamicComponent
+
+@functions {
+    [CascadingParameter]
+    protected PageState PageState { get; set; }
+
+    RenderFragment DynamicComponent { get; set; }
+
+    protected override void OnInit()
+    {
+        DynamicComponent = builder =>
+        {
+            Type layoutType = Type.GetType(PageState.Page.LayoutType);
+            if (layoutType != null)
+            {
+                builder.OpenComponent(0, layoutType);
+                builder.CloseComponent();
+            }
+            else
+            {
+            // layout does not exist with type specified
+        }
+        };
+    }
+}

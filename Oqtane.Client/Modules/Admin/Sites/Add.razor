@@ -1,0 +1,46 @@
+﻿@using Microsoft.AspNetCore.Components.Routing
+@using Oqtane.Models
+@using Oqtane.Services
+@using Oqtane.Modules
+@using Oqtane.Client.Modules.Controls
+@inherits ModuleBase
+@inject IUriHelper UriHelper
+@inject ISiteService SiteService
+
+<table class="form-group">
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Name: </label>
+        </td>
+        <td>
+            <input class="form-control" bind="@name" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Alias: </label>
+        </td>
+        <td>
+            <input class="form-control" bind="@alias" />
+        </td>
+    </tr>
+</table>
+<button class="btn btn-success" onclick="@SaveSite">Save</button>
+<NavLink class="btn btn" href="@NavigateUrl()">Cancel</NavLink>
+
+@functions {
+    public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Host; } }
+
+    string name;
+    string alias;
+
+    private async Task SaveSite()
+    {
+        Site site = new Site();
+        site.Name = name;
+        site.Logo = "";
+        await SiteService.AddSiteAsync(site);
+        StateHasChanged();
+        UriHelper.NavigateTo(NavigateUrl());
+    }
+}

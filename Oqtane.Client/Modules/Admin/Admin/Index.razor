@@ -1,0 +1,34 @@
+﻿@using Microsoft.AspNetCore.Components.Routing
+@using Oqtane.Modules
+@using Oqtane.Services
+@using Oqtane.Models;
+@using Oqtane.Client.Modules.Controls
+@inherits ModuleBase
+@inject IPageService PageService
+@inject IUserService UserService
+
+<ul class="list-group">
+    @foreach (var p in pages)
+    {
+        if (p.IsNavigation && UserService.IsAuthorized(PageState.User, p.ViewPermissions))
+        {
+            string url = PageState.Alias + p.Path;
+            <li class="list-group-item">
+                <NavLink class="nav-link" href="@url" Match="NavLinkMatch.All">
+                    <span class="oi @p.Icon" aria-hidden="true"></span> @p.Name
+                </NavLink>
+            </li>
+        }
+    }
+</ul>
+<br /><br />
+
+@functions {
+    List<Page> pages;
+
+    protected override void OnInit()
+    {
+        // display list of pages which are children of current page
+        pages = PageState.Pages.Where(item => item.ParentId == PageState.Page.PageId).ToList();
+    }
+}

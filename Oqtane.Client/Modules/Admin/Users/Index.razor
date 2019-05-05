@@ -1,0 +1,41 @@
+﻿@using Oqtane.Services
+@using Oqtane.Models
+@using Oqtane.Modules
+@using Oqtane.Client.Modules.Controls
+@inherits ModuleBase
+
+@inject IUserService UserService
+
+@if (Users == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var User in Users)
+            {
+                <tr>
+                    <td>@User.Username</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@functions {
+    public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Host; } }
+
+    List<User> Users;
+
+    protected override async Task OnInitAsync()
+    {
+        Users = await UserService.GetUsersAsync();
+    }
+}

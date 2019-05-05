@@ -1,0 +1,173 @@
+﻿@using Microsoft.AspNetCore.Components.Routing
+@using Oqtane.Models
+@using Oqtane.Services
+@using Oqtane.Modules
+@using Oqtane.Shared
+@using Oqtane.Client.Modules.Controls
+@inherits ModuleBase
+@inject IUriHelper UriHelper
+@inject IPageService PageService
+@inject ISkinService  SkinService
+
+<table class="form-group">
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Name: </label>
+        </td>
+        <td>
+            <input class="form-control" bind="@name" readonly />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Path: </label>
+        </td>
+        <td>
+            <input class="form-control" bind="@path" readonly />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Parent: </label>
+        </td>
+        <td>
+            <select class="form-control" bind="@parentid" readonly>
+                <option value="">&lt;Select Parent&gt;</option>
+                @foreach (Page p in PageState.Pages)
+                {
+                    <option value="@p.PageId">@p.Name</option>
+                }
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Order: </label>
+        </td>
+        <td>
+            <input class="form-control" bind="@order" readonly />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Navigation? </label>
+        </td>
+        <td>
+            <select class="form-control" bind="@isnavigation" readonly>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Skin: </label>
+        </td>
+        <td>
+            <select class="form-control" bind="@skintype">
+                <option value="">&lt;Select Skin&gt;</option>
+                @foreach (KeyValuePair<string, string> skin in skins)
+                {
+                    <option value="@skin.Key">@skin.Value</option>
+                }
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Layout: </label>
+        </td>
+        <td>
+            <select class="form-control" bind="@layouttype">
+                <option value="">&lt;Select Layout&gt;</option>
+                @foreach (KeyValuePair<string, string> panelayout in panelayouts)
+                {
+                    <option value="@panelayout.Key">@panelayout.Value</option>
+                }
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Icon: </label>
+        </td>
+        <td>
+            <input class="form-control" bind="@icon" readonly />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">View Permissions: </label>
+        </td>
+        <td>
+            <input class="form-control" bind="@viewpermissions" readonly />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Edit Permissions: </label>
+        </td>
+        <td>
+            <input class="form-control" bind="@editpermissions" readonly />
+        </td>
+    </tr>
+</table>
+<button class="btn btn-success" onclick="@DeletePage">Delete</button>
+<NavLink class="btn btn" href="@NavigateUrl()">Cancel</NavLink>
+
+@functions {
+    public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Admin; } }
+
+    Dictionary<string, string> skins = new Dictionary<string, string>();
+    Dictionary<string, string> panelayouts = new Dictionary<string, string>();
+
+    int PageId;
+    string name;
+    string path;
+    string parentid;
+    string order;
+    string isnavigation;
+    string skintype;
+    string layouttype;
+    string icon;
+    string viewpermissions;
+    string editpermissions;
+
+    protected override async Task OnInitAsync()
+    {
+        List<Skin> Skins = await SkinService.GetSkinsAsync();
+        foreach (Skin skin in Skins)
+        {
+            foreach (string skincontrol in skin.SkinControls.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                skins.Add(skincontrol, skin.Name + " - " + @Utilities.GetTypeNameClass(skincontrol));
+            }
+            foreach (string panelayout in skin.PaneLayouts.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                panelayouts.Add(panelayout, skin.Name + " - " + @Utilities.GetTypeNameClass(panelayout));
+            }
+        }
+
+        PageId = Int32.Parse(PageState.QueryString["id"]);
+        Page p = PageState.Pages.Where(item => item.PageId == PageId).FirstOrDefault();
+        if (p != null)
+        {
+            name = p.Name;
+            path = p.Path;
+
+            order = p.Order.ToString();
+            isnavigation = p.IsNavigation.ToString();
+            skintype = p.SkinType;
+            layouttype = p.LayoutType;
+            icon = p.Icon;
+            viewpermissions = p.ViewPermissions;
+            editpermissions = p.EditPermissions;
+        }
+    }
+
+    private async Task DeletePage()
+    {
+        await PageService.DeletePageAsync(Int32.Parse(PageState.QueryString["id"]));
+        UriHelper.NavigateTo(PageState.Alias);
+    }
+}

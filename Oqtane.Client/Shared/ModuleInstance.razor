@@ -1,0 +1,36 @@
+﻿@using Oqtane.Models
+@using Oqtane.Shared
+
+@DynamicComponent
+
+@functions {
+    [CascadingParameter]
+    protected PageState PageState { get; set; }
+
+    [CascadingParameter]
+    private Module ModuleState { get; set; }
+
+    RenderFragment DynamicComponent { get; set; }
+
+    protected override void OnInit()
+    {
+        DynamicComponent = builder =>
+        {
+            string typename = ModuleState.ModuleType;
+            if (PageState.Control == "Settings") // module settings are a core component
+            {
+                typename = Constants.DefaultSettingsControl;
+            }
+            Type moduleType = Type.GetType(typename);
+            if (moduleType != null)
+            {
+                builder.OpenComponent(0, moduleType);
+                builder.CloseComponent();
+            }
+            else
+            {
+                // module control does not exist with typename specified
+            }
+        };
+    }
+}

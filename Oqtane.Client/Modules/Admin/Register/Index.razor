@@ -1,0 +1,29 @@
+﻿@using Microsoft.AspNetCore.Components.Routing
+@using Oqtane.Shared
+@using Oqtane.Modules
+@using Microsoft.JSInterop
+@using Oqtane.Client.Modules.Controls
+@inherits ModuleBase
+@inject IUriHelper UriHelper
+@inject IJSRuntime jsRuntime
+
+
+<div class="container">
+    <div class="form-group">
+        <label for="Username" class="control-label">Email: </label>
+        <input type="text" name="Username" class="form-control" placeholder="Username" bind="@Username" />
+    </div>
+    <div class="form-group">
+        <label for="Password" class="control-label">Password: </label>
+        <input type="password" name="Password" class="form-control" placeholder="Password" bind="@Password" />
+    </div>
+    <button type="button" class="btn btn-primary">Register</button>
+    <NavLink class="btn btn" href="/">Cancel</NavLink>
+</div>
+
+@functions {
+    public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Anonymous; } }
+
+    public string Username { get; set; } = "";
+    public string Password { get; set; } = "";
+}

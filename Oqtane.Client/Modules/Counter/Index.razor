@@ -1,0 +1,15 @@
+@using Oqtane.Modules
+@inherits ModuleBase
+Current count: @currentCount
+<br />
+<button class="btn btn-primary" onclick="@IncrementCount">Click me</button>
+<br /><br />
+
+@functions {
+    int currentCount = 0;
+
+    void IncrementCount()
+    {
+        currentCount++;
+    }
+}

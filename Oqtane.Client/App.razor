@@ -1,0 +1,16 @@
+﻿@using Oqtane.Shared
+@using Oqtane.Client.Shared
+
+<CascadingValue Value="@PageState">
+    <SiteRouter OnStateChange="@ChangeState" />
+</CascadingValue>
+
+@functions {
+    private PageState PageState { get; set; }
+
+    private void ChangeState(PageState pagestate)
+    {
+        PageState = pagestate;
+        StateHasChanged();
+    }
+}

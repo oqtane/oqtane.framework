@@ -1,0 +1,42 @@
+﻿@using Oqtane.Services
+@using Oqtane.Models
+@using Oqtane.Modules
+@using Oqtane.Client.Modules.Controls
+@inherits ModuleBase
+
+@inject ISiteService SiteService
+
+@if (sites == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var site in sites)
+            {
+                <tr>
+                    <td>@site.Name</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <ActionLink Action="Add" Text="Add Site" />
+}
+
+@functions {
+    public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Host; } }
+
+    List<Site> sites;
+
+    protected override async Task OnInitAsync()
+    {
+        sites = await SiteService.GetSitesAsync();
+    }
+}

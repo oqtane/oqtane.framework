@@ -1,0 +1,45 @@
+﻿@using Oqtane.Models
+@using Oqtane.Shared
+
+<CascadingValue Value="@ModuleState">
+    @DynamicComponent
+</CascadingValue>
+
+@functions {
+    [CascadingParameter]
+    protected PageState PageState { get; set; }
+
+    [Parameter]
+    private Module ModuleState { get; set; }
+
+    string container;
+
+    RenderFragment DynamicComponent { get; set; }
+
+    protected override void OnInit()
+    {
+        DynamicComponent = builder =>
+        {
+            Type containerType = Type.GetType(container);
+            if (containerType != null)
+            {
+                builder.OpenComponent(0, containerType);
+                builder.CloseComponent();
+            }
+            else
+            {
+                // container does not exist with type specified
+            }
+        };
+    }
+
+    protected override Task OnParametersSetAsync()
+    {
+        container = ModuleState.ContainerType;
+        if (PageState.ModuleId != -1 && PageState.Control != "")
+        {
+            container = Constants.DefaultAdminContainer;
+        }
+        return Task.CompletedTask;
+    }
+}
