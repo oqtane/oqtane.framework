@@ -1,2 +1,2 @@
 # framework
-.NET Core Web Application Framework for Blazor
+Oqtane is .NET Core Web Application Framework for Blazor
