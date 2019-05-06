@@ -19,6 +19,10 @@ Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalke
 
 At this point Oqtane offers a minimum of desired functionality and is not recommended for production usage. The expectation is that Oqtane will rapidly evolve as a community driven open source project. At this point in time we do not promise any upgrade path from one version to the next, and developers should expect breaking changes as the framework stabilizes.
 
+# Release Announcement
+
+[Announcing Oqtane... a Modular Application Framework for Blazor!](https://www.siliqon.com/Home/Post/797)
+
 # Example Screenshots
 
 A simplistic login flow ( note that a full authentication story has not been implemented at this point ):
