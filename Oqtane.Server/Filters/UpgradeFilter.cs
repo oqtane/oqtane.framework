@@ -6,6 +6,7 @@ using System.Reflection;
 using DbUp;
 using System.Data.SqlClient;
 using System.Threading;
+using System.IO;
 
 namespace Oqtane.Filters
 {
@@ -67,13 +68,13 @@ namespace Oqtane.Filters
                     {
                         connection.Open();
                         SqlCommand command;
-                        if (connectionString.ToLower().Contains("attachdbfilename="))
+                        if (connectionString.ToLower().Contains("attachdbfilename=")) // LocalDB
                         {
-                            command = new SqlCommand("CREATE DATABASE " + databaseName + " ON ( NAME = '" + databaseName + "', FILENAME = '" + datadirectory + "\\" + databaseName + ".mdf')", connection);
+                            command = new SqlCommand("CREATE DATABASE [" + databaseName + "] ON ( NAME = '" + databaseName + "', FILENAME = '" + datadirectory + "\\" + databaseName + ".mdf')", connection);
                         }
                         else
                         {
-                            command = new SqlCommand("CREATE DATABASE " + databaseName, connection);
+                            command = new SqlCommand("CREATE DATABASE [" + databaseName + "]", connection);
                         }
                         command.ExecuteNonQuery();
                     }
@@ -82,13 +83,23 @@ namespace Oqtane.Filters
                 {
                     throw ex;
                 }
+
                 // sleep to allow SQL server to attach new database
                 Thread.Sleep(5000);
             }
 
+            // get initialization script and update connectionstring in Tenants seed data
+            string initializationScript = "";
+            using (StreamReader reader = new StreamReader(Directory.GetCurrentDirectory() + "\\Scripts\\Initialize.sql"))
+            {
+                initializationScript = reader.ReadToEnd();
+            }
+            initializationScript = initializationScript.Replace("{ConnectionString}", connectionString);
+
             // handle upgrade scripts
             var dbUpgradeConfig = DeployChanges.To.SqlDatabase(connectionString)
-                .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly());
+                .WithScript(new DbUp.Engine.SqlScript("Initialize.sql", initializationScript))
+                .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly()); // upgrade scripts should be added to /Scripts folder as Embedded Resources
             var dbUpgrade = dbUpgradeConfig.Build();
             if (dbUpgrade.IsUpgradeRequired())
             {

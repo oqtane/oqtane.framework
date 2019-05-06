@@ -13,7 +13,7 @@
     <Product>Oqtane</Product>
     <Authors>Shaun Walker</Authors>
     <Company>.NET Foundation</Company>
-    <Description>.NET Core Web Application Framework for Blazor</Description>
+    <Description>Modular Application Framework for Blazor</Description>
     <Copyright>.NET Foundation</Copyright>
     <PackageProjectUrl>https://www.oqtane.org</PackageProjectUrl>
     <RepositoryUrl>https://github.com/oqtane</RepositoryUrl>
@@ -26,7 +26,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Scripts\Initialize.sql" />
+    <Content Include="Scripts\Initialize.sql" />
   </ItemGroup>
 
   <ItemGroup>

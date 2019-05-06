@@ -152,7 +152,7 @@ Create seed data
 SET IDENTITY_INSERT [dbo].[Tenant] ON 
 GO
 INSERT [dbo].[Tenant] ([TenantId], [Alias], [DBConnectionString], [DBSchema], [SiteId]) 
-VALUES (1, N'localhost:44357', N'Data Source=(LocalDb)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Oqtane.mdf;Initial Catalog=Oqtane;Integrated Security=SSPI;', N'', 1)
+VALUES (1, N'localhost:44357', N'{ConnectionString}', N'', 1)
 GO
 SET IDENTITY_INSERT [dbo].[Tenant] OFF
 GO
@@ -336,3 +336,5 @@ VALUES (4, N'member', N'Member', N'Members;', 0)
 GO
 SET IDENTITY_INSERT [dbo].[User] OFF
 GO
+
+
