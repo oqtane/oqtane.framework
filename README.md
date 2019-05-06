@@ -18,3 +18,26 @@ To get started with Oqtane:
 Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Initially created as a proof of concept, Oqtane is a native Blazor application written from the ground up using modern .NET Core technology. It is a modular framework offering a fully dynamic page compositing model, multi-site support, designer friendly templates ( skins ), and extensibility via third party modules.
 
 At this point Oqtane offers a minimum of desired functionality and is not recommended for production usage. The expectation is that Oqtane will rapidly evolve as a community driven open source project. At this point in time we do not promise any upgrade path from one version to the next, and developers should expect breaking changes as the framework stabilizes.
+
+# Example Screenshots
+
+A simplistic login flow ( note that a full authentication story has not been implemented at this point ):
+
+![Login](https://github.com/oqtane/framework/blob/master/screenshot1.png?raw=true "Login")
+
+Main view for authorized users, allowing full management of modules and content:
+
+![Admin View](https://github.com/oqtane/framework/blob/master/screenshot2.png?raw=true "Admin View")
+
+Content editing user experience using modal dialog:
+
+![Edit Content](https://github.com/oqtane/framework/blob/master/screenshot3.png?raw=true "Edit Content")
+
+Context menu for managing specific module on page:
+
+![Manage Module](https://github.com/oqtane/framework/blob/master/screenshot4.png?raw=true "Manage Module")
+
+Control panel for adding, editing, and deleting pages as well as adding new modules to a page:
+
+![Manage Page](https://github.com/oqtane/framework/blob/master/screenshot5.png?raw=true "Manage Page")
+
