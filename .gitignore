@@ -1,0 +1,12 @@
+.vs/
+bin/
+obj/
+*.user
+artifacts/
+msbuild.binlog
+.vscode/
+*.binlog
+
+Oqtane.Server/appsettings.json
+Oqtane.Server/Data/*.mdf
+Oqtane.Server/Data/*.ldf
