@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 
 namespace Oqtane.Services
 {
-    public interface ISkinService
+    public interface IThemeService
     {
-        Task<List<Skin>> GetSkinsAsync();
+        Task<List<Theme>> GetThemesAsync();
     }
 }

@@ -1,0 +1,40 @@
+﻿@using Oqtane.Services
+@using Oqtane.Models
+@using Oqtane.Modules
+@inherits ModuleBase
+
+@inject IThemeService ThemeService
+
+@if (Themes == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var theme in Themes)
+            {
+                <tr>
+                    <td>@theme.Name</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@functions {
+    public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Host; } }
+
+    List<Theme> Themes;
+
+    protected override async Task OnInitAsync()
+    {
+        Themes = await ThemeService.GetThemesAsync();
+    }
+}

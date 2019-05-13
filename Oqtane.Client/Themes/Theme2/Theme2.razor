@@ -1,0 +1,31 @@
+﻿@using Oqtane.Themes
+@using Oqtane.Client.Themes.Controls
+@using Oqtane.Client.Shared
+@inherits ThemeBase
+
+<div class="sidebar">
+    <div align="center"><Logo /></div>
+    <Menu />
+</div>
+
+<div class="main">
+    <div class="top-row px-4">
+        <h1>@PageState.Page.Name - Theme #2</h1> <div class="ml-md-auto"><Profile /> <Login /> <ControlPanel /></div>
+    </div>
+    <div class="container">
+        <div class="row px-4">
+            <Pane Name="Top" />
+        </div>
+        <div class="row px-4">
+            <Pane Name="Bottom" />
+        </div>
+        <div class="row px-4">
+            <Pane Name="Admin" />
+        </div>
+    </div>
+</div>
+
+@functions {
+    public override string Name { get { return "Theme2"; } }
+    public override string Panes { get { return "Top;Bottom"; } }
+}

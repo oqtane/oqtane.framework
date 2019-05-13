@@ -32,7 +32,7 @@ CREATE TABLE [dbo].[Page](
 	[SiteId] [int] NOT NULL,
 	[Path] [nvarchar](50) NOT NULL,
 	[Name] [nvarchar](50) NOT NULL,
-	[SkinType] [nvarchar](200) NULL,
+	[ThemeType] [nvarchar](200) NULL,
 	[Icon] [nvarchar](50) NOT NULL,
 	[Panes] [nvarchar](50) NOT NULL,
 	[ViewPermissions] [nvarchar](500) NOT NULL,
@@ -167,38 +167,38 @@ GO
 
 SET IDENTITY_INSERT [dbo].[Page] ON 
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [SkinType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
-VALUES (1, 1, N'Page1', N'', N'Oqtane.Client.Skins.Skin1.Skin1, Oqtane.Client', N'oi-home', N'Left;Right', N'All Users', N'Administrators', NULL, 1, 1, N'')
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
+VALUES (1, 1, N'Page1', N'', N'Oqtane.Client.Themes.Theme1.Theme1, Oqtane.Client', N'oi-home', N'Left;Right', N'All Users', N'Administrators', NULL, 1, 1, N'')
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [SkinType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
-VALUES (2, 1, N'Page2', N'page2', N'Oqtane.Client.Skins.Skin2.Skin2, Oqtane.Client', N'oi-plus', N'Top;Bottom', N'Administrators;Editors;', N'Administrators', NULL, 3, 1, N'')
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
+VALUES (2, 1, N'Page2', N'page2', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'oi-plus', N'Top;Bottom', N'Administrators;Editors;', N'Administrators', NULL, 3, 1, N'')
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [SkinType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
-VALUES (3, 1, N'Page3', N'page3', N'Oqtane.Client.Skins.Skin3.Skin3, Oqtane.Client', N'oi-list-rich', N'Left;Right', N'All Users', N'Administrators', NULL, 3, 1, N'Oqtane.Client.Skins.Skin3.HorizontalLayout, Oqtane.Client')
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
+VALUES (3, 1, N'Page3', N'page3', N'Oqtane.Client.Themes.Theme3.Theme3, Oqtane.Client', N'oi-list-rich', N'Left;Right', N'All Users', N'Administrators', NULL, 3, 1, N'Oqtane.Client.Themes.Theme3.HorizontalLayout, Oqtane.Client')
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [SkinType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
-VALUES (4, 1, N'Admin', N'admin', N'Oqtane.Client.Skins.Skin2.Skin2, Oqtane.Client', N'oi-home', N'Top;Bottom', N'Administrators', N'Administrators', NULL, 7, 1, N'')
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
+VALUES (4, 1, N'Admin', N'admin', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'oi-home', N'Top;Bottom', N'Administrators', N'Administrators', NULL, 7, 1, N'')
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [SkinType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
-VALUES (5, 1, N'Page Management', N'admin/pages', N'Oqtane.Client.Skins.Skin2.Skin2, Oqtane.Client', N'', N'Top;Bottom', N'Administrators', N'Administrators', 4, 1, 1, N'')
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
+VALUES (5, 1, N'Page Management', N'admin/pages', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', N'Administrators', N'Administrators', 4, 1, 1, N'')
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [SkinType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
-VALUES (6, 1, N'Login', N'login', N'Oqtane.Client.Skins.Skin2.Skin2, Oqtane.Client', N'', N'Top;Bottom', N'All Users', N'Administrators', NULL, 1, 0, N'')
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
+VALUES (6, 1, N'Login', N'login', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', N'All Users', N'Administrators', NULL, 1, 0, N'')
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [SkinType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
-VALUES (7, 1, N'Register', N'register', N'Oqtane.Client.Skins.Skin2.Skin2, Oqtane.Client', N'', N'Top;Bottom', N'All Users', N'Administrators', NULL, 1, 0, N'')
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
+VALUES (7, 1, N'Register', N'register', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', N'All Users', N'Administrators', NULL, 1, 0, N'')
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [SkinType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
-VALUES (8, 1, N'Site Management', N'admin/sites', N'Oqtane.Client.Skins.Skin2.Skin2, Oqtane.Client', N'', N'Top;Bottom', N'Administrators', N'Administrators', 4, 0, 1, N'')
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
+VALUES (8, 1, N'Site Management', N'admin/sites', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', N'Administrators', N'Administrators', 4, 0, 1, N'')
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [SkinType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
-VALUES (9, 1, N'User Management', N'admin/users', N'Oqtane.Client.Skins.Skin2.Skin2, Oqtane.Client', N'', N'Top;Bottom', N'Administrators', N'Administrators', 4, 2, 1, N'')
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
+VALUES (9, 1, N'User Management', N'admin/users', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', N'Administrators', N'Administrators', 4, 2, 1, N'')
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [SkinType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
-VALUES (10, 1, N'Module Management', N'admin/modules', N'Oqtane.Client.Skins.Skin2.Skin2, Oqtane.Client', N'', N'Top;Bottom', N'Administrators', N'Administrators', 4, 3, 1, N'')
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
+VALUES (10, 1, N'Module Management', N'admin/modules', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', N'Administrators', N'Administrators', 4, 3, 1, N'')
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [SkinType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
-VALUES (11, 1, N'Skin Management', N'admin/skins', N'Oqtane.Client.Skins.Skin2.Skin2, Oqtane.Client', N'', N'Top;Bottom', N'Administrators', N'Administrators', 4, 4, 1, N'')
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
+VALUES (11, 1, N'Theme Management', N'admin/themes', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', N'Administrators', N'Administrators', 4, 4, 1, N'')
 GO
 SET IDENTITY_INSERT [dbo].[Page] OFF 
 GO
@@ -248,7 +248,7 @@ INSERT [dbo].[Module] ([ModuleId], [SiteId], [ModuleDefinitionName], [ViewPermis
 VALUES (14, 1, N'Oqtane.Client.Modules.Admin.ModuleDefinitions, Oqtane.Client', N'Administrators', N'Administrators')
 GO
 INSERT [dbo].[Module] ([ModuleId], [SiteId], [ModuleDefinitionName], [ViewPermissions], [EditPermissions]) 
-VALUES (15, 1, N'Oqtane.Client.Modules.Admin.Skins, Oqtane.Client', N'Administrators', N'Administrators')
+VALUES (15, 1, N'Oqtane.Client.Modules.Admin.Themes, Oqtane.Client', N'Administrators', N'Administrators')
 GO
 SET IDENTITY_INSERT [dbo].[Module] OFF 
 GO
@@ -256,49 +256,49 @@ GO
 SET IDENTITY_INSERT [dbo].[PageModule] ON 
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType]) 
-VALUES (1, 1, 1, N'Weather', N'Right', 0, N'Oqtane.Client.Skins.Skin1.Container1, Oqtane.Client')
+VALUES (1, 1, 1, N'Weather', N'Right', 0, N'Oqtane.Client.Themes.Theme1.Container1, Oqtane.Client')
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType]) 
-VALUES (2, 1, 2, N'Counter', N'Left', 1, N'Oqtane.Client.Skins.Skin1.Container1, Oqtane.Client')
+VALUES (2, 1, 2, N'Counter', N'Left', 1, N'Oqtane.Client.Themes.Theme1.Container1, Oqtane.Client')
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType]) 
-VALUES (3, 1, 3, N'Text', N'Left', 0, N'Oqtane.Client.Skins.Skin1.Container1, Oqtane.Client')
+VALUES (3, 1, 3, N'Text', N'Left', 0, N'Oqtane.Client.Themes.Theme1.Container1, Oqtane.Client')
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType]) 
-VALUES (4, 2, 4, N'Weather', N'Top', 0, N'Oqtane.Client.Skins.Skin2.Container2, Oqtane.Client')
+VALUES (4, 2, 4, N'Weather', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client')
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType]) 
-VALUES (5, 2, 5, N'Text', N'Top', 1, N'Oqtane.Client.Skins.Skin1.Container1, Oqtane.Client')
+VALUES (5, 2, 5, N'Text', N'Top', 1, N'Oqtane.Client.Themes.Theme1.Container1, Oqtane.Client')
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType]) 
-VALUES (6, 3, 6, N'Text', N'Left', 0, N'Oqtane.Client.Skins.Skin1.Container1, Oqtane.Client')
+VALUES (6, 3, 6, N'Text', N'Left', 0, N'Oqtane.Client.Themes.Theme1.Container1, Oqtane.Client')
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType]) 
-VALUES (7, 3, 7, N'Text', N'Right', 0, N'Oqtane.Client.Skins.Skin1.Container1, Oqtane.Client')
+VALUES (7, 3, 7, N'Text', N'Right', 0, N'Oqtane.Client.Themes.Theme1.Container1, Oqtane.Client')
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType]) 
-VALUES (8, 5, 8, N'Page Management', N'Top', 0, N'Oqtane.Client.Skins.Skin2.Container2, Oqtane.Client')
+VALUES (8, 5, 8, N'Page Management', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client')
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType]) 
-VALUES (9, 6, 9, N'Login', N'Top', 0, N'Oqtane.Client.Skins.Skin2.Container2, Oqtane.Client')
+VALUES (9, 6, 9, N'Login', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client')
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType]) 
-VALUES (10, 7, 10, N'Register', N'Top', 0, N'Oqtane.Client.Skins.Skin2.Container2, Oqtane.Client')
+VALUES (10, 7, 10, N'Register', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client')
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType]) 
-VALUES (11, 4, 11, N'Administration', N'Top', 0, N'Oqtane.Client.Skins.Skin2.Container2, Oqtane.Client')
+VALUES (11, 4, 11, N'Administration', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client')
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType]) 
-VALUES (12, 8, 12, N'Site Management', N'Top', 0, N'Oqtane.Client.Skins.Skin2.Container2, Oqtane.Client')
+VALUES (12, 8, 12, N'Site Management', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client')
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType]) 
-VALUES (13, 9, 13, N'User Management', N'Top', 0, N'Oqtane.Client.Skins.Skin2.Container2, Oqtane.Client')
+VALUES (13, 9, 13, N'User Management', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client')
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType]) 
-VALUES (14, 10, 14, N'Module Management', N'Top', 0, N'Oqtane.Client.Skins.Skin2.Container2, Oqtane.Client')
+VALUES (14, 10, 14, N'Module Management', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client')
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType]) 
-VALUES (15, 11, 15, N'Skin Management', N'Top', 0, N'Oqtane.Client.Skins.Skin2.Container2, Oqtane.Client')
+VALUES (15, 11, 15, N'Theme Management', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client')
 GO
 SET IDENTITY_INSERT [dbo].[PageModule] OFF 
 GO

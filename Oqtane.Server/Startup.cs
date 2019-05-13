@@ -59,7 +59,7 @@ namespace Oqtane.Server
 
             // register singleton core services
             services.AddScoped<IModuleDefinitionService, ModuleDefinitionService>();
-            services.AddScoped<ISkinService, SkinService>();
+            services.AddScoped<IThemeService, ThemeService>();
 
             // register scoped core services
             services.AddScoped<ITenantService, TenantService>();
@@ -107,7 +107,7 @@ namespace Oqtane.Server
 
             // register singleton scoped core services
             services.AddSingleton<IModuleDefinitionRepository, ModuleDefinitionRepository>();
-            services.AddSingleton<ISkinRepository, SkinRepository>();
+            services.AddSingleton<IThemeRepository, ThemeRepository>();
 
             // register transient scoped core services
             services.AddTransient<ITenantRepository, TenantRepository>();
@@ -207,7 +207,7 @@ namespace Oqtane.Server
 
             // register singleton scoped core services
             services.AddSingleton<IModuleDefinitionRepository, ModuleDefinitionRepository>();
-            services.AddSingleton<ISkinRepository, SkinRepository>();
+            services.AddSingleton<IThemeRepository, ThemeRepository>();
 
             // register transient scoped core services
             services.AddTransient<ITenantRepository, TenantRepository>();

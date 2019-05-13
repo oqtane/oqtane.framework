@@ -7,7 +7,7 @@
 @inherits ModuleBase
 @inject IUriHelper UriHelper
 @inject IPageService PageService
-@inject ISkinService  SkinService
+@inject IThemeService  ThemeService
 
 <table class="form-group">
     <tr>
@@ -61,14 +61,14 @@
     </tr>
     <tr>
         <td>
-            <label for="Name" class="control-label">Skin: </label>
+            <label for="Name" class="control-label">Theme: </label>
         </td>
         <td>
-            <select class="form-control" bind="@skintype">
-                <option value="">&lt;Select Skin&gt;</option>
-                @foreach (KeyValuePair<string, string> skin in skins)
+            <select class="form-control" bind="@themetype">
+                <option value="">&lt;Select Theme&gt;</option>
+                @foreach (KeyValuePair<string, string> item in themes)
                 {
-                    <option value="@skin.Key">@skin.Value</option>
+                    <option value="@item.Key">@item.Value</option>
                 }
             </select>
         </td>
@@ -118,7 +118,7 @@
 @functions {
     public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Admin; } }
 
-    Dictionary<string, string> skins = new Dictionary<string, string>();
+    Dictionary<string, string> themes = new Dictionary<string, string>();
     Dictionary<string, string> panelayouts = new Dictionary<string, string>();
 
     int PageId;
@@ -127,7 +127,7 @@
     string parentid;
     string order;
     string isnavigation;
-    string skintype;
+    string themetype;
     string layouttype;
     string icon;
     string viewpermissions;
@@ -135,16 +135,16 @@
 
     protected override async Task OnInitAsync()
     {
-        List<Skin> Skins = await SkinService.GetSkinsAsync();
-        foreach (Skin skin in Skins)
+        List<Theme> Themes = await ThemeService.GetThemesAsync();
+        foreach (Theme theme in Themes)
         {
-            foreach (string skincontrol in skin.SkinControls.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+            foreach (string themeControl in theme.ThemeControls.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
             {
-                skins.Add(skincontrol, skin.Name + " - " + @Utilities.GetTypeNameClass(skincontrol));
+                themes.Add(themeControl, theme.Name + " - " + @Utilities.GetTypeNameClass(themeControl));
             }
-            foreach (string panelayout in skin.PaneLayouts.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+            foreach (string panelayout in theme.PaneLayouts.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
             {
-                panelayouts.Add(panelayout, skin.Name + " - " + @Utilities.GetTypeNameClass(panelayout));
+                panelayouts.Add(panelayout, theme.Name + " - " + @Utilities.GetTypeNameClass(panelayout));
             }
         }
 
@@ -164,7 +164,7 @@
             }
             order = p.Order.ToString();
             isnavigation = p.IsNavigation.ToString();
-            skintype = p.SkinType;
+            themetype = p.ThemeType;
             layouttype = p.LayoutType;
             icon = p.Icon;
             viewpermissions = p.ViewPermissions;
@@ -188,7 +188,7 @@
         p.Path = path;
         p.Order = (order == null ? 1 : Int32.Parse(order));
         p.IsNavigation = (isnavigation == null ? true : Boolean.Parse(isnavigation));
-        p.SkinType = skintype;
+        p.ThemeType = themetype;
         p.LayoutType = (layouttype == null ? "" : layouttype);
         p.Icon = (icon == null ? "" : icon);
         Type type;
@@ -198,7 +198,7 @@
         }
         else
         {
-            type = Type.GetType(skintype);
+            type = Type.GetType(themetype);
         }
         System.Reflection.PropertyInfo property = type.GetProperty("Panes");
         p.Panes = (string)property.GetValue(Activator.CreateInstance(type), null);
