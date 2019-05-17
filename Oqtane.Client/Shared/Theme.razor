@@ -1,0 +1,26 @@
+﻿@using Oqtane.Shared
+
+@DynamicComponent
+
+@functions {
+    [CascadingParameter] PageState PageState { get; set; }
+
+    RenderFragment DynamicComponent { get; set; }
+
+    protected override void OnInit()
+    {
+        DynamicComponent = builder =>
+        {
+            Type themeType = Type.GetType(PageState.Page.ThemeType);
+            if (themeType != null)
+            {
+                builder.OpenComponent(0, themeType);
+                builder.CloseComponent();
+            }
+            else
+            {
+                // theme does not exist with type specified
+            }
+        };
+    }
+}

@@ -30,7 +30,7 @@ namespace Oqtane.Client
         {
             // register singleton core services
             services.AddSingleton<IModuleDefinitionService, ModuleDefinitionService>();
-            services.AddSingleton<ISkinService, SkinService>();
+            services.AddSingleton<IThemeService, ThemeService>();
 
             // register scoped core services
             services.AddScoped<ITenantService, TenantService>();

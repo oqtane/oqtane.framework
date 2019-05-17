@@ -6,7 +6,7 @@
 @using Oqtane.Client.Modules.Controls
 @inherits ModuleBase
 @inject IUriHelper UriHelper
-@inject ISkinService SkinService
+@inject IThemeService ThemeService
 @inject IModuleService ModuleService
 @inject IPageModuleService PageModuleService
 
@@ -80,12 +80,12 @@
     protected override async Task OnInitAsync()
     {
         title = ModuleState.Title;
-        List<Skin> Skins = await SkinService.GetSkinsAsync();
-        foreach (Skin skin in Skins)
+        List<Theme> Themes = await ThemeService.GetThemesAsync();
+        foreach (Theme theme in Themes)
         {
-            foreach (string container in skin.ContainerControls.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+            foreach (string container in theme.ContainerControls.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
             {
-                containers.Add(container, skin.Name + " - " + @Utilities.GetTypeNameClass(container));
+                containers.Add(container, theme.Name + " - " + @Utilities.GetTypeNameClass(container));
             }
         }
         containertype = ModuleState.ContainerType;

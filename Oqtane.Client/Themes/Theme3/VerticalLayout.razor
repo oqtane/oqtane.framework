@@ -1,0 +1,15 @@
+﻿@using Oqtane.Themes
+@using Oqtane.Client.Shared
+@inherits ThemeBase
+
+<div class="row px-4">
+    <Pane Name="Top" />
+</div>
+<div class="row px-4">
+    <Pane Name="Bottom" />
+</div>
+
+@functions {
+    public override string Name { get { return "Vertical Layout"; } }
+    public override string Panes { get { return "Top;Bottom"; } }
+}
