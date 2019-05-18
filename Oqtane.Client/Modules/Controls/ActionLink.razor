@@ -7,7 +7,7 @@
 
 @if (authorized)
 {
-    <NavLink class="btn btn-primary" href="@url">@text</NavLink>
+    <NavLink class="@buttonClass" href="@url">@text</NavLink>
 }
 
 @functions {
@@ -20,9 +20,13 @@
     [Parameter]
     private string Parameters { get; set; } // optional
 
+    [Parameter]
+    private string ButtonClass { get; set; } // optional
+
     string text = "";
     string url = "";
     string parameters = "";
+    string buttonClass = "btn btn-primary";
     bool authorized = false;
 
     protected override void OnInit()
@@ -32,10 +36,17 @@
         {
             text = Text;
         }
+
         if (!String.IsNullOrEmpty(Parameters))
         {
             parameters = Parameters;
         }
+
+        if (!string.IsNullOrEmpty(ButtonClass))
+        {
+            buttonClass = "btn " + ButtonClass;
+        }
+
         url = EditUrl(Action, parameters);
 
         string typename = ModuleState.ModuleType.Replace(Utilities.GetTypeNameClass(ModuleState.ModuleType) + ",", Action + ",");
