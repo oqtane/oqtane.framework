@@ -80,14 +80,7 @@
     protected override async Task OnInitAsync()
     {
         title = ModuleState.Title;
-        List<Theme> Themes = await ThemeService.GetThemesAsync();
-        foreach (Theme theme in Themes)
-        {
-            foreach (string container in theme.ContainerControls.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                containers.Add(container, theme.Name + " - " + @Utilities.GetTypeNameClass(container));
-            }
-        }
+        containers = ThemeService.CalculateSelectableContainers(await ThemeService.GetThemesAsync());
         containertype = ModuleState.ContainerType;
         viewpermissions = ModuleState.ViewPermissions;
         editpermissions = ModuleState.EditPermissions;
