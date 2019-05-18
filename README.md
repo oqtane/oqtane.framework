@@ -24,7 +24,7 @@ At this point Oqtane offers a minimum of desired functionality and is not recomm
 
 # Release Announcement
 
-[Announcing Oqtane... a Modular Application Framework for Blazor!](https://www.siliqon.com/Home/Post/797)
+[Announcing Oqtane... a Modular Application Framework for Blazor!](https://www.oqtane.org/Resources/Blog/PostId/520/announcing-oqtane-a-modular-application-framework-for-blazor)
 
 # Example Screenshots
 
