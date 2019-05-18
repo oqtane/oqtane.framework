@@ -25,7 +25,7 @@ else
             {
                 <tr>
                     <td><ActionLink Action="Edit" Parameters="@($"id=" + p.PageId.ToString())" /></td>
-                    <td><ActionLink Action="Delete" Parameters="@($"id=" + p.PageId.ToString())" /></td>
+                    <td><ActionLink Action="Delete" Parameters="@($"id=" + p.PageId.ToString())" ButtonClass="btn-danger" /></td>
                     <td>@p.Path</td>
                     <td>@p.Name</td>
                 </tr>
