@@ -84,7 +84,7 @@
     {
         //TODO: Move this to shared component.  This is used in this control Add, Edit, and Delete controls as well
         moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync();
-        containers = ThemeService.CalculateSelectableContainers(await ThemeService.GetThemesAsync());
+        containers = ThemeService.GetContainerTypes(await ThemeService.GetThemesAsync());
         List<Module> modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId, Constants.PageManagementModule);
         pagemanagementmoduleid = modules.FirstOrDefault().ModuleId;
         if (UserService.IsAuthorized(PageState.User, PageState.Page.EditPermissions))

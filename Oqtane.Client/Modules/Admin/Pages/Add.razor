@@ -135,8 +135,8 @@
     protected override async Task OnInitAsync()
     {
         var Themes = await ThemeService.GetThemesAsync();
-        themes = ThemeService.CalculateSelectableThemes(Themes);
-        panelayouts = ThemeService.CalculateSelectablePaneLayouts(Themes);
+        themes = ThemeService.GetThemeTypes(Themes);
+        panelayouts = ThemeService.GetPaneLayoutTypes(Themes);
     }
 
     private async Task SavePage()

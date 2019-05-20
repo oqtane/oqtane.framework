@@ -136,8 +136,8 @@
     protected override async Task OnInitAsync()
     {
         List<Theme> Themes = await ThemeService.GetThemesAsync();
-        themes = ThemeService.CalculateSelectableThemes(Themes);
-        panelayouts = ThemeService.CalculateSelectablePaneLayouts(Themes);
+        themes = ThemeService.GetThemeTypes(Themes);
+        panelayouts = ThemeService.GetPaneLayoutTypes(Themes);
 
         PageId = Int32.Parse(PageState.QueryString["id"]);
         Page p = PageState.Pages.Where(item => item.PageId == PageId).FirstOrDefault();

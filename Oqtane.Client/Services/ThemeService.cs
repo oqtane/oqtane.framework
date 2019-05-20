@@ -58,7 +58,7 @@ namespace Oqtane.Services
             return themes.OrderBy(item => item.Name).ToList();
         }
 
-        public Dictionary<string, string> CalculateSelectableThemes(List<Theme> themes)
+        public Dictionary<string, string> GetThemeTypes(List<Theme> themes)
         {
             var selectableThemes = new Dictionary<string, string>();
             foreach (Theme theme in themes)
@@ -71,7 +71,7 @@ namespace Oqtane.Services
             return selectableThemes;
         }
 
-        public Dictionary<string, string> CalculateSelectablePaneLayouts(List<Theme> themes)
+        public Dictionary<string, string> GetPaneLayoutTypes(List<Theme> themes)
         {
             var selectablePaneLayouts = new Dictionary<string, string>();
             foreach (Theme theme in themes)
@@ -84,7 +84,7 @@ namespace Oqtane.Services
             return selectablePaneLayouts;
         }
 
-        public Dictionary<string, string> CalculateSelectableContainers(List<Theme> themes)
+        public Dictionary<string, string> GetContainerTypes(List<Theme> themes)
         {
             var selectableContainers = new Dictionary<string, string>();
             foreach (Theme theme in themes)
