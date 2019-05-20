@@ -136,17 +136,8 @@
     protected override async Task OnInitAsync()
     {
         List<Theme> Themes = await ThemeService.GetThemesAsync();
-        foreach (Theme theme in Themes)
-        {
-            foreach (string themecontrol in theme.ThemeControls.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                themes.Add(themecontrol, theme.Name + " - " + @Utilities.GetTypeNameClass(themecontrol));
-            }
-            foreach (string panelayout in theme.PaneLayouts.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                panelayouts.Add(panelayout, theme.Name + " - " + @Utilities.GetTypeNameClass(panelayout));
-            }
-        }
+        themes = ThemeService.GetThemeTypes(Themes);
+        panelayouts = ThemeService.GetPaneLayoutTypes(Themes);
 
         PageId = Int32.Parse(PageState.QueryString["id"]);
         Page p = PageState.Pages.Where(item => item.PageId == PageId).FirstOrDefault();
