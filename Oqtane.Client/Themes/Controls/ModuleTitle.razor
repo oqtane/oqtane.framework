@@ -1,4 +1,17 @@
 ﻿@using Oqtane.Themes
 @inherits ContainerBase
 
-@ModuleState.Title
+@title
+
+@functions {
+    string title = "";
+
+    protected override void OnInit()
+    {
+        title = ModuleState.Title;
+        if (PageState.Control == "Settings")
+        {
+            title = PageState.Control;
+        }
+    }
+}

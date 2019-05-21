@@ -74,11 +74,14 @@
                             }
                             if (authorized)
                             {
-                                // get module control title
-                                string title = (string)moduleType.GetProperty("Title").GetValue(moduleobject);
-                                if (title != "")
+                                if (PageState.Control != "Settings")
                                 {
-                                    module.Title = title;
+                                    // get module control title
+                                    string title = (string)moduleType.GetProperty("Title").GetValue(moduleobject);
+                                    if (title != "")
+                                    {
+                                        module.Title = title;
+                                    }
                                 }
                                 builder.OpenComponent(0, Type.GetType(Constants.DefaultContainer));
                                 builder.AddAttribute(1, "ModuleState", module);
