@@ -213,6 +213,8 @@ namespace Oqtane.Server
             services.AddSingleton<IThemeRepository, ThemeRepository>();
 
             // register transient scoped core services
+            services.AddTransient<ITenantResolver, TenantResolver>();
+            services.AddTransient<IAliasRepository, AliasRepository>();
             services.AddTransient<ITenantRepository, TenantRepository>();
             services.AddTransient<ISiteRepository, SiteRepository>();
             services.AddTransient<IPageRepository, PageRepository>();
