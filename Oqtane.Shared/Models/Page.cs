@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Oqtane.Models
+﻿namespace Oqtane.Models
 {
     public class Page
     {

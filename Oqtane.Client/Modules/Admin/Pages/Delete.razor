@@ -3,7 +3,6 @@
 @using Oqtane.Services
 @using Oqtane.Modules
 @using Oqtane.Shared
-@using Oqtane.Client.Modules.Controls
 @inherits ModuleBase
 @inject IUriHelper UriHelper
 @inject IPageService PageService
@@ -133,11 +132,10 @@
     string viewpermissions;
     string editpermissions;
 
-    protected override async Task OnInitAsync()
+    protected override void OnInit()
     {
-        List<Theme> Themes = await ThemeService.GetThemesAsync();
-        themes = ThemeService.GetThemeTypes(Themes);
-        panelayouts = ThemeService.GetPaneLayoutTypes(Themes);
+        themes = ThemeService.GetThemeTypes(PageState.Themes);
+        panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes);
 
         PageId = Int32.Parse(PageState.QueryString["id"]);
         Page p = PageState.Pages.Where(item => item.PageId == PageId).FirstOrDefault();
@@ -159,6 +157,6 @@
     private async Task DeletePage()
     {
         await PageService.DeletePageAsync(Int32.Parse(PageState.QueryString["id"]));
-        UriHelper.NavigateTo(PageState.Alias);
+        UriHelper.NavigateTo(NavigateUrl("", true));
     }
 }

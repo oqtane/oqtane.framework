@@ -12,7 +12,7 @@
     {
         if (p.IsNavigation && UserService.IsAuthorized(PageState.User, p.ViewPermissions))
         {
-            string url = PageState.Alias + p.Path;
+            string url = NavigateUrl(p.Path);
             <li class="list-group-item">
                 <NavLink class="nav-link" href="@url" Match="NavLinkMatch.All">
                     <span class="oi @p.Icon" aria-hidden="true"></span> @p.Name

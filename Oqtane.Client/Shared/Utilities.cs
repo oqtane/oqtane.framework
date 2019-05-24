@@ -1,18 +1,52 @@
 ﻿using System;
+using Oqtane.Models;
 
 namespace Oqtane.Shared
 {
     public class Utilities
     {
-        public static string GetAlias(string absoluteUri)
+        public static string NavigateUrl(PageState pagestate)
         {
-            string alias = "";
-            Uri uri = new Uri(absoluteUri);
-            if (uri.AbsolutePath.StartsWith("/~"))
+            return NavigateUrl(pagestate, pagestate.Page.Path, false);
+        }
+
+        public static string NavigateUrl(PageState pagestate, bool reload)
+        {
+            return NavigateUrl(pagestate, pagestate.Page.Path, reload);
+        }
+
+        public static string NavigateUrl(PageState pagestate, string path)
+        {
+            return NavigateUrl(pagestate, path, false);
+        }
+
+        public static string NavigateUrl(PageState pagestate, string path, bool reload)
+        {
+            string url = pagestate.Alias.Path + "/" + path;
+            if (reload)
             {
-                alias = uri.Segments[1];
+                url += "?reload=true";
             }
-            return alias;
+            return url;
+        }
+
+        public static string EditUrl(PageState pagestate, Module modulestate, string action)
+        {
+            return EditUrl(pagestate, modulestate, action, "");
+        }
+
+        public static string EditUrl(PageState pagestate, Module modulestate, string action, string parameters)
+        {
+            string url = pagestate.Alias.Path + "/" + pagestate.Page.Path + "?mid=" + modulestate.ModuleId.ToString();
+            if (action != "")
+            {
+                url += "&ctl=" + action;
+            }
+            if (!string.IsNullOrEmpty(parameters))
+            {
+                url += "&" + parameters;
+            }
+            return url;
         }
 
         public static string GetTypeNameClass(string typename)

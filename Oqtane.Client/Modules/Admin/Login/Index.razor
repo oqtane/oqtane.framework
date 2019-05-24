@@ -39,7 +39,7 @@
         {
             var interop = new Interop(jsRuntime);
             await interop.SetCookie("user", user.UserId.ToString(), 7);
-            UriHelper.NavigateTo(PageState.Alias, true);
+            UriHelper.NavigateTo(NavigateUrl(""), true);
         }
         else
         {

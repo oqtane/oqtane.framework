@@ -3,7 +3,6 @@
 @using Oqtane.Services
 @using Oqtane.Modules
 @using Oqtane.Shared
-@using Oqtane.Client.Modules.Controls
 @inherits ModuleBase
 @inject IUriHelper UriHelper
 @inject IPageService PageService
@@ -132,11 +131,10 @@
     string viewpermissions = "All Users";
     string editpermissions = "Administrators";
 
-    protected override async Task OnInitAsync()
+    protected override void OnInit()
     {
-        var Themes = await ThemeService.GetThemesAsync();
-        themes = ThemeService.GetThemeTypes(Themes);
-        panelayouts = ThemeService.GetPaneLayoutTypes(Themes);
+        themes = ThemeService.GetThemeTypes(PageState.Themes);
+        panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes);
     }
 
     private async Task SavePage()

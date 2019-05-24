@@ -4,18 +4,24 @@ using System.Net.Http;
 using System.Linq;
 using Microsoft.AspNetCore.Components;
 using System.Collections.Generic;
+using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
     public class SiteService : ServiceBase, ISiteService
     {
         private readonly HttpClient http;
-        private readonly string apiurl;
+        private readonly SiteState sitestate;
 
-        public SiteService(HttpClient http, IUriHelper urihelper)
+        public SiteService(HttpClient http, SiteState sitestate)
         {
             this.http = http;
-            apiurl = CreateApiUrl(urihelper.GetAbsoluteUri(), "Site");
+            this.sitestate = sitestate;
+        }
+
+        private string apiurl
+        {
+            get { return CreateApiUrl(sitestate.Alias, "Site"); }
         }
 
         public async Task<List<Site>> GetSitesAsync()

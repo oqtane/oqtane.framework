@@ -7,6 +7,7 @@ namespace Oqtane.Repository
     {
         public HostContext(DbContextOptions<HostContext> options) : base(options) { }
 
+        public virtual DbSet<Alias> Alias { get; set; }
         public virtual DbSet<Tenant> Tenant { get; set; }
     }
 }
