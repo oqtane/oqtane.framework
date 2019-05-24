@@ -8,9 +8,9 @@ namespace Oqtane.Repository
     {
         private Tenant tenant;
 
-        public ContextBase(ITenantRepository TenantRepository)
+        public ContextBase(ITenantResolver TenantResolver)
         {
-            tenant = TenantRepository.GetTenant();
+            tenant = TenantResolver.GetTenant();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

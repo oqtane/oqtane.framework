@@ -81,7 +81,7 @@
                 await PageModuleService.UpdatePageModuleAsync(pagemodule);
                 break;
         }
-        UriHelper.NavigateTo(PageState.Alias + path);
+        UriHelper.NavigateTo(NavigateUrl(path));
     }
 
     public class ActionViewModel

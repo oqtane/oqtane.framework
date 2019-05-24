@@ -133,11 +133,10 @@
     string viewpermissions;
     string editpermissions;
 
-    protected override async Task OnInitAsync()
+    protected override void OnInit()
     {
-        List<Theme> Themes = await ThemeService.GetThemesAsync();
-        themes = ThemeService.GetThemeTypes(Themes);
-        panelayouts = ThemeService.GetPaneLayoutTypes(Themes);
+        themes = ThemeService.GetThemeTypes(PageState.Themes);
+        panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes);
 
         PageId = Int32.Parse(PageState.QueryString["id"]);
         Page p = PageState.Pages.Where(item => item.PageId == PageId).FirstOrDefault();

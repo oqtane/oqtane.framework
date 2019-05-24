@@ -20,46 +20,32 @@ namespace Oqtane.Modules
 
         public string NavigateUrl()
         {
-            return NavigateUrl(PageState.Page.Path, false);
+            return Utilities.NavigateUrl(PageState);
         }
 
         public string NavigateUrl(bool reload)
         {
-            return NavigateUrl(PageState.Page.Path, reload);
+            return Utilities.NavigateUrl(PageState, reload);
         }
 
         public string NavigateUrl(string path)
         {
-            return NavigateUrl(path, false);
+            return Utilities.NavigateUrl(PageState, path);
         }
 
         public string NavigateUrl(string path, bool reload)
         {
-            string url = PageState.Alias + path;
-            if (reload)
-            {
-                url += "?reload=true";
-            }
-            return url;
+            return Utilities.NavigateUrl(PageState, path, reload);
         }
 
         public string EditUrl(string action)
         {
-            return EditUrl(action, "");
+            return Utilities.EditUrl(PageState, ModuleState, action, "");
         }
 
         public string EditUrl(string action, string parameters)
         {
-            string url = PageState.Alias + PageState.Page.Path + "?mid=" + ModuleState.ModuleId.ToString();
-            if (action != "")
-            {
-                url += "&ctl=" + action;
-            }
-            if (!string.IsNullOrEmpty(parameters))
-            {
-                url += "&" + parameters;
-            }
-            return url;
+            return Utilities.EditUrl(PageState, ModuleState, action, parameters);
         }
     }
 }

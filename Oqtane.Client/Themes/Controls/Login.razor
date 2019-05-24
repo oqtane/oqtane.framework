@@ -29,13 +29,13 @@
     {
         if (name == "Login")
         {
-            UriHelper.NavigateTo(PageState.Alias + "login");
+            UriHelper.NavigateTo(NavigateUrl("login"));
         }
         else
         {
             var interop = new Interop(jsRuntime);
             await interop.SetCookie("user", "", 7);
-            UriHelper.NavigateTo(PageState.Alias, true);
+            UriHelper.NavigateTo(NavigateUrl(""), true);
         }
     }
 }

@@ -1,55 +1,55 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 using Oqtane.Repository;
 using Oqtane.Models;
-using System.Collections.Generic;
 
 namespace Oqtane.Controllers
 {
     [Route("{site}/api/[controller]")]
-    public class TenantController : Controller
+    public class AliasController : Controller
     {
-        private readonly ITenantRepository tenants;
+        private readonly IAliasRepository aliases;
 
-        public TenantController(ITenantRepository Tenants)
+        public AliasController(IAliasRepository Aliases)
         {
-            tenants = Tenants;
+            aliases = Aliases;
         }
 
         // GET: api/<controller>
         [HttpGet]
-        public IEnumerable<Tenant> Get()
+        public IEnumerable<Alias> Get()
         {
-            return tenants.GetTenants();
+            return aliases.GetAliases();
         }
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
-        public Tenant Get(int id)
+        public Alias Get(int id)
         {
-            return tenants.GetTenant(id);
+            return aliases.GetAlias(id);
         }
 
         // POST api/<controller>
         [HttpPost]
-        public void Post([FromBody] Tenant site)
+        public void Post([FromBody] Alias site)
         {
             if (ModelState.IsValid)
-                tenants.AddTenant(site);
+                aliases.AddAlias(site);
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Tenant site)
+        public void Put(int id, [FromBody] Alias site)
         {
             if (ModelState.IsValid)
-                tenants.UpdateTenant(site);
+                aliases.UpdateAlias(site);
         }
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-            tenants.DeleteTenant(id);
+            aliases.DeleteAlias(id);
         }
     }
 }

@@ -4,18 +4,24 @@ using System.Linq;
 using System.Net.Http;
 using Microsoft.AspNetCore.Components;
 using System.Collections.Generic;
+using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
     public class PageService : ServiceBase, IPageService
     {
         private readonly HttpClient http;
-        private readonly string apiurl;
+        private readonly SiteState sitestate;
 
-        public PageService(HttpClient http, IUriHelper urihelper)
+        public PageService(HttpClient http, SiteState sitestate)
         {
             this.http = http;
-            apiurl = CreateApiUrl(urihelper.GetAbsoluteUri(), "Page");
+            this.sitestate = sitestate;
+        }
+
+        private string apiurl
+        {
+            get { return CreateApiUrl(sitestate.Alias, "Page"); }
         }
 
         public async Task<List<Page>> GetPagesAsync(int SiteId)

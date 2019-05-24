@@ -74,7 +74,7 @@
     string display = "display: none";
     List<ModuleDefinition> moduledefinitions;
     Dictionary<string, string> containers = new Dictionary<string, string>();
-    int pagemanagementmoduleid;
+    int pagemanagementmoduleid = -1;
     string moduledefinitionname;
     string pane;
     string title = "";
@@ -82,11 +82,13 @@
 
     protected override async Task OnInitAsync()
     {
-        //TODO: Move this to shared component.  This is used in this control Add, Edit, and Delete controls as well
-        moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync();
-        containers = ThemeService.GetContainerTypes(await ThemeService.GetThemesAsync());
+        moduledefinitions = PageState.ModuleDefinitions;
+        containers = ThemeService.GetContainerTypes(PageState.Themes);
         List<Module> modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId, Constants.PageManagementModule);
-        pagemanagementmoduleid = modules.FirstOrDefault().ModuleId;
+        if (modules.Count > 0)
+        {
+            pagemanagementmoduleid = modules.FirstOrDefault().ModuleId;
+        }
         if (UserService.IsAuthorized(PageState.User, PageState.Page.EditPermissions))
         {
             display = "display: inline";
@@ -117,23 +119,26 @@
         pagemodule.Order = 0;
         pagemodule.ContainerType = containertype;
         await PageModuleService.AddPageModuleAsync(pagemodule);
-        UriHelper.NavigateTo(PageState.Alias + PageState.Page.Path + "?reload=true");
+        UriHelper.NavigateTo(NavigateUrl(true));
     }
 
     private string PageUrl(string action)
     {
         string url = "";
-        switch (action)
+        if (pagemanagementmoduleid != -1)
         {
-            case "Add":
-                url = "admin/pages?mid=" + pagemanagementmoduleid.ToString() + "&ctl=" + action;
-                break;
-            case "Edit":
-                url = "admin/pages?mid=" + pagemanagementmoduleid.ToString() + "&ctl=" + action + "&id=" + PageState.Page.PageId.ToString();
-                break;
-            case "Delete":
-                url = "admin/pages?mid=" + pagemanagementmoduleid.ToString() + "&ctl=" + action + "&id=" + PageState.Page.PageId.ToString();
-                break;
+            switch (action)
+            {
+                case "Add":
+                    url = "admin/pages?mid=" + pagemanagementmoduleid.ToString() + "&ctl=" + action;
+                    break;
+                case "Edit":
+                    url = "admin/pages?mid=" + pagemanagementmoduleid.ToString() + "&ctl=" + action + "&id=" + PageState.Page.PageId.ToString();
+                    break;
+                case "Delete":
+                    url = "admin/pages?mid=" + pagemanagementmoduleid.ToString() + "&ctl=" + action + "&id=" + PageState.Page.PageId.ToString();
+                    break;
+            }
         }
         return url;
     }

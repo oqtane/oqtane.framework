@@ -5,18 +5,24 @@ using System.Net.Http;
 using Microsoft.AspNetCore.Components;
 using Oqtane.Services;
 using Oqtane.Shared.Modules.HtmlText.Models;
+using Oqtane.Shared;
 
 namespace Oqtane.Client.Modules.HtmlText.Services
 {
     public class HtmlTextService : ServiceBase, IHtmlTextService
     {
         private readonly HttpClient http;
-        private readonly string apiurl;
+        private readonly SiteState sitestate;
 
-        public HtmlTextService(HttpClient http, IUriHelper urihelper)
+        public HtmlTextService(HttpClient http, SiteState sitestate)
         {
             this.http = http;
-            apiurl = CreateApiUrl(urihelper.GetAbsoluteUri(), "HtmlText");
+            this.sitestate = sitestate;
+        }
+
+        private string apiurl
+        {
+            get { return CreateApiUrl(sitestate.Alias, "HtmlText"); }
         }
 
         public async Task<List<HtmlTextInfo>> GetHtmlTextAsync(int ModuleId)

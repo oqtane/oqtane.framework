@@ -1,5 +1,3 @@
-#define ServerSideBlazor
-
 using Microsoft.AspNetCore.Components.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -9,6 +7,7 @@ using System.Net.Http;
 using Microsoft.AspNetCore.Components;
 using System.Reflection;
 using Oqtane.Modules;
+using Oqtane.Shared;
 
 namespace Oqtane.Client
 {
@@ -28,11 +27,11 @@ namespace Oqtane.Client
 #if WASM
         public void ConfigureServices(IServiceCollection services)
         {
-            // register singleton core services
-            services.AddSingleton<IModuleDefinitionService, ModuleDefinitionService>();
-            services.AddSingleton<IThemeService, ThemeService>();
-
             // register scoped core services
+            services.AddScoped<SiteState>();
+            services.AddScoped<IModuleDefinitionService, ModuleDefinitionService>();
+            services.AddScoped<IThemeService, ThemeService>();
+            services.AddScoped<IAliasService, AliasService>();
             services.AddScoped<ITenantService, TenantService>();
             services.AddScoped<ISiteService, SiteService>();
             services.AddScoped<IPageService, PageService>();

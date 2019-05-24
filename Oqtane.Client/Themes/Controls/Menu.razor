@@ -9,7 +9,7 @@
 <ul class="nav flex-column">
     @if (parent != null)
     {
-        string url = PageState.Alias + parent.Path;
+        string url = NavigateUrl();
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="@parent.Path" Match="NavLinkMatch.All">
                 <span class="oi oi-media-skip-backward" aria-hidden="true"></span> Back
@@ -20,7 +20,7 @@
     {
         if (p.IsNavigation && UserService.IsAuthorized(PageState.User, p.ViewPermissions))
         {
-            string url = PageState.Alias + p.Path;
+            string url = NavigateUrl(p.Path);
             <li class="nav-item px-3">
                 <NavLink class="nav-link" href="@url" Match="NavLinkMatch.All">
                     <span class="oi @p.Icon" aria-hidden="true"></span> @p.Name

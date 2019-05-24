@@ -5,8 +5,10 @@
 @using System.Collections.Generic
 @using Oqtane.Shared
 @using Microsoft.JSInterop
+@inject SiteState SiteState
 @inject IUriHelper UriHelper
 @inject IJSRuntime jsRuntime
+@inject IAliasService AliasService
 @inject ITenantService TenantService
 @inject ISiteService SiteService
 @inject IPageService PageService
@@ -25,12 +27,6 @@
 
     RenderFragment DynamicComponent { get; set; }
     private string _absoluteUri;
-    string alias;
-    Site site;
-    List<Page> pages;
-    Page page;
-    User user;
-    List<Module> modules;
     PageState pagestate;
 
     protected override void OnInit()
@@ -63,33 +59,51 @@
 
     private async Task Refresh()
     {
-        List<ModuleDefinition> moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync();
-        List<Models.Theme> themes = await ThemeService.GetThemesAsync();
+        List<ModuleDefinition> moduledefinitions;
+        List<Models.Theme> themes;
+        List<Alias> aliases;
+        Alias alias;
+        Site site;
+        List<Page> pages;
+        Page page;
+        User user;
+        List<Module> modules;
 
         bool reload = false;
         if (PageState == null)
         {
-            Tenant tenant = await TenantService.GetTenantAsync();
-            site = await SiteService.GetSiteAsync(tenant.SiteId);
-            alias = Utilities.GetAlias(_absoluteUri);
+            aliases = await AliasService.GetAliasesAsync();
+            alias = null;
         }
         else
         {
-            site = PageState.Site;
+            aliases = PageState.Aliases;
             alias = PageState.Alias;
         }
-        if (Utilities.GetAlias(_absoluteUri) != alias)
+        if (alias == null || GetAlias(_absoluteUri, aliases).Name != alias.Name)
         {
-            Tenant tenant = await TenantService.GetTenantAsync();
-            site = await SiteService.GetSiteAsync(tenant.SiteId);
-            alias = Utilities.GetAlias(_absoluteUri);
+            alias = GetAlias(_absoluteUri, aliases);
+            SiteState.Alias = alias; // set state for services
             reload = true;
         }
-        if (site != null)
+        if (PageState == null || reload == true)
+        {
+            moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync();
+            themes = await ThemeService.GetThemesAsync();
+            site = await SiteService.GetSiteAsync(alias.SiteId);
+        }
+        else
+        {
+            moduledefinitions = PageState.ModuleDefinitions;
+            themes = PageState.Themes;
+            site = PageState.Site;
+        }
+        if (site != null || reload == true)
         {
             var interop = new Interop(jsRuntime);
             string userid = await interop.GetCookie("user");
 
+            user = null;
             if (PageState == null || reload == true)
             {
                 if (!string.IsNullOrEmpty(userid))
@@ -120,9 +134,11 @@
             }
 
             string path = new Uri(_absoluteUri).PathAndQuery.Substring(1);
-            if (alias != "")
+            if (path.EndsWith("/")) { path = path.Substring(0, path.Length - 1); }
+            if (alias.Path != "")
             {
-                path = path.Replace(alias, "");
+                path = path.Replace(alias.Path, "");
+                if (path.StartsWith("/")) { path = path.Substring(1); }
             }
             Dictionary<string, string> querystring = ParseQueryString(path);
 
@@ -165,6 +181,9 @@
                 if (UserService.IsAuthorized(user, page.ViewPermissions))
                 {
                     pagestate = new PageState();
+                    pagestate.ModuleDefinitions = moduledefinitions;
+                    pagestate.Themes = themes;
+                    pagestate.Aliases = aliases;
                     pagestate.Alias = alias;
                     pagestate.Site = site;
                     pagestate.Pages = pages;
@@ -174,7 +193,6 @@
                     pagestate.QueryString = querystring;
                     pagestate.ModuleId = -1;
                     pagestate.Control = "";
-                    pagestate.Mode = "client";
 
                     if (querystring.ContainsKey("mid"))
                     {
@@ -307,6 +325,34 @@
             module.PaneModuleCount = paneindex[module.Pane] + 1;
         }
         return modules;
+    }
+
+    private Alias GetAlias(string absoluteUri, List<Alias> aliases)
+    {
+
+        string aliasname;
+        Alias alias = null;
+        Uri uri = new Uri(absoluteUri);
+
+        if (uri.Segments.Count() > 1)
+        {
+            // check if first path segment is an alias ( ie. a subfolder - www.domain.com/subfolder )
+            aliasname = uri.Authority + "/" + uri.Segments[1];
+            if (aliasname.EndsWith("/")) { aliasname = aliasname.Substring(0, aliasname.Length - 1); }
+            alias = aliases.Where(item => item.Name == aliasname).FirstOrDefault();
+        }
+        if (alias == null)
+        {
+            aliasname = uri.Authority;
+            alias = aliases.Where(item => item.Name == aliasname).FirstOrDefault();
+        }
+        if (alias == null && aliases.Count > 0)
+        {
+            // use first alias if Uri does not exist
+            alias = aliases.FirstOrDefault();
+        }
+        alias.Scheme = uri.Scheme;
+        return alias;
     }
 
 }

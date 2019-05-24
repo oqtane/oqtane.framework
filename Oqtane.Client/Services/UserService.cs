@@ -12,12 +12,17 @@ namespace Oqtane.Services
     public class UserService : ServiceBase, IUserService
     {
         private readonly HttpClient http;
-        private readonly string apiurl;
+        private readonly SiteState sitestate;
 
-        public UserService(HttpClient http, IUriHelper urihelper)
+        public UserService(HttpClient http, SiteState sitestate)
         {
             this.http = http;
-            apiurl = CreateApiUrl(urihelper.GetAbsoluteUri(), "User");
+            this.sitestate = sitestate;
+        }
+
+        private string apiurl
+        {
+            get { return CreateApiUrl(sitestate.Alias, "User"); }
         }
 
         public async Task<List<User>> GetUsersAsync()

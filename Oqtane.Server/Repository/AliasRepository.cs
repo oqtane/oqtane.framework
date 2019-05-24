@@ -1,34 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Oqtane.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using System;
 
 namespace Oqtane.Repository
 {
-    public class TenantRepository : ITenantRepository
+    public class AliasRepository : IAliasRepository
     {
         private HostContext db;
         private readonly IMemoryCache _cache;
 
-        public TenantRepository(HostContext context, IMemoryCache cache)
+        public AliasRepository(HostContext context, IMemoryCache cache)
         {
             db = context;
             _cache = cache;
         }
 
-        public IEnumerable<Tenant> GetTenants()
+        public IEnumerable<Alias> GetAliases()
         {
             try
             {
-                IEnumerable<Tenant> tenants = _cache.GetOrCreate("tenants", entry =>
+                IEnumerable<Alias> aliases = _cache.GetOrCreate("aliases", entry =>
                 {
                     entry.SlidingExpiration = TimeSpan.FromMinutes(30);
-                    return db.Tenant.ToList();
+                    return db.Alias.ToList();
                 });
-                return tenants;
+                return aliases;
             }
             catch
             {
@@ -36,11 +35,11 @@ namespace Oqtane.Repository
             }
         }
 
-        public void AddTenant(Tenant tenant)
+        public void AddAlias(Alias alias)
         {
             try
             {
-                db.Tenant.Add(tenant);
+                db.Alias.Add(alias);
                 db.SaveChanges();
             }
             catch
@@ -49,11 +48,11 @@ namespace Oqtane.Repository
             }
         }
 
-        public void UpdateTenant(Tenant tenant)
+        public void UpdateAlias(Alias alias)
         {
             try
             {
-                db.Entry(tenant).State = EntityState.Modified;
+                db.Entry(alias).State = EntityState.Modified;
                 db.SaveChanges();
             }
             catch
@@ -62,12 +61,12 @@ namespace Oqtane.Repository
             }
         }
 
-        public Tenant GetTenant(int tenantId)
+        public Alias GetAlias(int aliasId)
         {
             try
             {
-                Tenant tenant = db.Tenant.Find(tenantId);
-                return tenant;
+                Alias alias = db.Alias.Find(aliasId);
+                return alias;
             }
             catch
             {
@@ -75,12 +74,12 @@ namespace Oqtane.Repository
             }
         }
 
-        public void DeleteTenant(int tenantId)
+        public void DeleteAlias(int aliasId)
         {
             try
             {
-                Tenant tenant = db.Tenant.Find(tenantId);
-                db.Tenant.Remove(tenant);
+                Alias alias = db.Alias.Find(aliasId);
+                db.Alias.Remove(alias);
                 db.SaveChanges();
             }
             catch

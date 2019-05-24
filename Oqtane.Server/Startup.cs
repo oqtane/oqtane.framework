@@ -18,6 +18,7 @@ using Oqtane.Services;
 using System.Net.Http;
 using Microsoft.AspNetCore.Components;
 using Oqtane.Client;
+using Oqtane.Shared;
 
 namespace Oqtane.Server
 {
@@ -57,11 +58,11 @@ namespace Oqtane.Server
                 });
             }
 
-            // register singleton core services
+            // register scoped core services
+            services.AddScoped<SiteState>();
             services.AddScoped<IModuleDefinitionService, ModuleDefinitionService>();
             services.AddScoped<IThemeService, ThemeService>();
-
-            // register scoped core services
+            services.AddScoped<IAliasService, AliasService>();
             services.AddScoped<ITenantService, TenantService>();
             services.AddScoped<ISiteService, SiteService>();
             services.AddScoped<IPageService, PageService>();
@@ -110,6 +111,8 @@ namespace Oqtane.Server
             services.AddSingleton<IThemeRepository, ThemeRepository>();
 
             // register transient scoped core services
+            services.AddTransient<ITenantResolver, TenantResolver>();
+            services.AddTransient<IAliasRepository, AliasRepository>();
             services.AddTransient<ITenantRepository, TenantRepository>();
             services.AddTransient<ISiteRepository, SiteRepository>();
             services.AddTransient<IPageRepository, PageRepository>();

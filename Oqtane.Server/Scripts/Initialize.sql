@@ -3,12 +3,23 @@
 Create tables
 
 */
+CREATE TABLE [dbo].[Alias](
+	[AliasId] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](200) NOT NULL,
+	[TenantId] [int] NOT NULL,
+	[SiteId] [int] NOT NULL,
+  CONSTRAINT [PK_Alias] PRIMARY KEY CLUSTERED 
+  (
+	[AliasId] ASC
+  )
+)
+GO
+
 CREATE TABLE [dbo].[Tenant](
 	[TenantId] [int] IDENTITY(1,1) NOT NULL,
-	[Alias] [nvarchar](200) NOT NULL,
+	[Name] [nvarchar](100) NOT NULL,
 	[DBConnectionString] [nvarchar](1024) NOT NULL,
-	[DBSchema] [nvarchar](50) NOT NULL,
-	[SiteId] [int] NOT NULL,
+	[DBSchema] [nvarchar](50) NOT NULL
   CONSTRAINT [PK_Tenant] PRIMARY KEY CLUSTERED 
   (
 	[TenantId] ASC
@@ -102,7 +113,7 @@ GO
 
 /*  
 
-Create relationships
+Create foreign key relationships
 
 */
 ALTER TABLE [dbo].[HtmlText]  WITH CHECK ADD  CONSTRAINT [FK_HtmlText_Module] FOREIGN KEY([ModuleId])
@@ -110,15 +121,9 @@ REFERENCES [dbo].[Module] ([ModuleId])
 ON DELETE CASCADE
 GO
 
-ALTER TABLE [dbo].[HtmlText] CHECK CONSTRAINT [FK_HtmlText_Module]
-GO
-
 ALTER TABLE [dbo].[Module]  WITH CHECK ADD  CONSTRAINT [FK_Module_Site] FOREIGN KEY([SiteId])
 REFERENCES [dbo].[Site] ([SiteId])
 ON DELETE CASCADE
-GO
-
-ALTER TABLE [dbo].[Module] CHECK CONSTRAINT [FK_Module_Site]
 GO
 
 ALTER TABLE [dbo].[Page]  WITH CHECK ADD  CONSTRAINT [FK_Page_Site] FOREIGN KEY([SiteId])
@@ -126,14 +131,8 @@ REFERENCES [dbo].[Site] ([SiteId])
 ON DELETE CASCADE
 GO
 
-ALTER TABLE [dbo].[Page] CHECK CONSTRAINT [FK_Page_Site]
-GO
-
 ALTER TABLE [dbo].[PageModule]  WITH CHECK ADD  CONSTRAINT [FK_PageModule_Module] FOREIGN KEY([ModuleId])
 REFERENCES [dbo].[Module] ([ModuleId])
-GO
-
-ALTER TABLE [dbo].[PageModule] CHECK CONSTRAINT [FK_PageModule_Module]
 GO
 
 ALTER TABLE [dbo].[PageModule]  WITH CHECK ADD  CONSTRAINT [FK_PageModule_Page] FOREIGN KEY([PageId])
@@ -141,7 +140,9 @@ REFERENCES [dbo].[Page] ([PageId])
 ON DELETE CASCADE
 GO
 
-ALTER TABLE [dbo].[PageModule] CHECK CONSTRAINT [FK_PageModule_Page]
+ALTER TABLE [dbo].[Alias]  WITH CHECK ADD  CONSTRAINT [FK_Alias_Tenant] FOREIGN KEY([TenantId])
+REFERENCES [dbo].[Tenant] ([TenantId])
+ON DELETE CASCADE
 GO
 
 /*  
@@ -151,16 +152,30 @@ Create seed data
 */
 SET IDENTITY_INSERT [dbo].[Tenant] ON 
 GO
-INSERT [dbo].[Tenant] ([TenantId], [Alias], [DBConnectionString], [DBSchema], [SiteId]) 
-VALUES (1, N'localhost:44357', N'{ConnectionString}', N'', 1)
+INSERT [dbo].[Tenant] ([TenantId], [Name], [DBConnectionString], [DBSchema]) 
+VALUES (1, N'Tenant1', N'{ConnectionString}', N'')
 GO
 SET IDENTITY_INSERT [dbo].[Tenant] OFF
+GO
+
+SET IDENTITY_INSERT [dbo].[Alias] ON 
+GO
+INSERT [dbo].[Alias] ([AliasId], [Name], [TenantId], [SiteId]) 
+VALUES (1, N'localhost:44357', 1, 1)
+GO
+INSERT [dbo].[Alias] ([AliasId], [Name], [TenantId], [SiteId]) 
+VALUES (2, N'localhost:44357/site2', 1, 2)
+GO
+SET IDENTITY_INSERT [dbo].[Alias] OFF
 GO
 
 SET IDENTITY_INSERT [dbo].[Site] ON 
 GO
 INSERT [dbo].[Site] ([SiteId], [Name], [Logo]) 
 VALUES (1, N'Site1', N'oqtane.png')
+GO
+INSERT [dbo].[Site] ([SiteId], [Name], [Logo]) 
+VALUES (2, N'Site2', N'oqtane.png')
 GO
 SET IDENTITY_INSERT [dbo].[Site] OFF
 GO
@@ -199,6 +214,12 @@ VALUES (10, 1, N'Module Management', N'admin/modules', N'Oqtane.Client.Themes.Th
 GO
 INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
 VALUES (11, 1, N'Theme Management', N'admin/themes', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', N'Administrators', N'Administrators', 4, 4, 1, N'')
+GO
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
+VALUES (12, 2, N'Page1', N'', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'oi-home', N'Top;Bottom', N'All Users', N'Administrators', NULL, 1, 1, N'')
+GO
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
+VALUES (13, 2, N'Page2', N'page2', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'oi-home', N'Top;Bottom', N'All Users', N'Administrators', NULL, 1, 1, N'')
 GO
 SET IDENTITY_INSERT [dbo].[Page] OFF 
 GO
@@ -250,6 +271,12 @@ GO
 INSERT [dbo].[Module] ([ModuleId], [SiteId], [ModuleDefinitionName], [ViewPermissions], [EditPermissions]) 
 VALUES (15, 1, N'Oqtane.Client.Modules.Admin.Themes, Oqtane.Client', N'Administrators', N'Administrators')
 GO
+INSERT [dbo].[Module] ([ModuleId], [SiteId], [ModuleDefinitionName], [ViewPermissions], [EditPermissions]) 
+VALUES (16, 2, N'Oqtane.Client.Modules.HtmlText, Oqtane.Client', N'All Users', N'Administrators')
+GO
+INSERT [dbo].[Module] ([ModuleId], [SiteId], [ModuleDefinitionName], [ViewPermissions], [EditPermissions]) 
+VALUES (17, 2, N'Oqtane.Client.Modules.HtmlText, Oqtane.Client', N'All Users', N'Administrators')
+GO
 SET IDENTITY_INSERT [dbo].[Module] OFF 
 GO
 
@@ -300,13 +327,19 @@ GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType]) 
 VALUES (15, 11, 15, N'Theme Management', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client')
 GO
+INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType]) 
+VALUES (16, 12, 16, N'Text', N'Top', 1, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client')
+GO
+INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType]) 
+VALUES (17, 13, 17, N'Text', N'Top', 1, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client')
+GO
 SET IDENTITY_INSERT [dbo].[PageModule] OFF 
 GO
 
 SET IDENTITY_INSERT [dbo].[HtmlText] ON 
 GO
 INSERT [dbo].[HtmlText] ([HtmlTextId], [ModuleId], [Content]) 
-VALUES (1, 3, N'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.')
+VALUES (1, 3, N'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. <br /><br /><a href="http://localhost:44357/site2/">Go To Site2</a>')
 GO
 INSERT [dbo].[HtmlText] ([HtmlTextId], [ModuleId], [Content]) 
 VALUES (2, 5, N'Enim sed faucibus turpis in eu mi bibendum neque egestas. Quis hendrerit dolor magna eget est lorem. Dui faucibus in ornare quam viverra orci sagittis. Integer eget aliquet nibh praesent tristique magna sit. Nunc aliquet bibendum enim facilisis gravida neque convallis a cras. Tortor id aliquet lectus proin. Diam volutpat commodo sed egestas egestas fringilla. Posuere sollicitudin aliquam ultrices sagittis orci. Viverra mauris in aliquam sem fringilla ut morbi tincidunt. Eget gravida cum sociis natoque penatibus et. Sagittis orci a scelerisque purus semper. Eget velit aliquet sagittis id consectetur purus. Volutpat blandit aliquam etiam erat. Et tortor consequat id porta nibh venenatis cras. Volutpat odio facilisis mauris sit amet. Varius duis at consectetur lorem.')
@@ -316,6 +349,12 @@ VALUES (3, 6, N'Id consectetur purus ut faucibus pulvinar elementum integer. Bib
 GO
 INSERT [dbo].[HtmlText] ([HtmlTextId], [ModuleId], [Content]) 
 VALUES (4, 7, N'Ornare arcu dui vivamus arcu felis bibendum ut. Tortor vitae purus faucibus ornare. Lectus sit amet est placerat in egestas erat imperdiet sed. Aliquam sem et tortor consequat id. Fermentum iaculis eu non diam phasellus vestibulum. Ultricies integer quis auctor elit sed. Fermentum odio eu feugiat pretium nibh ipsum. Ut consequat semper viverra nam libero. Blandit aliquam etiam erat velit scelerisque in dictum non consectetur. At risus viverra adipiscing at in tellus. Facilisi nullam vehicula ipsum a arcu cursus vitae congue. At varius vel pharetra vel turpis nunc eget lorem dolor. Morbi non arcu risus quis varius. Turpis massa sed elementum tempus egestas.')
+GO
+INSERT [dbo].[HtmlText] ([HtmlTextId], [ModuleId], [Content]) 
+VALUES (5, 16, N'Id consectetur purus ut faucibus pulvinar elementum integer. Bibendum neque egestas congue quisque egestas diam in arcu. Eget nullam non nisi est sit amet facilisis. Sit amet consectetur adipiscing elit pellentesque. Id aliquet risus feugiat in. Enim blandit volutpat maecenas volutpat blandit aliquam etiam erat. Commodo odio aenean sed adipiscing. Pharetra massa massa ultricies mi quis hendrerit dolor magna. Aliquet enim tortor at auctor urna nunc. Nulla pellentesque dignissim enim sit amet. Suscipit adipiscing bibendum est ultricies integer quis auctor. Lacinia quis vel eros donec ac odio tempor. Aliquam vestibulum morbi blandit cursus risus at.  <br /><br /><a href="http://localhost:44357/">Go To Site1</a>')
+GO
+INSERT [dbo].[HtmlText] ([HtmlTextId], [ModuleId], [Content]) 
+VALUES (6, 17, N'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.')
 GO
 SET IDENTITY_INSERT [dbo].[HtmlText] OFF 
 GO
