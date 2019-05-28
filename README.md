@@ -13,7 +13,7 @@ Oqtane uses Blazor, a new web framework for .NET Core that lets you build intera
 
    3.&nbsp;Install the latest [Blazor extension](https://go.microsoft.com/fwlink/?linkid=870389) from the Visual Studio Marketplace. 
 
-   4.&nbsp;Enable Visual Studio to use preview SDKs: Open **Tools** > **Options** in the menu bar. Open the **Projects and Solutions** node. Open the **.NET Core** tab. Check the box for **Use previews of the .NET Core SDK**. Select **OK**. Note that this option may no longer be applicable in newer versions of Visual Studio 2019 Preview edition.
+   4.&nbsp;Enable Visual Studio to use preview SDKs: Open **Tools** > **Options** in the menu bar. Open the **Environment** node. Open the **Preview Features** tab. Check the box for **Use previews of the .NET Core SDK**. Select **OK**. 
 
    5.&nbsp;Download or Clone the Oqtane source code to your local system. Open the **Oqtane.sln** solution file. If you want to develop using **server-side** Blazor ( which includes a full debugging experience in Visual Studio ) you should choose to Build the solution using the default Debug configuration. If you want to develop using **client-side** Blazor ( WebAssembly ) you should first choose the "Wasm" configuration option in the Visual Studio toolbar and then Build.
 
