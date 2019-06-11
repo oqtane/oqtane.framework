@@ -1,5 +1,5 @@
 # Oqtane Framework
-Oqtane is a Modular Application Framework for Blazor
+Oqtane is a Modular Application Framework for Blazor!
 
 ![Oqtane](https://github.com/oqtane/framework/blob/master/oqtane.png?raw=true "Oqtane")
 
