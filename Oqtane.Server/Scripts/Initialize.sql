@@ -165,6 +165,9 @@ VALUES (1, N'localhost:44357', 1, 1)
 GO
 INSERT [dbo].[Alias] ([AliasId], [Name], [TenantId], [SiteId]) 
 VALUES (2, N'localhost:44357/site2', 1, 2)
+Go
+INSERT [dbo].[Alias] ([AliasId], [Name], [TenantId], [SiteId]) 
+values (3, 'localhost:14245', 1, 1)
 GO
 SET IDENTITY_INSERT [dbo].[Alias] OFF
 GO
