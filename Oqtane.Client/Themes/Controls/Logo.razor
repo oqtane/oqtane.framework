@@ -1,5 +1,16 @@
 ﻿@using Oqtane.Themes
 @inherits ThemeObjectBase
 
-<a href="@PageState.Alias.Url"><img src="/Sites/@PageState.Site.SiteId/@PageState.Site.Logo" /></a>
+@((MarkupString)logo)
 
+@functions {
+    string logo = "";
+
+    protected override void OnInit()
+    {
+        if (PageState.Site.Logo != "")
+        {
+            logo = "<a href=\"" + PageState.Alias.Url + "\"><img src=\"/Sites/" + PageState.Site.SiteId.ToString() + "/" + PageState.Site.Logo + "\" alt=\"" + PageState.Site.Name + "\"/></a>";
+        }
+    }
+}

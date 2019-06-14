@@ -3,6 +3,8 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Oqtane.Shared;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Oqtane.Services
 {
@@ -20,6 +22,12 @@ namespace Oqtane.Services
         private string apiurl
         {
             get { return CreateApiUrl(sitestate.Alias, "Tenant"); }
+        }
+
+        public async Task<List<Tenant>> GetTenantsAsync()
+        {
+            List<Tenant> tenants = await http.GetJsonAsync<List<Tenant>>(apiurl);
+            return tenants.OrderBy(item => item.Name).ToList();
         }
 
         public async Task<Tenant> GetTenantAsync()
