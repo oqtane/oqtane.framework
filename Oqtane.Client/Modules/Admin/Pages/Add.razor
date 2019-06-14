@@ -170,7 +170,6 @@
         p.ViewPermissions = viewpermissions;
         p.EditPermissions = editpermissions;
         await PageService.AddPageAsync(p);
-        StateHasChanged();
         UriHelper.NavigateTo(NavigateUrl(path, true));
     }
 }
