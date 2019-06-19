@@ -5,6 +5,7 @@
 @using System.Collections.Generic
 @using Oqtane.Shared
 @using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Components.Routing
 @inject SiteState SiteState
 @inject IUriHelper UriHelper
 @inject IJSRuntime jsRuntime
@@ -19,7 +20,7 @@
 
 @DynamicComponent
 
-@functions {
+@code {
 
     [CascadingParameter] PageState PageState { get; set; }
 
@@ -236,9 +237,9 @@
         }
     }
 
-    private async void OnLocationChanged(object sender, string AbsoluteUri)
+    private async void OnLocationChanged(object sender, LocationChangedEventArgs args)
     {
-        _absoluteUri = AbsoluteUri;
+        _absoluteUri = args.Location;
         await LocationChanged();
     }
 

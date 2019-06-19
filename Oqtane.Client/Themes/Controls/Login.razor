@@ -5,9 +5,9 @@
 @inject IUriHelper UriHelper
 @inject IJSRuntime jsRuntime
 
-<button type="button" class="btn btn-primary" onclick="@Click">@name</button>
+<button type="button" class="btn btn-primary" @onclick="@Click">@name</button>
 
-@functions {
+@code {
     string name = "";
 
     protected override async Task OnInitAsync()

@@ -11,12 +11,12 @@
     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
         @foreach (var action in actions)
         {
-            <a class="dropdown-item" onclick="@(async () => await ModuleAction(action.Action))">@action.Name</a>
+            <a class="dropdown-item" @onclick="@(async () => await ModuleAction(action.Action))">@action.Name</a>
         }
     </div>
 </div>
 
-@functions {
+@code {
     string display = "display: none";
     List<ActionViewModel> actions;
 

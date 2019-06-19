@@ -16,15 +16,15 @@
                 <label for="Name" class="control-label">Content: </label>
             </td>
             <td>
-                <textarea class="form-control" bind="@content" rows="5" style="width:400px;" />
+                <textarea class="form-control" @bind="@content" rows="5" style="width:400px;" />
             </td>
         </tr>
     </table>
-    <button class="btn btn-success" onclick="@SaveContent">Save</button>
+    <button class="btn btn-success" @onclick="@SaveContent">Save</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 </form>
 
-@functions {
+@code {
     public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Edit; } }
     public override string Title { get { return "Edit Html/Text"; } }
 

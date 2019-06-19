@@ -5,7 +5,7 @@
     <SiteRouter OnStateChange="@ChangeState" />
 </CascadingValue>
 
-@functions {
+@code {
     private PageState PageState { get; set; }
 
     private void ChangeState(PageState pagestate)

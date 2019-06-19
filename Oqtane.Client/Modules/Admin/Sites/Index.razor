@@ -30,7 +30,7 @@ else
     <ActionLink Action="Add" Text="Add Site" />
 }
 
-@functions {
+@code {
     public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Host; } }
 
     List<Site> sites;
