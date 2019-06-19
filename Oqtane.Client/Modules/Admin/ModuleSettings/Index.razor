@@ -16,7 +16,7 @@
             <label for="Title" class="control-label">Title: </label>
         </td>
         <td>
-            <input type="text" name="Title" class="form-control" bind="@title" />
+            <input type="text" name="Title" class="form-control" @bind="@title" />
         </td>
     </tr>
     <tr>
@@ -24,7 +24,7 @@
             <label for="Container" class="control-label">Container: </label>
         </td>
         <td>
-            <select class="form-control" bind="@containertype">
+            <select class="form-control" @bind="@containertype">
                 <option value="">&lt;Select Container&gt;</option>
                 @foreach (KeyValuePair<string, string> container in containers)
                 {
@@ -38,7 +38,7 @@
             <label for="ViewPermissions" class="control-label">View Permissions: </label>
         </td>
         <td>
-            <input type="text" name="ViewPermissions" class="form-control" bind="@viewpermissions" />
+            <input type="text" name="ViewPermissions" class="form-control" @bind="@viewpermissions" />
         </td>
     </tr>
     <tr>
@@ -46,7 +46,7 @@
             <label for="EditPermissions" class="control-label">Edit Permissions: </label>
         </td>
         <td>
-            <input type="text" name="EditPermissions" class="form-control" bind="@editpermissions" />
+            <input type="text" name="EditPermissions" class="form-control" @bind="@editpermissions" />
         </td>
     </tr>
     <tr>
@@ -54,7 +54,7 @@
             <label for="Page" class="control-label">Page: </label>
         </td>
         <td>
-            <select class="form-control" bind="@pageid">
+            <select class="form-control" @bind="@pageid">
                 @foreach (Page p in PageState.Pages)
                 {
                     <option value="@p.PageId">@p.Name</option>
@@ -63,10 +63,10 @@
         </td>
     </tr>
 </table>
-<button class="btn btn-success" onclick="@SaveModule">Save</button>
+<button class="btn btn-success" @onclick="@SaveModule">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
-@functions {
+@code {
     public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Edit; } }
     public override string Title { get { return "Module Settings"; } }
 

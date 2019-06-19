@@ -21,7 +21,7 @@ else
             <label for="Name" class="control-label">Tenant: </label>
         </td>
         <td>
-            <select class="form-control" bind="@tenantid">
+            <select class="form-control" @bind="@tenantid">
                 <option value="">&lt;Select Tenant&gt;</option>
                 @foreach (Tenant tenant in tenants)
                 {
@@ -35,7 +35,7 @@ else
             <label for="Name" class="control-label">Name: </label>
         </td>
         <td>
-            <input class="form-control" bind="@name" />
+            <input class="form-control" @bind="@name" />
         </td>
     </tr>
     <tr>
@@ -43,7 +43,7 @@ else
             <label for="Name" class="control-label">Alias: </label>
         </td>
         <td>
-            <input class="form-control" bind="@url" />
+            <input class="form-control" @bind="@url" />
         </td>
     </tr>
     <tr>
@@ -51,15 +51,15 @@ else
             <label for="Name" class="control-label">Logo: </label>
         </td>
         <td>
-            <input class="form-control" bind="@logo" />
+            <input class="form-control" @bind="@logo" />
         </td>
     </tr>
 </table>
-<button class="btn btn-success" onclick="@SaveSite">Save</button>
+<button class="btn btn-success" @onclick="@SaveSite">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 }
 
-@functions {
+@code {
     public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Host; } }
 
     List<Tenant> tenants;

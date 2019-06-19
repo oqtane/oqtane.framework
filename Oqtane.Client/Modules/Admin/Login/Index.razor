@@ -14,17 +14,17 @@
     @((MarkupString)Message)
     <div class="form-group">
         <label for="Username" class="control-label">Username: </label>
-        <input type="text" name="Username" class="form-control" placeholder="Username" bind="@Username" />
+        <input type="text" name="Username" class="form-control" placeholder="Username" @bind="@Username" />
     </div>
     <div class="form-group">
         <label for="Password" class="control-label">Password: </label>
-        <input type="password" name="Password" class="form-control" placeholder="Password" bind="@Password" />
+        <input type="password" name="Password" class="form-control" placeholder="Password" @bind="@Password" />
     </div>
-    <button type="button" class="btn btn-primary" onclick="@Login">Login</button>
+    <button type="button" class="btn btn-primary" @onclick="@Login">Login</button>
     <NavLink class="btn btn-secondary" href="/">Cancel</NavLink>
 </div>
 
-@functions {
+@code {
     public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Anonymous; } }
 
     public string Message { get; set; } = "<div class=\"alert alert-info\" role=\"alert\">Use host/host For Demo Access</div>";

@@ -2,10 +2,10 @@
 @inherits ModuleBase
 Current count: @currentCount
 <br />
-<button class="btn btn-primary" onclick="@IncrementCount">Click me</button>
+<button class="btn btn-primary" @onclick="@IncrementCount">Click me</button>
 <br /><br />
 
-@functions {
+@code {
     int currentCount = 0;
 
     void IncrementCount()
