@@ -31,7 +31,7 @@
                 <label for="Module" class="control-label" style="color: white !important;">Module: </label>
                 @if (moduledefinitions != null)
                 {
-                    <select class="form-control" bind="@moduledefinitionname">
+                    <select class="form-control" @bind="@moduledefinitionname">
                         <option value="">&lt;Select Module&gt;</option>
                         @foreach (var moduledefinition in moduledefinitions)
                         {
@@ -42,7 +42,7 @@
             </div>
             <div class="form-group">
                 <label for="Pane" class="control-label" style="color: white !important;">Pane: </label>
-                <select class="form-control" bind="@pane">
+                <select class="form-control" @bind="@pane">
                     <option value="">&lt;Select Pane&gt;</option>
                     @foreach (string pane in PageState.Page.Panes.Split(';'))
                     {
@@ -52,11 +52,11 @@
             </div>
             <div class="form-group">
                 <label for="Title" class="control-label" style="color: white !important;">Title: </label>
-                <input type="text" name="Title" class="form-control" bind="@title" />
+                <input type="text" name="Title" class="form-control" @bind="@title" />
             </div>
             <div class="form-group">
                 <label for="Container" class="control-label" style="color: white !important;">Container: </label>
-                <select class="form-control" bind="@containertype">
+                <select class="form-control" @bind="@containertype">
                     <option value="">&lt;Select Container&gt;</option>
                     @foreach (KeyValuePair<string, string> container in containers)
                     {
@@ -64,13 +64,13 @@
                     }
                 </select>
             </div>
-            <button type="button" class="btn btn-primary" onclick="@AddModule">Add Module To Page</button>
+            <button type="button" class="btn btn-primary" @onclick="@AddModule">Add Module To Page</button>
         </div>
     </div>
 </div>
 <span class="oi oi-menu" style="@display" onclick="openActions()"></span>
 
-@functions {
+@code {
     string display = "display: none";
     List<ModuleDefinition> moduledefinitions;
     Dictionary<string, string> containers = new Dictionary<string, string>();

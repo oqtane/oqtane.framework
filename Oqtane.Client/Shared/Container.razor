@@ -5,13 +5,14 @@
     @DynamicComponent
 </CascadingValue>
 
-@functions {
+@code {
     [CascadingParameter]
     protected PageState PageState { get; set; }
 
     [Parameter]
-    private Module ModuleState { get; set; }
+    private Module Module { get; set; }
 
+    Module ModuleState;
     string container;
 
     RenderFragment DynamicComponent { get; set; }
@@ -35,6 +36,7 @@
 
     protected override Task OnParametersSetAsync()
     {
+        ModuleState = Module; // passed in from Pane component
         container = ModuleState.ContainerType;
         if (PageState.ModuleId != -1 && PageState.Control != "")
         {

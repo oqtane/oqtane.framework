@@ -2,18 +2,40 @@
 @using Oqtane.Models
 @using Oqtane.Services
 @using Oqtane.Modules
-@using Oqtane.Client.Modules.Controls
 @inherits ModuleBase
 @inject IUriHelper UriHelper
+@inject ITenantService TenantService
+@inject IAliasService AliasService
 @inject ISiteService SiteService
+@inject IPageService PageService
 
+@if (tenants == null)
+{
+<p><em>Loading...</em></p>
+}
+else
+{
 <table class="form-group">
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Tenant: </label>
+        </td>
+        <td>
+            <select class="form-control" @bind="@tenantid">
+                <option value="">&lt;Select Tenant&gt;</option>
+                @foreach (Tenant tenant in tenants)
+                {
+                <option value="@tenant.TenantId">@tenant.Name</option>
+                }
+            </select>
+        </td>
+    </tr>
     <tr>
         <td>
             <label for="Name" class="control-label">Name: </label>
         </td>
         <td>
-            <input class="form-control" bind="@name" />
+            <input class="form-control" @bind="@name" />
         </td>
     </tr>
     <tr>
@@ -21,26 +43,69 @@
             <label for="Name" class="control-label">Alias: </label>
         </td>
         <td>
-            <input class="form-control" bind="@alias" />
+            <input class="form-control" @bind="@url" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Logo: </label>
+        </td>
+        <td>
+            <input class="form-control" @bind="@logo" />
         </td>
     </tr>
 </table>
-<button class="btn btn-success" onclick="@SaveSite">Save</button>
+<button class="btn btn-success" @onclick="@SaveSite">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+}
 
-@functions {
+@code {
     public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Host; } }
 
+    List<Tenant> tenants;
+    string tenantid;
     string name;
-    string alias;
+    string url;
+    string logo;
+
+    protected override async Task OnInitAsync()
+    {
+        tenants = await TenantService.GetTenantsAsync();
+    }
 
     private async Task SaveSite()
     {
         Site site = new Site();
         site.Name = name;
-        site.Logo = "";
+        site.Logo = (logo == null ? "" : logo);
         await SiteService.AddSiteAsync(site);
-        StateHasChanged();
-        UriHelper.NavigateTo(NavigateUrl());
+        List<Site> sites = await SiteService.GetSitesAsync();
+        site = sites.Where(item => item.Name == name).FirstOrDefault();
+
+        Alias alias = new Alias();
+        alias.Name = url;
+        alias.TenantId = int.Parse(tenantid);
+        alias.SiteId = site.SiteId;
+        await AliasService.AddAliasAsync(alias);
+
+        // need to add a home page and admin pages
+        Page p = new Page();
+        p.SiteId = site.SiteId;
+        p.ParentId = null;
+        p.Name = "Home";
+        p.Path = "";
+        p.Order = 1;
+        p.IsNavigation = true;
+        p.ThemeType = "Oqtane.Client.Themes.Theme1.Theme1, Oqtane.Client";
+        p.LayoutType = "";
+        p.Icon = "";
+        Type type = Type.GetType(p.ThemeType);
+        System.Reflection.PropertyInfo property = type.GetProperty("Panes");
+        p.Panes = (string)property.GetValue(Activator.CreateInstance(type), null);
+        p.ViewPermissions = "All Users";
+        p.EditPermissions = "Administrators";
+        await PageService.AddPageAsync(p);
+
+        UriHelper.NavigateTo(url, true);
     }
 }

@@ -14,7 +14,7 @@
             <label for="Name" class="control-label">Name: </label>
         </td>
         <td>
-            <input class="form-control" bind="@name" />
+            <input class="form-control" @bind="@name" />
         </td>
     </tr>
     <tr>
@@ -22,7 +22,7 @@
             <label for="Name" class="control-label">Path: </label>
         </td>
         <td>
-            <input class="form-control" bind="@path" />
+            <input class="form-control" @bind="@path" />
         </td>
     </tr>
     <tr>
@@ -30,7 +30,7 @@
             <label for="Name" class="control-label">Parent: </label>
         </td>
         <td>
-            <select class="form-control" bind="@parentid">
+            <select class="form-control" @bind="@parentid">
                 <option value="">&lt;Select Parent&gt;</option>
                 @foreach (Page p in PageState.Pages)
                 {
@@ -44,7 +44,7 @@
             <label for="Name" class="control-label">Order: </label>
         </td>
         <td>
-            <input class="form-control" bind="@order" />
+            <input class="form-control" @bind="@order" />
         </td>
     </tr>
     <tr>
@@ -52,7 +52,7 @@
             <label for="Name" class="control-label">Navigation? </label>
         </td>
         <td>
-            <select class="form-control" bind="@isnavigation">
+            <select class="form-control" @bind="@isnavigation">
                 <option value="true">Yes</option>
                 <option value="false">No</option>
             </select>
@@ -63,7 +63,7 @@
             <label for="Name" class="control-label">Theme: </label>
         </td>
         <td>
-            <select class="form-control" bind="@themetype">
+            <select class="form-control" @bind="@themetype">
                 <option value="">&lt;Select Theme&gt;</option>
                 @foreach (KeyValuePair<string, string> item in themes)
                 {
@@ -77,7 +77,7 @@
             <label for="Name" class="control-label">Layout: </label>
         </td>
         <td>
-            <select class="form-control" bind="@layouttype">
+            <select class="form-control" @bind="@layouttype">
                 <option value="">&lt;Select Layout&gt;</option>
                 @foreach (KeyValuePair<string, string> panelayout in panelayouts)
                 {
@@ -91,7 +91,7 @@
             <label for="Name" class="control-label">Icon: </label>
         </td>
         <td>
-            <input class="form-control" bind="@icon" />
+            <input class="form-control" @bind="@icon" />
         </td>
     </tr>
     <tr>
@@ -99,7 +99,7 @@
             <label for="Name" class="control-label">View Permissions: </label>
         </td>
         <td>
-            <input class="form-control" bind="@viewpermissions" />
+            <input class="form-control" @bind="@viewpermissions" />
         </td>
     </tr>
     <tr>
@@ -107,14 +107,14 @@
             <label for="Name" class="control-label">Edit Permissions: </label>
         </td>
         <td>
-            <input class="form-control" bind="@editpermissions" />
+            <input class="form-control" @bind="@editpermissions" />
         </td>
     </tr>
 </table>
-<button class="btn btn-success" onclick="@SavePage">Save</button>
+<button class="btn btn-success" @onclick="@SavePage">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
-@functions {
+@code {
     public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Admin; } }
 
     Dictionary<string, string> themes = new Dictionary<string, string>();
@@ -170,7 +170,6 @@
         p.ViewPermissions = viewpermissions;
         p.EditPermissions = editpermissions;
         await PageService.AddPageAsync(p);
-        StateHasChanged();
         UriHelper.NavigateTo(NavigateUrl(path, true));
     }
 }

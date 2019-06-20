@@ -13,7 +13,7 @@
     @DynamicComponent
 </div>
 
-@functions {
+@code {
     [CascadingParameter]
     protected PageState PageState { get; set; }
 
@@ -84,7 +84,7 @@
                                     }
                                 }
                                 builder.OpenComponent(0, Type.GetType(Constants.DefaultContainer));
-                                builder.AddAttribute(1, "ModuleState", module);
+                                builder.AddAttribute(1, "Module", module);
                                 builder.CloseComponent();
                             }
                         }
@@ -106,7 +106,7 @@
                         if (UserService.IsAuthorized(PageState.User, module.ViewPermissions))
                         {
                             builder.OpenComponent(0, Type.GetType(Constants.DefaultContainer));
-                            builder.AddAttribute(1, "ModuleState", module);
+                            builder.AddAttribute(1, "Module", module);
                             builder.CloseComponent();
                         }
                     }
@@ -119,7 +119,7 @@
                         if (UserService.IsAuthorized(PageState.User, module.ViewPermissions))
                         {
                             builder.OpenComponent(0, Type.GetType(Constants.DefaultContainer));
-                            builder.AddAttribute(1, "ModuleState", module);
+                            builder.AddAttribute(1, "Module", module);
                             builder.CloseComponent();
                         }
                     }
