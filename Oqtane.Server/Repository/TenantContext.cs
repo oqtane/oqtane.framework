@@ -14,6 +14,9 @@ namespace Oqtane.Repository
 
         private readonly Tenant tenant;
 
+        // **** Added for Installer Wizard ****
+        public virtual DbSet<OqtaneDatabaseVersion> OqtaneDatabaseVersion { get; set; }
+
         public TenantContext(ITenantResolver TenantResolver)
         {
             tenant = TenantResolver.GetTenant();
@@ -29,10 +32,15 @@ namespace Oqtane.Repository
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            if (tenant.DBSchema != "")
+            // **** Added for Installer Wizard ****
+            if (tenant != null)
             {
-                modelBuilder.HasDefaultSchema(tenant.DBSchema);
+                if (tenant.DBSchema != "")
+                {
+                    modelBuilder.HasDefaultSchema(tenant.DBSchema);
+                }
             }
+
             base.OnModelCreating(modelBuilder);
         }
     }

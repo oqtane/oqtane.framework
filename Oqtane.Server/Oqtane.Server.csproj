@@ -26,7 +26,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="Scripts\Initialize.sql" />
+    <None Remove="Scripts\01.00.00.sql" />
+    <None Remove="Scripts\01.20.00.Sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Scripts\01.00.00.sql" />
+    <Content Include="Scripts\01.20.00.Sql" />
   </ItemGroup>
 
   <ItemGroup>

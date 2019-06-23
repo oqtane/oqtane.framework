@@ -49,17 +49,6 @@ namespace Oqtane.Server
             {
                 config = reader.ReadToEnd();
             }
-            // if using LocalDB create a unique database name
-            if (config.Contains("AttachDbFilename=|DataDirectory|\\\\Oqtane.mdf"))
-            {
-                string timestamp = DateTime.Now.ToString("yyyyMMddHHmm");
-                config = config.Replace("Initial Catalog=Oqtane", "Initial Catalog=Oqtane-" + timestamp)
-                    .Replace("AttachDbFilename=|DataDirectory|\\\\Oqtane.mdf", "AttachDbFilename=|DataDirectory|\\\\Oqtane-" + timestamp + ".mdf");
-                using (StreamWriter writer = new StreamWriter(Directory.GetCurrentDirectory() + "\\appsettings.json"))
-                {
-                    writer.WriteLine(config);
-                }
-            }
         }
     }
 }

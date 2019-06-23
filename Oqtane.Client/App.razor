@@ -1,16 +1,35 @@
 ﻿@using Oqtane.Shared
 @using Oqtane.Client.Shared
+@using Oqtane.Client.Installer
+@using Oqtane.Models;
+@using System.Net.Http;
 
-<CascadingValue Value="@PageState">
-    <SiteRouter OnStateChange="@ChangeState" />
-</CascadingValue>
+@inject IUriHelper UriHelper
+@inject HttpClient http
 
+@if (Installed)
+{
+    <CascadingValue Value="@PageState">
+        <SiteRouter OnStateChange="@ChangeState" />
+    </CascadingValue>
+}
+else
+{
+    <InstallWizard />
+}
 @code {
+    private bool Installed = false;
     private PageState PageState { get; set; }
-
+    private string _absoluteUri;
     private void ChangeState(PageState pagestate)
     {
         PageState = pagestate;
         StateHasChanged();
+    }
+    protected override async Task OnInitAsync()
+    {
+        _absoluteUri = UriHelper.GetAbsoluteUri();
+        var result = await http.GetJsonAsync<VersionInfo>(_absoluteUri + @"api/InstallWizard/CurrentVersion");
+        Installed = result.isUpToDate;
     }
 }

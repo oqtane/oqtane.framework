@@ -11,7 +11,6 @@ using System.Reflection;
 using Microsoft.Extensions.Hosting;
 using Oqtane.Modules;
 using Oqtane.Repository;
-using Oqtane.Filters;
 using System.IO;
 using System.Runtime.Loader;
 using Oqtane.Services;
@@ -24,7 +23,8 @@ namespace Oqtane.Server
 {
     public class Startup
     {
-        public IConfiguration Configuration { get; }
+        // **** Changed from IConfiguration to IConfigurationRoot for Installer Wizard ****
+        public IConfigurationRoot Configuration { get; }
         public Startup(IWebHostEnvironment env)
         {
             var builder = new ConfigurationBuilder()
@@ -97,14 +97,17 @@ namespace Oqtane.Server
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")
                     .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory").ToString())
                 ));
+
+            // **** Added for Installer Wizard ****
+            // Allows appsettings.json to be updated programatically
+            services.ConfigureWritable<Models.ConnectionStrings>(Configuration.GetSection("ConnectionStrings"));
+            services.AddSingleton<IConfigurationRoot>(Configuration);
+
             services.AddDbContext<TenantContext>(options => { });
 
             services.AddMemoryCache();
 
             services.AddMvc().AddNewtonsoftJson();
-
-            // register database install/upgrade filter
-            services.AddTransient<IStartupFilter, UpgradeFilter>();
 
             // register singleton scoped core services
             services.AddSingleton<IModuleDefinitionRepository, ModuleDefinitionRepository>();
@@ -205,8 +208,10 @@ namespace Oqtane.Server
 
             services.AddMvc().AddNewtonsoftJson();
 
-            // register database install/upgrade filter
-            services.AddTransient<IStartupFilter, UpgradeFilter>();
+            // **** Added for Installer Wizard ****
+            // Allows appsettings.json to be updated programatically
+            services.ConfigureWritable<Models.ConnectionStrings>(Configuration.GetSection("ConnectionStrings"));
+            services.AddSingleton<IConfigurationRoot>(Configuration);
 
             // register singleton scoped core services
             services.AddSingleton<IModuleDefinitionRepository, ModuleDefinitionRepository>();

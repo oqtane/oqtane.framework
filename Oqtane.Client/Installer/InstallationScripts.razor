@@ -1,0 +1,51 @@
+﻿@using Oqtane.Shared
+@using Oqtane.Client.Shared
+
+@using Oqtane.Models;
+@using System.Net.Http;
+@inject HttpClient http
+@inject IUriHelper UriHelper
+
+@status.StatusMessage
+@if (@status.Success == true)
+{
+    <table class="form-group" cellpadding="4" cellspacing="4">
+        <tbody>
+            <tr>
+                <td>
+                    <span>Installed!</span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button type="button" label="Continue"
+                            class="btn btn-success"
+                            @onclick="@Continue">
+                        Continue
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter] EventCallback<string> InstallationState { get; set; }
+    private string _absoluteUri;
+    private Status status = new Status() { StatusMessage = "Installing...", Success = false };
+
+    protected override async Task OnInitAsync()
+    {
+        _absoluteUri = UriHelper.GetAbsoluteUri();
+        status = await http.GetJsonAsync<Status>(_absoluteUri + @"api/InstallWizard/UpdateDatabase");
+        if (status.Success)
+        {
+            await InstallationState.InvokeAsync("InstallationScripts");
+        }
+    }
+
+    private void Continue()
+    {
+        UriHelper.NavigateTo(_absoluteUri, true);
+    }
+}

@@ -1,0 +1,91 @@
+﻿@using Oqtane.Shared
+@using Oqtane.Client.Shared
+
+@using Oqtane.Models;
+@using System.Net.Http;
+@inject HttpClient http
+@inject IUriHelper UriHelper
+
+<style>
+    .installWizard {
+        display: inline;
+    }
+</style>
+<div class="installWizard">
+    <img src="oqtane.png" />
+
+    <div>
+        <h2>Install Wizard</h2>
+    </div>
+    <div>
+        <label for="ViewPermissions" class="control-label">Current Version:</label> @strVersionNumber
+    </div>
+
+    <table style="padding: 2px">
+        <tbody>
+            <tr>
+                <td style="width:400px; text-align:left; vertical-align:top; padding: 2px">
+                    <button class="btn btn-primary"
+                            style="margin: 5px; padding: 5px; width:300px;"
+                            disabled="@(CurrentInstallationState != InstallationState.DatabaseConfiguration)">
+                        Database Configuration
+                    </button>
+                    <br />
+                    <button class="btn btn-primary"
+                            style="margin: 5px; padding: 5px; width:300px;"
+                            disabled="@(CurrentInstallationState != InstallationState.InstallationScripts)">
+                        Installation Scripts
+                    </button>
+                </td>
+                <td rowspan="4" style="width: 90%" valign="top">
+                    @if (CurrentInstallationState == InstallationState.DatabaseConfiguration)
+                    {
+                        <DatabaseConfiguration InstallationState="@InstallationStateHandler" />
+                    }
+                    @if (CurrentInstallationState == InstallationState.InstallationScripts)
+                    {
+                        <InstallationScripts InstallationState="@InstallationStateHandler" />
+                    }
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+@code {
+
+    enum InstallationState { DatabaseConfiguration, InstallationScripts };
+    private InstallationState CurrentInstallationState = InstallationState.DatabaseConfiguration;
+
+    private string strVersionNumber = "00.00.00";
+    private string _absoluteUri;
+
+    protected override async Task OnInitAsync()
+    {
+        _absoluteUri = UriHelper.GetAbsoluteUri();
+        var result = await http.GetJsonAsync<VersionInfo>(_absoluteUri + @"api/InstallWizard/CurrentVersion");
+        strVersionNumber = result.VersionNumber;
+
+        if (strVersionNumber == "00.00.00")
+        {
+            CurrentInstallationState = InstallationState.DatabaseConfiguration;
+        }
+        else
+        {
+            CurrentInstallationState = InstallationState.InstallationScripts;
+        }
+    }
+
+    public async void InstallationStateHandler(string strInstallationState)
+    {
+        if (strInstallationState == "InstallationScripts")
+        {
+            CurrentInstallationState = InstallationState.InstallationScripts;
+        }
+
+        // Update current version display
+        _absoluteUri = UriHelper.GetAbsoluteUri();
+        var result = await http.GetJsonAsync<VersionInfo>(_absoluteUri + @"api/InstallWizard/CurrentVersion");
+        strVersionNumber = result.VersionNumber;
+        StateHasChanged();
+    }
+}
