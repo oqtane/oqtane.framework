@@ -88,9 +88,9 @@ namespace Oqtane.Filters
                 Thread.Sleep(5000);
             }
 
-            // get initialization script and update connectionstring in Tenants seed data
+            // get master initialization script and update connectionstring in seed data
             string initializationScript = "";
-            using (StreamReader reader = new StreamReader(Directory.GetCurrentDirectory() + "\\Scripts\\Initialize.sql"))
+            using (StreamReader reader = new StreamReader(Directory.GetCurrentDirectory() + "\\Scripts\\Master.sql"))
             {
                 initializationScript = reader.ReadToEnd();
             }
@@ -98,7 +98,7 @@ namespace Oqtane.Filters
 
             // handle upgrade scripts
             var dbUpgradeConfig = DeployChanges.To.SqlDatabase(connectionString)
-                .WithScript(new DbUp.Engine.SqlScript("Initialize.sql", initializationScript))
+                .WithScript(new DbUp.Engine.SqlScript("Master.sql", initializationScript))
                 .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly()); // upgrade scripts should be added to /Scripts folder as Embedded Resources
             var dbUpgrade = dbUpgradeConfig.Build();
             if (dbUpgrade.IsUpgradeRequired())

@@ -26,7 +26,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="Scripts\Initialize.sql" />
+    <None Remove="Scripts\Master.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Scripts\Master.sql" />
+    <EmbeddedResource Include="Scripts\Tenant.sql" />
   </ItemGroup>
 
   <ItemGroup>
