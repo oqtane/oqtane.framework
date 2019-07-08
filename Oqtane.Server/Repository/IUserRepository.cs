@@ -9,6 +9,7 @@ namespace Oqtane.Repository
         void AddUser(User User);
         void UpdateUser(User User);
         User GetUser(int UserId);
+        User GetUser(string Username);
         void DeleteUser(int UserId);
     }
 }

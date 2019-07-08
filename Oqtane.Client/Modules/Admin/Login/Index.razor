@@ -1,45 +1,56 @@
 ﻿@using Microsoft.AspNetCore.Components.Routing
-@using Oqtane.Shared
 @using Oqtane.Modules
 @using Microsoft.JSInterop
 @using Oqtane.Models
 @using Oqtane.Services
-@using Oqtane.Client.Modules.Controls
+@using Oqtane.Providers
 @inherits ModuleBase
 @inject IUriHelper UriHelper
 @inject IJSRuntime jsRuntime
-@inject IUserService  UserService
+@inject IUserService UserService
+@inject ServerAuthenticationStateProvider AuthStateProvider
 
-<div class="container">
-    @((MarkupString)Message)
-    <div class="form-group">
-        <label for="Username" class="control-label">Username: </label>
-        <input type="text" name="Username" class="form-control" placeholder="Username" @bind="@Username" />
-    </div>
-    <div class="form-group">
-        <label for="Password" class="control-label">Password: </label>
-        <input type="password" name="Password" class="form-control" placeholder="Password" @bind="@Password" />
-    </div>
-    <button type="button" class="btn btn-primary" @onclick="@Login">Login</button>
-    <NavLink class="btn btn-secondary" href="/">Cancel</NavLink>
-</div>
+<AuthorizeView>
+    <Authorizing>
+        <text>...</text>
+    </Authorizing>
+    <Authorized>
+        You are already logged in
+    </Authorized>
+    <NotAuthorized>
+        <div class="container">
+            @((MarkupString)Message)
+            <div class="form-group">
+                <label for="Username" class="control-label">Username: </label>
+                <input type="text" name="Username" class="form-control" placeholder="Username" @bind="@Username" />
+            </div>
+            <div class="form-group">
+                <label for="Password" class="control-label">Password: </label>
+                <input type="password" name="Password" class="form-control" placeholder="Password" @bind="@Password" />
+            </div>
+            <button type="button" class="btn btn-primary" @onclick="@Login">Login</button>
+            <NavLink class="btn btn-secondary" href="/">Cancel</NavLink>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
     public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Anonymous; } }
 
-    public string Message { get; set; } = "<div class=\"alert alert-info\" role=\"alert\">Use host/host For Demo Access</div>";
+    public string Message { get; set; } = "<div class=\"alert alert-info\" role=\"alert\">Use host/password For Demo Access</div>";
     public string Username { get; set; } = "";
     public string Password { get; set; } = "";
 
     private async Task Login()
     {
-        List<User> users = await UserService.GetUsersAsync();
-        User user = users.Where(item => item.Username == Username).FirstOrDefault();
+        User user = new User();
+        user.Username = Username;
+        user.Password = Password;
+        user = await UserService.LoginUserAsync(user);
         if (user != null)
         {
-            var interop = new Interop(jsRuntime);
-            await interop.SetCookie("user", user.UserId.ToString(), 7);
-            UriHelper.NavigateTo(NavigateUrl(""), true);
+            AuthStateProvider.NotifyAuthenticationChanged();
+            UriHelper.NavigateTo(NavigateUrl(""));
         }
         else
         {

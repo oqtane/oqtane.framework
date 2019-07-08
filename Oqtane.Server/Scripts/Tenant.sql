@@ -313,21 +313,4 @@ GO
 SET IDENTITY_INSERT [dbo].[HtmlText] OFF 
 GO
 
-SET IDENTITY_INSERT [dbo].[User] ON 
-GO
-INSERT [dbo].[User] ([UserId], [Username], [DisplayName], [Roles], [IsSuperUser]) 
-VALUES (1, N'host', N'Host', N'', 1)
-GO
-INSERT [dbo].[User] ([UserId], [Username], [DisplayName], [Roles], [IsSuperUser]) 
-VALUES (2, N'admin', N'Administrator', N'Administrators;', 0)
-GO
-INSERT [dbo].[User] ([UserId], [Username], [DisplayName], [Roles], [IsSuperUser]) 
-VALUES (3, N'editor', N'Editor', N'Editors;', 0)
-GO
-INSERT [dbo].[User] ([UserId], [Username], [DisplayName], [Roles], [IsSuperUser]) 
-VALUES (4, N'member', N'Member', N'Members;', 0)
-GO
-SET IDENTITY_INSERT [dbo].[User] OFF
-GO
-
 

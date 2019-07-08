@@ -65,6 +65,19 @@ namespace Oqtane.Repository
             }
         }
 
+        public User GetUser(string Username)
+        {
+            try
+            {
+                User user = db.User.Where(item => item.Username == Username).FirstOrDefault();
+                return user;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
         public void DeleteUser(int userId)
         {
             try

@@ -1,12 +1,10 @@
 ﻿@using Microsoft.AspNetCore.Components.Routing
-@using Oqtane.Shared
 @using Oqtane.Modules
-@using Microsoft.JSInterop
-@using Oqtane.Client.Modules.Controls
+@using Oqtane.Models
+@using Oqtane.Services
 @inherits ModuleBase
 @inject IUriHelper UriHelper
-@inject IJSRuntime jsRuntime
-
+@inject IUserService UserService
 
 <div class="container">
     <div class="form-group">
@@ -17,13 +15,25 @@
         <label for="Password" class="control-label">Password: </label>
         <input type="password" name="Password" class="form-control" placeholder="Password" @bind="@Password" />
     </div>
-    <button type="button" class="btn btn-primary">Register</button>
+    <button type="button" class="btn btn-primary" @onclick="@RegisterUser">Register</button>
     <NavLink class="btn btn-secondary" href="/">Cancel</NavLink>
 </div>
 
 @code {
-    public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Anonymous; } }
+public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Anonymous; } }
 
-    public string Username { get; set; } = "";
-    public string Password { get; set; } = "";
+public string Username { get; set; } = "";
+public string Password { get; set; } = "";
+
+private async Task RegisterUser()
+{
+    User user = new User();
+    user.Username = Username;
+    user.DisplayName = Username;
+    user.Roles = "Administrators;";
+    user.IsSuperUser = false;
+    user.Password = Password;
+    await UserService.AddUserAsync(user);
+    UriHelper.NavigateTo("");
+}
 }

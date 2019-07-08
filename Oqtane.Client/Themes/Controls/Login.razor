@@ -1,41 +1,34 @@
 ﻿@using Oqtane.Themes
-@using Oqtane.Shared
-@using Microsoft.JSInterop
+@using  Oqtane.Services
+@using Oqtane.Providers
 @inherits ThemeObjectBase
 @inject IUriHelper UriHelper
-@inject IJSRuntime jsRuntime
+@inject IUserService UserService
+@inject ServerAuthenticationStateProvider AuthStateProvider
 
-<button type="button" class="btn btn-primary" @onclick="@Click">@name</button>
+<AuthorizeView>
+    <Authorizing>
+        <text>...</text>
+    </Authorizing>
+    <Authorized>
+        <button type="button" class="btn btn-primary" @onclick="@LogoutUser">Logout</button>
+    </Authorized>
+    <NotAuthorized>
+        <button type="button" class="btn btn-primary" @onclick="@LoginUser">Login</button>
+    </NotAuthorized>
+</AuthorizeView>
+
 
 @code {
-    string name = "";
-
-    protected override async Task OnInitAsync()
+    private void LoginUser()
     {
-        var interop = new Interop(jsRuntime);
-        string user = await interop.GetCookie("user");
-
-        if (user == "")
-        {
-            name = "Login";
-        }
-        else
-        {
-            name = "Logout";
-        }
+        UriHelper.NavigateTo(NavigateUrl("login"));
     }
 
-    private async Task Click()
+    private async Task LogoutUser()
     {
-        if (name == "Login")
-        {
-            UriHelper.NavigateTo(NavigateUrl("login"));
-        }
-        else
-        {
-            var interop = new Interop(jsRuntime);
-            await interop.SetCookie("user", "", 7);
-            UriHelper.NavigateTo(NavigateUrl(""), true);
-        }
+        await UserService.LogoutUserAsync();
+        AuthStateProvider.NotifyAuthenticationChanged();
+        UriHelper.NavigateTo(NavigateUrl(""));
     }
 }

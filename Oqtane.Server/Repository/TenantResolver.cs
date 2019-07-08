@@ -28,6 +28,10 @@ namespace Oqtane.Repository
             {
                 aliasname += "/" + segments[1];
             }
+            if (aliasname.EndsWith("/"))
+            {
+                aliasname = aliasname.Substring(0, aliasname.Length - 1);
+            }
         }
 
         public Tenant GetTenant()
