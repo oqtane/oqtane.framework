@@ -107,20 +107,6 @@ private async Task Refresh()
     }
     if (site != null || reload == true)
     {
-        user = null;
-        if (PageState == null || reload == true)
-        {
-            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            if (authState.User.Identity.IsAuthenticated)
-            {
-                user = await UserService.GetCurrentUserAsync();
-            }
-        }
-        else
-        {
-            user = PageState.User;
-        }
-
         string path = new Uri(_absoluteUri).PathAndQuery.Substring(1);
         if (path.EndsWith("/")) { path = path.Substring(0, path.Length - 1); }
         if (alias.Path != "")
@@ -133,6 +119,20 @@ private async Task Refresh()
         if (querystring.ContainsKey("reload"))
         {
             reload = true;
+        }
+
+        user = null;
+        if (PageState == null || reload == true)
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            if (authState.User.Identity.IsAuthenticated)
+            {
+                user = await UserService.GetCurrentUserAsync();
+            }
+        }
+        else
+        {
+            user = PageState.User;
         }
 
         if (PageState == null || reload == true)
