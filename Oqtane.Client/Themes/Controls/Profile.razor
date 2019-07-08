@@ -1,35 +1,25 @@
-﻿@using Microsoft.AspNetCore.Components.Routing
-@using Oqtane.Themes
-@using Oqtane.Shared
-@using Oqtane.Services;
-@using Oqtane.Models;
-@using Microsoft.JSInterop
-@inject IJSRuntime jsRuntime
+﻿@using Oqtane.Themes
 @inherits ThemeObjectBase
+@inject IUriHelper UriHelper
 
-<NavLink class="btn btn-primary" href="@url">@name</NavLink>
+<AuthorizeView>
+    <Authorizing>
+        <text>...</text>
+    </Authorizing>
+    <Authorized>
+        <button type="button" class="btn btn-primary" @onclick="@RegisterUser">@context.User.Identity.Name</button>
+    </Authorized>
+    <NotAuthorized>
+        <button type="button" class="btn btn-primary" @onclick="@RegisterUser">Register</button>
+    </NotAuthorized>
+</AuthorizeView>
+
 
 @code {
-    string name = "";
-    string url = "";
 
-    protected override async Task OnInitAsync()
+    private void RegisterUser()
     {
-        var interop = new Interop(jsRuntime);
-        string userid = await interop.GetCookie("user");
-
-        if (userid == "")
-        {
-            name = "Register";
-            url = "register";
-        }
-        else
-        {
-            if (PageState.User != null)
-            {
-                name = PageState.User.DisplayName;
-            }
-        }
+        UriHelper.NavigateTo(NavigateUrl("register"));
     }
 }
 

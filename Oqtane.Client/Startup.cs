@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Components;
 using System.Reflection;
 using Oqtane.Modules;
 using Oqtane.Shared;
+using Oqtane.Providers;
+using Microsoft.AspNetCore.Blazor.Http;
 
 namespace Oqtane.Client
 {
@@ -27,6 +29,11 @@ namespace Oqtane.Client
 #if WASM
         public void ConfigureServices(IServiceCollection services)
         {
+            // register auth services
+            services.AddAuthorizationCore();
+            services.AddScoped<ServerAuthenticationStateProvider>();
+            services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredService<ServerAuthenticationStateProvider>());
+
             // register scoped core services
             services.AddScoped<SiteState>();
             services.AddScoped<IModuleDefinitionService, ModuleDefinitionService>();
@@ -38,6 +45,7 @@ namespace Oqtane.Client
             services.AddScoped<IModuleService, ModuleService>();
             services.AddScoped<IPageModuleService, PageModuleService>();
             services.AddScoped<IUserService, UserService>();
+
 
             // dynamically register module contexts and repository services
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -63,6 +71,7 @@ namespace Oqtane.Client
 
         public void Configure(IComponentsApplicationBuilder app)
         {
+            WebAssemblyHttpMessageHandler.DefaultCredentials = FetchCredentialsOption.Include;
             app.AddComponent<App>("app");
         }
 #endif

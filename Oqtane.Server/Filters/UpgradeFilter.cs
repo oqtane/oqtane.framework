@@ -7,6 +7,7 @@ using DbUp;
 using System.Data.SqlClient;
 using System.Threading;
 using System.IO;
+using Microsoft.AspNetCore.Identity;
 
 namespace Oqtane.Filters
 {
@@ -109,6 +110,7 @@ namespace Oqtane.Filters
                     throw new Exception();
                 }
             }
+
             return next;
         }
     }

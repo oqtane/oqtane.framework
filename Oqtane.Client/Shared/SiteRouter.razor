@@ -6,6 +6,7 @@
 @using Oqtane.Shared
 @using Microsoft.JSInterop
 @using Microsoft.AspNetCore.Components.Routing
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject SiteState SiteState
 @inject IUriHelper UriHelper
 @inject INavigationInterception NavigationInterception
@@ -106,37 +107,18 @@ private async Task Refresh()
     }
     if (site != null || reload == true)
     {
-        var interop = new Interop(jsRuntime);
-        string userid = await interop.GetCookie("user");
-
         user = null;
         if (PageState == null || reload == true)
         {
-            if (!string.IsNullOrEmpty(userid))
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            if (authState.User.Identity.IsAuthenticated)
             {
-                user = await UserService.GetUserAsync(int.Parse(userid));
+                user = await UserService.GetCurrentUserAsync();
             }
         }
         else
         {
             user = PageState.User;
-        }
-
-        if (!string.IsNullOrEmpty(userid))
-        {
-            if (user != null && user.UserId != int.Parse(userid))
-            {
-                user = await UserService.GetUserAsync(int.Parse(userid));
-            }
-            // this is a hack for server-side Blazor where JSInterop is not working OnInit() which means the userid is not being retrieved from the cookie on the initial render and is not being loaded into PageState
-            if (user == null)
-            {
-                user = await UserService.GetUserAsync(int.Parse(userid));
-            }
-        }
-        else
-        {
-            user = null;
         }
 
         string path = new Uri(_absoluteUri).PathAndQuery.Substring(1);

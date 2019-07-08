@@ -1,9 +1,11 @@
 ﻿@using Oqtane.Shared
 @using Oqtane.Client.Shared
 
-<CascadingValue Value="@PageState">
-    <SiteRouter OnStateChange="@ChangeState" />
-</CascadingValue>
+<CascadingAuthenticationState>
+    <CascadingValue Value="@PageState">
+        <SiteRouter OnStateChange="@ChangeState" />
+    </CascadingValue>
+</CascadingAuthenticationState>
 
 @code {
     private PageState PageState { get; set; }

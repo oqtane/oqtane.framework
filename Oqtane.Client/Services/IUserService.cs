@@ -16,6 +16,12 @@ namespace Oqtane.Services
 
         Task DeleteUserAsync(int UserId);
 
+        Task<User> GetCurrentUserAsync();
+
+        Task<User> LoginUserAsync(User user);
+
+        Task LogoutUserAsync();
+
         bool IsAuthorized(User user, string accesscontrollist);
     }
 }
