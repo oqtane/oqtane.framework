@@ -29,6 +29,6 @@
     {
         await UserService.LogoutUserAsync();
         AuthStateProvider.NotifyAuthenticationChanged();
-        UriHelper.NavigateTo(NavigateUrl(""));
+        UriHelper.NavigateTo(NavigateUrl("", true));
     }
 }
