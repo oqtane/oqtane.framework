@@ -7,13 +7,13 @@ Oqtane uses Blazor, a new web framework for .NET Core that lets you build intera
 
 **To get started with Oqtane:**
 
-   1.&nbsp;Oqtane is currently compatible with **[.NET Core 3.0 Preview 4 SDK (3.0.100-preview4-011223)](https://dotnet.microsoft.com/download/dotnet-core/3.0)**. Microsoft continues to release new versions of .NET Core 3.0 on a regular basis and we do our best to keep up; however, for the best results you should use the most compatible .NET Core 3.0 version.
+   1.&nbsp;Oqtane is currently compatible with **[.NET Core 3.0 Preview 6 SDK (3.0.0-preview6.19307.2)](https://dotnet.microsoft.com/download/dotnet-core/3.0)**. Microsoft continues to release new versions of .NET Core 3.0 on a regular basis and we do our best to keep up; however, for the best results you should use the most compatible .NET Core 3.0 version.
    
    2.&nbsp;Install the latest **Preview** edition of [Visual Studio 2019](https://visualstudio.com/preview) with the **ASP.NET and web development** workload.
 
    3.&nbsp;Install the latest [Blazor extension](https://go.microsoft.com/fwlink/?linkid=870389) from the Visual Studio Marketplace. 
 
-   4.&nbsp;Enable Visual Studio to use preview SDKs: Open **Tools** > **Options** in the menu bar. Open the **Projects and Solutions** node. Open the **.NET Core** tab. Check the box for **Use previews of the .NET Core SDK**. Select **OK**. Note that this option may no longer be applicable in newer versions of Visual Studio 2019 Preview edition.
+   4.&nbsp;Enable Visual Studio to use preview SDKs: Open **Tools** > **Options** in the menu bar. Open the **Environment** node. Open the **Preview Features** tab. Check the box for **Use previews of the .NET Core SDK**. Select **OK**. 
 
    5.&nbsp;Download or Clone the Oqtane source code to your local system. Open the **Oqtane.sln** solution file. If you want to develop using **server-side** Blazor ( which includes a full debugging experience in Visual Studio ) you should choose to Build the solution using the default Debug configuration. If you want to develop using **client-side** Blazor ( WebAssembly ) you should first choose the "Wasm" configuration option in the Visual Studio toolbar and then Build.
 
