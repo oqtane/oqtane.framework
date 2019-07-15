@@ -127,7 +127,7 @@ private async Task Refresh()
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             if (authState.User.Identity.IsAuthenticated)
             {
-                user = await UserService.GetCurrentUserAsync();
+                user = await UserService.GetUserAsync(authState.User.Identity.Name);
             }
         }
         else

@@ -10,6 +10,8 @@ namespace Oqtane.Services
 
         Task<User> GetUserAsync(int UserId);
 
+        Task<User> GetUserAsync(string Username);
+
         Task AddUserAsync(User user);
 
         Task UpdateUserAsync(User user);

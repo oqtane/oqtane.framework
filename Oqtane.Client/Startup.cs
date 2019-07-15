@@ -31,8 +31,8 @@ namespace Oqtane.Client
         {
             // register auth services
             services.AddAuthorizationCore();
-            services.AddScoped<ServerAuthenticationStateProvider>();
-            services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredService<ServerAuthenticationStateProvider>());
+            services.AddScoped<IdentityAuthenticationStateProvider>();
+            services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredService<IdentityAuthenticationStateProvider>());
 
             // register scoped core services
             services.AddScoped<SiteState>();

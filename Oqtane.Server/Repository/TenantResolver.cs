@@ -24,7 +24,7 @@ namespace Oqtane.Repository
             aliasname = accessor.HttpContext.Request.Host.Value;
             string path = accessor.HttpContext.Request.Path.Value;
             string[] segments = path.Split('/');
-            if (segments[1] != "~")
+            if (segments[0] == "api" && segments[1] != "~")
             {
                 aliasname += "/" + segments[1];
             }

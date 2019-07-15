@@ -32,17 +32,7 @@ namespace Oqtane.Services
 
         public async Task<Site> GetSiteAsync(int SiteId)
         {
-            List<Site> sites = await http.GetJsonAsync<List<Site>>(apiurl);
-            Site site;
-            if (sites.Count == 1)
-            {
-                site = sites.FirstOrDefault();
-            }
-            else
-            {
-                site = sites.Where(item => item.SiteId == SiteId).FirstOrDefault();
-            }
-            return site;
+            return await http.GetJsonAsync<Site>(apiurl + "/" + SiteId.ToString());
         }
 
         public async Task AddSiteAsync(Site site)

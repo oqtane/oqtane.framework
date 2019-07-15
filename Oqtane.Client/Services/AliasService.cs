@@ -32,8 +32,7 @@ namespace Oqtane.Services
 
         public async Task<Alias> GetAliasAsync(int AliasId)
         {
-            List<Alias> aliases = await http.GetJsonAsync<List<Alias>>(apiurl);
-            return aliases.Where(item => item.AliasId == AliasId).FirstOrDefault();
+            return await http.GetJsonAsync<Alias>(apiurl + "/" + AliasId.ToString());
         }
 
         public async Task AddAliasAsync(Alias alias)

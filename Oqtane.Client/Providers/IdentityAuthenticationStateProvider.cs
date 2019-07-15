@@ -7,14 +7,12 @@ using Oqtane.Models;
 
 namespace Oqtane.Providers
 {
-    public class ServerAuthenticationStateProvider : AuthenticationStateProvider
+    public class IdentityAuthenticationStateProvider : AuthenticationStateProvider
     {
-        //private readonly IUserService UserService;
         private readonly IUriHelper urihelper;
 
-        public ServerAuthenticationStateProvider(IUriHelper urihelper)
+        public IdentityAuthenticationStateProvider(IUriHelper urihelper)
         {
-            //this.UserService = UserService;
             this.urihelper = urihelper;
         }
 
@@ -25,6 +23,7 @@ namespace Oqtane.Providers
             Uri uri = new Uri(urihelper.GetAbsoluteUri());
             string apiurl = uri.Scheme + "://" + uri.Authority + "/~/api/User/authenticate";
             User user = await http.GetJsonAsync<User>(apiurl);
+
             var identity = user.IsAuthenticated
                 ? new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, user.Username) }, "Identity.Application")
                 : new ClaimsIdentity();

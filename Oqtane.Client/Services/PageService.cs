@@ -30,6 +30,11 @@ namespace Oqtane.Services
             return pages.OrderBy(item => item.Order).ToList();
         }
 
+        public async Task<Page> GetPageAsync(int PageId)
+        {
+            return await http.GetJsonAsync<Page>(apiurl + "/" + PageId.ToString());
+        }
+
         public async Task AddPageAsync(Page page)
         {
             await http.PostJsonAsync(apiurl, page);

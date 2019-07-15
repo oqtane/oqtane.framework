@@ -17,12 +17,9 @@ using System.Runtime.Loader;
 using Oqtane.Services;
 using System.Net.Http;
 using Microsoft.AspNetCore.Components;
-using Oqtane.Client;
 using Oqtane.Shared;
 using Microsoft.AspNetCore.Identity;
-using Oqtane.Providers;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Oqtane.Server
 {
@@ -47,25 +44,27 @@ namespace Oqtane.Server
             services.AddRazorPages();
             services.AddServerSideBlazor();
 
-            // server-side Blazor does not register HttpClient by default
+            // setup HttpClient for server side in a client side compatible fashion ( with auth cookie )
             if (!services.Any(x => x.ServiceType == typeof(HttpClient)))
             {
-                // setup HttpClient for server side in a client side compatible fashion
                 services.AddScoped<HttpClient>(s =>
                 {
                     // creating the URI helper needs to wait until the JS Runtime is initialized, so defer it.
                     var uriHelper = s.GetRequiredService<IUriHelper>();
-                    return new HttpClient
+                    var httpContextAccessor = s.GetRequiredService<IHttpContextAccessor>();
+                    var authToken = httpContextAccessor.HttpContext.Request.Cookies[".AspNetCore.Identity.Application"];
+                    var client = new HttpClient(new HttpClientHandler { UseCookies = false });
+                    if (authToken != null)
                     {
-                        BaseAddress = new Uri(uriHelper.GetBaseUri())
-                    };
+                        client.DefaultRequestHeaders.Add("Cookie", ".AspNetCore.Identity.Application=" + authToken);
+                    }
+                    client.BaseAddress = new Uri(uriHelper.GetBaseUri());
+                    return client;
                 });
             }
 
-             // register auth services
+            // register auth services
             services.AddAuthorizationCore();
-            services.AddScoped<ServerAuthenticationStateProvider>();
-            services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredService<ServerAuthenticationStateProvider>());
 
             // register scoped core services
             services.AddScoped<SiteState>();
