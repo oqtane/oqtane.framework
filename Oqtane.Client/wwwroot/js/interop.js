@@ -29,5 +29,23 @@ window.interop = {
         link.href = fileName;
 
         head.appendChild(link);
+    },
+    submitForm: function (path, fields) {
+        const form = document.createElement('form');
+        form.method = 'post';
+        form.action = path;
+
+        for (const key in fields) {
+            if (fields.hasOwnProperty(key)) {
+                const hiddenField = document.createElement('input');
+                hiddenField.type = 'hidden';
+                hiddenField.name = key;
+                hiddenField.value = fields[key];
+                form.appendChild(hiddenField);
+            }
+        }
+
+        document.body.appendChild(form);
+        form.submit();
     }
 };

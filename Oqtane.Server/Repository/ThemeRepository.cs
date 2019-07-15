@@ -52,6 +52,7 @@ namespace Oqtane.Repository
                     {
                         /// determine if this theme implements ITheme
                         Type themeType = assembly.GetTypes()
+                            .Where(item => item.Namespace != null)
                             .Where(item => item.Namespace.StartsWith(Namespace))
                             .Where(item => item.GetInterfaces().Contains(typeof(ITheme))).FirstOrDefault();
                         if (themeType != null)
@@ -105,7 +106,10 @@ namespace Oqtane.Repository
                         theme.ThemeControls += (themeControlType.FullName + ", " + typename[1] + ";");
                     }
                     // containers
-                    Type[] containertypes = assembly.GetTypes().Where(item => item.Namespace.StartsWith(Namespace)).Where(item => item.GetInterfaces().Contains(typeof(IContainerControl))).ToArray();
+                    Type[] containertypes = assembly.GetTypes()
+                        .Where(item => item.Namespace != null)
+                        .Where(item => item.Namespace.StartsWith(Namespace))
+                        .Where(item => item.GetInterfaces().Contains(typeof(IContainerControl))).ToArray();
                     foreach (Type containertype in containertypes)
                     {
                         theme.ContainerControls += (containertype.FullName + ", " + typename[1] + ";");

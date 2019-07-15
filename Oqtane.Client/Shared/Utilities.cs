@@ -25,7 +25,14 @@ namespace Oqtane.Shared
             string url = pagestate.Alias.Path + "/" + path;
             if (reload)
             {
-                url += "?reload=true";
+                if (url.Contains("?"))
+                {
+                    url += "&reload=true";
+                }
+                else
+                {
+                    url += "?reload=true";
+                }
             }
             return url;
         }

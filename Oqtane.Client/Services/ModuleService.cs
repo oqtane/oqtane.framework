@@ -39,6 +39,11 @@ namespace Oqtane.Services
             return modules.ToList();
         }
 
+        public async Task<Module> GetModuleAsync(int ModuleId)
+        {
+            return await http.GetJsonAsync<Module>(apiurl + "/" + ModuleId.ToString());
+        }
+
         public async Task AddModuleAsync(Module module)
         {
             await http.PostJsonAsync(apiurl, module);

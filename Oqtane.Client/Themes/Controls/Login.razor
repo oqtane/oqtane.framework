@@ -1,10 +1,14 @@
 ﻿@using Oqtane.Themes
 @using  Oqtane.Services
 @using Oqtane.Providers
+@using Oqtane.Shared
+@using Oqtane.Models
+@using Microsoft.JSInterop
 @inherits ThemeObjectBase
 @inject IUriHelper UriHelper
 @inject IUserService UserService
-@inject ServerAuthenticationStateProvider AuthStateProvider
+@inject IJSRuntime jsRuntime
+@inject IServiceProvider ServiceProvider
 
 <AuthorizeView>
     <Authorizing>
@@ -22,13 +26,25 @@
 @code {
     private void LoginUser()
     {
-        UriHelper.NavigateTo(NavigateUrl("login"));
+        UriHelper.NavigateTo(NavigateUrl("login?returnurl=" + PageState.Page.Path));
     }
 
     private async Task LogoutUser()
     {
         await UserService.LogoutUserAsync();
-        AuthStateProvider.NotifyAuthenticationChanged();
-        UriHelper.NavigateTo(NavigateUrl("", true));
+
+        var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
+        if (authstateprovider == null)
+        {
+            // server-side Blazor
+            var interop = new Interop(jsRuntime);
+            await interop.SubmitForm("/logout/", "");
+        }
+        else
+        {
+            // client-side Blazor
+            authstateprovider.NotifyAuthenticationChanged();
+            UriHelper.NavigateTo(NavigateUrl("login", true));
+        }
     }
 }

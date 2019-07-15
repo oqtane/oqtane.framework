@@ -4,6 +4,8 @@ using Oqtane.Repository;
 using Oqtane.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Primitives;
+using System.Security.Claims;
 
 namespace Oqtane.Controllers
 {
@@ -34,7 +36,7 @@ namespace Oqtane.Controllers
         {
             return users.GetUser(id);
         }
-
+        
         // POST api/<controller>
         [HttpPost]
         public async Task Post([FromBody] User user)
@@ -73,54 +75,48 @@ namespace Oqtane.Controllers
             users.DeleteUser(id);
         }
 
-        // GET api/<controller>/current
-        [HttpGet("current")]
-        public User Current()
+        // GET api/<controller>/name/x
+        [HttpGet("name/{name}")]
+        public User GetByName(string name)
         {
-            User user = null;
-            if (User.Identity.IsAuthenticated) 
-            {
-                user = users.GetUser(User.Identity.Name);
-                user.IsAuthenticated = true;
-            }
-            return user;
+            return users.GetUser(name);
         }
 
         // POST api/<controller>/login
         [HttpPost("login")]
         public async Task<User> Login([FromBody] User user)
         {
+            // TODO: seed host user - this logic should be moved to installation
+            IdentityUser identityuser = await identityUserManager.FindByNameAsync("host");
+            if (identityuser == null)
+            {
+                var result = await identityUserManager.CreateAsync(new IdentityUser { UserName = "host", Email = "host" }, "password");
+                if (result.Succeeded)
+                {
+                    users.AddUser(new Models.User { Username = "host", DisplayName = "host", IsSuperUser = true, Roles = "" });
+                }
+            }
+
             if (ModelState.IsValid)
             {
-                // seed host user - this logic should be moved to installation
-                IdentityUser identityuser = await identityUserManager.FindByNameAsync("host");
-                if (identityuser == null)
-                {
-                    var result = await identityUserManager.CreateAsync(new IdentityUser { UserName = "host", Email = "host" }, "password");
-                    if (result.Succeeded)
-                    {
-                        users.AddUser(new Models.User { Username = "host", DisplayName = "host", IsSuperUser = true, Roles = "" });
-                    }
-                }
-
                 identityuser = await identityUserManager.FindByNameAsync(user.Username);
                 if (identityuser != null)
                 {
                     var result = await identitySignInManager.CheckPasswordSignInAsync(identityuser, user.Password, false);
                     if (result.Succeeded)
                     {
-                        await identitySignInManager.SignInAsync(identityuser, false);
+                        await identitySignInManager.SignInAsync(identityuser, user.IsPersistent);
                         user = users.GetUser(identityuser.UserName);
                         user.IsAuthenticated = true;
                     }
                     else
                     {
-                        user = null;
+                        user = new Models.User { Username = user.Username, IsAuthenticated = false };
                     }
                 }
                 else
                 {
-                    user = null;
+                    user = new Models.User { Username = user.Username, IsAuthenticated = false };
                 }
             }
             return user;

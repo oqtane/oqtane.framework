@@ -35,8 +35,12 @@ namespace Oqtane.Services
 
         public async Task<User> GetUserAsync(int UserId)
         {
-            List<User> users = await http.GetJsonAsync<List<User>>(apiurl);
-            return users.Where(item => item.UserId == UserId).FirstOrDefault();
+            return await http.GetJsonAsync<User>(apiurl + "/" + UserId.ToString());
+        }
+
+        public async Task<User> GetUserAsync(string Username)
+        {
+            return await http.GetJsonAsync<User>(apiurl + "/name/" + Username);
         }
 
         public async Task AddUserAsync(User user)
