@@ -1,20 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Oqtane.Models;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace Oqtane.Repository
 {
     public class TenantResolver : ITenantResolver
     {
-        private HostContext db;
+        private MasterContext db;
         private readonly string aliasname;
         private readonly IAliasRepository _aliasrepository;
         private readonly ITenantRepository _tenantrepository;
 
-        public TenantResolver(HostContext context, IHttpContextAccessor accessor, IAliasRepository aliasrepository, ITenantRepository tenantrepository)
+        public TenantResolver(MasterContext context, IHttpContextAccessor accessor, IAliasRepository aliasrepository, ITenantRepository tenantrepository)
         {
             db = context;
             _aliasrepository = aliasrepository;

@@ -246,3 +246,13 @@ app {
     text-align: center;
     color: gray;
 }
+
+.loading {
+    background: rgba(0,0,0,0.2) url('../loading.gif') no-repeat 50% 50%;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999;
+}

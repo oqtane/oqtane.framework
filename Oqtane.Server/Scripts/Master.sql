@@ -54,10 +54,10 @@ GO
 SET IDENTITY_INSERT [dbo].[Alias] ON 
 GO
 INSERT [dbo].[Alias] ([AliasId], [Name], [TenantId], [SiteId]) 
-VALUES (1, N'localhost:44357', 1, 1)
+VALUES (1, N'{Alias}', 1, 1)
 GO
 INSERT [dbo].[Alias] ([AliasId], [Name], [TenantId], [SiteId]) 
-VALUES (2, N'localhost:44357/site2', 1, 2)
+VALUES (2, N'{Alias}/site2', 1, 2)
 GO
 SET IDENTITY_INSERT [dbo].[Alias] OFF
 GO

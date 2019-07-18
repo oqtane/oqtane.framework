@@ -11,7 +11,6 @@ using System.Reflection;
 using Microsoft.Extensions.Hosting;
 using Oqtane.Modules;
 using Oqtane.Repository;
-using Oqtane.Filters;
 using System.IO;
 using System.Runtime.Loader;
 using Oqtane.Services;
@@ -25,7 +24,7 @@ namespace Oqtane.Server
 {
     public class Startup
     {
-        public IConfiguration Configuration { get; }
+        public IConfigurationRoot Configuration { get; }
         public Startup(IWebHostEnvironment env)
         {
             var builder = new ConfigurationBuilder()
@@ -68,6 +67,7 @@ namespace Oqtane.Server
 
             // register scoped core services
             services.AddScoped<SiteState>();
+            services.AddScoped<IInstallationService, InstallationService>();
             services.AddScoped<IModuleDefinitionService, ModuleDefinitionService>();
             services.AddScoped<IThemeService, ThemeService>();
             services.AddScoped<IAliasService, AliasService>();
@@ -101,7 +101,7 @@ namespace Oqtane.Server
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            services.AddDbContext<HostContext>(options =>
+            services.AddDbContext<MasterContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")
                     .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory").ToString())
                 ));
@@ -143,10 +143,8 @@ namespace Oqtane.Server
 
             services.AddMvc().AddNewtonsoftJson();
 
-            // register database install/upgrade filter
-            services.AddTransient<IStartupFilter, UpgradeFilter>();
-
             // register singleton scoped core services
+            services.AddSingleton<IConfigurationRoot>(Configuration);
             services.AddSingleton<IModuleDefinitionRepository, ModuleDefinitionRepository>();
             services.AddSingleton<IThemeRepository, ThemeRepository>();
 
@@ -237,7 +235,7 @@ namespace Oqtane.Server
         {
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            services.AddDbContext<HostContext>(options =>
+            services.AddDbContext<MasterContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")
                     .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory").ToString())
                 ));
@@ -279,10 +277,8 @@ namespace Oqtane.Server
 
             services.AddMvc().AddNewtonsoftJson();
 
-            // register database install/upgrade filter
-            services.AddTransient<IStartupFilter, UpgradeFilter>();
-
             // register singleton scoped core services
+            services.AddSingleton<IConfigurationRoot>(Configuration);
             services.AddSingleton<IModuleDefinitionRepository, ModuleDefinitionRepository>();
             services.AddSingleton<IThemeRepository, ThemeRepository>();
 

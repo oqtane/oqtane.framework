@@ -36,6 +36,7 @@ namespace Oqtane.Client
 
             // register scoped core services
             services.AddScoped<SiteState>();
+            services.AddScoped<IInstallationService, InstallationService>();
             services.AddScoped<IModuleDefinitionService, ModuleDefinitionService>();
             services.AddScoped<IThemeService, ThemeService>();
             services.AddScoped<IAliasService, AliasService>();

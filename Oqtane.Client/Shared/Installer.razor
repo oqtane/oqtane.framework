@@ -1,0 +1,187 @@
+﻿@using Oqtane.Services
+@using Oqtane.Models
+@inject IUriHelper UriHelper
+@inject IInstallationService  InstallationService
+@inject IUserService UserService
+ 
+<div class="container">
+    <div class="row">
+        <div class="mx-auto text-center">
+            <img src="oqtane.png" />
+        </div>
+    </div>
+    <hr style="width: 100%; color: gray; height: 1px; background-color:gray;" />
+    <h2 class="text-center">Database Configuration</h2>
+    <div class="row">
+        <div class="mx-auto text-center">
+            <table class="form-group" cellpadding="4" cellspacing="4">
+                <tbody>
+                    <tr>
+                        <td>
+                            <label for="Title" class="control-label" style="font-weight: bold">Database Type: </label>
+                        </td>
+                        <td>
+                            <select class="custom-select" @bind="@DatabaseType">
+                                <option value="LocalDB">Local Database</option>
+                                <option value="SQLServer">SQL Server</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="Title" class="control-label" style="font-weight: bold">Server: </label>
+                        </td>
+                        <td>
+                            <input type="text" id="ServerName" class="form-control" @bind="@ServerName" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="Title" class="control-label" style="font-weight: bold">Database: </label>
+                        </td>
+                        <td>
+                            <input type="text" id="DatabaseName" class="form-control" @bind="@DatabaseName" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="Title" class="control-label" style="font-weight: bold">Integrated Security: </label>
+                        </td>
+                        <td>
+                            <select class="custom-select" @onchange="@SetIntegratedSecurity">
+                                <option value="true" selected>True</option>
+                                <option value="false">False</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr style="@IntegratedSecurityDisplay">
+                        <td>
+                            <label for="Title" class="control-label" style="font-weight: bold">Username: </label>
+                        </td>
+                        <td>
+                            <input type="text" id="Username" class="form-control" @bind="@Username" />
+                        </td>
+                    </tr>
+                    <tr style="@IntegratedSecurityDisplay">
+                        <td>
+                            <label for="Title" class="control-label" style="font-weight: bold">Password: </label>
+                        </td>
+                        <td>
+                            <input type="password" id="Password" class="form-control" @bind="@Password" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <hr style="width: 100%; color: gray; height: 1px; background-color:gray;" />
+    <h2 class="text-center">Application Administrator</h2>
+    <div class="row">
+        <div class="mx-auto text-center">
+            <table class="form-group" cellpadding="4" cellspacing="4">
+                <tbody>
+                    <tr>
+                        <td>
+                            <label for="Title" class="control-label" style="font-weight: bold">Username: </label>
+                        </td>
+                        <td>
+                            <input type="text" id="Email" class="form-control" @bind="@HostUsername" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="Title" class="control-label" style="font-weight: bold">Password: </label>
+                        </td>
+                        <td>
+                            <input type="password" id="Email" class="form-control" @bind="@HostPassword" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="mx-auto text-center">
+            <button class="btn btn-success" @onclick="@Install">Install Now</button><br /><br />
+            @((MarkupString)@Message)
+        </div>
+        <div class="loading" style="@LoadingDisplay"></div>
+    </div>
+</div>
+
+@code {
+
+private string DatabaseType = "LocalDB";
+private string ServerName = "(LocalDb)\\MSSQLLocalDB";
+private string DatabaseName = "Oqtane-" + DateTime.Now.ToString("yyyyMMddHHmm");
+private bool IntegratedSecurity = true;
+private string Username = "";
+private string Password = "";
+private string HostUsername = "host";
+private string HostPassword = "";
+private string Message = "";
+
+private string IntegratedSecurityDisplay = "display:none;";
+private string LoadingDisplay = "display:none;";
+
+private void SetIntegratedSecurity(UIChangeEventArgs e)
+{
+    if (Convert.ToBoolean(e.Value))
+    {
+        IntegratedSecurityDisplay = "display:none;";
+    }
+    else
+    {
+        IntegratedSecurityDisplay = "";
+    }
+}
+
+private async Task Install()
+{
+    if (HostPassword.Length >= 6)
+    {
+        LoadingDisplay = "";
+        StateHasChanged();
+
+        string connectionstring = "";
+        if (DatabaseType == "LocalDB")
+        {
+            connectionstring = "Data Source=" + ServerName + ";AttachDbFilename=|DataDirectory|\\" + DatabaseName + ".mdf;Initial Catalog=" + DatabaseName + ";Integrated Security=SSPI;";
+        }
+        else
+        {
+            connectionstring = "Data Source=" + ServerName + ";Initial Catalog=" + DatabaseName + ";";
+            if (IntegratedSecurityDisplay == "display:none;")
+            {
+                connectionstring += "Integrated Security=SSPI;";
+            }
+            else
+            {
+                connectionstring += "User ID=" + Username + ";Password=" + Password;
+
+            }
+        }
+        GenericResponse response = await InstallationService.Install(connectionstring);
+        if (response.Success)
+        {
+            User user = new User();
+            user.Username = HostUsername;
+            user.DisplayName = HostUsername;
+            user.Password = HostPassword;
+            user.IsSuperUser = true;
+            user.Roles = "";
+            await UserService.AddUserAsync(user);
+            UriHelper.NavigateTo("", true);
+        }
+        else
+        {
+            Message = "<div class=\"alert alert-danger\" role=\"alert\">" + response.Message + "</div>";
+            LoadingDisplay = "display:none;";
+        }
+    }
+    else
+    {
+        Message = "<div class=\"alert alert-danger\" role=\"alert\">Password Must Be 6 Characters Or Greater</div>";
+    }
+}
+}

@@ -24,7 +24,7 @@ namespace Oqtane.Services
 
         private string apiurl
         {
-            get { return CreateApiUrl(sitestate.Alias, "User"); }
+            get { return CreateApiUrl(sitestate.Alias, urihelper.GetAbsoluteUri(), "User"); }
         }
 
         public async Task<List<User>> GetUsersAsync()

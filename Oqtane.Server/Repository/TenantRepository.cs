@@ -10,10 +10,10 @@ namespace Oqtane.Repository
 {
     public class TenantRepository : ITenantRepository
     {
-        private HostContext db;
+        private MasterContext db;
         private readonly IMemoryCache _cache;
 
-        public TenantRepository(HostContext context, IMemoryCache cache)
+        public TenantRepository(MasterContext context, IMemoryCache cache)
         {
             db = context;
             _cache = cache;
