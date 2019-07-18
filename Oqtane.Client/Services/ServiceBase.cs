@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.AspNetCore.Components;
 using Oqtane.Models;
 using Oqtane.Shared;
 
@@ -6,21 +7,24 @@ namespace Oqtane.Services
 {
     public class ServiceBase
     {
-        // method for alias agnostic api call
-        public string CreateApiUrl(string absoluteUri, string serviceName)
-        {
-            Uri uri = new Uri(absoluteUri);
-            string apiurl = uri.Scheme + "://" + uri.Authority + "/~/api/" + serviceName;
-            return apiurl;
-        }
 
-        // method for alias specific api call
-        public string CreateApiUrl(Alias alias, string serviceName)
+        public string CreateApiUrl(Alias alias, string absoluteUri, string serviceName)
         {
-            string apiurl = alias.Url + "/";
-            if (alias.Path == "")
+            string apiurl = "";
+            if (alias != null)
             {
-                apiurl += "~/";
+                // build a url which passes the alias that may include a subfolder for multi-tenancy
+                apiurl = alias.Url + "/";
+                if (alias.Path == "")
+                {
+                    apiurl += "~/";
+                }
+            }
+            else
+            {
+                // build a url which ignores any subfolder for multi-tenancy
+                Uri uri = new Uri(absoluteUri);
+                apiurl = uri.Scheme + "://" + uri.Authority + "/~/";
             }
             apiurl += "api/" + serviceName;
             return apiurl;

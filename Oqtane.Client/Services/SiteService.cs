@@ -12,16 +12,18 @@ namespace Oqtane.Services
     {
         private readonly HttpClient http;
         private readonly SiteState sitestate;
+        private readonly IUriHelper urihelper;
 
-        public SiteService(HttpClient http, SiteState sitestate)
+        public SiteService(HttpClient http, SiteState sitestate, IUriHelper urihelper)
         {
             this.http = http;
             this.sitestate = sitestate;
+            this.urihelper = urihelper;
         }
 
         private string apiurl
         {
-            get { return CreateApiUrl(sitestate.Alias, "Site"); }
+            get { return CreateApiUrl(sitestate.Alias, urihelper.GetAbsoluteUri(), "Site"); }
         }
 
         public async Task<List<Site>> GetSitesAsync()

@@ -86,20 +86,9 @@ namespace Oqtane.Controllers
         [HttpPost("login")]
         public async Task<User> Login([FromBody] User user)
         {
-            // TODO: seed host user - this logic should be moved to installation
-            IdentityUser identityuser = await identityUserManager.FindByNameAsync("host");
-            if (identityuser == null)
-            {
-                var result = await identityUserManager.CreateAsync(new IdentityUser { UserName = "host", Email = "host" }, "password");
-                if (result.Succeeded)
-                {
-                    users.AddUser(new Models.User { Username = "host", DisplayName = "host", IsSuperUser = true, Roles = "" });
-                }
-            }
-
             if (ModelState.IsValid)
             {
-                identityuser = await identityUserManager.FindByNameAsync(user.Username);
+                IdentityUser identityuser = await identityUserManager.FindByNameAsync(user.Username);
                 if (identityuser != null)
                 {
                     var result = await identitySignInManager.CheckPasswordSignInAsync(identityuser, user.Password, false);

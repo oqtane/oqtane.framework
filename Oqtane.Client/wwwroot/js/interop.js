@@ -20,6 +20,14 @@ window.interop = {
         }
         return "";
     },
+    getElementByName: function (name) {
+        var elements = document.getElementsByName(name);
+        if (elements.length) {
+            return elements[0].value;
+        } else {
+            return "";
+        }
+    },
     addCSS: function (fileName) {
         var head = document.head;
         var link = document.createElement("link");

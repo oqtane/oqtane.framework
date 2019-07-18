@@ -33,7 +33,7 @@
 
     protected override async Task OnInitAsync()
     {
-        HtmlTextService htmltextservice = new HtmlTextService(http, sitestate);
+        HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, UriHelper);
         List<HtmlTextInfo> htmltextlist = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
         if (htmltextlist != null)
         {
@@ -44,7 +44,7 @@
 
     private async Task SaveContent()
     {
-        HtmlTextService htmltextservice = new HtmlTextService(http, sitestate);
+        HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, UriHelper);
         if (htmltext != null)
         {
             htmltext.Content = content;
