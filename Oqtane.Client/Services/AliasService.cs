@@ -11,17 +11,19 @@ namespace Oqtane.Services
     public class AliasService : ServiceBase, IAliasService
     {
         private readonly HttpClient http;
+        private readonly SiteState sitestate;
         private readonly IUriHelper urihelper;
 
-        public AliasService(HttpClient http, IUriHelper urihelper)
+        public AliasService(HttpClient http, SiteState sitestate, IUriHelper urihelper)
         {
             this.http = http;
+            this.sitestate = sitestate;
             this.urihelper = urihelper;
         }
 
         private string apiurl
         {
-            get { return CreateApiUrl(urihelper.GetAbsoluteUri(), "Alias"); }
+            get { return CreateApiUrl(sitestate.Alias, urihelper.GetAbsoluteUri(), "Alias"); }
         }
 
         public async Task<List<Alias>> GetAliasesAsync()
@@ -32,8 +34,7 @@ namespace Oqtane.Services
 
         public async Task<Alias> GetAliasAsync(int AliasId)
         {
-            List<Alias> aliases = await http.GetJsonAsync<List<Alias>>(apiurl);
-            return aliases.Where(item => item.AliasId == AliasId).FirstOrDefault();
+            return await http.GetJsonAsync<Alias>(apiurl + "/" + AliasId.ToString());
         }
 
         public async Task AddAliasAsync(Alias alias)

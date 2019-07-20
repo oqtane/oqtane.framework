@@ -9,10 +9,10 @@ namespace Oqtane.Repository
 {
     public class AliasRepository : IAliasRepository
     {
-        private HostContext db;
+        private MasterContext db;
         private readonly IMemoryCache _cache;
 
-        public AliasRepository(HostContext context, IMemoryCache cache)
+        public AliasRepository(MasterContext context, IMemoryCache cache)
         {
             db = context;
             _cache = cache;

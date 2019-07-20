@@ -13,16 +13,18 @@ namespace Oqtane.Services
     {
         private readonly HttpClient http;
         private readonly SiteState sitestate;
+        private readonly IUriHelper urihelper;
 
-        public UserService(HttpClient http, SiteState sitestate)
+        public UserService(HttpClient http, SiteState sitestate, IUriHelper urihelper)
         {
             this.http = http;
             this.sitestate = sitestate;
+            this.urihelper = urihelper;
         }
 
         private string apiurl
         {
-            get { return CreateApiUrl(sitestate.Alias, "User"); }
+            get { return CreateApiUrl(sitestate.Alias, urihelper.GetAbsoluteUri(), "User"); }
         }
 
         public async Task<List<User>> GetUsersAsync()
@@ -33,9 +35,13 @@ namespace Oqtane.Services
 
         public async Task<User> GetUserAsync(int UserId)
         {
-            List<User> users = await http.GetJsonAsync<List<User>>(apiurl);
-            return users.Where(item => item.UserId == UserId).FirstOrDefault();
-    }
+            return await http.GetJsonAsync<User>(apiurl + "/" + UserId.ToString());
+        }
+
+        public async Task<User> GetUserAsync(string Username)
+        {
+            return await http.GetJsonAsync<User>(apiurl + "/name/" + Username);
+        }
 
         public async Task AddUserAsync(User user)
         {
@@ -49,6 +55,22 @@ namespace Oqtane.Services
         public async Task DeleteUserAsync(int UserId)
         {
             await http.DeleteAsync(apiurl + "/" + UserId.ToString());
+        }
+
+        public async Task<User> GetCurrentUserAsync()
+        {
+            return await http.GetJsonAsync<User>(apiurl + "/current");
+        }
+
+        public async Task<User> LoginUserAsync(User user)
+        {
+            return await http.PostJsonAsync<User>(apiurl + "/login", user);
+        }
+
+        public async Task LogoutUserAsync()
+        {
+            // best practices recommend post is preferrable to get for logout
+            await http.PostJsonAsync(apiurl + "/logout", null); 
         }
 
         // ACLs are stored in the format "!rolename1;![userid1];rolename2;rolename3;[userid2];[userid3]" where "!" designates Deny permissions

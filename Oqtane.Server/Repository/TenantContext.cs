@@ -1,10 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
 using System;
 
 namespace Oqtane.Repository
 {
-    public class TenantContext : DbContext
+    public class TenantContext : IdentityDbContext<IdentityUser>
     {
         public virtual DbSet<Site> Site { get; set; }
         public virtual DbSet<Page> Page { get; set; }

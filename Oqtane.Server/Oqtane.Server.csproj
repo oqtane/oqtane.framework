@@ -26,21 +26,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Scripts\01.00.00.sql" />
-    <None Remove="Scripts\01.20.00.Sql" />
+    <None Remove="Scripts\Identity.sql" />
+    <None Remove="Scripts\Master.sql" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Scripts\01.00.00.sql" />
-    <Content Include="Scripts\01.20.00.Sql" />
+    <Content Include="Scripts\Master.sql" />
+    <EmbeddedResource Include="Scripts\Identity.sql" />
+    <EmbeddedResource Include="Scripts\Tenant.sql" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="dbup" Version="4.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor.Server" Version="3.0.0-preview6.19307.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0-preview6.19307.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.0.0-preview6.19307.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.0-preview6.19304.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0-preview6.19304.10" />
   </ItemGroup>
 
   <ItemGroup>

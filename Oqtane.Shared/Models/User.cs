@@ -9,5 +9,12 @@ namespace Oqtane.Models
         public string DisplayName { get; set; }
         public string Roles { get; set; }
         public bool IsSuperUser { get; set; }
+
+        [NotMapped]
+        public string Password { get; set; }
+        [NotMapped]
+        public bool IsAuthenticated { get; set; }
+        [NotMapped]
+        public bool IsPersistent { get; set; }
     }
 }

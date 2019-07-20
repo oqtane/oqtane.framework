@@ -16,14 +16,14 @@ using System.Runtime.Loader;
 using Oqtane.Services;
 using System.Net.Http;
 using Microsoft.AspNetCore.Components;
-using Oqtane.Client;
 using Oqtane.Shared;
+using Microsoft.AspNetCore.Identity;
+using System.Threading.Tasks;
 
 namespace Oqtane.Server
 {
     public class Startup
     {
-        // **** Changed from IConfiguration to IConfigurationRoot for Installer Wizard ****
         public IConfigurationRoot Configuration { get; }
         public Startup(IWebHostEnvironment env)
         {
@@ -43,23 +43,31 @@ namespace Oqtane.Server
             services.AddRazorPages();
             services.AddServerSideBlazor();
 
-            // server-side Blazor does not register HttpClient by default
+            // setup HttpClient for server side in a client side compatible fashion ( with auth cookie )
             if (!services.Any(x => x.ServiceType == typeof(HttpClient)))
             {
-                // setup HttpClient for server side in a client side compatible fashion
                 services.AddScoped<HttpClient>(s =>
                 {
                     // creating the URI helper needs to wait until the JS Runtime is initialized, so defer it.
                     var uriHelper = s.GetRequiredService<IUriHelper>();
-                    return new HttpClient
+                    var httpContextAccessor = s.GetRequiredService<IHttpContextAccessor>();
+                    var authToken = httpContextAccessor.HttpContext.Request.Cookies[".AspNetCore.Identity.Application"];
+                    var client = new HttpClient(new HttpClientHandler { UseCookies = false });
+                    if (authToken != null)
                     {
-                        BaseAddress = new Uri(uriHelper.GetBaseUri())
-                    };
+                        client.DefaultRequestHeaders.Add("Cookie", ".AspNetCore.Identity.Application=" + authToken);
+                    }
+                    client.BaseAddress = new Uri(uriHelper.GetBaseUri());
+                    return client;
                 });
             }
 
+            // register auth services
+            services.AddAuthorizationCore();
+
             // register scoped core services
             services.AddScoped<SiteState>();
+            services.AddScoped<IInstallationService, InstallationService>();
             services.AddScoped<IModuleDefinitionService, ModuleDefinitionService>();
             services.AddScoped<IThemeService, ThemeService>();
             services.AddScoped<IAliasService, AliasService>();
@@ -93,23 +101,50 @@ namespace Oqtane.Server
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            services.AddDbContext<HostContext>(options =>
+            services.AddDbContext<MasterContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")
                     .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory").ToString())
                 ));
-
-            // **** Added for Installer Wizard ****
-            // Allows appsettings.json to be updated programatically
-            services.ConfigureWritable<Models.ConnectionStrings>(Configuration.GetSection("ConnectionStrings"));
-            services.AddSingleton<IConfigurationRoot>(Configuration);
-
             services.AddDbContext<TenantContext>(options => { });
+
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<TenantContext>()
+                .AddDefaultTokenProviders();
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                // Password settings
+                options.Password.RequireDigit = false;
+                options.Password.RequiredLength = 6;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireLowercase = false;
+
+                // Lockout settings
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+                options.Lockout.MaxFailedAccessAttempts = 10;
+                options.Lockout.AllowedForNewUsers = true;
+
+                // User settings
+                options.User.RequireUniqueEmail = false;
+            });
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.HttpOnly = false;
+                options.Events.OnRedirectToLogin = context =>
+                {
+                    context.Response.StatusCode = 401;
+                    return Task.CompletedTask;
+                };
+            });
 
             services.AddMemoryCache();
 
             services.AddMvc().AddNewtonsoftJson();
 
             // register singleton scoped core services
+            services.AddSingleton<IConfigurationRoot>(Configuration);
             services.AddSingleton<IModuleDefinitionRepository, ModuleDefinitionRepository>();
             services.AddSingleton<IThemeRepository, ThemeRepository>();
 
@@ -180,6 +215,8 @@ namespace Oqtane.Server
             app.UseStaticFiles();
 
             app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
@@ -198,22 +235,50 @@ namespace Oqtane.Server
         {
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            services.AddDbContext<HostContext>(options =>
+            services.AddDbContext<MasterContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")
                     .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory").ToString())
                 ));
             services.AddDbContext<TenantContext>(options => { });
 
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<TenantContext>()
+                .AddDefaultTokenProviders();
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                // Password settings
+                options.Password.RequireDigit = false;
+                options.Password.RequiredLength = 6;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireLowercase = false;
+
+                // Lockout settings
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+                options.Lockout.MaxFailedAccessAttempts = 10;
+                options.Lockout.AllowedForNewUsers = true;
+
+                // User settings
+                options.User.RequireUniqueEmail = false;
+            });
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.HttpOnly = false;
+                options.Events.OnRedirectToLogin = context =>
+                {
+                    context.Response.StatusCode = 401;
+                    return Task.CompletedTask;
+                };
+            });
+
             services.AddMemoryCache();
 
             services.AddMvc().AddNewtonsoftJson();
 
-            // **** Added for Installer Wizard ****
-            // Allows appsettings.json to be updated programatically
-            services.ConfigureWritable<Models.ConnectionStrings>(Configuration.GetSection("ConnectionStrings"));
-            services.AddSingleton<IConfigurationRoot>(Configuration);
-
             // register singleton scoped core services
+            services.AddSingleton<IConfigurationRoot>(Configuration);
             services.AddSingleton<IModuleDefinitionRepository, ModuleDefinitionRepository>();
             services.AddSingleton<IThemeRepository, ThemeRepository>();
 
@@ -286,6 +351,8 @@ namespace Oqtane.Server
             app.UseClientSideBlazorFiles<Client.Startup>();
 
             app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

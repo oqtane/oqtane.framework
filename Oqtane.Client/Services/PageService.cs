@@ -12,22 +12,29 @@ namespace Oqtane.Services
     {
         private readonly HttpClient http;
         private readonly SiteState sitestate;
+        private readonly IUriHelper urihelper;
 
-        public PageService(HttpClient http, SiteState sitestate)
+        public PageService(HttpClient http, SiteState sitestate, IUriHelper urihelper)
         {
             this.http = http;
             this.sitestate = sitestate;
+            this.urihelper = urihelper;
         }
 
         private string apiurl
         {
-            get { return CreateApiUrl(sitestate.Alias, "Page"); }
+            get { return CreateApiUrl(sitestate.Alias, urihelper.GetAbsoluteUri(), "Page"); }
         }
 
         public async Task<List<Page>> GetPagesAsync(int SiteId)
         {
             List<Page> pages = await http.GetJsonAsync<List<Page>>(apiurl + "?siteid=" + SiteId.ToString());
             return pages.OrderBy(item => item.Order).ToList();
+        }
+
+        public async Task<Page> GetPageAsync(int PageId)
+        {
+            return await http.GetJsonAsync<Page>(apiurl + "/" + PageId.ToString());
         }
 
         public async Task AddPageAsync(Page page)

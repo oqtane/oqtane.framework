@@ -12,16 +12,18 @@ namespace Oqtane.Services
     {
         private readonly HttpClient http;
         private readonly SiteState sitestate;
+        private readonly IUriHelper urihelper;
 
-        public PageModuleService(HttpClient http, SiteState sitestate)
+        public PageModuleService(HttpClient http, SiteState sitestate, IUriHelper urihelper)
         {
             this.http = http;
             this.sitestate = sitestate;
+            this.urihelper = urihelper;
         }
 
         private string apiurl
         {
-            get { return CreateApiUrl(sitestate.Alias, "PageModule"); }
+            get { return CreateApiUrl(sitestate.Alias, "PageModule", urihelper.GetAbsoluteUri()); }
         }
 
         public async Task<List<PageModule>> GetPageModulesAsync()

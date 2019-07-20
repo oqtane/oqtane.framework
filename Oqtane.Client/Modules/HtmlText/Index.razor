@@ -5,6 +5,7 @@
 @using Oqtane.Client.Modules.Controls
 @using Oqtane.Shared;
 @inherits ModuleBase
+@inject IUriHelper UriHelper
 @inject HttpClient http
 @inject SiteState sitestate
 
@@ -17,7 +18,7 @@
 
     protected override async Task OnInitAsync()
     {
-        HtmlTextService htmltextservice = new HtmlTextService(http, sitestate);
+        HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, UriHelper);
         List<HtmlTextInfo> htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
         if (htmltext != null)
         {

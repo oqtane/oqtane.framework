@@ -12,16 +12,18 @@ namespace Oqtane.Services
     {
         private readonly HttpClient http;
         private readonly SiteState sitestate;
+        private readonly IUriHelper urihelper;
 
-        public ModuleService(HttpClient http, SiteState sitestate)
+        public ModuleService(HttpClient http, SiteState sitestate, IUriHelper urihelper)
         {
             this.http = http;
             this.sitestate = sitestate;
+            this.urihelper = urihelper;
         }
 
         private string apiurl
         {
-            get { return CreateApiUrl(sitestate.Alias, "Module"); }
+            get { return CreateApiUrl(sitestate.Alias, urihelper.GetAbsoluteUri(), "Module"); }
         }
 
         public async Task<List<Module>> GetModulesAsync(int PageId)
@@ -37,6 +39,11 @@ namespace Oqtane.Services
         {
             List<Module> modules = await http.GetJsonAsync<List<Module>>(apiurl + "?siteid=" + SiteId.ToString() + "&moduledefinitionname=" + ModuleDefinitionName);
             return modules.ToList();
+        }
+
+        public async Task<Module> GetModuleAsync(int ModuleId)
+        {
+            return await http.GetJsonAsync<Module>(apiurl + "/" + ModuleId.ToString());
         }
 
         public async Task AddModuleAsync(Module module)

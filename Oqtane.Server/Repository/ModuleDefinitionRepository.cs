@@ -52,6 +52,7 @@ namespace Oqtane.Repository
                     {
                         /// determine if this module implements IModule
                         Type moduletype = assembly.GetTypes()
+                            .Where(item => item.Namespace != null)
                             .Where(item => item.Namespace.StartsWith(ModuleType))
                             .Where(item => item.GetInterfaces().Contains(typeof(IModule)))
                             .FirstOrDefault();

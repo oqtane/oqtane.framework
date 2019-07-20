@@ -1,41 +1,50 @@
 ﻿@using Oqtane.Themes
+@using  Oqtane.Services
+@using Oqtane.Providers
 @using Oqtane.Shared
+@using Oqtane.Models
 @using Microsoft.JSInterop
 @inherits ThemeObjectBase
 @inject IUriHelper UriHelper
+@inject IUserService UserService
 @inject IJSRuntime jsRuntime
+@inject IServiceProvider ServiceProvider
 
-<button type="button" class="btn btn-primary" @onclick="@Click">@name</button>
+<AuthorizeView>
+    <Authorizing>
+        <text>...</text>
+    </Authorizing>
+    <Authorized>
+        <button type="button" class="btn btn-primary" @onclick="@LogoutUser">Logout</button>
+    </Authorized>
+    <NotAuthorized>
+        <button type="button" class="btn btn-primary" @onclick="@LoginUser">Login</button>
+    </NotAuthorized>
+</AuthorizeView>
+
 
 @code {
-    string name = "";
-
-    protected override async Task OnInitAsync()
+    private void LoginUser()
     {
-        var interop = new Interop(jsRuntime);
-        string user = await interop.GetCookie("user");
-
-        if (user == "")
-        {
-            name = "Login";
-        }
-        else
-        {
-            name = "Logout";
-        }
+        UriHelper.NavigateTo(NavigateUrl("login?returnurl=" + PageState.Page.Path));
     }
 
-    private async Task Click()
+    private async Task LogoutUser()
     {
-        if (name == "Login")
+        await UserService.LogoutUserAsync();
+
+        var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
+        if (authstateprovider == null)
         {
-            UriHelper.NavigateTo(NavigateUrl("login"));
+            // server-side Blazor
+            var interop = new Interop(jsRuntime);
+            await interop.SubmitForm("/logout/", "");
         }
         else
         {
-            var interop = new Interop(jsRuntime);
-            await interop.SetCookie("user", "", 7);
-            UriHelper.NavigateTo(NavigateUrl(""), true);
+            // client-side Blazor
+            authstateprovider.NotifyAuthenticationChanged();
+            UriHelper.NavigateTo(NavigateUrl("login", true));
         }
     }
 }
