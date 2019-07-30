@@ -44,14 +44,19 @@ namespace Oqtane.Shared
 
         public static string EditUrl(PageState pagestate, Module modulestate, string action, string parameters)
         {
-            string url = pagestate.Alias.Path + "/" + pagestate.Page.Path + "?mid=" + modulestate.ModuleId.ToString();
+            string url = pagestate.Alias.Path;
+            if (pagestate.Page.Path != "")
+            {
+                url += "/" + pagestate.Page.Path;
+            }
+            url += "/" + modulestate.ModuleId.ToString();
             if (action != "")
             {
-                url += "&ctl=" + action;
+                url += "/" + action;
             }
             if (!string.IsNullOrEmpty(parameters))
             {
-                url += "&" + parameters;
+                url += "?" + parameters;
             }
             return url;
         }
