@@ -7,9 +7,9 @@ namespace Oqtane.Repository
 {
     public class PageRepository : IPageRepository
     {
-        private TenantContext db;
+        private TenantDBContext db;
 
-        public PageRepository(TenantContext context)
+        public PageRepository(TenantDBContext context)
         {
             db = context;
         }

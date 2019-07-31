@@ -109,14 +109,46 @@
         }
         if (site != null || reload == true)
         {
+            // get Url path and querystring
             string path = new Uri(_absoluteUri).PathAndQuery.Substring(1);
-            if (path.EndsWith("/")) { path = path.Substring(0, path.Length - 1); }
+
+            // parse querystring and remove
+            Dictionary<string, string> querystring = new Dictionary<string, string>();
+            if (path.IndexOf("?") != -1)
+            {
+                querystring = ParseQueryString(path);
+                path = path.Substring(0, path.IndexOf("?"));
+            }
+
+            // format path and remove alias
+            path = path.Replace("//", "/");
+            if (!path.EndsWith("/")) { path += "/"; }
             if (alias.Path != "")
             {
-                path = path.Replace(alias.Path, "");
-                if (path.StartsWith("/")) { path = path.Substring(1); }
+                path = path.Replace(alias.Path + "/", "");
             }
-            Dictionary<string, string> querystring = ParseQueryString(path);
+
+            // extract admin route elements from path
+            string[] segments = path.Split('/');
+            int result;
+            if (segments.Length >= 3 && int.TryParse(segments[segments.Length - 3], out result))
+            {
+                // path has moduleid and control specification ie. page/moduleid/control/
+                control = segments[segments.Length - 2];
+                moduleid = result;
+                path = path.Replace(moduleid.ToString() + "/" + control + "/", "");
+            }
+            else
+            {
+                if (segments.Length >= 2 && int.TryParse(segments[segments.Length - 2], out result))
+                {
+                    // path has only moduleid specification ie. page/moduleid/
+                    moduleid = result;
+                    path = path.Replace(moduleid.ToString() + "/", "");
+                }
+            }
+            // remove trailing slash so it can be used as a key for Pages
+            if (path.EndsWith("/")) path = path.Substring(0, path.Length - 1);
 
             if (querystring.ContainsKey("reload"))
             {
@@ -144,31 +176,6 @@
             else
             {
                 pages = PageState.Pages;
-            }
-
-            // format path so that it can be located in the pages collection
-            if (path.IndexOf("?") != -1)
-            {
-                // remove querystring from path
-                path = path.Substring(0, path.IndexOf("?"));
-            }
-            // remove admin route elements from path
-            string[] segments = path.Split('/');
-            int result;
-            // admin routes are in the form of path/moduleid/control or path/moduleid
-            if (segments.Length >= 2 && int.TryParse(segments[segments.Length - 2], out result))
-            {
-                control = segments[segments.Length - 1];
-                moduleid = result;
-                path = path.Replace("/" + moduleid.ToString() + "/" + control, "");
-            }
-            else
-            {
-                if (segments.Length >= 1 && int.TryParse(segments[segments.Length - 1], out result))
-                {
-                    moduleid = result;
-                    path = path.Replace("/" + moduleid.ToString(), "");
-                }
             }
 
             if (PageState == null || reload == true)

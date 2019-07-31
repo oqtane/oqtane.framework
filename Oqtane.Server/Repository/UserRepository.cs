@@ -7,9 +7,9 @@ namespace Oqtane.Repository
 {
     public class UserRepository : IUserRepository
     {
-        private TenantContext db;
+        private TenantDBContext db;
 
-        public UserRepository(TenantContext context)
+        public UserRepository(TenantDBContext context)
         {
             db = context;
         }
