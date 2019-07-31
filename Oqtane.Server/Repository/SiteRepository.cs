@@ -7,9 +7,9 @@ namespace Oqtane.Repository
 {
     public class SiteRepository : ISiteRepository
     {
-        private TenantContext db;
+        private TenantDBContext db;
 
-        public SiteRepository(TenantContext context)
+        public SiteRepository(TenantDBContext context)
         {
             db = context;
         }

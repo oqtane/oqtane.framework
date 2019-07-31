@@ -8,6 +8,10 @@ CREATE TABLE [dbo].[Site](
 	[SiteId] [int] IDENTITY(1,1) NOT NULL,
 	[Name] [nvarchar](200) NOT NULL,
 	[Logo] [nvarchar](50) NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedOn] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NOT NULL,
+	[ModifiedOn] [datetime] NOT NULL,
   CONSTRAINT [PK_Site] PRIMARY KEY CLUSTERED 
   (
 	[SiteId] ASC
@@ -68,6 +72,10 @@ CREATE TABLE [dbo].[HtmlText](
 	[HtmlTextId] [int] IDENTITY(1,1) NOT NULL,
 	[ModuleId] [int] NOT NULL,
 	[Content] [nvarchar](max) NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedOn] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NOT NULL,
+	[ModifiedOn] [datetime] NOT NULL,
   CONSTRAINT [PK_HtmlText] PRIMARY KEY CLUSTERED 
   (
 	[HtmlTextId] ASC
@@ -77,7 +85,7 @@ GO
 
 CREATE TABLE [dbo].[User](
 	[UserId] [int] IDENTITY(1,1) NOT NULL,
-	[Username] [nvarchar](50) NOT NULL,
+	[Username] [nvarchar](256) NOT NULL,
 	[DisplayName] [nvarchar](50) NOT NULL,
 	[Roles] [nvarchar](50) NOT NULL,
 	[IsSuperUser] [bit] NOT NULL,
@@ -125,11 +133,11 @@ Create seed data
 
 SET IDENTITY_INSERT [dbo].[Site] ON 
 GO
-INSERT [dbo].[Site] ([SiteId], [Name], [Logo]) 
-VALUES (1, N'Site1', N'oqtane.png')
+INSERT [dbo].[Site] ([SiteId], [Name], [Logo], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (1, N'Site1', N'oqtane.png', '', getdate(), '', getdate())
 GO
-INSERT [dbo].[Site] ([SiteId], [Name], [Logo]) 
-VALUES (2, N'Site2', N'oqtane.png')
+INSERT [dbo].[Site] ([SiteId], [Name], [Logo], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (2, N'Site2', N'oqtane.png', '', getdate(), '', getdate())
 GO
 SET IDENTITY_INSERT [dbo].[Site] OFF
 GO
@@ -292,23 +300,23 @@ GO
 
 SET IDENTITY_INSERT [dbo].[HtmlText] ON 
 GO
-INSERT [dbo].[HtmlText] ([HtmlTextId], [ModuleId], [Content]) 
-VALUES (1, 3, N'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. <br /><br /><a href="http://localhost:44357/site2/">Go To Site2</a>')
+INSERT [dbo].[HtmlText] ([HtmlTextId], [ModuleId], [Content], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (1, 3, N'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. <br /><br /><a href="http://localhost:44357/site2/">Go To Site2</a>', '', getdate(), '', getdate())
 GO
-INSERT [dbo].[HtmlText] ([HtmlTextId], [ModuleId], [Content]) 
-VALUES (2, 5, N'Enim sed faucibus turpis in eu mi bibendum neque egestas. Quis hendrerit dolor magna eget est lorem. Dui faucibus in ornare quam viverra orci sagittis. Integer eget aliquet nibh praesent tristique magna sit. Nunc aliquet bibendum enim facilisis gravida neque convallis a cras. Tortor id aliquet lectus proin. Diam volutpat commodo sed egestas egestas fringilla. Posuere sollicitudin aliquam ultrices sagittis orci. Viverra mauris in aliquam sem fringilla ut morbi tincidunt. Eget gravida cum sociis natoque penatibus et. Sagittis orci a scelerisque purus semper. Eget velit aliquet sagittis id consectetur purus. Volutpat blandit aliquam etiam erat. Et tortor consequat id porta nibh venenatis cras. Volutpat odio facilisis mauris sit amet. Varius duis at consectetur lorem.')
+INSERT [dbo].[HtmlText] ([HtmlTextId], [ModuleId], [Content], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (2, 5, N'Enim sed faucibus turpis in eu mi bibendum neque egestas. Quis hendrerit dolor magna eget est lorem. Dui faucibus in ornare quam viverra orci sagittis. Integer eget aliquet nibh praesent tristique magna sit. Nunc aliquet bibendum enim facilisis gravida neque convallis a cras. Tortor id aliquet lectus proin. Diam volutpat commodo sed egestas egestas fringilla. Posuere sollicitudin aliquam ultrices sagittis orci. Viverra mauris in aliquam sem fringilla ut morbi tincidunt. Eget gravida cum sociis natoque penatibus et. Sagittis orci a scelerisque purus semper. Eget velit aliquet sagittis id consectetur purus. Volutpat blandit aliquam etiam erat. Et tortor consequat id porta nibh venenatis cras. Volutpat odio facilisis mauris sit amet. Varius duis at consectetur lorem.', '', getdate(), '', getdate())
 GO
-INSERT [dbo].[HtmlText] ([HtmlTextId], [ModuleId], [Content]) 
-VALUES (3, 6, N'Id consectetur purus ut faucibus pulvinar elementum integer. Bibendum neque egestas congue quisque egestas diam in arcu. Eget nullam non nisi est sit amet facilisis. Sit amet consectetur adipiscing elit pellentesque. Id aliquet risus feugiat in. Enim blandit volutpat maecenas volutpat blandit aliquam etiam erat. Commodo odio aenean sed adipiscing. Pharetra massa massa ultricies mi quis hendrerit dolor magna. Aliquet enim tortor at auctor urna nunc. Nulla pellentesque dignissim enim sit amet. Suscipit adipiscing bibendum est ultricies integer quis auctor. Lacinia quis vel eros donec ac odio tempor. Aliquam vestibulum morbi blandit cursus risus at.')
+INSERT [dbo].[HtmlText] ([HtmlTextId], [ModuleId], [Content], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (3, 6, N'Id consectetur purus ut faucibus pulvinar elementum integer. Bibendum neque egestas congue quisque egestas diam in arcu. Eget nullam non nisi est sit amet facilisis. Sit amet consectetur adipiscing elit pellentesque. Id aliquet risus feugiat in. Enim blandit volutpat maecenas volutpat blandit aliquam etiam erat. Commodo odio aenean sed adipiscing. Pharetra massa massa ultricies mi quis hendrerit dolor magna. Aliquet enim tortor at auctor urna nunc. Nulla pellentesque dignissim enim sit amet. Suscipit adipiscing bibendum est ultricies integer quis auctor. Lacinia quis vel eros donec ac odio tempor. Aliquam vestibulum morbi blandit cursus risus at.', '', getdate(), '', getdate())
 GO
-INSERT [dbo].[HtmlText] ([HtmlTextId], [ModuleId], [Content]) 
-VALUES (4, 7, N'Ornare arcu dui vivamus arcu felis bibendum ut. Tortor vitae purus faucibus ornare. Lectus sit amet est placerat in egestas erat imperdiet sed. Aliquam sem et tortor consequat id. Fermentum iaculis eu non diam phasellus vestibulum. Ultricies integer quis auctor elit sed. Fermentum odio eu feugiat pretium nibh ipsum. Ut consequat semper viverra nam libero. Blandit aliquam etiam erat velit scelerisque in dictum non consectetur. At risus viverra adipiscing at in tellus. Facilisi nullam vehicula ipsum a arcu cursus vitae congue. At varius vel pharetra vel turpis nunc eget lorem dolor. Morbi non arcu risus quis varius. Turpis massa sed elementum tempus egestas.')
+INSERT [dbo].[HtmlText] ([HtmlTextId], [ModuleId], [Content], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (4, 7, N'Ornare arcu dui vivamus arcu felis bibendum ut. Tortor vitae purus faucibus ornare. Lectus sit amet est placerat in egestas erat imperdiet sed. Aliquam sem et tortor consequat id. Fermentum iaculis eu non diam phasellus vestibulum. Ultricies integer quis auctor elit sed. Fermentum odio eu feugiat pretium nibh ipsum. Ut consequat semper viverra nam libero. Blandit aliquam etiam erat velit scelerisque in dictum non consectetur. At risus viverra adipiscing at in tellus. Facilisi nullam vehicula ipsum a arcu cursus vitae congue. At varius vel pharetra vel turpis nunc eget lorem dolor. Morbi non arcu risus quis varius. Turpis massa sed elementum tempus egestas.', '', getdate(), '', getdate())
 GO
-INSERT [dbo].[HtmlText] ([HtmlTextId], [ModuleId], [Content]) 
-VALUES (5, 16, N'Id consectetur purus ut faucibus pulvinar elementum integer. Bibendum neque egestas congue quisque egestas diam in arcu. Eget nullam non nisi est sit amet facilisis. Sit amet consectetur adipiscing elit pellentesque. Id aliquet risus feugiat in. Enim blandit volutpat maecenas volutpat blandit aliquam etiam erat. Commodo odio aenean sed adipiscing. Pharetra massa massa ultricies mi quis hendrerit dolor magna. Aliquet enim tortor at auctor urna nunc. Nulla pellentesque dignissim enim sit amet. Suscipit adipiscing bibendum est ultricies integer quis auctor. Lacinia quis vel eros donec ac odio tempor. Aliquam vestibulum morbi blandit cursus risus at.  <br /><br /><a href="http://localhost:44357/">Go To Site1</a>')
+INSERT [dbo].[HtmlText] ([HtmlTextId], [ModuleId], [Content], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (5, 16, N'Id consectetur purus ut faucibus pulvinar elementum integer. Bibendum neque egestas congue quisque egestas diam in arcu. Eget nullam non nisi est sit amet facilisis. Sit amet consectetur adipiscing elit pellentesque. Id aliquet risus feugiat in. Enim blandit volutpat maecenas volutpat blandit aliquam etiam erat. Commodo odio aenean sed adipiscing. Pharetra massa massa ultricies mi quis hendrerit dolor magna. Aliquet enim tortor at auctor urna nunc. Nulla pellentesque dignissim enim sit amet. Suscipit adipiscing bibendum est ultricies integer quis auctor. Lacinia quis vel eros donec ac odio tempor. Aliquam vestibulum morbi blandit cursus risus at.  <br /><br /><a href="http://localhost:44357/">Go To Site1</a>', '', getdate(), '', getdate())
 GO
-INSERT [dbo].[HtmlText] ([HtmlTextId], [ModuleId], [Content]) 
-VALUES (6, 17, N'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.')
+INSERT [dbo].[HtmlText] ([HtmlTextId], [ModuleId], [Content], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (6, 17, N'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.', '', getdate(), '', getdate())
 GO
 SET IDENTITY_INSERT [dbo].[HtmlText] OFF 
 GO

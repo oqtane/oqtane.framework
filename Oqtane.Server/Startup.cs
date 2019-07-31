@@ -101,14 +101,14 @@ namespace Oqtane.Server
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            services.AddDbContext<MasterContext>(options =>
+            services.AddDbContext<MasterDBContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")
                     .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory").ToString())
                 ));
-            services.AddDbContext<TenantContext>(options => { });
+            services.AddDbContext<TenantDBContext>(options => { });
 
             services.AddIdentity<IdentityUser, IdentityRole>()
-                .AddEntityFrameworkStores<TenantContext>()
+                .AddEntityFrameworkStores<TenantDBContext>()
                 .AddDefaultTokenProviders();
 
             services.Configure<IdentityOptions>(options =>
@@ -235,14 +235,14 @@ namespace Oqtane.Server
         {
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            services.AddDbContext<MasterContext>(options =>
+            services.AddDbContext<MasterDBContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")
                     .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory").ToString())
                 ));
-            services.AddDbContext<TenantContext>(options => { });
+            services.AddDbContext<TenantDBContext>(options => { });
 
             services.AddIdentity<IdentityUser, IdentityRole>()
-                .AddEntityFrameworkStores<TenantContext>()
+                .AddEntityFrameworkStores<TenantDBContext>()
                 .AddDefaultTokenProviders();
 
             services.Configure<IdentityOptions>(options =>

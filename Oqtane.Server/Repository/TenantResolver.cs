@@ -7,12 +7,12 @@ namespace Oqtane.Repository
 {
     public class TenantResolver : ITenantResolver
     {
-        private MasterContext db;
+        private MasterDBContext db;
         private readonly string aliasname;
         private readonly IAliasRepository _aliasrepository;
         private readonly ITenantRepository _tenantrepository;
 
-        public TenantResolver(MasterContext context, IHttpContextAccessor accessor, IAliasRepository aliasrepository, ITenantRepository tenantrepository)
+        public TenantResolver(MasterDBContext context, IHttpContextAccessor accessor, IAliasRepository aliasrepository, ITenantRepository tenantrepository)
         {
             db = context;
             _aliasrepository = aliasrepository;
