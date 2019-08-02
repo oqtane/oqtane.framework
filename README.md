@@ -29,6 +29,7 @@ Security
 - Need ability to manage Authorization ( will need to be custom so that permissions set by user are observed at API level )
 - Need audit fields ( ie. CreatedBy, CreateOn, etc… ) on all core tables	
 - Logging
+- Support for friendly Page Not Found handling
 
 Design
 - Need modern Admin UI theme
