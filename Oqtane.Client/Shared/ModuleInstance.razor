@@ -24,7 +24,7 @@
             Type moduleType = Type.GetType(typename);
             if (moduleType != null)
             {
-                builder.OpenComponent(0, moduleType);
+                builder.OpenComponent(ModuleState.ModuleId, moduleType); // set sequence to moduleid so that component tree is able to differentiate
                 builder.CloseComponent();
             }
             else

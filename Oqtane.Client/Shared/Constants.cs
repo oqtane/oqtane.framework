@@ -13,5 +13,9 @@
 
         public const string AllUsersRole = "All Users";
         public const string AdminRole = "Administrators";
+
+        public const int ReloadApplication = 3;
+        public const int ReloadSite = 2;
+        public const int ReloadPage = 1;
     }
 }

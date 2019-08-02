@@ -46,7 +46,12 @@ namespace Oqtane.Pages
                 await HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
             }
 
-            return LocalRedirect(Url.Content("~/" + returnurl));
+            string url = "~/";
+            if (returnurl != "/")
+            {
+                url = Url.Content("~/" + returnurl);
+            }
+            return LocalRedirect(url);
         }
     }
 }

@@ -183,6 +183,12 @@ GO
 INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
 VALUES (13, 2, N'Page2', N'page2', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'oi-home', N'Top;Bottom', N'All Users', N'Administrators', NULL, 1, 1, N'')
 GO
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
+VALUES (14, 2, N'Login', N'login', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', N'All Users', N'Administrators', NULL, 1, 0, N'')
+GO
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType]) 
+VALUES (15, 2, N'Register', N'register', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', N'All Users', N'Administrators', NULL, 1, 0, N'')
+GO
 SET IDENTITY_INSERT [dbo].[Page] OFF 
 GO
 
@@ -239,6 +245,12 @@ GO
 INSERT [dbo].[Module] ([ModuleId], [SiteId], [ModuleDefinitionName], [ViewPermissions], [EditPermissions]) 
 VALUES (17, 2, N'Oqtane.Client.Modules.HtmlText, Oqtane.Client', N'All Users', N'Administrators')
 GO
+INSERT [dbo].[Module] ([ModuleId], [SiteId], [ModuleDefinitionName], [ViewPermissions], [EditPermissions]) 
+VALUES (18, 2, N'Oqtane.Client.Modules.Admin.Login, Oqtane.Client', N'All Users', N'Administrators')
+GO
+INSERT [dbo].[Module] ([ModuleId], [SiteId], [ModuleDefinitionName], [ViewPermissions], [EditPermissions]) 
+VALUES (19, 2, N'Oqtane.Client.Modules.Admin.Register, Oqtane.Client', N'All Users', N'Administrators')
+GO
 SET IDENTITY_INSERT [dbo].[Module] OFF 
 GO
 
@@ -294,6 +306,12 @@ VALUES (16, 12, 16, N'Text', N'Top', 1, N'Oqtane.Client.Themes.Theme2.Container2
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType]) 
 VALUES (17, 13, 17, N'Text', N'Top', 1, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client')
+GO
+INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType]) 
+VALUES (18, 14, 18, N'Login', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client')
+GO
+INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType]) 
+VALUES (19, 15, 19, N'Register', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client')
 GO
 SET IDENTITY_INSERT [dbo].[PageModule] OFF 
 GO

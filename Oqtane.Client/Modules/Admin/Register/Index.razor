@@ -16,24 +16,29 @@
         <input type="password" name="Password" class="form-control" placeholder="Password" @bind="@Password" />
     </div>
     <button type="button" class="btn btn-primary" @onclick="@RegisterUser">Register</button>
-    <NavLink class="btn btn-secondary" href="/">Cancel</NavLink>
+    <button type="button" class="btn btn-secondary" @onclick="@Cancel">Cancel</button>
 </div>
 
 @code {
-public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Anonymous; } }
+    public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Anonymous; } }
 
-public string Username { get; set; } = "";
-public string Password { get; set; } = "";
+    public string Username { get; set; } = "";
+    public string Password { get; set; } = "";
 
-private async Task RegisterUser()
-{
-    User user = new User();
-    user.Username = Username;
-    user.DisplayName = Username;
-    user.Roles = "Administrators;";
-    user.IsSuperUser = false;
-    user.Password = Password;
-    await UserService.AddUserAsync(user);
-    UriHelper.NavigateTo("");
-}
+    private async Task RegisterUser()
+    {
+        User user = new User();
+        user.Username = Username;
+        user.DisplayName = Username;
+        user.Roles = "Administrators;";
+        user.IsSuperUser = false;
+        user.Password = Password;
+        await UserService.AddUserAsync(user);
+        UriHelper.NavigateTo("");
+    }
+
+    private void Cancel()
+    {
+        UriHelper.NavigateTo(NavigateUrl("")); // navigate to home
+    }
 }

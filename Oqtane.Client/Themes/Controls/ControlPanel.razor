@@ -119,7 +119,9 @@
         pagemodule.Order = 0;
         pagemodule.ContainerType = containertype;
         await PageModuleService.AddPageModuleAsync(pagemodule);
-        UriHelper.NavigateTo(NavigateUrl(true));
+
+        PageState.Reload = Constants.ReloadPage;
+        UriHelper.NavigateTo(NavigateUrl());
     }
 
     private string PageUrl(string action)
@@ -130,13 +132,13 @@
             switch (action)
             {
                 case "Add":
-                    url = "admin/pages?mid=" + pagemanagementmoduleid.ToString() + "&ctl=" + action;
+                    url = EditUrl("admin/pages", pagemanagementmoduleid, action, "");
                     break;
                 case "Edit":
-                    url = "admin/pages?mid=" + pagemanagementmoduleid.ToString() + "&ctl=" + action + "&id=" + PageState.Page.PageId.ToString();
+                    url = EditUrl("admin/pages", pagemanagementmoduleid, action, "id=" + PageState.Page.PageId.ToString());
                     break;
                 case "Delete":
-                    url = "admin/pages?mid=" + pagemanagementmoduleid.ToString() + "&ctl=" + action + "&id=" + PageState.Page.PageId.ToString();
+                    url = EditUrl("admin/pages", pagemanagementmoduleid, action, "id=" + PageState.Page.PageId.ToString());
                     break;
             }
         }

@@ -12,15 +12,19 @@ using Oqtane.Models;
 
 namespace Oqtane.Pages
 {
-    [IgnoreAntiforgeryToken(Order = 1001)]
     [AllowAnonymous]
     public class LogoutModel : PageModel
     {
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(string returnurl)
         {
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
 
-            return LocalRedirect(Url.Content("~/"));
+            string url = "~/";
+            if (returnurl != "/")
+            {
+                url = Url.Content("~/" + returnurl);
+            }
+            return LocalRedirect(url);
         }
     }
 }

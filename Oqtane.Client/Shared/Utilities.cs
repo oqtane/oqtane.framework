@@ -5,58 +5,47 @@ namespace Oqtane.Shared
 {
     public class Utilities
     {
-        public static string NavigateUrl(PageState pagestate)
-        {
-            return NavigateUrl(pagestate, pagestate.Page.Path, false);
-        }
 
-        public static string NavigateUrl(PageState pagestate, bool reload)
+        public static string NavigateUrl(string alias, string path)
         {
-            return NavigateUrl(pagestate, pagestate.Page.Path, reload);
-        }
-
-        public static string NavigateUrl(PageState pagestate, string path)
-        {
-            return NavigateUrl(pagestate, path, false);
-        }
-
-        public static string NavigateUrl(PageState pagestate, string path, bool reload)
-        {
-            string url = pagestate.Alias.Path + "/" + path;
-            if (reload)
+            string url = "";
+            if (alias != "")
             {
-                if (url.Contains("?"))
-                {
-                    url += "&reload=true";
-                }
-                else
-                {
-                    url += "?reload=true";
-                }
+                url += alias + "/";
+            }
+            if (path != "")
+            {
+                url += path + "/";
+            }
+            if (!url.StartsWith("/"))
+            {
+                url = "/" + url;
             }
             return url;
         }
 
-        public static string EditUrl(PageState pagestate, Module modulestate, string action)
+        public static string EditUrl(string alias, string path, int moduleid, string action, string parameters)
         {
-            return EditUrl(pagestate, modulestate, action, "");
-        }
-
-        public static string EditUrl(PageState pagestate, Module modulestate, string action, string parameters)
-        {
-            string url = pagestate.Alias.Path;
-            if (pagestate.Page.Path != "")
+            string url = NavigateUrl(alias, path);
+            if ( url == "/" )
             {
-                url += "/" + pagestate.Page.Path;
+                url = "";
             }
-            url += "/" + modulestate.ModuleId.ToString();
-            if (action != "")
+            if (moduleid != -1)
+            {
+                url += "/" + moduleid.ToString();
+            }
+            if (moduleid != -1 && action != "")
             {
                 url += "/" + action;
             }
             if (!string.IsNullOrEmpty(parameters))
             {
                 url += "?" + parameters;
+            }
+            if (!url.StartsWith("/"))
+            {
+                url = "/" + url;
             }
             return url;
         }
