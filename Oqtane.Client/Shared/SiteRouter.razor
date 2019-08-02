@@ -41,7 +41,7 @@
 
         DynamicComponent = builder =>
         {
-            if (pagestate != null)
+            if (PageState != null)
             {
                 builder.OpenComponent(0, Type.GetType(Constants.DefaultPage));
                 builder.CloseComponent();
@@ -75,38 +75,54 @@
         List<Module> modules;
         int moduleid = -1;
         string control = "";
+        int reload = 0;
 
-        bool reload = false;
-        if (PageState == null)
+        if (PageState != null)
         {
+            reload = PageState.Reload;
+        }
+
+        if (PageState == null || reload == Constants.ReloadApplication)
+        {
+            moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync();
+            themes = await ThemeService.GetThemesAsync();
             aliases = await AliasService.GetAliasesAsync();
             alias = null;
         }
         else
         {
+            moduledefinitions = PageState.ModuleDefinitions;
+            themes = PageState.Themes;
             aliases = PageState.Aliases;
             alias = PageState.Alias;
         }
+
+        // check if site has changed
         if (alias == null || GetAlias(_absoluteUri, aliases).Name != alias.Name)
         {
             alias = GetAlias(_absoluteUri, aliases);
             SiteState.Alias = alias; // set state for services
-            reload = true;
+            reload = Constants.ReloadSite;
         }
-        if (PageState == null || reload == true)
+        if (PageState == null || reload <= Constants.ReloadSite)
         {
-            moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync();
-            themes = await ThemeService.GetThemesAsync();
             site = await SiteService.GetSiteAsync(alias.SiteId);
         }
         else
         {
-            moduledefinitions = PageState.ModuleDefinitions;
-            themes = PageState.Themes;
             site = PageState.Site;
         }
-        if (site != null || reload == true)
+        if (site != null)
         {
+            if (PageState == null || reload >= Constants.ReloadSite)
+            {
+                pages = await PageService.GetPagesAsync(site.SiteId);
+            }
+            else
+            {
+                pages = PageState.Pages;
+            }
+
             // get Url path and querystring
             string path = new Uri(_absoluteUri).PathAndQuery.Substring(1);
 
@@ -148,13 +164,23 @@
             // remove trailing slash so it can be used as a key for Pages
             if (path.EndsWith("/")) path = path.Substring(0, path.Length - 1);
 
-            if (querystring.ContainsKey("reload"))
+            if (PageState == null || reload >= Constants.ReloadPage)
             {
-                reload = true;
+                page = pages.Where(item => item.Path == path).FirstOrDefault();
+            }
+            else
+            {
+                page = PageState.Page;
+            }
+            // check if page has changed
+            if (page.Path != path)
+            {
+                page = pages.Where(item => item.Path == path).FirstOrDefault();
+                reload = Constants.ReloadPage;
             }
 
             user = null;
-            if (PageState == null || reload == true)
+            if (PageState == null || reload >= Constants.ReloadPage)
             {
                 var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
                 if (authState.User.Identity.IsAuthenticated)
@@ -165,29 +191,6 @@
             else
             {
                 user = PageState.User;
-            }
-
-            if (PageState == null || reload == true)
-            {
-                pages = await PageService.GetPagesAsync(site.SiteId);
-            }
-            else
-            {
-                pages = PageState.Pages;
-            }
-
-            if (PageState == null || reload == true)
-            {
-                page = pages.Where(item => item.Path == path).FirstOrDefault();
-            }
-            else
-            {
-                page = PageState.Page;
-            }
-            if (page.Path != path)
-            {
-                page = pages.Where(item => item.Path == path).FirstOrDefault();
-                reload = true;
             }
 
             if (page != null)
@@ -211,10 +214,10 @@
 
                     if (PageState != null && (PageState.ModuleId != pagestate.ModuleId || PageState.Control != pagestate.Control))
                     {
-                        reload = true;
+                        reload = Constants.ReloadPage;
                     }
 
-                    if (PageState == null || reload == true)
+                    if (PageState == null || reload >= Constants.ReloadPage)
                     {
                         modules = await ModuleService.GetModulesAsync(page.PageId);
                         modules = ProcessModules(modules, moduledefinitions, pagestate.Control, page.Panes);
@@ -224,6 +227,7 @@
                         modules = PageState.Modules;
                     }
                     pagestate.Modules = modules;
+                    pagestate.Reload = 0;
 
                     OnStateChange?.Invoke(pagestate);
                 }

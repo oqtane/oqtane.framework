@@ -57,6 +57,7 @@
             htmltext.Content = content;
             await htmltextservice.AddHtmlTextAsync(htmltext);
         }
-        UriHelper.NavigateTo(NavigateUrl(true));
+        PageState.Reload = Constants.ReloadPage;
+        UriHelper.NavigateTo(NavigateUrl());
     }
 }

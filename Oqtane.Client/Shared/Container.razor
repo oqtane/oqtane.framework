@@ -21,26 +21,32 @@
     {
         DynamicComponent = builder =>
         {
-            Type containerType = Type.GetType(container);
-            if (containerType != null)
+            if (ModuleState != null)
             {
-                builder.OpenComponent(0, containerType);
-                builder.CloseComponent();
-            }
-            else
-            {
-                // container does not exist with type specified
+                Type containerType = Type.GetType(container);
+                if (containerType != null)
+                {
+                    builder.OpenComponent(ModuleState.ModuleId, containerType); // set sequence to moduleid so that component tree is able to differentiate
+                    builder.CloseComponent();
+                }
+                else
+                {
+                    // container does not exist with type specified
+                }
             }
         };
     }
 
     protected override Task OnParametersSetAsync()
     {
-        ModuleState = Module; // passed in from Pane component
-        container = ModuleState.ContainerType;
-        if (PageState.ModuleId != -1 && PageState.Control != "")
+        if (PageState.Page.PageId == Module.PageId)
         {
-            container = Constants.DefaultAdminContainer;
+            ModuleState = Module; // passed in from Pane component
+            container = ModuleState.ContainerType;
+            if (PageState.ModuleId != -1 && PageState.Control != "")
+            {
+                container = Constants.DefaultAdminContainer;
+            }
         }
         return Task.CompletedTask;
     }

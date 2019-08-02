@@ -10,22 +10,27 @@ namespace Oqtane.Themes
 
         public string NavigateUrl()
         {
-            return Utilities.NavigateUrl(PageState);
-        }
-
-        public string NavigateUrl(bool reload)
-        {
-            return Utilities.NavigateUrl(PageState, reload);
+            return NavigateUrl(PageState.Page.Path);
         }
 
         public string NavigateUrl(string path)
         {
-            return Utilities.NavigateUrl(PageState, path);
+            return Utilities.NavigateUrl(PageState.Alias.Path, path);
         }
 
-        public string NavigateUrl(string path, bool reload)
+        public string EditUrl(int moduleid, string action)
         {
-            return Utilities.NavigateUrl(PageState, path, reload);
+            return EditUrl(moduleid, action, "");
+        }
+
+        public string EditUrl(int moduleid, string action, string parameters)
+        {
+            return EditUrl(PageState.Page.Path, moduleid, action, parameters);
+        }
+
+        public string EditUrl(string path, int moduleid, string action, string parameters)
+        {
+            return Utilities.EditUrl(PageState.Alias.Path, path, moduleid, action, parameters);
         }
     }
 }

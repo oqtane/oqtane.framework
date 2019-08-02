@@ -1,6 +1,7 @@
 ﻿@using Oqtane.Themes
 @using Oqtane.Services
 @using Oqtane.Models
+@using Oqtane.Shared
 @inherits ContainerBase
 @inject IUriHelper UriHelper
 @inject IUserService UserService
@@ -58,7 +59,7 @@
         pagemodule.Order = ModuleState.Order;
         pagemodule.ContainerType = ModuleState.ContainerType;
 
-        string path = PageState.Page.Path + "?reload=true";
+        string url = NavigateUrl();
         switch (action)
         {
             case "up":
@@ -70,8 +71,7 @@
                 await PageModuleService.UpdatePageModuleAsync(pagemodule);
                 break;
             case "settings":
-                if (path == "") { path += "/"; }
-                path = PageState.Page.Path + "?mid=" + pagemodule.ModuleId.ToString() + "&ctl=Settings";
+                url = EditUrl(pagemodule.ModuleId, "Settings");
                 break;
             case "delete":
                 await PageModuleService.DeletePageModuleAsync(pagemodule.PageModuleId);
@@ -81,7 +81,8 @@
                 await PageModuleService.UpdatePageModuleAsync(pagemodule);
                 break;
         }
-        UriHelper.NavigateTo(NavigateUrl(path));
+        PageState.Reload = Constants.ReloadPage;
+        UriHelper.NavigateTo(url);
     }
 
     public class ActionViewModel

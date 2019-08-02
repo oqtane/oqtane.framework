@@ -157,6 +157,7 @@
     private async Task DeletePage()
     {
         await PageService.DeletePageAsync(Int32.Parse(PageState.QueryString["id"]));
-        UriHelper.NavigateTo(NavigateUrl("", true));
+        PageState.Reload = Constants.ReloadSite;
+        UriHelper.NavigateTo(NavigateUrl());
     }
 }

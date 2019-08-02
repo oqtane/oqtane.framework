@@ -73,7 +73,8 @@ private async Task Login()
         {
             // client-side Blazor
             authstateprovider.NotifyAuthenticationChanged();
-            UriHelper.NavigateTo(NavigateUrl(ReturnUrl, true));
+            PageState.Reload = Constants.ReloadPage;
+            UriHelper.NavigateTo(NavigateUrl(ReturnUrl));
         }
     }
     else
@@ -85,6 +86,6 @@ private async Task Login()
 private void Cancel()
 {
     string ReturnUrl = PageState.QueryString["returnurl"];
-    UriHelper.NavigateTo(NavigateUrl(ReturnUrl));
+    UriHelper.NavigateTo(ReturnUrl);
 }
 }

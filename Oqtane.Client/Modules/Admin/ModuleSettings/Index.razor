@@ -104,6 +104,7 @@
         pagemodule.ContainerType = containertype;
         await PageModuleService.UpdatePageModuleAsync(pagemodule);
 
-        UriHelper.NavigateTo(NavigateUrl(true));
+        PageState.Reload = Constants.ReloadPage;
+        UriHelper.NavigateTo(NavigateUrl());
     }
 }
