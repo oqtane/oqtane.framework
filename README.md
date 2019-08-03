@@ -68,7 +68,7 @@ At this point Oqtane offers a minimum of desired functionality and is not recomm
 
 # Example Screenshots
 
-A simplistic login flow ( note that a full authentication story has not been implemented at this point ):
+A seamless login flow utilizing .NET Core Identity services:
 
 ![Login](https://github.com/oqtane/framework/blob/master/screenshot1.png?raw=true "Login")
 
