@@ -41,7 +41,11 @@ namespace Oqtane.Repository
         {
             ChangeTracker.DetectChanges();
 
-            string username = accessor.HttpContext.User.Identity.Name;
+            string username = "";
+            if (accessor.HttpContext.User.Identity.Name != null)
+            {
+                username = accessor.HttpContext.User.Identity.Name;
+            }
             DateTime date = DateTime.Now;
 
             var created = ChangeTracker.Entries()
