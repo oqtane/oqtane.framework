@@ -26,8 +26,7 @@ Security
 - Need ability to manage Permissions
 	- a permission UI component for pages/modules
 	- may also need to include Permission table schema similar to DNN
-- Need ability to manage Authorization ( will need to be custom so that permissions set by user are observed at API level )
-- Need audit fields ( ie. CreatedBy, CreateOn, etc… ) on all core tables	
+- Need ability to manage Authorization ( will need to be custom so that permissions set by user are observed at API level )	
 - Logging
 - Support for friendly Page Not Found handling
 
