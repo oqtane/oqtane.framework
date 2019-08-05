@@ -31,18 +31,24 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        public void Post([FromBody] PageModule PageModule)
+        public PageModule Post([FromBody] PageModule PageModule)
         {
             if (ModelState.IsValid)
-                pagemodules.AddPageModule(PageModule);
+            {
+                PageModule = pagemodules.AddPageModule(PageModule);
+            }
+            return PageModule;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] PageModule PageModule)
+        public PageModule Put(int id, [FromBody] PageModule PageModule)
         {
             if (ModelState.IsValid)
-                pagemodules.UpdatePageModule(PageModule);
+            {
+                PageModule = pagemodules.UpdatePageModule(PageModule);
+            }
+            return PageModule;
         }
 
         // DELETE api/<controller>/5

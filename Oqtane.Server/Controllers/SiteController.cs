@@ -31,18 +31,24 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        public void Post([FromBody] Site site)
+        public Site Post([FromBody] Site Site)
         {
             if (ModelState.IsValid)
-                sites.AddSite(site);
+            {
+                Site = sites.AddSite(Site);
+            }
+            return Site;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Site site)
+        public Site Put(int id, [FromBody] Site Site)
         {
             if (ModelState.IsValid)
-                sites.UpdateSite(site);
+            {
+                Site = sites.UpdateSite(Site);
+            }
+            return Site;
         }
 
         // DELETE api/<controller>/5

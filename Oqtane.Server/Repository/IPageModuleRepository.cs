@@ -7,8 +7,8 @@ namespace Oqtane.Repository
     {
         IEnumerable<PageModule> GetPageModules();
         IEnumerable<PageModule> GetPageModules(int PageId);
-        void AddPageModule(PageModule PageModule);
-        void UpdatePageModule(PageModule PageModule);
+        PageModule AddPageModule(PageModule PageModule);
+        PageModule UpdatePageModule(PageModule PageModule);
         PageModule GetPageModule(int PageModuleId);
         void DeletePageModule(int PageModuleId);
     }

@@ -31,18 +31,24 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        public void Post([FromBody] Alias alias)
+        public Alias Post([FromBody] Alias Alias)
         {
             if (ModelState.IsValid)
-                aliases.AddAlias(alias);
+            {
+                Alias = aliases.AddAlias(Alias);
+            }
+            return Alias;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Alias alias)
+        public Alias Put(int id, [FromBody] Alias Alias)
         {
             if (ModelState.IsValid)
-                aliases.UpdateAlias(alias);
+            {
+                Alias = aliases.UpdateAlias(Alias);
+            }
+            return Alias;
         }
 
         // DELETE api/<controller>/5

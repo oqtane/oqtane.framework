@@ -11,6 +11,8 @@ namespace Oqtane.Models
         public bool IsSuperUser { get; set; }
 
         [NotMapped]
+        public int SiteId { get; set; }
+        [NotMapped]
         public string Password { get; set; }
         [NotMapped]
         public bool IsAuthenticated { get; set; }

@@ -4,8 +4,6 @@ using Oqtane.Repository;
 using Oqtane.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Primitives;
-using System.Security.Claims;
 
 namespace Oqtane.Controllers
 {
@@ -39,33 +37,35 @@ namespace Oqtane.Controllers
         
         // POST api/<controller>
         [HttpPost]
-        public async Task Post([FromBody] User user)
+        public async Task<User> Post([FromBody] User User)
         {
             if (ModelState.IsValid)
             {
-                IdentityUser identityuser = await identityUserManager.FindByNameAsync(user.Username);
+                IdentityUser identityuser = await identityUserManager.FindByNameAsync(User.Username);
                 if (identityuser == null)
                 {
                     identityuser = new IdentityUser();
-                    identityuser.UserName = user.Username;
-                    identityuser.Email = user.Username;
-                    var result = await identityUserManager.CreateAsync(identityuser, user.Password);
+                    identityuser.UserName = User.Username;
+                    identityuser.Email = User.Username;
+                    var result = await identityUserManager.CreateAsync(identityuser, User.Password);
                     if (result.Succeeded)
                     {
-                        users.AddUser(user);
+                        User = users.AddUser(User);
                     }
                 }
             }
+            return User;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] User user)
+        public User Put(int id, [FromBody] User User)
         {
             if (ModelState.IsValid)
             {
-                users.UpdateUser(user);
+                User = users.UpdateUser(User);
             }
+            return User;
         }
 
         // DELETE api/<controller>/5

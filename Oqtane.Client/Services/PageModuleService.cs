@@ -31,14 +31,14 @@ namespace Oqtane.Services
             return await http.GetJsonAsync<List<PageModule>>(apiurl);
         }
 
-        public async Task AddPageModuleAsync(PageModule pagemodule)
+        public async Task<PageModule> AddPageModuleAsync(PageModule PageModule)
         {
-            await http.PostJsonAsync(apiurl, pagemodule);
+            return await http.PostJsonAsync<PageModule>(apiurl, PageModule);
         }
 
-        public async Task UpdatePageModuleAsync(PageModule pagemodule)
+        public async Task<PageModule> UpdatePageModuleAsync(PageModule PageModule)
         {
-            await http.PutJsonAsync(apiurl + "/" + pagemodule.PageModuleId.ToString(), pagemodule);
+            return await http.PutJsonAsync<PageModule>(apiurl + "/" + PageModule.PageModuleId.ToString(), PageModule);
         }
 
         public async Task DeletePageModuleAsync(int PageModuleId)

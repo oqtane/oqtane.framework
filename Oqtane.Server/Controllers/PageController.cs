@@ -38,18 +38,24 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        public void Post([FromBody] Page Page)
+        public Page Post([FromBody] Page Page)
         {
             if (ModelState.IsValid)
-                pages.AddPage(Page);
+            {
+                Page = pages.AddPage(Page);
+            }
+            return Page;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Page Page)
+        public Page Put(int id, [FromBody] Page Page)
         {
             if (ModelState.IsValid)
-                pages.UpdatePage(Page);
+            {
+                Page = pages.UpdatePage(Page);
+            }
+            return Page;
         }
 
         // DELETE api/<controller>/5
