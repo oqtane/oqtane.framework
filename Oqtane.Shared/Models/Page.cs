@@ -1,6 +1,8 @@
-﻿namespace Oqtane.Models
+﻿using System;
+
+namespace Oqtane.Models
 {
-    public class Page
+    public class Page : IAuditable
     {
         public int PageId { get; set; }
         public int SiteId { get; set; }
@@ -15,5 +17,10 @@
         public string ViewPermissions { get; set; }
         public string EditPermissions { get; set; }
         public bool IsNavigation { get; set; }
+
+        public string CreatedBy { get; set; }
+        public DateTime CreatedOn { get; set; }
+        public string ModifiedBy { get; set; }
+        public DateTime ModifiedOn { get; set; }
     }
 }
