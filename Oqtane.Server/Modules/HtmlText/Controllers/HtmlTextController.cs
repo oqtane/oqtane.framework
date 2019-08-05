@@ -31,18 +31,24 @@ namespace Oqtane.Server.Modules.HtmlText.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        public void Post([FromBody] HtmlTextInfo HtmlText)
+        public HtmlTextInfo Post([FromBody] HtmlTextInfo HtmlText)
         {
             if (ModelState.IsValid)
-                htmltext.AddHtmlText(HtmlText);
+            {
+                HtmlText = htmltext.AddHtmlText(HtmlText);
+            }
+            return HtmlText;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] HtmlTextInfo HtmlText)
+        public HtmlTextInfo Put(int id, [FromBody] HtmlTextInfo HtmlText)
         {
             if (ModelState.IsValid)
-                htmltext.UpdateHtmlText(HtmlText);
+            {
+                HtmlText = htmltext.UpdateHtmlText(HtmlText);
+            }
+            return HtmlText; 
         }
 
         // DELETE api/<controller>/5

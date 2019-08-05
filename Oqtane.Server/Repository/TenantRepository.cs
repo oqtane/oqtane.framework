@@ -36,12 +36,13 @@ namespace Oqtane.Repository
             }
         }
 
-        public void AddTenant(Tenant tenant)
+        public Tenant AddTenant(Tenant Tenant)
         {
             try
             {
-                db.Tenant.Add(tenant);
+                db.Tenant.Add(Tenant);
                 db.SaveChanges();
+                return Tenant;
             }
             catch
             {
@@ -49,12 +50,13 @@ namespace Oqtane.Repository
             }
         }
 
-        public void UpdateTenant(Tenant tenant)
+        public Tenant UpdateTenant(Tenant Tenant)
         {
             try
             {
-                db.Entry(tenant).State = EntityState.Modified;
+                db.Entry(Tenant).State = EntityState.Modified;
                 db.SaveChanges();
+                return Tenant;
             }
             catch
             {
@@ -62,11 +64,11 @@ namespace Oqtane.Repository
             }
         }
 
-        public Tenant GetTenant(int tenantId)
+        public Tenant GetTenant(int TenantId)
         {
             try
             {
-                Tenant tenant = db.Tenant.Find(tenantId);
+                Tenant tenant = db.Tenant.Find(TenantId);
                 return tenant;
             }
             catch
@@ -75,11 +77,11 @@ namespace Oqtane.Repository
             }
         }
 
-        public void DeleteTenant(int tenantId)
+        public void DeleteTenant(int TenantId)
         {
             try
             {
-                Tenant tenant = db.Tenant.Find(tenantId);
+                Tenant tenant = db.Tenant.Find(TenantId);
                 db.Tenant.Remove(tenant);
                 db.SaveChanges();
             }

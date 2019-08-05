@@ -43,14 +43,14 @@ namespace Oqtane.Services
             return await http.GetJsonAsync<User>(apiurl + "/name/" + Username);
         }
 
-        public async Task AddUserAsync(User user)
+        public async Task<User> AddUserAsync(User User)
         {
-            await http.PostJsonAsync(apiurl, user);
+            return await http.PostJsonAsync<User>(apiurl, User);
         }
 
-        public async Task UpdateUserAsync(User user)
+        public async Task<User> UpdateUserAsync(User User)
         {
-            await http.PutJsonAsync(apiurl + "/" + user.UserId.ToString(), user);
+            return await http.PutJsonAsync<User>(apiurl + "/" + User.UserId.ToString(), User);
         }
         public async Task DeleteUserAsync(int UserId)
         {
@@ -62,9 +62,9 @@ namespace Oqtane.Services
             return await http.GetJsonAsync<User>(apiurl + "/current");
         }
 
-        public async Task<User> LoginUserAsync(User user)
+        public async Task<User> LoginUserAsync(User User)
         {
-            return await http.PostJsonAsync<User>(apiurl + "/login", user);
+            return await http.PostJsonAsync<User>(apiurl + "/login", User);
         }
 
         public async Task LogoutUserAsync()
@@ -74,23 +74,23 @@ namespace Oqtane.Services
         }
 
         // ACLs are stored in the format "!rolename1;![userid1];rolename2;rolename3;[userid2];[userid3]" where "!" designates Deny permissions
-        public bool IsAuthorized(User user, string accesscontrollist)
+        public bool IsAuthorized(User User, string AccessControlList)
         {
             bool isAllowed = false;
 
-            if (user != null)
+            if (User != null)
             {
                 //super user always has full access
-                isAllowed = user.IsSuperUser;
+                isAllowed = User.IsSuperUser;
             }
 
             if (!isAllowed)
             {
-                if (accesscontrollist != null)
+                if (AccessControlList != null)
                 {
-                    foreach (string permission in accesscontrollist.Split(new[] { ';' }))
+                    foreach (string permission in AccessControlList.Split(new[] { ';' }))
                     {
-                        bool? allowed = VerifyPermission(user, permission);
+                        bool? allowed = VerifyPermission(User, permission);
                         if (allowed.HasValue)
                         {
                             isAllowed = allowed.Value;

@@ -10,9 +10,9 @@ namespace Oqtane.Services
 
         Task<Site> GetSiteAsync(int SiteId);
 
-        Task AddSiteAsync(Site site);
+        Task<Site> AddSiteAsync(Site Site);
 
-        Task UpdateSiteAsync(Site site);
+        Task<Site> UpdateSiteAsync(Site Site);
 
         Task DeleteSiteAsync(int SiteId);
     }

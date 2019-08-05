@@ -41,12 +41,13 @@ namespace Oqtane.Repository
             }
         }
 
-        public void AddModule(Module Module)
+        public Module AddModule(Module Module)
         {
             try
             {
                 db.Module.Add(Module);
                 db.SaveChanges();
+                return Module;
             }
             catch
             {
@@ -54,12 +55,13 @@ namespace Oqtane.Repository
             }
         }
 
-        public void UpdateModule(Module Module)
+        public Module UpdateModule(Module Module)
         {
             try
             {
                 db.Entry(Module).State = EntityState.Modified;
                 db.SaveChanges();
+                return Module;
             }
             catch
             {

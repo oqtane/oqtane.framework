@@ -35,12 +35,13 @@ namespace Oqtane.Repository
             }
         }
 
-        public void AddAlias(Alias alias)
+        public Alias AddAlias(Alias Alias)
         {
             try
             {
-                db.Alias.Add(alias);
+                db.Alias.Add(Alias);
                 db.SaveChanges();
+                return Alias;
             }
             catch
             {
@@ -48,12 +49,13 @@ namespace Oqtane.Repository
             }
         }
 
-        public void UpdateAlias(Alias alias)
+        public Alias UpdateAlias(Alias Alias)
         {
             try
             {
-                db.Entry(alias).State = EntityState.Modified;
+                db.Entry(Alias).State = EntityState.Modified;
                 db.SaveChanges();
+                return Alias;
             }
             catch
             {
@@ -61,11 +63,11 @@ namespace Oqtane.Repository
             }
         }
 
-        public Alias GetAlias(int aliasId)
+        public Alias GetAlias(int AliasId)
         {
             try
             {
-                Alias alias = db.Alias.Find(aliasId);
+                Alias alias = db.Alias.Find(AliasId);
                 return alias;
             }
             catch
@@ -74,11 +76,11 @@ namespace Oqtane.Repository
             }
         }
 
-        public void DeleteAlias(int aliasId)
+        public void DeleteAlias(int AliasId)
         {
             try
             {
-                Alias alias = db.Alias.Find(aliasId);
+                Alias alias = db.Alias.Find(AliasId);
                 db.Alias.Remove(alias);
                 db.SaveChanges();
             }

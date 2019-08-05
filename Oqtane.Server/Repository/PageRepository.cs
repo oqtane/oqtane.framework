@@ -38,12 +38,13 @@ namespace Oqtane.Repository
             }
         }
 
-        public void AddPage(Page Page)
+        public Page AddPage(Page Page)
         {
             try
             {
                 db.Page.Add(Page);
                 db.SaveChanges();
+                return Page;
             }
             catch
             {
@@ -51,12 +52,13 @@ namespace Oqtane.Repository
             }
         }
 
-        public void UpdatePage(Page Page)
+        public Page UpdatePage(Page Page)
         {
             try
             {
                 db.Entry(Page).State = EntityState.Modified;
                 db.SaveChanges();
+                return Page;
             }
             catch
             {

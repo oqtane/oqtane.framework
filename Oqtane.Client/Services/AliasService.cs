@@ -37,14 +37,14 @@ namespace Oqtane.Services
             return await http.GetJsonAsync<Alias>(apiurl + "/" + AliasId.ToString());
         }
 
-        public async Task AddAliasAsync(Alias alias)
+        public async Task<Alias> AddAliasAsync(Alias alias)
         {
-            await http.PostJsonAsync(apiurl, alias);
+            return await http.PostJsonAsync<Alias>(apiurl, alias);
         }
 
-        public async Task UpdateAliasAsync(Alias alias)
+        public async Task<Alias> UpdateAliasAsync(Alias alias)
         {
-            await http.PutJsonAsync(apiurl + "/" + alias.AliasId.ToString(), alias);
+            return await http.PutJsonAsync<Alias>(apiurl + "/" + alias.AliasId.ToString(), alias);
         }
         public async Task DeleteAliasAsync(int AliasId)
         {

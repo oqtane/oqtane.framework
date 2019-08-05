@@ -10,9 +10,9 @@ namespace Oqtane.Services
 
         Task<Alias> GetAliasAsync(int AliasId);
 
-        Task AddAliasAsync(Alias alias);
+        Task<Alias> AddAliasAsync(Alias Alias);
 
-        Task UpdateAliasAsync(Alias alias);
+        Task<Alias> UpdateAliasAsync(Alias Alias);
 
         Task DeleteAliasAsync(int AliasId);
     }

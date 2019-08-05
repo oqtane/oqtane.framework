@@ -6,9 +6,9 @@ namespace Oqtane.Repository
     public interface ITenantRepository
     {
         IEnumerable<Tenant> GetTenants();
-        void AddTenant(Tenant tenant);
-        void UpdateTenant(Tenant tenant);
-        Tenant GetTenant(int tenantId);
-        void DeleteTenant(int tenantId);
+        Tenant AddTenant(Tenant Tenant);
+        Tenant UpdateTenant(Tenant Tenant);
+        Tenant GetTenant(int TenantId);
+        void DeleteTenant(int TenantId);
     }
 }

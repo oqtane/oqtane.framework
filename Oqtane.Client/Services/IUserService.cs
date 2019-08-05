@@ -12,18 +12,18 @@ namespace Oqtane.Services
 
         Task<User> GetUserAsync(string Username);
 
-        Task AddUserAsync(User user);
+        Task<User> AddUserAsync(User User);
 
-        Task UpdateUserAsync(User user);
+        Task<User> UpdateUserAsync(User User);
 
         Task DeleteUserAsync(int UserId);
 
         Task<User> GetCurrentUserAsync();
 
-        Task<User> LoginUserAsync(User user);
+        Task<User> LoginUserAsync(User User);
 
         Task LogoutUserAsync();
 
-        bool IsAuthorized(User user, string accesscontrollist);
+        bool IsAuthorized(User User, string AccessControlList);
     }
 }

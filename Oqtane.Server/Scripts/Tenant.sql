@@ -96,6 +96,21 @@ CREATE TABLE [dbo].[User](
 )
 GO
 
+CREATE TABLE [dbo].[SiteUser](
+	[SiteUserId] [int] IDENTITY(1,1) NOT NULL,
+	[SiteId] [int] NOT NULL,
+	[UserId] [int] NOT NULL,
+	[IsAuthorized] [bit] NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedOn] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NOT NULL,
+	[ModifiedOn] [datetime] NOT NULL,
+  CONSTRAINT [PK_SiteUser] PRIMARY KEY CLUSTERED 
+  (
+	[SiteUserId] ASC
+  )
+)
+GO
 /*  
 
 Create foreign key relationships
@@ -123,6 +138,15 @@ GO
 ALTER TABLE [dbo].[PageModule]  WITH CHECK ADD  CONSTRAINT [FK_PageModule_Page] FOREIGN KEY([PageId])
 REFERENCES [dbo].[Page] ([PageId])
 ON DELETE CASCADE
+GO
+
+ALTER TABLE [dbo].[SiteUser]  WITH CHECK ADD  CONSTRAINT [FK_SiteUser_Site] FOREIGN KEY([SiteId])
+REFERENCES [dbo].[Site] ([SiteId])
+ON DELETE CASCADE
+GO
+
+ALTER TABLE [dbo].[SiteUser]  WITH CHECK ADD  CONSTRAINT [FK_SiteUser_User] FOREIGN KEY([UserId])
+REFERENCES [dbo].[User] ([UserId])
 GO
 
 /*  

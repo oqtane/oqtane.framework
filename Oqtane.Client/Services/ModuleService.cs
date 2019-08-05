@@ -46,14 +46,14 @@ namespace Oqtane.Services
             return await http.GetJsonAsync<Module>(apiurl + "/" + ModuleId.ToString());
         }
 
-        public async Task AddModuleAsync(Module module)
+        public async Task<Module> AddModuleAsync(Module Module)
         {
-            await http.PostJsonAsync(apiurl, module);
+            return await http.PostJsonAsync<Module>(apiurl, Module);
         }
 
-        public async Task UpdateModuleAsync(Module module)
+        public async Task<Module> UpdateModuleAsync(Module Module)
         {
-            await http.PutJsonAsync(apiurl + "/" + module.ModuleId.ToString(), module);
+            return await http.PutJsonAsync<Module>(apiurl + "/" + Module.ModuleId.ToString(), Module);
         }
 
         public async Task DeleteModuleAsync(int ModuleId)

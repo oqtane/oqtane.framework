@@ -26,12 +26,13 @@ namespace Oqtane.Repository
             }
         }
 
-        public void AddSite(Site site)
+        public Site AddSite(Site Site)
         {
             try
             {
-                db.Site.Add(site);
+                db.Site.Add(Site);
                 db.SaveChanges();
+                return Site;
             }
             catch
             {
@@ -39,12 +40,13 @@ namespace Oqtane.Repository
             }
         }
 
-        public void UpdateSite(Site site)
+        public Site UpdateSite(Site Site)
         {
             try
             {
-                db.Entry(site).State = EntityState.Modified;
+                db.Entry(Site).State = EntityState.Modified;
                 db.SaveChanges();
+                return Site;
             }
             catch
             {

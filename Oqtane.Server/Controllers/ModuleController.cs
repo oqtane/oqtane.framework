@@ -53,18 +53,24 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        public void Post([FromBody] Module Module)
+        public Module Post([FromBody] Module Module)
         {
             if (ModelState.IsValid)
-                modules.AddModule(Module);
+            {
+                Module = modules.AddModule(Module);
+            }
+            return Module;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Module Module)
+        public Module Put(int id, [FromBody] Module Module)
         {
             if (ModelState.IsValid)
-                modules.UpdateModule(Module);
+            {
+                Module = modules.UpdateModule(Module);
+            }
+            return Module;
         }
 
         // DELETE api/<controller>/5

@@ -27,12 +27,13 @@ namespace Oqtane.Server.Modules.HtmlText.Repository
             }
         }
 
-        public void AddHtmlText(HtmlTextInfo HtmlText)
+        public HtmlTextInfo AddHtmlText(HtmlTextInfo HtmlText)
         {
             try
             {
                 db.HtmlText.Add(HtmlText);
                 db.SaveChanges();
+                return HtmlText;
             }
             catch
             {
@@ -40,12 +41,13 @@ namespace Oqtane.Server.Modules.HtmlText.Repository
             }
         }
 
-        public void UpdateHtmlText(HtmlTextInfo HtmlText)
+        public HtmlTextInfo UpdateHtmlText(HtmlTextInfo HtmlText)
         {
             try
             {
                 db.Entry(HtmlText).State = EntityState.Modified;
                 db.SaveChanges();
+                return HtmlText;
             }
             catch
             {

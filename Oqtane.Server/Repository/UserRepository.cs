@@ -26,12 +26,13 @@ namespace Oqtane.Repository
             }
         }
 
-        public void AddUser(User user)
+        public User AddUser(User user)
         {
             try
             {
                 db.User.Add(user);
                 db.SaveChanges();
+                return user;
             }
             catch
             {
@@ -39,12 +40,13 @@ namespace Oqtane.Repository
             }
         }
 
-        public void UpdateUser(User user)
+        public User UpdateUser(User user)
         {
             try
             {
                 db.Entry(user).State = EntityState.Modified;
                 db.SaveChanges();
+                return user;
             }
             catch
             {

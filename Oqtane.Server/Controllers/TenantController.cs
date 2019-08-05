@@ -31,18 +31,24 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        public void Post([FromBody] Tenant site)
+        public Tenant Post([FromBody] Tenant Tenant)
         {
             if (ModelState.IsValid)
-                tenants.AddTenant(site);
+            {
+                Tenant = tenants.AddTenant(Tenant);
+            }
+            return Tenant;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Tenant site)
+        public Tenant Put(int id, [FromBody] Tenant Tenant)
         {
             if (ModelState.IsValid)
-                tenants.UpdateTenant(site);
+            {
+                Tenant = tenants.UpdateTenant(Tenant);
+            }
+            return Tenant;
         }
 
         // DELETE api/<controller>/5
