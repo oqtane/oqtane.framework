@@ -50,14 +50,7 @@
 
     protected async Task ModuleAction(string action)
     {
-        PageModule pagemodule = new PageModule();
-        pagemodule.PageModuleId = ModuleState.PageModuleId;
-        pagemodule.PageId = ModuleState.PageId;
-        pagemodule.ModuleId = ModuleState.ModuleId;
-        pagemodule.Title = ModuleState.Title;
-        pagemodule.Pane = ModuleState.Pane;
-        pagemodule.Order = ModuleState.Order;
-        pagemodule.ContainerType = ModuleState.ContainerType;
+        PageModule pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
 
         string url = NavigateUrl();
         switch (action)
