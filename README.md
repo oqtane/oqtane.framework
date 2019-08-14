@@ -7,7 +7,7 @@ Oqtane uses Blazor, a new web framework for .NET Core that lets you build intera
 
 **To get started with Oqtane:**
 
-   1.&nbsp;Oqtane is currently compatible with **[.NET Core 3.0 Preview 6 SDK (3.0.0-preview6.19307.2)](https://dotnet.microsoft.com/download/dotnet-core/3.0)**. Microsoft continues to release new versions of .NET Core 3.0 on a regular basis and we do our best to keep up; however, for the best results you should use the most compatible .NET Core 3.0 version.
+   1.&nbsp;Oqtane is currently compatible with **[.NET Core 3.0 Preview 8 SDK (3.0.0-preview8.19405.7)](https://dotnet.microsoft.com/download/dotnet-core/3.0)**. Microsoft continues to release new versions of .NET Core 3.0 on a regular basis and we do our best to keep up; however, for the best results you should use the most compatible .NET Core 3.0 version.
    
    2.&nbsp;Install the latest **Preview** edition of [Visual Studio 2019](https://visualstudio.com/preview) with the **ASP.NET and web development** workload.
 
@@ -21,7 +21,6 @@ Oqtane uses Blazor, a new web framework for .NET Core that lets you build intera
 This project is a work in progress and the schedule for implementing the items identified below is dependent upon the availability of community members who are able to assist.
 
 Security
-- Need ability to associate a User to a Site and restrict access
 - Need ability to manage Roles and association to Users
 - Need ability to manage Permissions
 	- a permission UI component for pages/modules
