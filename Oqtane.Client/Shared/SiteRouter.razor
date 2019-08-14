@@ -55,10 +55,18 @@
     }
 
     protected override async Task OnParametersSetAsync()
-    {
+    {        
         if (PageState == null)
         {
-            await Refresh();
+            // misconfigured api calls should not be processed through the router
+            if (!_absoluteUri.Contains("~/api/"))
+            {
+                await Refresh();
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine(this.GetType().FullName + ": Error: " + _absoluteUri + " is not mapped to a Controller");
+            }
         }
     }
 

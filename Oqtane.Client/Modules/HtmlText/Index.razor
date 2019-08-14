@@ -16,7 +16,7 @@
 @code {
     string content;
 
-    protected override async Task OnInitAsync()
+    protected override async Task OnParametersSetAsync()
     {
         HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, UriHelper);
         List<HtmlTextInfo> htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);

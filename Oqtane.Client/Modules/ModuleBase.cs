@@ -14,7 +14,7 @@ namespace Oqtane.Modules
 
         public virtual string Title { get { return ""; } }
 
-        public virtual SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.View; } set { } } // default security
+        public virtual SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.View; } set { } } // default security
 
         public virtual string Actions { get { return ""; } }
 
@@ -25,7 +25,12 @@ namespace Oqtane.Modules
 
         public string NavigateUrl(string path)
         {
-            return Utilities.NavigateUrl(PageState.Alias.Path, path);
+            return NavigateUrl(path, "");
+        }
+
+        public string NavigateUrl(string path, string parameters)
+        {
+            return Utilities.NavigateUrl(PageState.Alias.Path, path, parameters);
         }
 
         public string EditUrl(string action)

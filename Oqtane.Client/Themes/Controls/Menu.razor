@@ -34,7 +34,7 @@
     List<Page> pages;
     Page parent = null;
 
-    protected override void OnInit()
+    protected override Task OnParametersSetAsync()
     {
         // if current page has no children
         if (PageState.Pages.Where(item => item.ParentId == PageState.Page.PageId).FirstOrDefault() == null)
@@ -54,5 +54,6 @@
             // current page is parent
             parent = PageState.Pages.Where(item => item.ParentId == PageState.Page.ParentId).FirstOrDefault();
         }
+        return Task.CompletedTask;
     }
 }

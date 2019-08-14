@@ -12,6 +12,7 @@ namespace Oqtane.Repository
         public virtual DbSet<Module> Module { get; set; }
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<SiteUser> SiteUser { get; set; }
+        public virtual DbSet<Setting> Setting { get; set; }
 
         public TenantDBContext(ITenantResolver TenantResolver, IHttpContextAccessor accessor) : base(TenantResolver, accessor)
         {

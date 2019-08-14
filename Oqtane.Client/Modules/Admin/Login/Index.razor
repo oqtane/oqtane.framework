@@ -42,50 +42,51 @@
 </AuthorizeView>
 
 @code {
-public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Anonymous; } }
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Anonymous; } }
 
-public string Message { get; set; } = "";
-public string Username { get; set; } = "";
-public string Password { get; set; } = "";
-public bool Remember { get; set; } = false;
+    public string Message { get; set; } = "";
+    public string Username { get; set; } = "";
+    public string Password { get; set; } = "";
+    public bool Remember { get; set; } = false;
 
-private async Task Login()
-{
-    User user = new User();
-    user.Username = Username;
-    user.Password = Password;
-    user.IsPersistent = Remember;
-    user = await UserService.LoginUserAsync(user);
-    if (user.IsAuthenticated)
+    private async Task Login()
     {
-        string ReturnUrl = PageState.QueryString["returnurl"];
-
-        var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
-        if (authstateprovider == null)
+        User user = new User();
+        user.SiteId = PageState.Site.SiteId;
+        user.Username = Username;
+        user.Password = Password;
+        user.IsPersistent = Remember;
+        user = await UserService.LoginUserAsync(user);
+        if (user.IsAuthenticated)
         {
-            // server-side Blazor
-            var interop = new Interop(jsRuntime);
-            string antiforgerytoken = await interop.GetElementByName("__RequestVerificationToken");
-            var fields = new { __RequestVerificationToken = antiforgerytoken, username = Username, password = Password, remember = Remember, returnurl = ReturnUrl };
-            await interop.SubmitForm("/login/", fields);
+            string ReturnUrl = PageState.QueryString["returnurl"];
+
+            var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
+            if (authstateprovider == null)
+            {
+                // server-side Blazor
+                var interop = new Interop(jsRuntime);
+                string antiforgerytoken = await interop.GetElementByName("__RequestVerificationToken");
+                var fields = new { __RequestVerificationToken = antiforgerytoken, username = Username, password = Password, remember = Remember, returnurl = ReturnUrl };
+                await interop.SubmitForm("/login/", fields);
+            }
+            else
+            {
+                // client-side Blazor
+                authstateprovider.NotifyAuthenticationChanged();
+                PageState.Reload = Constants.ReloadPage;
+                UriHelper.NavigateTo(NavigateUrl(ReturnUrl));
+            }
         }
         else
         {
-            // client-side Blazor
-            authstateprovider.NotifyAuthenticationChanged();
-            PageState.Reload = Constants.ReloadPage;
-            UriHelper.NavigateTo(NavigateUrl(ReturnUrl));
+            Message = "<div class=\"alert alert-danger\" role=\"alert\">Login Failed. Please Remember That Passwords Are Case Sensitive.</div>";
         }
     }
-    else
-    {
-        Message = "<div class=\"alert alert-danger\" role=\"alert\">Login Failed. Please Remember That Passwords Are Case Sensitive.</div>";
-    }
-}
 
-private void Cancel()
-{
-    string ReturnUrl = PageState.QueryString["returnurl"];
-    UriHelper.NavigateTo(ReturnUrl);
-}
+    private void Cancel()
+    {
+        string ReturnUrl = PageState.QueryString["returnurl"];
+        UriHelper.NavigateTo(ReturnUrl);
+    }
 }

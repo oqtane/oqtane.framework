@@ -7,6 +7,7 @@
         public const string DefaultAdminContainer = "Oqtane.Client.Themes.AdminContainer, Oqtane.Client";
         public const string DefaultSettingsControl = "Oqtane.Client.Modules.Admin.ModuleSettings.Index, Oqtane.Client";
         public const string PageManagementModule = "Oqtane.Client.Modules.Admin.Pages, Oqtane.Client";
+        public const string ModuleMessageControl = "Oqtane.Client.Modules.Controls.ModuleMessage, Oqtane.Client";
         public const string DefaultControl = "Index";
 
         public const string AdminPane = "Admin";

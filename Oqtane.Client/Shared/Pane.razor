@@ -52,23 +52,23 @@
                         {
                             var moduleobject = Activator.CreateInstance(moduleType);
                             // verify security access level for this module control
-                            SecurityAccessLevelEnum SecurityAccessLevel = (SecurityAccessLevelEnum)moduleType.GetProperty("SecurityAccessLevel").GetValue(moduleobject, null);
+                            SecurityAccessLevel SecurityAccessLevel = (SecurityAccessLevel)moduleType.GetProperty("SecurityAccessLevel").GetValue(moduleobject, null);
                             bool authorized = false;
                             switch (SecurityAccessLevel)
                             {
-                                case SecurityAccessLevelEnum.Anonymous:
+                                case SecurityAccessLevel.Anonymous:
                                     authorized = true;
                                     break;
-                                case SecurityAccessLevelEnum.View:
+                                case SecurityAccessLevel.View:
                                     authorized = UserService.IsAuthorized(PageState.User, module.ViewPermissions);
                                     break;
-                                case SecurityAccessLevelEnum.Edit:
+                                case SecurityAccessLevel.Edit:
                                     authorized = UserService.IsAuthorized(PageState.User, module.EditPermissions);
                                     break;
-                                case SecurityAccessLevelEnum.Admin:
+                                case SecurityAccessLevel.Admin:
                                     authorized = UserService.IsAuthorized(PageState.User, Constants.AdminRole);
                                     break;
-                                case SecurityAccessLevelEnum.Host:
+                                case SecurityAccessLevel.Host:
                                     authorized = PageState.User.IsSuperUser;
                                     break;
                             }

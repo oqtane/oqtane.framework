@@ -21,14 +21,13 @@ namespace Oqtane.Themes
 
         public string NavigateUrl(string path)
         {
-            return Utilities.NavigateUrl(PageState.Alias.Path, path);
+            return NavigateUrl(path, "");
         }
 
-        public string EditUrl(string action)
+        public string NavigateUrl(string path, string parameters)
         {
-            return EditUrl(ModuleState.ModuleId, action);
+            return Utilities.NavigateUrl(PageState.Alias.Path, path, parameters);
         }
-
         public string EditUrl(string action, string parameters)
         {
             return EditUrl(ModuleState.ModuleId, action, parameters);

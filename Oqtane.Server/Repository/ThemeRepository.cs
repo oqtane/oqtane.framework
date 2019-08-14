@@ -22,13 +22,11 @@ namespace Oqtane.Repository
             List<Theme> themes = new List<Theme>();
 
             // iterate through Oqtane theme assemblies
-            // TODO: Remove restriction on assembly
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(item => item.FullName.StartsWith("Oqtane.") || item.FullName.Contains(".Theme.")).ToArray();
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                if (assembly.FullName.StartsWith("Oqtane.Client") || assembly.FullName.StartsWith("Oqtane.Theme."))
-                {
-                    themes = LoadThemesFromAssembly(themes, assembly);
-                }
+                themes = LoadThemesFromAssembly(themes, assembly);
             }
 
             return themes;

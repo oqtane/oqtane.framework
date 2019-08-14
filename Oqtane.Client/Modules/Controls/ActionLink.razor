@@ -54,23 +54,26 @@
         if (moduleType != null)
         {
             var moduleobject = Activator.CreateInstance(moduleType);
-            SecurityAccessLevelEnum SecurityAccessLevel = (SecurityAccessLevelEnum)moduleType.GetProperty("SecurityAccessLevel").GetValue(moduleobject, null);
+            SecurityAccessLevel SecurityAccessLevel = (SecurityAccessLevel)moduleType.GetProperty("SecurityAccessLevel").GetValue(moduleobject, null);
             switch (SecurityAccessLevel)
             {
-                case SecurityAccessLevelEnum.Anonymous:
+                case SecurityAccessLevel.Anonymous:
                     authorized = true;
                     break;
-                case SecurityAccessLevelEnum.View:
+                case SecurityAccessLevel.View:
                     authorized = UserService.IsAuthorized(PageState.User, ModuleState.ViewPermissions);
                     break;
-                case SecurityAccessLevelEnum.Edit:
+                case SecurityAccessLevel.Edit:
                     authorized = UserService.IsAuthorized(PageState.User, ModuleState.EditPermissions);
                     break;
-                case SecurityAccessLevelEnum.Admin:
+                case SecurityAccessLevel.Admin:
                     authorized = UserService.IsAuthorized(PageState.User, Constants.AdminRole);
                     break;
-                case SecurityAccessLevelEnum.Host:
-                    authorized = PageState.User.IsSuperUser;
+                case SecurityAccessLevel.Host:
+                    if (PageState.User != null)
+                    {
+                        authorized = PageState.User.IsSuperUser;
+                    }
                     break;
             }
         }

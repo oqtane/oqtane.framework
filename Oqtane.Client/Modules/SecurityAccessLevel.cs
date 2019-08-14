@@ -1,6 +1,6 @@
 ﻿namespace Oqtane.Modules
 {
-    public enum SecurityAccessLevelEnum
+    public enum SecurityAccessLevel
     {
         Anonymous,
         View,

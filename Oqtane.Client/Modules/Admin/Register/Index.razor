@@ -20,7 +20,7 @@
 </div>
 
 @code {
-    public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Anonymous; } }
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Anonymous; } }
 
     public string Username { get; set; } = "";
     public string Password { get; set; } = "";
@@ -28,6 +28,7 @@
     private async Task RegisterUser()
     {
         User user = new User();
+        user.SiteId = PageState.Site.SiteId;
         user.Username = Username;
         user.DisplayName = Username;
         user.Roles = "Administrators;";
