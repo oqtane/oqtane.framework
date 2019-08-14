@@ -31,6 +31,11 @@ namespace Oqtane.Services
             return await http.GetJsonAsync<List<PageModule>>(apiurl);
         }
 
+        public async Task<PageModule> GetPageModuleAsync(int PageModuleId)
+        {
+            return await http.GetJsonAsync<PageModule>(apiurl + "/" + PageModuleId.ToString());
+        }
+
         public async Task<PageModule> AddPageModuleAsync(PageModule PageModule)
         {
             return await http.PostJsonAsync<PageModule>(apiurl, PageModule);

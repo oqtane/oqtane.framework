@@ -116,7 +116,7 @@
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
 @code {
-    public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Admin; } }
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 
     Dictionary<string, string> themes = new Dictionary<string, string>();
     Dictionary<string, string> panelayouts = new Dictionary<string, string>();

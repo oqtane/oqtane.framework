@@ -4,6 +4,7 @@ using Oqtane.Repository;
 using Oqtane.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Oqtane.Controllers
 {
@@ -11,12 +12,14 @@ namespace Oqtane.Controllers
     public class UserController : Controller
     {
         private readonly IUserRepository users;
+        private readonly ISiteUserRepository siteusers;
         private readonly UserManager<IdentityUser> identityUserManager;
         private readonly SignInManager<IdentityUser> identitySignInManager;
 
-        public UserController(IUserRepository Users, UserManager<IdentityUser> IdentityUserManager, SignInManager<IdentityUser> IdentitySignInManager)
+        public UserController(IUserRepository Users, ISiteUserRepository SiteUsers, UserManager<IdentityUser> IdentityUserManager, SignInManager<IdentityUser> IdentitySignInManager)
         {
             users = Users;
+            siteusers = SiteUsers;
             identityUserManager = IdentityUserManager;
             identitySignInManager = IdentitySignInManager;
         }
@@ -39,6 +42,8 @@ namespace Oqtane.Controllers
         [HttpPost]
         public async Task<User> Post([FromBody] User User)
         {
+            User user = null;
+
             if (ModelState.IsValid)
             {
                 IdentityUser identityuser = await identityUserManager.FindByNameAsync(User.Username);
@@ -50,11 +55,17 @@ namespace Oqtane.Controllers
                     var result = await identityUserManager.CreateAsync(identityuser, User.Password);
                     if (result.Succeeded)
                     {
-                        User = users.AddUser(User);
+                        user = users.AddUser(User);
+                        SiteUser SiteUser = new SiteUser();
+                        SiteUser.SiteId = User.SiteId;
+                        SiteUser.UserId = user.UserId;
+                        SiteUser.IsAuthorized = true;
+                        siteusers.AddSiteUser(SiteUser);
                     }
                 }
             }
-            return User;
+
+            return user;
         }
 
         // PUT api/<controller>/5
@@ -84,36 +95,38 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>/login
         [HttpPost("login")]
-        public async Task<User> Login([FromBody] User user)
+        public async Task<User> Login([FromBody] User User)
         {
+            User user = new Models.User { Username = User.Username, IsAuthenticated = false };
+
             if (ModelState.IsValid)
             {
-                IdentityUser identityuser = await identityUserManager.FindByNameAsync(user.Username);
+                IdentityUser identityuser = await identityUserManager.FindByNameAsync(User.Username);
                 if (identityuser != null)
                 {
-                    var result = await identitySignInManager.CheckPasswordSignInAsync(identityuser, user.Password, false);
+                    var result = await identitySignInManager.CheckPasswordSignInAsync(identityuser, User.Password, false);
                     if (result.Succeeded)
                     {
-                        await identitySignInManager.SignInAsync(identityuser, user.IsPersistent);
                         user = users.GetUser(identityuser.UserName);
-                        user.IsAuthenticated = true;
+                        if (user != null)
+                        {
+                            SiteUser siteuser = siteusers.GetSiteUsers(User.SiteId, user.UserId).FirstOrDefault();
+                            if (siteuser.IsAuthorized)
+                            {
+                                await identitySignInManager.SignInAsync(identityuser, User.IsPersistent);
+                                user.IsAuthenticated = true;
+                            }
+                        }
                     }
-                    else
-                    {
-                        user = new Models.User { Username = user.Username, IsAuthenticated = false };
-                    }
-                }
-                else
-                {
-                    user = new Models.User { Username = user.Username, IsAuthenticated = false };
                 }
             }
+
             return user;
         }
 
         // POST api/<controller>/logout
         [HttpPost("logout")]
-        public async Task Logout([FromBody] User user)
+        public async Task Logout([FromBody] User User)
         {
             await identitySignInManager.SignOutAsync();
         }

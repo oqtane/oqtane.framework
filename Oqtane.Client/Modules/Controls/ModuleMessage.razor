@@ -1,0 +1,44 @@
+﻿@using Oqtane.Modules
+@inherits ModuleBase
+
+@if (authorized)
+{
+    <div class="@type">
+        @Message
+    </div>
+}
+
+@code {
+    [Parameter]
+    private MessageType Type { get; set; }
+
+    [Parameter]
+    private string Message { get; set; }
+
+    string type = "alert alert-success"; // optional
+    bool authorized = false;
+
+    protected override void OnInit()
+    {
+        if (PageState.User != null)
+        {
+            authorized = PageState.User.IsSuperUser;
+        }
+
+        switch (Type)
+        {
+            case MessageType.Success:
+                type = "alert alert-success";
+                break;
+            case MessageType.Info:
+                type = "alert alert-info";
+                break;
+            case MessageType.Warning:
+                type = "alert alert-warning";
+                break;
+            case MessageType.Error:
+                type = "alert alert-danger";
+                break;
+        }
+    }
+}

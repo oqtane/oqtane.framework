@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.AspNetCore.ResponseCompression; // needed for WASM
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Components;
 using Oqtane.Shared;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Oqtane.Server
 {
@@ -77,27 +78,7 @@ namespace Oqtane.Server
             services.AddScoped<IModuleService, ModuleService>();
             services.AddScoped<IPageModuleService, PageModuleService>();
             services.AddScoped<IUserService, UserService>();
-
-            // dynamically register module contexts and repository services
-            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (Assembly assembly in assemblies)
-            {
-                Type[] implementationtypes = assembly.GetTypes()
-                    .Where(item => item.GetInterfaces().Contains(typeof(IService)))
-                    .ToArray();
-                foreach (Type implementationtype in implementationtypes)
-                {
-                    Type servicetype = Type.GetType(implementationtype.FullName.Replace(implementationtype.Name, "I" + implementationtype.Name));
-                    if (servicetype != null)
-                    {
-                        services.AddScoped(servicetype, implementationtype); // traditional service interface
-                    }
-                    else
-                    {
-                        services.AddScoped(implementationtype, implementationtype); // no interface defined for service
-                    }
-                }
-            }
+            services.AddScoped<ISettingService, SettingService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -139,9 +120,26 @@ namespace Oqtane.Server
                 };
             });
 
-            services.AddMemoryCache();
+            // get list of loaded assemblies
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
-            services.AddMvc().AddNewtonsoftJson();
+            // iterate through Oqtane module assemblies in /bin ( filter is narrow to optimize loading process )
+            string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            DirectoryInfo folder = new DirectoryInfo(path);
+            List<Assembly> moduleassemblies = new List<Assembly>();
+            foreach (FileInfo file in folder.EnumerateFiles("*.Module.*.dll"))
+            {
+                // check if assembly is already loaded
+                Assembly assembly = assemblies.Where(item => item.Location == file.FullName).FirstOrDefault();
+                if (assembly == null)
+                {
+                    // load assembly ( as long as dependencies are in /bin they will load as well )
+                    assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName);
+                    moduleassemblies.Add(assembly);
+                }
+            }
+
+            services.AddMvc().AddModuleAssemblies(moduleassemblies).AddNewtonsoftJson();
 
             // register singleton scoped core services
             services.AddSingleton<IConfigurationRoot>(Configuration);
@@ -157,26 +155,12 @@ namespace Oqtane.Server
             services.AddTransient<IModuleRepository, ModuleRepository>();
             services.AddTransient<IPageModuleRepository, PageModuleRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<ISiteUserRepository, SiteUserRepository>();
+            services.AddTransient<ISettingRepository, SettingRepository>();
 
-            // get list of loaded assemblies
-            assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            // get path to /bin
-            string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            DirectoryInfo folder = new DirectoryInfo(path);
-            // iterate through Oqtane assemblies in /bin ( filter is narrow to optimize loading process )
-            foreach (FileInfo file in folder.EnumerateFiles("Oqtane.*.dll"))
-            {
-                // check if assembly is already loaded
-                Assembly assembly = assemblies.Where(item => item.Location == file.FullName).FirstOrDefault();
-                if (assembly == null)
-                {
-                    // load assembly ( as long as dependencies are in /bin they will load as well )
-                    assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName);
-                }
-            }
-            
-            // dynamically register module contexts and repository services
-            assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            // dynamically register module services, contexts, and repository classes
+            assemblies = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(item => item.FullName.StartsWith("Oqtane.") || item.FullName.Contains(".Module.")).ToArray();
             foreach (Assembly assembly in assemblies)
             {
                 Type[] implementationtypes = assembly.GetTypes()
@@ -184,7 +168,7 @@ namespace Oqtane.Server
                     .ToArray();
                 foreach (Type implementationtype in implementationtypes)
                 {
-                    Type servicetype = Type.GetType(implementationtype.FullName.Replace(implementationtype.Name, "I" + implementationtype.Name));
+                    Type servicetype = Type.GetType(implementationtype.AssemblyQualifiedName.Replace(implementationtype.Name, "I" + implementationtype.Name));
                     if (servicetype != null)
                     {
                         services.AddScoped(servicetype, implementationtype); // traditional service interface
@@ -273,9 +257,26 @@ namespace Oqtane.Server
                 };
             });
 
-            services.AddMemoryCache();
+           // get list of loaded assemblies
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
-            services.AddMvc().AddNewtonsoftJson();
+            // iterate through Oqtane module assemblies in /bin ( filter is narrow to optimize loading process )
+            string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            DirectoryInfo folder = new DirectoryInfo(path);
+            List<Assembly> moduleassemblies = new List<Assembly>();
+            foreach (FileInfo file in folder.EnumerateFiles("*.Module.*.dll"))
+            {
+                // check if assembly is already loaded
+                Assembly assembly = assemblies.Where(item => item.Location == file.FullName).FirstOrDefault();
+                if (assembly == null)
+                {
+                    // load assembly ( as long as dependencies are in /bin they will load as well )
+                    assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName);
+                    moduleassemblies.Add(assembly);
+                }
+            }
+
+            services.AddMvc().AddModuleAssemblies(moduleassemblies).AddNewtonsoftJson();
 
             // register singleton scoped core services
             services.AddSingleton<IConfigurationRoot>(Configuration);
@@ -291,26 +292,12 @@ namespace Oqtane.Server
             services.AddTransient<IModuleRepository, ModuleRepository>();
             services.AddTransient<IPageModuleRepository, PageModuleRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
-
-            // get list of loaded assemblies
-            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            // get path to /bin
-            string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            DirectoryInfo folder = new DirectoryInfo(path);
-            // iterate through Oqtane assemblies in /bin ( filter is narrow to optimize loading process )
-            foreach (FileInfo file in folder.EnumerateFiles("Oqtane.*.dll"))
-            {
-                // check if assembly is already loaded
-                Assembly assembly = assemblies.Where(item => item.Location == file.FullName).FirstOrDefault();
-                if (assembly == null)
-                {
-                    // load assembly ( as long as dependencies are in /bin they will load as well )
-                    assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName);
-                }
-            }
-            
-            // dynamically register module contexts and repository services
-            assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            services.AddTransient<ISiteUserRepository, SiteUserRepository>();
+            services.AddTransient<ISettingRepository, SettingRepository>();
+           
+            // dynamically register module services, contexts, and repository classes
+            assemblies = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(item => item.FullName.StartsWith("Oqtane.") || item.FullName.Contains(".Module.")).ToArray();
             foreach (Assembly assembly in assemblies)
             {
                 Type[] implementationtypes = assembly.GetTypes()
@@ -318,7 +305,7 @@ namespace Oqtane.Server
                     .ToArray();
                 foreach (Type implementationtype in implementationtypes)
                 {
-                    Type servicetype = Type.GetType(implementationtype.FullName.Replace(implementationtype.Name, "I" + implementationtype.Name));
+                    Type servicetype = Type.GetType(implementationtype.AssemblyQualifiedName.Replace(implementationtype.Name, "I" + implementationtype.Name));
                     if (servicetype != null)
                     {
                         services.AddScoped(servicetype, implementationtype); // traditional service interface

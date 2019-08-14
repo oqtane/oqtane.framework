@@ -22,12 +22,11 @@ namespace Oqtane.Repository
             List<ModuleDefinition> moduledefinitions = new List<ModuleDefinition>();
 
             // iterate through Oqtane module assemblies
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(item => item.FullName.StartsWith("Oqtane.") || item.FullName.Contains(".Module.")).ToArray();
+            foreach (Assembly assembly in assemblies)
             {
-                if (assembly.FullName.StartsWith("Oqtane.Client") || assembly.FullName.StartsWith("Oqtane.Module."))
-                {
-                    moduledefinitions = LoadModuleDefinitionsFromAssembly(moduledefinitions, assembly);
-                }
+                moduledefinitions = LoadModuleDefinitionsFromAssembly(moduledefinitions, assembly);
             }
 
             return moduledefinitions;
@@ -118,7 +117,6 @@ namespace Oqtane.Repository
         {
             return moduledefinitions;
         }
-
 
     }
 }

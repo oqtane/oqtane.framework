@@ -63,11 +63,15 @@
         </td>
     </tr>
 </table>
+
+@DynamicComponent
+
 <button type="button" class="btn btn-success" @onclick="@SaveModule">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
+
 @code {
-    public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Edit; } }
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Edit; } }
     public override string Title { get { return "Module Settings"; } }
 
     Dictionary<string, string> containers = new Dictionary<string, string>();
@@ -77,6 +81,9 @@
     string editpermissions;
     string pageid;
 
+    RenderFragment DynamicComponent { get; set; }
+    object settings;
+
     protected override async Task OnInitAsync()
     {
         title = ModuleState.Title;
@@ -85,6 +92,17 @@
         viewpermissions = ModuleState.ViewPermissions;
         editpermissions = ModuleState.EditPermissions;
         pageid = ModuleState.PageId.ToString();
+
+        DynamicComponent = builder =>
+        {
+            Type moduleType = Type.GetType(ModuleState.ModuleType);
+            if (moduleType != null)
+            {
+                builder.OpenComponent(0, moduleType);
+                builder.AddComponentReferenceCapture(1, inst => { settings = Convert.ChangeType(inst, moduleType); });
+                builder.CloseComponent();
+            }
+        };
     }
 
     private async Task SaveModule()
@@ -94,17 +112,19 @@
         module.EditPermissions = editpermissions;
         await ModuleService.UpdateModuleAsync(module);
 
-        PageModule pagemodule = new PageModule();
-        pagemodule.PageModuleId = ModuleState.PageModuleId;
-        pagemodule.PageId = Int32.Parse(pageid);
-        pagemodule.ModuleId = ModuleState.ModuleId;
+        PageModule pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
         pagemodule.Title = title;
-        pagemodule.Pane = ModuleState.Pane;
-        pagemodule.Order = ModuleState.Order;
         pagemodule.ContainerType = containertype;
         await PageModuleService.UpdatePageModuleAsync(pagemodule);
+
+        Type moduleType = Type.GetType(ModuleState.ModuleType);
+        if (moduleType != null)
+        {
+            moduleType.GetMethod("UpdateSettings").Invoke(settings, null); // method must be public in settings component
+        }
 
         PageState.Reload = Constants.ReloadPage;
         UriHelper.NavigateTo(NavigateUrl());
     }
+
 }
