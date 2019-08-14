@@ -20,7 +20,7 @@ else
     private bool Installed = false;
     private PageState PageState { get; set; }
 
-    protected override async Task OnInitAsync()
+    protected override async Task OnInitializedAsync()
     {
         var response = await InstallationService.IsInstalled();
         Installed = response.Success;

@@ -31,7 +31,7 @@
     HtmlTextInfo htmltext;
     string content;
 
-    protected override async Task OnInitAsync()
+    protected override async Task OnInitializedAsync()
     {
         HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, UriHelper);
         List<HtmlTextInfo> htmltextlist = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);

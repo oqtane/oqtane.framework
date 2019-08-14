@@ -35,7 +35,7 @@ else
 
     List<Site> sites;
 
-    protected override async Task OnInitAsync()
+    protected override async Task OnInitializedAsync()
     {
         sites = await SiteService.GetSitesAsync();
     }

@@ -131,7 +131,7 @@
     string viewpermissions = "All Users";
     string editpermissions = "Administrators";
 
-    protected override void OnInit()
+    protected override void OnInitialized()
     {
         themes = ThemeService.GetThemeTypes(PageState.Themes);
         panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes);

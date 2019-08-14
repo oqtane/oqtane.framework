@@ -25,7 +25,7 @@
     string paneadminborder = "";
     string panetitle = "";
 
-    protected override void OnInit()
+    protected override void OnInitialized()
     {
         if (UserService.IsAuthorized(PageState.User, PageState.Page.EditPermissions) && Name != Constants.AdminPane)
         {

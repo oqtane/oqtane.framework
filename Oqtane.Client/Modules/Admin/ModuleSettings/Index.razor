@@ -84,7 +84,7 @@
     RenderFragment DynamicComponent { get; set; }
     object settings;
 
-    protected override async Task OnInitAsync()
+    protected override async Task OnInitializedAsync()
     {
         title = ModuleState.Title;
         containers = ThemeService.GetContainerTypes(await ThemeService.GetThemesAsync());

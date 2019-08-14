@@ -33,7 +33,7 @@ else
 
     List<Theme> Themes;
 
-    protected override async Task OnInitAsync()
+    protected override async Task OnInitializedAsync()
     {
         Themes = await ThemeService.GetThemesAsync();
     }
