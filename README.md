@@ -42,6 +42,7 @@ Admin
 - Need fully functional administrative modules for all core entities ( user, role, site, etc… )
 - Need ability to create a new Site and auto provision Admin pages/modules
 - Need ability to soft delete core entities
+- Re-ordering of modules in panes
 - Drag and Drop modules
 
 Upgrade
