@@ -21,7 +21,7 @@
     string display = "display: none";
     List<ActionViewModel> actions;
 
-    protected override void OnInit()
+    protected override void OnInitialized()
     {
         actions = new List<ActionViewModel>();
         if (ModuleState.PaneModuleIndex > 0)

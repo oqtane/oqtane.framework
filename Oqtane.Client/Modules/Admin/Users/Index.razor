@@ -34,7 +34,7 @@ else
 
     List<User> Users;
 
-    protected override async Task OnInitAsync()
+    protected override async Task OnInitializedAsync()
     {
         Users = await UserService.GetUsersAsync();
     }

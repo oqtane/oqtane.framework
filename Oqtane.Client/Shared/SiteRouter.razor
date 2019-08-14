@@ -34,7 +34,7 @@
     string _absoluteUri;
     bool _navigationInterceptionEnabled;
 
-    protected override void OnInit()
+    protected override void OnInitialized()
     {
         _absoluteUri = UriHelper.GetAbsoluteUri();
         UriHelper.OnLocationChanged += OnLocationChanged;

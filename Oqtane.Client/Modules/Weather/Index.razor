@@ -34,7 +34,7 @@ else
 @code {
     WeatherForecast[] forecasts;
 
-    protected override async Task OnInitAsync()
+    protected override async Task OnInitializedAsync()
     {
         WeatherForecastService forecastservice = new WeatherForecastService();
         forecasts = await forecastservice.GetForecastAsync(DateTime.Now);

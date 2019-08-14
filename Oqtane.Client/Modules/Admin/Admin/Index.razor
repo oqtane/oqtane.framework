@@ -26,7 +26,7 @@
 @code {
     List<Page> pages;
 
-    protected override void OnInit()
+    protected override void OnInitialized()
     {
         // display list of pages which are children of current page
         pages = PageState.Pages.Where(item => item.ParentId == PageState.Page.PageId).ToList();

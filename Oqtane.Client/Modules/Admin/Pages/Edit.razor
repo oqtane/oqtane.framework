@@ -133,7 +133,7 @@
     string viewpermissions;
     string editpermissions;
 
-    protected override void OnInit()
+    protected override void OnInitialized()
     {
         themes = ThemeService.GetThemeTypes(PageState.Themes);
         panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes);

@@ -34,7 +34,7 @@ else
 
     List<ModuleDefinition> moduledefinitions;
 
-    protected override async Task OnInitAsync()
+    protected override async Task OnInitializedAsync()
     {
         moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync();
     }

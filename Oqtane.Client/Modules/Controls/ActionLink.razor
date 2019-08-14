@@ -29,7 +29,7 @@
     string buttonClass = "btn btn-primary";
     bool authorized = false;
 
-    protected override void OnInit()
+    protected override void OnInitialized()
     {
         text = Action;
         if (!String.IsNullOrEmpty(Text))
