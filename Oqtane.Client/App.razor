@@ -4,9 +4,10 @@
 @inject IInstallationService InstallationService
 
 @if (Initialized)
+{
     @if (!Installed)
     {
-        <Installer Installed="@Installed" />
+        <Installer />
     }
     else
     {
@@ -23,14 +24,10 @@
     private bool Installed = false;
     private PageState PageState { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         var response = await InstallationService.IsInstalled();
         Installed = response.Success;
-    }
-
-    protected override void OnAfterRender()
-    {
         Initialized = true;
     }
 
