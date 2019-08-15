@@ -12,16 +12,16 @@
 
 @code {
     [Parameter]
-    private string Action { get; set; }
+    public string Action { get; set; }
 
     [Parameter]
-    private string Text { get; set; } // optional
+    public string Text { get; set; } // optional
 
     [Parameter]
-    private string Parameters { get; set; } // optional
+    public string Parameters { get; set; } // optional
 
     [Parameter]
-    private string ButtonClass { get; set; } // optional
+    public string ButtonClass { get; set; } // optional
 
     string text = "";
     string url = "";

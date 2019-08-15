@@ -3,20 +3,23 @@
 @using Oqtane.Services
 @inject IInstallationService InstallationService
 
-@if (!Installed)
-{
-    <Installer Installed="@Installed" />
-}
-else
-{
-    <CascadingAuthenticationState>
-        <CascadingValue Value="@PageState">
-            <SiteRouter OnStateChange="@ChangeState" />
-        </CascadingValue>
-    </CascadingAuthenticationState>
+@if (Initialized)
+    @if (!Installed)
+    {
+        <Installer Installed="@Installed" />
+    }
+    else
+    {
+        <CascadingAuthenticationState>
+            <CascadingValue Value="@PageState">
+                <SiteRouter OnStateChange="@ChangeState" />
+            </CascadingValue>
+        </CascadingAuthenticationState>
+    }
 }
 
 @code {
+    private bool Initialized = false;
     private bool Installed = false;
     private PageState PageState { get; set; }
 
@@ -24,6 +27,11 @@ else
     {
         var response = await InstallationService.IsInstalled();
         Installed = response.Success;
+    }
+
+    protected override void OnAfterRender()
+    {
+        Initialized = true;
     }
 
     private void ChangeState(PageState pagestate)

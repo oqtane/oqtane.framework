@@ -10,10 +10,10 @@
 
 @code {
     [Parameter]
-    private MessageType Type { get; set; }
+    public MessageType Type { get; set; }
 
     [Parameter]
-    private string Message { get; set; }
+    public string Message { get; set; }
 
     string type = "alert alert-success"; // optional
     bool authorized = false;
