@@ -30,13 +30,15 @@ namespace Oqtane.Services
 
         public async Task<List<ModuleDefinition>> GetModuleDefinitionsAsync()
         {
+            // get list of modules from the server
             List<ModuleDefinition> moduledefinitions = await http.GetJsonAsync<List<ModuleDefinition>>(apiurl);
 
-            // get list of loaded assemblies
+            // get list of loaded assemblies on the client ( in the client-side hosting module the browser client has its own app domain )
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
             foreach (ModuleDefinition moduledefinition in moduledefinitions)
             {
+                // if a module has dependencies, check if they are loaded
                 if (moduledefinition.Dependencies != "")
                 {
                     foreach (string dependency in moduledefinition.Dependencies.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
@@ -50,6 +52,7 @@ namespace Oqtane.Services
                         }
                     }
                 }
+                // check if the module assembly is loaded
                 if (assemblies.Where(item => item.FullName.StartsWith(moduledefinition.AssemblyName + ",")).FirstOrDefault() == null)
                 {
                     // download assembly from server and load
