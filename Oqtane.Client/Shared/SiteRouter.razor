@@ -24,9 +24,11 @@
 
 @code {
 
-    [CascadingParameter] PageState PageState { get; set; }
+    [CascadingParameter] 
+    PageState PageState { get; set; }
 
-    [Parameter] Action<PageState> OnStateChange { get; set; }
+    [Parameter] 
+    public Action<PageState> OnStateChange { get; set; }
 
     PageState pagestate;
     RenderFragment DynamicComponent { get; set; }
