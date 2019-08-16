@@ -20,6 +20,7 @@ using Oqtane.Shared;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Microsoft.OpenApi.Models;
 
 namespace Oqtane.Server
 {
@@ -179,6 +180,11 @@ namespace Oqtane.Server
                     }
                 }
             }
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Oqtane", Version = "v1" });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -201,6 +207,12 @@ namespace Oqtane.Server
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Oqtane V1");
+            });
 
             app.UseEndpoints(endpoints =>
             {
@@ -317,6 +329,11 @@ namespace Oqtane.Server
                 }
             }
 
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Oqtane", Version = "v1" });
+            });
+
             services.AddResponseCompression(opts =>
             {
                 opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
@@ -340,6 +357,12 @@ namespace Oqtane.Server
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Oqtane V1");
+            });
 
             app.UseEndpoints(endpoints =>
             {
