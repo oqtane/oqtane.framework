@@ -28,16 +28,14 @@
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Edit; } }
     public override string Title { get { return "Edit Html/Text"; } }
 
-    HtmlTextInfo htmltext;
     string content;
 
     protected override async Task OnInitializedAsync()
     {
         HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, UriHelper);
-        List<HtmlTextInfo> htmltextlist = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
-        if (htmltextlist != null)
+        HtmlTextInfo htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
+        if (htmltext != null)
         {
-            htmltext = htmltextlist.FirstOrDefault();
             content = htmltext.Content;
         }
     }
@@ -45,6 +43,7 @@
     private async Task SaveContent()
     {
         HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, UriHelper);
+        HtmlTextInfo htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
         if (htmltext != null)
         {
             htmltext.Content = content;

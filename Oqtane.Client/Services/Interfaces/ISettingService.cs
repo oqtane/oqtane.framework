@@ -6,6 +6,22 @@ namespace Oqtane.Services
 {
     public interface ISettingService
     {
+        Task<List<Setting>> GetHostSettingsAsync();
+
+        Task<Setting> UpdateHostSettingsAsync(List<Setting> HostSettings, string SettingName, string SettingValue);
+
+        Task<List<Setting>> GetSiteSettingsAsync(int SiteId);
+
+        Task<Setting> UpdateSiteSettingsAsync(List<Setting> SiteSettings, int SiteId, string SettingName, string SettingValue);
+
+        Task<List<Setting>> GetPageSettingsAsync(int PageId);
+
+        Task<Setting> UpdatePageSettingsAsync(List<Setting> PageSettings, int PageId, string SettingName, string SettingValue);
+
+        Task<List<Setting>> GetPageModuleSettingsAsync(int PageModuleId);
+
+        Task<Setting> UpdatePageModuleSettingsAsync(List<Setting> PageModuleSettings, int PageModuleId, string SettingName, string SettingValue);
+
         Task<List<Setting>> GetModuleSettingsAsync(int ModuleId);
 
         Task<Setting> UpdateModuleSettingsAsync(List<Setting> ModuleSettings, int ModuleId, string SettingName, string SettingValue);

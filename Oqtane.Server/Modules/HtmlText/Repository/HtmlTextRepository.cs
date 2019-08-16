@@ -15,17 +15,18 @@ namespace Oqtane.Server.Modules.HtmlText.Repository
             db = context;
         }
 
-        public IEnumerable<HtmlTextInfo> GetHtmlText()
+        public HtmlTextInfo GetHtmlText(int ModuleId)
         {
             try
             {
-                return db.HtmlText.ToList();
+                return db.HtmlText.Where(item => item.ModuleId == ModuleId).FirstOrDefault();
             }
             catch
             {
                 throw;
             }
         }
+
 
         public HtmlTextInfo AddHtmlText(HtmlTextInfo HtmlText)
         {
@@ -47,19 +48,6 @@ namespace Oqtane.Server.Modules.HtmlText.Repository
             {
                 db.Entry(HtmlText).State = EntityState.Modified;
                 db.SaveChanges();
-                return HtmlText;
-            }
-            catch
-            {
-                throw;
-            }
-        }
-
-        public HtmlTextInfo GetHtmlText(int HtmlTextId)
-        {
-            try
-            {
-                HtmlTextInfo HtmlText = db.HtmlText.Find(HtmlTextId);
                 return HtmlText;
             }
             catch

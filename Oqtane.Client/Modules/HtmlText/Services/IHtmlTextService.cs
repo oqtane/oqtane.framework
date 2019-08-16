@@ -6,7 +6,7 @@ namespace Oqtane.Client.Modules.HtmlText.Services
 {
     public interface IHtmlTextService 
     {
-        Task<List<HtmlTextInfo>> GetHtmlTextAsync(int ModuleId);
+        Task<HtmlTextInfo> GetHtmlTextAsync(int ModuleId);
 
         Task AddHtmlTextAsync(HtmlTextInfo htmltext);
 
