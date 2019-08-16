@@ -19,10 +19,10 @@
     protected override async Task OnParametersSetAsync()
     {
         HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, UriHelper);
-        List<HtmlTextInfo> htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
+        HtmlTextInfo htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
         if (htmltext != null)
         {
-            content = htmltext.FirstOrDefault().Content;
+            content = htmltext.Content;
         }
     }
 }

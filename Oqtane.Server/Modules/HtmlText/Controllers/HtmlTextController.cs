@@ -15,13 +15,6 @@ namespace Oqtane.Server.Modules.HtmlText.Controllers
             htmltext = HtmlText;
         }
 
-        // GET: api/<controller>
-        [HttpGet]
-        public IEnumerable<HtmlTextInfo> Get()
-        {
-            return htmltext.GetHtmlText();
-        }
-
         // GET api/<controller>/5
         [HttpGet("{id}")]
         public HtmlTextInfo Get(int id)

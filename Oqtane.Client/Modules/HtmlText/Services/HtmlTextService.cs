@@ -27,13 +27,9 @@ namespace Oqtane.Client.Modules.HtmlText.Services
             get { return CreateApiUrl(sitestate.Alias, urihelper.GetAbsoluteUri(), "HtmlText"); }
         }
 
-        public async Task<List<HtmlTextInfo>> GetHtmlTextAsync(int ModuleId)
+        public async Task<HtmlTextInfo> GetHtmlTextAsync(int ModuleId)
         {
-            List<HtmlTextInfo> htmltext = await http.GetJsonAsync<List<HtmlTextInfo>>(apiurl);
-            htmltext = htmltext
-                .Where(item => item.ModuleId == ModuleId)
-                .ToList();
-            return htmltext;
+            return await http.GetJsonAsync<HtmlTextInfo>(apiurl + "/" + ModuleId.ToString());
         }
 
         public async Task AddHtmlTextAsync(HtmlTextInfo htmltext)
