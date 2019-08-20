@@ -195,7 +195,7 @@
                 var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
                 if (authState.User.Identity.IsAuthenticated)
                 {
-                    user = await UserService.GetUserAsync(authState.User.Identity.Name);
+                    user = await UserService.GetUserAsync(authState.User.Identity.Name, site.SiteId);
                 }
             }
             else

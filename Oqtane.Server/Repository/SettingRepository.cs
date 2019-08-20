@@ -59,8 +59,7 @@ namespace Oqtane.Repository
         {
             try
             {
-                Setting Setting = db.Setting.Find(SettingId);
-                return Setting;
+                return db.Setting.Find(SettingId);
             }
             catch
             {

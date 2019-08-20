@@ -8,25 +8,25 @@ namespace Oqtane.Controllers
     [Route("{site}/api/[controller]")]
     public class AliasController : Controller
     {
-        private readonly IAliasRepository aliases;
+        private readonly IAliasRepository Aliases;
 
         public AliasController(IAliasRepository Aliases)
         {
-            aliases = Aliases;
+            this.Aliases = Aliases;
         }
 
         // GET: api/<controller>
         [HttpGet]
         public IEnumerable<Alias> Get()
         {
-            return aliases.GetAliases();
+            return Aliases.GetAliases();
         }
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
         public Alias Get(int id)
         {
-            return aliases.GetAlias(id);
+            return Aliases.GetAlias(id);
         }
 
         // POST api/<controller>
@@ -35,7 +35,7 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                Alias = aliases.AddAlias(Alias);
+                Alias = Aliases.AddAlias(Alias);
             }
             return Alias;
         }
@@ -46,7 +46,7 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                Alias = aliases.UpdateAlias(Alias);
+                Alias = Aliases.UpdateAlias(Alias);
             }
             return Alias;
         }
@@ -55,7 +55,7 @@ namespace Oqtane.Controllers
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-            aliases.DeleteAlias(id);
+            Aliases.DeleteAlias(id);
         }
     }
 }

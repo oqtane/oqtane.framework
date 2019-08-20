@@ -8,25 +8,25 @@ namespace Oqtane.Controllers
     [Route("{site}/api/[controller]")]
     public class PageModuleController : Controller
     {
-        private readonly IPageModuleRepository pagemodules;
+        private readonly IPageModuleRepository PageModules;
 
         public PageModuleController(IPageModuleRepository PageModules)
         {
-            pagemodules = PageModules;
+            this.PageModules = PageModules;
         }
 
         // GET: api/<controller>
         [HttpGet]
         public IEnumerable<PageModule> Get()
         {
-            return pagemodules.GetPageModules();
+            return PageModules.GetPageModules();
         }
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
         public PageModule Get(int id)
         {
-            return pagemodules.GetPageModule(id);
+            return PageModules.GetPageModule(id);
         }
 
         // POST api/<controller>
@@ -35,7 +35,7 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                PageModule = pagemodules.AddPageModule(PageModule);
+                PageModule = PageModules.AddPageModule(PageModule);
             }
             return PageModule;
         }
@@ -46,7 +46,7 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                PageModule = pagemodules.UpdatePageModule(PageModule);
+                PageModule = PageModules.UpdatePageModule(PageModule);
             }
             return PageModule;
         }
@@ -55,7 +55,7 @@ namespace Oqtane.Controllers
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-            pagemodules.DeletePageModule(id);
+            PageModules.DeletePageModule(id);
         }
     }
 }

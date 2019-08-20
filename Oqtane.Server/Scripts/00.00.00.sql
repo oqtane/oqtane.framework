@@ -99,7 +99,6 @@ CREATE TABLE [dbo].[User](
 	[UserId] [int] IDENTITY(1,1) NOT NULL,
 	[Username] [nvarchar](256) NOT NULL,
 	[DisplayName] [nvarchar](50) NOT NULL,
-	[Roles] [nvarchar](50) NOT NULL,
 	[IsSuperUser] [bit] NOT NULL,
 	[CreatedBy] [nvarchar](256) NOT NULL,
 	[CreatedOn] [datetime] NOT NULL,
@@ -116,7 +115,6 @@ CREATE TABLE [dbo].[SiteUser](
 	[SiteUserId] [int] IDENTITY(1,1) NOT NULL,
 	[SiteId] [int] NOT NULL,
 	[UserId] [int] NOT NULL,
-	[IsAuthorized] [bit] NOT NULL,
 	[CreatedBy] [nvarchar](256) NOT NULL,
 	[CreatedOn] [datetime] NOT NULL,
 	[ModifiedBy] [nvarchar](256) NOT NULL,
@@ -124,6 +122,40 @@ CREATE TABLE [dbo].[SiteUser](
   CONSTRAINT [PK_SiteUser] PRIMARY KEY CLUSTERED 
   (
 	[SiteUserId] ASC
+  )
+)
+GO
+
+CREATE TABLE [dbo].[Role](
+	[RoleId] [int] IDENTITY(1,1) NOT NULL,
+	[SiteId] [int] NOT NULL,
+	[Name] [nvarchar](256) NOT NULL,
+	[Description] [nvarchar](50) NOT NULL,
+	[IsAutoAssigned] [bit] NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedOn] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NOT NULL,
+	[ModifiedOn] [datetime] NOT NULL,
+  CONSTRAINT [PK_Role] PRIMARY KEY CLUSTERED 
+  (
+	[RoleId] ASC
+  )
+)
+GO
+
+CREATE TABLE [dbo].[UserRole](
+	[UserRoleId] [int] IDENTITY(1,1) NOT NULL,
+	[UserId] [int] NOT NULL,
+	[RoleId] [int] NOT NULL,
+	[EffectiveDate] [datetime] NULL,
+	[ExpiryDate] [datetime] NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedOn] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NOT NULL,
+	[ModifiedOn] [datetime] NOT NULL,
+  CONSTRAINT [PK_UserRole] PRIMARY KEY CLUSTERED 
+  (
+	[UserRoleId] ASC
   )
 )
 GO
@@ -260,6 +292,9 @@ GO
 INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
 VALUES (15, 2, N'Register', N'register', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', N'All Users', N'Administrators', NULL, 1, 0, N'', '', getdate(), '', getdate())
 GO
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (16, 1, N'Role Management', N'admin/roles', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', N'Administrators', N'Administrators', 4, 5, 1, N'', '', getdate(), '', getdate())
+GO
 SET IDENTITY_INSERT [dbo].[Page] OFF 
 GO
 
@@ -321,6 +356,9 @@ VALUES (18, 2, N'Oqtane.Client.Modules.Admin.Login, Oqtane.Client', N'All Users'
 GO
 INSERT [dbo].[Module] ([ModuleId], [SiteId], [ModuleDefinitionName], [ViewPermissions], [EditPermissions], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
 VALUES (19, 2, N'Oqtane.Client.Modules.Admin.Register, Oqtane.Client', N'All Users', N'Administrators', '', getdate(), '', getdate())
+GO
+INSERT [dbo].[Module] ([ModuleId], [SiteId], [ModuleDefinitionName], [ViewPermissions], [EditPermissions], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (20, 1, N'Oqtane.Client.Modules.Admin.Roles, Oqtane.Client', N'Administrators', N'Administrators', '', getdate(), '', getdate())
 GO
 SET IDENTITY_INSERT [dbo].[Module] OFF 
 GO
@@ -384,6 +422,9 @@ GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
 VALUES (19, 15, 19, N'Register', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
 GO
+INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (20, 16, 20, N'Role Management', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
+GO
 SET IDENTITY_INSERT [dbo].[PageModule] OFF 
 GO
 
@@ -410,4 +451,20 @@ GO
 SET IDENTITY_INSERT [dbo].[HtmlText] OFF 
 GO
 
+SET IDENTITY_INSERT [dbo].[Role] ON 
+GO
+INSERT [dbo].[Role] ([RoleId], [SiteId], [Name], [Description], [IsAutoAssigned], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (1, 1, N'Administrators', N'Site Administrators', 0, '', getdate(), '', getdate())
+GO
+INSERT [dbo].[Role] ([RoleId], [SiteId], [Name], [Description], [IsAutoAssigned], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (2, 1, N'Registered Users', N'Registered Users', 1, '', getdate(), '', getdate())
+GO
+INSERT [dbo].[Role] ([RoleId], [SiteId], [Name], [Description], [IsAutoAssigned], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (3, 2, N'Administrators', N'Site Administrators', 0, '', getdate(), '', getdate())
+GO
+INSERT [dbo].[Role] ([RoleId], [SiteId], [Name], [Description], [IsAutoAssigned], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (4, 2, N'Registered Users', N'Registered Users', 1, '', getdate(), '', getdate())
+GO
+SET IDENTITY_INSERT [dbo].[Role] OFF 
+GO
 

@@ -169,7 +169,8 @@
                 user.Password = HostPassword;
                 user.IsSuperUser = true;
                 user.Roles = "";
-                await UserService.AddUserAsync(user);
+                user = await UserService.AddUserAsync(user);
+
                 UriHelper.NavigateTo("", true);
             }
             else

@@ -8,25 +8,25 @@ namespace Oqtane.Controllers
     [Route("{site}/api/[controller]")]
     public class SiteController : Controller
     {
-        private readonly ISiteRepository sites;
+        private readonly ISiteRepository Sites;
 
         public SiteController(ISiteRepository Sites)
         {
-            sites = Sites;
+            this.Sites = Sites;
         }
 
         // GET: api/<controller>
         [HttpGet]
         public IEnumerable<Site> Get()
         {
-            return sites.GetSites();
+            return Sites.GetSites();
         }
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
         public Site Get(int id)
         {
-            return sites.GetSite(id);
+            return Sites.GetSite(id);
         }
 
         // POST api/<controller>
@@ -35,7 +35,7 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                Site = sites.AddSite(Site);
+                Site = Sites.AddSite(Site);
             }
             return Site;
         }
@@ -46,7 +46,7 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                Site = sites.UpdateSite(Site);
+                Site = Sites.UpdateSite(Site);
             }
             return Site;
         }
@@ -55,7 +55,7 @@ namespace Oqtane.Controllers
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-            sites.DeleteSite(id);
+            Sites.DeleteSite(id);
         }
     }
 }

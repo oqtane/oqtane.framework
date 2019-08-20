@@ -6,19 +6,17 @@ namespace Oqtane.Services
 {
     public interface IUserService
     {
-        Task<List<User>> GetUsersAsync();
+        Task<List<User>> GetUsersAsync(int SiteId);
 
-        Task<User> GetUserAsync(int UserId);
+        Task<User> GetUserAsync(int UserId, int SiteId);
 
-        Task<User> GetUserAsync(string Username);
+        Task<User> GetUserAsync(string Username, int SiteId);
 
         Task<User> AddUserAsync(User User);
 
         Task<User> UpdateUserAsync(User User);
 
         Task DeleteUserAsync(int UserId);
-
-        Task<User> GetCurrentUserAsync();
 
         Task<User> LoginUserAsync(User User);
 

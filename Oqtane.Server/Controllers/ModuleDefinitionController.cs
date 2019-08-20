@@ -8,18 +8,18 @@ namespace Oqtane.Controllers
     [Route("{site}/api/[controller]")]
     public class ModuleDefinitionController : Controller
     {
-        private readonly IModuleDefinitionRepository moduledefinitions;
+        private readonly IModuleDefinitionRepository ModuleDefinitions;
 
         public ModuleDefinitionController(IModuleDefinitionRepository ModuleDefinitions)
         {
-            moduledefinitions = ModuleDefinitions;
+            this.ModuleDefinitions = ModuleDefinitions;
         }
 
         // GET: api/<controller>
         [HttpGet]
         public IEnumerable<ModuleDefinition> Get()
         {
-            return moduledefinitions.GetModuleDefinitions();
+            return ModuleDefinitions.GetModuleDefinitions();
         }
     }
 }

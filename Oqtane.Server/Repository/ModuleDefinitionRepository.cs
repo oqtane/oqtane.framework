@@ -10,26 +10,26 @@ namespace Oqtane.Repository
 {
     public class ModuleDefinitionRepository : IModuleDefinitionRepository
     {
-        private readonly List<ModuleDefinition> moduledefinitions;
+        private readonly List<ModuleDefinition> ModuleDefinitions;
 
         public ModuleDefinitionRepository()
         {
-            moduledefinitions = LoadModuleDefinitions();
+            ModuleDefinitions = LoadModuleDefinitions();
         }
 
         private List<ModuleDefinition> LoadModuleDefinitions()
         {
-            List<ModuleDefinition> moduledefinitions = new List<ModuleDefinition>();
+            List<ModuleDefinition> ModuleDefinitions = new List<ModuleDefinition>();
 
             // iterate through Oqtane module assemblies
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies()
                 .Where(item => item.FullName.StartsWith("Oqtane.") || item.FullName.Contains(".Module.")).ToArray();
             foreach (Assembly assembly in assemblies)
             {
-                moduledefinitions = LoadModuleDefinitionsFromAssembly(moduledefinitions, assembly);
+                ModuleDefinitions = LoadModuleDefinitionsFromAssembly(ModuleDefinitions, assembly);
             }
 
-            return moduledefinitions;
+            return ModuleDefinitions;
         }
 
         private List<ModuleDefinition> LoadModuleDefinitionsFromAssembly(List<ModuleDefinition> moduledefinitions, Assembly assembly)
@@ -115,7 +115,7 @@ namespace Oqtane.Repository
 
         public IEnumerable<ModuleDefinition> GetModuleDefinitions()
         {
-            return moduledefinitions;
+            return ModuleDefinitions;
         }
 
     }

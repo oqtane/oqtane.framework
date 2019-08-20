@@ -27,20 +27,20 @@ namespace Oqtane.Services
             get { return CreateApiUrl(sitestate.Alias, urihelper.GetAbsoluteUri(), "User"); }
         }
 
-        public async Task<List<User>> GetUsersAsync()
+        public async Task<List<User>> GetUsersAsync(int SiteId)
         {
-            List<User> users = await http.GetJsonAsync<List<User>>(apiurl);
+            List<User> users = await http.GetJsonAsync<List<User>>(apiurl + "?siteid=" + SiteId.ToString());
             return users.OrderBy(item => item.DisplayName).ToList();
         }
 
-        public async Task<User> GetUserAsync(int UserId)
+        public async Task<User> GetUserAsync(int UserId, int SiteId)
         {
-            return await http.GetJsonAsync<User>(apiurl + "/" + UserId.ToString());
+            return await http.GetJsonAsync<User>(apiurl + "/" + UserId.ToString() + "?siteid=" + SiteId.ToString());
         }
 
-        public async Task<User> GetUserAsync(string Username)
+        public async Task<User> GetUserAsync(string Username, int SiteId)
         {
-            return await http.GetJsonAsync<User>(apiurl + "/name/" + Username);
+            return await http.GetJsonAsync<User>(apiurl + "/name/" + Username + "?siteid=" + SiteId.ToString());
         }
 
         public async Task<User> AddUserAsync(User User)
@@ -55,11 +55,6 @@ namespace Oqtane.Services
         public async Task DeleteUserAsync(int UserId)
         {
             await http.DeleteAsync(apiurl + "/" + UserId.ToString());
-        }
-
-        public async Task<User> GetCurrentUserAsync()
-        {
-            return await http.GetJsonAsync<User>(apiurl + "/current");
         }
 
         public async Task<User> LoginUserAsync(User User)
@@ -80,7 +75,7 @@ namespace Oqtane.Services
 
             if (User != null)
             {
-                //super user always has full access
+                // super user always has full access
                 isAllowed = User.IsSuperUser;
             }
 

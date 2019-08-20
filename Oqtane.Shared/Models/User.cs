@@ -8,8 +8,11 @@ namespace Oqtane.Models
         public int UserId { get; set; }
         public string Username { get; set; }
         public string DisplayName { get; set; }
-        public string Roles { get; set; }
         public bool IsSuperUser { get; set; }
+        [NotMapped]
+        public int SiteId { get; set; }
+        [NotMapped]
+        public string Roles { get; set; }
 
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
@@ -17,12 +20,11 @@ namespace Oqtane.Models
         public DateTime ModifiedOn { get; set; }
 
         [NotMapped]
-        public int SiteId { get; set; }
-        [NotMapped]
         public string Password { get; set; }
         [NotMapped]
         public bool IsAuthenticated { get; set; }
         [NotMapped]
         public bool IsPersistent { get; set; }
+
     }
 }

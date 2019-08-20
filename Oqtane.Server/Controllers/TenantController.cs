@@ -8,25 +8,25 @@ namespace Oqtane.Controllers
     [Route("{site}/api/[controller]")]
     public class TenantController : Controller
     {
-        private readonly ITenantRepository tenants;
+        private readonly ITenantRepository Tenants;
 
         public TenantController(ITenantRepository Tenants)
         {
-            tenants = Tenants;
+            this.Tenants = Tenants;
         }
 
         // GET: api/<controller>
         [HttpGet]
         public IEnumerable<Tenant> Get()
         {
-            return tenants.GetTenants();
+            return Tenants.GetTenants();
         }
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
         public Tenant Get(int id)
         {
-            return tenants.GetTenant(id);
+            return Tenants.GetTenant(id);
         }
 
         // POST api/<controller>
@@ -35,7 +35,7 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                Tenant = tenants.AddTenant(Tenant);
+                Tenant = Tenants.AddTenant(Tenant);
             }
             return Tenant;
         }
@@ -46,7 +46,7 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                Tenant = tenants.UpdateTenant(Tenant);
+                Tenant = Tenants.UpdateTenant(Tenant);
             }
             return Tenant;
         }
@@ -55,7 +55,7 @@ namespace Oqtane.Controllers
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-            tenants.DeleteTenant(id);
+            Tenants.DeleteTenant(id);
         }
     }
 }

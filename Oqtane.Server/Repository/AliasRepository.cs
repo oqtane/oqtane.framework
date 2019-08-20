@@ -22,12 +22,11 @@ namespace Oqtane.Repository
         {
             try
             {
-                IEnumerable<Alias> aliases = _cache.GetOrCreate("aliases", entry =>
+                return _cache.GetOrCreate("aliases", entry =>
                 {
                     entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                     return db.Alias.ToList();
                 });
-                return aliases;
             }
             catch
             {
@@ -67,8 +66,7 @@ namespace Oqtane.Repository
         {
             try
             {
-                Alias alias = db.Alias.Find(AliasId);
-                return alias;
+                return db.Alias.Find(AliasId);
             }
             catch
             {

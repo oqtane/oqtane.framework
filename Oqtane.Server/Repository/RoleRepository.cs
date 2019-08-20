@@ -5,20 +5,20 @@ using Oqtane.Models;
 
 namespace Oqtane.Repository
 {
-    public class SiteRepository : ISiteRepository
+    public class RoleRepository : IRoleRepository
     {
         private TenantDBContext db;
 
-        public SiteRepository(TenantDBContext context)
+        public RoleRepository(TenantDBContext context)
         {
             db = context;
         }
             
-        public IEnumerable<Site> GetSites()
+        public IEnumerable<Role> GetRoles()
         {
             try
             {
-                return db.Site.ToList();
+                return db.Role.ToList();
             }
             catch
             {
@@ -26,13 +26,25 @@ namespace Oqtane.Repository
             }
         }
 
-        public Site AddSite(Site Site)
+        public IEnumerable<Role> GetRoles(int SiteId)
         {
             try
             {
-                db.Site.Add(Site);
+                return db.Role.Where(item => item.SiteId == SiteId).ToList();
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public Role AddRole(Role Role)
+        {
+            try
+            {
+                db.Role.Add(Role);
                 db.SaveChanges();
-                return Site;
+                return Role;
             }
             catch
             {
@@ -40,13 +52,13 @@ namespace Oqtane.Repository
             }
         }
 
-        public Site UpdateSite(Site Site)
+        public Role UpdateRole(Role Role)
         {
             try
             {
-                db.Entry(Site).State = EntityState.Modified;
+                db.Entry(Role).State = EntityState.Modified;
                 db.SaveChanges();
-                return Site;
+                return Role;
             }
             catch
             {
@@ -54,11 +66,11 @@ namespace Oqtane.Repository
             }
         }
 
-        public Site GetSite(int siteId)
+        public Role GetRole(int RoleId)
         {
             try
             {
-                return db.Site.Find(siteId);
+                return db.Role.Find(RoleId);
             }
             catch
             {
@@ -66,12 +78,12 @@ namespace Oqtane.Repository
             }
         }
 
-        public void DeleteSite(int siteId)
+        public void DeleteRole(int RoleId)
         {
             try
             {
-                Site site = db.Site.Find(siteId);
-                db.Site.Remove(site);
+                Role Role = db.Role.Find(RoleId);
+                db.Role.Remove(Role);
                 db.SaveChanges();
             }
             catch

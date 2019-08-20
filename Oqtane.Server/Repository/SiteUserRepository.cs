@@ -25,16 +25,13 @@ namespace Oqtane.Repository
                 throw;
             }
         }
-        public IEnumerable<SiteUser> GetSiteUsers(int SiteId, int UserId)
+        public IEnumerable<SiteUser> GetSiteUsers(int SiteId)
         {
             try
             {
-                List<SiteUser> siteusers = db.SiteUser.Where(item => item.SiteId == SiteId).ToList();
-                if (UserId != -1)
-                {
-                    siteusers = siteusers.Where(item => item.UserId == UserId).ToList();
-                }
-                return siteusers;
+                return db.SiteUser.Where(item => item.SiteId == SiteId)
+                    .Include(item => item.User) // eager load users
+                    .ToList();
             }
             catch
             {
@@ -74,8 +71,20 @@ namespace Oqtane.Repository
         {
             try
             {
-                SiteUser SiteUser = db.SiteUser.Find(SiteUserId);
-                return SiteUser;
+                return db.SiteUser.Include(item => item.User) // eager load users
+                    .SingleOrDefault(item => item.SiteUserId == SiteUserId);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public SiteUser GetSiteUser(int SiteId, int UserId)
+        {
+            try
+            {
+                return db.SiteUser.Where(item => item.SiteId == SiteId).Where(item => item.UserId == UserId).FirstOrDefault();
             }
             catch
             {

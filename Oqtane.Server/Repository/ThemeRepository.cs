@@ -10,26 +10,26 @@ namespace Oqtane.Repository
 {
     public class ThemeRepository : IThemeRepository
     {
-        private readonly List<Theme> themes;
+        private readonly List<Theme> Themes;
 
         public ThemeRepository()
         {
-            themes = LoadThemes();
+            Themes = LoadThemes();
         }
 
         private List<Theme> LoadThemes()
         {
-            List<Theme> themes = new List<Theme>();
+            List<Theme> Themes = new List<Theme>();
 
             // iterate through Oqtane theme assemblies
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies()
                 .Where(item => item.FullName.StartsWith("Oqtane.") || item.FullName.Contains(".Theme.")).ToArray();
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                themes = LoadThemesFromAssembly(themes, assembly);
+                Themes = LoadThemesFromAssembly(Themes, assembly);
             }
 
-            return themes;
+            return Themes;
         }
 
         private List<Theme> LoadThemesFromAssembly(List<Theme> themes, Assembly assembly)
@@ -120,7 +120,7 @@ namespace Oqtane.Repository
 
         public IEnumerable<Theme> GetThemes()
         {
-            return themes;
+            return Themes;
         }
     }
 }

@@ -18,11 +18,11 @@ namespace Oqtane.Controllers
     [Route("{site}/api/[controller]")]
     public class InstallationController : Controller
     {
-        private readonly IConfigurationRoot _config;
+        private readonly IConfigurationRoot Config;
 
-        public InstallationController(IConfigurationRoot config)
+        public InstallationController(IConfigurationRoot Config)
         {
-            _config = config;
+            this.Config = Config;
         }
 
         // POST api/<controller>
@@ -139,7 +139,7 @@ namespace Oqtane.Controllers
                                 {
                                     writer.WriteLine(config);
                                 }
-                                _config.Reload();
+                                Config.Reload();
                                 response.Success = true;
                             }
                         }
@@ -160,7 +160,7 @@ namespace Oqtane.Controllers
             var response = new GenericResponse { Success = false, Message = "" };
 
             string datadirectory = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
-            string connectionString = _config.GetConnectionString("DefaultConnection");
+            string connectionString = Config.GetConnectionString("DefaultConnection");
             connectionString = connectionString.Replace("|DataDirectory|", datadirectory);
 
             SqlConnection connection = new SqlConnection(connectionString);

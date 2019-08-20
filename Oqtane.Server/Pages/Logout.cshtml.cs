@@ -19,12 +19,7 @@ namespace Oqtane.Pages
         {
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
 
-            string url = "~/";
-            if (returnurl != "/")
-            {
-                url = Url.Content("~/" + returnurl);
-            }
-            return LocalRedirect(url);
+            return LocalRedirect(Url.Content("~" + returnurl));
         }
     }
 }
