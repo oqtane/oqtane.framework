@@ -11,33 +11,82 @@ namespace Oqtane.Controllers
     [Route("{site}/api/[controller]")]
     public class UserController : Controller
     {
-        private readonly IUserRepository users;
-        private readonly ISiteUserRepository siteusers;
-        private readonly UserManager<IdentityUser> identityUserManager;
-        private readonly SignInManager<IdentityUser> identitySignInManager;
+        private readonly IUserRepository Users;
+        private readonly ISiteUserRepository SiteUsers;
+        private readonly IRoleRepository Roles;
+        private readonly IUserRoleRepository UserRoles;
+        private readonly UserManager<IdentityUser> IdentityUserManager;
+        private readonly SignInManager<IdentityUser> IdentitySignInManager;
 
-        public UserController(IUserRepository Users, ISiteUserRepository SiteUsers, UserManager<IdentityUser> IdentityUserManager, SignInManager<IdentityUser> IdentitySignInManager)
+        public UserController(IUserRepository Users, ISiteUserRepository SiteUsers, IRoleRepository Roles, IUserRoleRepository UserRoles, UserManager<IdentityUser> IdentityUserManager, SignInManager<IdentityUser> IdentitySignInManager)
         {
-            users = Users;
-            siteusers = SiteUsers;
-            identityUserManager = IdentityUserManager;
-            identitySignInManager = IdentitySignInManager;
+            this.Users = Users;
+            this.SiteUsers = SiteUsers;
+            this.Roles = Roles;
+            this.UserRoles = UserRoles;
+            this.IdentityUserManager = IdentityUserManager;
+            this.IdentitySignInManager = IdentitySignInManager;
         }
 
-        // GET: api/<controller>
+        // GET: api/<controller>?siteid=x
         [HttpGet]
-        public IEnumerable<User> Get()
+        public IEnumerable<User> Get(string siteid)
         {
-            return users.GetUsers();
+            List<User> users = new List<User>();
+            IEnumerable<SiteUser> siteusers = SiteUsers.GetSiteUsers(int.Parse(siteid));
+            foreach (SiteUser siteuser in siteusers)
+            {
+                User user = siteuser.User;
+                user.SiteId = siteuser.SiteId;
+                users.Add(user);
+            }
+            return users;
         }
 
-        // GET api/<controller>/5
+        // GET api/<controller>/5?siteid=x
         [HttpGet("{id}")]
-        public User Get(int id)
+        public User Get(int id, string siteid)
         {
-            return users.GetUser(id);
+            User user = Users.GetUser(id);
+            if (user != null)
+            {
+                user.SiteId = int.Parse(siteid);
+                if (!user.IsSuperUser) // super users are part of every site by default
+                {
+                    SiteUser siteuser = SiteUsers.GetSiteUser(user.SiteId, id);
+                    if (siteuser != null)
+                    {
+                        user.Roles = GetUserRoles(user.UserId, user.SiteId);
+                    }
+                }
+            }
+            return user;
         }
-        
+
+        // GET api/<controller>/name/x?siteid=x
+        [HttpGet("name/{name}")]
+        public User Get(string name, string siteid)
+        {
+            User user = Users.GetUser(name);
+            if (user != null)
+            {
+                user.SiteId = int.Parse(siteid);
+                if (!user.IsSuperUser) // super users are part of every site by default
+                {
+                    SiteUser siteuser = SiteUsers.GetSiteUser(user.SiteId, user.UserId);
+                    if (siteuser != null)
+                    {
+                        user.Roles = GetUserRoles(user.UserId, user.SiteId);
+                    }
+                    else
+                    {
+                        user = null;
+                    }
+                }
+            }
+            return user;
+        }
+
         // POST api/<controller>
         [HttpPost]
         public async Task<User> Post([FromBody] User User)
@@ -46,21 +95,55 @@ namespace Oqtane.Controllers
 
             if (ModelState.IsValid)
             {
-                IdentityUser identityuser = await identityUserManager.FindByNameAsync(User.Username);
+                IdentityUser identityuser = await IdentityUserManager.FindByNameAsync(User.Username);
                 if (identityuser == null)
                 {
                     identityuser = new IdentityUser();
                     identityuser.UserName = User.Username;
                     identityuser.Email = User.Username;
-                    var result = await identityUserManager.CreateAsync(identityuser, User.Password);
+                    var result = await IdentityUserManager.CreateAsync(identityuser, User.Password);
                     if (result.Succeeded)
                     {
-                        user = users.AddUser(User);
-                        SiteUser SiteUser = new SiteUser();
-                        SiteUser.SiteId = User.SiteId;
-                        SiteUser.UserId = user.UserId;
-                        SiteUser.IsAuthorized = true;
-                        siteusers.AddSiteUser(SiteUser);
+                        user = Users.AddUser(User);
+
+                        SiteUser siteuser = new SiteUser();
+                        siteuser.SiteId = User.SiteId;
+                        siteuser.UserId = user.UserId;
+                        SiteUsers.AddSiteUser(siteuser);
+
+                        List<Role> roles = Roles.GetRoles(user.SiteId).Where(item => item.IsAutoAssigned == true).ToList();
+                        foreach (Role role in roles)
+                        {
+                            UserRole userrole = new UserRole();
+                            userrole.UserId = user.UserId;
+                            userrole.RoleId = role.RoleId;
+                            userrole.EffectiveDate = null;
+                            userrole.ExpiryDate = null;
+                            UserRoles.AddUserRole(userrole);
+                        }
+                    }
+                }
+                else
+                {
+                    user = Users.GetUser(User.Username);
+                    SiteUser siteuser = SiteUsers.GetSiteUser(User.SiteId, user.UserId);
+                    if (siteuser == null)
+                    {
+                        siteuser = new SiteUser();
+                        siteuser.SiteId = User.SiteId;
+                        siteuser.UserId = user.UserId;
+                        SiteUsers.AddSiteUser(siteuser);
+
+                        List<Role> roles = Roles.GetRoles(User.SiteId).Where(item => item.IsAutoAssigned == true).ToList();
+                        foreach (Role role in roles)
+                        {
+                            UserRole userrole = new UserRole();
+                            userrole.UserId = user.UserId;
+                            userrole.RoleId = role.RoleId;
+                            userrole.EffectiveDate = null;
+                            userrole.ExpiryDate = null;
+                            UserRoles.AddUserRole(userrole);
+                        }
                     }
                 }
             }
@@ -74,23 +157,20 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                User = users.UpdateUser(User);
+                User = Users.UpdateUser(User);
             }
             return User;
         }
 
-        // DELETE api/<controller>/5
+        // DELETE api/<controller>/5?siteid=x
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public void Delete(int id, string siteid)
         {
-            users.DeleteUser(id);
-        }
-
-        // GET api/<controller>/name/x
-        [HttpGet("name/{name}")]
-        public User GetByName(string name)
-        {
-            return users.GetUser(name);
+            SiteUser siteuser = SiteUsers.GetSiteUser(id, int.Parse(siteid));
+            if (siteuser != null)
+            {
+                SiteUsers.DeleteSiteUser(siteuser.SiteUserId);
+            }
         }
 
         // POST api/<controller>/login
@@ -101,20 +181,30 @@ namespace Oqtane.Controllers
 
             if (ModelState.IsValid)
             {
-                IdentityUser identityuser = await identityUserManager.FindByNameAsync(User.Username);
+                IdentityUser identityuser = await IdentityUserManager.FindByNameAsync(User.Username);
                 if (identityuser != null)
                 {
-                    var result = await identitySignInManager.CheckPasswordSignInAsync(identityuser, User.Password, false);
+                    var result = await IdentitySignInManager.CheckPasswordSignInAsync(identityuser, User.Password, false);
                     if (result.Succeeded)
                     {
-                        user = users.GetUser(identityuser.UserName);
+                        user = Users.GetUser(identityuser.UserName);
                         if (user != null)
                         {
-                            SiteUser siteuser = siteusers.GetSiteUsers(User.SiteId, user.UserId).FirstOrDefault();
-                            if (siteuser.IsAuthorized)
+                            if (!user.IsSuperUser) // super users are part of every site by default
                             {
-                                await identitySignInManager.SignInAsync(identityuser, User.IsPersistent);
+                                SiteUser siteuser = SiteUsers.GetSiteUser(User.SiteId, user.UserId);
+                                if (siteuser != null)
+                                {
+                                    user.IsAuthenticated = true;
+                                }
+                            }
+                            else
+                            {
                                 user.IsAuthenticated = true;
+                            }
+                            if (user.IsAuthenticated)
+                            {
+                                await IdentitySignInManager.SignInAsync(identityuser, User.IsPersistent);
                             }
                         }
                     }
@@ -128,7 +218,7 @@ namespace Oqtane.Controllers
         [HttpPost("logout")]
         public async Task Logout([FromBody] User User)
         {
-            await identitySignInManager.SignOutAsync();
+            await IdentitySignInManager.SignOutAsync();
         }
 
         // GET api/<controller>/current
@@ -136,6 +226,21 @@ namespace Oqtane.Controllers
         public User Authenticate()
         {
             return new User { Username = User.Identity.Name, IsAuthenticated = User.Identity.IsAuthenticated };
+        }
+
+        private string GetUserRoles(int UserId, int SiteId)
+        {
+            string roles = "";
+            IEnumerable<UserRole> userroles = UserRoles.GetUserRoles(UserId);
+            foreach (UserRole userrole in userroles)
+            {
+                if (userrole.Role.SiteId == SiteId)
+                {
+                    roles += userrole.Role.Name + ";";
+                }
+            }
+            if (roles != "") roles = ";" + roles;
+            return roles;
         }
     }
 }

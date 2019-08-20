@@ -8,13 +8,13 @@ namespace Oqtane.Controllers
     [Route("{site}/api/[controller]")]
     public class ModuleController : Controller
     {
-        private readonly IModuleRepository modules;
-        private readonly IPageModuleRepository pagemodules;
+        private readonly IModuleRepository Modules;
+        private readonly IPageModuleRepository PageModules;
 
         public ModuleController(IModuleRepository Modules, IPageModuleRepository PageModules)
         {
-            modules = Modules;
-            pagemodules = PageModules;
+            this.Modules = Modules;
+            this.PageModules = PageModules;
         }
 
         // GET: api/<controller>?pageid=x
@@ -25,7 +25,7 @@ namespace Oqtane.Controllers
             if (!string.IsNullOrEmpty(pageid))
             {
                 List<Module> modulelist = new List<Module>();
-                foreach (PageModule pagemodule in pagemodules.GetPageModules(int.Parse(pageid)))
+                foreach (PageModule pagemodule in PageModules.GetPageModules(int.Parse(pageid)))
                 {
                     Module module = pagemodule.Module;
                     module.PageModuleId = pagemodule.PageModuleId;
@@ -40,7 +40,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                return modules.GetModules(int.Parse(siteid), moduledefinitionname);
+                return Modules.GetModules(int.Parse(siteid), moduledefinitionname);
             }
         }
 
@@ -48,7 +48,7 @@ namespace Oqtane.Controllers
         [HttpGet("{id}")]
         public Module Get(int id)
         {
-            return modules.GetModule(id);
+            return Modules.GetModule(id);
         }
 
         // POST api/<controller>
@@ -57,7 +57,7 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                Module = modules.AddModule(Module);
+                Module = Modules.AddModule(Module);
             }
             return Module;
         }
@@ -68,7 +68,7 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                Module = modules.UpdateModule(Module);
+                Module = Modules.UpdateModule(Module);
             }
             return Module;
         }
@@ -77,7 +77,7 @@ namespace Oqtane.Controllers
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-            modules.DeleteModule(id);
+            Modules.DeleteModule(id);
         }
     }
 }

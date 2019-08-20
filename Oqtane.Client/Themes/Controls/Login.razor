@@ -1,8 +1,7 @@
 ﻿@using Oqtane.Themes
-@using  Oqtane.Services
+@using Oqtane.Services
 @using Oqtane.Providers
 @using Oqtane.Shared
-@using Oqtane.Models
 @using Microsoft.JSInterop
 @inherits ThemeObjectBase
 @inject IUriHelper UriHelper
@@ -51,8 +50,8 @@
         {
             // client-side Blazor
             authstateprovider.NotifyAuthenticationChanged();
-            PageState.Reload = Constants.ReloadPage;
-            UriHelper.NavigateTo(NavigateUrl());
+            PageState.Reload = Constants.ReloadSite;
+            UriHelper.NavigateTo(NavigateUrl(PageState.Page.Path));
         }
     }
 }

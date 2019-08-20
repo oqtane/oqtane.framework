@@ -5,34 +5,32 @@ using Oqtane.Models;
 
 namespace Oqtane.Repository
 {
-    public class ModuleRepository : IModuleRepository
+    public class UserRoleRepository : IUserRoleRepository
     {
         private TenantDBContext db;
 
-        public ModuleRepository(TenantDBContext context)
+        public UserRoleRepository(TenantDBContext context)
         {
             db = context;
         }
 
-        public IEnumerable<Module> GetModules()
+        public IEnumerable<UserRole> GetUserRoles()
         {
             try
             {
-                return db.Module.ToList();
+                return db.UserRole.ToList();
             }
             catch
             {
                 throw;
             }
         }
-
-        public IEnumerable<Module> GetModules(int SiteId, string ModuleDefinitionName)
+        public IEnumerable<UserRole> GetUserRoles(int UserId)
         {
             try
             {
-                return db.Module
-                    .Where(item => item.SiteId == SiteId)
-                    .Where(item => item.ModuleDefinitionName == ModuleDefinitionName)
+                return db.UserRole.Where(item => item.UserId == UserId)
+                    .Include(item => item.Role) // eager load roles
                     .ToList();
             }
             catch
@@ -41,13 +39,13 @@ namespace Oqtane.Repository
             }
         }
 
-        public Module AddModule(Module Module)
+        public UserRole AddUserRole(UserRole UserRole)
         {
             try
             {
-                db.Module.Add(Module);
+                db.UserRole.Add(UserRole);
                 db.SaveChanges();
-                return Module;
+                return UserRole;
             }
             catch
             {
@@ -55,13 +53,13 @@ namespace Oqtane.Repository
             }
         }
 
-        public Module UpdateModule(Module Module)
+        public UserRole UpdateUserRole(UserRole UserRole)
         {
             try
             {
-                db.Entry(Module).State = EntityState.Modified;
+                db.Entry(UserRole).State = EntityState.Modified;
                 db.SaveChanges();
-                return Module;
+                return UserRole;
             }
             catch
             {
@@ -69,11 +67,12 @@ namespace Oqtane.Repository
             }
         }
 
-        public Module GetModule(int ModuleId)
+        public UserRole GetUserRole(int UserRoleId)
         {
             try
             {
-                return db.Module.Find(ModuleId);
+                return db.UserRole.Include(item => item.Role) // eager load roles
+                    .SingleOrDefault(item => item.UserRoleId == UserRoleId);
             }
             catch
             {
@@ -81,12 +80,12 @@ namespace Oqtane.Repository
             }
         }
 
-        public void DeleteModule(int ModuleId)
+        public void DeleteUserRole(int UserRoleId)
         {
             try
             {
-                Module Module = db.Module.Find(ModuleId);
-                db.Module.Remove(Module);
+                UserRole UserRole = db.UserRole.Find(UserRoleId);
+                db.UserRole.Remove(UserRole);
                 db.SaveChanges();
             }
             catch

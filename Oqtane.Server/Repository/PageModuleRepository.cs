@@ -29,10 +29,9 @@ namespace Oqtane.Repository
         {
             try
             {
-                List<PageModule> pagemodules = db.PageModule.Where(item => item.PageId == PageId)
-                    .Include(item => item.Module)
+                return db.PageModule.Where(item => item.PageId == PageId)
+                    .Include(item => item.Module) // eager load modules
                     .ToList();
-                return pagemodules;
             }
             catch
             {
@@ -72,8 +71,8 @@ namespace Oqtane.Repository
         {
             try
             {
-                PageModule PageModule = db.PageModule.Find(PageModuleId);
-                return PageModule;
+                return db.PageModule.Include(item => item.Module) // eager load modules
+                    .SingleOrDefault(item => item.PageModuleId == PageModuleId); 
             }
             catch
             {

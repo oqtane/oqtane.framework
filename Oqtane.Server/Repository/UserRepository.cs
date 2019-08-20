@@ -58,8 +58,7 @@ namespace Oqtane.Repository
         {
             try
             {
-                User user = db.User.Find(userId);
-                return user;
+                return db.User.Find(userId);
             }
             catch
             {
@@ -71,8 +70,7 @@ namespace Oqtane.Repository
         {
             try
             {
-                User user = db.User.Where(item => item.Username == Username).FirstOrDefault();
-                return user;
+                return db.User.Where(item => item.Username == Username).FirstOrDefault();
             }
             catch
             {

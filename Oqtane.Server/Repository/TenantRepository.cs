@@ -23,12 +23,11 @@ namespace Oqtane.Repository
         {
             try
             {
-                IEnumerable<Tenant> tenants = _cache.GetOrCreate("tenants", entry =>
+                return _cache.GetOrCreate("tenants", entry =>
                 {
                     entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                     return db.Tenant.ToList();
                 });
-                return tenants;
             }
             catch
             {
@@ -68,8 +67,7 @@ namespace Oqtane.Repository
         {
             try
             {
-                Tenant tenant = db.Tenant.Find(TenantId);
-                return tenant;
+                return db.Tenant.Find(TenantId);
             }
             catch
             {

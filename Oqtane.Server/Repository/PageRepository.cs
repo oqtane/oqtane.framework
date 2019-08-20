@@ -70,8 +70,7 @@ namespace Oqtane.Repository
         {
             try
             {
-                Page Page = db.Page.Find(PageId);
-                return Page;
+                return db.Page.Find(PageId);
             }
             catch
             {

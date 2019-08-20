@@ -6,63 +6,63 @@ using Oqtane.Models;
 namespace Oqtane.Controllers
 {
     [Route("{site}/api/[controller]")]
-    public class PageController : Controller
+    public class RoleController : Controller
     {
-        private readonly IPageRepository Pages;
+        private readonly IRoleRepository Roles;
 
-        public PageController(IPageRepository Pages)
+        public RoleController(IRoleRepository Roles)
         {
-            this.Pages = Pages;
+            this.Roles = Roles;
         }
 
         // GET: api/<controller>?siteid=x
         [HttpGet]
-        public IEnumerable<Page> Get(string siteid)
+        public IEnumerable<Role> Get(string siteid)
         {
             if (siteid == "")
             {
-                return Pages.GetPages();
+                return Roles.GetRoles();
             }
             else
             {
-                return Pages.GetPages(int.Parse(siteid));
+                return Roles.GetRoles(int.Parse(siteid));
             }
         }
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
-        public Page Get(int id)
+        public Role Get(int id)
         {
-            return Pages.GetPage(id);
+            return Roles.GetRole(id);
         }
 
         // POST api/<controller>
         [HttpPost]
-        public Page Post([FromBody] Page Page)
+        public Role Post([FromBody] Role Role)
         {
             if (ModelState.IsValid)
             {
-                Page = Pages.AddPage(Page);
+                Role = Roles.AddRole(Role);
             }
-            return Page;
+            return Role;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        public Page Put(int id, [FromBody] Page Page)
+        public Role Put(int id, [FromBody] Role Role)
         {
             if (ModelState.IsValid)
             {
-                Page = Pages.UpdatePage(Page);
+                Role = Roles.UpdateRole(Role);
             }
-            return Page;
+            return Role;
         }
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-            Pages.DeletePage(id);
+            Roles.DeleteRole(id);
         }
     }
 }
