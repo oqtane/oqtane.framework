@@ -9,6 +9,8 @@
 @inject IPageService PageService
 @inject IThemeService  ThemeService
 
+@message
+
 <table class="form-group">
     <tr>
         <td>
@@ -33,9 +35,9 @@
         <td>
             <select class="form-control" @bind="@parentid">
                 <option value="">&lt;Select Parent&gt;</option>
-                @foreach (Page p in PageState.Pages)
+                @foreach (Page page in PageState.Pages)
                 {
-                    <option value="@p.PageId">@p.Name</option>
+                    <option value="@(page.PageId)">@(page.Name)</option>
                 }
             </select>
         </td>
@@ -54,8 +56,8 @@
         </td>
         <td>
             <select class="form-control" @bind="@isnavigation">
-                <option value="true">Yes</option>
-                <option value="false">No</option>
+                <option value="True">Yes</option>
+                <option value="False">No</option>
             </select>
         </td>
     </tr>
@@ -114,9 +116,13 @@
 </table>
 <button type="button" class="btn btn-success" @onclick="@SavePage">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+<br /><br />
+<AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+
+    string message = "";
 
     Dictionary<string, string> themes = new Dictionary<string, string>();
     Dictionary<string, string> panelayouts = new Dictionary<string, string>();
@@ -132,69 +138,93 @@
     string icon;
     string viewpermissions;
     string editpermissions;
+    string createdby;
+    DateTime createdon;
+    string modifiedby;
+    DateTime modifiedon;
 
     protected override void OnInitialized()
     {
-        themes = ThemeService.GetThemeTypes(PageState.Themes);
-        panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes);
-
-        PageId = Int32.Parse(PageState.QueryString["id"]);
-        Page p = PageState.Pages.Where(item => item.PageId == PageId).FirstOrDefault();
-        if (p != null)
+        try
         {
-            name = p.Name;
-            path = p.Path;
-            if (p.ParentId == null)
+            themes = ThemeService.GetThemeTypes(PageState.Themes);
+            panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes);
+
+            PageId = Int32.Parse(PageState.QueryString["id"]);
+            Page page = PageState.Pages.Where(item => item.PageId == PageId).FirstOrDefault();
+            if (page != null)
             {
-                parentid = "";
+                name = page.Name;
+                path = page.Path;
+                if (page.ParentId == null)
+                {
+                    parentid = "";
+                }
+                else
+                {
+                    parentid = page.ParentId.ToString();
+                }
+                order = page.Order.ToString();
+                isnavigation = page.IsNavigation.ToString();
+                themetype = page.ThemeType;
+                layouttype = page.LayoutType;
+                icon = page.Icon;
+                viewpermissions = page.ViewPermissions;
+                editpermissions = page.EditPermissions;
+                createdby = page.CreatedBy;
+                createdon = page.CreatedOn;
+                modifiedby = page.ModifiedBy;
+                modifiedon = page.ModifiedOn;
             }
-            else
-            {
-                parentid = p.ParentId.ToString();
-            }
-            order = p.Order.ToString();
-            isnavigation = p.IsNavigation.ToString();
-            themetype = p.ThemeType;
-            layouttype = p.LayoutType;
-            icon = p.Icon;
-            viewpermissions = p.ViewPermissions;
-            editpermissions = p.EditPermissions;
+        }
+        catch (Exception ex)
+        {
+            message = ex.Message;
         }
     }
 
     private async Task SavePage()
     {
-        Page p = PageState.Page;
-        p.PageId = Int32.Parse(PageState.QueryString["id"]);
-        if (string.IsNullOrEmpty(parentid))
+        try
         {
-            p.ParentId = null;
+            Page page = PageState.Page;
+            page.PageId = Int32.Parse(PageState.QueryString["id"]);
+            if (string.IsNullOrEmpty(parentid))
+            {
+                page.ParentId = null;
+            }
+            else
+            {
+                page.ParentId = Int32.Parse(parentid);
+            }
+            page.Name = name;
+            page.Path = path;
+            page.Order = (order == null ? 1 : Int32.Parse(order));
+            page.IsNavigation = (isnavigation == null ? true : Boolean.Parse(isnavigation));
+            page.ThemeType = themetype;
+            page.LayoutType = (layouttype == null ? "" : layouttype);
+            page.Icon = (icon == null ? "" : icon);
+            Type type;
+            if (!string.IsNullOrEmpty(layouttype))
+            {
+                type = Type.GetType(layouttype);
+            }
+            else
+            {
+                type = Type.GetType(themetype);
+            }
+            System.Reflection.PropertyInfo property = type.GetProperty("Panes");
+            page.Panes = (string)property.GetValue(Activator.CreateInstance(type), null);
+            page.ViewPermissions = viewpermissions;
+            page.EditPermissions = editpermissions;
+            await PageService.UpdatePageAsync(page);
+
+            PageState.Reload = Constants.ReloadSite;
+            UriHelper.NavigateTo(NavigateUrl(path));
         }
-        else
+        catch (Exception ex)
         {
-            p.ParentId = Int32.Parse(parentid);
+            message = ex.Message;
         }
-        p.Name = name;
-        p.Path = path;
-        p.Order = (order == null ? 1 : Int32.Parse(order));
-        p.IsNavigation = (isnavigation == null ? true : Boolean.Parse(isnavigation));
-        p.ThemeType = themetype;
-        p.LayoutType = (layouttype == null ? "" : layouttype);
-        p.Icon = (icon == null ? "" : icon);
-        Type type;
-        if (!string.IsNullOrEmpty(layouttype))
-        {
-            type = Type.GetType(layouttype);
-        }
-        else
-        {
-            type = Type.GetType(themetype);
-        }
-        System.Reflection.PropertyInfo property = type.GetProperty("Panes");
-        p.Panes = (string)property.GetValue(Activator.CreateInstance(type), null);
-        p.ViewPermissions = viewpermissions;
-        p.EditPermissions = editpermissions;
-        await PageService.UpdatePageAsync(p);
-        UriHelper.NavigateTo(NavigateUrl(path));
     }
 }

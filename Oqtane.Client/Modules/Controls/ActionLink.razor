@@ -7,7 +7,7 @@
 
 @if (authorized)
 {
-    <NavLink class="@buttonClass" href="@url">@text</NavLink>
+    <NavLink class="@classname" href="@url" style="@style">@text</NavLink>
 }
 
 @code {
@@ -21,12 +21,16 @@
     public string Parameters { get; set; } // optional
 
     [Parameter]
-    public string ButtonClass { get; set; } // optional
+    public string Class { get; set; } // optional
+
+    [Parameter]
+    public string Style { get; set; } // optional
 
     string text = "";
     string url = "";
     string parameters = "";
-    string buttonClass = "btn btn-primary";
+    string classname = "btn btn-primary";
+    string style = "";
     bool authorized = false;
 
     protected override void OnInitialized()
@@ -42,9 +46,14 @@
             parameters = Parameters;
         }
 
-        if (!string.IsNullOrEmpty(ButtonClass))
+        if (!string.IsNullOrEmpty(Class))
         {
-            buttonClass = "btn " + ButtonClass;
+           classname = Class;
+        }
+
+        if (!string.IsNullOrEmpty(Style))
+        {
+           style = Style;
         }
 
         url = EditUrl(Action, parameters);
