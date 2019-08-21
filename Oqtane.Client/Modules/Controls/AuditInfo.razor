@@ -1,0 +1,55 @@
+﻿@using Oqtane.Modules
+@inherits ModuleBase
+
+@((MarkupString)@text)
+
+@code {
+    [Parameter]
+    public string CreatedBy { get; set; }
+
+    [Parameter]
+    public DateTime CreatedOn { get; set; }
+
+    [Parameter]
+    public string ModifiedBy { get; set; }
+
+    [Parameter]
+    public DateTime ModifiedOn { get; set; }
+
+    [Parameter]
+    public string Style { get; set; }
+
+    string text = "";
+    string style = "";
+
+    protected override void OnInitialized()
+    {
+        if (!String.IsNullOrEmpty(CreatedBy) || CreatedOn != null)
+        {
+            text += "<p style=\"" + Style + "\">Created ";
+            if (!String.IsNullOrEmpty(CreatedBy))
+            {
+                text += " by <b>" + CreatedBy + "</b>";
+            }
+            if (CreatedOn != null)
+            {
+                text += " on <b>" + CreatedOn.ToString("MMM dd yyyy HH:mm:ss") + "</b>";
+            }
+            text += "</p>";
+        }
+
+        if (!String.IsNullOrEmpty(ModifiedBy) || ModifiedOn != null)
+        {
+            text += "<p style=\"" + Style + "\">Last modified ";
+            if (!String.IsNullOrEmpty(ModifiedBy))
+            {
+                text += " by <b>" + ModifiedBy + "</b>";
+            }
+            if (ModifiedOn != null)
+            {
+                text += " on <b>" + ModifiedOn.ToString("MMM dd yyyy HH:mm:ss") + "</b>";
+            }
+            text += "</p>";
+        }
+    }
+}
