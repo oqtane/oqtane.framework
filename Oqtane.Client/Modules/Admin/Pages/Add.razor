@@ -8,7 +8,7 @@
 @inject IPageService PageService
 @inject IThemeService  ThemeService
 
-@message
+@((MarkupString)message)
 
 <table class="form-group">
     <tr>
@@ -144,7 +144,7 @@
         }
         catch (Exception ex)
         {
-            message = ex.Message;
+            message = "<div class=\"alert alert-danger\" role=\"alert\">" + ex.Message + "</div><br /><br />";
         }
     }
 
@@ -185,11 +185,18 @@
             await PageService.AddPageAsync(page);
 
             PageState.Reload = Constants.ReloadSite;
-            UriHelper.NavigateTo(NavigateUrl(path));
+            if (PageState.Page.Name == "Page Management")
+            {
+                UriHelper.NavigateTo(NavigateUrl());
+            }
+            else
+            {
+                UriHelper.NavigateTo(NavigateUrl(path));
+            }
         }
         catch (Exception ex)
         {
-            message = ex.Message;
+            message = "<div class=\"alert alert-danger\" role=\"alert\">" + ex.Message + "</div><br /><br />";
         }
     }
 }

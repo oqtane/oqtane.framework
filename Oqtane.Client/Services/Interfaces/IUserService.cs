@@ -18,7 +18,7 @@ namespace Oqtane.Services
 
         Task DeleteUserAsync(int UserId);
 
-        Task<User> LoginUserAsync(User User);
+        Task<User> LoginUserAsync(User User, bool SetCookie, bool IsPersistent);
 
         Task LogoutUserAsync();
 

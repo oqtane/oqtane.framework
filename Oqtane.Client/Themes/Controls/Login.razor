@@ -51,7 +51,7 @@
             // client-side Blazor
             authstateprovider.NotifyAuthenticationChanged();
             PageState.Reload = Constants.ReloadSite;
-            UriHelper.NavigateTo(NavigateUrl(PageState.Page.Path));
+            UriHelper.NavigateTo(NavigateUrl(PageState.Page.Path, "logout"));
         }
     }
 }

@@ -9,7 +9,7 @@
 @inject IPageService PageService
 @inject IThemeService  ThemeService
 
-@message
+@((MarkupString)message)
 
 <table class="form-group">
     <tr>
@@ -116,7 +116,8 @@
 </table>
 <button type="button" class="btn btn-success" @onclick="@SavePage">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
-<br /><br />
+<br />
+<br />
 <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
 
 @code {
@@ -179,7 +180,7 @@
         }
         catch (Exception ex)
         {
-            message = ex.Message;
+            message = "<div class=\"alert alert-danger\" role=\"alert\">" + ex.Message + "</div><br /><br />";
         }
     }
 
@@ -220,11 +221,18 @@
             await PageService.UpdatePageAsync(page);
 
             PageState.Reload = Constants.ReloadSite;
-            UriHelper.NavigateTo(NavigateUrl(path));
+            if (PageState.Page.Name == "Page Management")
+            {
+                UriHelper.NavigateTo(NavigateUrl());
+            }
+            else
+            {
+                UriHelper.NavigateTo(NavigateUrl(path));
+            }
         }
         catch (Exception ex)
         {
-            message = ex.Message;
+            message = "<div class=\"alert alert-danger\" role=\"alert\">" + ex.Message + "</div><br /><br />";
         }
     }
 }

@@ -21,6 +21,10 @@ using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.OpenApi.Models;
+using Oqtane.Security;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using System.Net;
 
 namespace Oqtane.Server
 {
@@ -91,10 +95,11 @@ namespace Oqtane.Server
                 ));
             services.AddDbContext<TenantDBContext>(options => { });
 
-            services.AddIdentity<IdentityUser, IdentityRole>()
+            services.AddIdentityCore<IdentityUser>(options => { })
                 .AddEntityFrameworkStores<TenantDBContext>()
+                .AddSignInManager()
                 .AddDefaultTokenProviders();
-
+            
             services.Configure<IdentityOptions>(options =>
             {
                 // Password settings
@@ -113,6 +118,9 @@ namespace Oqtane.Server
                 options.User.RequireUniqueEmail = false;
             });
 
+            services.AddAuthentication(IdentityConstants.ApplicationScheme)
+                .AddCookie(IdentityConstants.ApplicationScheme);
+
             services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.HttpOnly = false;
@@ -122,6 +130,9 @@ namespace Oqtane.Server
                     return Task.CompletedTask;
                 };
             });
+
+            // register custom claims principal factory for role claims
+            services.AddTransient<IUserClaimsPrincipalFactory<IdentityUser>, ClaimsPrincipalFactory<IdentityUser>>();
 
             // get list of loaded assemblies
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -241,8 +252,9 @@ namespace Oqtane.Server
                 ));
             services.AddDbContext<TenantDBContext>(options => { });
 
-            services.AddIdentity<IdentityUser, IdentityRole>()
+            services.AddIdentityCore<IdentityUser>(options => { })
                 .AddEntityFrameworkStores<TenantDBContext>()
+                .AddSignInManager()
                 .AddDefaultTokenProviders();
 
             services.Configure<IdentityOptions>(options =>
@@ -263,6 +275,9 @@ namespace Oqtane.Server
                 options.User.RequireUniqueEmail = false;
             });
 
+            services.AddAuthentication(IdentityConstants.ApplicationScheme)
+                .AddCookie(IdentityConstants.ApplicationScheme);
+
             services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.HttpOnly = false;
@@ -273,7 +288,10 @@ namespace Oqtane.Server
                 };
             });
 
-           // get list of loaded assemblies
+            // register custom claims principal factory for role claims
+            services.AddTransient<IUserClaimsPrincipalFactory<IdentityUser>, ClaimsPrincipalFactory<IdentityUser>>();
+
+            // get list of loaded assemblies
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
             // iterate through Oqtane module assemblies in /bin ( filter is narrow to optimize loading process )
@@ -377,5 +395,6 @@ namespace Oqtane.Server
             });
         }
 #endif
+
     }
 }

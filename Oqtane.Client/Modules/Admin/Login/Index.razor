@@ -51,20 +51,20 @@
 
     private async Task Login()
     {
-        User user = new User();
-        user.SiteId = PageState.Site.SiteId;
-        user.Username = Username;
-        user.Password = Password;
-        user.IsPersistent = Remember;
-        user = await UserService.LoginUserAsync(user);
-        if (user.IsAuthenticated)
-        {
-            string ReturnUrl = PageState.QueryString["returnurl"];
+        string ReturnUrl = PageState.QueryString["returnurl"];
 
-            var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
-            if (authstateprovider == null)
+        var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
+        if (authstateprovider == null)
+        {
+            // server-side Blazor
+            User user = new User();
+            user.SiteId = PageState.Site.SiteId;
+            user.Username = Username;
+            user.Password = Password;
+            user = await UserService.LoginUserAsync(user, false, false);
+            if (user.IsAuthenticated)
             {
-                // server-side Blazor
+                // complete the login on the server so that the cookies are set correctly on SignalR
                 var interop = new Interop(jsRuntime);
                 string antiforgerytoken = await interop.GetElementByName("__RequestVerificationToken");
                 var fields = new { __RequestVerificationToken = antiforgerytoken, username = Username, password = Password, remember = Remember, returnurl = ReturnUrl };
@@ -72,15 +72,27 @@
             }
             else
             {
-                // client-side Blazor
-                authstateprovider.NotifyAuthenticationChanged();
-                PageState.Reload = Constants.ReloadPage;
-                UriHelper.NavigateTo(NavigateUrl(ReturnUrl));
+                Message = "<div class=\"alert alert-danger\" role=\"alert\">Login Failed. Please Remember That Passwords Are Case Sensitive.</div>";
             }
         }
         else
         {
-            Message = "<div class=\"alert alert-danger\" role=\"alert\">Login Failed. Please Remember That Passwords Are Case Sensitive.</div>";
+            // client-side Blazor
+            User user = new User();
+            user.SiteId = PageState.Site.SiteId;
+            user.Username = Username;
+            user.Password = Password;
+            user = await UserService.LoginUserAsync(user, true, Remember);
+            if (user.IsAuthenticated)
+            {
+                authstateprovider.NotifyAuthenticationChanged();
+                PageState.Reload = Constants.ReloadSite;
+                UriHelper.NavigateTo(NavigateUrl(ReturnUrl));
+            }
+            else
+            {
+                Message = "<div class=\"alert alert-danger\" role=\"alert\">Login Failed. Please Remember That Passwords Are Case Sensitive.</div>";
+            }
         }
     }
 

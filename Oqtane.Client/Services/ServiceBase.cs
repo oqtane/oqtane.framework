@@ -8,7 +8,7 @@ namespace Oqtane.Services
     public class ServiceBase
     {
 
-        public string CreateApiUrl(Alias alias, string absoluteUri, string serviceName)
+        public static string CreateApiUrl(Alias alias, string absoluteUri, string serviceName)
         {
             string apiurl = "";
             if (alias != null)
