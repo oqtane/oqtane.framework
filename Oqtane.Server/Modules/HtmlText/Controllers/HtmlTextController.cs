@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Oqtane.Shared.Modules.HtmlText.Models;
 using Oqtane.Server.Modules.HtmlText.Repository;
 
@@ -24,6 +25,7 @@ namespace Oqtane.Server.Modules.HtmlText.Controllers
 
         // POST api/<controller>
         [HttpPost]
+        [Authorize]
         public HtmlTextInfo Post([FromBody] HtmlTextInfo HtmlText)
         {
             if (ModelState.IsValid)
@@ -35,6 +37,7 @@ namespace Oqtane.Server.Modules.HtmlText.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
+        [Authorize]
         public HtmlTextInfo Put(int id, [FromBody] HtmlTextInfo HtmlText)
         {
             if (ModelState.IsValid)
@@ -46,6 +49,7 @@ namespace Oqtane.Server.Modules.HtmlText.Controllers
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
+        [Authorize]
         public void Delete(int id)
         {
             htmltext.DeleteHtmlText(id);

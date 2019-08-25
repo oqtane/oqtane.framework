@@ -13,9 +13,13 @@ namespace Oqtane.Shared
             {
                 url += alias + "/";
             }
-            if (path != "")
+            if (path != "" && path != "/")
             {
                 url += path + "/";
+            }
+            if (url.EndsWith("/"))
+            {
+                url = url.Substring(0, url.Length - 1);
             }
             if (!string.IsNullOrEmpty(parameters))
             {
@@ -31,10 +35,6 @@ namespace Oqtane.Shared
         public static string EditUrl(string alias, string path, int moduleid, string action, string parameters)
         {
             string url = NavigateUrl(alias, path, "");
-            if ( url == "/" )
-            {
-                url = "";
-            }
             if (moduleid != -1)
             {
                 url += "/" + moduleid.ToString();

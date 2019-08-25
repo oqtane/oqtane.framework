@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Oqtane.Repository;
 using Oqtane.Models;
 using System.Collections.Generic;
@@ -31,6 +32,7 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
+        [Authorize]
         public Tenant Post([FromBody] Tenant Tenant)
         {
             if (ModelState.IsValid)
@@ -42,6 +44,7 @@ namespace Oqtane.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
+        [Authorize]
         public Tenant Put(int id, [FromBody] Tenant Tenant)
         {
             if (ModelState.IsValid)
@@ -53,6 +56,7 @@ namespace Oqtane.Controllers
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
+        [Authorize]
         public void Delete(int id)
         {
             Tenants.DeleteTenant(id);

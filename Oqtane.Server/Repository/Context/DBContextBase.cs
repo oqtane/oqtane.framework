@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Oqtane.Repository
 {
-    public class DBContextBase : IdentityDbContext<IdentityUser>
+    public class DBContextBase :  IdentityUserContext<IdentityUser> 
     {
         private Tenant tenant;
         private IHttpContextAccessor accessor;

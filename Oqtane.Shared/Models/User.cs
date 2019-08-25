@@ -23,8 +23,5 @@ namespace Oqtane.Models
         public string Password { get; set; }
         [NotMapped]
         public bool IsAuthenticated { get; set; }
-        [NotMapped]
-        public bool IsPersistent { get; set; }
-
     }
 }

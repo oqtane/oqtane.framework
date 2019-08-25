@@ -251,7 +251,7 @@ INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [P
 VALUES (1, 1, N'Page1', N'', N'Oqtane.Client.Themes.Theme1.Theme1, Oqtane.Client', N'oi-home', N'Left;Right', N'All Users', N'Administrators', NULL, 1, 1, N'', '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (2, 1, N'Page2', N'page2', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'oi-plus', N'Top;Bottom', N'Administrators;Editors;', N'Administrators', NULL, 3, 1, N'', '', getdate(), '', getdate())
+VALUES (2, 1, N'Page2', N'page2', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'oi-plus', N'Top;Bottom', N'Administrators', N'Administrators', NULL, 3, 1, N'', '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ViewPermissions], [EditPermissions], [ParentId], [Order], [IsNavigation], [LayoutType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
 VALUES (3, 1, N'Page3', N'page3', N'Oqtane.Client.Themes.Theme3.Theme3, Oqtane.Client', N'oi-list-rich', N'Left;Right', N'All Users', N'Administrators', NULL, 3, 1, N'Oqtane.Client.Themes.Theme3.HorizontalLayout, Oqtane.Client', '', getdate(), '', getdate())
@@ -319,7 +319,7 @@ INSERT [dbo].[Module] ([ModuleId], [SiteId], [ModuleDefinitionName], [ViewPermis
 VALUES (6, 1, N'Oqtane.Client.Modules.HtmlText, Oqtane.Client', N'All Users', N'Administrators', '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Module] ([ModuleId], [SiteId], [ModuleDefinitionName], [ViewPermissions], [EditPermissions], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (7, 1, N'Oqtane.Client.Modules.HtmlText, Oqtane.Client', N'Administrators;Editors;Members;', N'Administrators;Editors;', '', getdate(), '', getdate())
+VALUES (7, 1, N'Oqtane.Client.Modules.HtmlText, Oqtane.Client', N'Administrators', N'Administrators', '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Module] ([ModuleId], [SiteId], [ModuleDefinitionName], [ViewPermissions], [EditPermissions], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
 VALUES (8, 1, N'Oqtane.Client.Modules.Admin.Pages, Oqtane.Client', N'Administrators', N'Administrators', '', getdate(), '', getdate())
