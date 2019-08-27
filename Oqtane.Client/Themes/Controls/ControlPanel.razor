@@ -3,6 +3,7 @@
 @using Oqtane.Models
 @using Oqtane.Themes
 @using Oqtane.Shared
+@using Oqtane.Security
 @inherits ThemeObjectBase
 @inject IUriHelper UriHelper
 @inject IUserService UserService
@@ -44,7 +45,7 @@
                 <label for="Pane" class="control-label" style="color: white !important;">Pane: </label>
                 <select class="form-control" @bind="@pane">
                     <option value="">&lt;Select Pane&gt;</option>
-                    @foreach (string pane in PageState.Page.Panes.Split(';'))
+                    @foreach (string pane in PageState.Page.Panes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
                     {
                         <option value="@pane">@pane Pane</option>
                     }
@@ -89,7 +90,7 @@
         {
             pagemanagementmoduleid = modules.FirstOrDefault().ModuleId;
         }
-        if (UserService.IsAuthorized(PageState.User, PageState.Page.EditPermissions))
+        if (UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions))
         {
             display = "display: inline";
         }
@@ -100,8 +101,7 @@
         Module module = new Module();
         module.SiteId = PageState.Site.SiteId;
         module.ModuleDefinitionName = moduledefinitionname;
-        module.ViewPermissions = PageState.Page.ViewPermissions;
-        module.EditPermissions = PageState.Page.EditPermissions;
+        module.Permissions = PageState.Page.Permissions;
         await ModuleService.AddModuleAsync(module);
 
         List<Module> modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId, moduledefinitionname);

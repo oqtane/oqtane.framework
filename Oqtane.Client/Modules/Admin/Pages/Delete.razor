@@ -1,15 +1,16 @@
 ﻿@using Microsoft.AspNetCore.Components.Routing
+@using Oqtane.Client.Modules.Controls
 @using Oqtane.Models
 @using Oqtane.Services
 @using Oqtane.Modules
 @using Oqtane.Shared
-@using Oqtane.Client.Modules.Controls
+@using Oqtane.Security
 @inherits ModuleBase
 @inject IUriHelper UriHelper
 @inject IPageService PageService
 @inject IThemeService  ThemeService
 
-@((MarkupString)message)
+<ModuleMessage Message="@message" />
 
 <table class="form-group">
     <tr>
@@ -163,8 +164,8 @@
                 themetype = page.ThemeType;
                 layouttype = page.LayoutType;
                 icon = page.Icon;
-                viewpermissions = page.ViewPermissions;
-                editpermissions = page.EditPermissions;
+                viewpermissions = UserSecurity.GetPermissions("View", page.Permissions);
+                editpermissions = UserSecurity.GetPermissions("Edit", page.Permissions);
                 createdby = page.CreatedBy;
                 createdon = page.CreatedOn;
                 modifiedby = page.ModifiedBy;
@@ -173,7 +174,7 @@
         }
         catch (Exception ex)
         {
-            message = "<div class=\"alert alert-danger\" role=\"alert\">" + ex.Message + "</div><br /><br />";
+            message = ex.Message;
         }
     }
 
@@ -194,7 +195,7 @@
         }
         catch (Exception ex)
         {
-            message = "<div class=\"alert alert-danger\" role=\"alert\">" + ex.Message + "</div><br /><br />";
+            message = ex.Message;
         }
     }
 }

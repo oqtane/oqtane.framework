@@ -1,30 +1,22 @@
 ﻿@using Oqtane.Modules
 @inherits ModuleBase
 
-@if (authorized)
+@if (Message != "")
 {
-    <div class="@type">
-        @Message
-    </div>
+    <div class="@type">@Message</div><br /><br />
 }
 
 @code {
     [Parameter]
-    public MessageType Type { get; set; }
-
-    [Parameter]
     public string Message { get; set; }
 
-    string type = "alert alert-success"; // optional
-    bool authorized = false;
+    [Parameter]
+    public MessageType Type { get; set; }
+
+    string type = "alert alert-danger"; 
 
     protected override void OnInitialized()
     {
-        if (PageState.User != null)
-        {
-            authorized = PageState.User.IsSuperUser;
-        }
-
         switch (Type)
         {
             case MessageType.Success:

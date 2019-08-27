@@ -35,6 +35,7 @@ namespace Oqtane.Shared
         public static string EditUrl(string alias, string path, int moduleid, string action, string parameters)
         {
             string url = NavigateUrl(alias, path, "");
+            if (url == "/") url = "";
             if (moduleid != -1)
             {
                 url += "/" + moduleid.ToString();

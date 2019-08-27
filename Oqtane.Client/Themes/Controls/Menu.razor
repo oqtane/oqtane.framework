@@ -2,6 +2,7 @@
 @using Oqtane.Themes
 @using Oqtane.Services
 @using Oqtane.Models;
+@using Oqtane.Security
 @inherits ThemeObjectBase
 @inject IPageService PageService
 @inject IUserService UserService
@@ -18,7 +19,7 @@
     }
     @foreach (var p in pages)
     {
-        if (p.IsNavigation && UserService.IsAuthorized(PageState.User, p.ViewPermissions))
+        if (p.IsNavigation && UserSecurity.IsAuthorized(PageState.User, "View", p.Permissions))
         {
             string url = NavigateUrl(p.Path);
             <li class="nav-item px-3">

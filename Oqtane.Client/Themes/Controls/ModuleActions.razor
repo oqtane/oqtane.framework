@@ -2,6 +2,7 @@
 @using Oqtane.Services
 @using Oqtane.Models
 @using Oqtane.Shared
+@using Oqtane.Security
 @inherits ContainerBase
 @inject IUriHelper UriHelper
 @inject IUserService UserService
@@ -32,7 +33,7 @@
         {
             actions.Add(new ActionViewModel { Action = "down", Name = "Move Down" });
         }
-        foreach (string pane in PageState.Page.Panes.Split(';'))
+        foreach (string pane in PageState.Page.Panes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
         {
             if (pane != ModuleState.Pane)
             {
@@ -42,7 +43,7 @@
         actions.Add(new ActionViewModel { Action = "settings", Name = "Settings" });
         actions.Add(new ActionViewModel { Action = "delete", Name = "Delete" });
 
-        if (UserService.IsAuthorized(PageState.User, ModuleState.EditPermissions))
+        if (UserSecurity.IsAuthorized(PageState.User, "Edit", ModuleState.Permissions))
         {
             display = "display: inline";
         }

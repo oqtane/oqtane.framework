@@ -39,7 +39,7 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Administrators")]
         public UserRole Post([FromBody] UserRole UserRole)
         {
             if (ModelState.IsValid)
@@ -51,7 +51,7 @@ namespace Oqtane.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Administrators")]
         public UserRole Put(int id, [FromBody] UserRole UserRole)
         {
             if (ModelState.IsValid)
@@ -63,7 +63,7 @@ namespace Oqtane.Controllers
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Administrators")]
         public void Delete(int id)
         {
             UserRoles.DeleteUserRole(id);

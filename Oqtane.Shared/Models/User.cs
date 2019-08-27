@@ -8,7 +8,8 @@ namespace Oqtane.Models
         public int UserId { get; set; }
         public string Username { get; set; }
         public string DisplayName { get; set; }
-        public bool IsSuperUser { get; set; }
+        public string Email { get; set; }
+        public bool IsHost { get; set; }
         [NotMapped]
         public int SiteId { get; set; }
         [NotMapped]

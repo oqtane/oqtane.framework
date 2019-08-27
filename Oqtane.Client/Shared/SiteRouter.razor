@@ -4,6 +4,7 @@
 @using System.Linq
 @using System.Collections.Generic
 @using Oqtane.Shared
+@using Oqtane.Security
 @using Microsoft.AspNetCore.Components.Routing
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject SiteState SiteState
@@ -153,12 +154,12 @@
             }
 
             // extract admin route elements from path
-            string[] segments = path.Split('/');
+            string[] segments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             int result;
-            if (segments.Length >= 3 && int.TryParse(segments[segments.Length - 3], out result))
+            if (segments.Length >= 2 && int.TryParse(segments[segments.Length - 2], out result))
             {
                 // path has moduleid and control specification ie. page/moduleid/control/
-                control = segments[segments.Length - 2];
+                control = segments[segments.Length - 1];
                 moduleid = result;
                 path = path.Replace(moduleid.ToString() + "/" + control + "/", "");
             }
@@ -206,7 +207,7 @@
             if (page != null)
             {
                 // check if user is authorized to view page
-                if (UserService.IsAuthorized(user, page.ViewPermissions))
+                if (UserSecurity.IsAuthorized(user, "View", page.Permissions))
                 {
                     pagestate = new PageState();
                     pagestate.ModuleDefinitions = moduledefinitions;
@@ -278,7 +279,7 @@
         Dictionary<string, string> querystring = new Dictionary<string, string>();
         if (path.IndexOf("?") != -1)
         {
-            foreach (string kvp in path.Substring(path.IndexOf("?") + 1).Split('&'))
+            foreach (string kvp in path.Substring(path.IndexOf("?") + 1).Split(new[] { '&' }, StringSplitOptions.RemoveEmptyEntries))
             {
                 if (kvp != "")
                 {
@@ -316,7 +317,7 @@
                 string typename = moduledefinition.ControlTypeTemplate;
                 if (moduledefinition.ControlTypeRoutes != "")
                 {
-                    foreach (string route in moduledefinition.ControlTypeRoutes.Split(';'))
+                    foreach (string route in moduledefinition.ControlTypeRoutes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
                     {
                         if (route.StartsWith(control + "="))
                         {

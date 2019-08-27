@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Models
 {
@@ -14,13 +15,15 @@ namespace Oqtane.Models
         public string LayoutType { get; set; }
         public string Icon { get; set; }
         public string Panes { get; set; }
-        public string ViewPermissions { get; set; }
-        public string EditPermissions { get; set; }
         public bool IsNavigation { get; set; }
 
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
         public string ModifiedBy { get; set; }
         public DateTime ModifiedOn { get; set; }
+
+
+        [NotMapped]
+        public string Permissions { get; set; }
     }
 }

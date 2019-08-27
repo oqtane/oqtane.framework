@@ -1,15 +1,16 @@
 ﻿@using Microsoft.AspNetCore.Components.Routing
+@using Oqtane.Client.Modules.Controls
 @using Oqtane.Models
 @using Oqtane.Services
 @using Oqtane.Modules
 @using Oqtane.Shared
+@using Oqtane.Security
 @inherits ModuleBase
 @inject IUriHelper UriHelper
 @inject IPageService PageService
 @inject IThemeService  ThemeService
 
-@((MarkupString)message)
-
+<ModuleMessage Message="@message" />
 <table class="form-group">
     <tr>
         <td>
@@ -144,7 +145,7 @@
         }
         catch (Exception ex)
         {
-            message = "<div class=\"alert alert-danger\" role=\"alert\">" + ex.Message + "</div><br /><br />";
+            message = ex.Message;
         }
     }
 
@@ -180,8 +181,7 @@
             }
             System.Reflection.PropertyInfo property = type.GetProperty("Panes");
             page.Panes = (string)property.GetValue(Activator.CreateInstance(type), null);
-            page.ViewPermissions = viewpermissions;
-            page.EditPermissions = editpermissions;
+            page.Permissions =  UserSecurity.SetPermissions("View", viewpermissions) + UserSecurity.SetPermissions("Edit", editpermissions);
             await PageService.AddPageAsync(page);
 
             PageState.Reload = Constants.ReloadSite;
@@ -196,7 +196,7 @@
         }
         catch (Exception ex)
         {
-            message = "<div class=\"alert alert-danger\" role=\"alert\">" + ex.Message + "</div><br /><br />";
+            message = ex.Message;
         }
     }
 }

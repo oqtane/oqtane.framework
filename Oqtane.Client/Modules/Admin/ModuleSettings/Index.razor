@@ -3,6 +3,7 @@
 @using Oqtane.Models
 @using Oqtane.Modules
 @using Oqtane.Shared
+@using Oqtane.Security
 @using Oqtane.Client.Modules.Controls
 @inherits ModuleBase
 @inject IUriHelper UriHelper
@@ -89,8 +90,8 @@
         title = ModuleState.Title;
         containers = ThemeService.GetContainerTypes(await ThemeService.GetThemesAsync());
         containertype = ModuleState.ContainerType;
-        viewpermissions = ModuleState.ViewPermissions;
-        editpermissions = ModuleState.EditPermissions;
+        viewpermissions = UserSecurity.GetPermissions("View", ModuleState.Permissions);
+        editpermissions = UserSecurity.GetPermissions("Edit", ModuleState.Permissions);
         pageid = ModuleState.PageId.ToString();
 
         DynamicComponent = builder =>
@@ -108,8 +109,7 @@
     private async Task SaveModule()
     {
         Module module = ModuleState;
-        module.ViewPermissions = viewpermissions;
-        module.EditPermissions = editpermissions;
+        module.Permissions = UserSecurity.SetPermissions("View", viewpermissions) + UserSecurity.SetPermissions("Edit", editpermissions);
         await ModuleService.UpdateModuleAsync(module);
 
         PageModule pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
