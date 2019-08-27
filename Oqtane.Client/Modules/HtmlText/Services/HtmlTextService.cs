@@ -29,22 +29,22 @@ namespace Oqtane.Client.Modules.HtmlText.Services
 
         public async Task<HtmlTextInfo> GetHtmlTextAsync(int ModuleId)
         {
-            return await http.GetJsonAsync<HtmlTextInfo>(apiurl + "/" + ModuleId.ToString());
+            return await http.GetJsonAsync<HtmlTextInfo>(apiurl + "/" + ModuleId.ToString() + "?entityid=" + ModuleId.ToString());
         }
 
         public async Task AddHtmlTextAsync(HtmlTextInfo htmltext)
         {
-            await http.PostJsonAsync(apiurl, htmltext);
+            await http.PostJsonAsync(apiurl + "?entityid=" + htmltext.ModuleId.ToString(), htmltext);
         }
 
         public async Task UpdateHtmlTextAsync(HtmlTextInfo htmltext)
         {
-            await http.PutJsonAsync(apiurl + "/" + htmltext.HtmlTextId.ToString(), htmltext);
+            await http.PutJsonAsync(apiurl + "/" + htmltext.HtmlTextId.ToString() + "?entityid=" + htmltext.ModuleId.ToString(), htmltext);
         }
 
-        public async Task DeleteHtmlTextAsync(int HtmlTextId)
+        public async Task DeleteHtmlTextAsync(int ModuleId)
         {
-            await http.DeleteAsync(apiurl + "/" + HtmlTextId.ToString());
+            await http.DeleteAsync(apiurl + "/" + ModuleId.ToString() + "?entityid=" + ModuleId.ToString());
         }
     }
 }

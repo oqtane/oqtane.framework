@@ -25,6 +25,7 @@ using Oqtane.Security;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using System.Net;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Oqtane.Server
 {
@@ -68,8 +69,15 @@ namespace Oqtane.Server
                 });
             }
 
-            // register auth services
-            services.AddAuthorizationCore();
+            // register authorization services
+            services.AddAuthorizationCore(options =>
+            {
+                options.AddPolicy("ViewPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", "View")));
+                options.AddPolicy("EditPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", "Edit")));
+                options.AddPolicy("ViewModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", "View")));
+                options.AddPolicy("EditModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", "Edit")));
+            });
+            services.AddScoped<IAuthorizationHandler, PermissionHandler>();
 
             // register scoped core services
             services.AddScoped<SiteState>();
@@ -172,6 +180,7 @@ namespace Oqtane.Server
             services.AddTransient<ISiteUserRepository, SiteUserRepository>();
             services.AddTransient<IRoleRepository, RoleRepository>();
             services.AddTransient<IUserRoleRepository, UserRoleRepository>();
+            services.AddTransient<IPermissionRepository, PermissionRepository>();
             services.AddTransient<ISettingRepository, SettingRepository>();
 
             // dynamically register module services, contexts, and repository classes
@@ -275,8 +284,15 @@ namespace Oqtane.Server
                 options.User.RequireUniqueEmail = false;
             });
 
-            services.AddAuthentication(IdentityConstants.ApplicationScheme)
-                .AddCookie(IdentityConstants.ApplicationScheme);
+            // register authorization services
+            services.AddAuthorizationCore(options =>
+            {
+                options.AddPolicy("ViewPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", "View")));
+                options.AddPolicy("EditPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", "Edit")));
+                options.AddPolicy("ViewModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", "View")));
+                options.AddPolicy("EditModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", "Edit")));
+            });
+            services.AddScoped<IAuthorizationHandler, PermissionHandler>();
 
             services.ConfigureApplicationCookie(options =>
             {
@@ -329,6 +345,7 @@ namespace Oqtane.Server
             services.AddTransient<ISiteUserRepository, SiteUserRepository>();
             services.AddTransient<IRoleRepository, RoleRepository>();
             services.AddTransient<IUserRoleRepository, UserRoleRepository>();
+            services.AddTransient<IPermissionRepository, PermissionRepository>();
             services.AddTransient<ISettingRepository, SettingRepository>();
            
             // dynamically register module services, contexts, and repository classes

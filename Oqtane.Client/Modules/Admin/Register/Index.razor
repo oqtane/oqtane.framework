@@ -9,7 +9,7 @@
 <div class="container">
     <div class="form-group">
         <label for="Username" class="control-label">Email: </label>
-        <input type="text" name="Username" class="form-control" placeholder="Username" @bind="@Username" />
+        <input type="text" name="Username" class="form-control" placeholder="Username" @bind="@Email" />
     </div>
     <div class="form-group">
         <label for="Password" class="control-label">Password: </label>
@@ -22,17 +22,17 @@
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Anonymous; } }
 
-    public string Username { get; set; } = "";
+    public string Email { get; set; } = "";
     public string Password { get; set; } = "";
 
     private async Task RegisterUser()
     {
         User user = new User();
         user.SiteId = PageState.Site.SiteId;
-        user.Username = Username;
-        user.DisplayName = Username;
-        user.Roles = "Administrators;";
-        user.IsSuperUser = false;
+        user.Username = Email;
+        user.DisplayName = Email;
+        user.Email = Email;
+        user.IsHost = false;
         user.Password = Password;
         await UserService.AddUserAsync(user);
         UriHelper.NavigateTo("");

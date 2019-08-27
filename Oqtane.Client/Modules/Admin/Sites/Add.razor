@@ -2,6 +2,8 @@
 @using Oqtane.Models
 @using Oqtane.Services
 @using Oqtane.Modules
+@using Oqtane.Shared
+@using Oqtane.Security
 @inherits ModuleBase
 @inject IUriHelper UriHelper
 @inject ITenantService TenantService
@@ -102,8 +104,7 @@ else
         Type type = Type.GetType(p.ThemeType);
         System.Reflection.PropertyInfo property = type.GetProperty("Panes");
         p.Panes = (string)property.GetValue(Activator.CreateInstance(type), null);
-        p.ViewPermissions = "All Users";
-        p.EditPermissions = "Administrators";
+        p.Permissions = UserSecurity.SetPermissions("View", Constants.AllUsersRole) + UserSecurity.SetPermissions("Edit", Constants.AdminRole);
         await PageService.AddPageAsync(p);
 
         UriHelper.NavigateTo(url, true);

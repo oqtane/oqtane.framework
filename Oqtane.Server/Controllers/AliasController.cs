@@ -32,7 +32,7 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Administrators")]
         public Alias Post([FromBody] Alias Alias)
         {
             if (ModelState.IsValid)
@@ -44,7 +44,7 @@ namespace Oqtane.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Administrators")]
         public Alias Put(int id, [FromBody] Alias Alias)
         {
             if (ModelState.IsValid)
@@ -55,8 +55,8 @@ namespace Oqtane.Controllers
         }
 
         // DELETE api/<controller>/5
-        [Authorize]
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Administrators")]
         public void Delete(int id)
         {
             Aliases.DeleteAlias(id);

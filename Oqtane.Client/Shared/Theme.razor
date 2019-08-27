@@ -22,8 +22,7 @@
             {
                 // theme does not exist with type specified
                 builder.OpenComponent(0, Type.GetType(Constants.ModuleMessageControl));
-                builder.AddAttribute(1, "Type", MessageType.Error);
-                builder.AddAttribute(2, "Message", "Error Loading Page Theme " + PageState.Page.ThemeType);
+                builder.AddAttribute(1, "Message", "Error Loading Page Theme " + PageState.Page.ThemeType);
                 builder.CloseComponent();
             }
         };

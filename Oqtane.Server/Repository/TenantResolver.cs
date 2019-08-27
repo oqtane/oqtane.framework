@@ -2,6 +2,7 @@
 using System.Linq;
 using Oqtane.Models;
 using Microsoft.AspNetCore.Http;
+using System;
 
 namespace Oqtane.Repository
 {
@@ -21,8 +22,8 @@ namespace Oqtane.Repository
             // get alias based on request context
             aliasname = accessor.HttpContext.Request.Host.Value;
             string path = accessor.HttpContext.Request.Path.Value;
-            string[] segments = path.Split('/');
-            if (segments[0] == "api" && segments[1] != "~")
+            string[] segments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            if (segments.Length > 0 && segments[0] == "api" && segments[1] != "~")
             {
                 aliasname += "/" + segments[1];
             }

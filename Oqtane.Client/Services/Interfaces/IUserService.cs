@@ -21,7 +21,5 @@ namespace Oqtane.Services
         Task<User> LoginUserAsync(User User, bool SetCookie, bool IsPersistent);
 
         Task LogoutUserAsync();
-
-        bool IsAuthorized(User User, string AccessControlList);
     }
 }

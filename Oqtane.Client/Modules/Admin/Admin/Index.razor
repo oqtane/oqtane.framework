@@ -2,6 +2,7 @@
 @using Oqtane.Modules
 @using Oqtane.Services
 @using Oqtane.Models;
+@using Oqtane.Security
 @using Oqtane.Client.Modules.Controls
 @inherits ModuleBase
 @inject IPageService PageService
@@ -10,7 +11,7 @@
 <ul class="list-group">
     @foreach (var p in pages)
     {
-        if (p.IsNavigation && UserService.IsAuthorized(PageState.User, p.ViewPermissions))
+        if (p.IsNavigation && UserSecurity.IsAuthorized(PageState.User, "View", p.Permissions))
         {
             string url = NavigateUrl(p.Path);
             <li class="list-group-item">

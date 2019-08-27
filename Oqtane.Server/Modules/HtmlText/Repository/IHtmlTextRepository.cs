@@ -8,6 +8,6 @@ namespace Oqtane.Server.Modules.HtmlText.Repository
         HtmlTextInfo GetHtmlText(int ModuleId);
         HtmlTextInfo AddHtmlText(HtmlTextInfo HtmlText);
         HtmlTextInfo UpdateHtmlText(HtmlTextInfo HtmlText);
-        void DeleteHtmlText(int HtmlTextId);
+        void DeleteHtmlText(int ModuleId);
     }
 }

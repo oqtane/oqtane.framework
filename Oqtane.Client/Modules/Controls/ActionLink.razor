@@ -2,6 +2,7 @@
 @using Oqtane.Modules
 @using Oqtane.Services
 @using Oqtane.Shared
+@using Oqtane.Security
 @inherits ModuleBase
 @inject IUserService UserService
 
@@ -70,19 +71,16 @@
                     authorized = true;
                     break;
                 case SecurityAccessLevel.View:
-                    authorized = UserService.IsAuthorized(PageState.User, ModuleState.ViewPermissions);
+                    authorized = UserSecurity.IsAuthorized(PageState.User, "View", ModuleState.Permissions);
                     break;
                 case SecurityAccessLevel.Edit:
-                    authorized = UserService.IsAuthorized(PageState.User, ModuleState.EditPermissions);
+                    authorized = UserSecurity.IsAuthorized(PageState.User, "Edit", ModuleState.Permissions);
                     break;
                 case SecurityAccessLevel.Admin:
-                    authorized = UserService.IsAuthorized(PageState.User, Constants.AdminRole);
+                    authorized = UserSecurity.IsAuthorized(PageState.User, "Edit", UserSecurity.SetPermissions("Edit", Constants.AdminRole));
                     break;
                 case SecurityAccessLevel.Host:
-                    if (PageState.User != null)
-                    {
-                        authorized = PageState.User.IsSuperUser;
-                    }
+                    authorized = UserSecurity.IsAuthorized(PageState.User, "Edit", UserSecurity.SetPermissions("Edit", Constants.HostRole));
                     break;
             }
         }

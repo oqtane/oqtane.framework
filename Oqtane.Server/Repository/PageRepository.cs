@@ -8,10 +8,12 @@ namespace Oqtane.Repository
     public class PageRepository : IPageRepository
     {
         private TenantDBContext db;
+        private readonly IPermissionRepository Permissions;
 
-        public PageRepository(TenantDBContext context)
+        public PageRepository(TenantDBContext context, IPermissionRepository Permissions)
         {
             db = context;
+            this.Permissions = Permissions;
         }
 
         public IEnumerable<Page> GetPages()
@@ -30,7 +32,13 @@ namespace Oqtane.Repository
         {
             try
             {
-                return db.Page.Where(item => item.SiteId == SiteId).ToList();
+                List<Permission> permissions = Permissions.GetPermissions(SiteId, "Page").ToList();
+                List<Page> pages = db.Page.Where(item => item.SiteId == SiteId).ToList();
+                foreach(Page page in pages)
+                {
+                    page.Permissions = Permissions.EncodePermissions(page.PageId, permissions);
+                }
+                return pages;
             }
             catch
             {
@@ -44,6 +52,7 @@ namespace Oqtane.Repository
             {
                 db.Page.Add(Page);
                 db.SaveChanges();
+                Permissions.UpdatePermissions(Page.SiteId, "Page", Page.PageId, Page.Permissions);
                 return Page;
             }
             catch
@@ -58,6 +67,7 @@ namespace Oqtane.Repository
             {
                 db.Entry(Page).State = EntityState.Modified;
                 db.SaveChanges();
+                Permissions.UpdatePermissions(Page.SiteId, "Page", Page.PageId, Page.Permissions);
                 return Page;
             }
             catch
@@ -70,7 +80,13 @@ namespace Oqtane.Repository
         {
             try
             {
-                return db.Page.Find(PageId);
+                Page page = db.Page.Find(PageId);
+                if (page != null)
+                {
+                    List<Permission> permissions = Permissions.GetPermissions("Page", page.PageId).ToList();
+                    page.Permissions = Permissions.EncodePermissions(page.PageId, permissions);
+                }
+                return page;
             }
             catch
             {
@@ -83,6 +99,7 @@ namespace Oqtane.Repository
             try
             {
                 Page Page = db.Page.Find(PageId);
+                Permissions.UpdatePermissions(Page.SiteId, "Page", PageId, "");
                 db.Page.Remove(Page);
                 db.SaveChanges();
             }

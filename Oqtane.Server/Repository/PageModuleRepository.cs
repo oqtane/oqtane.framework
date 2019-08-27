@@ -8,10 +8,12 @@ namespace Oqtane.Repository
     public class PageModuleRepository : IPageModuleRepository
     {
         private TenantDBContext db;
+        private readonly IPermissionRepository Permissions;
 
-        public PageModuleRepository(TenantDBContext context)
+        public PageModuleRepository(TenantDBContext context, IPermissionRepository Permissions)
         {
             db = context;
+            this.Permissions = Permissions;
         }
 
         public IEnumerable<PageModule> GetPageModules()
@@ -29,9 +31,18 @@ namespace Oqtane.Repository
         {
             try
             {
-                return db.PageModule.Where(item => item.PageId == PageId)
+                List<PageModule> pagemodules = db.PageModule.Where(item => item.PageId == PageId)
                     .Include(item => item.Module) // eager load modules
                     .ToList();
+                if (pagemodules != null && pagemodules.Any())
+                {
+                    List<Permission> permissions = Permissions.GetPermissions(pagemodules.FirstOrDefault().Module.SiteId, "Module").ToList();
+                    foreach (PageModule pagemodule in pagemodules)
+                    {
+                        pagemodule.Module.Permissions = Permissions.EncodePermissions(pagemodule.ModuleId, permissions);
+                    }
+                }
+                return pagemodules;
             }
             catch
             {
@@ -71,8 +82,14 @@ namespace Oqtane.Repository
         {
             try
             {
-                return db.PageModule.Include(item => item.Module) // eager load modules
-                    .SingleOrDefault(item => item.PageModuleId == PageModuleId); 
+                PageModule pagemodule = db.PageModule.Include(item => item.Module) // eager load modules
+                    .SingleOrDefault(item => item.PageModuleId == PageModuleId);
+                if (pagemodule != null)
+                {
+                    List<Permission> permissions = Permissions.GetPermissions("Module", pagemodule.ModuleId).ToList();
+                    pagemodule.Module.Permissions = Permissions.EncodePermissions(pagemodule.ModuleId, permissions);
+                }
+                return pagemodule;
             }
             catch
             {

@@ -32,7 +32,7 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Administrators")]
         public PageModule Post([FromBody] PageModule PageModule)
         {
             if (ModelState.IsValid)
@@ -44,7 +44,7 @@ namespace Oqtane.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Administrators")]
         public PageModule Put(int id, [FromBody] PageModule PageModule)
         {
             if (ModelState.IsValid)
@@ -56,7 +56,7 @@ namespace Oqtane.Controllers
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Administrators")]
         public void Delete(int id)
         {
             PageModules.DeletePageModule(id);

@@ -8,10 +8,12 @@ namespace Oqtane.Repository
     public class ModuleRepository : IModuleRepository
     {
         private TenantDBContext db;
+        private readonly IPermissionRepository Permissions;
 
-        public ModuleRepository(TenantDBContext context)
+        public ModuleRepository(TenantDBContext context, IPermissionRepository Permissions)
         {
             db = context;
+            this.Permissions = Permissions;
         }
 
         public IEnumerable<Module> GetModules()
@@ -30,10 +32,16 @@ namespace Oqtane.Repository
         {
             try
             {
-                return db.Module
+                List<Permission> permissions = Permissions.GetPermissions(SiteId, "Module").ToList();
+                List<Module> modules = db.Module
                     .Where(item => item.SiteId == SiteId)
                     .Where(item => item.ModuleDefinitionName == ModuleDefinitionName)
                     .ToList();
+                foreach (Module module in modules)
+                {
+                    module.Permissions = Permissions.EncodePermissions(module.ModuleId, permissions);
+                }
+                return modules;
             }
             catch
             {
@@ -47,6 +55,7 @@ namespace Oqtane.Repository
             {
                 db.Module.Add(Module);
                 db.SaveChanges();
+                Permissions.UpdatePermissions(Module.SiteId, "Module", Module.ModuleId, Module.Permissions);
                 return Module;
             }
             catch
@@ -61,6 +70,7 @@ namespace Oqtane.Repository
             {
                 db.Entry(Module).State = EntityState.Modified;
                 db.SaveChanges();
+                Permissions.UpdatePermissions(Module.SiteId, "Module", Module.ModuleId, Module.Permissions);
                 return Module;
             }
             catch
@@ -73,7 +83,13 @@ namespace Oqtane.Repository
         {
             try
             {
-                return db.Module.Find(ModuleId);
+                Module module = db.Module.Find(ModuleId);
+                if (module != null)
+                {
+                    List<Permission> permissions = Permissions.GetPermissions("Module", module.ModuleId).ToList();
+                    module.Permissions = Permissions.EncodePermissions(module.ModuleId, permissions);
+                }
+                return module;
             }
             catch
             {
@@ -86,6 +102,7 @@ namespace Oqtane.Repository
             try
             {
                 Module Module = db.Module.Find(ModuleId);
+                Permissions.UpdatePermissions(Module.SiteId, "Module", ModuleId, "");
                 db.Module.Remove(Module);
                 db.SaveChanges();
             }

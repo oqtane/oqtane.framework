@@ -12,6 +12,6 @@ namespace Oqtane.Client.Modules.HtmlText.Services
 
         Task UpdateHtmlTextAsync(HtmlTextInfo htmltext);
 
-        Task DeleteHtmlTextAsync(int HtmlTextId);
+        Task DeleteHtmlTextAsync(int ModuleId);
     }
 }

@@ -7,58 +7,51 @@ using Oqtane.Models;
 namespace Oqtane.Controllers
 {
     [Route("{site}/api/[controller]")]
-    public class RoleController : Controller
+    public class PermissionController : Controller
     {
-        private readonly IRoleRepository Roles;
+        private readonly IPermissionRepository Permissions;
 
-        public RoleController(IRoleRepository Roles)
+        public PermissionController(IPermissionRepository Permissions)
         {
-            this.Roles = Roles;
+            this.Permissions = Permissions;
         }
 
-        // GET: api/<controller>?siteid=x
+        // GET: api/<controller>
         [HttpGet]
-        public IEnumerable<Role> Get(string siteid)
+        public IEnumerable<Permission> Get(string entityname, int entityid, string permissionname)
         {
-            if (siteid == "")
-            {
-                return Roles.GetRoles();
-            }
-            else
-            {
-                return Roles.GetRoles(int.Parse(siteid));
-            }
+            return Permissions.GetPermissions(entityname, entityid, permissionname);
         }
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
-        public Role Get(int id)
+        public Permission Get(int id)
         {
-            return Roles.GetRole(id);
+            return Permissions.GetPermission(id);
         }
 
         // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = "Administrators")]
-        public Role Post([FromBody] Role Role)
+        public Permission Post([FromBody] Permission Permission)
         {
             if (ModelState.IsValid)
             {
-                Role = Roles.AddRole(Role);
+                Permission = Permissions.AddPermission(Permission);
             }
-            return Role;
+            return Permission;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Roles = "Administrators")]
-        public Role Put(int id, [FromBody] Role Role)
+        public Permission Put(int id, [FromBody] Permission Permission)
         {
             if (ModelState.IsValid)
             {
-                Role = Roles.UpdateRole(Role);
+                Permission = Permissions.UpdatePermission(Permission);
             }
-            return Role;
+            return Permission;
         }
 
         // DELETE api/<controller>/5
@@ -66,7 +59,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = "Administrators")]
         public void Delete(int id)
         {
-            Roles.DeleteRole(id);
+            Permissions.DeletePermission(id);
         }
     }
 }

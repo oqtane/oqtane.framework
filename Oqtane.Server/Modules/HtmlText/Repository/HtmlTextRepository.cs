@@ -56,11 +56,11 @@ namespace Oqtane.Server.Modules.HtmlText.Repository
             }
         }
 
-        public void DeleteHtmlText(int HtmlTextId)
+        public void DeleteHtmlText(int ModuleId)
         {
             try
             {
-                HtmlTextInfo HtmlText = db.HtmlText.Find(HtmlTextId);
+                HtmlTextInfo HtmlText = db.HtmlText.Where(item => item.ModuleId == ModuleId).FirstOrDefault();
                 db.HtmlText.Remove(HtmlText);
                 db.SaveChanges();
             }

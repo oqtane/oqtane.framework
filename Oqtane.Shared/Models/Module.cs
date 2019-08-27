@@ -9,13 +9,14 @@ namespace Oqtane.Models
         public int ModuleId { get; set; }
         public int SiteId { get; set; }
         public string ModuleDefinitionName { get; set; }
-        public string ViewPermissions { get; set; }
-        public string EditPermissions { get; set; }
 
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
         public string ModifiedBy { get; set; }
         public DateTime ModifiedOn { get; set; }
+
+        [NotMapped]
+        public string Permissions { get; set; }
 
         [NotMapped]
         public int PageModuleId { get; set; }

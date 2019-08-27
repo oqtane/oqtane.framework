@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Oqtane.Repository;
 using Oqtane.Models;
+using Oqtane.Shared;
 
 namespace Oqtane.Security
 {
@@ -29,9 +30,11 @@ namespace Oqtane.Security
             User user = Users.GetUser(identityuser.UserName);
             if (user != null)
             {
-                if (user.IsSuperUser)
+                id.AddClaim(new Claim(ClaimTypes.PrimarySid, user.UserId.ToString()));
+                if (user.IsHost) // host users are part of every site by default
                 {
-                    id.AddClaim(new Claim(options.ClaimsIdentity.RoleClaimType, "Administrators"));
+                    id.AddClaim(new Claim(options.ClaimsIdentity.RoleClaimType, Constants.HostRole));
+                    id.AddClaim(new Claim(options.ClaimsIdentity.RoleClaimType, Constants.AdminRole));
                 }
                 else
                 {
