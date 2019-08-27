@@ -23,13 +23,7 @@ Oqtane uses Blazor, a new web framework for .NET Core that lets you build intera
 This project is a work in progress and the schedule for implementing the items identified below is dependent upon the availability of community members who are able to assist.
 
 Security
-- Need ability to manage Roles and association to Users
-- Need ability to manage Permissions
-	- a permission UI component for pages/modules
-	- may also need to include Permission table schema similar to DNN
-- Need ability to manage Authorization ( will need to be custom so that permissions set by user are observed at API level )	
 - Logging
-- Support for friendly Page Not Found handling
 
 Design
 - Need modern Admin UI theme
@@ -41,6 +35,7 @@ Packaging
 - Need ability to package/install Themes
 
 Admin
+- Need a permission grid UI component for pages/modules
 - Need fully functional administrative modules for all core entities ( user, role, site, etc… )
 - Need ability to create a new Site and auto provision Admin pages/modules
 - Need ability to soft delete core entities
