@@ -5,7 +5,7 @@ namespace Oqtane.Models
     public class Role : IAuditable
     {
         public int RoleId { get; set; }
-        public int SiteId { get; set; }
+        public int? SiteId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public bool IsAutoAssigned { get; set; }

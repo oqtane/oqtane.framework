@@ -192,7 +192,7 @@ namespace Oqtane.Repository
         public List<Permission> DecodePermissions(string PermissionStrings, int SiteId, string EntityName, int EntityId)
         {
             List<Permission> permissions = new List<Permission>();
-            List<Role> roles = Roles.GetRoles(SiteId).ToList();
+            List<Role> roles = Roles.GetRoles(SiteId, true).ToList();
             string securityid = "";
             foreach (PermissionString permissionstring in JsonSerializer.Deserialize<List<PermissionString>>(PermissionStrings))
             {
