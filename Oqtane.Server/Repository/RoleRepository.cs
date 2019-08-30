@@ -38,6 +38,19 @@ namespace Oqtane.Repository
             }
         }
 
+        public IEnumerable<Role> GetRoles(int SiteId, bool IncludeGlobalRoles)
+        {
+            try
+            {
+                return db.Role.Where(item => item.SiteId == SiteId || item.SiteId == null).ToList();
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+
         public Role AddRole(Role Role)
         {
             try
