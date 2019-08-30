@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Oqtane.Repository;
 using Oqtane.Models;
+using Oqtane.Shared;
 
 namespace Oqtane.Controllers
 {
@@ -39,7 +40,7 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        [Authorize(Roles = "Administrators")]
+        [Authorize(Roles = Constants.AdminRole)]
         public Role Post([FromBody] Role Role)
         {
             if (ModelState.IsValid)
@@ -51,7 +52,7 @@ namespace Oqtane.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        [Authorize(Roles = "Administrators")]
+        [Authorize(Roles = Constants.AdminRole)]
         public Role Put(int id, [FromBody] Role Role)
         {
             if (ModelState.IsValid)
@@ -63,7 +64,7 @@ namespace Oqtane.Controllers
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Administrators")]
+        [Authorize(Roles = Constants.AdminRole)]
         public void Delete(int id)
         {
             Roles.DeleteRole(id);

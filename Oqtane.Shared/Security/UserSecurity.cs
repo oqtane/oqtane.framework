@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
 using Oqtane.Models;
 using Oqtane.Shared;
 
@@ -6,38 +9,50 @@ namespace Oqtane.Security
 {
     public class UserSecurity
     {
-        // permission collections are stored in format {permissionname1:permissions}{permissionname2:permissions}...
-        public static string GetPermissions(string PermissionName, string Permissions)
+        public static List<PermissionString> GetPermissionStrings(string PermissionStrings)
+        {
+            return JsonSerializer.Deserialize<List<PermissionString>>(PermissionStrings);
+        }
+
+        public static string SetPermissionStrings(List<PermissionString> PermissionStrings)
+        {
+            return JsonSerializer.Serialize(PermissionStrings);
+        }
+
+        public static string GetPermissions(string PermissionName, string PermissionStrings)
         {
             string permissions = "";
-            foreach(string permission in Permissions.Split(new char[] { '{' }, StringSplitOptions.RemoveEmptyEntries))
+            List<PermissionString> permissionstrings = JsonSerializer.Deserialize<List<PermissionString>>(PermissionStrings);
+            PermissionString permissionstring = permissionstrings.Where(item => item.PermissionName == PermissionName).FirstOrDefault();
+            if (permissionstring != null)
             {
-                if (permission.StartsWith(PermissionName + ":"))
-                {
-                    permissions = permission.Replace(PermissionName + ":", "").Replace("}", "");
-                    break;
-                }
+                permissions = permissionstring.Permissions;
             }
             return permissions;
         }
 
-        public static string SetPermissions(string PermissionName, string Permissions)
+        public static bool IsAuthorized(User User, string PermissionName, string PermissionStrings)
         {
-            return "{" + PermissionName + ":" + Permissions + "}";
+            return IsAuthorized(User, GetPermissions(PermissionName, PermissionStrings));
         }
 
         // permissions are stored in the format "!rolename1;![userid1];rolename2;rolename3;[userid2];[userid3]" where "!" designates Deny permissions
-        public static bool IsAuthorized(User User, string PermissionName, string Permissions)
+        public static bool IsAuthorized(User User, string Permissions)
         {
-            Permissions = GetPermissions(PermissionName, Permissions);
-            if (User == null)
+            bool authorized = false;
+            if (Permissions != "")
             {
-                return IsAuthorized(-1, "", Permissions); // user is not authenticated but may have access to resource
+                if (User == null)
+                {
+                    authorized =  IsAuthorized(-1, "", Permissions); // user is not authenticated but may have access to resource
+                }
+                else
+                {
+                    authorized = IsAuthorized(User.UserId, User.Roles, Permissions);
+                }
+
             }
-            else
-            {
-                return IsAuthorized(User.UserId, User.Roles, Permissions);
-            }
+            return authorized;
         }
 
         private static bool IsAuthorized(int UserId, string Roles, string Permissions)

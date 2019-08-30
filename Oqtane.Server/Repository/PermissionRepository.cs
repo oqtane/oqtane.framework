@@ -4,6 +4,8 @@ using System.Linq;
 using Oqtane.Models;
 using System.Text;
 using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Oqtane.Repository
 {
@@ -136,18 +138,22 @@ namespace Oqtane.Repository
         // permissions are stored in the format "{permissionname:!rolename1;![userid1];rolename2;rolename3;[userid2];[userid3]}" where "!" designates Deny permissions
         public string EncodePermissions(int EntityId, List<Permission> Permissions)
         {
-            string permissions = "";
+            List<PermissionString> permissionstrings = new List<PermissionString>();
             string permissionname = "";
+            string permissions = "";
             StringBuilder permissionsbuilder = new StringBuilder();
-            string perm = "";
+            string securityid = "";
             foreach (Permission permission in Permissions.Where(item => item.EntityId == EntityId).OrderBy(item => item.PermissionName))
             {
                 // permission collections are grouped by permissionname
                 if (permissionname != permission.PermissionName)
                 {
+                    permissions = permissionsbuilder.ToString();
+                    if (permissions != "")
+                    {
+                        permissionstrings.Add(new PermissionString { PermissionName = permissionname, Permissions = permissions.Substring(0, permissions.Length - 1) });
+                    }
                     permissionname = permission.PermissionName;
-                    permissions += permissionsbuilder.ToString();
-                    permissions += ((permissions != "") ? "}" : "") + "{" + permissionname + ":";
                     permissionsbuilder = new StringBuilder();
                 }
 
@@ -157,77 +163,76 @@ namespace Oqtane.Repository
                 // encode permission
                 if (permission.UserId == null)
                 {
-                    perm = prefix + permission.Role.Name + ";";
+                    securityid = prefix + permission.Role.Name + ";";
                 }
                 else
                 {
-                    perm = prefix + "[" + permission.UserId.ToString() + "];";
+                    securityid = prefix + "[" + permission.UserId.ToString() + "];";
                 }
 
-                // insert Deny permissions at the beginning and append Grant permissions at the end
+                // insert deny permissions at the beginning and append grant permissions at the end
                 if (prefix == "!")
                 {
-                    permissionsbuilder.Insert(0, perm);
+                    permissionsbuilder.Insert(0, securityid);
                 }
                 else
                 {
-                    permissionsbuilder.Append(perm);
+                    permissionsbuilder.Append(securityid);
                 }
             }
 
-            if (permissionsbuilder.ToString() != "")
+            permissions = permissionsbuilder.ToString();
+            if (permissions != "")
             {
-                permissions += permissionsbuilder.ToString() + "}";
+                permissionstrings.Add(new PermissionString { PermissionName = permissionname, Permissions = permissions.Substring(0, permissions.Length - 1) });
             }
-
-            return permissions;
+            return JsonSerializer.Serialize(permissionstrings);
         }
 
-        public List<Permission> DecodePermissions(string Permissions, int SiteId, string EntityName, int EntityId)
+        public List<Permission> DecodePermissions(string PermissionStrings, int SiteId, string EntityName, int EntityId)
         {
-            List<Role> roles = Roles.GetRoles(SiteId).ToList();
             List<Permission> permissions = new List<Permission>();
-            string perm = "";
-            string permissionname;
-            string permissionstring;
-            foreach (string PermissionString in Permissions.Split(new char[] { '{' }, StringSplitOptions.RemoveEmptyEntries))
+            List<Role> roles = Roles.GetRoles(SiteId).ToList();
+            string securityid = "";
+            foreach (PermissionString permissionstring in JsonSerializer.Deserialize<List<PermissionString>>(PermissionStrings))
             {
-                permissionname = PermissionString.Substring(0, PermissionString.IndexOf(":"));
-                permissionstring = PermissionString.Replace(permissionname + ":", "").Replace("}", "");
-                foreach (string Perm in permissionstring.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (string id in permissionstring.Permissions.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    perm = Perm;
+                    securityid = id;
                     Permission permission = new Permission();
                     permission.SiteId = SiteId;
                     permission.EntityName = EntityName;
                     permission.EntityId = EntityId;
-                    permission.PermissionName = permissionname;
+                    permission.PermissionName = permissionstring.PermissionName;
                     permission.RoleId = null;
                     permission.UserId = null;
                     permission.IsAuthorized = true;
 
-                    if (perm.StartsWith("!"))
+                    if (securityid.StartsWith("!"))
                     {
                         // deny permission
-                        perm.Replace("!", "");
+                        securityid.Replace("!", "");
                         permission.IsAuthorized = false;
                     }
-                    if (perm.StartsWith("[") && perm.EndsWith("]"))
+                    if (securityid.StartsWith("[") && securityid.EndsWith("]"))
                     {
                         // user id
-                        perm = perm.Replace("[", "").Replace("]", "");
-                        permission.UserId = int.Parse(perm);
+                        securityid = securityid.Replace("[", "").Replace("]", "");
+                        permission.UserId = int.Parse(securityid);
                     }
                     else
                     {
                         // role name
-                        Role role = roles.Where(item => item.Name == perm).SingleOrDefault();
+                        Role role = roles.Where(item => item.Name == securityid).SingleOrDefault();
                         if (role != null)
                         {
                             permission.RoleId = role.RoleId;
                         }
                     }
-                    permissions.Add(permission);
+                    if (permission.UserId != null || permission.RoleId != null)
+                    {
+                        permissions.Add(permission);
+                    }
                 }
             }
             return permissions;

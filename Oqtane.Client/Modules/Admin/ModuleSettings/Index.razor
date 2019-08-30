@@ -11,59 +11,51 @@
 @inject IModuleService ModuleService
 @inject IPageModuleService PageModuleService
 
-<table class="form-group">
-    <tr>
-        <td>
-            <label for="Title" class="control-label">Title: </label>
-        </td>
-        <td>
-            <input type="text" name="Title" class="form-control" @bind="@title" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Container" class="control-label">Container: </label>
-        </td>
-        <td>
-            <select class="form-control" @bind="@containertype">
-                <option value="">&lt;Select Container&gt;</option>
-                @foreach (KeyValuePair<string, string> container in containers)
-                {
-                    <option value="@container.Key">@container.Value</option>
-                }
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="ViewPermissions" class="control-label">View Permissions: </label>
-        </td>
-        <td>
-            <input type="text" name="ViewPermissions" class="form-control" @bind="@viewpermissions" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="EditPermissions" class="control-label">Edit Permissions: </label>
-        </td>
-        <td>
-            <input type="text" name="EditPermissions" class="form-control" @bind="@editpermissions" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Page" class="control-label">Page: </label>
-        </td>
-        <td>
-            <select class="form-control" @bind="@pageid">
-                @foreach (Page p in PageState.Pages)
-                {
-                    <option value="@p.PageId">@p.Name</option>
-                }
-            </select>
-        </td>
-    </tr>
-</table>
+    <table class="form-group">
+        <tr>
+            <td>
+                <label for="Title" class="control-label">Title: </label>
+            </td>
+            <td>
+                <input type="text" name="Title" class="form-control" @bind="@title" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Container" class="control-label">Container: </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@containertype">
+                    <option value="">&lt;Select Container&gt;</option>
+                    @foreach (KeyValuePair<string, string> container in containers)
+                    {
+                        <option value="@container.Key">@container.Value</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Permissions: </label>
+            </td>
+            <td>
+                <PermissionGrid EntityName="Module" Permissions="@permissions" @ref="permissiongrid" @ref:suppressField />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Page" class="control-label">Page: </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@pageid">
+                    @foreach (Page p in PageState.Pages)
+                    {
+                        <option value="@p.PageId">@p.Name</option>
+                    }
+                </select>
+            </td>
+        </tr>
+    </table>
 
 @DynamicComponent
 
@@ -78,9 +70,10 @@
     Dictionary<string, string> containers = new Dictionary<string, string>();
     string title;
     string containertype;
-    string viewpermissions;
-    string editpermissions;
+    string permissions;
     string pageid;
+
+    PermissionGrid permissiongrid;
 
     RenderFragment DynamicComponent { get; set; }
     object settings;
@@ -90,8 +83,7 @@
         title = ModuleState.Title;
         containers = ThemeService.GetContainerTypes(await ThemeService.GetThemesAsync());
         containertype = ModuleState.ContainerType;
-        viewpermissions = UserSecurity.GetPermissions("View", ModuleState.Permissions);
-        editpermissions = UserSecurity.GetPermissions("Edit", ModuleState.Permissions);
+        permissions = ModuleState.Permissions;
         pageid = ModuleState.PageId.ToString();
 
         DynamicComponent = builder =>
@@ -109,7 +101,7 @@
     private async Task SaveModule()
     {
         Module module = ModuleState;
-        module.Permissions = UserSecurity.SetPermissions("View", viewpermissions) + UserSecurity.SetPermissions("Edit", editpermissions);
+        module.Permissions = permissiongrid.GetPermissions();
         await ModuleService.UpdateModuleAsync(module);
 
         PageModule pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);

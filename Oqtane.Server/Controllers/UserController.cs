@@ -178,7 +178,7 @@ namespace Oqtane.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        [Authorize(Roles = "Administrators")]
+        [Authorize(Roles = Constants.AdminRole)]
         public User Put(int id, [FromBody] User User)
         {
             if (ModelState.IsValid)
@@ -190,7 +190,7 @@ namespace Oqtane.Controllers
 
         // DELETE api/<controller>/5?siteid=x
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Administrators")]
+        [Authorize(Roles = Constants.AdminRole)]
         public void Delete(int id, string siteid)
         {
             SiteUser siteuser = SiteUsers.GetSiteUser(id, int.Parse(siteid));
