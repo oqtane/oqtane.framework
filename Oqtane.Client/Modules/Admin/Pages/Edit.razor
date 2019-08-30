@@ -100,18 +100,10 @@
     </tr>
     <tr>
         <td>
-            <label for="Name" class="control-label">View Permissions: </label>
+            <label for="Name" class="control-label">Permissions: </label>
         </td>
         <td>
-            <input class="form-control" @bind="@viewpermissions" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Edit Permissions: </label>
-        </td>
-        <td>
-            <input class="form-control" @bind="@editpermissions" />
+            <PermissionGrid EntityName="Page" Permissions="@permissions" @ref="permissiongrid" @ref:suppressField />
         </td>
     </tr>
 </table>
@@ -138,12 +130,13 @@
     string themetype;
     string layouttype;
     string icon;
-    string viewpermissions;
-    string editpermissions;
+    string permissions;
     string createdby;
     DateTime createdon;
     string modifiedby;
     DateTime modifiedon;
+
+    PermissionGrid permissiongrid;
 
     protected override void OnInitialized()
     {
@@ -171,8 +164,7 @@
                 themetype = page.ThemeType;
                 layouttype = page.LayoutType;
                 icon = page.Icon;
-                viewpermissions = UserSecurity.GetPermissions("View", page.Permissions);
-                editpermissions = UserSecurity.GetPermissions("Edit", page.Permissions);
+                permissions = page.Permissions;
                 createdby = page.CreatedBy;
                 createdon = page.CreatedOn;
                 modifiedby = page.ModifiedBy;
@@ -217,7 +209,7 @@
             }
             System.Reflection.PropertyInfo property = type.GetProperty("Panes");
             page.Panes = (string)property.GetValue(Activator.CreateInstance(type), null);
-            page.Permissions = UserSecurity.SetPermissions("View", viewpermissions) + UserSecurity.SetPermissions("Edit", editpermissions);
+            page.Permissions = permissiongrid.GetPermissions();
             await PageService.UpdatePageAsync(page);
 
             PageState.Reload = Constants.ReloadSite;

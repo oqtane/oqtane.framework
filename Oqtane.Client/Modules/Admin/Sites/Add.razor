@@ -98,13 +98,18 @@ else
         p.Path = "";
         p.Order = 1;
         p.IsNavigation = true;
-        p.ThemeType = "Oqtane.Client.Themes.Theme1.Theme1, Oqtane.Client";
+        p.ThemeType = "Oqtane.Client.Themes.Theme1.Theme1, Oqtane.Client"; // TODO: should not hardcode
         p.LayoutType = "";
         p.Icon = "";
         Type type = Type.GetType(p.ThemeType);
         System.Reflection.PropertyInfo property = type.GetProperty("Panes");
         p.Panes = (string)property.GetValue(Activator.CreateInstance(type), null);
-        p.Permissions = UserSecurity.SetPermissions("View", Constants.AllUsersRole) + UserSecurity.SetPermissions("Edit", Constants.AdminRole);
+
+        List<PermissionString> permissionstrings = new List<PermissionString>();
+        permissionstrings.Add(new PermissionString { PermissionName = "View", Permissions = Constants.AllUsersRole });
+        permissionstrings.Add(new PermissionString { PermissionName = "Edit", Permissions = Constants.AdminRole });
+        p.Permissions = UserSecurity.SetPermissionStrings(permissionstrings);
+
         await PageService.AddPageAsync(p);
 
         UriHelper.NavigateTo(url, true);

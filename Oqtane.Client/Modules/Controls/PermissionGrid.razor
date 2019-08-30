@@ -1,0 +1,196 @@
+﻿@using Oqtane.Services
+@using Oqtane.Modules
+@using Oqtane.Models
+@using Oqtane.Security
+@using Oqtane.Shared
+@inherits ModuleBase
+@inject IRoleService RoleService
+@inject IUserService UserService
+
+@if (roles != null)
+{
+    <br />
+    <div class="container">
+        <div class="form-group">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>Role</th>
+                        @foreach (PermissionString permission in permissions)
+                        {
+                            <th>@permission.PermissionName @EntityName</th>
+                        }
+                    </tr>
+                    @foreach (Role role in roles)
+                    {
+                        <tr>
+                            <td>@role.Name</td>
+                            @foreach (PermissionString permission in permissions)
+                            {
+                                var p = permission;
+                                <td align="center"><input type="checkbox" class="form-check-input" checked=@GetPermissionValue(p.Permissions, role.Name) disabled=@GetPermissionDisabled(role.Name) @onchange="@(e => PermissionChanged(e, p.PermissionName, role.Name))" /></td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        @if (@users.Count != 0)
+        {
+            <div class="form-group">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            @foreach (PermissionString permission in permissions)
+                            {
+                                <th>@permission.PermissionName @EntityName</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (User user in users)
+                        {
+                            <tr>
+                                <td>@user.DisplayName</td>
+                                @foreach (PermissionString permission in permissions)
+                                {
+                                    var p = permission;
+                                    <td align="center"><input type="checkbox" class="form-check-input" checked=@GetPermissionValue(p.Permissions, "[" + user.UserId.ToString() + "]") @onchange="@(e => PermissionChanged(e, p.PermissionName, "[" + user.UserId.ToString() + "]"))" /></td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        <div style="white-space:nowrap;">
+            <label for="Username" class="control-label" style="display:inline-block;">User: </label>
+            <input type="text" name="Username" class="form-control" style="display:inline-block; width: auto !important;" placeholder="Enter Username" @bind="@username" />
+            <button type="button" class="btn btn-primary" style="display:inline-block;" @onclick="@AddUser">Add</button>
+        </div>
+        <br />
+        <ModuleMessage Type="MessageType.Error" Message="@message" />
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string EntityName { get; set; }
+
+    [Parameter]
+    public string Permissions { get; set; }
+
+    [Parameter]
+    public string PermissionNames { get; set; } // optional - can be used to specify permissions order or add custom permissions
+
+    List<Role> roles;
+    List<PermissionString> permissions = new List<PermissionString>();
+    List<User> users = new List<User>();
+    string username = "";
+    string message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (string.IsNullOrEmpty(PermissionNames))
+        {
+            PermissionNames = "View,Edit";
+        }
+        roles = await RoleService.GetRolesAsync(ModuleState.SiteId);
+        roles.Insert(0, new Role { Name = Constants.AllUsersRole });
+
+        foreach (string permissionname in PermissionNames.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+        {
+            permissions.Add(new PermissionString { PermissionName = permissionname, Permissions = "" });
+        }
+        foreach (PermissionString permissionstring in UserSecurity.GetPermissionStrings(Permissions))
+        {
+            if (permissions.Find(item => item.PermissionName == permissionstring.PermissionName) != null)
+            {
+                permissions[permissions.FindIndex(item => item.PermissionName == permissionstring.PermissionName)].Permissions = permissionstring.Permissions;
+            }
+            if (permissionstring.Permissions.Contains("["))
+            {
+                foreach (string user in permissionstring.Permissions.Split(new char[] { '[' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    if (user.Contains("]"))
+                    {
+                        int userid = int.Parse(user.Substring(0, user.IndexOf("]")));
+                        if (users.Where(item => item.UserId == userid).FirstOrDefault() == null)
+                        {
+                            users.Add(await UserService.GetUserAsync(userid, ModuleState.SiteId));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private bool GetPermissionValue(string Permissions, string SecurityKey)
+    {
+        if ((";" + Permissions + ";").Contains(";" + SecurityKey + ";"))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    private bool GetPermissionDisabled(string RoleName)
+    {
+        if (RoleName == Constants.AdminRole)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    private async Task AddUser()
+    {
+        if (users.Where(item => item.Username == username).FirstOrDefault() == null)
+        {
+            try
+            {
+                User user = await UserService.GetUserAsync(username, ModuleState.SiteId);
+                if (user != null)
+                {
+                    users.Add(user);
+                }
+            }
+            catch
+            {
+                message = "Username Does Not Exist";
+            }
+        }
+        username = "";
+    }
+
+    private void PermissionChanged(UIChangeEventArgs e, string PermissionName, string SecurityId)
+    {
+        bool selected = (bool)e.Value;
+        PermissionString permission = permissions.Find(item => item.PermissionName == PermissionName);
+        if (permission != null)
+        {
+            List<string> ids = permission.Permissions.Split(';').ToList();
+            if (selected)
+            {
+                ids.Add(SecurityId);
+            }
+            else
+            {
+                ids.Remove(SecurityId);
+            }
+            permissions[permissions.FindIndex(item => item.PermissionName == PermissionName)].Permissions = string.Join(";", ids.ToArray());
+        }
+    }
+
+    public string GetPermissions()
+    {
+        return UserSecurity.SetPermissionStrings(permissions);
+    }
+}

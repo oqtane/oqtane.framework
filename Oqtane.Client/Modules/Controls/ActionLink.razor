@@ -77,10 +77,10 @@
                     authorized = UserSecurity.IsAuthorized(PageState.User, "Edit", ModuleState.Permissions);
                     break;
                 case SecurityAccessLevel.Admin:
-                    authorized = UserSecurity.IsAuthorized(PageState.User, "Edit", UserSecurity.SetPermissions("Edit", Constants.AdminRole));
+                    authorized = UserSecurity.IsAuthorized(PageState.User, Constants.AdminRole);
                     break;
                 case SecurityAccessLevel.Host:
-                    authorized = UserSecurity.IsAuthorized(PageState.User, "Edit", UserSecurity.SetPermissions("Edit", Constants.HostRole));
+                    authorized = UserSecurity.IsAuthorized(PageState.User, Constants.HostRole);
                     break;
             }
         }

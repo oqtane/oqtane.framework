@@ -99,18 +99,10 @@
     </tr>
     <tr>
         <td>
-            <label for="Name" class="control-label">View Permissions: </label>
+            <label for="Name" class="control-label">Permissions: </label>
         </td>
         <td>
-            <input class="form-control" @bind="@viewpermissions" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Edit Permissions: </label>
-        </td>
-        <td>
-            <input class="form-control" @bind="@editpermissions" />
+            <PermissionGrid EntityName="Page" Permissions="@permissions" @ref="permissiongrid" @ref:suppressField />
         </td>
     </tr>
 </table>
@@ -133,8 +125,9 @@
     string themetype;
     string layouttype = "";
     string icon = "";
-    string viewpermissions = "All Users";
-    string editpermissions = "Administrators";
+    string permissions = ""; // need to set default permissions
+
+    PermissionGrid permissiongrid;
 
     protected override void OnInitialized()
     {
@@ -142,6 +135,11 @@
         {
             themes = ThemeService.GetThemeTypes(PageState.Themes);
             panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes);
+
+            List<PermissionString> permissionstrings = new List<PermissionString>();
+            permissionstrings.Add(new PermissionString { PermissionName = "View", Permissions = Constants.AdminRole });
+            permissionstrings.Add(new PermissionString { PermissionName = "Edit", Permissions = Constants.AdminRole });
+            permissions = UserSecurity.SetPermissionStrings(permissionstrings);
         }
         catch (Exception ex)
         {
@@ -181,7 +179,7 @@
             }
             System.Reflection.PropertyInfo property = type.GetProperty("Panes");
             page.Panes = (string)property.GetValue(Activator.CreateInstance(type), null);
-            page.Permissions =  UserSecurity.SetPermissions("View", viewpermissions) + UserSecurity.SetPermissions("Edit", editpermissions);
+            page.Permissions = permissiongrid.GetPermissions();
             await PageService.AddPageAsync(page);
 
             PageState.Reload = Constants.ReloadSite;
