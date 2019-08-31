@@ -16,80 +16,38 @@ namespace Oqtane.Repository
             
         public IEnumerable<User> GetUsers()
         {
-            try
-            {
-                return db.User.ToList();
-            }
-            catch
-            {
-                throw;
-            }
+            return db.User;
         }
 
         public User AddUser(User user)
         {
-            try
-            {
-                db.User.Add(user);
-                db.SaveChanges();
-                return user;
-            }
-            catch
-            {
-                throw;
-            }
+            db.User.Add(user);
+            db.SaveChanges();
+            return user;
         }
 
         public User UpdateUser(User user)
         {
-            try
-            {
-                db.Entry(user).State = EntityState.Modified;
-                db.SaveChanges();
-                return user;
-            }
-            catch
-            {
-                throw;
-            }
+            db.Entry(user).State = EntityState.Modified;
+            db.SaveChanges();
+            return user;
         }
 
         public User GetUser(int userId)
         {
-            try
-            {
-                return db.User.Find(userId);
-            }
-            catch
-            {
-                throw;
-            }
+            return db.User.Find(userId);
         }
 
         public User GetUser(string Username)
         {
-            try
-            {
-                return db.User.Where(item => item.Username == Username).FirstOrDefault();
-            }
-            catch
-            {
-                throw;
-            }
+            return db.User.Where(item => item.Username == Username).FirstOrDefault();
         }
 
         public void DeleteUser(int userId)
         {
-            try
-            {
-                User user = db.User.Find(userId);
-                db.User.Remove(user);
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            User user = db.User.Find(userId);
+            db.User.Remove(user);
+            db.SaveChanges();
         }
     }
 }

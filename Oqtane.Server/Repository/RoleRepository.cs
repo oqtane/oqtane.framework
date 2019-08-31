@@ -16,93 +16,44 @@ namespace Oqtane.Repository
             
         public IEnumerable<Role> GetRoles()
         {
-            try
-            {
-                return db.Role.ToList();
-            }
-            catch
-            {
-                throw;
-            }
+            return db.Role;
         }
 
         public IEnumerable<Role> GetRoles(int SiteId)
         {
-            try
-            {
-                return db.Role.Where(item => item.SiteId == SiteId).ToList();
-            }
-            catch
-            {
-                throw;
-            }
+            return db.Role.Where(item => item.SiteId == SiteId);
         }
 
         public IEnumerable<Role> GetRoles(int SiteId, bool IncludeGlobalRoles)
         {
-            try
-            {
-                return db.Role.Where(item => item.SiteId == SiteId || item.SiteId == null).ToList();
-            }
-            catch
-            {
-                throw;
-            }
+            return db.Role.Where(item => item.SiteId == SiteId || item.SiteId == null);
         }
 
 
         public Role AddRole(Role Role)
         {
-            try
-            {
-                db.Role.Add(Role);
-                db.SaveChanges();
-                return Role;
-            }
-            catch
-            {
-                throw;
-            }
+            db.Role.Add(Role);
+            db.SaveChanges();
+            return Role;
         }
 
         public Role UpdateRole(Role Role)
         {
-            try
-            {
-                db.Entry(Role).State = EntityState.Modified;
-                db.SaveChanges();
-                return Role;
-            }
-            catch
-            {
-                throw;
-            }
+            db.Entry(Role).State = EntityState.Modified;
+            db.SaveChanges();
+            return Role;
         }
 
         public Role GetRole(int RoleId)
         {
-            try
-            {
-                return db.Role.Find(RoleId);
-            }
-            catch
-            {
-                throw;
-            }
+            return db.Role.Find(RoleId);
         }
 
         public void DeleteRole(int RoleId)
         {
-            try
-            {
-                Role Role = db.Role.Find(RoleId);
-                db.Role.Remove(Role);
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            Role Role = db.Role.Find(RoleId);
+            db.Role.Remove(Role);
+            db.SaveChanges();
         }
     }
 }

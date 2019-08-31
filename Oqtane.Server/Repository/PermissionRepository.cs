@@ -22,80 +22,46 @@ namespace Oqtane.Repository
 
         public IEnumerable<Permission> GetPermissions(int SiteId, string EntityName)
         {
-            try
-            {
-                return db.Permission.Where(item => item.SiteId == SiteId)
-                    .Where(item => item.EntityName == EntityName)
-                    .Include(item => item.Role); // eager load roles
-            }
-            catch
-            {
-                throw;
-            }
+            return db.Permission.Where(item => item.SiteId == SiteId)
+                .Where(item => item.EntityName == EntityName)
+                .Include(item => item.Role); // eager load roles
         }
 
         public IEnumerable<Permission> GetPermissions(string EntityName, int EntityId)
         {
-            try
-            {
-                return db.Permission.Where(item => item.EntityName == EntityName)
-                    .Where(item => item.EntityId == EntityId)
-                    .Include(item => item.Role); // eager load roles
-            }
-            catch
-            {
-                throw;
-            }
+            return db.Permission.Where(item => item.EntityName == EntityName)
+                .Where(item => item.EntityId == EntityId)
+                .Include(item => item.Role); // eager load roles
         }
 
         public IEnumerable<Permission> GetPermissions(string EntityName, int EntityId, string PermissionName)
         {
-            try
-            {
-                return db.Permission.Where(item => item.EntityName == EntityName)
-                    .Where(item => item.EntityId == EntityId)
-                    .Where(item => item.PermissionName == PermissionName)
-                    .Include(item => item.Role); // eager load roles
-            }
-            catch
-            {
-                throw;
-            }
+            return db.Permission.Where(item => item.EntityName == EntityName)
+                .Where(item => item.EntityId == EntityId)
+                .Where(item => item.PermissionName == PermissionName)
+                .Include(item => item.Role); // eager load roles
         }
 
         public Permission AddPermission(Permission Permission)
         {
-            try
-            {
-                db.Permission.Add(Permission);
-                db.SaveChanges();
-                return Permission;
-            }
-            catch
-            {
-                throw;
-            }
+            db.Permission.Add(Permission);
+            db.SaveChanges();
+            return Permission;
         }
 
         public Permission UpdatePermission(Permission Permission)
         {
-            try
-            {
-                db.Entry(Permission).State = EntityState.Modified;
-                db.SaveChanges();
-                return Permission;
-            }
-            catch
-            {
-                throw;
-            }
+            db.Entry(Permission).State = EntityState.Modified;
+            db.SaveChanges();
+            return Permission;
         }
 
         public void UpdatePermissions(int SiteId, string EntityName, int EntityId, string Permissions)
         {
             // get current permissions and delete
-            List<Permission> permissions = db.Permission.Where(item => item.EntityName == EntityName)
-                .Where(item => item.EntityId == EntityId).ToList();
+            IEnumerable<Permission> permissions = db.Permission
+                .Where(item => item.EntityName == EntityName)
+                .Where(item => item.EntityId == EntityId);
             foreach(Permission permission in permissions)
             {
                 db.Permission.Remove(permission);
@@ -111,32 +77,18 @@ namespace Oqtane.Repository
 
         public Permission GetPermission(int PermissionId)
         {
-            try
-            {
-                return db.Permission.Find(PermissionId);
-            }
-            catch
-            {
-                throw;
-            }
+            return db.Permission.Find(PermissionId);
         }
 
         public void DeletePermission(int PermissionId)
         {
-            try
-            {
-                Permission Permission = db.Permission.Find(PermissionId);
-                db.Permission.Remove(Permission);
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            Permission Permission = db.Permission.Find(PermissionId);
+            db.Permission.Remove(Permission);
+            db.SaveChanges();
         }
 
         // permissions are stored in the format "{permissionname:!rolename1;![userid1];rolename2;rolename3;[userid2];[userid3]}" where "!" designates Deny permissions
-        public string EncodePermissions(int EntityId, List<Permission> Permissions)
+        public string EncodePermissions(int EntityId, IEnumerable<Permission> Permissions)
         {
             List<PermissionString> permissionstrings = new List<PermissionString>();
             string permissionname = "";
@@ -189,7 +141,7 @@ namespace Oqtane.Repository
             return JsonSerializer.Serialize(permissionstrings);
         }
 
-        public List<Permission> DecodePermissions(string PermissionStrings, int SiteId, string EntityName, int EntityId)
+        public IEnumerable<Permission> DecodePermissions(string PermissionStrings, int SiteId, string EntityName, int EntityId)
         {
             List<Permission> permissions = new List<Permission>();
             List<Role> roles = Roles.GetRoles(SiteId, true).ToList();

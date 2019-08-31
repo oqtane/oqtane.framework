@@ -20,72 +20,37 @@ namespace Oqtane.Repository
 
         public IEnumerable<Alias> GetAliases()
         {
-            try
+            return _cache.GetOrCreate("aliases", entry =>
             {
-                return _cache.GetOrCreate("aliases", entry =>
-                {
-                    entry.SlidingExpiration = TimeSpan.FromMinutes(30);
-                    return db.Alias.ToList();
-                });
-            }
-            catch
-            {
-                throw;
-            }
+                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+                return db.Alias.ToList();
+            });
         }
 
         public Alias AddAlias(Alias Alias)
         {
-            try
-            {
-                db.Alias.Add(Alias);
-                db.SaveChanges();
-                return Alias;
-            }
-            catch
-            {
-                throw;
-            }
+            db.Alias.Add(Alias);
+            db.SaveChanges();
+            return Alias;
         }
 
         public Alias UpdateAlias(Alias Alias)
         {
-            try
-            {
-                db.Entry(Alias).State = EntityState.Modified;
-                db.SaveChanges();
-                return Alias;
-            }
-            catch
-            {
-                throw;
-            }
+            db.Entry(Alias).State = EntityState.Modified;
+            db.SaveChanges();
+            return Alias;
         }
 
         public Alias GetAlias(int AliasId)
         {
-            try
-            {
-                return db.Alias.Find(AliasId);
-            }
-            catch
-            {
-                throw;
-            }
+            return db.Alias.Find(AliasId);
         }
 
         public void DeleteAlias(int AliasId)
         {
-            try
-            {
-                Alias alias = db.Alias.Find(AliasId);
-                db.Alias.Remove(alias);
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            Alias alias = db.Alias.Find(AliasId);
+            db.Alias.Remove(alias);
+            db.SaveChanges();
         }
     }
 }

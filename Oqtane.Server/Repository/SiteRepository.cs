@@ -16,68 +16,33 @@ namespace Oqtane.Repository
             
         public IEnumerable<Site> GetSites()
         {
-            try
-            {
-                return db.Site.ToList();
-            }
-            catch
-            {
-                throw;
-            }
+            return db.Site;
         }
 
         public Site AddSite(Site Site)
         {
-            try
-            {
-                db.Site.Add(Site);
-                db.SaveChanges();
-                return Site;
-            }
-            catch
-            {
-                throw;
-            }
+            db.Site.Add(Site);
+            db.SaveChanges();
+            return Site;
         }
 
         public Site UpdateSite(Site Site)
         {
-            try
-            {
-                db.Entry(Site).State = EntityState.Modified;
-                db.SaveChanges();
-                return Site;
-            }
-            catch
-            {
-                throw;
-            }
+            db.Entry(Site).State = EntityState.Modified;
+            db.SaveChanges();
+            return Site;
         }
 
         public Site GetSite(int siteId)
         {
-            try
-            {
-                return db.Site.Find(siteId);
-            }
-            catch
-            {
-                throw;
-            }
+            return db.Site.Find(siteId);
         }
 
         public void DeleteSite(int siteId)
         {
-            try
-            {
-                Site site = db.Site.Find(siteId);
-                db.Site.Remove(site);
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            Site site = db.Site.Find(siteId);
+            db.Site.Remove(site);
+            db.SaveChanges();
         }
     }
 }

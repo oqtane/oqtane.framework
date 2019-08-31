@@ -35,28 +35,14 @@ namespace Oqtane.Repository
 
         public Alias GetAlias()
         {
-            try
-            {
-                IEnumerable<Alias> aliases = _aliasrepository.GetAliases(); // cached
-                return aliases.Where(item => item.Name == aliasname).FirstOrDefault();
-            }
-            catch
-            {
-                throw;
-            }
+            IEnumerable<Alias> aliases = _aliasrepository.GetAliases(); // cached
+            return aliases.Where(item => item.Name == aliasname).FirstOrDefault();
         }
 
         public Tenant GetTenant()
         {
-            try
-            {
-                IEnumerable<Tenant> tenants = _tenantrepository.GetTenants(); // cached
-                return tenants.Where(item => item.TenantId == GetAlias().TenantId).FirstOrDefault();
-            }
-            catch
-            {
-                throw;
-            }
+            IEnumerable<Tenant> tenants = _tenantrepository.GetTenants(); // cached
+            return tenants.Where(item => item.TenantId == GetAlias().TenantId).FirstOrDefault();
         }
     }
 }

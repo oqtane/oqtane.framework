@@ -16,94 +16,45 @@ namespace Oqtane.Repository
 
         public IEnumerable<SiteUser> GetSiteUsers()
         {
-            try
-            {
-                return db.SiteUser.ToList();
-            }
-            catch
-            {
-                throw;
-            }
+            return db.SiteUser;
         }
         public IEnumerable<SiteUser> GetSiteUsers(int SiteId)
         {
-            try
-            {
-                return db.SiteUser.Where(item => item.SiteId == SiteId)
-                    .Include(item => item.User) // eager load users
-                    .ToList();
-            }
-            catch
-            {
-                throw;
-            }
+            return db.SiteUser.Where(item => item.SiteId == SiteId)
+                .Include(item => item.User); // eager load users
         }
 
         public SiteUser AddSiteUser(SiteUser SiteUser)
         {
-            try
-            {
-                db.SiteUser.Add(SiteUser);
-                db.SaveChanges();
-                return SiteUser;
-            }
-            catch
-            {
-                throw;
-            }
+            db.SiteUser.Add(SiteUser);
+            db.SaveChanges();
+            return SiteUser;
         }
 
         public SiteUser UpdateSiteUser(SiteUser SiteUser)
         {
-            try
-            {
-                db.Entry(SiteUser).State = EntityState.Modified;
-                db.SaveChanges();
-                return SiteUser;
-            }
-            catch
-            {
-                throw;
-            }
+            db.Entry(SiteUser).State = EntityState.Modified;
+            db.SaveChanges();
+            return SiteUser;
         }
 
         public SiteUser GetSiteUser(int SiteUserId)
         {
-            try
-            {
-                return db.SiteUser.Include(item => item.User) // eager load users
-                    .SingleOrDefault(item => item.SiteUserId == SiteUserId);
-            }
-            catch
-            {
-                throw;
-            }
+            return db.SiteUser.Include(item => item.User) // eager load users
+                .SingleOrDefault(item => item.SiteUserId == SiteUserId);
         }
 
         public SiteUser GetSiteUser(int SiteId, int UserId)
         {
-            try
-            {
-                return db.SiteUser.Where(item => item.SiteId == SiteId).Where(item => item.UserId == UserId).FirstOrDefault();
-            }
-            catch
-            {
-                throw;
-            }
+            return db.SiteUser.Where(item => item.SiteId == SiteId)
+                .Where(item => item.UserId == UserId).FirstOrDefault();
         }
 
         public void DeleteSiteUser(int SiteUserId)
         {
-            try
-            {
-                SiteUser SiteUser = db.SiteUser.Find(SiteUserId);
-                db.SiteUser.Remove(SiteUser);
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            SiteUser SiteUser = db.SiteUser.Find(SiteUserId);
+            db.SiteUser.Remove(SiteUser);
+            db.SaveChanges();
         }
     }
 }
