@@ -11,6 +11,7 @@
         public string Contact { get; set; }
         public string License { get; set; }
         public string Dependencies { get; set; }
+        public string Permissions { get; set; }
         public string ControlTypeTemplate { get; set; }
         public string ControlTypeRoutes { get; set; }
         public string AssemblyName { get; set; }
