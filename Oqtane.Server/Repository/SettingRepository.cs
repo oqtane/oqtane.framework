@@ -16,69 +16,34 @@ namespace Oqtane.Repository
 
         public IEnumerable<Setting> GetSettings(string EntityName, int EntityId)
         {
-            try
-            {
-                return db.Setting.Where(item => item.EntityName == EntityName)
-                    .Where(item => item.EntityId == EntityId).ToList();
-            }
-            catch
-            {
-                throw;
-            }
+            return db.Setting.Where(item => item.EntityName == EntityName)
+                .Where(item => item.EntityId == EntityId);
         }
 
         public Setting AddSetting(Setting Setting)
         {
-            try
-            {
-                db.Setting.Add(Setting);
-                db.SaveChanges();
-                return Setting;
-            }
-            catch
-            {
-                throw;
-            }
+            db.Setting.Add(Setting);
+            db.SaveChanges();
+            return Setting;
         }
 
         public Setting UpdateSetting(Setting Setting)
         {
-            try
-            {
-                db.Entry(Setting).State = EntityState.Modified;
-                db.SaveChanges();
-                return Setting;
-            }
-            catch
-            {
-                throw;
-            }
+            db.Entry(Setting).State = EntityState.Modified;
+            db.SaveChanges();
+            return Setting;
         }
 
         public Setting GetSetting(int SettingId)
         {
-            try
-            {
-                return db.Setting.Find(SettingId);
-            }
-            catch
-            {
-                throw;
-            }
+            return db.Setting.Find(SettingId);
         }
 
         public void DeleteSetting(int SettingId)
         {
-            try
-            {
-                Setting Setting = db.Setting.Find(SettingId);
-                db.Setting.Remove(Setting);
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            Setting Setting = db.Setting.Find(SettingId);
+            db.Setting.Remove(Setting);
+            db.SaveChanges();
         }
     }
 }

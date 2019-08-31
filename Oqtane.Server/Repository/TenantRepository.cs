@@ -21,72 +21,37 @@ namespace Oqtane.Repository
 
         public IEnumerable<Tenant> GetTenants()
         {
-            try
+            return _cache.GetOrCreate("tenants", entry =>
             {
-                return _cache.GetOrCreate("tenants", entry =>
-                {
-                    entry.SlidingExpiration = TimeSpan.FromMinutes(30);
-                    return db.Tenant.ToList();
-                });
-            }
-            catch
-            {
-                throw;
-            }
+                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+                return db.Tenant.ToList();
+            });
         }
 
         public Tenant AddTenant(Tenant Tenant)
         {
-            try
-            {
-                db.Tenant.Add(Tenant);
-                db.SaveChanges();
-                return Tenant;
-            }
-            catch
-            {
-                throw;
-            }
+            db.Tenant.Add(Tenant);
+            db.SaveChanges();
+            return Tenant;
         }
 
         public Tenant UpdateTenant(Tenant Tenant)
         {
-            try
-            {
-                db.Entry(Tenant).State = EntityState.Modified;
-                db.SaveChanges();
-                return Tenant;
-            }
-            catch
-            {
-                throw;
-            }
+            db.Entry(Tenant).State = EntityState.Modified;
+            db.SaveChanges();
+            return Tenant;
         }
 
         public Tenant GetTenant(int TenantId)
         {
-            try
-            {
-                return db.Tenant.Find(TenantId);
-            }
-            catch
-            {
-                throw;
-            }
+            return db.Tenant.Find(TenantId);
         }
 
         public void DeleteTenant(int TenantId)
-        {
-            try
-            {
-                Tenant tenant = db.Tenant.Find(TenantId);
-                db.Tenant.Remove(tenant);
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+        { 
+            Tenant tenant = db.Tenant.Find(TenantId);
+            db.Tenant.Remove(tenant);
+            db.SaveChanges();
         }
     }
 }

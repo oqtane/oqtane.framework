@@ -18,97 +18,54 @@ namespace Oqtane.Repository
 
         public IEnumerable<PageModule> GetPageModules()
         {
-            try
-            {
-                return db.PageModule.ToList();
-            }
-            catch
-            {
-                throw;
-            }
+            return db.PageModule;
         }
         public IEnumerable<PageModule> GetPageModules(int PageId)
         {
-            try
+            IEnumerable<PageModule> pagemodules = db.PageModule.Where(item => item.PageId == PageId)
+                .Include(item => item.Module); // eager load modules
+            if (pagemodules != null && pagemodules.Any())
             {
-                List<PageModule> pagemodules = db.PageModule.Where(item => item.PageId == PageId)
-                    .Include(item => item.Module) // eager load modules
-                    .ToList();
-                if (pagemodules != null && pagemodules.Any())
+                IEnumerable<Permission> permissions = Permissions.GetPermissions(pagemodules.FirstOrDefault().Module.SiteId, "Module").ToList();
+                foreach (PageModule pagemodule in pagemodules)
                 {
-                    List<Permission> permissions = Permissions.GetPermissions(pagemodules.FirstOrDefault().Module.SiteId, "Module").ToList();
-                    foreach (PageModule pagemodule in pagemodules)
-                    {
-                        pagemodule.Module.Permissions = Permissions.EncodePermissions(pagemodule.ModuleId, permissions);
-                    }
+                    pagemodule.Module.Permissions = Permissions.EncodePermissions(pagemodule.ModuleId, permissions);
                 }
-                return pagemodules;
             }
-            catch
-            {
-                throw;
-            }
+            return pagemodules;
         }
 
         public PageModule AddPageModule(PageModule PageModule)
         {
-            try
-            {
-                db.PageModule.Add(PageModule);
-                db.SaveChanges();
-                return PageModule;
-            }
-            catch
-            {
-                throw;
-            }
+            db.PageModule.Add(PageModule);
+            db.SaveChanges();
+            return PageModule;
         }
 
         public PageModule UpdatePageModule(PageModule PageModule)
         {
-            try
-            {
-                db.Entry(PageModule).State = EntityState.Modified;
-                db.SaveChanges();
-                return PageModule;
-            }
-            catch
-            {
-                throw;
-            }
+            db.Entry(PageModule).State = EntityState.Modified;
+            db.SaveChanges();
+            return PageModule;
         }
 
         public PageModule GetPageModule(int PageModuleId)
         {
-            try
+            PageModule pagemodule = db.PageModule.Include(item => item.Module) // eager load modules
+                .SingleOrDefault(item => item.PageModuleId == PageModuleId);
+            if (pagemodule != null)
             {
-                PageModule pagemodule = db.PageModule.Include(item => item.Module) // eager load modules
-                    .SingleOrDefault(item => item.PageModuleId == PageModuleId);
-                if (pagemodule != null)
-                {
-                    List<Permission> permissions = Permissions.GetPermissions("Module", pagemodule.ModuleId).ToList();
-                    pagemodule.Module.Permissions = Permissions.EncodePermissions(pagemodule.ModuleId, permissions);
-                }
-                return pagemodule;
+                IEnumerable<Permission> permissions = Permissions.GetPermissions("Module", pagemodule.ModuleId);
+                pagemodule.Module.Permissions = Permissions.EncodePermissions(pagemodule.ModuleId, permissions);
             }
-            catch
-            {
-                throw;
-            }
+            return pagemodule;
         }
 
         public void DeletePageModule(int PageModuleId)
         {
-            try
-            {
-                PageModule PageModule = db.PageModule.Find(PageModuleId);
-                db.PageModule.Remove(PageModule);
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            PageModule PageModule = db.PageModule.Find(PageModuleId);
+            db.PageModule.Remove(PageModule);
+            db.SaveChanges();
         }
     }
 }
