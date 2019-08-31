@@ -49,23 +49,24 @@ namespace Oqtane.Repository
                     if (index == -1)
                     {
                         /// determine if this theme implements ITheme
-                        Type themeType = assembly.GetTypes()
+                        Type themetype = assembly.GetTypes()
                             .Where(item => item.Namespace != null)
                             .Where(item => item.Namespace.StartsWith(Namespace))
                             .Where(item => item.GetInterfaces().Contains(typeof(ITheme))).FirstOrDefault();
-                        if (themeType != null)
+                        if (themetype != null)
                         {
-                            var themeObject = Activator.CreateInstance(themeType);
+                            var themeobject = Activator.CreateInstance(themetype);
+                            Dictionary<string, string> properties = (Dictionary<string, string>)themetype.GetProperty("Properties").GetValue(themeobject);
                             theme = new Theme
                             {
                                 ThemeName = Namespace,
-                                Name = (string)themeType.GetProperty("Name").GetValue(themeObject),
-                                Version = (string)themeType.GetProperty("Version").GetValue(themeObject),
-                                Owner = (string)themeType.GetProperty("Owner").GetValue(themeObject),
-                                Url = (string)themeType.GetProperty("Url").GetValue(themeObject),
-                                Contact = (string)themeType.GetProperty("Contact").GetValue(themeObject),
-                                License = (string)themeType.GetProperty("License").GetValue(themeObject),
-                                Dependencies = (string)themeType.GetProperty("Dependencies").GetValue(themeObject),
+                                Name = GetProperty(properties, "Name"),
+                                Version = GetProperty(properties, "Version"),
+                                Owner = GetProperty(properties, "Owner"),
+                                Url = GetProperty(properties, "Url"),
+                                Contact = GetProperty(properties, "Contact"),
+                                License = GetProperty(properties, "License"),
+                                Dependencies = GetProperty(properties, "Dependencies"),
                                 ThemeControls = "",
                                 PaneLayouts = "",
                                 ContainerControls = "",
@@ -121,6 +122,16 @@ namespace Oqtane.Repository
         public IEnumerable<Theme> GetThemes()
         {
             return Themes;
+        }
+
+        private string GetProperty(Dictionary<string, string> Properties, string Key)
+        {
+            string Value = "";
+            if (Properties.ContainsKey(Key))
+            {
+                Value = Properties[Key];
+            }
+            return Value;
         }
     }
 }

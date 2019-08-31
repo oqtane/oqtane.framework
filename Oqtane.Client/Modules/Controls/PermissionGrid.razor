@@ -81,9 +81,7 @@
     [Parameter]
     public string Permissions { get; set; }
 
-    [Parameter]
-    public string PermissionNames { get; set; } // optional - can be used to specify permissions order or add custom permissions
-
+    string permissionnames = "";
     List<Role> roles;
     List<PermissionString> permissions = new List<PermissionString>();
     List<User> users = new List<User>();
@@ -92,14 +90,15 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (string.IsNullOrEmpty(PermissionNames))
+        permissionnames = PageState.ModuleDefinitions.Find(item => item.ModuleDefinitionName == ModuleState.ModuleDefinitionName).Permissions;
+        if (string.IsNullOrEmpty(permissionnames))
         {
-            PermissionNames = "View,Edit";
+            permissionnames = "View,Edit";
         }
         roles = await RoleService.GetRolesAsync(ModuleState.SiteId);
         roles.Insert(0, new Role { Name = Constants.AllUsersRole });
 
-        foreach (string permissionname in PermissionNames.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+        foreach (string permissionname in permissionnames.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
         {
             permissions.Add(new PermissionString { PermissionName = permissionname, Permissions = "" });
         }
