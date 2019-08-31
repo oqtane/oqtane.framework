@@ -199,69 +199,64 @@ GO
 Create foreign key relationships
 
 */
-ALTER TABLE [dbo].[Module]  WITH CHECK ADD  CONSTRAINT [FK_Module_Site] FOREIGN KEY([SiteId])
+ALTER TABLE [dbo].[Module] WITH CHECK ADD CONSTRAINT [FK_Module_Site] FOREIGN KEY([SiteId])
 REFERENCES [dbo].[Site] ([SiteId])
 ON DELETE CASCADE
 GO
 
-ALTER TABLE [dbo].[Page]  WITH CHECK ADD  CONSTRAINT [FK_Page_Site] FOREIGN KEY([SiteId])
+ALTER TABLE [dbo].[Page] WITH CHECK ADD CONSTRAINT [FK_Page_Site] FOREIGN KEY([SiteId])
 REFERENCES [dbo].[Site] ([SiteId])
 ON DELETE CASCADE
 GO
 
-ALTER TABLE [dbo].[PageModule]  WITH CHECK ADD  CONSTRAINT [FK_PageModule_Module] FOREIGN KEY([ModuleId])
+ALTER TABLE [dbo].[PageModule] WITH CHECK ADD CONSTRAINT [FK_PageModule_Module] FOREIGN KEY([ModuleId])
 REFERENCES [dbo].[Module] ([ModuleId])
 GO
 
-ALTER TABLE [dbo].[PageModule]  WITH CHECK ADD  CONSTRAINT [FK_PageModule_Page] FOREIGN KEY([PageId])
+ALTER TABLE [dbo].[PageModule] WITH CHECK ADD CONSTRAINT [FK_PageModule_Page] FOREIGN KEY([PageId])
 REFERENCES [dbo].[Page] ([PageId])
 ON DELETE CASCADE
 GO
 
-ALTER TABLE [dbo].[SiteUser]  WITH CHECK ADD  CONSTRAINT [FK_SiteUser_Site] FOREIGN KEY([SiteId])
+ALTER TABLE [dbo].[SiteUser] WITH CHECK ADD CONSTRAINT [FK_SiteUser_Site] FOREIGN KEY([SiteId])
 REFERENCES [dbo].[Site] ([SiteId])
 ON DELETE CASCADE
 GO
 
-ALTER TABLE [dbo].[SiteUser]  WITH CHECK ADD  CONSTRAINT [FK_SiteUser_User] FOREIGN KEY([UserId])
+ALTER TABLE [dbo].[SiteUser] WITH CHECK ADD CONSTRAINT [FK_SiteUser_User] FOREIGN KEY([UserId])
 REFERENCES [dbo].[User] ([UserId])
 GO
 
-ALTER TABLE [dbo].[HtmlText]  WITH CHECK ADD  CONSTRAINT [FK_HtmlText_Module] FOREIGN KEY([ModuleId])
+ALTER TABLE [dbo].[HtmlText] WITH CHECK ADD CONSTRAINT [FK_HtmlText_Module] FOREIGN KEY([ModuleId])
 REFERENCES [dbo].[Module] ([ModuleId])
 ON DELETE CASCADE
 GO
 
-ALTER TABLE dbo.Role ADD CONSTRAINT FK_Role_Site FOREIGN KEY (SiteId) 
-REFERENCES dbo.Site (SiteId) 
+ALTER TABLE [dbo].[Role]  WITH CHECK ADD CONSTRAINT [FK_Role_Site] FOREIGN KEY ([SiteId]) 
+REFERENCES [dbo].[Site] ([SiteId]) 
 ON DELETE CASCADE 
 GO
 
-ALTER TABLE dbo.UserRole ADD CONSTRAINT FK_UserRole_User FOREIGN KEY (UserId) 
-REFERENCES dbo.[User] (UserId) 
-ON DELETE  CASCADE 
-GO
-
-ALTER TABLE dbo.UserRole ADD CONSTRAINT FK_UserRole_Role FOREIGN KEY (RoleId) 
-REFERENCES dbo.Role (RoleId) 
-GO
-
-ALTER TABLE dbo.Permission ADD CONSTRAINT FK_Permission_Site FOREIGN KEY (SiteId) 
-REFERENCES dbo.Site (SiteId) 
+ALTER TABLE [dbo].[UserRole] WITH CHECK ADD CONSTRAINT [FK_UserRole_User] FOREIGN KEY ([UserId]) 
+REFERENCES [dbo].[User] ([UserId]) 
 ON DELETE CASCADE 
 GO
 
-ALTER TABLE dbo.Permission ADD CONSTRAINT FK_Permission_User FOREIGN KEY (UserId) 
-REFERENCES dbo.[User] (UserId) 	
+ALTER TABLE [dbo].[UserRole] WITH CHECK ADD CONSTRAINT [FK_UserRole_Role] FOREIGN KEY ([RoleId]) 
+REFERENCES [dbo].[Role] ([RoleId]) 
 GO
 
-ALTER TABLE dbo.Permission ADD CONSTRAINT FK_Permission_Role FOREIGN KEY (RoleId) 
-REFERENCES dbo.Role (RoleId) 
-GO
-
-ALTER TABLE dbo.PageModule ADD CONSTRAINT FK_PageModule_Page FOREIGN KEY (PageId) 
-REFERENCES dbo.Page (PageId) 
+ALTER TABLE [dbo].[Permission] WITH CHECK ADD CONSTRAINT [FK_Permission_Site] FOREIGN KEY ([SiteId]) 
+REFERENCES [dbo].[Site] ([SiteId]) 
 ON DELETE CASCADE 
+GO
+
+ALTER TABLE [dbo].[Permission] WITH CHECK ADD CONSTRAINT [FK_Permission_User] FOREIGN KEY ([UserId]) 
+REFERENCES [dbo].[User] ([UserId]) 	
+GO
+
+ALTER TABLE [dbo].[Permission] WITH CHECK ADD CONSTRAINT [FK_Permission_Role] FOREIGN KEY ([RoleId]) 
+REFERENCES [dbo].[Role] ([RoleId]) 
 GO
 
 /*  
