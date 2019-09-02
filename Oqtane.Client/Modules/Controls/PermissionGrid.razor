@@ -28,7 +28,9 @@
                             @foreach (PermissionString permission in permissions)
                             {
                                 var p = permission;
-                                <td align="center"><input type="checkbox" class="form-check-input" checked=@GetPermissionValue(p.Permissions, role.Name) disabled=@GetPermissionDisabled(role.Name) @onchange="@(e => PermissionChanged(e, p.PermissionName, role.Name))" /></td>
+                                <td align="center">
+                                    <TriStateCheckBox Value=@GetPermissionValue(p.Permissions, role.Name) Disabled=@GetPermissionDisabled(role.Name) OnChange="@(e => PermissionChanged(e, p.PermissionName, role.Name))" />
+                                </td>
                             }
                         </tr>
                     }
@@ -51,12 +53,15 @@
                     <tbody>
                         @foreach (User user in users)
                         {
+                            string userid = "[" + user.UserId.ToString() + "]";
                             <tr>
                                 <td>@user.DisplayName</td>
                                 @foreach (PermissionString permission in permissions)
                                 {
                                     var p = permission;
-                                    <td align="center"><input type="checkbox" class="form-check-input" checked=@GetPermissionValue(p.Permissions, "[" + user.UserId.ToString() + "]") @onchange="@(e => PermissionChanged(e, p.PermissionName, "[" + user.UserId.ToString() + "]"))" /></td>
+                                    <td align="center">
+                                        <TriStateCheckBox Value=@GetPermissionValue(p.Permissions, userid) Disabled=@GetPermissionDisabled(userid) OnChange="@(e => PermissionChanged(e, p.PermissionName, userid))" />
+                                    </td>
                                 }
                             </tr>
                         }
@@ -125,15 +130,22 @@
         }
     }
 
-    private bool GetPermissionValue(string Permissions, string SecurityKey)
+    private bool? GetPermissionValue(string Permissions, string SecurityKey)
     {
-        if ((";" + Permissions + ";").Contains(";" + SecurityKey + ";"))
+        if ((";" + Permissions + ";").Contains(";" + "!" + SecurityKey + ";"))
         {
-            return true;
+            return false; // deny permission
         }
         else
         {
-            return false;
+            if ((";" + Permissions + ";").Contains(";" + SecurityKey + ";"))
+            {
+                return true; // grant permission
+            }
+            else
+            {
+                return null; // not specified
+            }
         }
     }
 
@@ -169,20 +181,27 @@
         username = "";
     }
 
-    private void PermissionChanged(UIChangeEventArgs e, string PermissionName, string SecurityId)
+    private void PermissionChanged(bool? Value, string PermissionName, string SecurityId)
     {
-        bool selected = (bool)e.Value;
+        bool? selected = Value;
         PermissionString permission = permissions.Find(item => item.PermissionName == PermissionName);
         if (permission != null)
         {
             List<string> ids = permission.Permissions.Split(';').ToList();
-            if (selected)
+
+            ids.Remove(SecurityId); // remove grant permission
+            ids.Remove("!" + SecurityId); // remove deny permission
+
+            switch (selected)
             {
-                ids.Add(SecurityId);
-            }
-            else
-            {
-                ids.Remove(SecurityId);
+                case true:
+                    ids.Add(SecurityId); // add grant permission
+                    break;
+                case false:
+                    ids.Add("!" + SecurityId); // add deny permission
+                    break;
+                case null:
+                    break; // permission not specified
             }
             permissions[permissions.FindIndex(item => item.PermissionName == PermissionName)].Permissions = string.Join(";", ids.ToArray());
         }

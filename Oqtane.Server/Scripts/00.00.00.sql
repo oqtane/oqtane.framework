@@ -179,6 +179,28 @@ CREATE TABLE [dbo].[Setting](
 )
 GO
 
+CREATE TABLE [dbo].[Profile](
+	[ProfileId] [int] IDENTITY(1,1) NOT NULL,
+	[SiteId] [int] NULL,
+	[Name] [nvarchar](50) NOT NULL,
+	[Category] [nvarchar](50) NOT NULL,
+	[ViewOrder] [int] NOT NULL,
+	[MaxLength] [int] NOT NULL,
+	[DefaultValue] [nvarchar](2000) NULL,
+	[IsRequired] [bit] NOT NULL,
+	[IsPrivate] [bit] NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedOn] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NOT NULL,
+	[ModifiedOn] [datetime] NOT NULL,
+  CONSTRAINT [PK_Profile] PRIMARY KEY CLUSTERED 
+  (
+	[ProfileId] ASC
+  )
+)
+
+GO
+
 CREATE TABLE [dbo].[HtmlText](
 	[HtmlTextId] [int] IDENTITY(1,1) NOT NULL,
 	[ModuleId] [int] NOT NULL,
@@ -257,6 +279,11 @@ GO
 
 ALTER TABLE [dbo].[Permission] WITH CHECK ADD CONSTRAINT [FK_Permission_Role] FOREIGN KEY ([RoleId]) 
 REFERENCES [dbo].[Role] ([RoleId]) 
+GO
+
+ALTER TABLE [dbo].[Profile] WITH NOCHECK ADD CONSTRAINT [FK_Profile_Sites] FOREIGN KEY([SiteId])
+REFERENCES [dbo].[Site] ([SiteId])
+ON DELETE CASCADE
 GO
 
 /*  
