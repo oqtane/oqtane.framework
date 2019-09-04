@@ -10,73 +10,71 @@
 @if (roles != null)
 {
     <br />
-    <div class="container">
-        <div class="form-group">
-            <table class="table">
-                <tbody>
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Role</th>
+                @foreach (PermissionString permission in permissions)
+                {
+                    <th style="text-align: center;">@permission.PermissionName @EntityName</th>
+                }
+            </tr>
+            @foreach (Role role in roles)
+            {
+                <tr>
+                    <td>@role.Name</td>
+                    @foreach (PermissionString permission in permissions)
+                    {
+                        var p = permission;
+                        <td style="text-align: center;">
+                            <TriStateCheckBox Value=@GetPermissionValue(p.Permissions, role.Name) Disabled=@GetPermissionDisabled(role.Name) OnChange="@(e => PermissionChanged(e, p.PermissionName, role.Name))" />
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+    @if (@users.Count != 0)
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    @foreach (PermissionString permission in permissions)
+                    {
+                        <th style="text-align: center;">@permission.PermissionName @EntityName</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (User user in users)
+                {
+                    string userid = "[" + user.UserId.ToString() + "]";
                     <tr>
-                        <th>Role</th>
+                        <td>@user.DisplayName</td>
                         @foreach (PermissionString permission in permissions)
                         {
-                            <th>@permission.PermissionName @EntityName</th>
+                            var p = permission;
+                            <td style="text-align: center;">
+                                <TriStateCheckBox Value=@GetPermissionValue(p.Permissions, userid) Disabled=@GetPermissionDisabled(userid) OnChange="@(e => PermissionChanged(e, p.PermissionName, userid))" />
+                            </td>
                         }
                     </tr>
-                    @foreach (Role role in roles)
-                    {
-                        <tr>
-                            <td>@role.Name</td>
-                            @foreach (PermissionString permission in permissions)
-                            {
-                                var p = permission;
-                                <td align="center">
-                                    <TriStateCheckBox Value=@GetPermissionValue(p.Permissions, role.Name) Disabled=@GetPermissionDisabled(role.Name) OnChange="@(e => PermissionChanged(e, p.PermissionName, role.Name))" />
-                                </td>
-                            }
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-        @if (@users.Count != 0)
-        {
-            <div class="form-group">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            @foreach (PermissionString permission in permissions)
-                            {
-                                <th>@permission.PermissionName @EntityName</th>
-                            }
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (User user in users)
-                        {
-                            string userid = "[" + user.UserId.ToString() + "]";
-                            <tr>
-                                <td>@user.DisplayName</td>
-                                @foreach (PermissionString permission in permissions)
-                                {
-                                    var p = permission;
-                                    <td align="center">
-                                        <TriStateCheckBox Value=@GetPermissionValue(p.Permissions, userid) Disabled=@GetPermissionDisabled(userid) OnChange="@(e => PermissionChanged(e, p.PermissionName, userid))" />
-                                    </td>
-                                }
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-        <div style="white-space:nowrap;">
-            <label for="Username" class="control-label" style="display:inline-block;">User: </label>
-            <input type="text" name="Username" class="form-control" style="display:inline-block; width: auto !important;" placeholder="Enter Username" @bind="@username" />
-            <button type="button" class="btn btn-primary" style="display:inline-block;" @onclick="@AddUser">Add</button>
-        </div>
-        <br />
-        <ModuleMessage Type="MessageType.Error" Message="@message" />
-    </div>
+                }
+            </tbody>
+        </table>
+    }
+    <table class="table">
+        <tbody>
+            <tr>
+                <td><label for="Username" class="control-label">User: </label></td>
+                <td><input type="text" name="Username" class="form-control" placeholder="Enter Username" @bind="@username" /></td>
+                <td><button type="button" class="btn btn-primary" @onclick="@AddUser">Add</button></td>
+            </tr>
+        </tbody>
+    </table>
+    <br />
+    <ModuleMessage Type="MessageType.Error" Message="@message" />
 }
 
 @code {

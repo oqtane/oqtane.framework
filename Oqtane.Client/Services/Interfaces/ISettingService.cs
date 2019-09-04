@@ -26,6 +26,10 @@ namespace Oqtane.Services
 
         Task<Setting> UpdateModuleSettingsAsync(List<Setting> ModuleSettings, int ModuleId, string SettingName, string SettingValue);
 
+        Task<List<Setting>> GetUserSettingsAsync(int UserId);
+
+        Task<Setting> UpdateUserSettingsAsync(List<Setting> UserSettings, int UserId, string SettingName, string SettingValue);
+
 
         Task<List<Setting>> GetSettingsAsync(string EntityName, int EntityId);
 
@@ -35,9 +39,13 @@ namespace Oqtane.Services
 
         Task<Setting> UpdateSettingAsync(Setting Setting);
 
+        Task<Setting> UpdateSettingsAsync(List<Setting> Settings, string EntityName, int EntityId, string SettingName, string SettingValue);
+
         Task DeleteSettingAsync(int SettingId);
 
 
         string GetSetting(List<Setting> Settings, string SettingName, string DefaultValue);
-    }
+
+        List<Setting> SetSetting(List<Setting> Settings, string EntityName, int EntityId, string SettingName, string SettingValue);
+     }
 }

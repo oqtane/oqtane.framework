@@ -1,0 +1,116 @@
+﻿@using Microsoft.AspNetCore.Components.Routing
+@using Oqtane.Client.Modules.Controls
+@using Oqtane.Modules
+@using Oqtane.Models
+@using Oqtane.Services
+@inherits ModuleBase
+@inject IUriHelper UriHelper
+@inject IUserService UserService
+@inject IProfileService ProfileService
+@inject ISettingService SettingService
+
+<ModuleMessage Message="@message" />
+
+@if (profiles != null)
+{
+    <table class="table table-borderless">
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Name: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@displayname" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Email: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@email" />
+            </td>
+        </tr>
+
+        @foreach (Profile profile in profiles)
+        {
+            var p = profile;
+            if (p.Category != category)
+            {
+                <tr>
+                    <th colspan="2" style="text-align: center;">
+                        @p.Category
+                    </th>
+                </tr>
+                category = p.Category;
+            }
+            <tr>
+                <td>
+                    <label for="@p.Name" class="control-label">@p.Title: </label>
+                </td>
+                <td>
+                    <input class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                </td>
+            </tr>
+        }
+    </table>
+    <button type="button" class="btn btn-primary" @onclick="@SaveUser">Save</button>
+    <button type="button" class="btn btn-secondary" @onclick="@Cancel">Cancel</button>
+}
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.View; } }
+
+    string message = "";
+    string displayname = "";
+    string email = "";
+    List<Profile> profiles;
+    List<Setting> settings;
+    string category = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            displayname = PageState.User.DisplayName;
+            email = PageState.User.Email;
+            profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
+            settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
+        }
+        catch (Exception ex)
+        {
+            message = ex.Message;
+        }
+    }
+
+    private string GetProfileValue(string SettingName, string DefaultValue)
+    {
+        return SettingService.GetSetting(settings, SettingName, DefaultValue);
+    }
+
+    private async Task SaveUser()
+    {
+        User user = PageState.User;
+        user.DisplayName = displayname;
+        user.Email = email;
+        await UserService.UpdateUserAsync(user);
+
+        foreach (Profile profile in profiles)
+        {
+            string value = SettingService.GetSetting(settings, profile.Name, "");
+            await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId, profile.Name, value);
+        }
+
+        UriHelper.NavigateTo("");
+    }
+
+    private void Cancel()
+    {
+        UriHelper.NavigateTo(NavigateUrl("")); // navigate to home
+    }
+
+    private void ProfileChanged(UIChangeEventArgs e, string SettingName)
+    {
+        string value = (string)e.Value;
+        settings = SettingService.SetSetting(settings, "User", PageState.User.UserId, SettingName, value);
+    }
+}

@@ -7,7 +7,7 @@
         <text>...</text>
     </Authorizing>
     <Authorized>
-        <button type="button" class="btn btn-primary" @onclick="@RegisterUser">@context.User.Identity.Name</button>
+        <button type="button" class="btn btn-primary" @onclick="@UpdateProfile">@context.User.Identity.Name</button>
     </Authorized>
     <NotAuthorized>
         <button type="button" class="btn btn-primary" @onclick="@RegisterUser">Register</button>
@@ -20,6 +20,11 @@
     private void RegisterUser()
     {
         UriHelper.NavigateTo(NavigateUrl("register"));
+    }
+
+    private void UpdateProfile()
+    {
+        UriHelper.NavigateTo(NavigateUrl("profile"));
     }
 }
 

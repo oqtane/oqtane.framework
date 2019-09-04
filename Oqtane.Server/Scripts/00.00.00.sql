@@ -183,6 +183,8 @@ CREATE TABLE [dbo].[Profile](
 	[ProfileId] [int] IDENTITY(1,1) NOT NULL,
 	[SiteId] [int] NULL,
 	[Name] [nvarchar](50) NOT NULL,
+	[Title] [nvarchar](50) NOT NULL,
+	[Description] [nvarchar](256) NULL,
 	[Category] [nvarchar](50) NOT NULL,
 	[ViewOrder] [int] NOT NULL,
 	[MaxLength] [int] NOT NULL,
@@ -378,6 +380,35 @@ GO
 SET IDENTITY_INSERT [dbo].[Role] OFF 
 GO
 
+SET IDENTITY_INSERT [dbo].[Profile] ON 
+GO
+INSERT [dbo].[Profile]([ProfileId], [SiteId], [Name], [Title], [Description], [Category], [ViewOrder], [MaxLength], [DefaultValue], [IsRequired], [IsPrivate], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn])
+VALUES (1, 1, 'FirstName', 'First Name', 'Your First Or Given Name', 'Name', 1, 50, '', 1, 0, '', getdate(), '', getdate())
+GO
+INSERT [dbo].[Profile]([ProfileId], [SiteId], [Name], [Title], [Description], [Category], [ViewOrder], [MaxLength], [DefaultValue], [IsRequired], [IsPrivate], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn])
+VALUES (2, 1, 'LastName', 'Last Name', 'Your Last Or family Name', 'Name', 2, 50, '', 1, 0, '', getdate(), '', getdate())
+GO
+INSERT [dbo].[Profile]([ProfileId], [SiteId], [Name], [Title], [Description], [Category], [ViewOrder], [MaxLength], [DefaultValue], [IsRequired], [IsPrivate], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn])
+VALUES (3, 1, 'Street', 'Street', 'Street Or Building Address', 'Address', 3, 50, '', 1, 0, '', getdate(), '', getdate())
+GO
+INSERT [dbo].[Profile]([ProfileId], [SiteId], [Name], [Title], [Description], [Category], [ViewOrder], [MaxLength], [DefaultValue], [IsRequired], [IsPrivate], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn])
+VALUES (4, 1, 'City', 'City', 'City', 'Address', 4, 50, '', 1, 0, '', getdate(), '', getdate())
+GO
+INSERT [dbo].[Profile]([ProfileId], [SiteId], [Name], [Title], [Description], [Category], [ViewOrder], [MaxLength], [DefaultValue], [IsRequired], [IsPrivate], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn])
+VALUES (5, 1, 'Region', 'Region', 'State Or Province', 'Address', 5, 50, '', 1, 0, '', getdate(), '', getdate())
+GO
+INSERT [dbo].[Profile]([ProfileId], [SiteId], [Name], [Title], [Description], [Category], [ViewOrder], [MaxLength], [DefaultValue], [IsRequired], [IsPrivate], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn])
+VALUES (6, 1, 'Country', 'Country', 'Country', 'Address', 6, 50, '', 1, 0, '', getdate(), '', getdate())
+GO
+INSERT [dbo].[Profile]([ProfileId], [SiteId], [Name], [Title], [Description], [Category], [ViewOrder], [MaxLength], [DefaultValue], [IsRequired], [IsPrivate], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn])
+VALUES (7, 1, 'PostalCode', 'Postal Code', 'Postal Code Or Zip Code', 'Address', 7, 50, '', 1, 0, '', getdate(), '', getdate())
+GO
+INSERT [dbo].[Profile]([ProfileId], [SiteId], [Name], [Title], [Description], [Category], [ViewOrder], [MaxLength], [DefaultValue], [IsRequired], [IsPrivate], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn])
+VALUES (8, 1, 'Phone', 'Phone Number', 'Phone Number', 'Contact', 8, 50, '', 1, 0, '', getdate(), '', getdate())
+GO
+SET IDENTITY_INSERT [dbo].[Profile] OFF 
+GO
+
 SET IDENTITY_INSERT [dbo].[Page] ON 
 GO
 INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
@@ -507,6 +538,15 @@ GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 16, 'View', 1, null, 1, '', getdate(), '', getdate()) 
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 16, 'Edit', 1, null, 1, '', getdate(), '', getdate()) 
+GO
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (17, 1, N'Profile', N'profile', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', NULL, 1, 0, N'', '', getdate(), '', getdate())
+GO
+INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 17, 'View', -1, null, 1, '', getdate(), '', getdate()) 
+GO
+INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 17, 'View', 1, null, 1, '', getdate(), '', getdate()) 
+GO
+INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 17, 'Edit', 1, null, 1, '', getdate(), '', getdate()) 
 GO
 SET IDENTITY_INSERT [dbo].[Page] OFF 
 GO
@@ -677,6 +717,15 @@ INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName],
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Module', 20, 'Edit', 1, null, 1, '', getdate(), '', getdate()) 
 GO
+INSERT [dbo].[Module] ([ModuleId], [SiteId], [ModuleDefinitionName], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (21, 1, N'Oqtane.Client.Modules.Admin.Profile, Oqtane.Client', '', getdate(), '', getdate())
+GO
+INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Module', 21, 'View', -1, null, 1, '', getdate(), '', getdate()) 
+GO
+INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Module', 21, 'View', 1, null, 1, '', getdate(), '', getdate()) 
+GO
+INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Module', 21, 'Edit', 1, null, 1, '', getdate(), '', getdate()) 
+GO
 SET IDENTITY_INSERT [dbo].[Module] OFF 
 GO
 
@@ -741,6 +790,9 @@ VALUES (19, 15, 19, N'Register', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Contai
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
 VALUES (20, 16, 20, N'Role Management', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
+GO
+INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (21, 17, 21, N'User Profile', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
 GO
 SET IDENTITY_INSERT [dbo].[PageModule] OFF 
 GO
