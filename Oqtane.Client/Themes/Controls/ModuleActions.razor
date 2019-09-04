@@ -8,75 +8,78 @@
 @inject IUserService UserService
 @inject IPageModuleService PageModuleService
 
-<div class="dropdown" style="@display">
-    <button type="button" class="btn dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
-    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        @foreach (var action in actions)
-        {
-            <a class="dropdown-item" @onclick="@(async () => await ModuleAction(action.Action))">@action.Name</a>
-        }
+@if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, "Edit", ModuleState.Permissions))
+{
+    <div class="dropdown">
+        <button type="button" class="btn dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            @foreach (var action in actions)
+            {
+                <a class="dropdown-item" @onclick="@(async () => await ModuleAction(action.Action))">@action.Name</a>
+            }
+        </div>
     </div>
-</div>
+}
 
 @code {
-    string display = "display: none";
     List<ActionViewModel> actions;
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
-        actions = new List<ActionViewModel>();
-        if (ModuleState.PaneModuleIndex > 0)
+        if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, "Edit", ModuleState.Permissions))
         {
-            actions.Add(new ActionViewModel { Action = "up", Name = "Move Up" });
-        }
-        if (ModuleState.PaneModuleIndex < (ModuleState.PaneModuleCount - 1))
-        {
-            actions.Add(new ActionViewModel { Action = "down", Name = "Move Down" });
-        }
-        foreach (string pane in PageState.Page.Panes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
-        {
-            if (pane != ModuleState.Pane)
+            actions = new List<ActionViewModel>();
+            if (ModuleState.PaneModuleIndex > 0)
             {
-                actions.Add(new ActionViewModel { Action = pane, Name = "Move To " + pane + " Pane" });
+                actions.Add(new ActionViewModel { Action = "up", Name = "Move Up" });
             }
-        }
-        actions.Add(new ActionViewModel { Action = "settings", Name = "Settings" });
-        actions.Add(new ActionViewModel { Action = "delete", Name = "Delete" });
-
-        if (UserSecurity.IsAuthorized(PageState.User, "Edit", ModuleState.Permissions))
-        {
-            display = "display: inline";
+            if (ModuleState.PaneModuleIndex < (ModuleState.PaneModuleCount - 1))
+            {
+                actions.Add(new ActionViewModel { Action = "down", Name = "Move Down" });
+            }
+            foreach (string pane in PageState.Page.Panes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (pane != ModuleState.Pane)
+                {
+                    actions.Add(new ActionViewModel { Action = pane, Name = "Move To " + pane + " Pane" });
+                }
+            }
+            actions.Add(new ActionViewModel { Action = "settings", Name = "Settings" });
+            actions.Add(new ActionViewModel { Action = "delete", Name = "Delete" });
         }
     }
 
     protected async Task ModuleAction(string action)
     {
-        PageModule pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
-
-        string url = NavigateUrl();
-        switch (action)
+        if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, "Edit", ModuleState.Permissions))
         {
-            case "up":
-                pagemodule.Order += -1;
-                await PageModuleService.UpdatePageModuleAsync(pagemodule);
-                break;
-            case "down":
-                pagemodule.Order += 1;
-                await PageModuleService.UpdatePageModuleAsync(pagemodule);
-                break;
-            case "settings":
-                url = EditUrl(pagemodule.ModuleId, "Settings");
-                break;
-            case "delete":
-                await PageModuleService.DeletePageModuleAsync(pagemodule.PageModuleId);
-                break;
-            default: // move to pane
-                pagemodule.Pane = action;
-                await PageModuleService.UpdatePageModuleAsync(pagemodule);
-                break;
+            PageModule pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
+
+            string url = NavigateUrl();
+            switch (action)
+            {
+                case "up":
+                    pagemodule.Order += -1;
+                    await PageModuleService.UpdatePageModuleAsync(pagemodule);
+                    break;
+                case "down":
+                    pagemodule.Order += 1;
+                    await PageModuleService.UpdatePageModuleAsync(pagemodule);
+                    break;
+                case "settings":
+                    url = EditUrl(pagemodule.ModuleId, "Settings");
+                    break;
+                case "delete":
+                    await PageModuleService.DeletePageModuleAsync(pagemodule.PageModuleId);
+                    break;
+                default: // move to pane
+                    pagemodule.Pane = action;
+                    await PageModuleService.UpdatePageModuleAsync(pagemodule);
+                    break;
+            }
+            PageState.Reload = Constants.ReloadPage;
+            UriHelper.NavigateTo(url);
         }
-        PageState.Reload = Constants.ReloadPage;
-        UriHelper.NavigateTo(url);
     }
 
     public class ActionViewModel

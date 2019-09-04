@@ -86,11 +86,13 @@
         List<Module> modules;
         int moduleid = -1;
         string control = "";
+        bool editmode = false;
         int reload = 0;
 
         if (PageState != null)
         {
             reload = PageState.Reload;
+            editmode = PageState.EditMode;
         }
 
         if (PageState == null || reload == Constants.ReloadApplication)
@@ -188,6 +190,7 @@
             {
                 page = pages.Where(item => item.Path == path).FirstOrDefault();
                 reload = Constants.ReloadPage;
+                editmode = false;
             }
 
             user = null;
@@ -238,6 +241,7 @@
                         modules = PageState.Modules;
                     }
                     pagestate.Modules = modules;
+                    pagestate.EditMode = editmode;
                     pagestate.Reload = 0;
 
                     OnStateChange?.Invoke(pagestate);
