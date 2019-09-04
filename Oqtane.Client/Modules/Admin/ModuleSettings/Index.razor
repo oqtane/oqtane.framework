@@ -11,7 +11,8 @@
 @inject IModuleService ModuleService
 @inject IPageModuleService PageModuleService
 
-    <table class="form-group">
+<table class="table table-borderless">
+    <thead>
         <tr>
             <td>
                 <label for="Title" class="control-label">Title: </label>
@@ -20,6 +21,8 @@
                 <input type="text" name="Title" class="form-control" @bind="@title" />
             </td>
         </tr>
+    </thead>
+    <tbody>
         <tr>
             <td>
                 <label for="Container" class="control-label">Container: </label>
@@ -55,7 +58,8 @@
                 </select>
             </td>
         </tr>
-    </table>
+    </tbody>
+</table>
 
 @DynamicComponent
 

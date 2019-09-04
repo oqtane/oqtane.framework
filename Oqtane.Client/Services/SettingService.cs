@@ -33,22 +33,7 @@ namespace Oqtane.Services
 
         public async Task<Setting> UpdateHostSettingsAsync(List<Setting> HostSettings, string SettingName, string SettingValue)
         {
-            Setting setting = HostSettings.Where(item => item.SettingName == SettingName).FirstOrDefault();
-            if (setting == null)
-            {
-                setting = new Setting();
-                setting.EntityName = "Host";
-                setting.EntityId = -1;
-                setting.SettingName = SettingName;
-                setting.SettingValue = SettingValue;
-                setting = await AddSettingAsync(setting);
-            }
-            else
-            {
-                setting.SettingValue = SettingValue;
-                setting = await UpdateSettingAsync(setting);
-            }
-            return setting;
+            return await UpdateSettingsAsync(HostSettings, "Host", -1, SettingName, SettingValue); 
         }
 
         public async Task<List<Setting>> GetSiteSettingsAsync(int SiteId)
@@ -58,22 +43,7 @@ namespace Oqtane.Services
 
         public async Task<Setting> UpdateSiteSettingsAsync(List<Setting> SiteSettings, int SiteId, string SettingName, string SettingValue)
         {
-            Setting setting = SiteSettings.Where(item => item.SettingName == SettingName).FirstOrDefault();
-            if (setting == null)
-            {
-                setting = new Setting();
-                setting.EntityName = "Site";
-                setting.EntityId = SiteId;
-                setting.SettingName = SettingName;
-                setting.SettingValue = SettingValue;
-                setting = await AddSettingAsync(setting);
-            }
-            else
-            {
-                setting.SettingValue = SettingValue;
-                setting = await UpdateSettingAsync(setting);
-            }
-            return setting;
+            return await UpdateSettingsAsync(SiteSettings, "Site", SiteId, SettingName, SettingValue);
         }
 
         public async Task<List<Setting>> GetPageSettingsAsync(int PageId)
@@ -83,22 +53,7 @@ namespace Oqtane.Services
 
         public async Task<Setting> UpdatePageSettingsAsync(List<Setting> PageSettings, int PageId, string SettingName, string SettingValue)
         {
-            Setting setting = PageSettings.Where(item => item.SettingName == SettingName).FirstOrDefault();
-            if (setting == null)
-            {
-                setting = new Setting();
-                setting.EntityName = "Page";
-                setting.EntityId = PageId;
-                setting.SettingName = SettingName;
-                setting.SettingValue = SettingValue;
-                setting = await AddSettingAsync(setting);
-            }
-            else
-            {
-                setting.SettingValue = SettingValue;
-                setting = await UpdateSettingAsync(setting);
-            }
-            return setting;
+            return await UpdateSettingsAsync(PageSettings, "Page", PageId, SettingName, SettingValue);
         }
 
         public async Task<List<Setting>> GetPageModuleSettingsAsync(int PageModuleId)
@@ -108,22 +63,7 @@ namespace Oqtane.Services
 
         public async Task<Setting> UpdatePageModuleSettingsAsync(List<Setting> PageModuleSettings, int PageModuleId, string SettingName, string SettingValue)
         {
-            Setting setting = PageModuleSettings.Where(item => item.SettingName == SettingName).FirstOrDefault();
-            if (setting == null)
-            {
-                setting = new Setting();
-                setting.EntityName = "PageModule";
-                setting.EntityId = PageModuleId;
-                setting.SettingName = SettingName;
-                setting.SettingValue = SettingValue;
-                setting = await AddSettingAsync(setting);
-            }
-            else
-            {
-                setting.SettingValue = SettingValue;
-                setting = await UpdateSettingAsync(setting);
-            }
-            return setting;
+            return await UpdateSettingsAsync(PageModuleSettings, "PageModule", PageModuleId, SettingName, SettingValue);
         }
 
         public async Task<List<Setting>> GetModuleSettingsAsync(int ModuleId)
@@ -133,22 +73,17 @@ namespace Oqtane.Services
 
         public async Task<Setting> UpdateModuleSettingsAsync(List<Setting> ModuleSettings, int ModuleId, string SettingName, string SettingValue)
         {
-            Setting setting = ModuleSettings.Where(item => item.SettingName == SettingName).FirstOrDefault();
-            if (setting == null)
-            {
-                setting = new Setting();
-                setting.EntityName = "Module";
-                setting.EntityId = ModuleId;
-                setting.SettingName = SettingName;
-                setting.SettingValue = SettingValue;
-                setting = await AddSettingAsync(setting);
-            }
-            else
-            {
-                setting.SettingValue = SettingValue;
-                setting = await UpdateSettingAsync(setting);
-            }
-            return setting;
+            return await UpdateSettingsAsync(ModuleSettings, "Module", ModuleId, SettingName, SettingValue);
+        }
+
+        public async Task<List<Setting>> GetUserSettingsAsync(int UserId)
+        {
+            return await GetSettingsAsync("User", UserId);
+        }
+
+        public async Task<Setting> UpdateUserSettingsAsync(List<Setting> UserSettings, int UserId, string SettingName, string SettingValue)
+        {
+            return await UpdateSettingsAsync(UserSettings, "User", UserId, SettingName, SettingValue);
         }
 
         public async Task<List<Setting>> GetSettingsAsync(string EntityName, int EntityId)
@@ -171,6 +106,27 @@ namespace Oqtane.Services
         {
             return await http.PutJsonAsync<Setting>(apiurl + "/" + Setting.SettingId.ToString(), Setting);
         }
+
+        public async Task<Setting> UpdateSettingsAsync(List<Setting> Settings, string EntityName, int EntityId, string SettingName, string SettingValue)
+        {
+            Setting setting = Settings.Where(item => item.SettingName == SettingName).FirstOrDefault();
+            if (setting == null || setting.SettingId == -1)
+            {
+                setting = new Setting();
+                setting.EntityName = EntityName;
+                setting.EntityId = EntityId;
+                setting.SettingName = SettingName;
+                setting.SettingValue = SettingValue;
+                setting = await AddSettingAsync(setting);
+            }
+            else
+            {
+                setting.SettingValue = SettingValue;
+                setting = await UpdateSettingAsync(setting);
+            }
+            return setting;
+        }
+
         public async Task DeleteSettingAsync(int SettingId)
         {
             await http.DeleteAsync(apiurl + "/" + SettingId.ToString());
@@ -186,6 +142,20 @@ namespace Oqtane.Services
                 value = setting.SettingValue;
             }
             return value;
+        }
+
+        public List<Setting> SetSetting(List<Setting> Settings, string EntityName, int EntityId, string SettingName, string SettingValue)
+        {
+            int index = Settings.FindIndex(item => item.EntityName == EntityName && item.EntityId == EntityId && item.SettingName == SettingName);
+            if (index != -1)
+            {
+                Settings[index].SettingValue = SettingValue;
+            }
+            else
+            {
+                Settings.Add(new Setting { SettingId = -1, EntityName = EntityName, EntityId = EntityId, SettingName = SettingName, SettingValue = SettingValue });
+            }
+            return Settings;
         }
     }
 }
