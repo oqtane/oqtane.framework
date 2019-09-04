@@ -48,7 +48,7 @@
                     <label for="@p.Name" class="control-label">@p.Title: </label>
                 </td>
                 <td>
-                    <input class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                    <input class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" placeholder="@p.Description" @onchange="@(e => ProfileChanged(e, p.Name))" />
                 </td>
             </tr>
         }
@@ -65,7 +65,7 @@
     string displayname = "";
     string email = "";
     List<Profile> profiles;
-    List<Setting> settings;
+    Dictionary<string, string> settings;
     string category = "";
 
     protected override async Task OnInitializedAsync()
@@ -103,12 +103,7 @@
             user.DisplayName = displayname;
             user.Email = email;
             await UserService.UpdateUserAsync(user);
-
-            foreach (Profile profile in profiles)
-            {
-                string value = SettingService.GetSetting(settings, profile.Name, "");
-                await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId, profile.Name, value);
-            }
+            await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
 
             UriHelper.NavigateTo("");
         }
@@ -126,6 +121,6 @@
     private void ProfileChanged(UIChangeEventArgs e, string SettingName)
     {
         string value = (string)e.Value;
-        settings = SettingService.SetSetting(settings, "User", PageState.User.UserId, SettingName, value);
+        settings = SettingService.SetSetting(settings, SettingName, value);
     }
 }
