@@ -34,7 +34,7 @@
     string style = "";
     bool authorized = false;
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
         text = Action;
         if (!String.IsNullOrEmpty(Text))
@@ -49,39 +49,42 @@
 
         if (!string.IsNullOrEmpty(Class))
         {
-           classname = Class;
+            classname = Class;
         }
 
         if (!string.IsNullOrEmpty(Style))
         {
-           style = Style;
+            style = Style;
         }
 
         url = EditUrl(Action, parameters);
 
-        string typename = ModuleState.ModuleType.Replace(Utilities.GetTypeNameClass(ModuleState.ModuleType) + ",", Action + ",");
-        Type moduleType = Type.GetType(typename);
-        if (moduleType != null)
+        if (PageState.EditMode)
         {
-            var moduleobject = Activator.CreateInstance(moduleType);
-            SecurityAccessLevel SecurityAccessLevel = (SecurityAccessLevel)moduleType.GetProperty("SecurityAccessLevel").GetValue(moduleobject, null);
-            switch (SecurityAccessLevel)
+            string typename = ModuleState.ModuleType.Replace(Utilities.GetTypeNameClass(ModuleState.ModuleType) + ",", Action + ",");
+            Type moduleType = Type.GetType(typename);
+            if (moduleType != null)
             {
-                case SecurityAccessLevel.Anonymous:
-                    authorized = true;
-                    break;
-                case SecurityAccessLevel.View:
-                    authorized = UserSecurity.IsAuthorized(PageState.User, "View", ModuleState.Permissions);
-                    break;
-                case SecurityAccessLevel.Edit:
-                    authorized = UserSecurity.IsAuthorized(PageState.User, "Edit", ModuleState.Permissions);
-                    break;
-                case SecurityAccessLevel.Admin:
-                    authorized = UserSecurity.IsAuthorized(PageState.User, Constants.AdminRole);
-                    break;
-                case SecurityAccessLevel.Host:
-                    authorized = UserSecurity.IsAuthorized(PageState.User, Constants.HostRole);
-                    break;
+                var moduleobject = Activator.CreateInstance(moduleType);
+                SecurityAccessLevel SecurityAccessLevel = (SecurityAccessLevel)moduleType.GetProperty("SecurityAccessLevel").GetValue(moduleobject, null);
+                switch (SecurityAccessLevel)
+                {
+                    case SecurityAccessLevel.Anonymous:
+                        authorized = true;
+                        break;
+                    case SecurityAccessLevel.View:
+                        authorized = UserSecurity.IsAuthorized(PageState.User, "View", ModuleState.Permissions);
+                        break;
+                    case SecurityAccessLevel.Edit:
+                        authorized = UserSecurity.IsAuthorized(PageState.User, "Edit", ModuleState.Permissions);
+                        break;
+                    case SecurityAccessLevel.Admin:
+                        authorized = UserSecurity.IsAuthorized(PageState.User, Constants.AdminRole);
+                        break;
+                    case SecurityAccessLevel.Host:
+                        authorized = UserSecurity.IsAuthorized(PageState.User, Constants.HostRole);
+                        break;
+                }
             }
         }
     }

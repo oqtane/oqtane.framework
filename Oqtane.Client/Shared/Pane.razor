@@ -26,9 +26,9 @@
     string paneadminborder = "";
     string panetitle = "";
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
-        if (UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions) && Name != Constants.AdminPane)
+        if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions) && Name != Constants.AdminPane)
         {
             paneadminborder = "pane-admin-border";
             panetitle = "<div class=\"pane-admin-title\">" + Name + " Pane</div>";

@@ -9,7 +9,7 @@
 
     RenderFragment DynamicComponent { get; set; }
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
         DynamicComponent = builder =>
         {

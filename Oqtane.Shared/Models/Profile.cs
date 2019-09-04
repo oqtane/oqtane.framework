@@ -5,7 +5,7 @@ namespace Oqtane.Models
     public class Profile : IAuditable
     {
         public int ProfileId { get; set; }
-        public int SiteId { get; set; }
+        public int? SiteId { get; set; }
         public string Name { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }

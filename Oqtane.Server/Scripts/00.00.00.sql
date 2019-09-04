@@ -383,28 +383,28 @@ GO
 SET IDENTITY_INSERT [dbo].[Profile] ON 
 GO
 INSERT [dbo].[Profile]([ProfileId], [SiteId], [Name], [Title], [Description], [Category], [ViewOrder], [MaxLength], [DefaultValue], [IsRequired], [IsPrivate], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn])
-VALUES (1, 1, 'FirstName', 'First Name', 'Your First Or Given Name', 'Name', 1, 50, '', 1, 0, '', getdate(), '', getdate())
+VALUES (1, null, 'FirstName', 'First Name', 'Your First Or Given Name', 'Name', 1, 50, '', 1, 0, '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Profile]([ProfileId], [SiteId], [Name], [Title], [Description], [Category], [ViewOrder], [MaxLength], [DefaultValue], [IsRequired], [IsPrivate], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn])
-VALUES (2, 1, 'LastName', 'Last Name', 'Your Last Or family Name', 'Name', 2, 50, '', 1, 0, '', getdate(), '', getdate())
+VALUES (2, null, 'LastName', 'Last Name', 'Your Last Or family Name', 'Name', 2, 50, '', 1, 0, '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Profile]([ProfileId], [SiteId], [Name], [Title], [Description], [Category], [ViewOrder], [MaxLength], [DefaultValue], [IsRequired], [IsPrivate], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn])
-VALUES (3, 1, 'Street', 'Street', 'Street Or Building Address', 'Address', 3, 50, '', 1, 0, '', getdate(), '', getdate())
+VALUES (3, null, 'Street', 'Street', 'Street Or Building Address', 'Address', 3, 50, '', 1, 0, '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Profile]([ProfileId], [SiteId], [Name], [Title], [Description], [Category], [ViewOrder], [MaxLength], [DefaultValue], [IsRequired], [IsPrivate], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn])
-VALUES (4, 1, 'City', 'City', 'City', 'Address', 4, 50, '', 1, 0, '', getdate(), '', getdate())
+VALUES (4, null, 'City', 'City', 'City', 'Address', 4, 50, '', 1, 0, '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Profile]([ProfileId], [SiteId], [Name], [Title], [Description], [Category], [ViewOrder], [MaxLength], [DefaultValue], [IsRequired], [IsPrivate], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn])
-VALUES (5, 1, 'Region', 'Region', 'State Or Province', 'Address', 5, 50, '', 1, 0, '', getdate(), '', getdate())
+VALUES (5, null, 'Region', 'Region', 'State Or Province', 'Address', 5, 50, '', 1, 0, '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Profile]([ProfileId], [SiteId], [Name], [Title], [Description], [Category], [ViewOrder], [MaxLength], [DefaultValue], [IsRequired], [IsPrivate], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn])
-VALUES (6, 1, 'Country', 'Country', 'Country', 'Address', 6, 50, '', 1, 0, '', getdate(), '', getdate())
+VALUES (6, null, 'Country', 'Country', 'Country', 'Address', 6, 50, '', 1, 0, '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Profile]([ProfileId], [SiteId], [Name], [Title], [Description], [Category], [ViewOrder], [MaxLength], [DefaultValue], [IsRequired], [IsPrivate], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn])
-VALUES (7, 1, 'PostalCode', 'Postal Code', 'Postal Code Or Zip Code', 'Address', 7, 50, '', 1, 0, '', getdate(), '', getdate())
+VALUES (7, null, 'PostalCode', 'Postal Code', 'Postal Code Or Zip Code', 'Address', 7, 50, '', 1, 0, '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Profile]([ProfileId], [SiteId], [Name], [Title], [Description], [Category], [ViewOrder], [MaxLength], [DefaultValue], [IsRequired], [IsPrivate], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn])
-VALUES (8, 1, 'Phone', 'Phone Number', 'Phone Number', 'Contact', 8, 50, '', 1, 0, '', getdate(), '', getdate())
+VALUES (8, null, 'Phone', 'Phone Number', 'Phone Number', 'Contact', 8, 50, '', 1, 0, '', getdate(), '', getdate())
 GO
 SET IDENTITY_INSERT [dbo].[Profile] OFF 
 GO

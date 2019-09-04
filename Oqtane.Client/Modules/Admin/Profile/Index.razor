@@ -11,7 +11,7 @@
 
 <ModuleMessage Message="@message" />
 
-@if (profiles != null)
+@if (PageState.User != null && profiles != null)
 {
     <table class="table table-borderless">
         <tr>
@@ -55,6 +55,7 @@
     </table>
     <button type="button" class="btn btn-primary" @onclick="@SaveUser">Save</button>
     <button type="button" class="btn btn-secondary" @onclick="@Cancel">Cancel</button>
+    <br /><br />
 }
 
 @code {
@@ -71,10 +72,17 @@
     {
         try
         {
-            displayname = PageState.User.DisplayName;
-            email = PageState.User.Email;
-            profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
-            settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
+            if (PageState.User != null)
+            {
+                displayname = PageState.User.DisplayName;
+                email = PageState.User.Email;
+                profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
+                settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
+            }
+            else
+            {
+                message = "Current User Is Not Logged In";
+            }
         }
         catch (Exception ex)
         {
@@ -89,23 +97,30 @@
 
     private async Task SaveUser()
     {
-        User user = PageState.User;
-        user.DisplayName = displayname;
-        user.Email = email;
-        await UserService.UpdateUserAsync(user);
-
-        foreach (Profile profile in profiles)
+        try
         {
-            string value = SettingService.GetSetting(settings, profile.Name, "");
-            await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId, profile.Name, value);
-        }
+            User user = PageState.User;
+            user.DisplayName = displayname;
+            user.Email = email;
+            await UserService.UpdateUserAsync(user);
 
-        UriHelper.NavigateTo("");
+            foreach (Profile profile in profiles)
+            {
+                string value = SettingService.GetSetting(settings, profile.Name, "");
+                await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId, profile.Name, value);
+            }
+
+            UriHelper.NavigateTo("");
+        }
+        catch (Exception ex)
+        {
+            message = ex.Message;
+        }
     }
 
     private void Cancel()
     {
-        UriHelper.NavigateTo(NavigateUrl("")); // navigate to home
+        UriHelper.NavigateTo(NavigateUrl(""));
     }
 
     private void ProfileChanged(UIChangeEventArgs e, string SettingName)

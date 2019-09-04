@@ -21,7 +21,7 @@ namespace Oqtane.Repository
 
         public IEnumerable<Profile> GetProfiles(int SiteId)
         {
-            return db.Profile.Where(item => item.SiteId == SiteId);
+            return db.Profile.Where(item => item.SiteId == SiteId || item.SiteId == null);
         }
 
         public Profile AddProfile(Profile Profile)
