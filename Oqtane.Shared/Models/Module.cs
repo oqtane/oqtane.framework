@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Oqtane.Modules;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -18,6 +19,7 @@ namespace Oqtane.Models
         [NotMapped]
         public string Permissions { get; set; }
 
+        // PageModule properties
         [NotMapped]
         public int PageModuleId { get; set; }
         [NotMapped]
@@ -30,11 +32,23 @@ namespace Oqtane.Models
         public int Order { get; set; }
         [NotMapped]
         public string ContainerType { get; set; }
+
+        // SiteRouter properties
         [NotMapped]
         public string ModuleType { get; set; }
         [NotMapped]
         public int PaneModuleIndex { get; set; }
         [NotMapped]
         public int PaneModuleCount { get; set; }
+
+        // IModuleControl properties
+        [NotMapped]
+        public SecurityAccessLevel SecurityAccessLevel { get; set; }
+        [NotMapped]
+        public string ControlTitle { get; set; }
+        [NotMapped]
+        public string Actions { get; set; }
+        [NotMapped]
+        public string AdminContainerType { get; set; }
     }
 }

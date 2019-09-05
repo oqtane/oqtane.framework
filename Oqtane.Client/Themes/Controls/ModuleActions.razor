@@ -8,7 +8,7 @@
 @inject IUserService UserService
 @inject IPageModuleService PageModuleService
 
-@if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, "Edit", ModuleState.Permissions))
+@if (PageState.DesignMode && UserSecurity.IsAuthorized(PageState.User, "Edit", ModuleState.Permissions))
 {
     <div class="dropdown">
         <button type="button" class="btn dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>

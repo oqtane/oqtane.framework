@@ -170,10 +170,12 @@
             if (PageState.EditMode)
             {
                 PageState.EditMode = false;
+                PageState.DesignMode = false;
             }
             else
             {
                 PageState.EditMode = true;
+                PageState.DesignMode = true;
             }
             PageState.Reload = Constants.ReloadPage;
             UriHelper.NavigateTo(NavigateUrl(PageState.Page.Path, "edit=" + PageState.EditMode.ToString().ToLower()));

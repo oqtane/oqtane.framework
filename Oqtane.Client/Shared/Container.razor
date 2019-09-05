@@ -27,7 +27,7 @@
                 Type containerType = Type.GetType(container);
                 if (containerType != null)
                 {
-                    builder.OpenComponent(0, containerType); 
+                    builder.OpenComponent(0, containerType);
                     builder.CloseComponent();
                 }
                 else
@@ -49,7 +49,11 @@
             container = ModuleState.ContainerType;
             if (PageState.ModuleId != -1 && PageState.Control != "")
             {
-                container = Constants.DefaultAdminContainer;
+                container = ModuleState.AdminContainerType;
+                if (container == "")
+                {
+                    container = Constants.DefaultAdminContainer;
+                }
             }
         }
         return Task.CompletedTask;

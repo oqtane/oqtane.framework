@@ -9,10 +9,13 @@
 @inject IModuleService ModuleService
 @inject IModuleDefinitionService ModuleDefinitionService
 
-<div class="@paneadminborder">
-    @((MarkupString)panetitle)
-    @DynamicComponent
-</div>
+    <div class="@paneadminborder">
+        @if (panetitle != "")
+        {
+            @((MarkupString)panetitle)
+        }
+        @DynamicComponent
+    </div>
 
 @code {
     [CascadingParameter]
@@ -28,10 +31,15 @@
 
     protected override void OnParametersSet()
     {
-        if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions) && Name != Constants.AdminPane)
+        if (PageState.DesignMode && UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions) && Name != Constants.AdminPane)
         {
             paneadminborder = "pane-admin-border";
             panetitle = "<div class=\"pane-admin-title\">" + Name + " Pane</div>";
+        }
+        else
+        {
+            paneadminborder = "";
+            panetitle = "";
         }
 
         DynamicComponent = builder =>
@@ -51,38 +59,38 @@
                         Type moduleType = Type.GetType(typename);
                         if (moduleType != null)
                         {
-                            var moduleobject = Activator.CreateInstance(moduleType);
-                            // verify security access level for this module control
-                            SecurityAccessLevel SecurityAccessLevel = (SecurityAccessLevel)moduleType.GetProperty("SecurityAccessLevel").GetValue(moduleobject, null);
                             bool authorized = false;
-                            switch (SecurityAccessLevel)
+                            if (PageState.Control == "Settings")
                             {
-                                case SecurityAccessLevel.Anonymous:
-                                    authorized = true;
-                                    break;
-                                case SecurityAccessLevel.View:
-                                    authorized = UserSecurity.IsAuthorized(PageState.User, "View", module.Permissions);
-                                    break;
-                                case SecurityAccessLevel.Edit:
-                                    authorized = UserSecurity.IsAuthorized(PageState.User, "Edit", module.Permissions);
-                                    break;
-                                case SecurityAccessLevel.Admin:
-                                    authorized = UserSecurity.IsAuthorized(PageState.User, Constants.AdminRole);
-                                    break;
-                                case SecurityAccessLevel.Host:
-                                    authorized = UserSecurity.IsAuthorized(PageState.User, Constants.HostRole);
-                                    break;
+                                authorized = UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions);
+                            }
+                            else
+                            {
+                                // verify security access level for this module control
+                                switch (module.SecurityAccessLevel)
+                                {
+                                    case SecurityAccessLevel.Anonymous:
+                                        authorized = true;
+                                        break;
+                                    case SecurityAccessLevel.View:
+                                        authorized = UserSecurity.IsAuthorized(PageState.User, "View", module.Permissions);
+                                        break;
+                                    case SecurityAccessLevel.Edit:
+                                        authorized = UserSecurity.IsAuthorized(PageState.User, "Edit", module.Permissions);
+                                        break;
+                                    case SecurityAccessLevel.Admin:
+                                        authorized = UserSecurity.IsAuthorized(PageState.User, Constants.AdminRole);
+                                        break;
+                                    case SecurityAccessLevel.Host:
+                                        authorized = UserSecurity.IsAuthorized(PageState.User, Constants.HostRole);
+                                        break;
+                                }
                             }
                             if (authorized)
                             {
-                                if (PageState.Control != "Settings")
+                                if (PageState.Control != "Settings" && module.ControlTitle != "")
                                 {
-                                    // get module control title
-                                    string title = (string)moduleType.GetProperty("Title").GetValue(moduleobject);
-                                    if (title != "")
-                                    {
-                                        module.Title = title;
-                                    }
+                                    module.Title = module.ControlTitle;
                                 }
                                 builder.OpenComponent(0, Type.GetType(Constants.DefaultContainer));
                                 builder.AddAttribute(1, "Module", module);

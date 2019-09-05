@@ -12,11 +12,13 @@ namespace Oqtane.Modules
         [CascadingParameter]
         protected Module ModuleState { get; set; }
 
-        public virtual string Title { get { return ""; } }
-
         public virtual SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.View; } set { } } // default security
 
+        public virtual string Title { get { return ""; } }
+
         public virtual string Actions { get { return ""; } }
+
+        public virtual string ContainerType { get { return ""; } }
 
         public string NavigateUrl()
         {
