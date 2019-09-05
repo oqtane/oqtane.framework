@@ -64,6 +64,17 @@
     </tr>
     <tr>
         <td>
+            <label for="Name" class="control-label">Edit Mode? </label>
+        </td>
+        <td>
+            <select class="form-control" @bind="@editmode" readonly>
+                <option value="True">Yes</option>
+                <option value="False">No</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
             <label for="Name" class="control-label">Theme: </label>
         </td>
         <td>
@@ -127,6 +138,7 @@
     string parentid;
     string order;
     string isnavigation;
+    string editmode;
     string themetype;
     string layouttype;
     string icon;
@@ -154,6 +166,7 @@
 
                 order = page.Order.ToString();
                 isnavigation = page.IsNavigation.ToString();
+                editmode = page.EditMode.ToString();
                 themetype = page.ThemeType;
                 layouttype = page.LayoutType;
                 icon = page.Icon;

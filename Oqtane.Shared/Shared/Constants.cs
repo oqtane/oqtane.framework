@@ -19,5 +19,6 @@
         public const int ReloadApplication = 3;
         public const int ReloadSite = 2;
         public const int ReloadPage = 1;
+        public const int ReloadReset = 0;
     }
 }

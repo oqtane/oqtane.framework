@@ -31,6 +31,7 @@ CREATE TABLE [dbo].[Page](
 	[Order] [int] NOT NULL,
 	[IsNavigation] [bit] NOT NULL,
 	[LayoutType] [nvarchar](200) NOT NULL,
+	[EditMode] [bit] NOT NULL,
 	[CreatedBy] [nvarchar](256) NOT NULL,
 	[CreatedOn] [datetime] NOT NULL,
 	[ModifiedBy] [nvarchar](256) NOT NULL,
@@ -411,8 +412,8 @@ GO
 
 SET IDENTITY_INSERT [dbo].[Page] ON 
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (1, 1, N'Page1', N'', N'Oqtane.Client.Themes.Theme1.Theme1, Oqtane.Client', N'oi-home', N'Left;Right', NULL, 1, 1, N'', '', getdate(), '', getdate())
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [EditMode], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (1, 1, N'Page1', N'', N'Oqtane.Client.Themes.Theme1.Theme1, Oqtane.Client', N'oi-home', N'Left;Right', NULL, 1, 1, N'', 0, '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 1, 'View', -1, null, 1, '', getdate(), '', getdate()) 
 GO
@@ -420,15 +421,15 @@ INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName],
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 1, 'Edit', 1, null, 1, '', getdate(), '', getdate()) 
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (2, 1, N'Page2', N'page2', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'oi-plus', N'Top;Bottom', NULL, 3, 1, N'', '', getdate(), '', getdate())
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [EditMode], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (2, 1, N'Page2', N'page2', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'oi-plus', N'Top;Bottom', NULL, 3, 1, N'', 0, '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 2, 'View', 1, null, 1, '', getdate(), '', getdate()) 
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 2, 'Edit', 1, null, 1, '', getdate(), '', getdate()) 
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (3, 1, N'Page3', N'page3', N'Oqtane.Client.Themes.Theme3.Theme3, Oqtane.Client', N'oi-list-rich', N'Left;Right', NULL, 3, 1, N'Oqtane.Client.Themes.Theme3.HorizontalLayout, Oqtane.Client', '', getdate(), '', getdate())
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [EditMode], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (3, 1, N'Page3', N'page3', N'Oqtane.Client.Themes.Theme3.Theme3, Oqtane.Client', N'oi-list-rich', N'Left;Right', NULL, 3, 1, N'Oqtane.Client.Themes.Theme3.HorizontalLayout, Oqtane.Client', 0, '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 3, 'View', -1, null, 1, '', getdate(), '', getdate()) 
 GO
@@ -436,22 +437,22 @@ INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName],
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 3, 'Edit', 1, null, 1, '', getdate(), '', getdate()) 
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (4, 1, N'Admin', N'admin', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'oi-home', N'Top;Bottom', NULL, 7, 1, N'', '', getdate(), '', getdate())
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [EditMode], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (4, 1, N'Admin', N'admin', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'oi-home', N'Top;Bottom', NULL, 7, 1, N'', '', 1, getdate(), '', getdate())
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 4, 'View', 1, null, 1, '', getdate(), '', getdate()) 
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 4, 'Edit', 1, null, 1, '', getdate(), '', getdate()) 
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (5, 1, N'Page Management', N'admin/pages', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', 4, 1, 1, N'', '', getdate(), '', getdate())
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [EditMode], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (5, 1, N'Page Management', N'admin/pages', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', 4, 1, 1, N'', 1, '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 5, 'View', 1, null, 1, '', getdate(), '', getdate()) 
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 5, 'Edit', 1, null, 1, '', getdate(), '', getdate()) 
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (6, 1, N'Login', N'login', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', NULL, 1, 0, N'', '', getdate(), '', getdate())
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [EditMode], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (6, 1, N'Login', N'login', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', NULL, 1, 0, N'', 0, '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 6, 'View', -1, null, 1, '', getdate(), '', getdate()) 
 GO
@@ -459,8 +460,8 @@ INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName],
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 6, 'Edit', 1, null, 1, '', getdate(), '', getdate()) 
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (7, 1, N'Register', N'register', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', NULL, 1, 0, N'', '', getdate(), '', getdate())
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [EditMode], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (7, 1, N'Register', N'register', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', NULL, 1, 0, N'', 0, '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 7, 'View', -1, null, 1, '', getdate(), '', getdate()) 
 GO
@@ -468,36 +469,36 @@ INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName],
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 7, 'Edit', 1, null, 1, '', getdate(), '', getdate()) 
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (8, 1, N'Site Management', N'admin/sites', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', 4, 0, 1, N'', '', getdate(), '', getdate())
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [EditMode], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (8, 1, N'Site Management', N'admin/sites', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', 4, 0, 1, N'', 1, '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 8, 'View', 1, null, 1, '', getdate(), '', getdate()) 
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 8, 'Edit', 1, null, 1, '', getdate(), '', getdate()) 
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (9, 1, N'User Management', N'admin/users', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', 4, 2, 1, N'', '', getdate(), '', getdate())
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [EditMode], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (9, 1, N'User Management', N'admin/users', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', 4, 2, 1, N'', 1, '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 9, 'View', 1, null, 1, '', getdate(), '', getdate()) 
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 9, 'Edit', 1, null, 1, '', getdate(), '', getdate()) 
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (10, 1, N'Module Management', N'admin/modules', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', 4, 3, 1, N'', '', getdate(), '', getdate())
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [EditMode], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (10, 1, N'Module Management', N'admin/modules', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', 4, 3, 1, N'', 1, '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 10, 'View', 1, null, 1, '', getdate(), '', getdate()) 
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 10, 'Edit', 1, null, 1, '', getdate(), '', getdate()) 
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (11, 1, N'Theme Management', N'admin/themes', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', 4, 4, 1, N'', '', getdate(), '', getdate())
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [EditMode], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (11, 1, N'Theme Management', N'admin/themes', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', 4, 4, 1, N'', 1, '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 11, 'View', 1, null, 1, '', getdate(), '', getdate()) 
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 11, 'Edit', 1, null, 1, '', getdate(), '', getdate()) 
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (12, 2, N'Page1', N'', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'oi-home', N'Top;Bottom', NULL, 1, 1, N'', '', getdate(), '', getdate())
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [EditMode], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (12, 2, N'Page1', N'', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'oi-home', N'Top;Bottom', NULL, 1, 1, N'', 0, '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (2, 'Page', 12, 'View', -1, null, 1, '', getdate(), '', getdate()) 
 GO
@@ -505,8 +506,8 @@ INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName],
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (2, 'Page', 12, 'Edit', 3, null, 1, '', getdate(), '', getdate()) 
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (13, 2, N'Page2', N'page2', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'oi-home', N'Top;Bottom', NULL, 1, 1, N'', '', getdate(), '', getdate())
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [EditMode], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (13, 2, N'Page2', N'page2', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'oi-home', N'Top;Bottom', NULL, 1, 1, N'', 0, '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (2, 'Page', 13, 'View', -1, null, 1, '', getdate(), '', getdate()) 
 GO
@@ -514,8 +515,8 @@ INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName],
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (2, 'Page', 13, 'Edit', 3, null, 1, '', getdate(), '', getdate()) 
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (14, 2, N'Login', N'login', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', NULL, 1, 0, N'', '', getdate(), '', getdate())
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [EditMode], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (14, 2, N'Login', N'login', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', NULL, 1, 0, N'', 0, '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (2, 'Page', 14, 'View', -1, null, 1, '', getdate(), '', getdate()) 
 GO
@@ -523,8 +524,8 @@ INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName],
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (2, 'Page', 14, 'Edit', 3, null, 1, '', getdate(), '', getdate()) 
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (15, 2, N'Register', N'register', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', NULL, 1, 0, N'', '', getdate(), '', getdate())
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [EditMode], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (15, 2, N'Register', N'register', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', NULL, 1, 0, N'', 0, '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (2, 'Page', 15, 'View', -1, null, 1, '', getdate(), '', getdate()) 
 GO
@@ -532,15 +533,15 @@ INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName],
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (2, 'Page', 15, 'Edit', 3, null, 1, '', getdate(), '', getdate()) 
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (16, 1, N'Role Management', N'admin/roles', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', 4, 5, 1, N'', '', getdate(), '', getdate())
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [EditMode], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (16, 1, N'Role Management', N'admin/roles', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', 4, 5, 1, N'', 1, '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 16, 'View', 1, null, 1, '', getdate(), '', getdate()) 
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 16, 'Edit', 1, null, 1, '', getdate(), '', getdate()) 
 GO
-INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (17, 1, N'Profile', N'profile', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', NULL, 1, 0, N'', '', getdate(), '', getdate())
+INSERT [dbo].[Page] ([PageId], [SiteId], [Name], [Path], [ThemeType], [Icon], [Panes], [ParentId], [Order], [IsNavigation], [LayoutType], [EditMode], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (17, 1, N'Profile', N'profile', N'Oqtane.Client.Themes.Theme2.Theme2, Oqtane.Client', N'', N'Top;Bottom', NULL, 1, 0, N'', 0, '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Permission] ([SiteId], [EntityName], [EntityId], [PermissionName], [RoleId], [UserId], [IsAuthorized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) VALUES (1, 'Page', 17, 'View', -1, null, 1, '', getdate(), '', getdate()) 
 GO
