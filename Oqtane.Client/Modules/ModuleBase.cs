@@ -18,7 +18,7 @@ namespace Oqtane.Modules
 
         public virtual string Actions { get { return ""; } }
 
-        public virtual string ContainerType { get { return ""; } }
+        public virtual bool UseAdminContainer { get { return true; } }
 
         public string NavigateUrl()
         {

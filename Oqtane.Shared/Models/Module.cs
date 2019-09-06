@@ -49,6 +49,6 @@ namespace Oqtane.Models
         [NotMapped]
         public string Actions { get; set; }
         [NotMapped]
-        public string AdminContainerType { get; set; }
+        public bool UseAdminContainer { get; set; }
     }
 }

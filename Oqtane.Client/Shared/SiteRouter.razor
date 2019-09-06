@@ -349,7 +349,7 @@
                     module.SecurityAccessLevel = (SecurityAccessLevel)moduletype.GetProperty("SecurityAccessLevel").GetValue(moduleobject, null);
                     module.ControlTitle = (string)moduletype.GetProperty("Title").GetValue(moduleobject);
                     module.Actions = (string)moduletype.GetProperty("Actions").GetValue(moduleobject);
-                    module.AdminContainerType = (string)moduletype.GetProperty("ContainerType").GetValue(moduleobject);
+                    module.UseAdminContainer = (bool)moduletype.GetProperty("UseAdminContainer").GetValue(moduleobject);
                 }
             }
 

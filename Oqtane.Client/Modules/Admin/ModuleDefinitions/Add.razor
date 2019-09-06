@@ -1,0 +1,30 @@
+﻿@using Microsoft.AspNetCore.Components.Routing
+@using Oqtane.Client.Modules.Controls
+@using Oqtane.Modules
+@using Oqtane.Services
+@inherits ModuleBase
+@inject IUriHelper UriHelper
+@inject IFileService FileService
+
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Module: </label>
+        </td>
+        <td>
+            <FileUpload Filter=".nupkg"></FileUpload>
+        </td>
+    </tr>
+</table>
+<button type="button" class="btn btn-success" @onclick="UploadFile">Upload</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+
+    private async Task UploadFile()
+    {
+        await FileService.UploadFilesAsync("/Sites/Modules");
+    }
+
+}

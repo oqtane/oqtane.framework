@@ -1,0 +1,43 @@
+﻿@if (multiple)
+{
+    <input type="file" id="@fileid" name="file" accept="@filter" multiple />
+}
+else
+{
+    <input type="file" id="@fileid" name="file" accept="@filter" />
+}
+<span id="@progressinfoid"></span> <progress id="@progressbarid" style="visibility: hidden;"></progress>
+
+@code {
+    [Parameter]
+    public string Name { get; set; } // optional - can be used for managing multiple file upload controls on a page
+
+    [Parameter]
+    public string Filter { get; set; } // optional - for restricting types of files that can be selected
+
+    [Parameter]
+    public string Multiple { get; set; } // optional - enable multiple file uploads
+
+    string fileid = "";
+    string progressinfoid = "";
+    string progressbarid = "";
+    string filter = "*";
+    bool multiple = false;
+
+    protected override void OnInitialized()
+    {
+        fileid = Name + "FileInput";
+        progressinfoid = Name + "ProgressInfo";
+        progressbarid = Name + "ProgressBar";
+
+        if (!string.IsNullOrEmpty(Filter))
+        {
+            filter = Filter;
+        }
+
+        if (!string.IsNullOrEmpty(Multiple))
+        {
+            multiple = bool.Parse(Multiple);
+        }
+    }
+}
