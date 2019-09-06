@@ -47,13 +47,9 @@
         {
             ModuleState = Module; // passed in from Pane component
             container = ModuleState.ContainerType;
-            if (PageState.ModuleId != -1 && PageState.Control != "")
+            if (PageState.ModuleId != -1 && PageState.Control != "" && ModuleState.UseAdminContainer)
             {
-                container = ModuleState.AdminContainerType;
-                if (container == "")
-                {
-                    container = Constants.DefaultAdminContainer;
-                }
+                container = Constants.DefaultAdminContainer;
             }
         }
         return Task.CompletedTask;

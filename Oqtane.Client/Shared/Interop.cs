@@ -85,5 +85,20 @@ namespace Oqtane.Shared
                 return Task.CompletedTask;
             }
         }
+
+        public Task UploadFiles(string posturl, string folder, string name)
+        {
+            try
+            {
+                jsRuntime.InvokeAsync<string>(
+                "interop.uploadFiles",
+                posturl, folder, name);
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
+        }
     }
 }

@@ -6,7 +6,9 @@ artifacts/
 msbuild.binlog
 .vscode/
 *.binlog
+*.nupkg
 
 Oqtane.Server/appsettings.json
 Oqtane.Server/Data/*.mdf
 Oqtane.Server/Data/*.ldf
+
