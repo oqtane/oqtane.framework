@@ -10,7 +10,7 @@
     {
         if (PageState.Site.Logo != "")
         {
-            logo = "<a href=\"" + PageState.Alias.Url + "\"><img src=\"/Sites/" + PageState.Site.SiteId.ToString() + "/" + PageState.Site.Logo + "\" alt=\"" + PageState.Site.Name + "\"/></a>";
+            logo = "<a href=\"" + PageState.Alias.Url + "\"><img src=\"" + PageState.Alias.SiteRootUrl + PageState.Site.Logo + "\" alt=\"" + PageState.Site.Name + "\"/></a>";
         }
         return Task.CompletedTask;
     }

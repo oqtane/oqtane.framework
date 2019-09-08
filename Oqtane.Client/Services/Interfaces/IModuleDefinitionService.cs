@@ -7,5 +7,6 @@ namespace Oqtane.Services
     public interface IModuleDefinitionService
     {
         Task<List<ModuleDefinition>> GetModuleDefinitionsAsync();
-    }
+        Task InstallModulesAsync();
+     }
 }

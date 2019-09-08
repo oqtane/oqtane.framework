@@ -63,5 +63,10 @@ namespace Oqtane.Services
 
             return moduledefinitions.OrderBy(item => item.Name).ToList();
         }
+
+        public async Task InstallModulesAsync()
+        {
+            await http.GetJsonAsync<List<string>>(apiurl + "/install");
+        }
     }
 }
