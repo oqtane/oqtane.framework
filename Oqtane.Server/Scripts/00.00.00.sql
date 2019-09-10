@@ -364,7 +364,7 @@ INSERT [dbo].[Role] ([RoleId], [SiteId], [Name], [Description], [IsAutoAssigned]
 VALUES (-1, null, N'All Users', N'All Users', 0, '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Role] ([RoleId], [SiteId], [Name], [Description], [IsAutoAssigned], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (0, null, N'Super Users', N'Super Users', 0, '', getdate(), '', getdate())
+VALUES (0, null, N'Host Users', N'Host Users', 0, '', getdate(), '', getdate())
 GO
 INSERT [dbo].[Role] ([RoleId], [SiteId], [Name], [Description], [IsAutoAssigned], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
 VALUES (1, 1, N'Administrators', N'Site Administrators', 0, '', getdate(), '', getdate())
@@ -733,49 +733,49 @@ GO
 SET IDENTITY_INSERT [dbo].[PageModule] ON 
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (1, 1, 1, N'Weather', N'Right', 0, N'Oqtane.Client.Themes.Theme1.Container1, Oqtane.Client', '', getdate(), '', getdate())
+VALUES (1, 1, 1, N'Weather', N'Right', 1, N'Oqtane.Client.Themes.Theme1.Container1, Oqtane.Client', '', getdate(), '', getdate())
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
 VALUES (2, 1, 2, N'Counter', N'Left', 1, N'Oqtane.Client.Themes.Theme1.Container1, Oqtane.Client', '', getdate(), '', getdate())
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (3, 1, 3, N'Lorem ipsum', N'Left', 0, N'Oqtane.Client.Themes.Theme1.Container1, Oqtane.Client', '', getdate(), '', getdate())
+VALUES (3, 1, 3, N'Lorem ipsum', N'Left', 3, N'Oqtane.Client.Themes.Theme1.Container1, Oqtane.Client', '', getdate(), '', getdate())
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (4, 2, 4, N'Weather', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
+VALUES (4, 2, 4, N'Weather', N'Top', 1, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (5, 2, 5, N'Enim sed', N'Top', 1, N'Oqtane.Client.Themes.Theme1.Container1, Oqtane.Client', '', getdate(), '', getdate())
+VALUES (5, 2, 5, N'Enim sed', N'Top', 3, N'Oqtane.Client.Themes.Theme1.Container1, Oqtane.Client', '', getdate(), '', getdate())
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (6, 3, 6, N'Id consectetur', N'Left', 0, N'Oqtane.Client.Themes.Theme1.Container1, Oqtane.Client', '', getdate(), '', getdate())
+VALUES (6, 3, 6, N'Id consectetur', N'Left', 1, N'Oqtane.Client.Themes.Theme1.Container1, Oqtane.Client', '', getdate(), '', getdate())
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (7, 3, 7, N'Ornare arcu', N'Right', 0, N'Oqtane.Client.Themes.Theme1.Container1, Oqtane.Client', '', getdate(), '', getdate())
+VALUES (7, 3, 7, N'Ornare arcu', N'Right', 1, N'Oqtane.Client.Themes.Theme1.Container1, Oqtane.Client', '', getdate(), '', getdate())
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (8, 5, 8, N'Page Management', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
+VALUES (8, 5, 8, N'Page Management', N'Top', 1, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (9, 6, 9, N'Login', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
+VALUES (9, 6, 9, N'Login', N'Top', 1, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (10, 7, 10, N'Register', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
+VALUES (10, 7, 10, N'Register', N'Top', 1, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (11, 4, 11, N'Administration', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
+VALUES (11, 4, 11, N'Administration', N'Top', 1, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (12, 8, 12, N'Site Management', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
+VALUES (12, 8, 12, N'Site Management', N'Top', 1, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (13, 9, 13, N'User Management', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
+VALUES (13, 9, 13, N'User Management', N'Top', 1, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (14, 10, 14, N'Module Management', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
+VALUES (14, 10, 14, N'Module Management', N'Top', 1, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (15, 11, 15, N'Theme Management', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
+VALUES (15, 11, 15, N'Theme Management', N'Top', 1, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
 VALUES (16, 12, 16, N'Id consectetur', N'Top', 1, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
@@ -784,16 +784,16 @@ INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane]
 VALUES (17, 13, 17, N'Lorem ipsum', N'Top', 1, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (18, 14, 18, N'Login', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
+VALUES (18, 14, 18, N'Login', N'Top', 1, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (19, 15, 19, N'Register', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
+VALUES (19, 15, 19, N'Register', N'Top', 1, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (20, 16, 20, N'Role Management', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
+VALUES (20, 16, 20, N'Role Management', N'Top', 1, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
 GO
 INSERT [dbo].[PageModule] ([PageModuleId], [PageId], [ModuleId], [Title], [Pane], [Order], [ContainerType], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (21, 17, 21, N'User Profile', N'Top', 0, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
+VALUES (21, 17, 21, N'User Profile', N'Top', 1, N'Oqtane.Client.Themes.Theme2.Container2, Oqtane.Client', '', getdate(), '', getdate())
 GO
 SET IDENTITY_INSERT [dbo].[PageModule] OFF 
 GO

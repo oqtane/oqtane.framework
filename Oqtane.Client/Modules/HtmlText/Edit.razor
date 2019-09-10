@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Components.Routing
 @using Oqtane.Modules
+@using Oqtane.Client.Modules.Controls
 @using Oqtane.Client.Modules.HtmlText.Services
 @using Oqtane.Shared.Modules.HtmlText.Models
 @using System.Net.Http;
@@ -9,54 +10,79 @@
 @inject HttpClient http
 @inject SiteState sitestate
 
-<form>
-    <table class="form-group">
-        <tr>
-            <td>
-                <label for="Name" class="control-label">Content: </label>
-            </td>
-            <td>
-                <textarea class="form-control" @bind="@content" rows="5" style="width:400px;" />
-            </td>
-        </tr>
-    </table>
-    <button type="button" class="btn btn-success" @onclick="@SaveContent">Save</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
-</form>
+<ModuleMessage Message="@message" />
+
+<table class="form-group">
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Content: </label>
+        </td>
+        <td>
+            <textarea class="form-control" @bind="@content" rows="5" style="width:400px;" />
+        </td>
+    </tr>
+</table>
+<button type="button" class="btn btn-success" @onclick="@SaveContent">Save</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+<br /><br />
+<AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Edit; } }
     public override string Title { get { return "Edit Html/Text"; } }
 
+    string message = "";
     string content;
+    string createdby;
+    DateTime createdon;
+    string modifiedby;
+    DateTime modifiedon;
 
     protected override async Task OnInitializedAsync()
     {
-        HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, UriHelper);
-        HtmlTextInfo htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
-        if (htmltext != null)
+        try
         {
-            content = htmltext.Content;
+            HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, UriHelper);
+            HtmlTextInfo htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
+            if (htmltext != null)
+            {
+                content = htmltext.Content;
+                createdby = htmltext.CreatedBy;
+                createdon = htmltext.CreatedOn;
+                modifiedby = htmltext.ModifiedBy;
+                modifiedon = htmltext.ModifiedOn;
+            }
+        }
+        catch (Exception ex)
+        {
+            message = ex.Message;
         }
     }
 
     private async Task SaveContent()
     {
-        HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, UriHelper);
-        HtmlTextInfo htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
-        if (htmltext != null)
+        try
         {
-            htmltext.Content = content;
-            await htmltextservice.UpdateHtmlTextAsync(htmltext);
+            HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, UriHelper);
+            HtmlTextInfo htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
+            if (htmltext != null)
+            {
+                htmltext.Content = content;
+                await htmltextservice.UpdateHtmlTextAsync(htmltext);
+            }
+            else
+            {
+                htmltext = new HtmlTextInfo();
+                htmltext.ModuleId = ModuleState.ModuleId;
+                htmltext.Content = content;
+                await htmltextservice.AddHtmlTextAsync(htmltext);
+            }
+            PageState.Reload = Constants.ReloadPage;
+            UriHelper.NavigateTo(NavigateUrl());
         }
-        else
+        catch (Exception ex)
         {
-            htmltext = new HtmlTextInfo();
-            htmltext.ModuleId = ModuleState.ModuleId;
-            htmltext.Content = content;
-            await htmltextservice.AddHtmlTextAsync(htmltext);
+            message = ex.Message;
         }
-        PageState.Reload = Constants.ReloadPage;
-        UriHelper.NavigateTo(NavigateUrl());
     }
 }

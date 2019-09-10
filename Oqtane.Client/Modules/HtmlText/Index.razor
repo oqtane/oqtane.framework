@@ -9,20 +9,30 @@
 @inject HttpClient http
 @inject SiteState sitestate
 
+<ModuleMessage Message="@message" />
+
 @((MarkupString)content)
 
 <br /><ActionLink Action="Edit" /><br /><br />
 
 @code {
+    string message = "";
     string content;
 
     protected override async Task OnParametersSetAsync()
     {
-        HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, UriHelper);
-        HtmlTextInfo htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
-        if (htmltext != null)
+        try
         {
-            content = htmltext.Content;
+            HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, UriHelper);
+            HtmlTextInfo htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
+            if (htmltext != null)
+            {
+                content = htmltext.Content;
+            }
+        }
+        catch (Exception ex)
+        {
+            message = ex.Message;
         }
     }
 }

@@ -10,6 +10,7 @@ namespace Oqtane.Services
         Task<PageModule> GetPageModuleAsync(int PageModuleId);
         Task<PageModule> AddPageModuleAsync(PageModule PageModule);
         Task<PageModule> UpdatePageModuleAsync(PageModule PageModule);
+        Task UpdatePageModuleOrderAsync(int PageId, string Pane);
         Task DeletePageModuleAsync(int PageModuleId);
     }
 }

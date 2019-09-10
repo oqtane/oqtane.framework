@@ -13,8 +13,8 @@
         public const string AdminPane = "Admin";
 
         public const string AllUsersRole = "All Users";
+        public const string HostRole = "Host Users";
         public const string AdminRole = "Administrators";
-        public const string HostRole = "Hosts";
 
         public const int ReloadApplication = 3;
         public const int ReloadSite = 2;

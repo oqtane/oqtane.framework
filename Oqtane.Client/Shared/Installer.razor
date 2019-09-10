@@ -1,5 +1,6 @@
 ﻿@using Oqtane.Services
 @using Oqtane.Models
+@using Oqtane.Shared
 @inject IUriHelper UriHelper
 @inject IInstallationService InstallationService
 @inject IUserService UserService
@@ -167,8 +168,8 @@
                 user.Username = Email;
                 user.DisplayName = Email;
                 user.Email = Email;
-                user.Password = HostPassword;
                 user.IsHost = true;
+                user.Password = HostPassword;
                 user = await UserService.AddUserAsync(user);
 
                 UriHelper.NavigateTo("", true);

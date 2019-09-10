@@ -31,11 +31,19 @@
             actions = new List<ActionViewModel>();
             if (ModuleState.PaneModuleIndex > 0)
             {
-                actions.Add(new ActionViewModel { Action = "up", Name = "Move Up" });
+                actions.Add(new ActionViewModel { Action = "<<", Name = "Move To Top" });
+            }
+            if (ModuleState.PaneModuleIndex > 0)
+            {
+                actions.Add(new ActionViewModel { Action = "<", Name = "Move Up" });
             }
             if (ModuleState.PaneModuleIndex < (ModuleState.PaneModuleCount - 1))
             {
-                actions.Add(new ActionViewModel { Action = "down", Name = "Move Down" });
+                actions.Add(new ActionViewModel { Action = ">", Name = "Move Down" });
+            }
+            if (ModuleState.PaneModuleIndex < (ModuleState.PaneModuleCount - 1))
+            {
+                actions.Add(new ActionViewModel { Action = ">>", Name = "Move To Bottom" });
             }
             foreach (string pane in PageState.Page.Panes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
             {
@@ -58,23 +66,40 @@
             string url = NavigateUrl();
             switch (action)
             {
-                case "up":
-                    pagemodule.Order += -1;
+                case "<<":
+                    pagemodule.Order = 0;
                     await PageModuleService.UpdatePageModuleAsync(pagemodule);
+                    await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
                     break;
-                case "down":
-                    pagemodule.Order += 1;
+                case "<":
+                    pagemodule.Order -= 3;
                     await PageModuleService.UpdatePageModuleAsync(pagemodule);
+                    await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
+                    break;
+                case ">":
+                    pagemodule.Order += 3;
+                    await PageModuleService.UpdatePageModuleAsync(pagemodule);
+                    await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
+                    break;
+                case ">>":
+                    pagemodule.Order = ModuleState.PaneModuleCount * 2;
+                    await PageModuleService.UpdatePageModuleAsync(pagemodule);
+                    await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
                     break;
                 case "settings":
                     url = EditUrl(pagemodule.ModuleId, "Settings");
                     break;
                 case "delete":
                     await PageModuleService.DeletePageModuleAsync(pagemodule.PageModuleId);
+                    await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
                     break;
                 default: // move to pane
+                    string pane = pagemodule.Pane;
                     pagemodule.Pane = action;
+                    pagemodule.Order = int.MaxValue; // add to bottom of pane
                     await PageModuleService.UpdatePageModuleAsync(pagemodule);
+                    await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
+                    await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pane);
                     break;
             }
             PageState.Reload = Constants.ReloadPage;

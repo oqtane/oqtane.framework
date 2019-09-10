@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
+using System.Linq;
 
 namespace Oqtane.Controllers
 {
@@ -11,10 +12,12 @@ namespace Oqtane.Controllers
     public class PageModuleController : Controller
     {
         private readonly IPageModuleRepository PageModules;
+        private readonly IModuleRepository Modules;
 
-        public PageModuleController(IPageModuleRepository PageModules)
+        public PageModuleController(IPageModuleRepository PageModules, IModuleRepository Modules)
         {
             this.PageModules = PageModules;
+            this.Modules = Modules;
         }
 
         // GET: api/<controller>
@@ -53,6 +56,24 @@ namespace Oqtane.Controllers
                 PageModule = PageModules.UpdatePageModule(PageModule);
             }
             return PageModule;
+        }
+
+        // PUT api/<controller>/?pageid=x&pane=y
+        [HttpPut]
+        [Authorize(Roles = Constants.AdminRole)]
+        public void Put(int pageid, string pane)
+        {
+            int order = 1;
+            List<PageModule> pagemodules = PageModules.GetPageModules(pageid).ToList();
+            foreach (PageModule pagemodule in pagemodules.Where(item => item.Pane == pane).OrderBy(item => item.Order))
+            {
+                if (pagemodule.Order != order)
+                {
+                    pagemodule.Order = order;
+                    PageModules.UpdatePageModule(pagemodule);
+                }
+                order += 2;
+            }
         }
 
         // DELETE api/<controller>/5
