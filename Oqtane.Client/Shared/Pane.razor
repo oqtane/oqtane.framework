@@ -9,13 +9,13 @@
 @inject IModuleService ModuleService
 @inject IModuleDefinitionService ModuleDefinitionService
 
-    <div class="@paneadminborder">
-        @if (panetitle != "")
-        {
-            @((MarkupString)panetitle)
-        }
-        @DynamicComponent
-    </div>
+<div class="@paneadminborder">
+    @if (panetitle != "")
+    {
+        @((MarkupString)panetitle)
+    }
+    @DynamicComponent
+</div>
 
 @code {
     [CascadingParameter]
@@ -129,6 +129,7 @@
                         {
                             builder.OpenComponent(0, Type.GetType(Constants.DefaultContainer));
                             builder.AddAttribute(1, "Module", module);
+                            builder.SetKey(module.PageModuleId);
                             builder.CloseComponent();
                         }
                     }

@@ -107,66 +107,64 @@ namespace Oqtane.Controllers
 
             if (ModelState.IsValid)
             {
-                bool authorized = HttpContext.User.IsInRole(Constants.AdminRole);
-                if (!authorized && !Users.GetUsers().Any())
+                bool installed = true;
+                if (!Users.GetUsers().Any())
                 {
-                    authorized = true; // during initial installation we need to be able to create the host user
+                    installed = false; // during initial installation we need to be able to create the host user
                 }
-                if (authorized)
-                {
-                    IdentityUser identityuser = await IdentityUserManager.FindByNameAsync(User.Username);
-                    if (identityuser == null)
-                    {
-                        identityuser = new IdentityUser();
-                        identityuser.UserName = User.Username;
-                        identityuser.Email = User.Username;
-                        var result = await IdentityUserManager.CreateAsync(identityuser, User.Password);
-                        if (result.Succeeded)
-                        {
-                            user = Users.AddUser(User);
-                            if (!user.IsHost) // host users are part of every site by default
-                            {
-                                SiteUser siteuser = new SiteUser();
-                                siteuser.SiteId = User.SiteId;
-                                siteuser.UserId = user.UserId;
-                                SiteUsers.AddSiteUser(siteuser);
 
-                                List<Role> roles = Roles.GetRoles(user.SiteId).Where(item => item.IsAutoAssigned == true).ToList();
-                                foreach (Role role in roles)
-                                {
-                                    UserRole userrole = new UserRole();
-                                    userrole.UserId = user.UserId;
-                                    userrole.RoleId = role.RoleId;
-                                    userrole.EffectiveDate = null;
-                                    userrole.ExpiryDate = null;
-                                    UserRoles.AddUserRole(userrole);
-                                }
+                IdentityUser identityuser = await IdentityUserManager.FindByNameAsync(User.Username);
+                if (identityuser == null)
+                {
+                    identityuser = new IdentityUser();
+                    identityuser.UserName = User.Username;
+                    identityuser.Email = User.Username;
+                    var result = await IdentityUserManager.CreateAsync(identityuser, User.Password);
+                    if (result.Succeeded)
+                    {
+                        user = Users.AddUser(User);
+                        if (!user.IsHost) // host users are part of every site by default
+                        {
+                            SiteUser siteuser = new SiteUser();
+                            siteuser.SiteId = User.SiteId;
+                            siteuser.UserId = user.UserId;
+                            SiteUsers.AddSiteUser(siteuser);
+
+                            List<Role> roles = Roles.GetRoles(user.SiteId).Where(item => item.IsAutoAssigned == true).ToList();
+                            foreach (Role role in roles)
+                            {
+                                UserRole userrole = new UserRole();
+                                userrole.UserId = user.UserId;
+                                userrole.RoleId = role.RoleId;
+                                userrole.EffectiveDate = null;
+                                userrole.ExpiryDate = null;
+                                UserRoles.AddUserRole(userrole);
                             }
                         }
                     }
-                    else
+                }
+                else
+                {
+                    user = Users.GetUser(User.Username);
+                    SiteUser siteuser = SiteUsers.GetSiteUser(User.SiteId, user.UserId);
+                    if (siteuser == null)
                     {
-                        user = Users.GetUser(User.Username);
-                        SiteUser siteuser = SiteUsers.GetSiteUser(User.SiteId, user.UserId);
-                        if (siteuser == null)
+                        if (!user.IsHost) // host users are part of every site by default
                         {
-                            if (!user.IsHost) // host users are part of every site by default
-                            {
-                                siteuser = new SiteUser();
-                                siteuser.SiteId = User.SiteId;
-                                siteuser.UserId = user.UserId;
-                                SiteUsers.AddSiteUser(siteuser);
+                            siteuser = new SiteUser();
+                            siteuser.SiteId = User.SiteId;
+                            siteuser.UserId = user.UserId;
+                            SiteUsers.AddSiteUser(siteuser);
 
-                                List<Role> roles = Roles.GetRoles(User.SiteId).Where(item => item.IsAutoAssigned == true).ToList();
-                                foreach (Role role in roles)
-                                {
-                                    UserRole userrole = new UserRole();
-                                    userrole.UserId = user.UserId;
-                                    userrole.RoleId = role.RoleId;
-                                    userrole.EffectiveDate = null;
-                                    userrole.ExpiryDate = null;
-                                    UserRoles.AddUserRole(userrole);
-                                }
+                            List<Role> roles = Roles.GetRoles(User.SiteId).Where(item => item.IsAutoAssigned == true).ToList();
+                            foreach (Role role in roles)
+                            {
+                                UserRole userrole = new UserRole();
+                                userrole.UserId = user.UserId;
+                                userrole.RoleId = role.RoleId;
+                                userrole.EffectiveDate = null;
+                                userrole.ExpiryDate = null;
+                                UserRoles.AddUserRole(userrole);
                             }
                         }
                     }
@@ -178,7 +176,7 @@ namespace Oqtane.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        [Authorize(Roles = Constants.AdminRole)]
+        [Authorize]
         public User Put(int id, [FromBody] User User)
         {
             if (ModelState.IsValid)

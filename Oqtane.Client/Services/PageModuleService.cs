@@ -46,6 +46,11 @@ namespace Oqtane.Services
             return await http.PutJsonAsync<PageModule>(apiurl + "/" + PageModule.PageModuleId.ToString(), PageModule);
         }
 
+        public async Task UpdatePageModuleOrderAsync(int PageId, string Pane)
+        {
+            await http.PutJsonAsync(apiurl + "/?pageid=" + PageId.ToString() + "&pane=" + Pane, null);
+        }
+
         public async Task DeletePageModuleAsync(int PageModuleId)
         {
             await http.DeleteAsync(apiurl + "/" + PageModuleId.ToString());

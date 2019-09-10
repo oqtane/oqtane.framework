@@ -13,45 +13,34 @@
     [Parameter]
     public Module Module { get; set; }
 
-    Module ModuleState;
-    string container;
-
     RenderFragment DynamicComponent { get; set; }
+
+    Module ModuleState;
 
     protected override void OnParametersSet()
     {
+        ModuleState = Module; // passed in from Pane component
+        string container = ModuleState.ContainerType;
+        if (PageState.ModuleId != -1 && PageState.Control != "" && ModuleState.UseAdminContainer)
+        {
+            container = Constants.DefaultAdminContainer;
+        }
+
         DynamicComponent = builder =>
         {
-            if (ModuleState != null)
+            Type containerType = Type.GetType(container);
+            if (containerType != null)
             {
-                Type containerType = Type.GetType(container);
-                if (containerType != null)
-                {
-                    builder.OpenComponent(0, containerType);
-                    builder.CloseComponent();
-                }
-                else
-                {
-                    // container does not exist with type specified
-                    builder.OpenComponent(0, Type.GetType(Constants.ModuleMessageControl));
-                    builder.AddAttribute(1, "Message", "Error Loading Module Container " + container);
-                    builder.CloseComponent();
-                }
+                builder.OpenComponent(0, containerType);
+                builder.CloseComponent();
+            }
+            else
+            {
+                // container does not exist with type specified
+                builder.OpenComponent(0, Type.GetType(Constants.ModuleMessageControl));
+                builder.AddAttribute(1, "Message", "Error Loading Module Container " + container);
+                builder.CloseComponent();
             }
         };
-    }
-
-    protected override Task OnParametersSetAsync()
-    {
-        if (PageState.Page.PageId == Module.PageId)
-        {
-            ModuleState = Module; // passed in from Pane component
-            container = ModuleState.ContainerType;
-            if (PageState.ModuleId != -1 && PageState.Control != "" && ModuleState.UseAdminContainer)
-            {
-                container = Constants.DefaultAdminContainer;
-            }
-        }
-        return Task.CompletedTask;
     }
 }
