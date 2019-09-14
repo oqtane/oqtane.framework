@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Oqtane.Client.Modules.Weather.Services
+namespace Oqtane.Modules.Weather.Services
 {
     public interface IWeatherForecastService
     {

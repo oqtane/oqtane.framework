@@ -26,5 +26,9 @@ namespace Oqtane.Models
 
         [NotMapped]
         public string Permissions { get; set; }
+        [NotMapped]
+        public int Level { get; set; }
+        [NotMapped]
+        public bool HasChildren { get; set; }
     }
 }

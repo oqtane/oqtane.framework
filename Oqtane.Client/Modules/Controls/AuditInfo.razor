@@ -1,7 +1,11 @@
 ﻿@using Oqtane.Modules
+@namespace Oqtane.Modules.Controls
 @inherits ModuleBase
 
-@((MarkupString)@text)
+@if (text != "")
+{
+    @((MarkupString)@text)
+}
 
 @code {
     [Parameter]
@@ -21,8 +25,9 @@
 
     string text = "";
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
+        text = "";
         if (!String.IsNullOrEmpty(CreatedBy) || CreatedOn != null)
         {
             text += "<p style=\"" + Style + "\">Created ";

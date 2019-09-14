@@ -3,7 +3,7 @@ using Oqtane.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Oqtane.Shared.Modules.HtmlText.Models
+namespace Oqtane.Modules.HtmlText.Models
 {
     [Table("HtmlText")]
     public class HtmlTextInfo : IAuditable

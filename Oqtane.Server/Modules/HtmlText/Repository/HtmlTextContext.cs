@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Oqtane.Shared.Modules.HtmlText.Models;
+using Oqtane.Modules.HtmlText.Models;
 using Oqtane.Repository;
 using Oqtane.Modules;
 using Microsoft.AspNetCore.Http;
 
-namespace Oqtane.Server.Modules.HtmlText.Repository
+namespace Oqtane.Modules.HtmlText.Repository
 {
     public class HtmlTextContext : DBContextBase, IService
     {

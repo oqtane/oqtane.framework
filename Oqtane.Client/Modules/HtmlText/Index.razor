@@ -1,9 +1,10 @@
-﻿@using Oqtane.Client.Modules.HtmlText.Services
+﻿@using Oqtane.Modules.HtmlText.Services
 @using Oqtane.Modules
-@using Oqtane.Shared.Modules.HtmlText.Models
+@using Oqtane.Modules.HtmlText.Models
 @using System.Net.Http;
-@using Oqtane.Client.Modules.Controls
+@using Oqtane.Modules.Controls
 @using Oqtane.Shared;
+@namespace Oqtane.Modules.HtmlText
 @inherits ModuleBase
 @inject IUriHelper UriHelper
 @inject HttpClient http
@@ -13,7 +14,10 @@
 
 @((MarkupString)content)
 
-<br /><ActionLink Action="Edit" /><br /><br />
+<br />
+<ActionLink Action="Edit" />
+<br />
+<br />
 
 @code {
     string message = "";

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
+using System.Linq;
 
 namespace Oqtane.Controllers
 {
@@ -60,6 +61,24 @@ namespace Oqtane.Controllers
                 Page = Pages.UpdatePage(Page);
             }
             return Page;
+        }
+
+        // PUT api/<controller>/?siteid=x&parentid=y
+        [HttpPut]
+        [Authorize(Roles = Constants.AdminRole)]
+        public void Put(int siteid, int? parentid)
+        {
+            int order = 1;
+            List<Page> pages = Pages.GetPages(siteid).ToList();
+            foreach (Page page in pages.Where(item => item.ParentId == parentid).OrderBy(item => item.Order))
+            {
+                if (page.Order != order)
+                {
+                    page.Order = order;
+                    Pages.UpdatePage(page);
+                }
+                order += 2;
+            }
         }
 
         // DELETE api/<controller>/5

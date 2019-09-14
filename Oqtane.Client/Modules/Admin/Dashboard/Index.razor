@@ -3,7 +3,7 @@
 @using Oqtane.Services
 @using Oqtane.Models;
 @using Oqtane.Security
-@using Oqtane.Client.Modules.Controls
+@namespace Oqtane.Modules.Admin.Dashboard
 @inherits ModuleBase
 @inject IPageService PageService
 @inject IUserService UserService
@@ -22,7 +22,8 @@
         }
     }
 </ul>
-<br /><br />
+<br />
+<br />
 
 @code {
     List<Page> pages;

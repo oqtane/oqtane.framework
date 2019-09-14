@@ -1,6 +1,7 @@
 ﻿@using Oqtane.Models
 @using Oqtane.Shared
 @using Oqtane.Modules
+@namespace Oqtane.Shared
 
 <CascadingValue Value="@ModuleState">
     @DynamicComponent
@@ -36,8 +37,8 @@
             }
             else
             {
-                // container does not exist with type specified
-                builder.OpenComponent(0, Type.GetType(Constants.ModuleMessageControl));
+            // container does not exist with type specified
+            builder.OpenComponent(0, Type.GetType(Constants.ModuleMessageControl));
                 builder.AddAttribute(1, "Message", "Error Loading Module Container " + container);
                 builder.CloseComponent();
             }

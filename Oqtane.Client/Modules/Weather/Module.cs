@@ -1,7 +1,7 @@
 ﻿using Oqtane.Modules;
 using System.Collections.Generic;
 
-namespace Oqtane.Client.Modules.Weather
+namespace Oqtane.Modules.Weather
 {
     public class Module : IModule
     {

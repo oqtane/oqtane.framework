@@ -1,15 +1,12 @@
-﻿@using Oqtane.Client.Modules.Controls
+﻿@using Oqtane.Modules.Controls
 @using Oqtane.Services
 @using Oqtane.Models
 @using Oqtane.Modules
+@using Oqtane.Shared
+@namespace Oqtane.Modules.Admin.Pages
 @inherits ModuleBase
-@inject IPageService PageService
 
-@if (PageState.Pages == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
+@if (PageState.Pages != null)
 {
     <ActionLink Action="Add" Text="Add Page" />
     <table class="table table-borderless">
@@ -17,7 +14,6 @@ else
             <tr>
                 <th>&nbsp;</th>
                 <th>&nbsp;</th>
-                <th>Path</th>
                 <th>Name</th>
             </tr>
         </thead>
@@ -27,12 +23,12 @@ else
                 <tr>
                     <td><ActionLink Action="Edit" Parameters="@($"id=" + page.PageId.ToString())" /></td>
                     <td><ActionLink Action="Delete" Parameters="@($"id=" + page.PageId.ToString())" Class="btn btn-danger" /></td>
-                    <td>@(page.Path)</td>
-                    <td>@(page.Name)</td>
+                    <td>@(new string('-', page.Level * 2))@(page.Name)</td>
                 </tr>
             }
         </tbody>
-    </table> 
+    </table>
+
 }
 
 @code {
