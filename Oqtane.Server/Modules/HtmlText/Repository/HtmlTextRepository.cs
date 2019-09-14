@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
-using Oqtane.Shared.Modules.HtmlText.Models;
+using Oqtane.Modules.HtmlText.Models;
 using Oqtane.Modules;
 
-namespace Oqtane.Server.Modules.HtmlText.Repository
+namespace Oqtane.Modules.HtmlText.Repository
 {
     public class HtmlTextRepository : IHtmlTextRepository, IService
     {

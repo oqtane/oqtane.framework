@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Oqtane.Shared.Modules.HtmlText.Models;
+using Oqtane.Modules.HtmlText.Models;
 
-namespace Oqtane.Server.Modules.HtmlText.Repository
+namespace Oqtane.Modules.HtmlText.Repository
 {
     public interface IHtmlTextRepository
     {

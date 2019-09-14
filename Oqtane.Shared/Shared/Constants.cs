@@ -2,12 +2,12 @@
 {
     public class Constants
     {
-        public const string DefaultPage = "Oqtane.Client.Shared.Theme, Oqtane.Client";
-        public const string DefaultContainer = "Oqtane.Client.Shared.Container, Oqtane.Client";
-        public const string DefaultAdminContainer = "Oqtane.Client.Themes.AdminContainer, Oqtane.Client";
-        public const string DefaultSettingsControl = "Oqtane.Client.Modules.Admin.ModuleSettings.Index, Oqtane.Client";
-        public const string PageManagementModule = "Oqtane.Client.Modules.Admin.Pages, Oqtane.Client";
-        public const string ModuleMessageControl = "Oqtane.Client.Modules.Controls.ModuleMessage, Oqtane.Client";
+        public const string DefaultPage = "Oqtane.Shared.ThemeBuilder, Oqtane.Client";
+        public const string DefaultContainer = "Oqtane.Shared.ContainerBuilder, Oqtane.Client";
+        public const string DefaultAdminContainer = "Oqtane.Themes.AdminContainer, Oqtane.Client";
+        public const string DefaultSettingsControl = "Oqtane.Modules.Admin.ModuleSettings.Index, Oqtane.Client";
+        public const string PageManagementModule = "Oqtane.Modules.Admin.Pages, Oqtane.Client";
+        public const string ModuleMessageControl = "Oqtane.Modules.Controls.ModuleMessage, Oqtane.Client";
         public const string DefaultControl = "Index";
 
         public const string AdminPane = "Admin";

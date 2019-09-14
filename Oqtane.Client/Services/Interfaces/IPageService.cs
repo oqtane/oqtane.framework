@@ -10,6 +10,7 @@ namespace Oqtane.Services
         Task<Page> GetPageAsync(int PageId);
         Task<Page> AddPageAsync(Page Page);
         Task<Page> UpdatePageAsync(Page Page);
+        Task UpdatePageOrderAsync(int SiteId, int? ParentId);
         Task DeletePageAsync(int PageId);
     }
 }

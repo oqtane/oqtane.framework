@@ -1,6 +1,7 @@
 ﻿@using Oqtane.Models
 @using Oqtane.Shared
 @using Oqtane.Modules
+@namespace Oqtane.Shared
 
 @DynamicComponent
 
@@ -34,8 +35,8 @@
             }
             else
             {
-                // module does not exist with typename specified
-                builder.OpenComponent(0, Type.GetType(Constants.ModuleMessageControl));
+            // module does not exist with typename specified
+            builder.OpenComponent(0, Type.GetType(Constants.ModuleMessageControl));
                 builder.AddAttribute(1, "Message", "Error Loading Component For Module " + ModuleState.ModuleDefinitionName);
                 builder.CloseComponent();
             }

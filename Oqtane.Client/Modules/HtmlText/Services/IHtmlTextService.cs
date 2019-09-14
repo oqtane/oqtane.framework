@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Oqtane.Shared.Modules.HtmlText.Models;
+using Oqtane.Modules.HtmlText.Models;
 
-namespace Oqtane.Client.Modules.HtmlText.Services
+namespace Oqtane.Modules.HtmlText.Services
 {
     public interface IHtmlTextService 
     {

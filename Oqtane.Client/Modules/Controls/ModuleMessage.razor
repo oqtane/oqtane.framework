@@ -1,9 +1,12 @@
 ﻿@using Oqtane.Modules
+@namespace Oqtane.Modules.Controls
 @inherits ModuleBase
 
 @if (Message != "")
 {
-    <div class="@type">@Message</div><br /><br />
+    <div class="@type">@Message</div>
+    <br />
+    <br />
 }
 
 @code {
@@ -13,7 +16,7 @@
     [Parameter]
     public MessageType Type { get; set; }
 
-    string type = "alert alert-danger"; 
+    string type = "alert alert-danger";
 
     protected override void OnInitialized()
     {

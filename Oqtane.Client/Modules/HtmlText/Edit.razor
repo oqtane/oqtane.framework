@@ -1,10 +1,11 @@
 ﻿@using Microsoft.AspNetCore.Components.Routing
 @using Oqtane.Modules
-@using Oqtane.Client.Modules.Controls
-@using Oqtane.Client.Modules.HtmlText.Services
-@using Oqtane.Shared.Modules.HtmlText.Models
+@using Oqtane.Modules.Controls
+@using Oqtane.Modules.HtmlText.Services
+@using Oqtane.Modules.HtmlText.Models
 @using System.Net.Http;
 @using Oqtane.Shared;
+@namespace Oqtane.Modules.HtmlText
 @inherits ModuleBase
 @inject IUriHelper UriHelper
 @inject HttpClient http
@@ -24,7 +25,8 @@
 </table>
 <button type="button" class="btn btn-success" @onclick="@SaveContent">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
-<br /><br />
+<br />
+<br />
 <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
 
 @code {

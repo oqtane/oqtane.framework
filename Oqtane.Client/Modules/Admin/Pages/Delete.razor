@@ -1,10 +1,11 @@
 ﻿@using Microsoft.AspNetCore.Components.Routing
-@using Oqtane.Client.Modules.Controls
+@using Oqtane.Modules.Controls
 @using Oqtane.Models
 @using Oqtane.Services
 @using Oqtane.Modules
 @using Oqtane.Shared
 @using Oqtane.Security
+@namespace Oqtane.Modules.Admin.Pages
 @inherits ModuleBase
 @inject IUriHelper UriHelper
 @inject IPageService PageService
@@ -41,14 +42,6 @@
                     <option value="@p.PageId">@p.Name</option>
                 }
             </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Order: </label>
-        </td>
-        <td>
-            <input class="form-control" @bind="@order" readonly />
         </td>
     </tr>
     <tr>
@@ -136,7 +129,6 @@
     string name;
     string path;
     string parentid;
-    string order;
     string isnavigation;
     string editmode;
     string themetype;
@@ -163,8 +155,6 @@
             {
                 name = page.Name;
                 path = page.Path;
-
-                order = page.Order.ToString();
                 isnavigation = page.IsNavigation.ToString();
                 editmode = page.EditMode.ToString();
                 themetype = page.ThemeType;

@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Oqtane.Shared.Modules.HtmlText.Models;
-using Oqtane.Server.Modules.HtmlText.Repository;
+using Oqtane.Modules.HtmlText.Models;
+using Oqtane.Modules.HtmlText.Repository;
 using Microsoft.AspNetCore.Http;
 
-namespace Oqtane.Server.Modules.HtmlText.Controllers
+namespace Oqtane.Modules.HtmlText.Controllers
 {
     [Route("{site}/api/[controller]")]
     public class HtmlTextController : Controller

@@ -3,6 +3,7 @@
 @using Oqtane.Models
 @using Oqtane.Shared
 @using Oqtane.Security
+@namespace Oqtane.Themes.Controls
 @inherits ContainerBase
 @inject IUriHelper UriHelper
 @inject IUserService UserService
@@ -82,7 +83,7 @@
                     await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
                     break;
                 case ">>":
-                    pagemodule.Order = ModuleState.PaneModuleCount * 2;
+                    pagemodule.Order = int.MaxValue;
                     await PageModuleService.UpdatePageModuleAsync(pagemodule);
                     await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
                     break;

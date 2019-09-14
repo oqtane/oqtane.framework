@@ -1,7 +1,7 @@
 ﻿using Oqtane.Modules;
 using System.Collections.Generic;
 
-namespace Oqtane.Client.Modules.HtmlText
+namespace Oqtane.Modules.HtmlText
 {
     public class Module : IModule
     {

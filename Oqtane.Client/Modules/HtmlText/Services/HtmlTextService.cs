@@ -4,10 +4,10 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using Microsoft.AspNetCore.Components;
 using Oqtane.Services;
-using Oqtane.Shared.Modules.HtmlText.Models;
+using Oqtane.Modules.HtmlText.Models;
 using Oqtane.Shared;
 
-namespace Oqtane.Client.Modules.HtmlText.Services
+namespace Oqtane.Modules.HtmlText.Services
 {
     public class HtmlTextService : ServiceBase, IHtmlTextService
     {

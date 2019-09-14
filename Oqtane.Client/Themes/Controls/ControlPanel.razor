@@ -4,6 +4,7 @@
 @using Oqtane.Themes
 @using Oqtane.Shared
 @using Oqtane.Security
+@namespace Oqtane.Themes.Controls
 @inherits ThemeObjectBase
 @inject IUriHelper UriHelper
 @inject IUserService UserService
@@ -133,9 +134,10 @@
             }
             pagemodule.Title = title;
             pagemodule.Pane = pane;
-            pagemodule.Order = 0;
+            pagemodule.Order = int.MaxValue;
             pagemodule.ContainerType = containertype;
             await PageModuleService.AddPageModuleAsync(pagemodule);
+            await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
 
             PageState.Reload = Constants.ReloadPage;
             UriHelper.NavigateTo(NavigateUrl());

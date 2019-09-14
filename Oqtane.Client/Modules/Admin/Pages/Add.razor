@@ -1,10 +1,11 @@
 ﻿@using Microsoft.AspNetCore.Components.Routing
-@using Oqtane.Client.Modules.Controls
+@using Oqtane.Modules.Controls
 @using Oqtane.Models
 @using Oqtane.Services
 @using Oqtane.Modules
 @using Oqtane.Shared
 @using Oqtane.Security
+@namespace Oqtane.Modules.Admin.Pages
 @inherits ModuleBase
 @inject IUriHelper UriHelper
 @inject IPageService PageService
@@ -23,32 +24,42 @@
     </tr>
     <tr>
         <td>
-            <label for="Name" class="control-label">Path: </label>
-        </td>
-        <td>
-            <input class="form-control" @bind="@path" />
-        </td>
-    </tr>
-    <tr>
-        <td>
             <label for="Name" class="control-label">Parent: </label>
         </td>
         <td>
-            <select class="form-control" @bind="@parentid">
-                <option value="">&lt;Select Parent&gt;</option>
-                @foreach (Page page in PageState.Pages)
+            <select class="form-control" @onchange="@(e => ParentChanged(e))">
+                <option value="">&lt;Site Root&gt;</option>
+                @foreach (Page page in pages)
                 {
-                    <option value="@(page.PageId)">@(page.Name)</option>
+                    <option value="@(page.PageId)">@(new string('-',page.Level * 2))@(page.Name)</option>
                 }
             </select>
         </td>
     </tr>
     <tr>
         <td>
-            <label for="Name" class="control-label">Order: </label>
+            <label for="Name" class="control-label">Insert: </label>
         </td>
         <td>
-            <input class="form-control" @bind="@order" />
+            <select class="form-control" @bind="@insert">
+                <option value="<<">At Beginning</option>
+                @if (children != null && children.Count > 0)
+                {
+                    <option value="<">Before</option>
+                    <option value=">">After</option>
+                }
+                <option value=">>" selected>At End</option>
+            </select>
+            @if (children != null && children.Count > 0 && (insert == "<" || insert == ">"))
+            {
+                <select class="form-control" @bind="@childid">
+                    <option value="-1">&lt;Select Page&gt;</option>
+                    @foreach (Page page in children)
+                    {
+                        <option value="@(page.PageId)">@(page.Name)</option>
+                    }
+                </select>
+            }
         </td>
     </tr>
     <tr>
@@ -129,10 +140,12 @@
     Dictionary<string, string> themes = new Dictionary<string, string>();
     Dictionary<string, string> panelayouts = new Dictionary<string, string>();
 
+    List<Page> pages;
     string name;
-    string path;
     string parentid;
-    string order = "";
+    string insert;
+    List<Page> children;
+    int childid = -1;
     string isnavigation = "True";
     string editmode = "False";
     string themetype;
@@ -146,6 +159,9 @@
     {
         try
         {
+            pages = PageState.Pages.Where(item => item.IsNavigation).ToList();
+            children = PageState.Pages.Where(item => item.ParentId == null && item.IsNavigation).OrderBy(item => item.Order).ToList();
+
             themes = ThemeService.GetThemeTypes(PageState.Themes);
             panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes);
 
@@ -160,23 +176,63 @@
         }
     }
 
+    private void ParentChanged(UIChangeEventArgs e)
+    {
+        try
+        {
+            parentid = (string)e.Value;
+            if (string.IsNullOrEmpty(parentid))
+            {
+                children = PageState.Pages.Where(item => item.ParentId == null && item.IsNavigation).OrderBy(item => item.Order).ToList();
+            }
+            else
+            {
+                children = PageState.Pages.Where(item => item.ParentId == int.Parse(parentid) && item.IsNavigation).OrderBy(item => item.Order).ToList();
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            message = ex.Message;
+        }
+    }
+
     private async Task SavePage()
     {
         try
         {
             Page page = new Page();
             page.SiteId = PageState.Page.SiteId;
+            page.Name = name;
             if (string.IsNullOrEmpty(parentid))
             {
                 page.ParentId = null;
+                page.Path = page.Name.ToLower();
             }
             else
             {
                 page.ParentId = Int32.Parse(parentid);
+                Page parent = PageState.Pages.Where(item => item.ParentId == page.ParentId).FirstOrDefault();
+                page.Path = parent.Path + "/" + page.Name.ToLower();
             }
-            page.Name = name;
-            page.Path = path;
-            page.Order = (order == null ? 1 : Int32.Parse(order));
+            Page child;
+            switch (insert)
+            {
+                case "<<":
+                    page.Order = 0;
+                    break;
+                case "<":
+                    child = PageState.Pages.Where(item => item.PageId == childid).FirstOrDefault();
+                    page.Order = child.Order - 1;
+                    break;
+                case ">":
+                    child = PageState.Pages.Where(item => item.PageId == childid).FirstOrDefault();
+                    page.Order = child.Order + 1;
+                    break;
+                case ">>":
+                    page.Order = int.MaxValue;
+                    break;
+            }
             page.IsNavigation = (isnavigation == null ? true : Boolean.Parse(isnavigation));
             page.EditMode = (editmode == null ? true : Boolean.Parse(editmode));
             page.ThemeType = themetype;
@@ -195,20 +251,15 @@
             page.Panes = (string)property.GetValue(Activator.CreateInstance(type), null);
             page.Permissions = permissiongrid.GetPermissions();
             await PageService.AddPageAsync(page);
+            await PageService.UpdatePageOrderAsync(page.SiteId, page.ParentId);
 
             PageState.Reload = Constants.ReloadSite;
-            if (PageState.Page.Name == "Page Management")
-            {
-                UriHelper.NavigateTo(NavigateUrl());
-            }
-            else
-            {
-                UriHelper.NavigateTo(NavigateUrl(path));
-            }
+            UriHelper.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {
             message = ex.Message;
         }
     }
+
 }

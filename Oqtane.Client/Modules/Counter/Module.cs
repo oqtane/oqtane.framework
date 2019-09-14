@@ -1,7 +1,7 @@
 ﻿using Oqtane.Modules;
 using System.Collections.Generic;
 
-namespace Oqtane.Client.Modules.Counter
+namespace Oqtane.Modules.Counter
 {
     public class Module : IModule
     {
