@@ -1,7 +1,5 @@
-﻿using Oqtane.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Globalization;
+using System.Text;
 
 namespace Oqtane.Shared
 {
@@ -65,6 +63,129 @@ namespace Oqtane.Shared
             }
             string[] fragments = typename.Split('.');
             return fragments[fragments.Length - 1];
+        }
+
+        public static string GetFriendlyUrl(string text)
+        {
+            string result = "";
+            if (text != null)
+            {
+                var normalizedString = text.ToLowerInvariant().Normalize(NormalizationForm.FormD);
+                var stringBuilder = new StringBuilder();
+                var stringLength = normalizedString.Length;
+                var prevdash = false;
+                char c;
+                for (int i = 0; i < stringLength; i++)
+                {
+                    c = normalizedString[i];
+                    switch (CharUnicodeInfo.GetUnicodeCategory(c))
+                    {
+                        case UnicodeCategory.LowercaseLetter:
+                        case UnicodeCategory.UppercaseLetter:
+                        case UnicodeCategory.DecimalDigitNumber:
+                            if (c < 128)
+                                stringBuilder.Append(c);
+                            else
+                                stringBuilder.Append(RemapInternationalCharToAscii(c));
+                            prevdash = false;
+                            break;
+                        case UnicodeCategory.SpaceSeparator:
+                        case UnicodeCategory.ConnectorPunctuation:
+                        case UnicodeCategory.DashPunctuation:
+                        case UnicodeCategory.OtherPunctuation:
+                        case UnicodeCategory.MathSymbol:
+                            if (!prevdash)
+                            {
+                                stringBuilder.Append('-');
+                                prevdash = true;
+                            }
+                            break;
+                    }
+                }
+                result = stringBuilder.ToString().Trim('-');
+            }
+            return result;
+        }
+
+        private static string RemapInternationalCharToAscii(char c)
+        {
+            string s = c.ToString().ToLowerInvariant();
+            if ("àåáâäãåą".Contains(s))
+            {
+                return "a";
+            }
+            else if ("èéêëę".Contains(s))
+            {
+                return "e";
+            }
+            else if ("ìíîïı".Contains(s))
+            {
+                return "i";
+            }
+            else if ("òóôõöøőð".Contains(s))
+            {
+                return "o";
+            }
+            else if ("ùúûüŭů".Contains(s))
+            {
+                return "u";
+            }
+            else if ("çćčĉ".Contains(s))
+            {
+                return "c";
+            }
+            else if ("żźž".Contains(s))
+            {
+                return "z";
+            }
+            else if ("śşšŝ".Contains(s))
+            {
+                return "s";
+            }
+            else if ("ñń".Contains(s))
+            {
+                return "n";
+            }
+            else if ("ýÿ".Contains(s))
+            {
+                return "y";
+            }
+            else if ("ğĝ".Contains(s))
+            {
+                return "g";
+            }
+            else if (c == 'ř')
+            {
+                return "r";
+            }
+            else if (c == 'ł')
+            {
+                return "l";
+            }
+            else if (c == 'đ')
+            {
+                return "d";
+            }
+            else if (c == 'ß')
+            {
+                return "ss";
+            }
+            else if (c == 'þ')
+            {
+                return "th";
+            }
+            else if (c == 'ĥ')
+            {
+                return "h";
+            }
+            else if (c == 'ĵ')
+            {
+                return "j";
+            }
+            else
+            {
+                return "";
+            }
         }
     }
 }

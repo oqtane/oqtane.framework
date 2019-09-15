@@ -12,7 +12,7 @@
 <ul class="list-group">
     @foreach (var p in pages)
     {
-        if (p.IsNavigation && UserSecurity.IsAuthorized(PageState.User, "View", p.Permissions))
+        if (UserSecurity.IsAuthorized(PageState.User, "View", p.Permissions))
         {
             string url = NavigateUrl(p.Path);
             <li class="list-group-item">
