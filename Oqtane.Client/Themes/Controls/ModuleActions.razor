@@ -5,7 +5,7 @@
 @using Oqtane.Security
 @namespace Oqtane.Themes.Controls
 @inherits ContainerBase
-@inject IUriHelper UriHelper
+@inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject IPageModuleService PageModuleService
 
@@ -16,7 +16,7 @@
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
             @foreach (var action in actions)
             {
-                <a class="dropdown-item" @onclick="@(async () => await ModuleAction(action.Action))">@action.Name</a>
+                <a class="dropdown-item" @onclick="(async () => await ModuleAction(action.Action))">@action.Name</a>
             }
         </div>
     </div>
@@ -104,7 +104,7 @@
                     break;
             }
             PageState.Reload = Constants.ReloadPage;
-            UriHelper.NavigateTo(url);
+            NavigationManager.NavigateTo(url);
         }
     }
 

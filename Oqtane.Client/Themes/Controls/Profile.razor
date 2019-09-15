@@ -1,17 +1,18 @@
 ﻿@using Oqtane.Themes
+@using Microsoft.AspNetCore.Components.Authorization
 @namespace Oqtane.Themes.Controls
 @inherits ThemeObjectBase
-@inject IUriHelper UriHelper
+@inject NavigationManager NavigationManager
 
 <AuthorizeView>
     <Authorizing>
         <text>...</text>
     </Authorizing>
     <Authorized>
-        <button type="button" class="btn btn-primary" @onclick="@UpdateProfile">@context.User.Identity.Name</button>
+        <button type="button" class="btn btn-primary" @onclick="UpdateProfile">@context.User.Identity.Name</button>
     </Authorized>
     <NotAuthorized>
-        <button type="button" class="btn btn-primary" @onclick="@RegisterUser">Register</button>
+        <button type="button" class="btn btn-primary" @onclick="RegisterUser">Register</button>
     </NotAuthorized>
 </AuthorizeView>
 
@@ -20,12 +21,12 @@
 
     private void RegisterUser()
     {
-        UriHelper.NavigateTo(NavigateUrl("register"));
+        NavigationManager.NavigateTo(NavigateUrl("register"));
     }
 
     private void UpdateProfile()
     {
-        UriHelper.NavigateTo(NavigateUrl("profile"));
+        NavigationManager.NavigateTo(NavigateUrl("profile"));
     }
 }
 

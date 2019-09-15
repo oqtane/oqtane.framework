@@ -13,18 +13,18 @@ namespace Oqtane.Modules.HtmlText.Services
     {
         private readonly HttpClient http;
         private readonly SiteState sitestate;
-        private readonly IUriHelper urihelper;
+        private readonly NavigationManager NavigationManager;
 
-        public HtmlTextService(HttpClient http, SiteState sitestate, IUriHelper urihelper)
+        public HtmlTextService(HttpClient http, SiteState sitestate, NavigationManager NavigationManager)
         {
             this.http = http;
             this.sitestate = sitestate;
-            this.urihelper = urihelper;
+            this.NavigationManager = NavigationManager;
         }
 
         private string apiurl
         {
-            get { return CreateApiUrl(sitestate.Alias, urihelper.GetAbsoluteUri(), "HtmlText"); }
+            get { return CreateApiUrl(sitestate.Alias, NavigationManager.ToAbsoluteUri(NavigationManager.Uri).AbsoluteUri, "HtmlText"); }
         }
 
         public async Task<HtmlTextInfo> GetHtmlTextAsync(int ModuleId)

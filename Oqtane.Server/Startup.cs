@@ -56,7 +56,7 @@ namespace Oqtane.Server
                 services.AddScoped<HttpClient>(s =>
                 {
                     // creating the URI helper needs to wait until the JS Runtime is initialized, so defer it.
-                    var uriHelper = s.GetRequiredService<IUriHelper>();
+                    var NavigationManager = s.GetRequiredService<NavigationManager>();
                     var httpContextAccessor = s.GetRequiredService<IHttpContextAccessor>();
                     var authToken = httpContextAccessor.HttpContext.Request.Cookies[".AspNetCore.Identity.Application"];
                     var client = new HttpClient(new HttpClientHandler { UseCookies = false });
@@ -64,7 +64,7 @@ namespace Oqtane.Server
                     {
                         client.DefaultRequestHeaders.Add("Cookie", ".AspNetCore.Identity.Application=" + authToken);
                     }
-                    client.BaseAddress = new Uri(uriHelper.GetBaseUri());
+                    client.BaseAddress = new Uri(NavigationManager.ToAbsoluteUri(NavigationManager.Uri).AbsoluteUri);
                     return client;
                 });
             }
