@@ -1,7 +1,8 @@
 ﻿@using Oqtane.Services
 @using Oqtane.Models
 @using Oqtane.Modules
-@using Oqtane.Client.Modules.Controls
+@using Oqtane.Modules.Controls
+@namespace Oqtane.Modules.Admin.Users
 @inherits ModuleBase
 
 @inject IUserService UserService
@@ -30,12 +31,12 @@ else
 }
 
 @code {
-    public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Host; } }
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 
     List<User> Users;
 
-    protected override async Task OnInitAsync()
+    protected override async Task OnInitializedAsync()
     {
-        Users = await UserService.GetUsersAsync();
+        Users = await UserService.GetUsersAsync(PageState.Site.SiteId);
     }
 }

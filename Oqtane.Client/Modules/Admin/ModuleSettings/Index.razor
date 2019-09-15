@@ -3,107 +3,125 @@
 @using Oqtane.Models
 @using Oqtane.Modules
 @using Oqtane.Shared
-@using Oqtane.Client.Modules.Controls
+@using Oqtane.Security
+@using Oqtane.Modules.Controls
+@namespace Oqtane.Modules.Admin.ModuleSettings
 @inherits ModuleBase
 @inject IUriHelper UriHelper
 @inject IThemeService ThemeService
 @inject IModuleService ModuleService
 @inject IPageModuleService PageModuleService
 
-<table class="form-group">
-    <tr>
-        <td>
-            <label for="Title" class="control-label">Title: </label>
-        </td>
-        <td>
-            <input type="text" name="Title" class="form-control" @bind="@title" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Container" class="control-label">Container: </label>
-        </td>
-        <td>
-            <select class="form-control" @bind="@containertype">
-                <option value="">&lt;Select Container&gt;</option>
-                @foreach (KeyValuePair<string, string> container in containers)
-                {
-                    <option value="@container.Key">@container.Value</option>
-                }
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="ViewPermissions" class="control-label">View Permissions: </label>
-        </td>
-        <td>
-            <input type="text" name="ViewPermissions" class="form-control" @bind="@viewpermissions" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="EditPermissions" class="control-label">Edit Permissions: </label>
-        </td>
-        <td>
-            <input type="text" name="EditPermissions" class="form-control" @bind="@editpermissions" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Page" class="control-label">Page: </label>
-        </td>
-        <td>
-            <select class="form-control" @bind="@pageid">
-                @foreach (Page p in PageState.Pages)
-                {
-                    <option value="@p.PageId">@p.Name</option>
-                }
-            </select>
-        </td>
-    </tr>
+<table class="table table-borderless">
+    <thead>
+        <tr>
+            <td>
+                <label for="Title" class="control-label">Title: </label>
+            </td>
+            <td>
+                <input type="text" name="Title" class="form-control" @bind="@title" />
+            </td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                <label for="Container" class="control-label">Container: </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@containertype">
+                    <option value="">&lt;Select Container&gt;</option>
+                    @foreach (KeyValuePair<string, string> container in containers)
+                    {
+                        <option value="@container.Key">@container.Value</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Permissions: </label>
+            </td>
+            <td>
+                <PermissionGrid EntityName="Module" Permissions="@permissions" @ref="permissiongrid" @ref:suppressField />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Page" class="control-label">Page: </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@pageid">
+                    @foreach (Page p in PageState.Pages)
+                    {
+                        <option value="@p.PageId">@p.Name</option>
+                    }
+                </select>
+            </td>
+        </tr>
+    </tbody>
 </table>
-<button class="btn btn-success" @onclick="@SaveModule">Save</button>
+
+@DynamicComponent
+
+<button type="button" class="btn btn-success" @onclick="@SaveModule">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
+
 @code {
-    public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Edit; } }
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Edit; } }
     public override string Title { get { return "Module Settings"; } }
 
     Dictionary<string, string> containers = new Dictionary<string, string>();
     string title;
     string containertype;
-    string viewpermissions;
-    string editpermissions;
+    string permissions;
     string pageid;
 
-    protected override async Task OnInitAsync()
+    PermissionGrid permissiongrid;
+
+    RenderFragment DynamicComponent { get; set; }
+    object settings;
+
+    protected override async Task OnInitializedAsync()
     {
         title = ModuleState.Title;
         containers = ThemeService.GetContainerTypes(await ThemeService.GetThemesAsync());
         containertype = ModuleState.ContainerType;
-        viewpermissions = ModuleState.ViewPermissions;
-        editpermissions = ModuleState.EditPermissions;
+        permissions = ModuleState.Permissions;
         pageid = ModuleState.PageId.ToString();
+
+        DynamicComponent = builder =>
+        {
+            Type moduleType = Type.GetType(ModuleState.ModuleType);
+            if (moduleType != null)
+            {
+                builder.OpenComponent(0, moduleType);
+                builder.AddComponentReferenceCapture(1, inst => { settings = Convert.ChangeType(inst, moduleType); });
+                builder.CloseComponent();
+            }
+        };
     }
 
     private async Task SaveModule()
     {
         Module module = ModuleState;
-        module.ViewPermissions = viewpermissions;
-        module.EditPermissions = editpermissions;
+        module.Permissions = permissiongrid.GetPermissions();
         await ModuleService.UpdateModuleAsync(module);
 
-        PageModule pagemodule = new PageModule();
-        pagemodule.PageModuleId = ModuleState.PageModuleId;
-        pagemodule.PageId = Int32.Parse(pageid);
-        pagemodule.ModuleId = ModuleState.ModuleId;
+        PageModule pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
         pagemodule.Title = title;
-        pagemodule.Pane = ModuleState.Pane;
-        pagemodule.Order = ModuleState.Order;
         pagemodule.ContainerType = containertype;
         await PageModuleService.UpdatePageModuleAsync(pagemodule);
 
-        UriHelper.NavigateTo(NavigateUrl(true));
+        Type moduleType = Type.GetType(ModuleState.ModuleType);
+        if (moduleType != null)
+        {
+            moduleType.GetMethod("UpdateSettings").Invoke(settings, null); // method must be public in settings component
+        }
+
+        PageState.Reload = Constants.ReloadPage;
+        UriHelper.NavigateTo(NavigateUrl());
     }
+
 }

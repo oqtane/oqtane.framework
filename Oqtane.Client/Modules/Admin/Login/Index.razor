@@ -5,6 +5,7 @@
 @using Oqtane.Services
 @using Oqtane.Providers
 @using Oqtane.Shared
+@namespace Oqtane.Modules.Admin.Login
 @inherits ModuleBase
 @inject IUriHelper UriHelper
 @inject IJSRuntime jsRuntime
@@ -42,21 +43,14 @@
 </AuthorizeView>
 
 @code {
-public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Anonymous; } }
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Anonymous; } }
 
-public string Message { get; set; } = "";
-public string Username { get; set; } = "";
-public string Password { get; set; } = "";
-public bool Remember { get; set; } = false;
+    public string Message { get; set; } = "";
+    public string Username { get; set; } = "";
+    public string Password { get; set; } = "";
+    public bool Remember { get; set; } = false;
 
-private async Task Login()
-{
-    User user = new User();
-    user.Username = Username;
-    user.Password = Password;
-    user.IsPersistent = Remember;
-    user = await UserService.LoginUserAsync(user);
-    if (user.IsAuthenticated)
+    private async Task Login()
     {
         string ReturnUrl = PageState.QueryString["returnurl"];
 
@@ -64,27 +58,48 @@ private async Task Login()
         if (authstateprovider == null)
         {
             // server-side Blazor
-            var interop = new Interop(jsRuntime);
-            string antiforgerytoken = await interop.GetElementByName("__RequestVerificationToken");
-            var fields = new { __RequestVerificationToken = antiforgerytoken, username = Username, password = Password, remember = Remember, returnurl = ReturnUrl };
-            await interop.SubmitForm("/login/", fields);
+            User user = new User();
+            user.SiteId = PageState.Site.SiteId;
+            user.Username = Username;
+            user.Password = Password;
+            user = await UserService.LoginUserAsync(user, false, false);
+            if (user.IsAuthenticated)
+            {
+                // complete the login on the server so that the cookies are set correctly on SignalR
+                var interop = new Interop(jsRuntime);
+                string antiforgerytoken = await interop.GetElementByName("__RequestVerificationToken");
+                var fields = new { __RequestVerificationToken = antiforgerytoken, username = Username, password = Password, remember = Remember, returnurl = ReturnUrl };
+                await interop.SubmitForm("/login/", fields);
+            }
+            else
+            {
+                Message = "<div class=\"alert alert-danger\" role=\"alert\">Login Failed. Please Remember That Passwords Are Case Sensitive.</div>";
+            }
         }
         else
         {
             // client-side Blazor
-            authstateprovider.NotifyAuthenticationChanged();
-            UriHelper.NavigateTo(NavigateUrl(ReturnUrl, true));
+            User user = new User();
+            user.SiteId = PageState.Site.SiteId;
+            user.Username = Username;
+            user.Password = Password;
+            user = await UserService.LoginUserAsync(user, true, Remember);
+            if (user.IsAuthenticated)
+            {
+                authstateprovider.NotifyAuthenticationChanged();
+                PageState.Reload = Constants.ReloadSite;
+                UriHelper.NavigateTo(NavigateUrl(ReturnUrl));
+            }
+            else
+            {
+                Message = "<div class=\"alert alert-danger\" role=\"alert\">Login Failed. Please Remember That Passwords Are Case Sensitive.</div>";
+            }
         }
     }
-    else
-    {
-        Message = "<div class=\"alert alert-danger\" role=\"alert\">Login Failed. Please Remember That Passwords Are Case Sensitive.</div>";
-    }
-}
 
-private void Cancel()
-{
-    string ReturnUrl = PageState.QueryString["returnurl"];
-    UriHelper.NavigateTo(NavigateUrl(ReturnUrl));
-}
+    private void Cancel()
+    {
+        string ReturnUrl = PageState.QueryString["returnurl"];
+        UriHelper.NavigateTo(ReturnUrl);
+    }
 }

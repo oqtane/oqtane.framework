@@ -1,7 +1,6 @@
 ﻿@using Oqtane.Shared
-@using Oqtane.Themes
-@using Oqtane.Client.Themes.Controls
-@using Oqtane.Client.Shared
+@using Oqtane.Themes.Controls
+@namespace Oqtane.Themes
 @inherits ContainerBase
 <div id="modal" class="modal" style="display: block">
     <div class="modal-content">
@@ -23,7 +22,7 @@
 @code {
     string closeurl;
 
-    protected override void OnInit()
+    protected override void OnInitialized()
     {
         closeurl = NavigateUrl();
     }

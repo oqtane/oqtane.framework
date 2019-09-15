@@ -2,17 +2,18 @@
 using System.Linq;
 using Oqtane.Models;
 using Microsoft.AspNetCore.Http;
+using System;
 
 namespace Oqtane.Repository
 {
     public class TenantResolver : ITenantResolver
     {
-        private MasterContext db;
+        private MasterDBContext db;
         private readonly string aliasname;
         private readonly IAliasRepository _aliasrepository;
         private readonly ITenantRepository _tenantrepository;
 
-        public TenantResolver(MasterContext context, IHttpContextAccessor accessor, IAliasRepository aliasrepository, ITenantRepository tenantrepository)
+        public TenantResolver(MasterDBContext context, IHttpContextAccessor accessor, IAliasRepository aliasrepository, ITenantRepository tenantrepository)
         {
             db = context;
             _aliasrepository = aliasrepository;
@@ -21,8 +22,8 @@ namespace Oqtane.Repository
             // get alias based on request context
             aliasname = accessor.HttpContext.Request.Host.Value;
             string path = accessor.HttpContext.Request.Path.Value;
-            string[] segments = path.Split('/');
-            if (segments[0] == "api" && segments[1] != "~")
+            string[] segments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            if (segments.Length > 0 && segments[0] == "api" && segments[1] != "~")
             {
                 aliasname += "/" + segments[1];
             }
@@ -32,19 +33,16 @@ namespace Oqtane.Repository
             }
         }
 
+        public Alias GetAlias()
+        {
+            IEnumerable<Alias> aliases = _aliasrepository.GetAliases(); // cached
+            return aliases.Where(item => item.Name == aliasname).FirstOrDefault();
+        }
+
         public Tenant GetTenant()
         {
-            try
-            {
-                IEnumerable<Alias> aliases = _aliasrepository.GetAliases(); // cached
-                Alias alias = aliases.Where(item => item.Name == aliasname).FirstOrDefault();
-                IEnumerable<Tenant> tenants = _tenantrepository.GetTenants(); // cached
-                return tenants.Where(item => item.TenantId == alias.TenantId).FirstOrDefault();
-            }
-            catch
-            {
-                throw;
-            }
+            IEnumerable<Tenant> tenants = _tenantrepository.GetTenants(); // cached
+            return tenants.Where(item => item.TenantId == GetAlias().TenantId).FirstOrDefault();
         }
     }
 }

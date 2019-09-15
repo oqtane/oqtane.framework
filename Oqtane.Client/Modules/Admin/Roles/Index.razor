@@ -1,0 +1,41 @@
+﻿@using Oqtane.Services
+@using Oqtane.Models
+@using Oqtane.Modules
+@using Oqtane.Modules.Controls
+@namespace Oqtane.Modules.Admin.Roles
+@inherits ModuleBase
+@inject IRoleService RoleService
+
+@if (Roles == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table table-borderless">
+        <thead>
+            <tr>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var Role in Roles)
+            {
+                <tr>
+                    <td>@Role.Name</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+
+    List<Role> Roles;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Roles = await RoleService.GetRolesAsync(PageState.Site.SiteId);
+    }
+}

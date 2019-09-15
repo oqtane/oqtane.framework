@@ -1,11 +1,13 @@
 ﻿using DbUp;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Oqtane.Models;
 using System;
 using System.Data.SqlClient;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 
@@ -14,11 +16,11 @@ namespace Oqtane.Controllers
     [Route("{site}/api/[controller]")]
     public class InstallationController : Controller
     {
-        private readonly IConfigurationRoot _config;
+        private readonly IConfigurationRoot Config;
 
-        public InstallationController(IConfigurationRoot config)
+        public InstallationController(IConfigurationRoot Config)
         {
-            _config = config;
+            this.Config = Config;
         }
 
         // POST api/<controller>
@@ -135,7 +137,7 @@ namespace Oqtane.Controllers
                                 {
                                     writer.WriteLine(config);
                                 }
-                                _config.Reload();
+                                Config.Reload();
                                 response.Success = true;
                             }
                         }
@@ -156,7 +158,7 @@ namespace Oqtane.Controllers
             var response = new GenericResponse { Success = false, Message = "" };
 
             string datadirectory = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
-            string connectionString = _config.GetConnectionString("DefaultConnection");
+            string connectionString = Config.GetConnectionString("DefaultConnection");
             connectionString = connectionString.Replace("|DataDirectory|", datadirectory);
 
             SqlConnection connection = new SqlConnection(connectionString);
@@ -182,11 +184,71 @@ namespace Oqtane.Controllers
                 response.Success = !dbUpgrade.IsUpgradeRequired();
                 if (!response.Success)
                 {
-                    response.Message = "Scripts Have Not Been Run";
+                    response.Message = "Master Installation Scripts Have Not Been Executed";
+                }
+                else
+                {
+                    Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies()
+                        .Where(item => item.FullName.Contains(".Module.")).ToArray();
+
+                    // get tenants
+                    using (var db = new InstallationContext(connectionString))
+                    {
+                        foreach (Tenant tenant in db.Tenant.ToList())
+                        {
+                            // upgrade framework
+                            dbUpgradeConfig = DeployChanges.To.SqlDatabase(tenant.DBConnectionString)
+                                .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly());
+                            dbUpgrade = dbUpgradeConfig.Build();
+                            if (dbUpgrade.IsUpgradeRequired())
+                            {
+                                var result = dbUpgrade.PerformUpgrade();
+                                if (!result.Successful)
+                                {
+                                    // TODO: log result.Error.Message;
+                                }
+                            }
+                            // iterate through Oqtane module assemblies and execute any database scripts
+                            foreach (Assembly assembly in assemblies)
+                            {
+                                InstallModule(assembly, tenant.DBConnectionString);
+                            }
+                        }
+                    }
                 }
             }
 
             return response;
         }
+
+        private void InstallModule(Assembly assembly, string connectionstring)
+        {
+            var dbUpgradeConfig = DeployChanges.To.SqlDatabase(connectionstring)
+                .WithScriptsEmbeddedInAssembly(assembly); // scripts must be included as Embedded Resources
+            var dbUpgrade = dbUpgradeConfig.Build();
+            if (dbUpgrade.IsUpgradeRequired())
+            {
+                var result = dbUpgrade.PerformUpgrade();
+                if (!result.Successful)
+                {
+                    // TODO: log result.Error.Message;
+                }
+            }
+        }
+    }
+
+    public class InstallationContext : DbContext
+    {
+        private readonly string _connectionString;
+
+        public InstallationContext(string connectionString)
+        {
+            _connectionString = connectionString;
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+           => optionsBuilder.UseSqlServer(_connectionString);
+
+        public virtual DbSet<Tenant> Tenant { get; set; }
     }
 }

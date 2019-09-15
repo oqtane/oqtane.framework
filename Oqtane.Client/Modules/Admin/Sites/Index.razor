@@ -1,7 +1,8 @@
 ﻿@using Oqtane.Services
 @using Oqtane.Models
 @using Oqtane.Modules
-@using Oqtane.Client.Modules.Controls
+@using Oqtane.Modules.Controls
+@namespace Oqtane.Modules.Admin.Sites
 @inherits ModuleBase
 
 @inject ISiteService SiteService
@@ -12,7 +13,7 @@
 }
 else
 {
-    <table class="table">
+    <table class="table table-borderless">
         <thead>
             <tr>
                 <th>Name</th>
@@ -31,11 +32,11 @@ else
 }
 
 @code {
-    public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Host; } }
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
 
     List<Site> sites;
 
-    protected override async Task OnInitAsync()
+    protected override async Task OnInitializedAsync()
     {
         sites = await SiteService.GetSitesAsync();
     }

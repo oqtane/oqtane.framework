@@ -7,89 +7,47 @@ namespace Oqtane.Repository
 {
     public class UserRepository : IUserRepository
     {
-        private TenantContext db;
+        private TenantDBContext db;
 
-        public UserRepository(TenantContext context)
+        public UserRepository(TenantDBContext context)
         {
             db = context;
         }
             
         public IEnumerable<User> GetUsers()
         {
-            try
-            {
-                return db.User.ToList();
-            }
-            catch
-            {
-                throw;
-            }
+            return db.User;
         }
 
-        public void AddUser(User user)
+        public User AddUser(User user)
         {
-            try
-            {
-                db.User.Add(user);
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            db.User.Add(user);
+            db.SaveChanges();
+            return user;
         }
 
-        public void UpdateUser(User user)
+        public User UpdateUser(User user)
         {
-            try
-            {
-                db.Entry(user).State = EntityState.Modified;
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            db.Entry(user).State = EntityState.Modified;
+            db.SaveChanges();
+            return user;
         }
 
         public User GetUser(int userId)
         {
-            try
-            {
-                User user = db.User.Find(userId);
-                return user;
-            }
-            catch
-            {
-                throw;
-            }
+            return db.User.Find(userId);
         }
 
         public User GetUser(string Username)
         {
-            try
-            {
-                User user = db.User.Where(item => item.Username == Username).FirstOrDefault();
-                return user;
-            }
-            catch
-            {
-                throw;
-            }
+            return db.User.Where(item => item.Username == Username).FirstOrDefault();
         }
 
         public void DeleteUser(int userId)
         {
-            try
-            {
-                User user = db.User.Find(userId);
-                db.User.Remove(user);
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            User user = db.User.Find(userId);
+            db.User.Remove(user);
+            db.SaveChanges();
         }
     }
 }

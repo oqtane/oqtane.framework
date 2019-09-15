@@ -1,28 +1,42 @@
-﻿@using Oqtane.Client.Modules.HtmlText.Services
+﻿@using Oqtane.Modules.HtmlText.Services
 @using Oqtane.Modules
-@using Oqtane.Shared.Modules.HtmlText.Models
+@using Oqtane.Modules.HtmlText.Models
 @using System.Net.Http;
-@using Oqtane.Client.Modules.Controls
+@using Oqtane.Modules.Controls
 @using Oqtane.Shared;
+@namespace Oqtane.Modules.HtmlText
 @inherits ModuleBase
 @inject IUriHelper UriHelper
 @inject HttpClient http
 @inject SiteState sitestate
 
+<ModuleMessage Message="@message" />
+
 @((MarkupString)content)
 
-<br /><ActionLink Action="Edit" /><br /><br />
+<br />
+<ActionLink Action="Edit" />
+<br />
+<br />
 
 @code {
+    string message = "";
     string content;
 
-    protected override async Task OnInitAsync()
+    protected override async Task OnParametersSetAsync()
     {
-        HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, UriHelper);
-        List<HtmlTextInfo> htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
-        if (htmltext != null)
+        try
         {
-            content = htmltext.FirstOrDefault().Content;
+            HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, UriHelper);
+            HtmlTextInfo htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
+            if (htmltext != null)
+            {
+                content = htmltext.Content;
+            }
+        }
+        catch (Exception ex)
+        {
+            message = ex.Message;
         }
     }
 }

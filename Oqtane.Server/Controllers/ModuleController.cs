@@ -1,20 +1,22 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Oqtane.Repository;
 using Oqtane.Models;
+using Oqtane.Shared;
 
 namespace Oqtane.Controllers
 {
     [Route("{site}/api/[controller]")]
     public class ModuleController : Controller
     {
-        private readonly IModuleRepository modules;
-        private readonly IPageModuleRepository pagemodules;
+        private readonly IModuleRepository Modules;
+        private readonly IPageModuleRepository PageModules;
 
         public ModuleController(IModuleRepository Modules, IPageModuleRepository PageModules)
         {
-            modules = Modules;
-            pagemodules = PageModules;
+            this.Modules = Modules;
+            this.PageModules = PageModules;
         }
 
         // GET: api/<controller>?pageid=x
@@ -25,7 +27,7 @@ namespace Oqtane.Controllers
             if (!string.IsNullOrEmpty(pageid))
             {
                 List<Module> modulelist = new List<Module>();
-                foreach (PageModule pagemodule in pagemodules.GetPageModules(int.Parse(pageid)))
+                foreach (PageModule pagemodule in PageModules.GetPageModules(int.Parse(pageid)))
                 {
                     Module module = pagemodule.Module;
                     module.PageModuleId = pagemodule.PageModuleId;
@@ -40,7 +42,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                return modules.GetModules(int.Parse(siteid), moduledefinitionname);
+                return Modules.GetModules(int.Parse(siteid), moduledefinitionname);
             }
         }
 
@@ -48,30 +50,39 @@ namespace Oqtane.Controllers
         [HttpGet("{id}")]
         public Module Get(int id)
         {
-            return modules.GetModule(id);
+            return Modules.GetModule(id);
         }
 
         // POST api/<controller>
         [HttpPost]
-        public void Post([FromBody] Module Module)
+        [Authorize(Roles = Constants.AdminRole)]
+        public Module Post([FromBody] Module Module)
         {
             if (ModelState.IsValid)
-                modules.AddModule(Module);
+            {
+                Module = Modules.AddModule(Module);
+            }
+            return Module;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Module Module)
+        [Authorize(Roles = Constants.AdminRole)]
+        public Module Put(int id, [FromBody] Module Module)
         {
             if (ModelState.IsValid)
-                modules.UpdateModule(Module);
+            {
+                Module = Modules.UpdateModule(Module);
+            }
+            return Module;
         }
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = Constants.AdminRole)]
         public void Delete(int id)
         {
-            modules.DeleteModule(id);
+            Modules.DeleteModule(id);
         }
     }
 }

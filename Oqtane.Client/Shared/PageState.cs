@@ -19,5 +19,8 @@ namespace Oqtane.Shared
         public Dictionary<string, string> QueryString { get; set; }
         public int ModuleId { get; set; }
         public string Control { get; set; }
+        public bool EditMode { get; set; }
+        public bool DesignMode { get; set; }
+        public int Reload { get; set; }
     }
 }

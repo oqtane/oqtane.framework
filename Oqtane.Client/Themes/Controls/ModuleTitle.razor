@@ -1,4 +1,5 @@
 ﻿@using Oqtane.Themes
+@namespace Oqtane.Themes.Controls
 @inherits ContainerBase
 
 @title
@@ -6,12 +7,13 @@
 @code {
     string title = "";
 
-    protected override void OnInit()
+    protected override Task OnParametersSetAsync()
     {
         title = ModuleState.Title;
         if (PageState.Control == "Settings")
         {
             title = PageState.Control;
         }
+        return Task.CompletedTask;
     }
 }

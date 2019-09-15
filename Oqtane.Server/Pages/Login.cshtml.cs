@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,24 +10,22 @@ namespace Oqtane.Pages
     public class LoginModel : PageModel
     {
 
-        private readonly UserManager<IdentityUser> identityUserManager;
-        private readonly SignInManager<IdentityUser> identitySignInManager;
+        private readonly UserManager<IdentityUser> IdentityUserManager;
+        private readonly SignInManager<IdentityUser> IdentitySignInManager;
 
         public LoginModel(UserManager<IdentityUser> IdentityUserManager, SignInManager<IdentityUser> IdentitySignInManager)
         {
-            identityUserManager = IdentityUserManager;
-            identitySignInManager = IdentitySignInManager;
+            this.IdentityUserManager = IdentityUserManager;
+            this.IdentitySignInManager = IdentitySignInManager;
         }
 
         public async Task<IActionResult> OnPostAsync(string username, string password, bool remember, string returnurl)
         {
-            await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
-
             bool validuser = false;
-            IdentityUser identityuser = await identityUserManager.FindByNameAsync(username);
+            IdentityUser identityuser = await IdentityUserManager.FindByNameAsync(username);
             if (identityuser != null)
             {
-                var result = await identitySignInManager.CheckPasswordSignInAsync(identityuser, password, false);
+                var result = await IdentitySignInManager.CheckPasswordSignInAsync(identityuser, password, false);
                 if (result.Succeeded)
                 {
                     validuser = true;
@@ -40,13 +34,10 @@ namespace Oqtane.Pages
 
             if (validuser)
             {
-                var claims = new List<Claim>{ new Claim(ClaimTypes.Name, username) };
-                var claimsIdentity = new ClaimsIdentity(claims, IdentityConstants.ApplicationScheme);
-                var authProperties = new AuthenticationProperties{IsPersistent = remember};
-                await HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
+                await IdentitySignInManager.SignInAsync(identityuser, remember);
             }
 
-            return LocalRedirect(Url.Content("~/" + returnurl));
+            return LocalRedirect(Url.Content("~" + returnurl));
         }
     }
 }

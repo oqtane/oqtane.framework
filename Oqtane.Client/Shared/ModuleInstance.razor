@@ -1,5 +1,7 @@
 ﻿@using Oqtane.Models
 @using Oqtane.Shared
+@using Oqtane.Modules
+@namespace Oqtane.Shared
 
 @DynamicComponent
 
@@ -12,16 +14,20 @@
 
     RenderFragment DynamicComponent { get; set; }
 
-    protected override void OnInit()
+    protected override void OnParametersSet()
     {
         DynamicComponent = builder =>
         {
             string typename = ModuleState.ModuleType;
             if (PageState.Control == "Settings") // module settings are a core component
-            {
+        {
                 typename = Constants.DefaultSettingsControl;
             }
-            Type moduleType = Type.GetType(typename);
+            Type moduleType = null;
+            if (typename != null)
+            {
+                moduleType = Type.GetType(typename);
+            }
             if (moduleType != null)
             {
                 builder.OpenComponent(0, moduleType);
@@ -29,7 +35,10 @@
             }
             else
             {
-                // module control does not exist with typename specified
+            // module does not exist with typename specified
+            builder.OpenComponent(0, Type.GetType(Constants.ModuleMessageControl));
+                builder.AddAttribute(1, "Message", "Error Loading Component For Module " + ModuleState.ModuleDefinitionName);
+                builder.CloseComponent();
             }
         };
     }

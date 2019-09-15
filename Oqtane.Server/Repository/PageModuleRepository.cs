@@ -7,90 +7,65 @@ namespace Oqtane.Repository
 {
     public class PageModuleRepository : IPageModuleRepository
     {
-        private TenantContext db;
+        private TenantDBContext db;
+        private readonly IPermissionRepository Permissions;
 
-        public PageModuleRepository(TenantContext context)
+        public PageModuleRepository(TenantDBContext context, IPermissionRepository Permissions)
         {
             db = context;
+            this.Permissions = Permissions;
         }
 
         public IEnumerable<PageModule> GetPageModules()
         {
-            try
-            {
-                return db.PageModule.ToList();
-            }
-            catch
-            {
-                throw;
-            }
+            return db.PageModule;
         }
         public IEnumerable<PageModule> GetPageModules(int PageId)
         {
-            try
+            IEnumerable<PageModule> pagemodules = db.PageModule.Where(item => item.PageId == PageId)
+                .Include(item => item.Module); // eager load modules
+            if (pagemodules != null && pagemodules.Any())
             {
-                List<PageModule> pagemodules = db.PageModule.Where(item => item.PageId == PageId)
-                    .Include(item => item.Module)
-                    .ToList();
-                return pagemodules;
+                IEnumerable<Permission> permissions = Permissions.GetPermissions(pagemodules.FirstOrDefault().Module.SiteId, "Module").ToList();
+                foreach (PageModule pagemodule in pagemodules)
+                {
+                    pagemodule.Module.Permissions = Permissions.EncodePermissions(pagemodule.ModuleId, permissions);
+                }
             }
-            catch
-            {
-                throw;
-            }
+            return pagemodules;
         }
 
-        public void AddPageModule(PageModule PageModule)
+        public PageModule AddPageModule(PageModule PageModule)
         {
-            try
-            {
-                db.PageModule.Add(PageModule);
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            db.PageModule.Add(PageModule);
+            db.SaveChanges();
+            return PageModule;
         }
 
-        public void UpdatePageModule(PageModule PageModule)
+        public PageModule UpdatePageModule(PageModule PageModule)
         {
-            try
-            {
-                db.Entry(PageModule).State = EntityState.Modified;
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            db.Entry(PageModule).State = EntityState.Modified;
+            db.SaveChanges();
+            return PageModule;
         }
 
         public PageModule GetPageModule(int PageModuleId)
         {
-            try
+            PageModule pagemodule = db.PageModule.Include(item => item.Module) // eager load modules
+                .SingleOrDefault(item => item.PageModuleId == PageModuleId);
+            if (pagemodule != null)
             {
-                PageModule PageModule = db.PageModule.Find(PageModuleId);
-                return PageModule;
+                IEnumerable<Permission> permissions = Permissions.GetPermissions("Module", pagemodule.ModuleId);
+                pagemodule.Module.Permissions = Permissions.EncodePermissions(pagemodule.ModuleId, permissions);
             }
-            catch
-            {
-                throw;
-            }
+            return pagemodule;
         }
 
         public void DeletePageModule(int PageModuleId)
         {
-            try
-            {
-                PageModule PageModule = db.PageModule.Find(PageModuleId);
-                db.PageModule.Remove(PageModule);
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            PageModule PageModule = db.PageModule.Find(PageModuleId);
+            db.PageModule.Remove(PageModule);
+            db.SaveChanges();
         }
     }
 }

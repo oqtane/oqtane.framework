@@ -7,76 +7,42 @@ namespace Oqtane.Repository
 {
     public class SiteRepository : ISiteRepository
     {
-        private TenantContext db;
+        private TenantDBContext db;
 
-        public SiteRepository(TenantContext context)
+        public SiteRepository(TenantDBContext context)
         {
             db = context;
         }
             
         public IEnumerable<Site> GetSites()
         {
-            try
-            {
-                return db.Site.ToList();
-            }
-            catch
-            {
-                throw;
-            }
+            return db.Site;
         }
 
-        public void AddSite(Site site)
+        public Site AddSite(Site Site)
         {
-            try
-            {
-                db.Site.Add(site);
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            db.Site.Add(Site);
+            db.SaveChanges();
+            return Site;
         }
 
-        public void UpdateSite(Site site)
+        public Site UpdateSite(Site Site)
         {
-            try
-            {
-                db.Entry(site).State = EntityState.Modified;
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            db.Entry(Site).State = EntityState.Modified;
+            db.SaveChanges();
+            return Site;
         }
 
         public Site GetSite(int siteId)
         {
-            try
-            {
-                Site site = db.Site.Find(siteId);
-                return site;
-            }
-            catch
-            {
-                throw;
-            }
+            return db.Site.Find(siteId);
         }
 
         public void DeleteSite(int siteId)
         {
-            try
-            {
-                Site site = db.Site.Find(siteId);
-                db.Site.Remove(site);
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            Site site = db.Site.Find(siteId);
+            db.Site.Remove(site);
+            db.SaveChanges();
         }
     }
 }

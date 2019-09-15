@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Oqtane.Client.Modules.Weather.Services
+namespace Oqtane.Modules.Weather.Services
 {
     public class WeatherForecastService : IWeatherForecastService
     {

@@ -10,10 +10,10 @@ namespace Oqtane.Repository
 {
     public class TenantRepository : ITenantRepository
     {
-        private MasterContext db;
+        private MasterDBContext db;
         private readonly IMemoryCache _cache;
 
-        public TenantRepository(MasterContext context, IMemoryCache cache)
+        public TenantRepository(MasterDBContext context, IMemoryCache cache)
         {
             db = context;
             _cache = cache;
@@ -21,72 +21,37 @@ namespace Oqtane.Repository
 
         public IEnumerable<Tenant> GetTenants()
         {
-            try
+            return _cache.GetOrCreate("tenants", entry =>
             {
-                IEnumerable<Tenant> tenants = _cache.GetOrCreate("tenants", entry =>
-                {
-                    entry.SlidingExpiration = TimeSpan.FromMinutes(30);
-                    return db.Tenant.ToList();
-                });
-                return tenants;
-            }
-            catch
-            {
-                throw;
-            }
+                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+                return db.Tenant.ToList();
+            });
         }
 
-        public void AddTenant(Tenant tenant)
+        public Tenant AddTenant(Tenant Tenant)
         {
-            try
-            {
-                db.Tenant.Add(tenant);
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            db.Tenant.Add(Tenant);
+            db.SaveChanges();
+            return Tenant;
         }
 
-        public void UpdateTenant(Tenant tenant)
+        public Tenant UpdateTenant(Tenant Tenant)
         {
-            try
-            {
-                db.Entry(tenant).State = EntityState.Modified;
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            db.Entry(Tenant).State = EntityState.Modified;
+            db.SaveChanges();
+            return Tenant;
         }
 
-        public Tenant GetTenant(int tenantId)
+        public Tenant GetTenant(int TenantId)
         {
-            try
-            {
-                Tenant tenant = db.Tenant.Find(tenantId);
-                return tenant;
-            }
-            catch
-            {
-                throw;
-            }
+            return db.Tenant.Find(TenantId);
         }
 
-        public void DeleteTenant(int tenantId)
-        {
-            try
-            {
-                Tenant tenant = db.Tenant.Find(tenantId);
-                db.Tenant.Remove(tenant);
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+        public void DeleteTenant(int TenantId)
+        { 
+            Tenant tenant = db.Tenant.Find(TenantId);
+            db.Tenant.Remove(tenant);
+            db.SaveChanges();
         }
     }
 }

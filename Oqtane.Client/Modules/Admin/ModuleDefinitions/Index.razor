@@ -1,9 +1,9 @@
 ﻿@using Oqtane.Services
 @using Oqtane.Models
 @using Oqtane.Modules
-@using Oqtane.Client.Modules.Controls
+@using Oqtane.Modules.Controls
+@namespace Oqtane.Modules.Admin.ModuleDefinitions
 @inherits ModuleBase
-
 @inject IModuleDefinitionService ModuleDefinitionService
 
 @if (moduledefinitions == null)
@@ -12,7 +12,8 @@
 }
 else
 {
-    <table class="table">
+    <ActionLink Action="Add" Text="Install Module" />
+    <table class="table table-borderless">
         <thead>
             <tr>
                 <th>Name</th>
@@ -30,11 +31,11 @@ else
 }
 
 @code {
-    public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Host; } }
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
 
     List<ModuleDefinition> moduledefinitions;
 
-    protected override async Task OnInitAsync()
+    protected override async Task OnInitializedAsync()
     {
         moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync();
     }

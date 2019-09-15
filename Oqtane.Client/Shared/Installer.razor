@@ -1,9 +1,11 @@
 ﻿@using Oqtane.Services
 @using Oqtane.Models
+@using Oqtane.Shared
+@namespace Oqtane.Shared
 @inject IUriHelper UriHelper
-@inject IInstallationService  InstallationService
+@inject IInstallationService InstallationService
 @inject IUserService UserService
- 
+
 <div class="container">
     <div class="row">
         <div class="mx-auto text-center">
@@ -82,10 +84,10 @@
                 <tbody>
                     <tr>
                         <td>
-                            <label for="Title" class="control-label" style="font-weight: bold">Username: </label>
+                            <label for="Title" class="control-label" style="font-weight: bold">Email: </label>
                         </td>
                         <td>
-                            <input type="text" id="Email" class="form-control" @bind="@HostUsername" />
+                            <input type="text" id="Email" class="form-control" @bind="@Email" />
                         </td>
                     </tr>
                     <tr>
@@ -102,7 +104,7 @@
     </div>
     <div class="row">
         <div class="mx-auto text-center">
-            <button class="btn btn-success" @onclick="@Install">Install Now</button><br /><br />
+            <button type="button" class="btn btn-success" @onclick="@Install">Install Now</button><br /><br />
             @((MarkupString)@Message)
         </div>
         <div class="loading" style="@LoadingDisplay"></div>
@@ -110,78 +112,78 @@
 </div>
 
 @code {
+    private string DatabaseType = "LocalDB";
+    private string ServerName = "(LocalDb)\\MSSQLLocalDB";
+    private string DatabaseName = "Oqtane-" + DateTime.Now.ToString("yyyyMMddHHmm");
+    private string Username = "";
+    private string Password = "";
+    private string Email = "";
+    private string HostPassword = "";
+    private string Message = "";
 
-private string DatabaseType = "LocalDB";
-private string ServerName = "(LocalDb)\\MSSQLLocalDB";
-private string DatabaseName = "Oqtane-" + DateTime.Now.ToString("yyyyMMddHHmm");
-private bool IntegratedSecurity = true;
-private string Username = "";
-private string Password = "";
-private string HostUsername = "host";
-private string HostPassword = "";
-private string Message = "";
+    private string IntegratedSecurityDisplay = "display:none;";
+    private string LoadingDisplay = "display:none;";
 
-private string IntegratedSecurityDisplay = "display:none;";
-private string LoadingDisplay = "display:none;";
-
-private void SetIntegratedSecurity(UIChangeEventArgs e)
-{
-    if (Convert.ToBoolean(e.Value))
+    private void SetIntegratedSecurity(UIChangeEventArgs e)
     {
-        IntegratedSecurityDisplay = "display:none;";
-    }
-    else
-    {
-        IntegratedSecurityDisplay = "";
-    }
-}
-
-private async Task Install()
-{
-    if (HostPassword.Length >= 6)
-    {
-        LoadingDisplay = "";
-        StateHasChanged();
-
-        string connectionstring = "";
-        if (DatabaseType == "LocalDB")
+        if (Convert.ToBoolean(e.Value))
         {
-            connectionstring = "Data Source=" + ServerName + ";AttachDbFilename=|DataDirectory|\\" + DatabaseName + ".mdf;Initial Catalog=" + DatabaseName + ";Integrated Security=SSPI;";
+            IntegratedSecurityDisplay = "display:none;";
         }
         else
         {
-            connectionstring = "Data Source=" + ServerName + ";Initial Catalog=" + DatabaseName + ";";
-            if (IntegratedSecurityDisplay == "display:none;")
+            IntegratedSecurityDisplay = "";
+        }
+    }
+
+    private async Task Install()
+    {
+        if (HostPassword.Length >= 6)
+        {
+            LoadingDisplay = "";
+            StateHasChanged();
+
+            string connectionstring = "";
+            if (DatabaseType == "LocalDB")
             {
-                connectionstring += "Integrated Security=SSPI;";
+                connectionstring = "Data Source=" + ServerName + ";AttachDbFilename=|DataDirectory|\\" + DatabaseName + ".mdf;Initial Catalog=" + DatabaseName + ";Integrated Security=SSPI;";
             }
             else
             {
-                connectionstring += "User ID=" + Username + ";Password=" + Password;
+                connectionstring = "Data Source=" + ServerName + ";Initial Catalog=" + DatabaseName + ";";
+                if (IntegratedSecurityDisplay == "display:none;")
+                {
+                    connectionstring += "Integrated Security=SSPI;";
+                }
+                else
+                {
+                    connectionstring += "User ID=" + Username + ";Password=" + Password;
 
+                }
             }
-        }
-        GenericResponse response = await InstallationService.Install(connectionstring);
-        if (response.Success)
-        {
-            User user = new User();
-            user.Username = HostUsername;
-            user.DisplayName = HostUsername;
-            user.Password = HostPassword;
-            user.IsSuperUser = true;
-            user.Roles = "";
-            await UserService.AddUserAsync(user);
-            UriHelper.NavigateTo("", true);
+            GenericResponse response = await InstallationService.Install(connectionstring);
+            if (response.Success)
+            {
+                User user = new User();
+                user.SiteId = 1;
+                user.Username = Email;
+                user.DisplayName = Email;
+                user.Email = Email;
+                user.IsHost = true;
+                user.Password = HostPassword;
+                user = await UserService.AddUserAsync(user);
+
+                UriHelper.NavigateTo("", true);
+            }
+            else
+            {
+                Message = "<div class=\"alert alert-danger\" role=\"alert\">" + response.Message + "</div>";
+                LoadingDisplay = "display:none;";
+            }
         }
         else
         {
-            Message = "<div class=\"alert alert-danger\" role=\"alert\">" + response.Message + "</div>";
-            LoadingDisplay = "display:none;";
+            Message = "<div class=\"alert alert-danger\" role=\"alert\">Password Must Be 6 Characters Or Greater</div>";
         }
     }
-    else
-    {
-        Message = "<div class=\"alert alert-danger\" role=\"alert\">Password Must Be 6 Characters Or Greater</div>";
-    }
-}
 }

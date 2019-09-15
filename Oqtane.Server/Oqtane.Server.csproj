@@ -26,23 +26,24 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Scripts\Identity.sql" />
+    <None Remove="Scripts\00.00.01.sql" />
     <None Remove="Scripts\Master.sql" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="Scripts\Master.sql" />
-    <EmbeddedResource Include="Scripts\Identity.sql" />
-    <EmbeddedResource Include="Scripts\Tenant.sql" />
+    <EmbeddedResource Include="Scripts\00.00.01.sql" />
+    <EmbeddedResource Include="Scripts\00.00.00.sql" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="dbup" Version="4.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Blazor.Server" Version="3.0.0-preview6.19307.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0-preview6.19307.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.0.0-preview6.19307.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.0-preview6.19304.10" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0-preview6.19304.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Blazor.Server" Version="3.0.0-preview8.19405.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0-preview8.19405.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.0.0-preview8.19405.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.0-preview8.19405.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0-preview8.19405.11" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc2" />
   </ItemGroup>
 
   <ItemGroup>

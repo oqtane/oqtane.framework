@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
-using Oqtane.Shared.Modules.HtmlText.Models;
+using Oqtane.Modules.HtmlText.Models;
 using Oqtane.Modules;
 
-namespace Oqtane.Server.Modules.HtmlText.Repository
+namespace Oqtane.Modules.HtmlText.Repository
 {
     public class HtmlTextRepository : IHtmlTextRepository, IService
     {
@@ -15,11 +15,11 @@ namespace Oqtane.Server.Modules.HtmlText.Repository
             db = context;
         }
 
-        public IEnumerable<HtmlTextInfo> GetHtmlText()
+        public HtmlTextInfo GetHtmlText(int ModuleId)
         {
             try
             {
-                return db.HtmlText.ToList();
+                return db.HtmlText.Where(item => item.ModuleId == ModuleId).FirstOrDefault();
             }
             catch
             {
@@ -27,37 +27,13 @@ namespace Oqtane.Server.Modules.HtmlText.Repository
             }
         }
 
-        public void AddHtmlText(HtmlTextInfo HtmlText)
+
+        public HtmlTextInfo AddHtmlText(HtmlTextInfo HtmlText)
         {
             try
             {
                 db.HtmlText.Add(HtmlText);
                 db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
-        }
-
-        public void UpdateHtmlText(HtmlTextInfo HtmlText)
-        {
-            try
-            {
-                db.Entry(HtmlText).State = EntityState.Modified;
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
-        }
-
-        public HtmlTextInfo GetHtmlText(int HtmlTextId)
-        {
-            try
-            {
-                HtmlTextInfo HtmlText = db.HtmlText.Find(HtmlTextId);
                 return HtmlText;
             }
             catch
@@ -66,11 +42,25 @@ namespace Oqtane.Server.Modules.HtmlText.Repository
             }
         }
 
-        public void DeleteHtmlText(int HtmlTextId)
+        public HtmlTextInfo UpdateHtmlText(HtmlTextInfo HtmlText)
         {
             try
             {
-                HtmlTextInfo HtmlText = db.HtmlText.Find(HtmlTextId);
+                db.Entry(HtmlText).State = EntityState.Modified;
+                db.SaveChanges();
+                return HtmlText;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public void DeleteHtmlText(int ModuleId)
+        {
+            try
+            {
+                HtmlTextInfo HtmlText = db.HtmlText.Where(item => item.ModuleId == ModuleId).FirstOrDefault();
                 db.HtmlText.Remove(HtmlText);
                 db.SaveChanges();
             }

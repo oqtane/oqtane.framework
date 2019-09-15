@@ -46,7 +46,11 @@ namespace Oqtane.Client
             services.AddScoped<IModuleService, ModuleService>();
             services.AddScoped<IPageModuleService, PageModuleService>();
             services.AddScoped<IUserService, UserService>();
-
+            services.AddScoped<IProfileService, ProfileService>();
+            services.AddScoped<IRoleService, RoleService>();
+            services.AddScoped<IUserRoleService, UserRoleService>();
+            services.AddScoped<ISettingService, SettingService>();
+            services.AddScoped<IFileService, FileService>();
 
             // dynamically register module contexts and repository services
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -57,7 +61,7 @@ namespace Oqtane.Client
                     .ToArray();
                 foreach (Type implementationtype in implementationtypes)
                 {
-                    Type servicetype = Type.GetType(implementationtype.FullName.Replace(implementationtype.Name, "I" + implementationtype.Name));
+                    Type servicetype = Type.GetType(implementationtype.AssemblyQualifiedName.Replace(implementationtype.Name, "I" + implementationtype.Name));
                     if (servicetype != null)
                     {
                         services.AddScoped(servicetype, implementationtype); // traditional service interface

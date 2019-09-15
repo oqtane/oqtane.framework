@@ -1,29 +1,33 @@
 ﻿@using Oqtane.Shared
-@using Oqtane.Client.Shared
 @using Oqtane.Services
 @inject IInstallationService InstallationService
 
-@if (!Installed)
+@if (Initialized)
 {
-    <Installer />
-}
-else
-{
-    <CascadingAuthenticationState>
-        <CascadingValue Value="@PageState">
-            <SiteRouter OnStateChange="@ChangeState" />
-        </CascadingValue>
-    </CascadingAuthenticationState>
+    @if (!Installed)
+    {
+        <Installer />
+    }
+    else
+    {
+        <CascadingAuthenticationState>
+            <CascadingValue Value="@PageState">
+                <SiteRouter OnStateChange="@ChangeState" />
+            </CascadingValue>
+        </CascadingAuthenticationState>
+    }
 }
 
 @code {
+    private bool Initialized = false;
     private bool Installed = false;
     private PageState PageState { get; set; }
 
-    protected override async Task OnInitAsync()
+    protected override async Task OnParametersSetAsync()
     {
         var response = await InstallationService.IsInstalled();
         Installed = response.Success;
+        Initialized = true;
     }
 
     private void ChangeState(PageState pagestate)

@@ -9,10 +9,10 @@ namespace Oqtane.Repository
 {
     public class AliasRepository : IAliasRepository
     {
-        private MasterContext db;
+        private MasterDBContext db;
         private readonly IMemoryCache _cache;
 
-        public AliasRepository(MasterContext context, IMemoryCache cache)
+        public AliasRepository(MasterDBContext context, IMemoryCache cache)
         {
             db = context;
             _cache = cache;
@@ -20,72 +20,37 @@ namespace Oqtane.Repository
 
         public IEnumerable<Alias> GetAliases()
         {
-            try
+            return _cache.GetOrCreate("aliases", entry =>
             {
-                IEnumerable<Alias> aliases = _cache.GetOrCreate("aliases", entry =>
-                {
-                    entry.SlidingExpiration = TimeSpan.FromMinutes(30);
-                    return db.Alias.ToList();
-                });
-                return aliases;
-            }
-            catch
-            {
-                throw;
-            }
+                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+                return db.Alias.ToList();
+            });
         }
 
-        public void AddAlias(Alias alias)
+        public Alias AddAlias(Alias Alias)
         {
-            try
-            {
-                db.Alias.Add(alias);
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            db.Alias.Add(Alias);
+            db.SaveChanges();
+            return Alias;
         }
 
-        public void UpdateAlias(Alias alias)
+        public Alias UpdateAlias(Alias Alias)
         {
-            try
-            {
-                db.Entry(alias).State = EntityState.Modified;
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            db.Entry(Alias).State = EntityState.Modified;
+            db.SaveChanges();
+            return Alias;
         }
 
-        public Alias GetAlias(int aliasId)
+        public Alias GetAlias(int AliasId)
         {
-            try
-            {
-                Alias alias = db.Alias.Find(aliasId);
-                return alias;
-            }
-            catch
-            {
-                throw;
-            }
+            return db.Alias.Find(AliasId);
         }
 
-        public void DeleteAlias(int aliasId)
+        public void DeleteAlias(int AliasId)
         {
-            try
-            {
-                Alias alias = db.Alias.Find(aliasId);
-                db.Alias.Remove(alias);
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            Alias alias = db.Alias.Find(AliasId);
+            db.Alias.Remove(alias);
+            db.SaveChanges();
         }
     }
 }

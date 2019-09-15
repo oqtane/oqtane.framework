@@ -1,55 +1,66 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Oqtane.Repository;
 using Oqtane.Models;
 using System.Collections.Generic;
+using Oqtane.Shared;
 
 namespace Oqtane.Controllers
 {
     [Route("{site}/api/[controller]")]
     public class TenantController : Controller
     {
-        private readonly ITenantRepository tenants;
+        private readonly ITenantRepository Tenants;
 
         public TenantController(ITenantRepository Tenants)
         {
-            tenants = Tenants;
+            this.Tenants = Tenants;
         }
 
         // GET: api/<controller>
         [HttpGet]
         public IEnumerable<Tenant> Get()
         {
-            return tenants.GetTenants();
+            return Tenants.GetTenants();
         }
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
         public Tenant Get(int id)
         {
-            return tenants.GetTenant(id);
+            return Tenants.GetTenant(id);
         }
 
         // POST api/<controller>
         [HttpPost]
-        public void Post([FromBody] Tenant site)
+        [Authorize(Roles = Constants.HostRole)]
+        public Tenant Post([FromBody] Tenant Tenant)
         {
             if (ModelState.IsValid)
-                tenants.AddTenant(site);
+            {
+                Tenant = Tenants.AddTenant(Tenant);
+            }
+            return Tenant;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Tenant site)
+        [Authorize(Roles = Constants.HostRole)]
+        public Tenant Put(int id, [FromBody] Tenant Tenant)
         {
             if (ModelState.IsValid)
-                tenants.UpdateTenant(site);
+            {
+                Tenant = Tenants.UpdateTenant(Tenant);
+            }
+            return Tenant;
         }
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = Constants.HostRole)]
         public void Delete(int id)
         {
-            tenants.DeleteTenant(id);
+            Tenants.DeleteTenant(id);
         }
     }
 }

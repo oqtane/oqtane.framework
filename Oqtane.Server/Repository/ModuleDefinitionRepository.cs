@@ -10,27 +10,26 @@ namespace Oqtane.Repository
 {
     public class ModuleDefinitionRepository : IModuleDefinitionRepository
     {
-        private readonly List<ModuleDefinition> moduledefinitions;
+        private readonly List<ModuleDefinition> ModuleDefinitions;
 
         public ModuleDefinitionRepository()
         {
-            moduledefinitions = LoadModuleDefinitions();
+            ModuleDefinitions = LoadModuleDefinitions();
         }
 
         private List<ModuleDefinition> LoadModuleDefinitions()
         {
-            List<ModuleDefinition> moduledefinitions = new List<ModuleDefinition>();
+            List<ModuleDefinition> ModuleDefinitions = new List<ModuleDefinition>();
 
             // iterate through Oqtane module assemblies
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(item => item.FullName.StartsWith("Oqtane.") || item.FullName.Contains(".Module.")).ToArray();
+            foreach (Assembly assembly in assemblies)
             {
-                if (assembly.FullName.StartsWith("Oqtane.Client") || assembly.FullName.StartsWith("Oqtane.Module."))
-                {
-                    moduledefinitions = LoadModuleDefinitionsFromAssembly(moduledefinitions, assembly);
-                }
+                ModuleDefinitions = LoadModuleDefinitionsFromAssembly(ModuleDefinitions, assembly);
             }
 
-            return moduledefinitions;
+            return ModuleDefinitions;
         }
 
         private List<ModuleDefinition> LoadModuleDefinitionsFromAssembly(List<ModuleDefinition> moduledefinitions, Assembly assembly)
@@ -52,24 +51,26 @@ namespace Oqtane.Repository
                     {
                         /// determine if this module implements IModule
                         Type moduletype = assembly.GetTypes()
-                            .Where(item => item.Namespace != null)
-                            .Where(item => item.Namespace.StartsWith(ModuleType))
-                            .Where(item => item.GetInterfaces().Contains(typeof(IModule)))
-                            .FirstOrDefault();
+                        .Where(item => item.Namespace != null)
+                        .Where(item => item.Namespace.StartsWith(ModuleType))
+                        .Where(item => item.GetInterfaces().Contains(typeof(IModule)))
+                        .FirstOrDefault();
                         if (moduletype != null)
                         {
                             var moduleobject = Activator.CreateInstance(moduletype);
+                            Dictionary<string, string> properties = (Dictionary<string, string>)moduletype.GetProperty("Properties").GetValue(moduleobject);
                             moduledefinition = new ModuleDefinition
                             {
                                 ModuleDefinitionName = QualifiedModuleType,
-                                Name = (string)moduletype.GetProperty("Name").GetValue(moduleobject),
-                                Description = (string)moduletype.GetProperty("Description").GetValue(moduleobject),
-                                Version = (string)moduletype.GetProperty("Version").GetValue(moduleobject),
-                                Owner = (string)moduletype.GetProperty("Owner").GetValue(moduleobject),
-                                Url = (string)moduletype.GetProperty("Url").GetValue(moduleobject),
-                                Contact = (string)moduletype.GetProperty("Contact").GetValue(moduleobject),
-                                License = (string)moduletype.GetProperty("License").GetValue(moduleobject),
-                                Dependencies = (string)moduletype.GetProperty("Dependencies").GetValue(moduleobject),
+                                Name = GetProperty(properties, "Name"),
+                                Description = GetProperty(properties, "Description"),
+                                Version = GetProperty(properties, "Version"),
+                                Owner = GetProperty(properties, "Owner"),
+                                Url = GetProperty(properties, "Url"),
+                                Contact = GetProperty(properties, "Contact"),
+                                License = GetProperty(properties, "License"),
+                                Dependencies = GetProperty(properties, "Dependencies"),
+                                Permissions = GetProperty(properties, "Permissions"),
                                 ControlTypeTemplate = ModuleType + ".{Control}" + ", " + typename[1],
                                 ControlTypeRoutes = "",
                                 AssemblyName = assembly.FullName.Split(",")[0]
@@ -88,6 +89,7 @@ namespace Oqtane.Repository
                                 Contact = "",
                                 License = "",
                                 Dependencies = "",
+                                Permissions = "",
                                 ControlTypeTemplate = ModuleType + ".{Control}" + ", " + typename[1],
                                 ControlTypeRoutes = "",
                                 AssemblyName = assembly.FullName.Split(",")[0]
@@ -116,9 +118,17 @@ namespace Oqtane.Repository
 
         public IEnumerable<ModuleDefinition> GetModuleDefinitions()
         {
-            return moduledefinitions;
+            return ModuleDefinitions;
         }
 
-
+        private string GetProperty(Dictionary<string, string> Properties, string Key)
+        {
+            string Value = "";
+            if (Properties.ContainsKey(Key))
+            {
+                Value = Properties[Key];
+            }
+            return Value;
+        }
     }
 }

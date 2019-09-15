@@ -1,16 +1,22 @@
 ﻿using Oqtane.Modules;
+using System.Collections.Generic;
 
-namespace Oqtane.Client.Modules.Counter
+namespace Oqtane.Modules.Counter
 {
     public class Module : IModule
     {
-        public string Name { get { return "Counter"; } }
-        public string Description { get { return "Increments a counter"; } }
-        public string Version { get { return "1.0.0"; } }
-        public string Owner { get { return ""; } }
-        public string Url { get { return ""; } }
-        public string Contact { get { return ""; } }
-        public string License { get { return ""; } }
-        public string Dependencies { get { return ""; } }
+        public Dictionary<string, string> Properties
+        {
+            get
+            {
+                Dictionary<string, string> properties = new Dictionary<string, string>
+                {
+                    { "Name", "Counter" },
+                    { "Description", "Increments a counter" },
+                    { "Version", "1.0.0" }
+                };
+                return properties;
+            }
+        }
     }
 }

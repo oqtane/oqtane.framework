@@ -7,88 +7,64 @@ namespace Oqtane.Repository
 {
     public class PageRepository : IPageRepository
     {
-        private TenantContext db;
+        private TenantDBContext db;
+        private readonly IPermissionRepository Permissions;
 
-        public PageRepository(TenantContext context)
+        public PageRepository(TenantDBContext context, IPermissionRepository Permissions)
         {
             db = context;
+            this.Permissions = Permissions;
         }
 
         public IEnumerable<Page> GetPages()
         {
-            try
-            {
-                return db.Page.ToList();
-            }
-            catch
-            {
-                throw;
-            }
+            return db.Page.ToList();
         }
 
         public IEnumerable<Page> GetPages(int SiteId)
         {
-            try
+            IEnumerable<Permission> permissions = Permissions.GetPermissions(SiteId, "Page").ToList();
+            IEnumerable<Page> pages = db.Page.Where(item => item.SiteId == SiteId);
+            foreach(Page page in pages)
             {
-                return db.Page.Where(item => item.SiteId == SiteId).ToList();
+                page.Permissions = Permissions.EncodePermissions(page.PageId, permissions);
             }
-            catch
-            {
-                throw;
-            }
+            return pages;
         }
 
-        public void AddPage(Page Page)
+        public Page AddPage(Page Page)
         {
-            try
-            {
-                db.Page.Add(Page);
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            db.Page.Add(Page);
+            db.SaveChanges();
+            Permissions.UpdatePermissions(Page.SiteId, "Page", Page.PageId, Page.Permissions);
+            return Page;
         }
 
-        public void UpdatePage(Page Page)
+        public Page UpdatePage(Page Page)
         {
-            try
-            {
-                db.Entry(Page).State = EntityState.Modified;
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            db.Entry(Page).State = EntityState.Modified;
+            db.SaveChanges();
+            Permissions.UpdatePermissions(Page.SiteId, "Page", Page.PageId, Page.Permissions);
+            return Page;
         }
 
         public Page GetPage(int PageId)
         {
-            try
+            Page page = db.Page.Find(PageId);
+            if (page != null)
             {
-                Page Page = db.Page.Find(PageId);
-                return Page;
+                IEnumerable<Permission> permissions = Permissions.GetPermissions("Page", page.PageId);
+                page.Permissions = Permissions.EncodePermissions(page.PageId, permissions);
             }
-            catch
-            {
-                throw;
-            }
+            return page;
         }
 
         public void DeletePage(int PageId)
         {
-            try
-            {
-                Page Page = db.Page.Find(PageId);
-                db.Page.Remove(Page);
-                db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            Page Page = db.Page.Find(PageId);
+            Permissions.UpdatePermissions(Page.SiteId, "Page", PageId, "");
+            db.Page.Remove(Page);
+            db.SaveChanges();
         }
     }
 }

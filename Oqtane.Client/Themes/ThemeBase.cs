@@ -12,22 +12,17 @@ namespace Oqtane.Themes
 
         public string NavigateUrl()
         {
-            return Utilities.NavigateUrl(PageState);
-        }
-
-        public string NavigateUrl(bool reload)
-        {
-            return Utilities.NavigateUrl(PageState, reload);
+            return NavigateUrl(PageState.Page.Path);
         }
 
         public string NavigateUrl(string path)
         {
-            return Utilities.NavigateUrl(PageState, path);
+            return NavigateUrl(path, "");
         }
 
-        public string NavigateUrl(string path, bool reload)
+        public string NavigateUrl(string path, string parameters)
         {
-            return Utilities.NavigateUrl(PageState, path, reload);
+            return Utilities.NavigateUrl(PageState.Alias.Path, path, parameters);
         }
 
     }

@@ -1,57 +1,58 @@
-﻿using System;
-using Oqtane.Models;
+﻿using Oqtane.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Oqtane.Shared
 {
     public class Utilities
     {
-        public static string NavigateUrl(PageState pagestate)
-        {
-            return NavigateUrl(pagestate, pagestate.Page.Path, false);
-        }
 
-        public static string NavigateUrl(PageState pagestate, bool reload)
+        public static string NavigateUrl(string alias, string path, string parameters)
         {
-            return NavigateUrl(pagestate, pagestate.Page.Path, reload);
-        }
-
-        public static string NavigateUrl(PageState pagestate, string path)
-        {
-            return NavigateUrl(pagestate, path, false);
-        }
-
-        public static string NavigateUrl(PageState pagestate, string path, bool reload)
-        {
-            string url = pagestate.Alias.Path + "/" + path;
-            if (reload)
+            string url = "";
+            if (alias != "")
             {
-                if (url.Contains("?"))
-                {
-                    url += "&reload=true";
-                }
-                else
-                {
-                    url += "?reload=true";
-                }
+                url += alias + "/";
+            }
+            if (path != "" && path != "/")
+            {
+                url += path + "/";
+            }
+            if (url.EndsWith("/"))
+            {
+                url = url.Substring(0, url.Length - 1);
+            }
+            if (!string.IsNullOrEmpty(parameters))
+            {
+                url += "?" + parameters;
+            }
+            if (!url.StartsWith("/"))
+            {
+                url = "/" + url;
             }
             return url;
         }
 
-        public static string EditUrl(PageState pagestate, Module modulestate, string action)
+        public static string EditUrl(string alias, string path, int moduleid, string action, string parameters)
         {
-            return EditUrl(pagestate, modulestate, action, "");
-        }
-
-        public static string EditUrl(PageState pagestate, Module modulestate, string action, string parameters)
-        {
-            string url = pagestate.Alias.Path + "/" + pagestate.Page.Path + "?mid=" + modulestate.ModuleId.ToString();
-            if (action != "")
+            string url = NavigateUrl(alias, path, "");
+            if (url == "/") url = "";
+            if (moduleid != -1)
             {
-                url += "&ctl=" + action;
+                url += "/" + moduleid.ToString();
+            }
+            if (moduleid != -1 && action != "")
+            {
+                url += "/" + action;
             }
             if (!string.IsNullOrEmpty(parameters))
             {
-                url += "&" + parameters;
+                url += "?" + parameters;
+            }
+            if (!url.StartsWith("/"))
+            {
+                url = "/" + url;
             }
             return url;
         }

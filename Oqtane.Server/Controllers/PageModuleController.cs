@@ -1,55 +1,87 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Oqtane.Repository;
 using Oqtane.Models;
+using Oqtane.Shared;
+using System.Linq;
 
 namespace Oqtane.Controllers
 {
     [Route("{site}/api/[controller]")]
     public class PageModuleController : Controller
     {
-        private readonly IPageModuleRepository pagemodules;
+        private readonly IPageModuleRepository PageModules;
+        private readonly IModuleRepository Modules;
 
-        public PageModuleController(IPageModuleRepository PageModules)
+        public PageModuleController(IPageModuleRepository PageModules, IModuleRepository Modules)
         {
-            pagemodules = PageModules;
+            this.PageModules = PageModules;
+            this.Modules = Modules;
         }
 
         // GET: api/<controller>
         [HttpGet]
         public IEnumerable<PageModule> Get()
         {
-            return pagemodules.GetPageModules();
+            return PageModules.GetPageModules();
         }
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
         public PageModule Get(int id)
         {
-            return pagemodules.GetPageModule(id);
+            return PageModules.GetPageModule(id);
         }
 
         // POST api/<controller>
         [HttpPost]
-        public void Post([FromBody] PageModule PageModule)
+        [Authorize(Roles = Constants.AdminRole)]
+        public PageModule Post([FromBody] PageModule PageModule)
         {
             if (ModelState.IsValid)
-                pagemodules.AddPageModule(PageModule);
+            {
+                PageModule = PageModules.AddPageModule(PageModule);
+            }
+            return PageModule;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] PageModule PageModule)
+        [Authorize(Roles = Constants.AdminRole)]
+        public PageModule Put(int id, [FromBody] PageModule PageModule)
         {
             if (ModelState.IsValid)
-                pagemodules.UpdatePageModule(PageModule);
+            {
+                PageModule = PageModules.UpdatePageModule(PageModule);
+            }
+            return PageModule;
+        }
+
+        // PUT api/<controller>/?pageid=x&pane=y
+        [HttpPut]
+        [Authorize(Roles = Constants.AdminRole)]
+        public void Put(int pageid, string pane)
+        {
+            int order = 1;
+            List<PageModule> pagemodules = PageModules.GetPageModules(pageid).ToList();
+            foreach (PageModule pagemodule in pagemodules.Where(item => item.Pane == pane).OrderBy(item => item.Order))
+            {
+                if (pagemodule.Order != order)
+                {
+                    pagemodule.Order = order;
+                    PageModules.UpdatePageModule(pagemodule);
+                }
+                order += 2;
+            }
         }
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = Constants.AdminRole)]
         public void Delete(int id)
         {
-            pagemodules.DeletePageModule(id);
+            PageModules.DeletePageModule(id);
         }
     }
 }

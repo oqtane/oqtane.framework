@@ -2,34 +2,40 @@
 @using Oqtane.Modules
 @using Oqtane.Services
 @using Oqtane.Shared
+@using Oqtane.Security
+@namespace Oqtane.Modules.Controls
 @inherits ModuleBase
 @inject IUserService UserService
 
 @if (authorized)
 {
-    <NavLink class="@buttonClass" href="@url">@text</NavLink>
+    <NavLink class="@classname" href="@url" style="@style">@text</NavLink>
 }
 
 @code {
     [Parameter]
-    private string Action { get; set; }
+    public string Action { get; set; }
 
     [Parameter]
-    private string Text { get; set; } // optional
+    public string Text { get; set; } // optional
 
     [Parameter]
-    private string Parameters { get; set; } // optional
+    public string Parameters { get; set; } // optional
 
     [Parameter]
-    private string ButtonClass { get; set; } // optional
+    public string Class { get; set; } // optional
+
+    [Parameter]
+    public string Style { get; set; } // optional
 
     string text = "";
     string url = "";
     string parameters = "";
-    string buttonClass = "btn btn-primary";
+    string classname = "btn btn-primary";
+    string style = "";
     bool authorized = false;
 
-    protected override void OnInit()
+    protected override void OnParametersSet()
     {
         text = Action;
         if (!String.IsNullOrEmpty(Text))
@@ -42,36 +48,44 @@
             parameters = Parameters;
         }
 
-        if (!string.IsNullOrEmpty(ButtonClass))
+        if (!string.IsNullOrEmpty(Class))
         {
-            buttonClass = "btn " + ButtonClass;
+            classname = Class;
+        }
+
+        if (!string.IsNullOrEmpty(Style))
+        {
+            style = Style;
         }
 
         url = EditUrl(Action, parameters);
 
-        string typename = ModuleState.ModuleType.Replace(Utilities.GetTypeNameClass(ModuleState.ModuleType) + ",", Action + ",");
-        Type moduleType = Type.GetType(typename);
-        if (moduleType != null)
+        if (PageState.EditMode)
         {
-            var moduleobject = Activator.CreateInstance(moduleType);
-            SecurityAccessLevelEnum SecurityAccessLevel = (SecurityAccessLevelEnum)moduleType.GetProperty("SecurityAccessLevel").GetValue(moduleobject, null);
-            switch (SecurityAccessLevel)
+            string typename = ModuleState.ModuleType.Replace(Utilities.GetTypeNameClass(ModuleState.ModuleType) + ",", Action + ",");
+            Type moduleType = Type.GetType(typename);
+            if (moduleType != null)
             {
-                case SecurityAccessLevelEnum.Anonymous:
-                    authorized = true;
-                    break;
-                case SecurityAccessLevelEnum.View:
-                    authorized = UserService.IsAuthorized(PageState.User, ModuleState.ViewPermissions);
-                    break;
-                case SecurityAccessLevelEnum.Edit:
-                    authorized = UserService.IsAuthorized(PageState.User, ModuleState.EditPermissions);
-                    break;
-                case SecurityAccessLevelEnum.Admin:
-                    authorized = UserService.IsAuthorized(PageState.User, Constants.AdminRole);
-                    break;
-                case SecurityAccessLevelEnum.Host:
-                    authorized = PageState.User.IsSuperUser;
-                    break;
+                var moduleobject = Activator.CreateInstance(moduleType);
+                SecurityAccessLevel SecurityAccessLevel = (SecurityAccessLevel)moduleType.GetProperty("SecurityAccessLevel").GetValue(moduleobject, null);
+                switch (SecurityAccessLevel)
+                {
+                    case SecurityAccessLevel.Anonymous:
+                        authorized = true;
+                        break;
+                    case SecurityAccessLevel.View:
+                        authorized = UserSecurity.IsAuthorized(PageState.User, "View", ModuleState.Permissions);
+                        break;
+                    case SecurityAccessLevel.Edit:
+                        authorized = UserSecurity.IsAuthorized(PageState.User, "Edit", ModuleState.Permissions);
+                        break;
+                    case SecurityAccessLevel.Admin:
+                        authorized = UserSecurity.IsAuthorized(PageState.User, Constants.AdminRole);
+                        break;
+                    case SecurityAccessLevel.Host:
+                        authorized = UserSecurity.IsAuthorized(PageState.User, Constants.HostRole);
+                        break;
+                }
             }
         }
     }

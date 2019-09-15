@@ -1,40 +1,36 @@
-﻿@using Oqtane.Services
+﻿@using Oqtane.Modules.Controls
+@using Oqtane.Services
 @using Oqtane.Models
 @using Oqtane.Modules
-@using Oqtane.Client.Modules.Controls
+@using Oqtane.Shared
+@namespace Oqtane.Modules.Admin.Pages
 @inherits ModuleBase
 
-@inject IPageService PageService
-
-@if (PageState.Pages == null)
+@if (PageState.Pages != null)
 {
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
+    <ActionLink Action="Add" Text="Add Page" />
+    <table class="table table-borderless">
         <thead>
             <tr>
-                <th> </th>
-                <th>Path</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
                 <th>Name</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var p in PageState.Pages)
+            @foreach (Page page in PageState.Pages)
             {
                 <tr>
-                    <td><ActionLink Action="Edit" Parameters="@($"id=" + p.PageId.ToString())" /></td>
-                    <td><ActionLink Action="Delete" Parameters="@($"id=" + p.PageId.ToString())" ButtonClass="btn-danger" /></td>
-                    <td>@p.Path</td>
-                    <td>@p.Name</td>
+                    <td><ActionLink Action="Edit" Parameters="@($"id=" + page.PageId.ToString())" /></td>
+                    <td><ActionLink Action="Delete" Parameters="@($"id=" + page.PageId.ToString())" Class="btn btn-danger" /></td>
+                    <td>@(new string('-', page.Level * 2))@(page.Name)</td>
                 </tr>
             }
         </tbody>
     </table>
-    <ActionLink Action="Add" Text="Add Page" />
+
 }
 
 @code {
-    public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Admin; } }
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 }

@@ -1,18 +1,21 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Oqtane.Repository;
 using Oqtane.Models;
+using Oqtane.Shared;
+using System.Linq;
 
 namespace Oqtane.Controllers
 {
     [Route("{site}/api/[controller]")]
     public class PageController : Controller
     {
-        private readonly IPageRepository pages;
+        private readonly IPageRepository Pages;
 
         public PageController(IPageRepository Pages)
         {
-            pages = Pages;
+            this.Pages = Pages;
         }
 
         // GET: api/<controller>?siteid=x
@@ -21,11 +24,11 @@ namespace Oqtane.Controllers
         {
             if (siteid == "")
             {
-                return pages.GetPages();
+                return Pages.GetPages();
             }
             else
             {
-                return pages.GetPages(int.Parse(siteid));
+                return Pages.GetPages(int.Parse(siteid));
             }
         }
 
@@ -33,30 +36,57 @@ namespace Oqtane.Controllers
         [HttpGet("{id}")]
         public Page Get(int id)
         {
-            return pages.GetPage(id);
+            return Pages.GetPage(id);
         }
 
         // POST api/<controller>
         [HttpPost]
-        public void Post([FromBody] Page Page)
+        [Authorize(Roles = Constants.AdminRole)]
+        public Page Post([FromBody] Page Page)
         {
             if (ModelState.IsValid)
-                pages.AddPage(Page);
+            {
+                Page = Pages.AddPage(Page);
+            }
+            return Page;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Page Page)
+        [Authorize(Roles = Constants.AdminRole)]
+        public Page Put(int id, [FromBody] Page Page)
         {
             if (ModelState.IsValid)
-                pages.UpdatePage(Page);
+            {
+                Page = Pages.UpdatePage(Page);
+            }
+            return Page;
+        }
+
+        // PUT api/<controller>/?siteid=x&parentid=y
+        [HttpPut]
+        [Authorize(Roles = Constants.AdminRole)]
+        public void Put(int siteid, int? parentid)
+        {
+            int order = 1;
+            List<Page> pages = Pages.GetPages(siteid).ToList();
+            foreach (Page page in pages.Where(item => item.ParentId == parentid).OrderBy(item => item.Order))
+            {
+                if (page.Order != order)
+                {
+                    page.Order = order;
+                    Pages.UpdatePage(page);
+                }
+                order += 2;
+            }
         }
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = Constants.AdminRole)]
         public void Delete(int id)
         {
-            pages.DeletePage(id);
+            Pages.DeletePage(id);
         }
     }
 }

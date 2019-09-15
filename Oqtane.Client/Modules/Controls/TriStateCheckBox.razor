@@ -1,0 +1,62 @@
+﻿@namespace Oqtane.Modules.Controls
+
+<img src="@src" title="@title" disabled=@Disabled @onclick="SetValue" />
+
+@code {
+    [Parameter]
+    public bool? Value { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public Action<bool?> OnChange { get; set; }
+
+    bool? value = null;
+    string title;
+    string src = "";
+
+    protected override void OnInitialized()
+    {
+        value = Value;
+        SetImage();
+    }
+
+    private void SetValue()
+    {
+        switch (value)
+        {
+            case true:
+                value = false;
+                break;
+            case false:
+                value = null;
+                break;
+            case null:
+                value = true;
+                break;
+        }
+        SetImage();
+        OnChange(value);
+    }
+
+    private void SetImage()
+    {
+        switch (value)
+        {
+            case true:
+                src = "images/checked.png";
+                title = "Permission Granted";
+                break;
+            case false:
+                src = "images/unchecked.png";
+                title = "Permission Denied";
+                break;
+            case null:
+                src = "images/null.png";
+                title = "";
+                break;
+        }
+        StateHasChanged();
+    }
+}

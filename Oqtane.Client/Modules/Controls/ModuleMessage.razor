@@ -1,0 +1,39 @@
+﻿@using Oqtane.Modules
+@namespace Oqtane.Modules.Controls
+@inherits ModuleBase
+
+@if (Message != "")
+{
+    <div class="@type">@Message</div>
+    <br />
+    <br />
+}
+
+@code {
+    [Parameter]
+    public string Message { get; set; }
+
+    [Parameter]
+    public MessageType Type { get; set; }
+
+    string type = "alert alert-danger";
+
+    protected override void OnInitialized()
+    {
+        switch (Type)
+        {
+            case MessageType.Success:
+                type = "alert alert-success";
+                break;
+            case MessageType.Info:
+                type = "alert alert-info";
+                break;
+            case MessageType.Warning:
+                type = "alert alert-warning";
+                break;
+            case MessageType.Error:
+                type = "alert alert-danger";
+                break;
+        }
+    }
+}

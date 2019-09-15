@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.AspNetCore.ResponseCompression; // needed for WASM
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
@@ -19,6 +19,13 @@ using Microsoft.AspNetCore.Components;
 using Oqtane.Shared;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using Microsoft.OpenApi.Models;
+using Oqtane.Security;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using System.Net;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Oqtane.Server
 {
@@ -62,8 +69,15 @@ namespace Oqtane.Server
                 });
             }
 
-            // register auth services
-            services.AddAuthorizationCore();
+            // register authorization services
+            services.AddAuthorizationCore(options =>
+            {
+                options.AddPolicy("ViewPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", "View")));
+                options.AddPolicy("EditPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", "Edit")));
+                options.AddPolicy("ViewModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", "View")));
+                options.AddPolicy("EditModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", "Edit")));
+            });
+            services.AddScoped<IAuthorizationHandler, PermissionHandler>();
 
             // register scoped core services
             services.AddScoped<SiteState>();
@@ -77,40 +91,25 @@ namespace Oqtane.Server
             services.AddScoped<IModuleService, ModuleService>();
             services.AddScoped<IPageModuleService, PageModuleService>();
             services.AddScoped<IUserService, UserService>();
-
-            // dynamically register module contexts and repository services
-            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (Assembly assembly in assemblies)
-            {
-                Type[] implementationtypes = assembly.GetTypes()
-                    .Where(item => item.GetInterfaces().Contains(typeof(IService)))
-                    .ToArray();
-                foreach (Type implementationtype in implementationtypes)
-                {
-                    Type servicetype = Type.GetType(implementationtype.FullName.Replace(implementationtype.Name, "I" + implementationtype.Name));
-                    if (servicetype != null)
-                    {
-                        services.AddScoped(servicetype, implementationtype); // traditional service interface
-                    }
-                    else
-                    {
-                        services.AddScoped(implementationtype, implementationtype); // no interface defined for service
-                    }
-                }
-            }
+            services.AddScoped<IProfileService, ProfileService>();
+            services.AddScoped<IRoleService, RoleService>();
+            services.AddScoped<IUserRoleService, UserRoleService>();
+            services.AddScoped<ISettingService, SettingService>();
+            services.AddScoped<IFileService, FileService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            services.AddDbContext<MasterContext>(options =>
+            services.AddDbContext<MasterDBContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")
                     .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory").ToString())
                 ));
-            services.AddDbContext<TenantContext>(options => { });
+            services.AddDbContext<TenantDBContext>(options => { });
 
-            services.AddIdentity<IdentityUser, IdentityRole>()
-                .AddEntityFrameworkStores<TenantContext>()
+            services.AddIdentityCore<IdentityUser>(options => { })
+                .AddEntityFrameworkStores<TenantDBContext>()
+                .AddSignInManager()
                 .AddDefaultTokenProviders();
-
+            
             services.Configure<IdentityOptions>(options =>
             {
                 // Password settings
@@ -129,6 +128,9 @@ namespace Oqtane.Server
                 options.User.RequireUniqueEmail = false;
             });
 
+            services.AddAuthentication(IdentityConstants.ApplicationScheme)
+                .AddCookie(IdentityConstants.ApplicationScheme);
+
             services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.HttpOnly = false;
@@ -139,9 +141,29 @@ namespace Oqtane.Server
                 };
             });
 
-            services.AddMemoryCache();
+            // register custom claims principal factory for role claims
+            services.AddTransient<IUserClaimsPrincipalFactory<IdentityUser>, ClaimsPrincipalFactory<IdentityUser>>();
 
-            services.AddMvc().AddNewtonsoftJson();
+            // get list of loaded assemblies
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+            // iterate through Oqtane module assemblies in /bin ( filter is narrow to optimize loading process )
+            string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            DirectoryInfo folder = new DirectoryInfo(path);
+            List<Assembly> moduleassemblies = new List<Assembly>();
+            foreach (FileInfo file in folder.EnumerateFiles("*.Module.*.dll"))
+            {
+                // check if assembly is already loaded
+                Assembly assembly = assemblies.Where(item => item.Location == file.FullName).FirstOrDefault();
+                if (assembly == null)
+                {
+                    // load assembly ( as long as dependencies are in /bin they will load as well )
+                    assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName);
+                    moduleassemblies.Add(assembly);
+                }
+            }
+
+            services.AddMvc().AddModuleAssemblies(moduleassemblies).AddNewtonsoftJson();
 
             // register singleton scoped core services
             services.AddSingleton<IConfigurationRoot>(Configuration);
@@ -149,6 +171,7 @@ namespace Oqtane.Server
             services.AddSingleton<IThemeRepository, ThemeRepository>();
 
             // register transient scoped core services
+            services.AddTransient<IUserPermissions, UserPermissions>();
             services.AddTransient<ITenantResolver, TenantResolver>();
             services.AddTransient<IAliasRepository, AliasRepository>();
             services.AddTransient<ITenantRepository, TenantRepository>();
@@ -157,26 +180,16 @@ namespace Oqtane.Server
             services.AddTransient<IModuleRepository, ModuleRepository>();
             services.AddTransient<IPageModuleRepository, PageModuleRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<IProfileRepository, ProfileRepository>();
+            services.AddTransient<ISiteUserRepository, SiteUserRepository>();
+            services.AddTransient<IRoleRepository, RoleRepository>();
+            services.AddTransient<IUserRoleRepository, UserRoleRepository>();
+            services.AddTransient<IPermissionRepository, PermissionRepository>();
+            services.AddTransient<ISettingRepository, SettingRepository>();
 
-            // get list of loaded assemblies
-            assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            // get path to /bin
-            string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            DirectoryInfo folder = new DirectoryInfo(path);
-            // iterate through Oqtane assemblies in /bin ( filter is narrow to optimize loading process )
-            foreach (FileInfo file in folder.EnumerateFiles("Oqtane.*.dll"))
-            {
-                // check if assembly is already loaded
-                Assembly assembly = assemblies.Where(item => item.Location == file.FullName).FirstOrDefault();
-                if (assembly == null)
-                {
-                    // load assembly ( as long as dependencies are in /bin they will load as well )
-                    assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName);
-                }
-            }
-            
-            // dynamically register module contexts and repository services
-            assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            // dynamically register module services, contexts, and repository classes
+            assemblies = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(item => item.FullName.StartsWith("Oqtane.") || item.FullName.Contains(".Module.")).ToArray();
             foreach (Assembly assembly in assemblies)
             {
                 Type[] implementationtypes = assembly.GetTypes()
@@ -184,7 +197,7 @@ namespace Oqtane.Server
                     .ToArray();
                 foreach (Type implementationtype in implementationtypes)
                 {
-                    Type servicetype = Type.GetType(implementationtype.FullName.Replace(implementationtype.Name, "I" + implementationtype.Name));
+                    Type servicetype = Type.GetType(implementationtype.AssemblyQualifiedName.Replace(implementationtype.Name, "I" + implementationtype.Name));
                     if (servicetype != null)
                     {
                         services.AddScoped(servicetype, implementationtype); // traditional service interface
@@ -195,6 +208,11 @@ namespace Oqtane.Server
                     }
                 }
             }
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Oqtane", Version = "v1" });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -218,6 +236,12 @@ namespace Oqtane.Server
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Oqtane V1");
+            });
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
@@ -235,14 +259,15 @@ namespace Oqtane.Server
         {
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            services.AddDbContext<MasterContext>(options =>
+            services.AddDbContext<MasterDBContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")
                     .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory").ToString())
                 ));
-            services.AddDbContext<TenantContext>(options => { });
+            services.AddDbContext<TenantDBContext>(options => { });
 
-            services.AddIdentity<IdentityUser, IdentityRole>()
-                .AddEntityFrameworkStores<TenantContext>()
+            services.AddIdentityCore<IdentityUser>(options => { })
+                .AddEntityFrameworkStores<TenantDBContext>()
+                .AddSignInManager()
                 .AddDefaultTokenProviders();
 
             services.Configure<IdentityOptions>(options =>
@@ -263,6 +288,16 @@ namespace Oqtane.Server
                 options.User.RequireUniqueEmail = false;
             });
 
+            // register authorization services
+            services.AddAuthorizationCore(options =>
+            {
+                options.AddPolicy("ViewPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", "View")));
+                options.AddPolicy("EditPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", "Edit")));
+                options.AddPolicy("ViewModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", "View")));
+                options.AddPolicy("EditModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", "Edit")));
+            });
+            services.AddScoped<IAuthorizationHandler, PermissionHandler>();
+
             services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.HttpOnly = false;
@@ -273,9 +308,29 @@ namespace Oqtane.Server
                 };
             });
 
-            services.AddMemoryCache();
+            // register custom claims principal factory for role claims
+            services.AddTransient<IUserClaimsPrincipalFactory<IdentityUser>, ClaimsPrincipalFactory<IdentityUser>>();
 
-            services.AddMvc().AddNewtonsoftJson();
+            // get list of loaded assemblies
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+            // iterate through Oqtane module assemblies in /bin ( filter is narrow to optimize loading process )
+            string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            DirectoryInfo folder = new DirectoryInfo(path);
+            List<Assembly> moduleassemblies = new List<Assembly>();
+            foreach (FileInfo file in folder.EnumerateFiles("*.Module.*.dll"))
+            {
+                // check if assembly is already loaded
+                Assembly assembly = assemblies.Where(item => item.Location == file.FullName).FirstOrDefault();
+                if (assembly == null)
+                {
+                    // load assembly ( as long as dependencies are in /bin they will load as well )
+                    assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName);
+                    moduleassemblies.Add(assembly);
+                }
+            }
+
+            services.AddMvc().AddModuleAssemblies(moduleassemblies).AddNewtonsoftJson();
 
             // register singleton scoped core services
             services.AddSingleton<IConfigurationRoot>(Configuration);
@@ -283,6 +338,7 @@ namespace Oqtane.Server
             services.AddSingleton<IThemeRepository, ThemeRepository>();
 
             // register transient scoped core services
+            services.AddTransient<IUserPermissions, UserPermissions>();
             services.AddTransient<ITenantResolver, TenantResolver>();
             services.AddTransient<IAliasRepository, AliasRepository>();
             services.AddTransient<ITenantRepository, TenantRepository>();
@@ -291,26 +347,15 @@ namespace Oqtane.Server
             services.AddTransient<IModuleRepository, ModuleRepository>();
             services.AddTransient<IPageModuleRepository, PageModuleRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
-
-            // get list of loaded assemblies
-            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            // get path to /bin
-            string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            DirectoryInfo folder = new DirectoryInfo(path);
-            // iterate through Oqtane assemblies in /bin ( filter is narrow to optimize loading process )
-            foreach (FileInfo file in folder.EnumerateFiles("Oqtane.*.dll"))
-            {
-                // check if assembly is already loaded
-                Assembly assembly = assemblies.Where(item => item.Location == file.FullName).FirstOrDefault();
-                if (assembly == null)
-                {
-                    // load assembly ( as long as dependencies are in /bin they will load as well )
-                    assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName);
-                }
-            }
-            
-            // dynamically register module contexts and repository services
-            assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            services.AddTransient<ISiteUserRepository, SiteUserRepository>();
+            services.AddTransient<IRoleRepository, RoleRepository>();
+            services.AddTransient<IUserRoleRepository, UserRoleRepository>();
+            services.AddTransient<IPermissionRepository, PermissionRepository>();
+            services.AddTransient<ISettingRepository, SettingRepository>();
+           
+            // dynamically register module services, contexts, and repository classes
+            assemblies = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(item => item.FullName.StartsWith("Oqtane.") || item.FullName.Contains(".Module.")).ToArray();
             foreach (Assembly assembly in assemblies)
             {
                 Type[] implementationtypes = assembly.GetTypes()
@@ -318,7 +363,7 @@ namespace Oqtane.Server
                     .ToArray();
                 foreach (Type implementationtype in implementationtypes)
                 {
-                    Type servicetype = Type.GetType(implementationtype.FullName.Replace(implementationtype.Name, "I" + implementationtype.Name));
+                    Type servicetype = Type.GetType(implementationtype.AssemblyQualifiedName.Replace(implementationtype.Name, "I" + implementationtype.Name));
                     if (servicetype != null)
                     {
                         services.AddScoped(servicetype, implementationtype); // traditional service interface
@@ -329,6 +374,11 @@ namespace Oqtane.Server
                     }
                 }
             }
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Oqtane", Version = "v1" });
+            });
 
             services.AddResponseCompression(opts =>
             {
@@ -354,6 +404,12 @@ namespace Oqtane.Server
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Oqtane V1");
+            });
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();
@@ -361,5 +417,6 @@ namespace Oqtane.Server
             });
         }
 #endif
+
     }
 }

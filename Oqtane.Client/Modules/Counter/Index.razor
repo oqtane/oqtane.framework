@@ -1,9 +1,11 @@
 @using Oqtane.Modules
+@namespace Oqtane.Modules.Counter
 @inherits ModuleBase
 Current count: @currentCount
 <br />
-<button class="btn btn-primary" @onclick="@IncrementCount">Click me</button>
-<br /><br />
+<button type="button" class="btn btn-primary" @onclick="@IncrementCount">Click me</button>
+<br />
+<br />
 
 @code {
     int currentCount = 0;

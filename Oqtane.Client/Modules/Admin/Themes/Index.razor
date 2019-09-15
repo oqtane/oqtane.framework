@@ -1,6 +1,7 @@
 ﻿@using Oqtane.Services
 @using Oqtane.Models
 @using Oqtane.Modules
+@namespace Oqtane.Modules.Admin.Themes
 @inherits ModuleBase
 
 @inject IThemeService ThemeService
@@ -11,7 +12,7 @@
 }
 else
 {
-    <table class="table">
+    <table class="table table-borderless">
         <thead>
             <tr>
                 <th>Name</th>
@@ -29,11 +30,11 @@ else
 }
 
 @code {
-    public override SecurityAccessLevelEnum SecurityAccessLevel { get { return SecurityAccessLevelEnum.Host; } }
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
 
     List<Theme> Themes;
 
-    protected override async Task OnInitAsync()
+    protected override async Task OnInitializedAsync()
     {
         Themes = await ThemeService.GetThemesAsync();
     }
