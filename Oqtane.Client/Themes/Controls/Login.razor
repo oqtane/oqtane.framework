@@ -5,7 +5,7 @@
 @using Microsoft.JSInterop
 @namespace Oqtane.Themes.Controls
 @inherits ThemeObjectBase
-@inject IUriHelper UriHelper
+@inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject IJSRuntime jsRuntime
 @inject IServiceProvider ServiceProvider
@@ -15,10 +15,10 @@
         <text>...</text>
     </Authorizing>
     <Authorized>
-        <button type="button" class="btn btn-primary" @onclick="@LogoutUser">Logout</button>
+        <button type="button" class="btn btn-primary" @onclick="LogoutUser">Logout</button>
     </Authorized>
     <NotAuthorized>
-        <button type="button" class="btn btn-primary" @onclick="@LoginUser">Login</button>
+        <button type="button" class="btn btn-primary" @onclick="LoginUser">Login</button>
     </NotAuthorized>
 </AuthorizeView>
 
@@ -31,7 +31,7 @@
         {
             returnurl += "/" + PageState.Page.Path;
         }
-        UriHelper.NavigateTo("login?returnurl=" + returnurl);
+        NavigationManager.NavigateTo("login?returnurl=" + returnurl);
     }
 
     private async Task LogoutUser()
@@ -52,7 +52,7 @@
             // client-side Blazor
             authstateprovider.NotifyAuthenticationChanged();
             PageState.Reload = Constants.ReloadSite;
-            UriHelper.NavigateTo(NavigateUrl(PageState.Page.Path, "logout"));
+            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "logout"));
         }
     }
 }

@@ -1,13 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <OutputType>Exe</OutputType>
-    <RestoreAdditionalProjectSources>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <!--<RestoreAdditionalProjectSources>
       https://dotnet.myget.org/F/aspnetcore-dev/api/v3/index.json;
       https://dotnet.myget.org/F/blazor-dev/api/v3/index.json;
-    </RestoreAdditionalProjectSources>
-    <LangVersion>7.3</LangVersion>
+    </RestoreAdditionalProjectSources>-->
+    
     <RazorLangVersion>3.0</RazorLangVersion>
     <Configurations>Debug;Release;Wasm</Configurations>
     <Version>0.0.1</Version>
@@ -25,15 +24,19 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Wasm|AnyCPU'">
     <DefineConstants>TRACE;WASM</DefineConstants>
   </PropertyGroup>
-
+  
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Blazor" Version="3.0.0-preview8.19405.7" />
-    <PackageReference Include="Microsoft.AspNetCore.Blazor.Build" Version="3.0.0-preview8.19405.7" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.AspNetCore.Blazor.HttpClient" Version="3.0.0-preview8.19405.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Blazor" Version="3.0.0-preview9.19424.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Blazor.Build" Version="3.0.0-preview9.19424.4" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.Blazor.HttpClient" Version="3.0.0-preview9.19424.4" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Oqtane.Shared\Oqtane.Shared.csproj" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <!-- there may be other elements here -->
+    <BlazorLinkOnBuild>false</BlazorLinkOnBuild>
+  </PropertyGroup>
 </Project>

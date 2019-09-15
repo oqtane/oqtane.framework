@@ -6,13 +6,13 @@
 @using System.Collections.Generic
 @using Oqtane.Shared
 @using Oqtane.Security
+@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Routing
 @namespace Oqtane.Shared
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject SiteState SiteState
-@inject IUriHelper UriHelper
+@inject NavigationManager NavigationManager
 @inject INavigationInterception NavigationInterception
-@inject IComponentContext ComponentContext
 @inject IAliasService AliasService
 @inject ITenantService TenantService
 @inject ISiteService SiteService
@@ -41,8 +41,8 @@
 
     protected override void OnInitialized()
     {
-        _absoluteUri = UriHelper.GetAbsoluteUri();
-        UriHelper.OnLocationChanged += OnLocationChanged;
+        _absoluteUri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).AbsoluteUri;
+        NavigationManager.LocationChanged += LocationChanged;
 
         DynamicComponent = builder =>
         {
@@ -56,7 +56,7 @@
 
     public void Dispose()
     {
-        UriHelper.OnLocationChanged -= OnLocationChanged;
+        NavigationManager.LocationChanged -= LocationChanged;
     }
 
     protected override async Task OnParametersSetAsync()
@@ -268,7 +268,7 @@
         }
     }
 
-    private async void OnLocationChanged(object sender, LocationChangedEventArgs args)
+    private async void LocationChanged(object sender, LocationChangedEventArgs args)
     {
         _absoluteUri = args.Location;
         await Refresh();
@@ -276,7 +276,7 @@
 
     Task IHandleAfterRender.OnAfterRenderAsync()
     {
-        if (!_navigationInterceptionEnabled && ComponentContext.IsConnected)
+        if (!_navigationInterceptionEnabled)
         {
             _navigationInterceptionEnabled = true;
             return NavigationInterception.EnableNavigationInterceptionAsync();

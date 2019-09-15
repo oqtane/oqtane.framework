@@ -28,7 +28,7 @@ namespace Oqtane.Shared
             }
         }
 
-        public Task<string> GetCookie(string name)
+        public ValueTask<string> GetCookie(string name)
         {
             try
             {
@@ -38,7 +38,7 @@ namespace Oqtane.Shared
             }
             catch
             {
-                return Task.FromResult(string.Empty);
+                return new ValueTask<string>(Task.FromResult(string.Empty));
             }
         }
 
@@ -57,7 +57,7 @@ namespace Oqtane.Shared
             }
         }
 
-        public Task<string> GetElementByName(string name)
+        public ValueTask<string> GetElementByName(string name)
         {
             try
             {
@@ -67,7 +67,7 @@ namespace Oqtane.Shared
             }
             catch
             {
-                return Task.FromResult(string.Empty);
+                return new ValueTask<string>(Task.FromResult(string.Empty));
             }
         }
 

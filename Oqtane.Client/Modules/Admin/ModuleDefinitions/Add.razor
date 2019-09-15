@@ -5,7 +5,7 @@
 @using Oqtane.Shared
 @namespace Oqtane.Modules.Admin.ModuleDefinitions
 @inherits ModuleBase
-@inject IUriHelper UriHelper
+@inject NavigationManager NavigationManager
 @inject IFileService FileService
 @inject IModuleDefinitionService ModuleDefinitionService
 
@@ -45,6 +45,6 @@ else
     {
         await ModuleDefinitionService.InstallModulesAsync();
         PageState.Reload = Constants.ReloadApplication;
-        UriHelper.NavigateTo(NavigateUrl());
+        NavigationManager.NavigateTo(NavigateUrl());
     }
 }
