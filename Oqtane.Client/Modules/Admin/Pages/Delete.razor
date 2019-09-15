@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
 @using Oqtane.Modules.Controls
 @using Oqtane.Models
 @using Oqtane.Services
@@ -128,7 +129,7 @@
     int PageId;
     string name;
     string path;
-    string parentid;
+    string parentid = "";
     string isnavigation;
     string editmode;
     string themetype;

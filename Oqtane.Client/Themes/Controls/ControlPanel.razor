@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
 @using Oqtane.Services
 @using Oqtane.Models
 @using Oqtane.Themes
@@ -93,10 +94,10 @@
     List<ModuleDefinition> moduledefinitions;
     Dictionary<string, string> containers = new Dictionary<string, string>();
     int pagemanagementmoduleid = -1;
-    string moduledefinitionname;
-    string pane;
+    string moduledefinitionname = "";
+    string pane = "";
     string title = "";
-    string containertype;
+    string containertype = "";
 
     protected override async Task OnInitializedAsync()
     {
