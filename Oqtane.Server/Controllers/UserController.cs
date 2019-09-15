@@ -107,12 +107,11 @@ namespace Oqtane.Controllers
 
             if (ModelState.IsValid)
             {
-                bool installed = true;
-                if (!Users.GetUsers().Any())
-                {
-                    installed = false; // during initial installation we need to be able to create the host user
-                }
-
+                //bool installed = true;
+                //if (!Users.GetUsers().Any())
+                //{
+                //    installed = false; // during initial installation we need to be able to create the host user
+                //}
                 IdentityUser identityuser = await IdentityUserManager.FindByNameAsync(User.Username);
                 if (identityuser == null)
                 {
