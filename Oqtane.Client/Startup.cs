@@ -10,6 +10,7 @@ using Oqtane.Modules;
 using Oqtane.Shared;
 using Oqtane.Providers;
 using Microsoft.AspNetCore.Blazor.Http;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace Oqtane.Client
 {
