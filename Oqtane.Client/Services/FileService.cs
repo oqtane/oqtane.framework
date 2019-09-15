@@ -8,19 +8,19 @@ namespace Oqtane.Services
     public class FileService : ServiceBase, IFileService
     {
         private readonly SiteState sitestate;
-        private readonly IUriHelper urihelper;
+        private readonly NavigationManager NavigationManager;
         private readonly IJSRuntime jsRuntime;
 
-        public FileService(SiteState sitestate, IUriHelper urihelper, IJSRuntime jsRuntime)
+        public FileService(SiteState sitestate, NavigationManager NavigationManager, IJSRuntime jsRuntime)
         {
             this.sitestate = sitestate;
-            this.urihelper = urihelper;
+            this.NavigationManager = NavigationManager;
             this.jsRuntime = jsRuntime;
         }
 
         private string apiurl
         {
-            get { return CreateApiUrl(sitestate.Alias, urihelper.GetAbsoluteUri(), "File"); }
+            get { return CreateApiUrl(sitestate.Alias, NavigationManager.ToAbsoluteUri(NavigationManager.Uri).AbsoluteUri, "File"); }
         }
 
         public async Task UploadFilesAsync(string Folder)

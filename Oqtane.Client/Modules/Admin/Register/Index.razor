@@ -4,7 +4,7 @@
 @using Oqtane.Services
 @namespace Oqtane.Modules.Admin.Register
 @inherits ModuleBase
-@inject IUriHelper UriHelper
+@inject NavigationManager NavigationManager
 @inject IUserService UserService
 
 <div class="container">
@@ -16,8 +16,8 @@
         <label for="Password" class="control-label">Password: </label>
         <input type="password" name="Password" class="form-control" placeholder="Password" @bind="@Password" />
     </div>
-    <button type="button" class="btn btn-primary" @onclick="@RegisterUser">Register</button>
-    <button type="button" class="btn btn-secondary" @onclick="@Cancel">Cancel</button>
+    <button type="button" class="btn btn-primary" @onclick="RegisterUser">Register</button>
+    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
 </div>
 
 @code {
@@ -36,11 +36,11 @@
         user.IsHost = false;
         user.Password = Password;
         await UserService.AddUserAsync(user);
-        UriHelper.NavigateTo("");
+        NavigationManager.NavigateTo("");
     }
 
     private void Cancel()
     {
-        UriHelper.NavigateTo(NavigateUrl("")); // navigate to home
+        NavigationManager.NavigateTo(NavigateUrl("")); // navigate to home
     }
 }

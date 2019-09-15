@@ -6,7 +6,7 @@
 @using Oqtane.Security
 @namespace Oqtane.Modules.Admin.Sites
 @inherits ModuleBase
-@inject IUriHelper UriHelper
+@inject NavigationManager NavigationManager
 @inject ITenantService TenantService
 @inject IAliasService AliasService
 @inject ISiteService SiteService
@@ -58,7 +58,7 @@ else
             </td>
         </tr>
     </table>
-    <button type="button" class="btn btn-success" @onclick="@SaveSite">Save</button>
+    <button type="button" class="btn btn-success" @onclick="SaveSite">Save</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 }
 
@@ -113,6 +113,6 @@ else
 
         await PageService.AddPageAsync(p);
 
-        UriHelper.NavigateTo(url, true);
+        NavigationManager.NavigateTo(url, true);
     }
 }

@@ -13,18 +13,18 @@ namespace Oqtane.Services
     {
         private readonly HttpClient http;
         private readonly SiteState sitestate;
-        private readonly IUriHelper urihelper;
+        private readonly NavigationManager NavigationManager;
 
-        public PageService(HttpClient http, SiteState sitestate, IUriHelper urihelper)
+        public PageService(HttpClient http, SiteState sitestate, NavigationManager NavigationManager)
         {
             this.http = http;
             this.sitestate = sitestate;
-            this.urihelper = urihelper;
+            this.NavigationManager = NavigationManager;
         }
 
         private string apiurl
         {
-            get { return CreateApiUrl(sitestate.Alias, urihelper.GetAbsoluteUri(), "Page"); }
+            get { return CreateApiUrl(sitestate.Alias, NavigationManager.ToAbsoluteUri(NavigationManager.Uri).AbsoluteUri, "Page"); }
         }
 
         public async Task<List<Page>> GetPagesAsync(int SiteId)

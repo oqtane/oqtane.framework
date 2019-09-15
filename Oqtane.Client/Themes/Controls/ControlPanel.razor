@@ -6,7 +6,7 @@
 @using Oqtane.Security
 @namespace Oqtane.Themes.Controls
 @inherits ThemeObjectBase
-@inject IUriHelper UriHelper
+@inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject IThemeService ThemeService
@@ -68,7 +68,7 @@
                         }
                     </select>
                 </div>
-                <button type="button" class="btn btn-primary" @onclick="@AddModule">Add Module To Page</button>
+                <button type="button" class="btn btn-primary" @onclick="AddModule">Add Module To Page</button>
             </div>
         </div>
     </div>
@@ -140,7 +140,7 @@
             await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
 
             PageState.Reload = Constants.ReloadPage;
-            UriHelper.NavigateTo(NavigateUrl());
+            NavigationManager.NavigateTo(NavigateUrl());
         }
     }
 
@@ -180,7 +180,7 @@
                 PageState.DesignMode = true;
             }
             PageState.Reload = Constants.ReloadPage;
-            UriHelper.NavigateTo(NavigateUrl(PageState.Page.Path, "edit=" + PageState.EditMode.ToString().ToLower()));
+            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "edit=" + PageState.EditMode.ToString().ToLower()));
         }
     }
 }

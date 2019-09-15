@@ -7,7 +7,7 @@
 @using Oqtane.Security
 @namespace Oqtane.Modules.Admin.Pages
 @inherits ModuleBase
-@inject IUriHelper UriHelper
+@inject NavigationManager NavigationManager
 @inject IPageService PageService
 @inject IThemeService  ThemeService
 
@@ -35,7 +35,7 @@
             <label for="Name" class="control-label">Parent: </label>
         </td>
         <td>
-            <select class="form-control" @onchange="@(e => ParentChanged(e))">
+            <select class="form-control" @onchange="(e => ParentChanged(e))">
                 <option value="">&lt;Site Root&gt;</option>
                 @foreach (Page page in pages)
                 {
@@ -138,7 +138,7 @@
         </td>
     </tr>
 </table>
-<button type="button" class="btn btn-success" @onclick="@SavePage">Save</button>
+<button type="button" class="btn btn-success" @onclick="SavePage">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 <br />
 <br />
@@ -215,7 +215,7 @@
         }
     }
 
-    private void ParentChanged(UIChangeEventArgs e)
+    private void ParentChanged(ChangeEventArgs e)
     {
         try
         {
@@ -298,7 +298,7 @@
             await PageService.UpdatePageOrderAsync(page.SiteId, currentparentid);
 
             PageState.Reload = Constants.ReloadSite;
-            UriHelper.NavigateTo(NavigateUrl());
+            NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {
