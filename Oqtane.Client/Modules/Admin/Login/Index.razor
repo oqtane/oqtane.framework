@@ -7,7 +7,7 @@
 @using Oqtane.Shared
 @namespace Oqtane.Modules.Admin.Login
 @inherits ModuleBase
-@inject IUriHelper UriHelper
+@inject NavigationManager NavigationManager
 @inject IJSRuntime jsRuntime
 @inject IUserService UserService
 @inject IServiceProvider ServiceProvider
@@ -36,8 +36,8 @@
                     <input type="checkbox" class="form-check-input" name="Remember" @bind="@Remember" />
                 </div>
             </div>
-            <button type="button" class="btn btn-primary" @onclick="@Login">Login</button>
-            <button type="button" class="btn btn-secondary" @onclick="@Cancel">Cancel</button>
+            <button type="button" class="btn btn-primary" @onclick="Login">Login</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
         </div>
     </NotAuthorized>
 </AuthorizeView>
@@ -88,7 +88,7 @@
             {
                 authstateprovider.NotifyAuthenticationChanged();
                 PageState.Reload = Constants.ReloadSite;
-                UriHelper.NavigateTo(NavigateUrl(ReturnUrl));
+                NavigationManager.NavigateTo(NavigateUrl(ReturnUrl));
             }
             else
             {
@@ -100,6 +100,6 @@
     private void Cancel()
     {
         string ReturnUrl = PageState.QueryString["returnurl"];
-        UriHelper.NavigateTo(ReturnUrl);
+        NavigationManager.NavigateTo(ReturnUrl);
     }
 }

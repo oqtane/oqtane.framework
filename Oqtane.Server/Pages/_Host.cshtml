@@ -15,7 +15,7 @@
 </head>
 <body>
     @(Html.AntiForgeryToken())
-    <app>@(await Html.RenderComponentAsync<App>())</app>
+    <app>@(await Html.RenderComponentAsync<App>(RenderMode.Server))</app>
 
     <script src="js/site.js"></script>
     <script src="js/interop.js"></script>

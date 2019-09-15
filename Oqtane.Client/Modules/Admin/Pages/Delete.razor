@@ -7,7 +7,7 @@
 @using Oqtane.Security
 @namespace Oqtane.Modules.Admin.Pages
 @inherits ModuleBase
-@inject IUriHelper UriHelper
+@inject NavigationManager NavigationManager
 @inject IPageService PageService
 @inject IThemeService  ThemeService
 
@@ -111,7 +111,7 @@
         </td>
     </tr>
 </table>
-<button type="button" class="btn btn-danger" @onclick="@DeletePage">Delete</button>
+<button type="button" class="btn btn-danger" @onclick="DeletePage">Delete</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 <br />
 <br />
@@ -181,11 +181,11 @@
             PageState.Reload = Constants.ReloadSite;
             if (PageState.Page.Name == "Page Management")
             {
-                UriHelper.NavigateTo(NavigateUrl());
+                NavigationManager.NavigateTo(NavigateUrl());
             }
             else
             {
-                UriHelper.NavigateTo(NavigateUrl(""));
+                NavigationManager.NavigateTo(NavigateUrl(""));
             }
         }
         catch (Exception ex)

@@ -5,7 +5,7 @@
 @using Oqtane.Services
 @namespace Oqtane.Modules.Admin.Profile
 @inherits ModuleBase
-@inject IUriHelper UriHelper
+@inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject IProfileService ProfileService
 @inject ISettingService SettingService
@@ -49,13 +49,13 @@
                     <label for="@p.Name" class="control-label">@p.Title: </label>
                 </td>
                 <td>
-                    <input class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" placeholder="@p.Description" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                    <input class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" placeholder="@p.Description" @onchange="(e => ProfileChanged(e, p.Name))" />
                 </td>
             </tr>
         }
     </table>
-    <button type="button" class="btn btn-primary" @onclick="@SaveUser">Save</button>
-    <button type="button" class="btn btn-secondary" @onclick="@Cancel">Cancel</button>
+    <button type="button" class="btn btn-primary" @onclick="SaveUser">Save</button>
+    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
     <br />
     <br />
 }
@@ -107,7 +107,7 @@
             await UserService.UpdateUserAsync(user);
             await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
 
-            UriHelper.NavigateTo("");
+            NavigationManager.NavigateTo("");
         }
         catch (Exception ex)
         {
@@ -117,10 +117,10 @@
 
     private void Cancel()
     {
-        UriHelper.NavigateTo(NavigateUrl(""));
+        NavigationManager.NavigateTo(NavigateUrl(""));
     }
 
-    private void ProfileChanged(UIChangeEventArgs e, string SettingName)
+    private void ProfileChanged(ChangeEventArgs e, string SettingName)
     {
         string value = (string)e.Value;
         settings = SettingService.SetSetting(settings, SettingName, value);

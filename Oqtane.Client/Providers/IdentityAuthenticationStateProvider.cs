@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Oqtane.Models;
 using Oqtane.Services;
 using Oqtane.Shared;
@@ -11,20 +12,20 @@ namespace Oqtane.Providers
 {
     public class IdentityAuthenticationStateProvider : AuthenticationStateProvider
     {
-        private readonly IUriHelper urihelper;
+        private readonly NavigationManager NavigationManager;
         private readonly SiteState sitestate;
 
-        public IdentityAuthenticationStateProvider(IUriHelper urihelper, SiteState sitestate)
+        public IdentityAuthenticationStateProvider(NavigationManager NavigationManager, SiteState sitestate)
         {
-            this.urihelper = urihelper;
+            this.NavigationManager = NavigationManager;
             this.sitestate = sitestate;
         }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            // hack: create a new HttpClient rather than relying on the registered service as the AuthenticationStateProvider is initialized prior to IUriHelper ( https://github.com/aspnet/AspNetCore/issues/11867 )
+            // hack: create a new HttpClient rather than relying on the registered service as the AuthenticationStateProvider is initialized prior to NavigationManager ( https://github.com/aspnet/AspNetCore/issues/11867 )
             HttpClient http = new HttpClient();
-            string apiurl = ServiceBase.CreateApiUrl(sitestate.Alias, urihelper.GetAbsoluteUri(), "User") + "/authenticate";
+            string apiurl = ServiceBase.CreateApiUrl(sitestate.Alias, NavigationManager.ToAbsoluteUri(NavigationManager.Uri).AbsoluteUri, "User") + "/authenticate";
             User user = await http.GetJsonAsync<User>(apiurl);
 
             ClaimsIdentity identity = new ClaimsIdentity();

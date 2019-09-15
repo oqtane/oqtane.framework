@@ -6,7 +6,7 @@
 @using Oqtane.Shared;
 @namespace Oqtane.Modules.HtmlText
 @inherits ModuleBase
-@inject IUriHelper UriHelper
+@inject NavigationManager NavigationManager
 @inject HttpClient http
 @inject SiteState sitestate
 
@@ -27,7 +27,7 @@
     {
         try
         {
-            HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, UriHelper);
+            HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, NavigationManager);
             HtmlTextInfo htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
             if (htmltext != null)
             {
