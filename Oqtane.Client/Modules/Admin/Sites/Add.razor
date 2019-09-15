@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
 @using Oqtane.Models
 @using Oqtane.Services
 @using Oqtane.Modules
@@ -66,10 +67,10 @@ else
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
 
     List<Tenant> tenants;
-    string tenantid;
-    string name;
-    string url;
-    string logo;
+    string tenantid = "";
+    string name = "";
+    string url = "";
+    string logo = "";
 
     protected override async Task OnInitializedAsync()
     {
