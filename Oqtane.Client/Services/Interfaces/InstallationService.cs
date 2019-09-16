@@ -23,7 +23,7 @@ namespace Oqtane.Services
 
         private string apiurl
         {
-            get { return CreateApiUrl(sitestate.Alias, NavigationManager.ToAbsoluteUri(NavigationManager.Uri).AbsoluteUri, "Installation"); }
+            get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "Installation"); }
         }
 
         public async Task<GenericResponse> IsInstalled()

@@ -20,7 +20,7 @@ namespace Oqtane.Services
 
         private string apiurl
         {
-            get { return CreateApiUrl(sitestate.Alias, NavigationManager.ToAbsoluteUri(NavigationManager.Uri).AbsoluteUri, "File"); }
+            get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "File"); }
         }
 
         public async Task UploadFilesAsync(string Folder)

@@ -41,7 +41,7 @@
 
     protected override void OnInitialized()
     {
-        _absoluteUri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).AbsoluteUri;
+        _absoluteUri = NavigationManager.Uri;
         NavigationManager.LocationChanged += LocationChanged;
 
         DynamicComponent = builder =>

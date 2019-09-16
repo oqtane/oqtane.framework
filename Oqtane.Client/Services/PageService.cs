@@ -24,7 +24,7 @@ namespace Oqtane.Services
 
         private string apiurl
         {
-            get { return CreateApiUrl(sitestate.Alias, NavigationManager.ToAbsoluteUri(NavigationManager.Uri).AbsoluteUri, "Page"); }
+            get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "Page"); }
         }
 
         public async Task<List<Page>> GetPagesAsync(int SiteId)
