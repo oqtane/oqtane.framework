@@ -179,15 +179,7 @@
         try
         {
             await PageService.DeletePageAsync(Int32.Parse(PageState.QueryString["id"]));
-            PageState.Reload = Constants.ReloadSite;
-            if (PageState.Page.Name == "Page Management")
-            {
-                NavigationManager.NavigateTo(NavigateUrl());
-            }
-            else
-            {
-                NavigationManager.NavigateTo(NavigateUrl(""));
-            }
+            NavigationManager.NavigateTo(NavigateUrl("", Reload.Site));
         }
         catch (Exception ex)
         {

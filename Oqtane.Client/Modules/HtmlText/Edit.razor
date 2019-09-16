@@ -80,8 +80,7 @@
                 htmltext.Content = content;
                 await htmltextservice.AddHtmlTextAsync(htmltext);
             }
-            PageState.Reload = Constants.ReloadPage;
-            NavigationManager.NavigateTo(NavigateUrl());
+            NavigationManager.NavigateTo(NavigateUrl(Reload.Page));
         }
         catch (Exception ex)
         {

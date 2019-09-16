@@ -116,6 +116,7 @@ CREATE TABLE [dbo].[Role](
 	[Name] [nvarchar](256) NOT NULL,
 	[Description] [nvarchar](50) NOT NULL,
 	[IsAutoAssigned] [bit] NOT NULL,
+	[IsSystem] [bit] NOT NULL,
 	[CreatedBy] [nvarchar](256) NOT NULL,
 	[CreatedOn] [datetime] NOT NULL,
 	[ModifiedBy] [nvarchar](256) NOT NULL,
@@ -361,23 +362,23 @@ GO
 
 SET IDENTITY_INSERT [dbo].[Role] ON 
 GO
-INSERT [dbo].[Role] ([RoleId], [SiteId], [Name], [Description], [IsAutoAssigned], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (-1, null, N'All Users', N'All Users', 0, '', getdate(), '', getdate())
+INSERT [dbo].[Role] ([RoleId], [SiteId], [Name], [Description], [IsAutoAssigned], [IsSystem], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (-1, null, N'All Users', N'All Users', 0, 1, '', getdate(), '', getdate())
 GO
-INSERT [dbo].[Role] ([RoleId], [SiteId], [Name], [Description], [IsAutoAssigned], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (0, null, N'Host Users', N'Host Users', 0, '', getdate(), '', getdate())
+INSERT [dbo].[Role] ([RoleId], [SiteId], [Name], [Description], [IsAutoAssigned], [IsSystem], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (0, null, N'Host Users', N'Host Users', 0, 1, '', getdate(), '', getdate())
 GO
-INSERT [dbo].[Role] ([RoleId], [SiteId], [Name], [Description], [IsAutoAssigned], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (1, 1, N'Administrators', N'Site Administrators', 0, '', getdate(), '', getdate())
+INSERT [dbo].[Role] ([RoleId], [SiteId], [Name], [Description], [IsAutoAssigned], [IsSystem], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (1, 1, N'Administrators', N'Site Administrators', 0, 1, '', getdate(), '', getdate())
 GO
-INSERT [dbo].[Role] ([RoleId], [SiteId], [Name], [Description], [IsAutoAssigned], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (2, 1, N'Registered Users', N'Registered Users', 1, '', getdate(), '', getdate())
+INSERT [dbo].[Role] ([RoleId], [SiteId], [Name], [Description], [IsAutoAssigned], [IsSystem], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (2, 1, N'Registered Users', N'Registered Users', 1, 1, '', getdate(), '', getdate())
 GO
-INSERT [dbo].[Role] ([RoleId], [SiteId], [Name], [Description], [IsAutoAssigned], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (3, 2, N'Administrators', N'Site Administrators', 0, '', getdate(), '', getdate())
+INSERT [dbo].[Role] ([RoleId], [SiteId], [Name], [Description], [IsAutoAssigned], [IsSystem], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (3, 2, N'Administrators', N'Site Administrators', 0, 1, '', getdate(), '', getdate())
 GO
-INSERT [dbo].[Role] ([RoleId], [SiteId], [Name], [Description], [IsAutoAssigned], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (4, 2, N'Registered Users', N'Registered Users', 1, '', getdate(), '', getdate())
+INSERT [dbo].[Role] ([RoleId], [SiteId], [Name], [Description], [IsAutoAssigned], [IsSystem], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (4, 2, N'Registered Users', N'Registered Users', 1, 1, '', getdate(), '', getdate())
 GO
 SET IDENTITY_INSERT [dbo].[Role] OFF 
 GO

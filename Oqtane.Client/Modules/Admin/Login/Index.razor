@@ -89,8 +89,7 @@
             if (user.IsAuthenticated)
             {
                 authstateprovider.NotifyAuthenticationChanged();
-                PageState.Reload = Constants.ReloadSite;
-                NavigationManager.NavigateTo(NavigateUrl(ReturnUrl));
+                NavigationManager.NavigateTo(NavigateUrl(ReturnUrl, Reload.Site));
             }
             else
             {

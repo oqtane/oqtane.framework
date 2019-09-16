@@ -90,16 +90,34 @@
         string control = "";
         bool editmode = false;
         bool designmode = false;
-        int reload = 0;
+        Reload reload = Reload.None;
+
+        // get Url path and querystring ( and remove anchors )
+        string path = new Uri(_absoluteUri).PathAndQuery.Substring(1);
+        if (path.IndexOf("#") != -1)
+        {
+            path = path.Substring(0, path.IndexOf("#"));
+        }
+
+        // parse querystring and remove
+        Dictionary<string, string> querystring = new Dictionary<string, string>();
+        if (path.IndexOf("?") != -1)
+        {
+            querystring = ParseQueryString(path);
+            path = path.Substring(0, path.IndexOf("?"));
+        }
+        if (querystring.ContainsKey("reload"))
+        {
+            reload = (Reload)int.Parse(querystring["reload"]);
+        }
 
         if (PageState != null)
         {
-            reload = PageState.Reload;
             editmode = PageState.EditMode;
             designmode = PageState.DesignMode;
         }
 
-        if (PageState == null || reload == Constants.ReloadApplication)
+        if (PageState == null || reload == Reload.Application)
         {
             moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync();
             themes = await ThemeService.GetThemesAsync();
@@ -119,9 +137,9 @@
         {
             alias = GetAlias(_absoluteUri, aliases);
             SiteState.Alias = alias; // set state for services
-            reload = Constants.ReloadSite;
+            reload = Reload.Site;
         }
-        if (PageState == null || reload <= Constants.ReloadSite)
+        if (PageState == null || reload <= Reload.Site)
         {
             site = await SiteService.GetSiteAsync(alias.SiteId);
         }
@@ -131,28 +149,13 @@
         }
         if (site != null)
         {
-            if (PageState == null || reload >= Constants.ReloadSite)
+            if (PageState == null || reload >= Reload.Site)
             {
                 pages = await PageService.GetPagesAsync(site.SiteId);
             }
             else
             {
                 pages = PageState.Pages;
-            }
-
-            // get Url path and querystring ( and remove anchors )
-            string path = new Uri(_absoluteUri).PathAndQuery.Substring(1);
-            if (path.IndexOf("#") != -1)
-            {
-                path = path.Substring(0, path.IndexOf("#"));
-            }
-
-            // parse querystring and remove
-            Dictionary<string, string> querystring = new Dictionary<string, string>();
-            if (path.IndexOf("?") != -1)
-            {
-                querystring = ParseQueryString(path);
-                path = path.Substring(0, path.IndexOf("?"));
             }
 
             // format path and remove alias
@@ -185,7 +188,7 @@
             // remove trailing slash so it can be used as a key for Pages
             if (path.EndsWith("/")) path = path.Substring(0, path.Length - 1);
 
-            if (PageState == null || reload >= Constants.ReloadPage)
+            if (PageState == null || reload >= Reload.Page)
             {
                 page = pages.Where(item => item.Path == path).FirstOrDefault();
             }
@@ -204,13 +207,13 @@
             if (page.Path != path)
             {
                 page = pages.Where(item => item.Path == path).FirstOrDefault();
-                reload = Constants.ReloadPage;
+                reload = Reload.Page;
                 editmode = page.EditMode;
                 designmode = false;
             }
 
             user = null;
-            if (PageState == null || reload >= Constants.ReloadPage)
+            if (PageState == null || reload >= Reload.Page)
             {
                 var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
                 if (authState.User.Identity.IsAuthenticated)
@@ -244,10 +247,10 @@
 
                     if (PageState != null && (PageState.ModuleId != pagestate.ModuleId || PageState.Control != pagestate.Control))
                     {
-                        reload = Constants.ReloadPage;
+                        reload = Reload.Page;
                     }
 
-                    if (PageState == null || reload >= Constants.ReloadPage)
+                    if (PageState == null || reload >= Reload.Page)
                     {
                         modules = await ModuleService.GetModulesAsync(page.PageId);
                         modules = ProcessModules(modules, moduledefinitions, pagestate.Control, page.Panes);
@@ -259,7 +262,6 @@
                     pagestate.Modules = modules;
                     pagestate.EditMode = editmode;
                     pagestate.DesignMode = designmode;
-                    pagestate.Reload = Constants.ReloadReset;
 
                     OnStateChange?.Invoke(pagestate);
                 }

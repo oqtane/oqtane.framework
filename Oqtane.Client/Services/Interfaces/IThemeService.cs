@@ -10,5 +10,6 @@ namespace Oqtane.Services
         Dictionary<string, string> GetThemeTypes(List<Theme> themes);
         Dictionary<string, string> GetPaneLayoutTypes(List<Theme> themes);
         Dictionary<string, string> GetContainerTypes(List<Theme> themes);
+        Task InstallThemesAsync();
     }
 }

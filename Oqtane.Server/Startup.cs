@@ -146,11 +146,11 @@ namespace Oqtane.Server
 
             // get list of loaded assemblies
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-
-            // iterate through Oqtane module assemblies in /bin ( filter is narrow to optimize loading process )
             string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
             DirectoryInfo folder = new DirectoryInfo(path);
             List<Assembly> moduleassemblies = new List<Assembly>();
+
+            // iterate through Oqtane module assemblies in /bin ( filter is narrow to optimize loading process )
             foreach (FileInfo file in folder.EnumerateFiles("*.Module.*.dll"))
             {
                 // check if assembly is already loaded
@@ -160,6 +160,18 @@ namespace Oqtane.Server
                     // load assembly ( as long as dependencies are in /bin they will load as well )
                     assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName);
                     moduleassemblies.Add(assembly);
+                }
+            }
+
+            // iterate through Oqtane theme assemblies in /bin ( filter is narrow to optimize loading process )
+            foreach (FileInfo file in folder.EnumerateFiles("*.Theme.*.dll"))
+            {
+                // check if assembly is already loaded
+                Assembly assembly = assemblies.Where(item => item.Location == file.FullName).FirstOrDefault();
+                if (assembly == null)
+                {
+                    // load assembly ( as long as dependencies are in /bin they will load as well )
+                    assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName);
                 }
             }
 
@@ -313,11 +325,11 @@ namespace Oqtane.Server
 
             // get list of loaded assemblies
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-
-            // iterate through Oqtane module assemblies in /bin ( filter is narrow to optimize loading process )
             string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
             DirectoryInfo folder = new DirectoryInfo(path);
             List<Assembly> moduleassemblies = new List<Assembly>();
+
+            // iterate through Oqtane module assemblies in /bin ( filter is narrow to optimize loading process )
             foreach (FileInfo file in folder.EnumerateFiles("*.Module.*.dll"))
             {
                 // check if assembly is already loaded
@@ -327,6 +339,18 @@ namespace Oqtane.Server
                     // load assembly ( as long as dependencies are in /bin they will load as well )
                     assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName);
                     moduleassemblies.Add(assembly);
+                }
+            }
+
+            // iterate through Oqtane theme assemblies in /bin ( filter is narrow to optimize loading process )
+            foreach (FileInfo file in folder.EnumerateFiles("*.Theme.*.dll"))
+            {
+                // check if assembly is already loaded
+                Assembly assembly = assemblies.Where(item => item.Location == file.FullName).FirstOrDefault();
+                if (assembly == null)
+                {
+                    // load assembly ( as long as dependencies are in /bin they will load as well )
+                    assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName);
                 }
             }
 
@@ -399,6 +423,7 @@ namespace Oqtane.Server
             }
 
             app.UseClientSideBlazorFiles<Client.Startup>();
+            app.UseStaticFiles();
 
             app.UseRouting();
             app.UseAuthentication();
