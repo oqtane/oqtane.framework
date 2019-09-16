@@ -25,6 +25,14 @@
     </tr>
     <tr>
         <td>
+            <label for="Name" class="control-label">Path: </label>
+        </td>
+        <td>
+            <input class="form-control" @bind="@path" />
+        </td>
+    </tr>
+    <tr>
+        <td>
             <label for="Name" class="control-label">Parent: </label>
         </td>
         <td>
@@ -126,7 +134,7 @@
             <label for="Name" class="control-label">Permissions: </label>
         </td>
         <td>
-            <PermissionGrid EntityName="Page" Permissions="@permissions" @ref="permissiongrid" @ref:suppressField />
+            <PermissionGrid EntityName="Page" Permissions="@permissions" @ref="permissiongrid" />
         </td>
     </tr>
 </table>
@@ -142,7 +150,8 @@
     Dictionary<string, string> panelayouts = new Dictionary<string, string>();
 
     List<Page> pages;
-    string name = "";
+    string name;
+    string path = "";
     string parentid;
     string insert = ">>";
     List<Page> children;
@@ -160,8 +169,8 @@
     {
         try
         {
-            pages = PageState.Pages.Where(item => item.IsNavigation).ToList();
-            children = PageState.Pages.Where(item => item.ParentId == null && item.IsNavigation).OrderBy(item => item.Order).ToList();
+            pages = PageState.Pages;
+            children = PageState.Pages.Where(item => item.ParentId == null).ToList();
 
             themes = ThemeService.GetThemeTypes(PageState.Themes);
             panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes);
@@ -184,11 +193,11 @@
             parentid = (string)e.Value;
             if (string.IsNullOrEmpty(parentid))
             {
-                children = PageState.Pages.Where(item => item.ParentId == null && item.IsNavigation).OrderBy(item => item.Order).ToList();
+                children = PageState.Pages.Where(item => item.ParentId == null).ToList();
             }
             else
             {
-                children = PageState.Pages.Where(item => item.ParentId == int.Parse(parentid) && item.IsNavigation).OrderBy(item => item.Order).ToList();
+                children = PageState.Pages.Where(item => item.ParentId == int.Parse(parentid)).ToList();
             }
             StateHasChanged();
         }
@@ -205,16 +214,31 @@
             Page page = new Page();
             page.SiteId = PageState.Page.SiteId;
             page.Name = name;
+            if (path == "")
+            {
+                path = name;
+            }
+            if (path.Contains("/"))
+            {
+                path = path.Substring(path.LastIndexOf("/") + 1);
+            }
             if (string.IsNullOrEmpty(parentid))
             {
                 page.ParentId = null;
-                page.Path = page.Name.ToLower();
+                page.Path = Utilities.GetFriendlyUrl(path);
             }
             else
             {
                 page.ParentId = Int32.Parse(parentid);
-                Page parent = PageState.Pages.Where(item => item.ParentId == page.ParentId).FirstOrDefault();
-                page.Path = parent.Path + "/" + page.Name.ToLower();
+                Page parent = PageState.Pages.Where(item => item.PageId == page.ParentId).FirstOrDefault();
+                if (parent.Path == "")
+                {
+                    page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(path);
+                }
+                else
+                {
+                    page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(path);
+                }
             }
             Page child;
             switch (insert)
@@ -255,7 +279,7 @@
             await PageService.UpdatePageOrderAsync(page.SiteId, page.ParentId);
 
             PageState.Reload = Constants.ReloadSite;
-            NavigationManager.NavigateTo(NavigateUrl());
+            NavigationManager.NavigateTo(NavigateUrl(page.Path));
         }
         catch (Exception ex)
         {

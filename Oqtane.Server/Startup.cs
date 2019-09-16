@@ -64,7 +64,7 @@ namespace Oqtane.Server
                     {
                         client.DefaultRequestHeaders.Add("Cookie", ".AspNetCore.Identity.Application=" + authToken);
                     }
-                    client.BaseAddress = new Uri(NavigationManager.ToAbsoluteUri(NavigationManager.Uri).AbsoluteUri);
+                    client.BaseAddress = new Uri(NavigationManager.Uri);
                     return client;
                 });
             }

@@ -41,7 +41,7 @@
 
     protected override void OnInitialized()
     {
-        _absoluteUri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri).AbsoluteUri;
+        _absoluteUri = NavigationManager.Uri;
         NavigationManager.LocationChanged += LocationChanged;
 
         DynamicComponent = builder =>
@@ -140,8 +140,12 @@
                 pages = PageState.Pages;
             }
 
-            // get Url path and querystring
+            // get Url path and querystring ( and remove anchors )
             string path = new Uri(_absoluteUri).PathAndQuery.Substring(1);
+            if (path.IndexOf("#") != -1)
+            {
+                path = path.Substring(0, path.IndexOf("#"));
+            }
 
             // parse querystring and remove
             Dictionary<string, string> querystring = new Dictionary<string, string>();
@@ -189,6 +193,13 @@
             {
                 page = PageState.Page;
             }
+            // failsafe in case router cannot locate the home page for the site
+            if (page == null && path == "")
+            {
+                page = pages.FirstOrDefault();
+                path = page.Path;
+            }
+
             // check if page has changed
             if (page.Path != path)
             {

@@ -28,7 +28,7 @@
             <label for="Name" class="control-label">Path: </label>
         </td>
         <td>
-            <input class="form-control" @bind="@path" readonly />
+            <input class="form-control" @bind="@path" />
         </td>
     </tr>
     <tr>
@@ -40,7 +40,14 @@
                 <option value="">&lt;Site Root&gt;</option>
                 @foreach (Page page in pages)
                 {
-                    <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
+                    if (page.PageId.ToString() == parentid)
+                    {
+                        <option value="@(page.PageId)" selected>@(new string('-', page.Level * 2))@(page.Name)</option>
+                    }
+                    else
+                    {
+                        <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
+                    }
                 }
             </select>
         </td>
@@ -51,7 +58,10 @@
         </td>
         <td>
             <select class="form-control" @bind="@insert">
-                <option value="">&lt;Maintain Current Location&gt;</option>
+                @if (parentid == currentparentid)
+                {
+                    <option value="">&lt;Maintain Current Location&gt;</option>
+                }
                 <option value="<<">To Beginning</option>
                 @if (children != null && children.Count > 0)
                 {
@@ -135,7 +145,7 @@
             <label for="Name" class="control-label">Permissions: </label>
         </td>
         <td>
-            <PermissionGrid EntityName="Page" Permissions="@permissions" @ref="permissiongrid" @ref:suppressField />
+            <PermissionGrid EntityName="Page" Permissions="@permissions" @ref="permissiongrid" />
         </td>
     </tr>
 </table>
@@ -157,6 +167,7 @@
     int PageId;
     string name;
     string path;
+    string currentparentid;
     string parentid;
     string insert = "";
     List<Page> children;
@@ -178,8 +189,8 @@
     {
         try
         {
-            pages = PageState.Pages.Where(item => item.IsNavigation).ToList();
-            children = PageState.Pages.Where(item => item.ParentId == null && item.IsNavigation).OrderBy(item => item.Order).ToList();
+            pages = PageState.Pages;
+            children = PageState.Pages.Where(item => item.ParentId == null).ToList();
 
             themes = ThemeService.GetThemeTypes(PageState.Themes);
             panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes);
@@ -190,6 +201,10 @@
             {
                 name = page.Name;
                 path = page.Path;
+                if (path.Contains("/"))
+                {
+                    path = path.Substring(path.LastIndexOf("/") + 1);
+                }
                 if (page.ParentId == null)
                 {
                     parentid = "";
@@ -198,6 +213,7 @@
                 {
                     parentid = page.ParentId.ToString();
                 }
+                currentparentid = parentid;
                 isnavigation = page.IsNavigation.ToString();
                 editmode = page.EditMode.ToString();
                 themetype = page.ThemeType;
@@ -223,11 +239,19 @@
             parentid = (string)e.Value;
             if (string.IsNullOrEmpty(parentid))
             {
-                children = PageState.Pages.Where(item => item.ParentId == null && item.IsNavigation).OrderBy(item => item.Order).ToList();
+                children = PageState.Pages.Where(item => item.ParentId == null).ToList();
             }
             else
             {
-                children = PageState.Pages.Where(item => item.ParentId == int.Parse(parentid) && item.IsNavigation).OrderBy(item => item.Order).ToList();
+                children = PageState.Pages.Where(item => item.ParentId == int.Parse(parentid)).ToList();
+            }
+            if (parentid == currentparentid)
+            {
+                insert = "";
+            }
+            else
+            {
+                insert = ">>";
             }
             StateHasChanged();
         }
@@ -241,20 +265,35 @@
     {
         try
         {
-            Page page = PageState.Page;
-            int? currentparentid = page.ParentId;
-            page.PageId = Int32.Parse(PageState.QueryString["id"]);
+            Page page = PageState.Pages.Where(item => item.PageId == PageId).FirstOrDefault();
+            string currentpath = page.Path;
+
             page.Name = name;
+            if (path == "")
+            {
+                path = name;
+            }
+            if (path.Contains("/"))
+            {
+                path = path.Substring(path.LastIndexOf("/") + 1);
+            }
             if (string.IsNullOrEmpty(parentid))
             {
                 page.ParentId = null;
-                page.Path = page.Name.ToLower();
+                page.Path = Utilities.GetFriendlyUrl(path);
             }
             else
             {
                 page.ParentId = Int32.Parse(parentid);
-                Page parent = PageState.Pages.Where(item => item.ParentId == page.ParentId).FirstOrDefault();
-                page.Path = parent.Path + "/" + page.Name.ToLower();
+                Page parent = PageState.Pages.Where(item => item.PageId == page.ParentId).FirstOrDefault();
+                if (parent.Path == "")
+                {
+                    page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(path);
+                }
+                else
+                {
+                    page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(path);
+                }
             }
             if (insert != "")
             {
@@ -296,10 +335,27 @@
             page.Permissions = permissiongrid.GetPermissions();
             await PageService.UpdatePageAsync(page);
             await PageService.UpdatePageOrderAsync(page.SiteId, page.ParentId);
-            await PageService.UpdatePageOrderAsync(page.SiteId, currentparentid);
+            if (currentparentid == "")
+            {
+                await PageService.UpdatePageOrderAsync(page.SiteId, null);
+            }
+            else
+            {
+                await PageService.UpdatePageOrderAsync(page.SiteId, int.Parse(currentparentid));
+            }
+
+            // update child paths
+            if (parentid != currentparentid)
+            {
+                foreach (Page p in PageState.Pages.Where(item => item.Path.StartsWith(currentpath)))
+                {
+                    p.Path = p.Path.Replace(currentpath, page.Path);
+                    await PageService.UpdatePageAsync(p);
+                }
+            }
 
             PageState.Reload = Constants.ReloadSite;
-            NavigationManager.NavigateTo(NavigateUrl());
+            NavigationManager.NavigateTo(NavigateUrl(page.Path));
         }
         catch (Exception ex)
         {
