@@ -23,7 +23,7 @@ namespace Oqtane.Services
 
         private string apiurl
         {
-            get { return CreateApiUrl(sitestate.Alias, NavigationManager.ToAbsoluteUri(NavigationManager.Uri).AbsoluteUri, "Profile"); }
+            get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "Profile"); }
         }
 
         public async Task<List<Profile>> GetProfilesAsync()

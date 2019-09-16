@@ -24,7 +24,7 @@ namespace Oqtane.Modules.HtmlText.Services
 
         private string apiurl
         {
-            get { return CreateApiUrl(sitestate.Alias, NavigationManager.ToAbsoluteUri(NavigationManager.Uri).AbsoluteUri, "HtmlText"); }
+            get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "HtmlText"); }
         }
 
         public async Task<HtmlTextInfo> GetHtmlTextAsync(int ModuleId)

@@ -25,7 +25,7 @@ namespace Oqtane.Providers
         {
             // hack: create a new HttpClient rather than relying on the registered service as the AuthenticationStateProvider is initialized prior to NavigationManager ( https://github.com/aspnet/AspNetCore/issues/11867 )
             HttpClient http = new HttpClient();
-            string apiurl = ServiceBase.CreateApiUrl(sitestate.Alias, NavigationManager.ToAbsoluteUri(NavigationManager.Uri).AbsoluteUri, "User") + "/authenticate";
+            string apiurl = ServiceBase.CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "User") + "/authenticate";
             User user = await http.GetJsonAsync<User>(apiurl);
 
             ClaimsIdentity identity = new ClaimsIdentity();
