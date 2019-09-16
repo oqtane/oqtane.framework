@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components;
 using Oqtane.Services;
 using Oqtane.Modules.HtmlText.Models;
 using Oqtane.Shared;
+using System.Text.Json;
 
 namespace Oqtane.Modules.HtmlText.Services
 {
@@ -29,7 +30,17 @@ namespace Oqtane.Modules.HtmlText.Services
 
         public async Task<HtmlTextInfo> GetHtmlTextAsync(int ModuleId)
         {
-            return await http.GetJsonAsync<HtmlTextInfo>(apiurl + "/" + ModuleId.ToString() + "?entityid=" + ModuleId.ToString());
+            HtmlTextInfo htmltext;
+            try
+            {
+                // exception handling is required because GetJsonAsync() returns an error if no content exists for the ModuleId ( https://github.com/aspnet/AspNetCore/issues/14041 )
+                htmltext = await http.GetJsonAsync<HtmlTextInfo>(apiurl + "/" + ModuleId.ToString() + "?entityid=" + ModuleId.ToString());
+            }
+            catch
+            {
+                htmltext = null;
+            }
+            return htmltext;
         }
 
         public async Task AddHtmlTextAsync(HtmlTextInfo htmltext)

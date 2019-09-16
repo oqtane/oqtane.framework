@@ -278,8 +278,7 @@
             await PageService.AddPageAsync(page);
             await PageService.UpdatePageOrderAsync(page.SiteId, page.ParentId);
 
-            PageState.Reload = Constants.ReloadSite;
-            NavigationManager.NavigateTo(NavigateUrl(page.Path));
+            NavigationManager.NavigateTo(NavigateUrl(page.Path, Reload.Site));
         }
         catch (Exception ex)
         {

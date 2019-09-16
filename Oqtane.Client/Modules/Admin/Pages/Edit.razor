@@ -354,8 +354,7 @@
                 }
             }
 
-            PageState.Reload = Constants.ReloadSite;
-            NavigationManager.NavigateTo(NavigateUrl(page.Path));
+            NavigationManager.NavigateTo(NavigateUrl(page.Path, Reload.Site));
         }
         catch (Exception ex)
         {

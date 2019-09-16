@@ -99,5 +99,10 @@ namespace Oqtane.Services
             }
             return selectableContainers;
         }
+
+        public async Task InstallThemesAsync()
+        {
+            await http.GetJsonAsync<List<string>>(apiurl + "/install");
+        }
     }
 }

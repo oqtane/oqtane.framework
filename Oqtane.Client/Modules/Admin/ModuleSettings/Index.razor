@@ -121,8 +121,7 @@
             moduleType.GetMethod("UpdateSettings").Invoke(settings, null); // method must be public in settings component
         }
 
-        PageState.Reload = Constants.ReloadPage;
-        NavigationManager.NavigateTo(NavigateUrl());
+        NavigationManager.NavigateTo(NavigateUrl(Reload.Page));
     }
 
 }

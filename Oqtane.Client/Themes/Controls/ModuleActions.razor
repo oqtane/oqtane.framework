@@ -65,7 +65,7 @@
         {
             PageModule pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
 
-            string url = NavigateUrl();
+            string url = NavigateUrl(Reload.Page);
             switch (action)
             {
                 case "<<":
@@ -104,7 +104,6 @@
                     await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pane);
                     break;
             }
-            PageState.Reload = Constants.ReloadPage;
             NavigationManager.NavigateTo(url);
         }
     }

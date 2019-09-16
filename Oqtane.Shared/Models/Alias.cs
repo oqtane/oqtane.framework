@@ -29,6 +29,20 @@ namespace Oqtane.Models
         }
 
         [NotMapped]
+        public string BaseUrl
+        {
+            get
+            {
+                string name = Name;
+                if (name.Contains("/"))
+                {
+                    name = name.Substring(0, name.IndexOf("/"));
+                }
+                return Scheme + "://" + name;
+            }
+        }
+
+        [NotMapped]
         public string Path
         {
             get
@@ -58,7 +72,7 @@ namespace Oqtane.Models
         {
             get
             {
-                return Url + "/Tenants/" + TenantId.ToString() + "/";
+                return BaseUrl + "/Tenants/" + TenantId.ToString() + "/";
             }
         }
 
@@ -76,7 +90,7 @@ namespace Oqtane.Models
         {
             get
             {
-                return Url + "/Tenants/" + TenantId.ToString() + "/Sites/" + SiteId.ToString() + "/";
+                return BaseUrl + "/Tenants/" + TenantId.ToString() + "/Sites/" + SiteId.ToString() + "/";
             }
         }
     }

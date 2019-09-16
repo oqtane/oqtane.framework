@@ -21,6 +21,5 @@ namespace Oqtane.Shared
         public string Control { get; set; }
         public bool EditMode { get; set; }
         public bool DesignMode { get; set; }
-        public int Reload { get; set; }
     }
 }

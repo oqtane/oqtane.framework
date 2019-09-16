@@ -164,8 +164,7 @@
             await PageModuleService.AddPageModuleAsync(pagemodule);
             await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
 
-            PageState.Reload = Constants.ReloadPage;
-            NavigationManager.NavigateTo(NavigateUrl());
+            NavigationManager.NavigateTo(NavigateUrl(Reload.Page));
         }
     }
 
@@ -204,8 +203,7 @@
                 PageState.EditMode = true;
                 PageState.DesignMode = true;
             }
-            PageState.Reload = Constants.ReloadPage;
-            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "edit=" + PageState.EditMode.ToString().ToLower()));
+            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "edit=" + PageState.EditMode.ToString().ToLower(), Reload.Page));
         }
     }
 }

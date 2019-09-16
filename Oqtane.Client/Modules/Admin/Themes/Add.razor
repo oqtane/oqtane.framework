@@ -4,16 +4,16 @@
 @using Oqtane.Modules
 @using Oqtane.Services
 @using Oqtane.Shared
-@namespace Oqtane.Modules.Admin.ModuleDefinitions
+@namespace Oqtane.Modules.Admin.Themes
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IFileService FileService
-@inject IModuleDefinitionService ModuleDefinitionService
+@inject IThemeService ThemeService
 
 <table class="table table-borderless">
     <tr>
         <td>
-            <label for="Name" class="control-label">Module: </label>
+            <label for="Name" class="control-label">Theme: </label>
         </td>
         <td>
             <FileUpload Filter=".nupkg"></FileUpload>
@@ -37,14 +37,14 @@ else
 
     private async Task UploadFile()
     {
-        await FileService.UploadFilesAsync("Modules");
+        await FileService.UploadFilesAsync("Themes");
         uploaded = true;
         StateHasChanged();
     }
 
     private async Task InstallFile()
     {
-        await ModuleDefinitionService.InstallModulesAsync();
+        await ThemeService.InstallThemesAsync();
         NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
     }
 }
