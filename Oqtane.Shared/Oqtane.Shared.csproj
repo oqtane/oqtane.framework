@@ -21,8 +21,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.ComponentModel.Annotations" Version="4.6.0-preview9.19421.4" />
-    <PackageReference Include="System.Text.Json" Version="4.6.0-preview9.19421.4" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="4.6.0-rc1.19456.4" />
+    <PackageReference Include="System.Text.Json" Version="4.6.0-rc1.19456.4" />
   </ItemGroup>
 
 </Project>
