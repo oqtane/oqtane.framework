@@ -22,5 +22,11 @@ namespace Oqtane.Repository
             // ContextBase handles multi-tenant database connections
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Page>().HasQueryFilter(p => !p.IsSoftDeleted);
+        }
     }
 }

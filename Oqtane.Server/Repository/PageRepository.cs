@@ -16,15 +16,30 @@ namespace Oqtane.Repository
             this.Permissions = Permissions;
         }
 
-        public IEnumerable<Page> GetPages()
+        public IEnumerable<Page> GetPages(bool IgnoreFilter = false)
         {
-            return db.Page.ToList();
+            var query = db.Page;
+
+            if (IgnoreFilter)
+            {
+                query.IgnoreQueryFilters();
+            }
+
+            return query.ToList();
         }
 
-        public IEnumerable<Page> GetPages(int SiteId)
+        public IEnumerable<Page> GetPages(int SiteId, bool IgnoreFilter  = false)
         {
             IEnumerable<Permission> permissions = Permissions.GetPermissions(SiteId, "Page").ToList();
-            IEnumerable<Page> pages = db.Page.Where(item => item.SiteId == SiteId);
+            IQueryable<Page> query = db.Page.Where(item => item.SiteId == SiteId);
+
+            if (IgnoreFilter)
+            {
+                query = query.IgnoreQueryFilters();
+            }
+
+            IEnumerable<Page> pages = query;
+
             foreach(Page page in pages)
             {
                 page.Permissions = Permissions.EncodePermissions(page.PageId, permissions);

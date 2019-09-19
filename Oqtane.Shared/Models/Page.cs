@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Models
 {
-    public class Page : IAuditable
+    public class Page : IAuditable, ISoftDeletable
     {
         public int PageId { get; set; }
         public int SiteId { get; set; }
@@ -22,6 +22,9 @@ namespace Oqtane.Models
         public DateTime CreatedOn { get; set; }
         public string ModifiedBy { get; set; }
         public DateTime ModifiedOn { get; set; }
+        public string DeletedBy { get; set; }
+        public DateTime? DeletedOn { get; set; }
+        public bool IsSoftDeleted { get; set; }
 
 
         [NotMapped]

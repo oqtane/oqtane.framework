@@ -22,13 +22,15 @@ namespace Oqtane.Controllers
         [HttpGet]
         public IEnumerable<Page> Get(string siteid)
         {
-            if (siteid == "")
+            var ignoreFilter = User.IsInRole(Constants.AdminRole);
+
+            if (string.IsNullOrWhiteSpace(siteid))
             {
-                return Pages.GetPages();
+                return Pages.GetPages(ignoreFilter);
             }
             else
             {
-                return Pages.GetPages(int.Parse(siteid));
+                return Pages.GetPages(int.Parse(siteid), ignoreFilter);
             }
         }
 

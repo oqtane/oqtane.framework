@@ -116,7 +116,7 @@
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 <br />
 <br />
-<AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
+<AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon" IsSoftDeleted="@issoftdeleted"></AuditInfo>
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
@@ -140,6 +140,9 @@
     DateTime createdon;
     string modifiedby;
     DateTime modifiedon;
+    string deletedby;
+    DateTime? deletedon;
+    bool issoftdeleted;
 
     PermissionGrid permissiongrid;
 
@@ -166,6 +169,9 @@
                 createdon = page.CreatedOn;
                 modifiedby = page.ModifiedBy;
                 modifiedon = page.ModifiedOn;
+                deletedby = page.DeletedBy;
+                deletedon = page.DeletedOn;
+                issoftdeleted = page.IsSoftDeleted;
             }
         }
         catch (Exception ex)

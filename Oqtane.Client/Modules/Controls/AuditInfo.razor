@@ -20,6 +20,15 @@
 
     [Parameter]
     public DateTime ModifiedOn { get; set; }
+        
+    [Parameter]
+    public string DeletedBy { get; set; }
+
+    [Parameter]
+    public DateTime? DeletedOn { get; set; }
+
+    [Parameter]
+    public bool IsSoftDeleted { get; set; }
 
     [Parameter]
     public string Style { get; set; }
@@ -53,6 +62,20 @@
             if (ModifiedOn != null)
             {
                 text += " on <b>" + ModifiedOn.ToString("MMM dd yyyy HH:mm:ss") + "</b>";
+            }
+            text += "</p>";
+        }
+
+        if (!String.IsNullOrEmpty(DeletedBy) || DeletedOn.HasValue)
+        {
+            text += "<p style=\"" + Style + "\">Soft Deleted ";
+            if (!String.IsNullOrEmpty(DeletedBy))
+            {
+                text += " by <b>" + DeletedBy + "</b>";
+            }
+            if (ModifiedOn != null)
+            {
+                text += " on <b>" + DeletedOn.Value.ToString("MMM dd yyyy HH:mm:ss") + "</b>";
             }
             text += "</p>";
         }
