@@ -3,7 +3,7 @@ using Oqtane.Shared;
 
 namespace Oqtane.Themes
 {
-    public class ThemeObjectBase : ComponentBase
+    public class ThemeControlBase : ComponentBase
     {
         [CascadingParameter]
         protected PageState PageState { get; set; }

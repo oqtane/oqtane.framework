@@ -5,6 +5,8 @@
 @namespace Oqtane.Shared
 @inject NavigationManager NavigationManager
 @inject IInstallationService InstallationService
+@inject ISiteService SiteService
+@inject IAliasService AliasService
 @inject IUserService UserService
 
 <div class="container">
@@ -165,12 +167,18 @@
             GenericResponse response = await InstallationService.Install(connectionstring);
             if (response.Success)
             {
+                Site site = new Site();
+                site.Name = "Site1";
+                site.Logo = "oqtane.png";
+                site.DefaultThemeType = "Oqtane.Themes.Theme2.Theme2, Oqtane.Client";
+                site.DefaultLayoutType = "";
+                site = await SiteService.AddSiteAsync(site);
+
                 User user = new User();
-                user.SiteId = 1;
+                user.SiteId = site.SiteId;
                 user.Username = Email;
                 user.DisplayName = Email;
                 user.Email = Email;
-                user.IsHost = true;
                 user.Password = HostPassword;
                 user = await UserService.AddUserAsync(user);
 

@@ -18,17 +18,20 @@ namespace Oqtane.Repository
         {
             return db.UserRole;
         }
-        public IEnumerable<UserRole> GetUserRoles(int UserId)
+        public IEnumerable<UserRole> GetUserRoles(int SiteId)
         {
-            return db.UserRole.Where(item => item.UserId == UserId)
-                .Include(item => item.Role); // eager load roles
+            return db.UserRole
+                .Include(item => item.Role) // eager load roles
+                .Include(item => item.User) // eager load users
+                .Where(item => item.Role.SiteId == SiteId);
         }
 
         public IEnumerable<UserRole> GetUserRoles(int UserId, int SiteId)
         {
             return db.UserRole.Where(item => item.UserId == UserId)
                 .Include(item => item.Role) // eager load roles
-                .Where(item => item.Role.SiteId == SiteId);
+                .Include(item => item.User) // eager load users
+                .Where(item => item.Role.SiteId == SiteId || item.Role.SiteId == null);
         }
 
         public UserRole AddUserRole(UserRole UserRole)
@@ -47,7 +50,9 @@ namespace Oqtane.Repository
 
         public UserRole GetUserRole(int UserRoleId)
         {
-            return db.UserRole.Include(item => item.Role) // eager load roles
+            return db.UserRole
+                .Include(item => item.Role) // eager load roles
+                .Include(item => item.User) // eager load users
                 .SingleOrDefault(item => item.UserRoleId == UserRoleId);
         }
 

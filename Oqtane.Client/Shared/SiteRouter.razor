@@ -119,14 +119,12 @@
 
         if (PageState == null || reload == Reload.Application)
         {
-            moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync();
             themes = await ThemeService.GetThemesAsync();
             aliases = await AliasService.GetAliasesAsync();
             alias = null;
         }
         else
         {
-            moduledefinitions = PageState.ModuleDefinitions;
             themes = PageState.Themes;
             aliases = PageState.Aliases;
             alias = PageState.Alias;
@@ -151,10 +149,12 @@
         {
             if (PageState == null || reload >= Reload.Site)
             {
+                moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(site.SiteId);
                 pages = await PageService.GetPagesAsync(site.SiteId);
             }
             else
             {
+                moduledefinitions = PageState.ModuleDefinitions;
                 pages = PageState.Pages;
             }
 

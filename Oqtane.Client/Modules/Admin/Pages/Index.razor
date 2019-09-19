@@ -9,27 +9,20 @@
 
 @if (PageState.Pages != null)
 {
-    <ActionLink Action="Add" Text="Add Page" />
-    <table class="table table-borderless">
-        <thead>
-            <tr>
-                <th>&nbsp;</th>
-                <th>&nbsp;</th>
-                <th>Name</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (Page page in PageState.Pages)
-            {
-                <tr>
-                    <td><ActionLink Action="Edit" Parameters="@($"id=" + page.PageId.ToString())" /></td>
-                    <td><ActionLink Action="Delete" Parameters="@($"id=" + page.PageId.ToString())" Class="btn btn-danger" /></td>
-                    <td>@(new string('-', page.Level * 2))@(page.Name)</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <ActionLink Action="Add" Text="Add Page" Style="float: right; margin: 10px;" />
 
+    <Pager Items="@PageState.Pages" DisplayPages="3" PageSize="3">
+        <Header>
+            <th>Name</th>
+            <th>&nbsp;</th>
+            <th>&nbsp;</th>
+        </Header>
+        <Row>
+            <td>@(new string('-', context.Level * 2))@(context.Name)</td>
+            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.PageId.ToString())" /></td>
+            <td><ActionLink Action="Delete" Parameters="@($"id=" +context.PageId.ToString())" Class="btn btn-danger" /></td>
+        </Row>
+    </Pager>
 }
 
 @code {

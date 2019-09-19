@@ -20,6 +20,11 @@ namespace Oqtane.Modules
 
         public virtual bool UseAdminContainer { get { return true; } }
 
+        public string ModulePath()
+        {
+            return "Modules/" + this.GetType().Namespace + "/";
+        }
+
         public string NavigateUrl()
         {
             return NavigateUrl(PageState.Page.Path);

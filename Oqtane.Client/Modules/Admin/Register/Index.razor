@@ -34,7 +34,6 @@
         user.Username = Email;
         user.DisplayName = Email;
         user.Email = Email;
-        user.IsHost = false;
         user.Password = Password;
         await UserService.AddUserAsync(user);
         NavigationManager.NavigateTo("");

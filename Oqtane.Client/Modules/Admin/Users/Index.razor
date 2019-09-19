@@ -3,12 +3,12 @@
 @using Oqtane.Models
 @using Oqtane.Modules
 @using Oqtane.Modules.Controls
+@using Oqtane.Shared
 @namespace Oqtane.Modules.Admin.Users
 @inherits ModuleBase
+@inject IUserRoleService UserRoleService
 
-@inject IUserService UserService
-
-@if (Users == null)
+@if (userroles == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -21,10 +21,10 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var User in Users)
+            @foreach (UserRole userrole in userroles)
             {
                 <tr>
-                    <td>@User.Username</td>
+                    <td>@userrole.User.Username</td>
                 </tr>
             }
         </tbody>
@@ -34,10 +34,11 @@ else
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 
-    List<User> Users;
+    List<UserRole> userroles;
 
     protected override async Task OnInitializedAsync()
     {
-        Users = await UserService.GetUsersAsync(PageState.Site.SiteId);
+        userroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
+        userroles = userroles.Where(item => item.Role.Name == Constants.RegisteredRole).ToList();
     }
 }

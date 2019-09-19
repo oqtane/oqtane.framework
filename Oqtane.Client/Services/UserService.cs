@@ -27,9 +27,9 @@ namespace Oqtane.Services
             get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "User"); }
         }
 
-        public async Task<List<User>> GetUsersAsync(int SiteId)
+        public async Task<List<User>> GetUsersAsync()
         {
-            List<User> users = await http.GetJsonAsync<List<User>>(apiurl + "?siteid=" + SiteId.ToString());
+            List<User> users = await http.GetJsonAsync<List<User>>(apiurl);
             return users.OrderBy(item => item.DisplayName).ToList();
         }
 

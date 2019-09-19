@@ -1,0 +1,91 @@
+﻿@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using Oqtane.Modules.Controls
+@using Oqtane.Models
+@using Oqtane.Services
+@using Oqtane.Modules
+@using Oqtane.Shared
+@using Oqtane.Security
+@namespace Oqtane.Modules.Admin.ModuleDefinitions
+@inherits ModuleBase
+@inject IModuleDefinitionService ModuleDefinitionService
+@inject NavigationManager NavigationManager
+
+<ModuleMessage Message="@message" />
+
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Name: </label>
+        </td>
+        <td>
+            <input class="form-control" @bind="@name" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Permissions: </label>
+        </td>
+        <td>
+            <PermissionGrid EntityName="ModuleDefinition" PermissionNames="Utilize" Permissions="@permissions" @ref="permissiongrid" />
+        </td>
+    </tr>
+</table>
+<button type="button" class="btn btn-success" @onclick="SaveModuleDefinition">Save</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+<br />
+<br />
+<AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+
+    string message = "";
+
+    int ModuleDefinitionId;
+    string name;
+    string permissions;
+    string createdby;
+    DateTime createdon;
+    string modifiedby;
+    DateTime modifiedon;
+
+    PermissionGrid permissiongrid;
+
+    protected override void OnInitialized()
+    {
+        try
+        {
+            ModuleDefinitionId = Int32.Parse(PageState.QueryString["id"]);
+            ModuleDefinition moduledefinition = PageState.ModuleDefinitions.Where(item => item.ModuleDefinitionId == ModuleDefinitionId).FirstOrDefault();
+            if (moduledefinition != null)
+            {
+                name = moduledefinition.Name;
+                permissions = moduledefinition.Permissions;
+                createdby = moduledefinition.CreatedBy;
+                createdon = moduledefinition.CreatedOn;
+                modifiedby = moduledefinition.ModifiedBy;
+                modifiedon = moduledefinition.ModifiedOn;
+            }
+        }
+        catch (Exception ex)
+        {
+            message = ex.Message;
+        }
+    }
+
+    private async Task SaveModuleDefinition()
+    {
+        try
+        {
+            ModuleDefinition moduledefinition = PageState.ModuleDefinitions.Where(item => item.ModuleDefinitionId == ModuleDefinitionId).FirstOrDefault();
+            moduledefinition.Permissions = permissiongrid.GetPermissions();
+            await ModuleDefinitionService.UpdateModuleDefinitionAsync(moduledefinition);
+            NavigationManager.NavigateTo(NavigateUrl(Reload.Site));
+        }
+        catch (Exception ex)
+        {
+            message = ex.Message;
+        }
+    }
+}

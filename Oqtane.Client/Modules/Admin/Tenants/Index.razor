@@ -1,0 +1,43 @@
+﻿@using Microsoft.AspNetCore.Components.Web
+@using Oqtane.Services
+@using Oqtane.Models
+@using Oqtane.Modules
+@using Oqtane.Modules.Controls
+@namespace Oqtane.Modules.Admin.Tenants
+@inherits ModuleBase
+@inject ITenantService TenantService
+
+@if (Tenants == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <ActionLink Action="Add" Text="Add Tenant" />
+    <table class="table table-borderless">
+        <thead>
+            <tr>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var Tenant in Tenants)
+            {
+                <tr>
+                    <td>@Tenant.Name</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+
+    List<Tenant> Tenants;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Tenants = await TenantService.GetTenantsAsync();
+    }
+}

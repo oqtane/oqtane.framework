@@ -16,5 +16,7 @@ namespace Oqtane.Models
         public DateTime ModifiedOn { get; set; }
 
         public Role Role { get; set; }
+
+        public User User { get; set; }
     }
 }

@@ -10,6 +10,11 @@ namespace Oqtane.Themes
         public virtual string Name { get; set; }
         public virtual string Panes { get; set; }
 
+        public string ThemePath()
+        {
+            return "Themes/" + this.GetType().Namespace + "/";
+        }
+
         public string NavigateUrl()
         {
             return NavigateUrl(PageState.Page.Path);
@@ -40,5 +45,19 @@ namespace Oqtane.Themes
             return Utilities.NavigateUrl(PageState.Alias.Path, path, parameters, reload);
         }
 
+        public string EditUrl(int moduleid, string action)
+        {
+            return EditUrl(moduleid, action, "");
+        }
+
+        public string EditUrl(int moduleid, string action, string parameters)
+        {
+            return EditUrl(PageState.Page.Path, moduleid, action, parameters);
+        }
+
+        public string EditUrl(string path, int moduleid, string action, string parameters)
+        {
+            return Utilities.EditUrl(PageState.Alias.Path, path, moduleid, action, parameters);
+        }
     }
 }

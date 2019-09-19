@@ -5,7 +5,7 @@
 @using Oqtane.Models;
 @using Oqtane.Security
 @namespace Oqtane.Themes.Controls
-@inherits ThemeObjectBase
+@inherits ThemeControlBase
 @inject IUserService UserService
 
 @if (menu != "")
@@ -37,7 +37,7 @@
                 }
                 if (p.Icon != "")
                 {
-                    menu += "<span class=\"oi " + p.Icon + "\" aria-hidden=\"true\"></span>";
+                    menu += "<span class=\"oi oi-" + p.Icon + "\" aria-hidden=\"true\"></span>";
                 }
                 menu += p.Name;
                 menu += "</a>\n";

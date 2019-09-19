@@ -44,7 +44,7 @@
                 <label for="Name" class="control-label">Permissions: </label>
             </td>
             <td>
-                <PermissionGrid EntityName="Module" Permissions="@permissions" @ref="permissiongrid" />
+                <PermissionGrid EntityName="Module" PermissionNames="@permissionnames" Permissions="@permissions" @ref="permissiongrid" />
             </td>
         </tr>
         <tr>
@@ -76,6 +76,7 @@
     Dictionary<string, string> containers = new Dictionary<string, string>();
     string title;
     string containertype;
+    string permissionnames = "";
     string permissions;
     string pageid;
 
@@ -90,6 +91,7 @@
         containers = ThemeService.GetContainerTypes(await ThemeService.GetThemesAsync());
         containertype = ModuleState.ContainerType;
         permissions = ModuleState.Permissions;
+        permissionnames = PageState.ModuleDefinitions.Find(item => item.ModuleDefinitionName == ModuleState.ModuleDefinitionName).PermissionNames;
         pageid = ModuleState.PageId.ToString();
 
         DynamicComponent = builder =>

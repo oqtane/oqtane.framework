@@ -28,10 +28,10 @@ namespace Oqtane.Services
             get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "ModuleDefinition"); }
         }
 
-        public async Task<List<ModuleDefinition>> GetModuleDefinitionsAsync()
+        public async Task<List<ModuleDefinition>> GetModuleDefinitionsAsync(int SiteId)
         {
             // get list of modules from the server
-            List<ModuleDefinition> moduledefinitions = await http.GetJsonAsync<List<ModuleDefinition>>(apiurl);
+            List<ModuleDefinition> moduledefinitions = await http.GetJsonAsync<List<ModuleDefinition>>(apiurl + "?siteid=" + SiteId.ToString());
 
             // get list of loaded assemblies on the client ( in the client-side hosting module the browser client has its own app domain )
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -62,6 +62,11 @@ namespace Oqtane.Services
             }
 
             return moduledefinitions.OrderBy(item => item.Name).ToList();
+        }
+
+        public async Task UpdateModuleDefinitionAsync(ModuleDefinition ModuleDefinition)
+        {
+            await http.PutJsonAsync<Page>(apiurl + "/" + ModuleDefinition.ModuleDefinitionId.ToString(), ModuleDefinition);
         }
 
         public async Task InstallModulesAsync()

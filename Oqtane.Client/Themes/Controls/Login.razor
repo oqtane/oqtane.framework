@@ -6,7 +6,7 @@
 @using Oqtane.Shared
 @using Microsoft.JSInterop
 @namespace Oqtane.Themes.Controls
-@inherits ThemeObjectBase
+@inherits ThemeControlBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject IJSRuntime jsRuntime
@@ -33,7 +33,7 @@
         {
             returnurl += "/" + PageState.Page.Path;
         }
-        NavigationManager.NavigateTo("login?returnurl=" + returnurl);
+        NavigationManager.NavigateTo(NavigateUrl("login", "returnurl=" + returnurl));
     }
 
     private async Task LogoutUser()

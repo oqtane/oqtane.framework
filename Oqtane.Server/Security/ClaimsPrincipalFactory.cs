@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Oqtane.Security
 {
@@ -31,17 +33,15 @@ namespace Oqtane.Security
             if (user != null)
             {
                 id.AddClaim(new Claim(ClaimTypes.PrimarySid, user.UserId.ToString()));
-                if (user.IsHost) // host users are part of every site by default
+                Alias alias = Tenants.GetAlias();
+                List<UserRole> userroles = UserRoles.GetUserRoles(user.UserId, alias.SiteId).ToList();
+                foreach (UserRole userrole in userroles)
                 {
-                    id.AddClaim(new Claim(options.ClaimsIdentity.RoleClaimType, Constants.HostRole));
-                    id.AddClaim(new Claim(options.ClaimsIdentity.RoleClaimType, Constants.AdminRole));
-                }
-                else
-                {
-                    Alias alias = Tenants.GetAlias();
-                    foreach (UserRole userrole in UserRoles.GetUserRoles(user.UserId, alias.SiteId))
+                    id.AddClaim(new Claim(options.ClaimsIdentity.RoleClaimType, userrole.Role.Name));
+                    // host users are admins of every site
+                    if (userrole.Role.Name == Constants.HostRole && userroles.Where(item => item.Role.Name == Constants.AdminRole).FirstOrDefault() == null)
                     {
-                        id.AddClaim(new Claim(options.ClaimsIdentity.RoleClaimType, userrole.Role.Name));
+                        id.AddClaim(new Claim(options.ClaimsIdentity.RoleClaimType, Constants.AdminRole));
                     }
                 }
             }
