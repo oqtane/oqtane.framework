@@ -6,7 +6,7 @@ namespace Oqtane.Services
 {
     public interface IUserService
     {
-        Task<List<User>> GetUsersAsync(int SiteId);
+        Task<List<User>> GetUsersAsync();
 
         Task<User> GetUserAsync(int UserId, int SiteId);
 

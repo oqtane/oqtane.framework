@@ -35,6 +35,19 @@ CREATE TABLE [dbo].[Tenant](
 )
 GO
 
+CREATE TABLE [dbo].[ModuleDefinition](
+	[ModuleDefinitionId] [int] IDENTITY(1,1) NOT NULL,
+	[ModuleDefinitionName] [nvarchar](200) NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedOn] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NOT NULL,
+	[ModifiedOn] [datetime] NOT NULL,
+  CONSTRAINT [PK_ModuleDefinition] PRIMARY KEY CLUSTERED 
+  (
+	[ModuleDefinitionId] ASC
+  )
+)
+GO
 
 /*  
 
@@ -64,9 +77,5 @@ GO
 INSERT [dbo].[Alias] ([AliasId], [Name], [TenantId], [SiteId], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
 VALUES (1, N'{Alias}', 1, 1, '', getdate(), '', getdate())
 GO
-INSERT [dbo].[Alias] ([AliasId], [Name], [TenantId], [SiteId], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (2, N'{Alias}/site2', 1, 2, '', getdate(), '', getdate())
-GO
 SET IDENTITY_INSERT [dbo].[Alias] OFF
 GO
-

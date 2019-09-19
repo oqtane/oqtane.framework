@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
+using System.Linq;
 
 namespace Oqtane.Controllers
 {
@@ -33,12 +34,23 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        [Authorize(Roles = Constants.HostRole)]
         public Site Post([FromBody] Site Site)
         {
             if (ModelState.IsValid)
             {
-                Site = Sites.AddSite(Site);
+                bool authorized;
+                if (!Sites.GetSites().Any())
+                {
+                    authorized = true; // provision initial site during installation
+                }
+                else
+                {
+                    authorized = User.IsInRole(Constants.HostRole);
+                }
+                if (authorized)
+                {
+                    Site = Sites.AddSite(Site);
+                }
             }
             return Site;
         }

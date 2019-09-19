@@ -17,15 +17,19 @@ else
     <table class="table table-borderless">
         <thead>
             <tr>
+                <th>&nbsp;</th>
                 <th>Name</th>
+                <th>Version</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var moduledefinition in moduledefinitions)
             {
-                <tr>
-                    <td>@moduledefinition.Name</td>
-                </tr>
+            <tr>
+                <td><ActionLink Action="Edit" Parameters="@($"id=" + moduledefinition.ModuleDefinitionId.ToString())" /></td>
+                <td>@moduledefinition.Name</td>
+                <td>@moduledefinition.Version</td>
+            </tr>
             }
         </tbody>
     </table>
@@ -38,6 +42,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync();
+        moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
     }
 }

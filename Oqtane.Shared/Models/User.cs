@@ -9,7 +9,7 @@ namespace Oqtane.Models
         public string Username { get; set; }
         public string DisplayName { get; set; }
         public string Email { get; set; }
-        public bool IsHost { get; set; }
+
         [NotMapped]
         public int SiteId { get; set; }
         [NotMapped]

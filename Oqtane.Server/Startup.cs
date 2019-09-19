@@ -26,6 +26,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using System.Net;
 using Microsoft.AspNetCore.Authorization;
+using Oqtane.Infrastructure;
 
 namespace Oqtane.Server
 {
@@ -144,6 +145,33 @@ namespace Oqtane.Server
             // register custom claims principal factory for role claims
             services.AddTransient<IUserClaimsPrincipalFactory<IdentityUser>, ClaimsPrincipalFactory<IdentityUser>>();
 
+            // register singleton scoped core services
+            services.AddSingleton<IConfigurationRoot>(Configuration);
+            services.AddSingleton<IInstallation, Installation>();
+
+            // install any modules or themes
+            ServiceProvider sp = services.BuildServiceProvider();
+            var Installation = sp.GetRequiredService<IInstallation>();
+            Installation.Install("Modules,Themes");
+
+            // register transient scoped core services
+            services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
+            services.AddTransient<IThemeRepository, ThemeRepository>();
+            services.AddTransient<IUserPermissions, UserPermissions>();
+            services.AddTransient<ITenantResolver, TenantResolver>();
+            services.AddTransient<IAliasRepository, AliasRepository>();
+            services.AddTransient<ITenantRepository, TenantRepository>();
+            services.AddTransient<ISiteRepository, SiteRepository>();
+            services.AddTransient<IPageRepository, PageRepository>();
+            services.AddTransient<IModuleRepository, ModuleRepository>();
+            services.AddTransient<IPageModuleRepository, PageModuleRepository>();
+            services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<IProfileRepository, ProfileRepository>();
+            services.AddTransient<IRoleRepository, RoleRepository>();
+            services.AddTransient<IUserRoleRepository, UserRoleRepository>();
+            services.AddTransient<IPermissionRepository, PermissionRepository>();
+            services.AddTransient<ISettingRepository, SettingRepository>();
+
             // get list of loaded assemblies
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
             string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
@@ -176,28 +204,6 @@ namespace Oqtane.Server
             }
 
             services.AddMvc().AddModuleAssemblies(moduleassemblies).AddNewtonsoftJson();
-
-            // register singleton scoped core services
-            services.AddSingleton<IConfigurationRoot>(Configuration);
-            services.AddSingleton<IModuleDefinitionRepository, ModuleDefinitionRepository>();
-            services.AddSingleton<IThemeRepository, ThemeRepository>();
-
-            // register transient scoped core services
-            services.AddTransient<IUserPermissions, UserPermissions>();
-            services.AddTransient<ITenantResolver, TenantResolver>();
-            services.AddTransient<IAliasRepository, AliasRepository>();
-            services.AddTransient<ITenantRepository, TenantRepository>();
-            services.AddTransient<ISiteRepository, SiteRepository>();
-            services.AddTransient<IPageRepository, PageRepository>();
-            services.AddTransient<IModuleRepository, ModuleRepository>();
-            services.AddTransient<IPageModuleRepository, PageModuleRepository>();
-            services.AddTransient<IUserRepository, UserRepository>();
-            services.AddTransient<IProfileRepository, ProfileRepository>();
-            services.AddTransient<ISiteUserRepository, SiteUserRepository>();
-            services.AddTransient<IRoleRepository, RoleRepository>();
-            services.AddTransient<IUserRoleRepository, UserRoleRepository>();
-            services.AddTransient<IPermissionRepository, PermissionRepository>();
-            services.AddTransient<ISettingRepository, SettingRepository>();
 
             // dynamically register module services, contexts, and repository classes
             assemblies = AppDomain.CurrentDomain.GetAssemblies()
@@ -358,10 +364,10 @@ namespace Oqtane.Server
 
             // register singleton scoped core services
             services.AddSingleton<IConfigurationRoot>(Configuration);
-            services.AddSingleton<IModuleDefinitionRepository, ModuleDefinitionRepository>();
-            services.AddSingleton<IThemeRepository, ThemeRepository>();
 
             // register transient scoped core services
+            services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
+            services.AddTransient<IThemeRepository, ThemeRepository>();
             services.AddTransient<IUserPermissions, UserPermissions>();
             services.AddTransient<ITenantResolver, TenantResolver>();
             services.AddTransient<IAliasRepository, AliasRepository>();
@@ -371,7 +377,6 @@ namespace Oqtane.Server
             services.AddTransient<IModuleRepository, ModuleRepository>();
             services.AddTransient<IPageModuleRepository, PageModuleRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
-            services.AddTransient<ISiteUserRepository, SiteUserRepository>();
             services.AddTransient<IRoleRepository, RoleRepository>();
             services.AddTransient<IUserRoleRepository, UserRoleRepository>();
             services.AddTransient<IPermissionRepository, PermissionRepository>();

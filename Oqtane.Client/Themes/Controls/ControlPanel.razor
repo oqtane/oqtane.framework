@@ -6,7 +6,7 @@
 @using Oqtane.Shared
 @using Oqtane.Security
 @namespace Oqtane.Themes.Controls
-@inherits ThemeObjectBase
+@inherits ThemeControlBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject IModuleDefinitionService ModuleDefinitionService
@@ -40,11 +40,21 @@
                         <td>
                             @if (moduledefinitions != null)
                             {
+                                <select class="form-control" @onchange="(e => CategoryChanged(e))">
+                                    <option value="-">&lt;Common Modules&gt;</option>
+                                    @foreach (var category in categories)
+                                    {
+                                        <option value="@category">@category</option>
+                                    }
+                                </select>
                                 <select class="form-control" @bind="@moduledefinitionname">
                                     <option value="">&lt;Select Module&gt;</option>
                                     @foreach (var moduledefinition in moduledefinitions)
                                     {
-                                        <option value="@moduledefinition.ModuleDefinitionName">@moduledefinition.Name</option>
+                                        if (moduledefinition.Permissions == "[]" || UserSecurity.IsAuthorized(PageState.User, "Utilize", moduledefinition.Permissions))
+                                        {
+                                            <option value="@moduledefinition.ModuleDefinitionName">@moduledefinition.Name</option>
+                                        }
                                     }
                                 </select>
                             }
@@ -115,9 +125,11 @@
 }
 
 @code {
+    List<string> categories = new List<string>();
     List<ModuleDefinition> moduledefinitions;
     Dictionary<string, string> containers = new Dictionary<string, string>();
     int pagemanagementmoduleid = -1;
+    string category = "";
     string moduledefinitionname = "";
     string pane = "";
     string title = "";
@@ -127,7 +139,20 @@
     {
         if (UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions))
         {
-            moduledefinitions = PageState.ModuleDefinitions;
+            foreach(ModuleDefinition moduledefinition in PageState.ModuleDefinitions)
+            {
+                if (moduledefinition.Categories != "")
+                {
+                    foreach(string category in moduledefinition.Categories.Split(','))
+                    {
+                        if (!categories.Contains(category))
+                        {
+                            categories.Add(category);
+                        }
+                    }
+                }
+            }
+            moduledefinitions = PageState.ModuleDefinitions.Where(item => item.Categories == "").ToList();
             containers = ThemeService.GetContainerTypes(PageState.Themes);
             List<Module> modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId, Constants.PageManagementModule);
             if (modules.Count > 0)
@@ -135,6 +160,21 @@
                 pagemanagementmoduleid = modules.FirstOrDefault().ModuleId;
             }
         }
+    }
+
+    private void CategoryChanged(ChangeEventArgs e)
+    {
+        string category = (string)e.Value;
+        if (category == "-")
+        {
+            moduledefinitions = PageState.ModuleDefinitions.Where(item => item.Categories == "").ToList();
+        }
+        else
+        {
+            moduledefinitions = PageState.ModuleDefinitions.Where(item => item.Categories.Contains(e.Value.ToString())).ToList();
+        }
+        moduledefinitionname = "";
+        StateHasChanged();
     }
 
     private async Task AddModule()
@@ -145,14 +185,11 @@
             module.SiteId = PageState.Site.SiteId;
             module.ModuleDefinitionName = moduledefinitionname;
             module.Permissions = PageState.Page.Permissions;
-            await ModuleService.AddModuleAsync(module);
-
-            List<Module> modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId, moduledefinitionname);
-            int ModuleId = modules.LastOrDefault().ModuleId;
+            module = await ModuleService.AddModuleAsync(module);
 
             PageModule pagemodule = new PageModule();
             pagemodule.PageId = PageState.Page.PageId;
-            pagemodule.ModuleId = ModuleId;
+            pagemodule.ModuleId = module.ModuleId;
             if (title == "")
             {
                 title = moduledefinitions.Where(item => item.ModuleDefinitionName == moduledefinitionname).FirstOrDefault().Name;

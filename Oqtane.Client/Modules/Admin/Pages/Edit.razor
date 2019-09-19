@@ -37,7 +37,7 @@
         </td>
         <td>
             <select class="form-control" @onchange="(e => ParentChanged(e))">
-                <option value="">&lt;Site Root&gt;</option>
+                <option value="-1">&lt;Site Root&gt;</option>
                 @foreach (Page page in pages)
                 {
                     if (page.PageId.ToString() == parentid)
@@ -237,7 +237,7 @@
         try
         {
             parentid = (string)e.Value;
-            if (string.IsNullOrEmpty(parentid))
+            if (parentid == "-1")
             {
                 children = PageState.Pages.Where(item => item.ParentId == null).ToList();
             }

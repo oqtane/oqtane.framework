@@ -31,9 +31,9 @@ namespace Oqtane.Services
             return await http.GetJsonAsync<List<UserRole>>(apiurl);
         }
 
-        public async Task<List<UserRole>> GetUserRolesAsync(int UserId)
+        public async Task<List<UserRole>> GetUserRolesAsync(int SiteId)
         {
-            return await http.GetJsonAsync<List<UserRole>>(apiurl + "?userid=" + UserId.ToString());
+            return await http.GetJsonAsync<List<UserRole>>(apiurl + "?siteid=" + SiteId.ToString());
         }
 
         public async Task<UserRole> GetUserRoleAsync(int UserRoleId)

@@ -10,14 +10,16 @@ namespace Oqtane.Repository
 {
     public class ModuleDefinitionRepository : IModuleDefinitionRepository
     {
-        private readonly List<ModuleDefinition> ModuleDefinitions;
+        private MasterDBContext db;
+        private readonly IPermissionRepository Permissions;
 
-        public ModuleDefinitionRepository()
+        public ModuleDefinitionRepository(MasterDBContext context, IPermissionRepository Permissions)
         {
-            ModuleDefinitions = LoadModuleDefinitions();
+            db = context;
+            this.Permissions = Permissions;
         }
 
-        private List<ModuleDefinition> LoadModuleDefinitions()
+        private List<ModuleDefinition> LoadModuleDefinitions(int SiteId)
         {
             List<ModuleDefinition> ModuleDefinitions = new List<ModuleDefinition>();
 
@@ -27,6 +29,27 @@ namespace Oqtane.Repository
             foreach (Assembly assembly in assemblies)
             {
                 ModuleDefinitions = LoadModuleDefinitionsFromAssembly(ModuleDefinitions, assembly);
+            }
+
+            // sync module definitions with database
+            List<ModuleDefinition> moduledefs = db.ModuleDefinition.ToList();
+            foreach (ModuleDefinition moduledefinition in ModuleDefinitions)
+            {
+                IEnumerable<Permission> permissions = Permissions.GetPermissions(SiteId, "ModuleDefinition").ToList();
+                ModuleDefinition moduledef = moduledefs.Where(item => item.ModuleDefinitionName == moduledefinition.ModuleDefinitionName).FirstOrDefault();
+                if (moduledef == null)
+                {
+                    moduledef = new ModuleDefinition { ModuleDefinitionName = moduledefinition.ModuleDefinitionName };
+                    db.ModuleDefinition.Add(moduledef);
+                    db.SaveChanges();
+                }
+                moduledefinition.ModuleDefinitionId = moduledef.ModuleDefinitionId;
+                moduledefinition.SiteId = SiteId;
+                moduledefinition.Permissions = Permissions.EncodePermissions(moduledefinition.ModuleDefinitionId, permissions);
+                moduledefinition.CreatedBy = moduledef.CreatedBy;
+                moduledefinition.CreatedOn = moduledef.CreatedOn;
+                moduledefinition.ModifiedBy = moduledef.ModifiedBy;
+                moduledefinition.ModifiedOn = moduledef.ModifiedOn;
             }
 
             return ModuleDefinitions;
@@ -64,13 +87,14 @@ namespace Oqtane.Repository
                                 ModuleDefinitionName = QualifiedModuleType,
                                 Name = GetProperty(properties, "Name"),
                                 Description = GetProperty(properties, "Description"),
+                                Categories = GetProperty(properties, "Categories"),
                                 Version = GetProperty(properties, "Version"),
                                 Owner = GetProperty(properties, "Owner"),
                                 Url = GetProperty(properties, "Url"),
                                 Contact = GetProperty(properties, "Contact"),
                                 License = GetProperty(properties, "License"),
                                 Dependencies = GetProperty(properties, "Dependencies"),
-                                Permissions = GetProperty(properties, "Permissions"),
+                                PermissionNames = GetProperty(properties, "PermissionNames"),
                                 ControlTypeTemplate = ModuleType + ".{Control}" + ", " + typename[1],
                                 ControlTypeRoutes = "",
                                 AssemblyName = assembly.FullName.Split(",")[0]
@@ -83,13 +107,14 @@ namespace Oqtane.Repository
                                 ModuleDefinitionName = QualifiedModuleType,
                                 Name = ModuleType.Substring(ModuleType.LastIndexOf(".") + 1),
                                 Description = ModuleType.Substring(ModuleType.LastIndexOf(".") + 1),
+                                Categories = ((QualifiedModuleType.StartsWith("Oqtane.Modules.Admin.")) ? "Admin" : ""),
                                 Version = new Version(1, 0, 0).ToString(),
                                 Owner = "",
                                 Url = "",
                                 Contact = "",
                                 License = "",
                                 Dependencies = "",
-                                Permissions = "",
+                                PermissionNames = "",
                                 ControlTypeTemplate = ModuleType + ".{Control}" + ", " + typename[1],
                                 ControlTypeRoutes = "",
                                 AssemblyName = assembly.FullName.Split(",")[0]
@@ -116,11 +141,6 @@ namespace Oqtane.Repository
             return moduledefinitions;
         }
 
-        public IEnumerable<ModuleDefinition> GetModuleDefinitions()
-        {
-            return ModuleDefinitions;
-        }
-
         private string GetProperty(Dictionary<string, string> Properties, string Key)
         {
             string Value = "";
@@ -129,6 +149,16 @@ namespace Oqtane.Repository
                 Value = Properties[Key];
             }
             return Value;
+        }
+
+        public IEnumerable<ModuleDefinition> GetModuleDefinitions(int SiteId)
+        {
+            return LoadModuleDefinitions(SiteId);
+        }
+
+        public void UpdateModuleDefinition(ModuleDefinition ModuleDefinition)
+        {
+            Permissions.UpdatePermissions(ModuleDefinition.SiteId, "ModuleDefinition", ModuleDefinition.ModuleDefinitionId, ModuleDefinition.Permissions);
         }
     }
 }

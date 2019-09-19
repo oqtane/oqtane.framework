@@ -36,5 +36,10 @@ namespace Oqtane.Services
         {
             return await http.GetJsonAsync<Tenant>(apiurl);
         }
+
+        public async Task<Tenant> AddTenantAsync(Tenant Tenant)
+        {
+            return await http.PostJsonAsync<Tenant>(apiurl, Tenant);
+        }
     }
 }

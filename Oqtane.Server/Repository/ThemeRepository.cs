@@ -10,13 +10,6 @@ namespace Oqtane.Repository
 {
     public class ThemeRepository : IThemeRepository
     {
-        private readonly List<Theme> Themes;
-
-        public ThemeRepository()
-        {
-            Themes = LoadThemes();
-        }
-
         private List<Theme> LoadThemes()
         {
             List<Theme> Themes = new List<Theme>();
@@ -119,11 +112,6 @@ namespace Oqtane.Repository
             return themes;
         }
 
-        public IEnumerable<Theme> GetThemes()
-        {
-            return Themes;
-        }
-
         private string GetProperty(Dictionary<string, string> Properties, string Key)
         {
             string Value = "";
@@ -132,6 +120,11 @@ namespace Oqtane.Repository
                 Value = Properties[Key];
             }
             return Value;
+        }
+
+        public IEnumerable<Theme> GetThemes()
+        {
+            return LoadThemes();
         }
     }
 }
