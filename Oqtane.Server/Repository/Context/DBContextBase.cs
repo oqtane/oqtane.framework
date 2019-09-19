@@ -70,6 +70,20 @@ namespace Oqtane.Repository
                     item.CurrentValues[nameof(IAuditable.ModifiedBy)] = username;
                     item.CurrentValues[nameof(IAuditable.ModifiedOn)] = date;
                 }
+
+                if (item.Entity is ISoftDeletable softDeleted)
+                {
+                    if ((bool)item.CurrentValues[nameof(ISoftDeletable.IsSoftDeleted)])
+                    {
+                        item.CurrentValues[nameof(ISoftDeletable.DeletedBy)] = username;
+                        item.CurrentValues[nameof(ISoftDeletable.DeletedOn)] = date;
+                    }
+                    else
+                    {
+                        item.CurrentValues[nameof(ISoftDeletable.DeletedBy)] = null;
+                        item.CurrentValues[nameof(ISoftDeletable.DeletedOn)] = null;
+                    }
+                }
             }
 
             return base.SaveChanges();
