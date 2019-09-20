@@ -71,14 +71,16 @@ namespace Oqtane.Repository
                     item.CurrentValues[nameof(IAuditable.ModifiedOn)] = date;
                 }
 
-                if (item.Entity is ISoftDeletable softDeleted)
+                if (item.Entity is ISoftDeletable softDeleted && item.State != EntityState.Added)
                 {
-                    if ((bool)item.CurrentValues[nameof(ISoftDeletable.IsSoftDeleted)])
+                    if ((bool)item.CurrentValues[nameof(ISoftDeletable.IsSoftDeleted)]
+                        && !item.GetDatabaseValues().GetValue<bool>(nameof(ISoftDeletable.IsSoftDeleted)))
                     {
                         item.CurrentValues[nameof(ISoftDeletable.DeletedBy)] = username;
                         item.CurrentValues[nameof(ISoftDeletable.DeletedOn)] = date;
                     }
-                    else
+                    else if (!(bool)item.CurrentValues[nameof(ISoftDeletable.IsSoftDeleted)]
+                        && item.GetDatabaseValues().GetValue<bool>(nameof(ISoftDeletable.IsSoftDeleted)))
                     {
                         item.CurrentValues[nameof(ISoftDeletable.DeletedBy)] = null;
                         item.CurrentValues[nameof(ISoftDeletable.DeletedOn)] = null;
