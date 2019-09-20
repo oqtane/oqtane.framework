@@ -38,6 +38,16 @@ window.interop = {
 
         head.appendChild(link);
     },
+    removeCSS: function (filePattern) {
+        var head = document.head;
+        var links = document.getElementsByTagName("link");
+        for (var i = 0; i < links.length; i++) {
+            var link = links[i];
+            if (link.rel === 'stylesheet' && link.href.includes(filePattern)) {
+                head.removeChild(link);
+            }
+        }
+    },
     submitForm: function (path, fields) {
         const form = document.createElement('form');
         form.method = 'post';
