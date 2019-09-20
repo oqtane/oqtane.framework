@@ -38,6 +38,9 @@ CREATE TABLE [dbo].[Page](
 	[CreatedOn] [datetime] NOT NULL,
 	[ModifiedBy] [nvarchar](256) NOT NULL,
 	[ModifiedOn] [datetime] NOT NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedOn] [datetime] NULL,
+	[IsSoftDeleted][bit] NOT NULL
   CONSTRAINT [PK_Page] PRIMARY KEY CLUSTERED 
   (
 	[PageId] ASC
