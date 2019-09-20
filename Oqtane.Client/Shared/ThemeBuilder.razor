@@ -1,6 +1,8 @@
 ﻿@using Oqtane.Shared
 @using Oqtane.Modules
+@using Microsoft.JSInterop
 @namespace Oqtane.Shared
+@inject IJSRuntime jsRuntime
 
 @DynamicComponent
 
@@ -27,5 +29,13 @@
                 builder.CloseComponent();
             }
         };
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // remove any custom CSS
+        var interop = new Interop(jsRuntime);
+        await interop.RemoveCSS("Themes/");
+        await interop.RemoveCSS("Modules/");
     }
 }

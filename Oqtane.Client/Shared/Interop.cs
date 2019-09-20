@@ -57,6 +57,21 @@ namespace Oqtane.Shared
             }
         }
 
+        public Task RemoveCSS(string filepattern)
+        {
+            try
+            {
+                jsRuntime.InvokeAsync<string>(
+                    "interop.removeCSS",
+                    filepattern);
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
+        }
+
         public ValueTask<string> GetElementByName(string name)
         {
             try
