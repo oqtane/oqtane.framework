@@ -6,18 +6,18 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace Oqtane.Infrastructure
 {
-    public class Installation  : IInstallation
+    public class InstallationManager : IInstallationManager
     {
         private readonly IHostApplicationLifetime HostApplicationLifetime;
         private readonly IWebHostEnvironment environment;
 
-        public Installation(IHostApplicationLifetime HostApplicationLifetime, IWebHostEnvironment environment)
+        public InstallationManager(IHostApplicationLifetime HostApplicationLifetime, IWebHostEnvironment environment)
         {
             this.HostApplicationLifetime = HostApplicationLifetime;
             this.environment = environment;
         }
 
-        public void Install(string Folders)
+        public void InstallPackages(string Folders)
         {
             bool install = false;
             string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
@@ -25,6 +25,12 @@ namespace Oqtane.Infrastructure
             foreach (string Folder in Folders.Split(','))
             {
                 string folder = Path.Combine(environment.WebRootPath, Folder);
+
+                // create folder if it does not exist
+                if (!Directory.Exists(folder))
+                {
+                    Directory.CreateDirectory(folder);
+                }
 
                 // iterate through theme packages
                 foreach (string packagename in Directory.GetFiles(folder, "*.nupkg"))

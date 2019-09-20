@@ -12,12 +12,12 @@ namespace Oqtane.Controllers
     public class ThemeController : Controller
     {
         private readonly IThemeRepository Themes;
-        private readonly IInstallation Installation;
+        private readonly IInstallationManager InstallationManager;
 
-        public ThemeController(IThemeRepository Themes, IInstallation Installation)
+        public ThemeController(IThemeRepository Themes, IInstallationManager InstallationManager)
         {
             this.Themes = Themes;
-            this.Installation = Installation;
+            this.InstallationManager = InstallationManager;
         }
 
         // GET: api/<controller>
@@ -31,7 +31,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.HostRole)]
         public void InstallThemes()
         {
-            Installation.Install("Themes");
+            InstallationManager.InstallPackages("Themes");
         }
     }
 }
