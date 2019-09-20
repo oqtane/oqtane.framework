@@ -12,12 +12,12 @@ namespace Oqtane.Controllers
     public class ModuleDefinitionController : Controller
     {
         private readonly IModuleDefinitionRepository ModuleDefinitions;
-        private readonly IInstallation Installation;
+        private readonly IInstallationManager InstallationManager;
 
-        public ModuleDefinitionController(IModuleDefinitionRepository ModuleDefinitions, IInstallation Installation)
+        public ModuleDefinitionController(IModuleDefinitionRepository ModuleDefinitions, IInstallationManager InstallationManager)
         {
             this.ModuleDefinitions = ModuleDefinitions;
-            this.Installation = Installation;
+            this.InstallationManager = InstallationManager;
         }
 
         // GET: api/<controller>
@@ -42,7 +42,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.HostRole)]
         public void InstallModules()
         {
-            Installation.Install("Modules");
+            InstallationManager.InstallPackages("Modules");
         }
     }
 }
