@@ -102,6 +102,10 @@
         {
             permissionnames = "View,Edit";
         }
+        else
+        {
+            permissionnames = PermissionNames;
+        }
         roles = await RoleService.GetRolesAsync(ModuleState.SiteId);
         roles.Insert(0, new Role { Name = Constants.AllUsersRole });
 

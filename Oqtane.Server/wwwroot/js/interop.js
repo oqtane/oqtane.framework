@@ -28,23 +28,21 @@ window.interop = {
             return "";
         }
     },
-    addCSS: function (fileName) {
-        var head = document.head;
-        var link = document.createElement("link");
-
-        link.type = "text/css";
-        link.rel = "stylesheet";
-        link.href = fileName;
-
-        head.appendChild(link);
+    addCSS: function (id, url) {
+        if (document.getElementById(id) === null) {
+            var link = document.createElement("link");
+            link.id = id;
+            link.type = "text/css";
+            link.rel = "stylesheet";
+            link.href = url;
+            document.head.appendChild(link);
+        }
     },
-    removeCSS: function (filePattern) {
-        var head = document.head;
+    removeCSS: function (pattern) {
         var links = document.getElementsByTagName("link");
         for (var i = 0; i < links.length; i++) {
-            var link = links[i];
-            if (link.rel === 'stylesheet' && link.href.includes(filePattern)) {
-                head.removeChild(link);
+            if (links[i].id.includes(pattern)) {
+                document.head.removeChild(links[i]);
             }
         }
     },

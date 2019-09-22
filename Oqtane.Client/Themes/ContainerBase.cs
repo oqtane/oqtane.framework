@@ -1,11 +1,16 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using Oqtane.Shared;
 using Oqtane.Models;
+using System.Threading.Tasks;
 
 namespace Oqtane.Themes
 {
     public class ContainerBase : ComponentBase, IContainerControl
     {
+        [Inject]
+        protected IJSRuntime JSRuntime { get; set; }
+
         [CascadingParameter]
         protected PageState PageState { get; set; }
 
@@ -13,6 +18,21 @@ namespace Oqtane.Themes
         protected Module ModuleState { get; set; }
 
         public virtual string Name { get; set; }
+
+        public string ThemePath()
+        {
+            return "Themes/" + this.GetType().Namespace + "/";
+        }
+
+        public async Task AddCSS(string Url)
+        {
+            if (!Url.StartsWith("http"))
+            {
+                Url = ThemePath() + Url;
+            }
+            var interop = new Interop(JSRuntime);
+            await interop.AddCSS("Theme:" + Utilities.CreateIdFromUrl(Url), Url);
+        }
 
         public string NavigateUrl()
         {

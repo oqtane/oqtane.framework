@@ -191,5 +191,10 @@ namespace Oqtane.Shared
                 return "";
             }
         }
+
+        public static string CreateIdFromUrl(string value)
+        {
+            return value.Replace("/", "_").Replace("\\", "_").Replace(".", "_");
+        }
     }
 }

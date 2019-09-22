@@ -1,11 +1,16 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using Oqtane.Shared;
 using Oqtane.Models;
+using System.Threading.Tasks;
 
 namespace Oqtane.Modules
 {
     public class ModuleBase : ComponentBase, IModuleControl
     {
+        [Inject]
+        protected IJSRuntime JSRuntime { get; set; }
+
         [CascadingParameter]
         protected PageState PageState { get; set; }
 
@@ -23,6 +28,16 @@ namespace Oqtane.Modules
         public string ModulePath()
         {
             return "Modules/" + this.GetType().Namespace + "/";
+        }
+
+        public async Task AddCSS(string Url)
+        {
+            if (!Url.StartsWith("http"))
+            {
+                Url = ModulePath() + Url;
+            }
+            var interop = new Interop(JSRuntime);
+            await interop.AddCSS("Module:" + Utilities.CreateIdFromUrl(Url), Url);
         }
 
         public string NavigateUrl()
