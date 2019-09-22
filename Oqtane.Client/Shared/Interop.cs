@@ -42,13 +42,13 @@ namespace Oqtane.Shared
             }
         }
 
-        public Task AddCSS(string filename)
+        public Task AddCSS(string id, string url)
         {
             try
             {
                 jsRuntime.InvokeAsync<string>(
                     "interop.addCSS",
-                    filename);
+                    id, url);
                 return Task.CompletedTask;
             }
             catch
@@ -57,13 +57,13 @@ namespace Oqtane.Shared
             }
         }
 
-        public Task RemoveCSS(string filepattern)
+        public Task RemoveCSS(string pattern)
         {
             try
             {
                 jsRuntime.InvokeAsync<string>(
                     "interop.removeCSS",
-                    filepattern);
+                    pattern);
                 return Task.CompletedTask;
             }
             catch

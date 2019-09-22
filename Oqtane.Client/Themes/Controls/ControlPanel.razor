@@ -21,6 +21,11 @@
         <div class="overlay-content">
             <ul class="nav flex-column">
                 <li class="nav-item px-3">
+                    <NavLink class="btn btn-primary mx-auto" href="@NavigateUrl("admin")">Admin Dashboard</NavLink>
+                </li>
+            </ul>
+            <ul class="nav flex-column">
+                <li class="nav-item px-3">
                     <NavLink class="btn btn-primary mx-auto" href="@PageUrl("Add")">Add Page</NavLink>
                 </li>
                 <li class="nav-item px-3">
@@ -99,12 +104,6 @@
                 </table>
                 <button type="button" class="btn btn-primary mx-auto" style="width: 100%;" @onclick="@AddModule">Add Module To Page</button>
             </div>
-            <hr style="width: 100%; color: white; height: 1px; background-color:white;" />
-            <ul class="nav flex-column">
-                <li class="nav-item px-3">
-                    <NavLink class="btn btn-primary mx-auto" href="@NavigateUrl("admin")">Admin Dashboard</NavLink>
-                </li>
-            </ul>
         </div>
     </div>
 

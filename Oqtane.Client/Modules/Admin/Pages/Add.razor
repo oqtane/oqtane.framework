@@ -175,6 +175,9 @@
             themes = ThemeService.GetThemeTypes(PageState.Themes);
             panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes);
 
+            themetype = PageState.Site.DefaultThemeType;
+            layouttype = PageState.Site.DefaultLayoutType;
+
             List<PermissionString> permissionstrings = new List<PermissionString>();
             permissionstrings.Add(new PermissionString { PermissionName = "View", Permissions = Constants.AdminRole });
             permissionstrings.Add(new PermissionString { PermissionName = "Edit", Permissions = Constants.AdminRole });
