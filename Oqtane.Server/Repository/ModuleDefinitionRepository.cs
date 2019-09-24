@@ -43,6 +43,10 @@ namespace Oqtane.Repository
                     db.ModuleDefinition.Add(moduledef);
                     db.SaveChanges();
                 }
+                else
+                {
+                    moduledefs.Remove(moduledef); // remove module definition from list 
+                }
                 moduledefinition.ModuleDefinitionId = moduledef.ModuleDefinitionId;
                 moduledefinition.SiteId = SiteId;
                 moduledefinition.Permissions = Permissions.EncodePermissions(moduledefinition.ModuleDefinitionId, permissions);
@@ -50,6 +54,12 @@ namespace Oqtane.Repository
                 moduledefinition.CreatedOn = moduledef.CreatedOn;
                 moduledefinition.ModifiedBy = moduledef.ModifiedBy;
                 moduledefinition.ModifiedOn = moduledef.ModifiedOn;
+            }
+
+            // any remaining module definitions are orphans
+            foreach (ModuleDefinition moduledefinition in moduledefs)
+            {
+                db.ModuleDefinition.Remove(moduledefinition); // delete
             }
 
             return ModuleDefinitions;

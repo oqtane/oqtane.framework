@@ -46,7 +46,7 @@ namespace Oqtane.Repository
             {
                 username = accessor.HttpContext.User.Identity.Name;
             }
-            DateTime date = DateTime.Now;
+            DateTime date = DateTime.UtcNow;
 
             var created = ChangeTracker.Entries()
                 .Where(x => x.State == EntityState.Added);
