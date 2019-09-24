@@ -1,5 +1,4 @@
-﻿using Oqtane.Modules;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Oqtane.Modules.Weather
 {
