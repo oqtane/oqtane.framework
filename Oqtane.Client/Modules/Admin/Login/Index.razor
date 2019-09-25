@@ -14,7 +14,6 @@
     </Authorized>
     <NotAuthorized>
         <div class="container">
-            @((MarkupString)Message)
             <div class="form-group">
                 <label for="Username" class="control-label">Username: </label>
                 <input type="text" name="Username" class="form-control" placeholder="Username" @bind="@Username" />
@@ -38,7 +37,6 @@
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Anonymous; } }
 
-    public string Message { get; set; } = "";
     public string Username { get; set; } = "";
     public string Password { get; set; } = "";
     public bool Remember { get; set; } = false;
@@ -66,7 +64,7 @@
             }
             else
             {
-                Message = "<div class=\"alert alert-danger\" role=\"alert\">Login Failed. Please Remember That Passwords Are Case Sensitive.</div>";
+                ModuleInstance.AddModuleMessage("Login Failed. Please Remember That Passwords Are Case Sensitive.", MessageType.Error);
             }
         }
         else
@@ -84,7 +82,7 @@
             }
             else
             {
-                Message = "<div class=\"alert alert-danger\" role=\"alert\">Login Failed. Please Remember That Passwords Are Case Sensitive.</div>";
+                ModuleInstance.AddModuleMessage("Login Failed. Please Remember That Passwords Are Case Sensitive.", MessageType.Error);
             }
         }
     }

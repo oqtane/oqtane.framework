@@ -4,8 +4,6 @@
 @inject IPageService PageService
 @inject IThemeService  ThemeService
 
-<ModuleMessage Message="@message" />
-
 <table class="table table-borderless">
     <tr>
         <td>
@@ -136,8 +134,6 @@
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 
-    string message = "";
-
     Dictionary<string, string> themes = new Dictionary<string, string>();
     Dictionary<string, string> panelayouts = new Dictionary<string, string>();
 
@@ -177,7 +173,7 @@
         }
         catch (Exception ex)
         {
-            message = ex.Message;
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
 
@@ -198,7 +194,7 @@
         }
         catch (Exception ex)
         {
-            message = ex.Message;
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
 
@@ -277,7 +273,7 @@
         }
         catch (Exception ex)
         {
-            message = ex.Message;
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
 

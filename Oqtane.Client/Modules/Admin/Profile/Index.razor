@@ -5,8 +5,6 @@
 @inject IProfileService ProfileService
 @inject ISettingService SettingService
 
-<ModuleMessage Message="@message" />
-
 @if (PageState.User != null && profiles != null)
 {
     <table class="table table-borderless">
@@ -58,7 +56,6 @@
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.View; } }
 
-    string message = "";
     string displayname = "";
     string email = "";
     List<Profile> profiles;
@@ -78,12 +75,12 @@
             }
             else
             {
-                message = "Current User Is Not Logged In";
+                ModuleInstance.AddModuleMessage("Current User Is Not Logged In", MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
-            message = ex.Message;
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
 
@@ -106,7 +103,7 @@
         }
         catch (Exception ex)
         {
-            message = ex.Message;
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
 
