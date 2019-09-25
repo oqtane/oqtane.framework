@@ -7,7 +7,7 @@ Oqtane uses Blazor, a new web framework for .NET Core that lets you build intera
 
 **To get started with Oqtane:**
 
-   1.&nbsp;Oqtane is currently compatible with **[.NET Core 3.0)](https://dotnet.microsoft.com/download/dotnet-core/3.0)**.
+   1.&nbsp;Oqtane is currently compatible with **[.NET Core 3.0](https://dotnet.microsoft.com/download/dotnet-core/3.0)**.
    
    2.&nbsp;Install the latest **Preview** edition of [Visual Studio 2019](https://visualstudio.com/preview) with the **ASP.NET and web development** workload. Installing the latest **Preview** edition will also install the latest preview of .NET Core 3.0.
 
