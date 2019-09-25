@@ -4,7 +4,7 @@
 @if (!string.IsNullOrEmpty(message))
 {
     <div class="@classname" role="alert">@message</div>
-    <br /><br />
+    <br />
 }
 
 @code {
@@ -27,6 +27,7 @@
     {
         this.message = message;
         classname = GetMessageType(type);
+        StateHasChanged();
     }
 
     private string GetMessageType(MessageType type)

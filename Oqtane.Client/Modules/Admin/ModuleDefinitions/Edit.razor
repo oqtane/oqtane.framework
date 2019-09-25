@@ -3,8 +3,6 @@
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject NavigationManager NavigationManager
 
-<ModuleMessage Message="@message" />
-
 <table class="table table-borderless">
     <tr>
         <td>
@@ -31,8 +29,6 @@
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
-
-    string message = "";
 
     int ModuleDefinitionId;
     string name;
@@ -62,7 +58,7 @@
         }
         catch (Exception ex)
         {
-            message = ex.Message;
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
 
@@ -77,7 +73,7 @@
         }
         catch (Exception ex)
         {
-            message = ex.Message;
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
 }
