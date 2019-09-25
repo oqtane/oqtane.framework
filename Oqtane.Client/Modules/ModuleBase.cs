@@ -17,6 +17,9 @@ namespace Oqtane.Modules
         [CascadingParameter]
         protected Module ModuleState { get; set; }
 
+        [CascadingParameter] 
+        protected ModuleInstance ModuleInstance { get; set; }
+
         public virtual SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.View; } set { } } // default security
 
         public virtual string Title { get { return ""; } }

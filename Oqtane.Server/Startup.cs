@@ -33,6 +33,7 @@ namespace Oqtane.Server
     public class Startup
     {
         public IConfigurationRoot Configuration { get; }
+
         public Startup(IWebHostEnvironment env)
         {
             var builder = new ConfigurationBuilder()
@@ -329,6 +330,8 @@ namespace Oqtane.Server
             // register custom claims principal factory for role claims
             services.AddTransient<IUserClaimsPrincipalFactory<IdentityUser>, ClaimsPrincipalFactory<IdentityUser>>();
 
+            // register singleton scoped core services
+            services.AddSingleton<IConfigurationRoot>(Configuration);
             services.AddSingleton<IInstallationManager, InstallationManager>();
 
             // install any modules or themes
