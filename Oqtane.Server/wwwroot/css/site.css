@@ -105,6 +105,7 @@ app {
     .main .top-row {
         position: sticky;
         top: 0;
+        z-index: 9999;
     }
 
     .main > div {
@@ -150,7 +151,7 @@ app {
     height: 100%;
     width: 0;
     position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
+    z-index: 9999; /* Sit on top */
     right: 0;
     top: 0;
     background-color: rgb(0,0,0); /* Black fallback color */
@@ -193,7 +194,7 @@ app {
 .modal {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
+    z-index: 9999; /* Sit on top */
     left: 0;
     top: 0;
     width: 100%; /* Full width */
@@ -236,6 +237,7 @@ app {
 }
 
 .pane-admin-border {
+    width: 100%;
     border-width: 1px;
     border-style: dashed;
     border-color: gray;
@@ -254,5 +256,5 @@ app {
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 999;
+    z-index: 9999; /* Sit on top */
 }
