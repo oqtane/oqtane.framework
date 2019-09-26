@@ -47,7 +47,7 @@
                     <option value="<">Before</option>
                     <option value=">">After</option>
                 }
-                <option value=">>" selected>At End</option>
+                <option value=">>">At End</option>
             </select>
             @if (children != null && children.Count > 0 && (insert == "<" || insert == ">"))
             {
@@ -74,12 +74,12 @@
     </tr>
     <tr>
         <td>
-            <label for="Name" class="control-label">Edit Mode? </label>
+            <label for="Name" class="control-label">Default Mode? </label>
         </td>
         <td>
-            <select class="form-control" @bind="@editmode">
-                <option value="True">Yes</option>
-                <option value="False">No</option>
+            <select class="form-control" @bind="@mode">
+                <option value="view">View Mode</option>
+                <option value="edit">Edit Mode</option>
             </select>
         </td>
     </tr>
@@ -145,7 +145,7 @@
     List<Page> children;
     int childid = -1;
     string isnavigation = "True";
-    string editmode = "False";
+    string mode = "view";
     string themetype = "";
     string layouttype = "";
     string icon = "";
@@ -250,7 +250,7 @@
                     break;
             }
             page.IsNavigation = (isnavigation == null ? true : Boolean.Parse(isnavigation));
-            page.EditMode = (editmode == null ? true : Boolean.Parse(editmode));
+            page.EditMode = (mode == "edit" ? true : false);
             page.ThemeType = themetype;
             page.LayoutType = (layouttype == null ? "" : layouttype);
             page.Icon = (icon == null ? "" : icon);

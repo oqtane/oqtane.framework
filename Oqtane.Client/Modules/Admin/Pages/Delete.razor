@@ -4,104 +4,104 @@
 @inject IPageService PageService
 @inject IThemeService  ThemeService
 
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Name: </label>
-        </td>
-        <td>
-            <input class="form-control" @bind="@name" readonly />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Path: </label>
-        </td>
-        <td>
-            <input class="form-control" @bind="@path" readonly />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Parent: </label>
-        </td>
-        <td>
-            <select class="form-control" @bind="@parentid" readonly>
-                <option value="">&lt;Select Parent&gt;</option>
-                @foreach (Page p in PageState.Pages)
-                {
-                    <option value="@p.PageId">@p.Name</option>
-                }
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Navigation? </label>
-        </td>
-        <td>
-            <select class="form-control" @bind="@isnavigation" readonly>
-                <option value="True">Yes</option>
-                <option value="False">No</option>
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Edit Mode? </label>
-        </td>
-        <td>
-            <select class="form-control" @bind="@editmode" readonly>
-                <option value="True">Yes</option>
-                <option value="False">No</option>
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Theme: </label>
-        </td>
-        <td>
-            <select class="form-control" @bind="@themetype" readonly>
-                <option value="">&lt;Select Theme&gt;</option>
-                @foreach (KeyValuePair<string, string> item in themes)
-                {
-                    <option value="@item.Key">@item.Value</option>
-                }
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Layout: </label>
-        </td>
-        <td>
-            <select class="form-control" @bind="@layouttype" readonly>
-                <option value="">&lt;Select Layout&gt;</option>
-                @foreach (KeyValuePair<string, string> panelayout in panelayouts)
-                {
-                    <option value="@panelayout.Key">@panelayout.Value</option>
-                }
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Icon: </label>
-        </td>
-        <td>
-            <input class="form-control" @bind="@icon" readonly />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Permissions: </label>
-        </td>
-        <td>
-            <PermissionGrid EntityName="Page" Permissions="@permissions" @ref="permissiongrid" />
-        </td>
-    </tr>
-</table>
+    <table class="table table-borderless">
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Name: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@name" readonly />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Path: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@path" readonly />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Parent: </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@parentid" readonly>
+                    <option value="">&lt;Select Parent&gt;</option>
+                    @foreach (Page p in PageState.Pages)
+                    {
+                        <option value="@p.PageId">@p.Name</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Navigation? </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@isnavigation" readonly>
+                    <option value="True">Yes</option>
+                    <option value="False">No</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Default Mode? </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@mode">
+                    <option value="view">View Mode</option>
+                    <option value="edit">Edit Mode</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Theme: </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@themetype" readonly>
+                    <option value="">&lt;Select Theme&gt;</option>
+                    @foreach (KeyValuePair<string, string> item in themes)
+                    {
+                        <option value="@item.Key">@item.Value</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Layout: </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@layouttype" readonly>
+                    <option value="">&lt;Select Layout&gt;</option>
+                    @foreach (KeyValuePair<string, string> panelayout in panelayouts)
+                    {
+                        <option value="@panelayout.Key">@panelayout.Value</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Icon: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@icon" readonly />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Permissions: </label>
+            </td>
+            <td>
+                <PermissionGrid EntityName="Page" Permissions="@permissions" @ref="permissiongrid" />
+            </td>
+        </tr>
+    </table>
 <button type="button" class="btn btn-danger" @onclick="DeletePage">Delete</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 <br />
@@ -119,7 +119,7 @@
     string path;
     string parentid = "";
     string isnavigation;
-    string editmode;
+    string mode;
     string themetype;
     string layouttype;
     string icon;
@@ -145,7 +145,7 @@
                 name = page.Name;
                 path = page.Path;
                 isnavigation = page.IsNavigation.ToString();
-                editmode = page.EditMode.ToString();
+                mode = (page.EditMode) ? "edit" : "view";
                 themetype = page.ThemeType;
                 layouttype = page.LayoutType;
                 icon = page.Icon;

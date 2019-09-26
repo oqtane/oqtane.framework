@@ -57,7 +57,12 @@ namespace Oqtane.Infrastructure
                                 case ".svg":
                                 case ".js":
                                 case ".css":
-                                    entry.ExtractToFile(folder + "\\" + entry.FullName.Replace("wwwroot", name).Replace("/","\\"), true);
+                                    filename = folder + "\\" + entry.FullName.Replace("wwwroot", name).Replace("/", "\\");
+                                    if (!Directory.Exists(Path.GetDirectoryName(filename)))
+                                    {
+                                        Directory.CreateDirectory(Path.GetDirectoryName(filename));
+                                    }
+                                    entry.ExtractToFile(filename, true);
                                     break;
                             }
                         }
