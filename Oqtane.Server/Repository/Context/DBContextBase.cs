@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
+using Oqtane.Shared;
 using System;
 using System.Linq;
 
@@ -71,19 +72,19 @@ namespace Oqtane.Repository
                     item.CurrentValues[nameof(IAuditable.ModifiedOn)] = date;
                 }
 
-                if (item.Entity is ISoftDeletable softDeleted && item.State != EntityState.Added)
+                if (item.Entity is IDeletable deleted && item.State != EntityState.Added)
                 {
-                    if ((bool)item.CurrentValues[nameof(ISoftDeletable.IsSoftDeleted)]
-                        && !item.GetDatabaseValues().GetValue<bool>(nameof(ISoftDeletable.IsSoftDeleted)))
+                    if ((bool)item.CurrentValues[nameof(IDeletable.IsDeleted)]
+                        && !item.GetDatabaseValues().GetValue<bool>(nameof(IDeletable.IsDeleted)))
                     {
-                        item.CurrentValues[nameof(ISoftDeletable.DeletedBy)] = username;
-                        item.CurrentValues[nameof(ISoftDeletable.DeletedOn)] = date;
+                        item.CurrentValues[nameof(IDeletable.DeletedBy)] = username;
+                        item.CurrentValues[nameof(IDeletable.DeletedOn)] = date;
                     }
-                    else if (!(bool)item.CurrentValues[nameof(ISoftDeletable.IsSoftDeleted)]
-                        && item.GetDatabaseValues().GetValue<bool>(nameof(ISoftDeletable.IsSoftDeleted)))
+                    else if (!(bool)item.CurrentValues[nameof(IDeletable.IsDeleted)]
+                        && item.GetDatabaseValues().GetValue<bool>(nameof(IDeletable.IsDeleted)))
                     {
-                        item.CurrentValues[nameof(ISoftDeletable.DeletedBy)] = null;
-                        item.CurrentValues[nameof(ISoftDeletable.DeletedOn)] = null;
+                        item.CurrentValues[nameof(IDeletable.DeletedBy)] = null;
+                        item.CurrentValues[nameof(IDeletable.DeletedOn)] = null;
                     }
                 }
             }

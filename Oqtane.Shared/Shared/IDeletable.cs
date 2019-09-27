@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace Oqtane.Models
+namespace Oqtane.Shared
 {
-    public interface ISoftDeletable
+    public interface IDeletable
     {
         string DeletedBy { get; set; }
         DateTime? DeletedOn { get; set; }
-        bool IsSoftDeleted { get; set; }
+        bool IsDeleted { get; set; }
     }
 }
