@@ -20,30 +20,21 @@ This project is a work in progress and the schedule for implementing the items i
 
 Security
 - Logging
+- Need support for JwT tokens for external client access to API
 
 Design
 - Need modern Admin UI theme
 - Need to cleanly separate site.css
-- CSS registration for modules and skins
-
-Packaging
-- Need ability to package/install Modules
-- Need ability to package/install Themes
 
 Admin
 - Need fully functional administrative modules for all core entities ( user, role, site, etc… )
-- Need ability to create a new Site and auto provision Admin pages/modules
 - Need ability to soft delete core entities
-- Re-ordering of modules in panes
 - Drag and Drop modules
 
 Upgrade
 - Need ability to upgrade application seamlessly
 - integrated store/catalog of extensions
 - auto update - provide url to check for updates, perhaps even download in background - core and extensions
-
-Multi-Tenant
-- Need ability to provision a new tenant DB
 
 Database
 - Need ability to run on SQLite
