@@ -1,0 +1,50 @@
+﻿@namespace YourCompany.Module.HelloWorld
+@inherits ModuleBase
+@inject ISettingService SettingService
+
+<div class="mx-auto">
+    @if (UserSecurity.IsAuthorized(PageState.User, "Edit", ModuleState.Permissions))
+    {
+        <div class="input-group">
+            <input type="text" name="Url" class="form-control" placeholder="Enter An Image Url" @bind="@url1" />
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-primary" @onclick="Save">Save</button>
+            </span>
+        </div>
+    }
+    <div>
+        @if (!string.IsNullOrEmpty(url2))
+        {
+            <br /><img src="@url2" />
+        }
+    </div>
+</div>
+<br />
+
+@code {
+    string url1 = ""; // use https://www.oqtane.org/Portals/0/Images/helloworld.png 
+    string url2 = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        Dictionary<string, string> settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
+        url2 = SettingService.GetSetting(settings, "url", "");
+    }
+
+    private async Task Save()
+    {
+        if (!string.IsNullOrEmpty(url1))
+        {
+            Dictionary<string, string> settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
+            SettingService.SetSetting(settings, "url", url1);
+            await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
+            ModuleInstance.AddModuleMessage("Url Saved", MessageType.Success);
+            url2 = url1;
+            StateHasChanged();
+        }
+        else
+        {
+            ModuleInstance.AddModuleMessage("You Must Enter A Url", MessageType.Warning);
+        }
+    }
+}
