@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Oqtane.Shared
+namespace Oqtane.Models
 {
     public interface IDeletable
     {

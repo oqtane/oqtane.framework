@@ -5,6 +5,8 @@ using Oqtane.Models;
 using Oqtane.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Oqtane.Infrastructure;
+using System.IO;
+using System.Reflection;
 
 namespace Oqtane.Controllers
 {
@@ -20,11 +22,20 @@ namespace Oqtane.Controllers
             this.InstallationManager = InstallationManager;
         }
 
-        // GET: api/<controller>
+        // GET: api/<controller>?siteid=x
         [HttpGet]
-        public IEnumerable<ModuleDefinition> Get(string siteid)
+        public IEnumerable<ModuleDefinition> Get(int siteid)
         {
-            return ModuleDefinitions.GetModuleDefinitions(int.Parse(siteid));
+            return ModuleDefinitions.GetModuleDefinitions(siteid);
+        }
+
+        // GET api/<controller>/filename
+        [HttpGet("{filename}")]
+        public IActionResult Get(string filename)
+        {
+            string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            byte[] file = System.IO.File.ReadAllBytes(Path.Combine(binfolder, filename));
+            return File(file, "application/octet-stream", filename);
         }
 
         // PUT api/<controller>/5

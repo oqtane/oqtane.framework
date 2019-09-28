@@ -105,9 +105,11 @@
         await ModuleService.UpdateModuleAsync(module);
 
         PageModule pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
+        pagemodule.PageId = int.Parse(pageid);
         pagemodule.Title = title;
         pagemodule.ContainerType = containertype;
         await PageModuleService.UpdatePageModuleAsync(pagemodule);
+        await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
 
         Type moduleType = Type.GetType(ModuleState.ModuleType);
         if (moduleType != null)
