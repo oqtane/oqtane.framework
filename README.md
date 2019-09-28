@@ -7,9 +7,9 @@ Oqtane uses Blazor, a new web framework for .NET Core that lets you build intera
 
 **To get started with Oqtane:**
 
-   1.&nbsp;Oqtane is currently compatible with **[.NET Core 3.0 RC 1 SDK (3.0.100-rc1-014190)](https://dotnet.microsoft.com/download/dotnet-core/3.0)**.
+   1.&nbsp;Oqtane is currently compatible with **[.NET Core 3.0](https://dotnet.microsoft.com/download/dotnet-core/3.0)**.
    
-   2.&nbsp;Install the latest **Preview** edition of [Visual Studio 2019](https://visualstudio.com/preview) with the **ASP.NET and web development** workload. Installing the latest **Preview** edition will also install the latest preview of .NET Core 3.
+   2.&nbsp;Install the latest edition of [Visual Studio 2019](https://visualstudio.com/vs/) with the **ASP.NET and web development** workload. Installing the latest edition will also install the latest version of .NET Core 3.0.
 
    3.&nbsp;Download or Clone the Oqtane source code to your local system. Open the **Oqtane.sln** solution file. If you want to develop using **server-side** Blazor ( which includes a full debugging experience in Visual Studio ) you should choose to Build the solution using the default Debug configuration. If you want to develop using **client-side** Blazor ( WebAssembly ) you should first choose the "Wasm" configuration option in the Visual Studio toolbar and then Build.
    
@@ -20,30 +20,21 @@ This project is a work in progress and the schedule for implementing the items i
 
 Security
 - Logging
+- Need support for JwT tokens for external client access to API
 
 Design
 - Need modern Admin UI theme
 - Need to cleanly separate site.css
-- CSS registration for modules and skins
-
-Packaging
-- Need ability to package/install Modules
-- Need ability to package/install Themes
 
 Admin
 - Need fully functional administrative modules for all core entities ( user, role, site, etc… )
-- Need ability to create a new Site and auto provision Admin pages/modules
 - Need ability to soft delete core entities
-- Re-ordering of modules in panes
 - Drag and Drop modules
 
 Upgrade
 - Need ability to upgrade application seamlessly
 - integrated store/catalog of extensions
 - auto update - provide url to check for updates, perhaps even download in background - core and extensions
-
-Multi-Tenant
-- Need ability to provision a new tenant DB
 
 Database
 - Need ability to run on SQLite
