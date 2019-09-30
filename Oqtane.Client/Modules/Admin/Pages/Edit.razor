@@ -138,12 +138,23 @@
                 <PermissionGrid EntityName="Page" Permissions="@permissions" @ref="permissiongrid" />
             </td>
         </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Is Deleted? </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@isdeleted">
+                    <option value="True">Yes</option>
+                    <option value="False">No</option>
+                </select>
+            </td>
+        </tr>
     </table>
 <button type="button" class="btn btn-success" @onclick="SavePage">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 <br />
 <br />
-<AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
+<AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
@@ -170,6 +181,9 @@
     DateTime createdon;
     string modifiedby;
     DateTime modifiedon;
+    string deletedby;
+    DateTime? deletedon;
+    string isdeleted;
 
     PermissionGrid permissiongrid;
 
@@ -212,6 +226,9 @@
                 createdon = page.CreatedOn;
                 modifiedby = page.ModifiedBy;
                 modifiedon = page.ModifiedOn;
+                deletedby = page.DeletedBy;
+                deletedon = page.DeletedOn;
+                isdeleted = page.IsDeleted.ToString();
             }
         }
         catch (Exception ex)
@@ -321,6 +338,8 @@
             System.Reflection.PropertyInfo property = type.GetProperty("Panes");
             page.Panes = (string)property.GetValue(Activator.CreateInstance(type), null);
             page.Permissions = permissiongrid.GetPermissions();
+            page.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
+
             await PageService.UpdatePageAsync(page);
             await PageService.UpdatePageOrderAsync(page.SiteId, page.ParentId);
             if (currentparentid == "")

@@ -17,7 +17,7 @@
 
         menu = "<ul class=\"nav flex-column\">\n";
 
-        foreach (Page p in PageState.Pages.Where(item => item.IsNavigation))
+        foreach (Page p in PageState.Pages.Where(item => item.IsNavigation && !item.IsDeleted))
         {
             if (UserSecurity.IsAuthorized(PageState.User, "View", p.Permissions) && p.Level <= securitylevel)
             {
