@@ -46,6 +46,7 @@ namespace Oqtane.Services
         {
             return await http.PutJsonAsync<Site>(apiurl + "/" + Site.SiteId.ToString(), Site);
         }
+
         public async Task DeleteSiteAsync(int SiteId)
         {
             await http.DeleteAsync(apiurl + "/" + SiteId.ToString());

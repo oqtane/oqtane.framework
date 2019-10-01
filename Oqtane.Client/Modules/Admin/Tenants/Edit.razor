@@ -35,18 +35,39 @@
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
 
+    int tenantid;
     string name = "";
     string connectionstring = "";
     string schema = "";
 
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            tenantid = Int32.Parse(PageState.QueryString["id"]);
+            Tenant tenant = await TenantService.GetTenantAsync(tenantid);
+            if (tenant != null)
+            {
+                name = tenant.Name;
+                connectionstring = tenant.DBConnectionString;
+                schema = tenant.DBSchema;
+            }
+        }
+        catch (Exception ex)
+        {
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
     private async Task SaveTenant()
     {
-        Tenant tenant = new Tenant();
-        tenant.Name = name;
-        tenant.DBConnectionString = connectionstring;
-        tenant.DBSchema = schema;
-        await TenantService.AddTenantAsync(tenant);
-
+        Tenant tenant = await TenantService.GetTenantAsync(tenantid);
+        if (tenant != null)
+        {
+            tenant.Name = name;
+            tenant.DBConnectionString = connectionstring;
+            tenant.DBSchema = schema;
+            await TenantService.UpdateTenantAsync(tenant);
+        }
         NavigationManager.NavigateTo(NavigateUrl());
     }
 }

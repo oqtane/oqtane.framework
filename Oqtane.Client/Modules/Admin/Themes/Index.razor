@@ -2,37 +2,33 @@
 @inherits ModuleBase
 @inject IThemeService ThemeService
 
-@if (Themes == null)
+@if (themes == null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
-    <ActionLink Action="Add" Text="Install Theme" />
-    <table class="table table-borderless">
-        <thead>
-            <tr>
-                <th>Name</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var theme in Themes)
-            {
-                <tr>
-                    <td>@theme.Name</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <ActionLink Action="Add" Text="Install Theme" Style="float: right; margin: 10px;" />
+
+    <Pager Items="@themes">
+        <Header>
+            <th>Name</th>
+            <th>Version</th>
+        </Header>
+        <Row>
+            <td>@context.Name</td>
+            <td>@context.Version</td>
+        </Row>
+    </Pager>
 }
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
 
-    List<Theme> Themes;
+    List<Theme> themes;
 
     protected override async Task OnInitializedAsync()
     {
-        Themes = await ThemeService.GetThemesAsync();
+        themes = await ThemeService.GetThemesAsync();
     }
 }

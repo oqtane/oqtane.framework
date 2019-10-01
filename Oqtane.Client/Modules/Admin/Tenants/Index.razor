@@ -2,37 +2,36 @@
 @inherits ModuleBase
 @inject ITenantService TenantService
 
-@if (Tenants == null)
+@if (tenants == null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
-    <ActionLink Action="Add" Text="Add Tenant" />
-    <table class="table table-borderless">
-        <thead>
-            <tr>
-                <th>Name</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var Tenant in Tenants)
-            {
-                <tr>
-                    <td>@Tenant.Name</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <ActionLink Action="Add" Text="Add Tenant" Style="float: right; margin: 10px;" />
+
+    <Pager Items="@tenants">
+        <Header>
+            <th>Name</th>
+            <th>&nbsp;</th>
+            <th>&nbsp;</th>
+        </Header>
+        <Row>
+            <td>@context.Name</td>
+            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.TenantId.ToString())" /></td>
+            <td><ActionLink Action="Delete" Parameters="@($"id=" + context.TenantId.ToString())" Class="btn btn-danger" /></td>
+        </Row>
+    </Pager>
+
 }
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
 
-    List<Tenant> Tenants;
+    List<Tenant> tenants;
 
     protected override async Task OnInitializedAsync()
     {
-        Tenants = await TenantService.GetTenantsAsync();
+        tenants = await TenantService.GetTenantsAsync();
     }
 }

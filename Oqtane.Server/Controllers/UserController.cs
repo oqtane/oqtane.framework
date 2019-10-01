@@ -136,10 +136,19 @@ namespace Oqtane.Controllers
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize]
-        public User Put(int id, [FromBody] User User)
+        public async Task<User> Put(int id, [FromBody] User User)
         {
             if (ModelState.IsValid)
             {
+                if (User.Password != "")
+                {
+                    IdentityUser identityuser = await IdentityUserManager.FindByNameAsync(User.Username);
+                    if (identityuser != null)
+                    {
+                        identityuser.PasswordHash = IdentityUserManager.PasswordHasher.HashPassword(identityuser, User.Password);
+                        await IdentityUserManager.UpdateAsync(identityuser);
+                    }
+                }
                 User = Users.UpdateUser(User);
             }
             return User;

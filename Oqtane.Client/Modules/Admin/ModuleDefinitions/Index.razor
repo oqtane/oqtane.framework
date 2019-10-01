@@ -8,26 +8,22 @@
 }
 else
 {
-    <ActionLink Action="Add" Text="Install Module" />
-    <table class="table table-borderless">
-        <thead>
-            <tr>
-                <th>&nbsp;</th>
-                <th>Name</th>
-                <th>Version</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var moduledefinition in moduledefinitions)
-            {
-            <tr>
-                <td><ActionLink Action="Edit" Parameters="@($"id=" + moduledefinition.ModuleDefinitionId.ToString())" /></td>
-                <td>@moduledefinition.Name</td>
-                <td>@moduledefinition.Version</td>
-            </tr>
-            }
-        </tbody>
-    </table>
+    <ActionLink Action="Add" Text="Install Module" Style="float: right; margin: 10px;" />
+
+    <Pager Items="@moduledefinitions">
+        <Header>
+            <th>Name</th>
+            <th>Version</th>
+            <th>&nbsp;</th>
+            <th>&nbsp;</th>
+        </Header>
+        <Row>
+            <td>@context.Name</td>
+            <td>@context.Version</td>
+            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ModuleDefinitionId.ToString())" /></td>
+            <td><ActionLink Action="Delete" Parameters="@($"id=" + context.ModuleDefinitionId.ToString())" Class="btn btn-danger" /></td>
+        </Row>
+    </Pager>
 }
 
 @code {

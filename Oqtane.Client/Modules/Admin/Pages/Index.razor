@@ -14,7 +14,7 @@
         <Row>
             <td>@(new string('-', context.Level * 2))@(context.Name)</td>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.PageId.ToString())" /></td>
-            <td><ActionLink Action="Delete" Parameters="@($"id=" +context.PageId.ToString())" Class="btn btn-danger" /></td>
+            <td><ActionLink Action="Delete" Parameters="@($"id=" + context.PageId.ToString())" Class="btn btn-danger" /></td>
         </Row>
     </Pager>
 }

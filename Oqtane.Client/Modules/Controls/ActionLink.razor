@@ -82,6 +82,11 @@
                         break;
                 }
             }
+            else
+            {
+                authorized = true; // occurs when an action does not have a corresponding module control
+                classname = "btn btn-warning"; // alert developer of missing module comtrol
+            }
         }
     }
 }

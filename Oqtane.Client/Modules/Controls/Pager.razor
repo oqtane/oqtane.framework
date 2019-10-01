@@ -14,28 +14,31 @@
             }
         </tbody>
     </table>
-    <div class="pagination">
+    <div>
         @if (Page > MaxPages)
         {
             <button class="btn btn-secondary" @onclick=@(async () => SetPagerSize("back"))><span class="oi oi-media-skip-backward" title="back" aria-hidden="true"></span></button>
         }
-        &nbsp;<button class="btn btn-secondary" @onclick=@(async () => NavigateToPage("previous"))><span class="oi oi-chevron-left" title="previous" aria-hidden="true"></span></button>
-        &nbsp;
-        @for (int i = StartPage; i <= EndPage; i++)
+        @if (EndPage > 1)
         {
-            var pager = i;
-            <button class="btn @((pager == Page) ? "btn-primary" : "btn-link")" @onclick=@(async () => UpdateList(pager))>
-                @pager
-            </button>
+            <button class="btn btn-secondary" @onclick=@(async () => NavigateToPage("previous"))><span class="oi oi-chevron-left" title="previous" aria-hidden="true"></span></button>            
+            @for (int i = StartPage; i <= EndPage; i++)
+            {
+                var pager = i;
+                <button class="btn @((pager == Page) ? "btn-primary" : "btn-link")" @onclick=@(async () => UpdateList(pager))>
+                    @pager
+                </button>
+            }
+            <button class="btn btn-secondary" @onclick=@(async () => NavigateToPage("next"))><span class="oi oi-chevron-right" title="next" aria-hidden="true"></span></button>
         }
-        &nbsp;
-        <button class="btn btn-secondary" @onclick=@(async () => NavigateToPage("next"))><span class="oi oi-chevron-right" title="next" aria-hidden="true"></span></button>&nbsp;
         @if (EndPage < Pages)
         {
             <button class="btn btn-secondary" @onclick=@(async () => SetPagerSize("forward"))><span class="oi oi-media-skip-forward" title="forward" aria-hidden="true"></span></button>
         }
-        &nbsp;
-        <span class="btn btn-link disabled">Page @Page of @Pages</span>
+        @if (EndPage > 1)
+        {
+            <span class="btn btn-link disabled">Page @Page of @Pages</span>
+        }
     </div>
 </p>
 
