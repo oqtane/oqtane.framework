@@ -1,11 +1,11 @@
-﻿@namespace Oqtane.Modules.Admin.Profile
+﻿@namespace Oqtane.Modules.Admin.Users
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject IProfileService ProfileService
 @inject ISettingService SettingService
 
-@if (PageState.User != null && profiles != null)
+@if (profiles != null)
 {
     <table class="table table-borderless">
         <tr>
@@ -56,14 +56,13 @@
         }
     </table>
     <button type="button" class="btn btn-primary" @onclick="SaveUser">Save</button>
-    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
-    <br />
-    <br />
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.View; } }
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 
+    int userid;
     string displayname = "";
     string email = "";
     string password = "";
@@ -75,16 +74,15 @@
     {
         try
         {
-            if (PageState.User != null)
+            profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
+
+            userid = Int32.Parse(PageState.QueryString["id"]);
+            User user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
+            if (user != null)
             {
-                displayname = PageState.User.DisplayName;
-                email = PageState.User.Email;
-                profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
-                settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
-            }
-            else
-            {
-                ModuleInstance.AddModuleMessage("Current User Is Not Logged In", MessageType.Warning);
+                displayname = user.DisplayName;
+                email = user.Email;
+                settings = await SettingService.GetUserSettingsAsync(user.UserId);
             }
         }
         catch (Exception ex)
@@ -102,14 +100,14 @@
     {
         try
         {
-            User user = PageState.User;
+            User user = new User();
             user.DisplayName = displayname;
             user.Email = email;
             user.Password = password;
-            await UserService.UpdateUserAsync(user);
-            await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
+            user = await UserService.UpdateUserAsync(user);
+            await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
 
-            NavigationManager.NavigateTo("");
+            NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {
@@ -117,14 +115,10 @@
         }
     }
 
-    private void Cancel()
-    {
-        NavigationManager.NavigateTo(NavigateUrl(""));
-    }
-
     private void ProfileChanged(ChangeEventArgs e, string SettingName)
     {
         string value = (string)e.Value;
         settings = SettingService.SetSetting(settings, SettingName, value);
     }
+
 }

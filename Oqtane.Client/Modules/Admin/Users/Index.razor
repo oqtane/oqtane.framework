@@ -8,21 +8,20 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Name</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (UserRole userrole in userroles)
-            {
-                <tr>
-                    <td>@userrole.User.Username</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <ActionLink Action="Add" Text="Add User" Style="float: right; margin: 10px;" />
+
+    <Pager Items="@userroles">
+        <Header>
+            <th>Name</th>
+            <th>&nbsp;</th>
+            <th>&nbsp;</th>
+        </Header>
+        <Row>
+            <td>@context.User.DisplayName</td>
+            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.UserId.ToString())" /></td>
+            <td><ActionLink Action="Delete" Parameters="@($"id=" + context.UserId.ToString())" Class="btn btn-danger" /></td>
+        </Row>
+    </Pager>
 }
 
 @code {

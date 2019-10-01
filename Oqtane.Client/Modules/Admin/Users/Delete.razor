@@ -1,0 +1,108 @@
+﻿@namespace Oqtane.Modules.Admin.Users
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject IUserService UserService
+@inject IProfileService ProfileService
+@inject ISettingService SettingService
+
+@if (profiles != null)
+{
+    <table class="table table-borderless">
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Name: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@displayname" readonly />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Email: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@email" readonly />
+            </td>
+        </tr>
+
+        @foreach (Profile profile in profiles)
+        {
+            var p = profile;
+            if (p.Category != category)
+            {
+                <tr>
+                    <th colspan="2" style="text-align: center;">
+                        @p.Category
+                    </th>
+                </tr>
+                category = p.Category;
+            }
+            <tr>
+                <td>
+                    <label for="@p.Name" class="control-label">@p.Title: </label>
+                </td>
+                <td>
+                    <input class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)"  readonly />
+                </td>
+            </tr>
+        }
+    </table>
+    <button type="button" class="btn btn-primary" @onclick="DeleteUser">Delete</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+}
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+
+    int userid;
+    string displayname = "";
+    string email = "";
+    List<Profile> profiles;
+    Dictionary<string, string> settings;
+    string category = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
+
+            userid = Int32.Parse(PageState.QueryString["id"]);
+            User user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
+            if (user != null)
+            {
+                displayname = user.DisplayName;
+                email = user.Email;
+                settings = await SettingService.GetUserSettingsAsync(user.UserId);
+            }
+        }
+        catch (Exception ex)
+        {
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+
+    private string GetProfileValue(string SettingName, string DefaultValue)
+    {
+        return SettingService.GetSetting(settings, SettingName, DefaultValue);
+    }
+
+    private async Task DeleteUser()
+    {
+        try
+        {
+            User user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
+            if (user != null)
+            {
+                await UserService.DeleteUserAsync(userid);
+            }
+
+            NavigationManager.NavigateTo(NavigateUrl());
+        }
+        catch (Exception ex)
+        {
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+
+}

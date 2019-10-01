@@ -9,22 +9,20 @@
 }
 else
 {
-    <table class="table table-borderless">
-        <thead>
-            <tr>
-                <th>Name</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var site in sites)
-            {
-                <tr>
-                    <td>@site.Name</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-    <ActionLink Action="Add" Text="Add Site" />
+    <ActionLink Action="Add" Text="Add Site" Style="float: right; margin: 10px;" />
+
+    <Pager Items="@sites">
+        <Header>
+            <th>Name</th>
+            <th>&nbsp;</th>
+            <th>&nbsp;</th>
+        </Header>
+        <Row>
+            <td>@context.Name</td>
+            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.SiteId.ToString())" /></td>
+            <td><ActionLink Action="Delete" Parameters="@($"id=" + context.SiteId.ToString())" Class="btn btn-danger" /></td>
+        </Row>
+    </Pager>
 }
 
 @code {
