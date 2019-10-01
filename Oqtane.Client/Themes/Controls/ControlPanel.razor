@@ -86,7 +86,6 @@
                         </td>
                         <td>
                             <select class="form-control" @bind="@containertype">
-                                <option value="">&lt;Select Container&gt;</option>
                                 @foreach (KeyValuePair<string, string> container in containers)
                                 {
                                     <option value="@container.Key">@container.Value</option>
@@ -145,6 +144,7 @@
             }
             moduledefinitions = PageState.ModuleDefinitions.Where(item => item.Categories == "").ToList();
             containers = ThemeService.GetContainerTypes(PageState.Themes);
+            containertype = containers.FirstOrDefault().Key;
             List<Module> modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId, Constants.PageManagementModule);
             if (modules.Count > 0)
             {
