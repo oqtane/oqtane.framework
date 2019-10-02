@@ -10,10 +10,18 @@
     <table class="table table-borderless">
         <tr>
             <td>
-                <label for="Name" class="control-label">Name: </label>
+                <label for="Name" class="control-label">Username: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@displayname" />
+                <input class="form-control" @bind="@username" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Password: </label>
+            </td>
+            <td>
+                <input type="password" class="form-control" @bind="@password" />
             </td>
         </tr>
         <tr>
@@ -26,10 +34,10 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Password: </label>
+                <label for="Name" class="control-label">Full Name: </label>
             </td>
             <td>
-                <input type="password" class="form-control" @bind="@password" />
+                <input class="form-control" @bind="@displayname" />
             </td>
         </tr>
 
@@ -62,9 +70,10 @@
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 
-    string displayname = "";
-    string email = "";
+    string username = "";
     string password = "";
+    string email = "";
+    string displayname = "";
     List<Profile> profiles;
     Dictionary<string, string> settings;
     string category = "";
@@ -87,13 +96,21 @@
         try
         {
             User user = new User();
-            user.DisplayName = displayname;
-            user.Email = email;
+            user.SiteId = PageState.Site.SiteId;
+            user.Username = username;
             user.Password = password;
+            user.Email = email;
+            user.DisplayName = displayname;
             user = await UserService.AddUserAsync(user);
-            await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
-
-            NavigationManager.NavigateTo(NavigateUrl());
+            if (user != null)
+            {
+                await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
+                NavigationManager.NavigateTo(NavigateUrl());
+            }
+            else
+            {
+                ModuleInstance.AddModuleMessage("Error Adding User. Please Ensure Password Meets Complexity Requirements And Username Is Not Already In Use.", MessageType.Error);
+            }
         }
         catch (Exception ex)
         {

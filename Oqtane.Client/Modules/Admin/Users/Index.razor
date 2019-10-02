@@ -15,11 +15,13 @@ else
             <th>Name</th>
             <th>&nbsp;</th>
             <th>&nbsp;</th>
+            <th>&nbsp;</th>
         </Header>
         <Row>
             <td>@context.User.DisplayName</td>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.UserId.ToString())" /></td>
             <td><ActionLink Action="Delete" Parameters="@($"id=" + context.UserId.ToString())" Class="btn btn-danger" /></td>
+            <td><ActionLink Action="Roles" Parameters="@($"id=" + context.UserId.ToString())" /></td>
         </Row>
     </Pager>
 }

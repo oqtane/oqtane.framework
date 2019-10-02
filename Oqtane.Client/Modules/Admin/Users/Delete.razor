@@ -10,10 +10,10 @@
     <table class="table table-borderless">
         <tr>
             <td>
-                <label for="Name" class="control-label">Name: </label>
+                <label for="Name" class="control-label">Username: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@displayname" readonly />
+                <input class="form-control" @bind="@username" readonly />
             </td>
         </tr>
         <tr>
@@ -22,6 +22,14 @@
             </td>
             <td>
                 <input class="form-control" @bind="@email" readonly />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Full Name: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@displayname" readonly />
             </td>
         </tr>
 
@@ -42,7 +50,7 @@
                     <label for="@p.Name" class="control-label">@p.Title: </label>
                 </td>
                 <td>
-                    <input class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)"  readonly />
+                    <input class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" readonly />
                 </td>
             </tr>
         }
@@ -55,8 +63,9 @@
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 
     int userid;
-    string displayname = "";
+    string username = "";
     string email = "";
+    string displayname = "";
     List<Profile> profiles;
     Dictionary<string, string> settings;
     string category = "";
@@ -71,8 +80,9 @@
             User user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
             if (user != null)
             {
-                displayname = user.DisplayName;
+                username = user.Username;
                 email = user.Email;
+                displayname = user.DisplayName;
                 settings = await SettingService.GetUserSettingsAsync(user.UserId);
             }
         }

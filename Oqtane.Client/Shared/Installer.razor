@@ -33,7 +33,7 @@
                             <label for="Title" class="control-label" style="font-weight: bold">Server: </label>
                         </td>
                         <td>
-                            <input type="text" id="ServerName" class="form-control" @bind="@ServerName" />
+                            <input type="text" class="form-control" @bind="@ServerName" />
                         </td>
                     </tr>
                     <tr>
@@ -41,7 +41,7 @@
                             <label for="Title" class="control-label" style="font-weight: bold">Database: </label>
                         </td>
                         <td>
-                            <input type="text" id="DatabaseName" class="form-control" @bind="@DatabaseName" />
+                            <input type="text" class="form-control" @bind="@DatabaseName" />
                         </td>
                     </tr>
                     <tr>
@@ -60,7 +60,7 @@
                             <label for="Title" class="control-label" style="font-weight: bold">Username: </label>
                         </td>
                         <td>
-                            <input type="text" id="Username" class="form-control" @bind="@Username" />
+                            <input type="text" class="form-control" @bind="@Username" />
                         </td>
                     </tr>
                     <tr style="@IntegratedSecurityDisplay">
@@ -68,7 +68,7 @@
                             <label for="Title" class="control-label" style="font-weight: bold">Password: </label>
                         </td>
                         <td>
-                            <input type="password" id="Password" class="form-control" @bind="@Password" />
+                            <input type="password" class="form-control" @bind="@Password" />
                         </td>
                     </tr>
                 </tbody>
@@ -83,10 +83,10 @@
                 <tbody>
                     <tr>
                         <td>
-                            <label for="Title" class="control-label" style="font-weight: bold">Email: </label>
+                            <label for="Title" class="control-label" style="font-weight: bold">Username: </label>
                         </td>
                         <td>
-                            <input type="text" id="Email" class="form-control" @bind="@Email" />
+                            <input type="text" class="form-control" @bind="@HostUsername" />
                         </td>
                     </tr>
                     <tr>
@@ -94,7 +94,15 @@
                             <label for="Title" class="control-label" style="font-weight: bold">Password: </label>
                         </td>
                         <td>
-                            <input type="password" id="Email" class="form-control" @bind="@HostPassword" />
+                            <input type="password" class="form-control" @bind="@HostPassword" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="Title" class="control-label" style="font-weight: bold">Email: </label>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" @bind="@HostEmail" />
                         </td>
                     </tr>
                 </tbody>
@@ -116,8 +124,9 @@
     private string DatabaseName = "Oqtane-" + DateTime.Now.ToString("yyyyMMddHHmm");
     private string Username = "";
     private string Password = "";
-    private string Email = "";
+    private string HostUsername = "";
     private string HostPassword = "";
+    private string HostEmail = "";
     private string Message = "";
 
     private string IntegratedSecurityDisplay = "display:none;";
@@ -172,10 +181,10 @@
 
                 User user = new User();
                 user.SiteId = site.SiteId;
-                user.Username = Email;
-                user.DisplayName = Email;
-                user.Email = Email;
+                user.Username = HostUsername;
                 user.Password = HostPassword;
+                user.Email = HostEmail;
+                user.DisplayName = HostUsername;
                 user = await UserService.AddUserAsync(user);
 
                 NavigationManager.NavigateTo("", true);

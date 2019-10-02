@@ -37,6 +37,11 @@ namespace Oqtane.Pages
                 await IdentitySignInManager.SignInAsync(identityuser, remember);
             }
 
+            if (!returnurl.StartsWith("/"))
+            {
+                returnurl = "/" + returnurl;
+            }
+
             return LocalRedirect(Url.Content("~" + returnurl));
         }
     }

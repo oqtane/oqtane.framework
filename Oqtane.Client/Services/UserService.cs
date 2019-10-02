@@ -45,7 +45,14 @@ namespace Oqtane.Services
 
         public async Task<User> AddUserAsync(User User)
         {
-            return await http.PostJsonAsync<User>(apiurl, User);
+            try
+            {
+                return await http.PostJsonAsync<User>(apiurl, User);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public async Task<User> UpdateUserAsync(User User)

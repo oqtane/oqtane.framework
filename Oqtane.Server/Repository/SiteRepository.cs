@@ -44,6 +44,8 @@ namespace Oqtane.Repository
                 ModuleDefinitionName = "Oqtane.Modules.Admin.Users, Oqtane.Client", ModulePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", Title = "User Management", Pane = "top", ContainerType = "Oqtane.Themes.Theme2.Container2, Oqtane.Client" });
             SiteTemplate.Add(new PageTemplate { Name = "Role Management", Parent = "Admin", Path = "admin/roles", Order = 1, Icon = "lock-locked", IsNavigation = false, EditMode = true, PagePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", 
                 ModuleDefinitionName = "Oqtane.Modules.Admin.Roles, Oqtane.Client", ModulePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", Title = "Role Management", Pane = "top", ContainerType = "Oqtane.Themes.Theme2.Container2, Oqtane.Client" });
+            SiteTemplate.Add(new PageTemplate { Name = "Tenant Management", Parent = "Admin", Path = "admin/tenants", Order = 1, Icon = "list", IsNavigation = false, EditMode = true, PagePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", 
+                ModuleDefinitionName = "Oqtane.Modules.Admin.Tenants, Oqtane.Client", ModulePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", Title = "Site Management", Pane = "top", ContainerType = "Oqtane.Themes.Theme2.Container2, Oqtane.Client" });
             SiteTemplate.Add(new PageTemplate { Name = "Login", Parent = "", Path = "login", Order = 1, Icon = "lock-locked", IsNavigation = false, EditMode = false, PagePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"All Users;Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", 
                 ModuleDefinitionName = "Oqtane.Modules.Admin.Login, Oqtane.Client", ModulePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"All Users;Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", Title = "Login", Pane = "top", ContainerType = "Oqtane.Themes.Theme2.Container2, Oqtane.Client" });
             SiteTemplate.Add(new PageTemplate { Name = "Register", Parent = "", Path = "register", Order = 1, Icon = "person", IsNavigation = false, EditMode = false, PagePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"All Users;Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", 
@@ -86,8 +88,15 @@ namespace Oqtane.Repository
 
         private void CreateSite(Site site)
         {
-            RoleRepository.AddRole(new Role { SiteId = null, Name = Constants.AllUsersRole, Description = "All Users", IsAutoAssigned = false, IsSystem = true });
-            RoleRepository.AddRole(new Role { SiteId = null, Name = Constants.HostRole, Description = "Application Administrators", IsAutoAssigned = false, IsSystem = true });
+            List<Role> roles = RoleRepository.GetRoles(site.SiteId, true).ToList();
+            if (!roles.Where(item => item.Name == Constants.AllUsersRole).Any())
+            {
+                RoleRepository.AddRole(new Role { SiteId = null, Name = Constants.AllUsersRole, Description = "All Users", IsAutoAssigned = false, IsSystem = true });
+            }
+            if (!roles.Where(item => item.Name == Constants.HostRole).Any())
+            {
+                RoleRepository.AddRole(new Role { SiteId = null, Name = Constants.HostRole, Description = "Application Administrators", IsAutoAssigned = false, IsSystem = true });
+            }
 
             RoleRepository.AddRole(new Role { SiteId = site.SiteId, Name = Constants.RegisteredRole, Description = "Registered Users", IsAutoAssigned = true, IsSystem = true });
             RoleRepository.AddRole(new Role { SiteId = site.SiteId, Name = Constants.AdminRole, Description = "Site Administrators", IsAutoAssigned = false, IsSystem = true });

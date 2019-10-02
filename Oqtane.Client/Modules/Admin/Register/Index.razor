@@ -5,12 +5,16 @@
 
 <div class="container">
     <div class="form-group">
-        <label for="Username" class="control-label">Email: </label>
-        <input type="text" name="Username" class="form-control" placeholder="Username" @bind="@Email" />
+        <label for="Username" class="control-label">Username: </label>
+        <input type="text" class="form-control" placeholder="Username" @bind="@Username" />
     </div>
     <div class="form-group">
         <label for="Password" class="control-label">Password: </label>
-        <input type="password" name="Password" class="form-control" placeholder="Password" @bind="@Password" />
+        <input type="password" class="form-control" placeholder="Password" @bind="@Password" />
+    </div>
+    <div class="form-group">
+        <label for="Username" class="control-label">Email: </label>
+        <input type="text" class="form-control" placeholder="Username" @bind="@Email" />
     </div>
     <button type="button" class="btn btn-primary" @onclick="RegisterUser">Register</button>
     <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
@@ -19,23 +23,38 @@
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Anonymous; } }
 
-    public string Email { get; set; } = "";
-    public string Password { get; set; } = "";
+    string Username = "";
+    string Password = "";
+    string Email = "";
 
     private async Task RegisterUser()
     {
-        User user = new User();
-        user.SiteId = PageState.Site.SiteId;
-        user.Username = Email;
-        user.DisplayName = Email;
-        user.Email = Email;
-        user.Password = Password;
-        await UserService.AddUserAsync(user);
-        NavigationManager.NavigateTo("");
+        try
+        {
+            if (Username != "" && Password != "" && Email != "")
+            {
+                User user = new User();
+                user.SiteId = PageState.Site.SiteId;
+                user.Username = Username;
+                user.DisplayName = Username;
+                user.Email = Email;
+                user.Password = Password;
+                await UserService.AddUserAsync(user);
+                NavigationManager.NavigateTo(NavigateUrl(""));
+            }
+            else
+            {
+                ModuleInstance.AddModuleMessage("You Must Provide A Username, Password, and Email Address", MessageType.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+        }
     }
 
     private void Cancel()
     {
-        NavigationManager.NavigateTo(NavigateUrl("")); // navigate to home
+        NavigationManager.NavigateTo(NavigateUrl(""));
     }
 }
