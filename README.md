@@ -27,7 +27,6 @@ Design
 - Need to cleanly separate site.css
 
 Admin
-- Need fully functional administrative modules for all core entities ( user, role, site, etc… )
 - Need ability to soft delete core entities
 - Drag and Drop modules
 
