@@ -82,7 +82,7 @@ namespace Oqtane.Controllers
                 {
                     identityuser = new IdentityUser();
                     identityuser.UserName = User.Username;
-                    identityuser.Email = User.Username;
+                    identityuser.Email = User.Email;
                     var result = await IdentityUserManager.CreateAsync(identityuser, User.Password);
                     if (result.Succeeded)
                     {
@@ -98,24 +98,19 @@ namespace Oqtane.Controllers
                             userrole.ExpiryDate = null;
                             UserRoles.AddUserRole(userrole);
                         }
-
-                        // add auto assigned roles to user for site
-                        List<Role> roles = Roles.GetRoles(user.SiteId).Where(item => item.IsAutoAssigned == true).ToList();
-                        foreach (Role role in roles)
-                        {
-                            UserRole userrole = new UserRole();
-                            userrole.UserId = user.UserId;
-                            userrole.RoleId = role.RoleId;
-                            userrole.EffectiveDate = null;
-                            userrole.ExpiryDate = null;
-                            UserRoles.AddUserRole(userrole);
-                        }
                     }
                 }
                 else
                 {
-                    user = Users.GetUser(User.Username);
+                    var result = await IdentitySignInManager.CheckPasswordSignInAsync(identityuser, User.Password, false);
+                    if (result.Succeeded)
+                    {
+                        user = Users.GetUser(User.Username);
+                    }
+                }
 
+                if (user != null && hostroleid == -1)
+                {
                     // add auto assigned roles to user for site
                     List<Role> roles = Roles.GetRoles(User.SiteId).Where(item => item.IsAutoAssigned == true).ToList();
                     foreach (Role role in roles)

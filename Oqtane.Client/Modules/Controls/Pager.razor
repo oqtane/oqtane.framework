@@ -67,7 +67,7 @@
 
     IEnumerable<TableItem> ItemList { get; set; }
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
         if (string.IsNullOrEmpty(PageSize))
         {

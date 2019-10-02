@@ -10,10 +10,18 @@
     <table class="table table-borderless">
         <tr>
             <td>
-                <label for="Name" class="control-label">Name: </label>
+                <label for="Name" class="control-label">Username: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@displayname" />
+                <input class="form-control" @bind="@username" readonly />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Password: </label>
+            </td>
+            <td>
+                <input type="password" class="form-control" @bind="@password" />
             </td>
         </tr>
         <tr>
@@ -26,10 +34,10 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Password: </label>
+                <label for="Name" class="control-label">Full Name: </label>
             </td>
             <td>
-                <input type="password" class="form-control" @bind="@password" />
+                <input class="form-control" @bind="@displayname" />
             </td>
         </tr>
 
@@ -63,9 +71,10 @@
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 
     int userid;
-    string displayname = "";
-    string email = "";
+    string username = "";
     string password = "";
+    string email = "";
+    string displayname = "";
     List<Profile> profiles;
     Dictionary<string, string> settings;
     string category = "";
@@ -80,8 +89,9 @@
             User user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
             if (user != null)
             {
-                displayname = user.DisplayName;
+                username = user.Username;
                 email = user.Email;
+                displayname = user.DisplayName;
                 settings = await SettingService.GetUserSettingsAsync(user.UserId);
             }
         }
@@ -100,10 +110,12 @@
     {
         try
         {
-            User user = new User();
-            user.DisplayName = displayname;
-            user.Email = email;
+            User user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
+            user.SiteId = PageState.Site.SiteId;
+            user.Username = username;
             user.Password = password;
+            user.Email = email;
+            user.DisplayName = displayname;
             user = await UserService.UpdateUserAsync(user);
             await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
 

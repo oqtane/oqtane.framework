@@ -10,10 +10,18 @@
     <table class="table table-borderless">
         <tr>
             <td>
-                <label for="Name" class="control-label">Name: </label>
+                <label for="Name" class="control-label">Username: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@displayname" />
+                <input class="form-control" @bind="@username" readonly />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Password: </label>
+            </td>
+            <td>
+                <input type="password" class="form-control" @bind="@password" />
             </td>
         </tr>
         <tr>
@@ -26,10 +34,10 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Password: </label>
+                <label for="Name" class="control-label">Full Name: </label>
             </td>
             <td>
-                <input type="password" class="form-control" @bind="@password" />
+                <input class="form-control" @bind="@displayname" />
             </td>
         </tr>
 
@@ -64,9 +72,10 @@
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.View; } }
 
-    string displayname = "";
-    string email = "";
+    string username = "";
     string password = "";
+    string email = "";
+    string displayname = "";
     List<Profile> profiles;
     Dictionary<string, string> settings;
     string category = "";
@@ -77,8 +86,9 @@
         {
             if (PageState.User != null)
             {
-                displayname = PageState.User.DisplayName;
+                username = PageState.User.Username;
                 email = PageState.User.Email;
+                displayname = PageState.User.DisplayName;
                 profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
                 settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
             }
@@ -103,13 +113,14 @@
         try
         {
             User user = PageState.User;
-            user.DisplayName = displayname;
-            user.Email = email;
+            user.Username = username;
             user.Password = password;
+            user.Email = email;
+            user.DisplayName = displayname;
             await UserService.UpdateUserAsync(user);
             await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
 
-            NavigationManager.NavigateTo("");
+            NavigationManager.NavigateTo(NavigateUrl(""));
         }
         catch (Exception ex)
         {

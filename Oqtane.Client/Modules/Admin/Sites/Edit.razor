@@ -1,12 +1,10 @@
 ﻿@namespace Oqtane.Modules.Admin.Sites
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
-@inject ITenantService TenantService
-@inject IAliasService AliasService
 @inject ISiteService SiteService
 @inject IThemeService  ThemeService
 
-@if (tenants == null)
+@if (themes == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -15,32 +13,10 @@ else
     <table class="table table-borderless">
         <tr>
             <td>
-                <label for="Name" class="control-label">Tenant: </label>
-            </td>
-            <td>
-                <select class="form-control" @bind="@tenantid">
-                    <option value="">&lt;Select Tenant&gt;</option>
-                    @foreach (Tenant tenant in tenants)
-                    {
-                        <option value="@tenant.TenantId">@tenant.Name</option>
-                    }
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
                 <label for="Name" class="control-label">Name: </label>
             </td>
             <td>
                 <input class="form-control" @bind="@name" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="Name" class="control-label">Alias: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@url" />
             </td>
         </tr>
         <tr>
@@ -90,37 +66,30 @@ else
     Dictionary<string, string> themes = new Dictionary<string, string>();
     Dictionary<string, string> panelayouts = new Dictionary<string, string>();
 
-    List<Tenant> tenants;
-    string tenantid = "";
     string name = "";
-    string url = "";
     string logo = "";
     string themetype;
     string layouttype;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        tenants = await TenantService.GetTenantsAsync();
-        url = PageState.Alias.Name;
         themes = ThemeService.GetThemeTypes(PageState.Themes);
         panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes);
+        name = PageState.Site.Name;
+        logo = PageState.Site.Logo;
+        themetype = PageState.Site.DefaultThemeType;
+        layouttype = PageState.Site.DefaultLayoutType;
     }
 
     private async Task SaveSite()
     {
-        Site site = new Site();
+        Site site = PageState.Site;
         site.Name = name;
         site.Logo = (logo == null ? "" : logo);
         site.DefaultThemeType = themetype;
         site.DefaultLayoutType = (layouttype == null ? "" : layouttype);
-        site = await SiteService.AddSiteAsync(site);
+        site = await SiteService.UpdateSiteAsync(site);
 
-        Alias alias = new Alias();
-        alias.Name = url;
-        alias.TenantId = int.Parse(tenantid);
-        alias.SiteId = site.SiteId;
-        await AliasService.AddAliasAsync(alias);
-
-        NavigationManager.NavigateTo("http://" + url, true);
+        NavigationManager.NavigateTo(NavigateUrl());
     }
 }
