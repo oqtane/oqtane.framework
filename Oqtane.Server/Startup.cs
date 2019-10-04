@@ -98,6 +98,7 @@ namespace Oqtane.Server
             services.AddScoped<IUserRoleService, UserRoleService>();
             services.AddScoped<ISettingService, SettingService>();
             services.AddScoped<IFileService, FileService>();
+            services.AddScoped<IPackageService, PackageService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 

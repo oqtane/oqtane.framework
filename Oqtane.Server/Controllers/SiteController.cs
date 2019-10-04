@@ -5,6 +5,8 @@ using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
 using System.Linq;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Oqtane.Controllers
 {
@@ -12,10 +14,14 @@ namespace Oqtane.Controllers
     public class SiteController : Controller
     {
         private readonly ISiteRepository Sites;
+        private readonly ITenantResolver Tenants;
+        private readonly IWebHostEnvironment environment;
 
-        public SiteController(ISiteRepository Sites)
+        public SiteController(ISiteRepository Sites, ITenantResolver Tenants, IWebHostEnvironment environment)
         {
             this.Sites = Sites;
+            this.Tenants = Tenants;
+            this.environment = environment;
         }
 
         // GET: api/<controller>
@@ -50,6 +56,11 @@ namespace Oqtane.Controllers
                 if (authorized)
                 {
                     Site = Sites.AddSite(Site);
+                    string folder = environment.WebRootPath + "\\Tenants\\" + Tenants.GetTenant().TenantId.ToString() + "\\Sites\\" + Site.SiteId.ToString();
+                    if (!Directory.Exists(folder))
+                    {
+                        Directory.CreateDirectory(folder);
+                    }
                 }
             }
             return Site;

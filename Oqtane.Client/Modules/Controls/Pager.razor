@@ -43,7 +43,7 @@
 </p>
 
 @code {
-    int Pages;
+    int Pages = 0;
     int Page;
     int MaxItems;
     int MaxPages;
@@ -87,8 +87,11 @@
         }
         Page = 1;
 
-        ItemList = Items.Skip((Page - 1) * MaxItems).Take(MaxItems);
-        Pages = (int)Math.Ceiling(Items.Count() / (decimal)MaxItems);
+        if (Items != null)
+        {
+            ItemList = Items.Skip((Page - 1) * MaxItems).Take(MaxItems);
+            Pages = (int)Math.Ceiling(Items.Count() / (decimal)MaxItems);
+        }
 
         SetPagerSize("forward");
     }
