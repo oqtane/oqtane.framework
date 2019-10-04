@@ -66,7 +66,7 @@ namespace Oqtane.Services
 
         public async Task UpdateModuleDefinitionAsync(ModuleDefinition ModuleDefinition)
         {
-            await http.PutJsonAsync<Page>(apiurl + "/" + ModuleDefinition.ModuleDefinitionId.ToString(), ModuleDefinition);
+            await http.PutJsonAsync(apiurl + "/" + ModuleDefinition.ModuleDefinitionId.ToString(), ModuleDefinition);
         }
 
         public async Task InstallModulesAsync()

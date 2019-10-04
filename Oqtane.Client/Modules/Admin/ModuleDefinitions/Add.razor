@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject IFileService FileService
 @inject IModuleDefinitionService ModuleDefinitionService
+@inject IPackageService PackageService
 
 <table class="table table-borderless">
     <tr>
@@ -14,31 +15,66 @@
         </td>
     </tr>
 </table>
+<button type="button" class="btn btn-primary" @onclick="UploadFile">Upload Module</button>
+
+@if (packages != null)
+{
+    <hr />
+    <div class="mx-auto text-center"><h2>Available Modules</h2></div>
+
+    <Pager Items="@packages">
+        <Header>
+            <th>Name</th>
+            <th>Version</th>
+            <th></th>
+        </Header>
+        <Row>
+            <td>@context.Name</td>
+            <td>@context.Version</td>
+            <td>
+                <button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadModule(context.PackageId, context.Version))>Download Module</button>
+            </td>
+        </Row>
+    </Pager>
+}
+
 @if (uploaded)
 {
-    <button type="button" class="btn btn-success" @onclick="InstallFile">Install</button>
-}
-else
-{
-    <button type="button" class="btn btn-success" @onclick="UploadFile">Upload</button>
+    <button type="button" class="btn btn-success" @onclick="InstallModules">Install</button>
 }
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
 
     bool uploaded = false;
+    List<Package> packages;
+
+    protected override async Task OnInitializedAsync()
+    {
+        packages = await PackageService.GetPackagesAsync("module");
+    }
 
     private async Task UploadFile()
     {
         await FileService.UploadFilesAsync("Modules");
+        ModuleInstance.AddModuleMessage("Module Uploaded Successfully. Click Install To Complete Installation.", MessageType.Success);
         uploaded = true;
         StateHasChanged();
     }
 
-    private async Task InstallFile()
+    private async Task InstallModules()
     {
         await ModuleDefinitionService.InstallModulesAsync();
         NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
+    }
+
+    private async Task DownloadModule(string moduledefinitionname, string version)
+    {
+        await PackageService.DownloadPackageAsync(moduledefinitionname, version, "Modules");
+        ModuleInstance.AddModuleMessage("Module Downloaded Successfully. Click Install To Complete Installation.", MessageType.Success);
+        uploaded = true;
+        StateHasChanged();
     }
 }

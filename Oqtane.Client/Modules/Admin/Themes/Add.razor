@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject IFileService FileService
 @inject IThemeService ThemeService
+@inject IPackageService PackageService
 
 <table class="table table-borderless">
     <tr>
@@ -14,13 +15,32 @@
         </td>
     </tr>
 </table>
+<button type="button" class="btn btn-primary" @onclick="UploadTheme">Upload Theme</button>
+
+@if (packages != null)
+{
+    <hr />
+    <div class="mx-auto text-center"><h2>Available Themes</h2></div>
+
+    <Pager Items="@packages">
+        <Header>
+            <th>Name</th>
+            <th>Version</th>
+            <th></th>
+        </Header>
+        <Row>
+            <td>@context.Name</td>
+            <td>@context.Version</td>
+            <td>
+                <button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadTheme(context.PackageId, context.Version))>Download Theme</button>
+            </td>
+        </Row>
+    </Pager>
+}
+
 @if (uploaded)
 {
-    <button type="button" class="btn btn-success" @onclick="InstallFile">Install</button>
-}
-else
-{
-    <button type="button" class="btn btn-success" @onclick="UploadFile">Upload</button>
+    <button type="button" class="btn btn-success" @onclick="InstallThemes">Install</button>
 }
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
@@ -28,17 +48,32 @@ else
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
 
     bool uploaded = false;
+    List<Package> packages;
 
-    private async Task UploadFile()
+    protected override async Task OnInitializedAsync()
+    {
+        packages = await PackageService.GetPackagesAsync("theme");
+    }
+
+    private async Task UploadTheme()
     {
         await FileService.UploadFilesAsync("Themes");
+        ModuleInstance.AddModuleMessage("Theme Uploaded Successfully. Click Install To Complete Installation.", MessageType.Success);
         uploaded = true;
         StateHasChanged();
     }
 
-    private async Task InstallFile()
+    private async Task InstallThemes()
     {
         await ThemeService.InstallThemesAsync();
         NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
+    }
+
+    private async Task DownloadTheme(string packageid, string version)
+    {
+        await PackageService.DownloadPackageAsync(packageid, version, "Themes");
+        ModuleInstance.AddModuleMessage("Theme Downloaded Successfully. Click Install To Complete Installation.", MessageType.Success);
+        uploaded = true;
+        StateHasChanged();
     }
 }
