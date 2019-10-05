@@ -258,3 +258,22 @@ app {
     left: 0;
     z-index: 9999; /* Sit on top */
 }
+
+.form-control.invalid {
+    border-color: #dc3545;
+}
+
+.form-control.modified {
+    min-height: 1rem;
+}
+
+/*.form-control.valid {
+    border-color: #28a745;
+}*/
+
+.validation-message {
+    width: 100%;
+    margin-top: .25rem;
+    font-size: 80%;
+    color: #dc3545;
+}

@@ -1,4 +1,5 @@
-﻿@namespace Oqtane.Modules.Admin.Sites
+﻿@using Microsoft.AspNetCore.Components.Forms
+@namespace Oqtane.Modules.Admin.Sites
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject ISiteService SiteService
@@ -10,54 +11,60 @@
 }
 else
 {
-    <table class="table table-borderless">
-        <tr>
-            <td>
-                <label for="Name" class="control-label">Name: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@name" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="Name" class="control-label">Logo: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@logo" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="Name" class="control-label">Default Theme: </label>
-            </td>
-            <td>
-                <select class="form-control" @bind="@themetype">
+    <EditForm Model="@Site" OnValidSubmit="@SaveSite" OnInvalidSubmit="@InvalidSubmit">
+        <DataAnnotationsValidator />
+        <div class="form-group row mb-1">
+            <label class="col-sm-3 col-form-label" for="Name">Name: </label>
+            <div class="col-sm-9">
+                <InputText id="name" class="form-control" @bind-Value="Site.Name" />
+                <ValidationMessage For="@(() => Site.Name)" />
+            </div>
+        </div>
+        <div class="form-group row mb-1">
+            <label class="col-sm-3 col-form-label" for="Logo">Logo: </label>
+            <div class="col-sm-9">
+                <InputText id="logo" class="form-control" @bind-Value="Site.Logo" />
+                <ValidationMessage For="@(() => Site.Logo)" />
+            </div>
+        </div>
+        <div class="form-group row mb-1">
+            <label class="col-sm-3 col-form-label" for="Theme">Default Theme: </label>
+            <div class="col-sm-9">
+                <InputSelect id="defaultTheme" class="form-control" @bind-Value="Site.DefaultThemeType">
                     <option value="">&lt;Select Theme&gt;</option>
                     @foreach (KeyValuePair<string, string> item in themes)
-                    {
+                        {
                         <option value="@item.Key">@item.Value</option>
-                    }
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="Name" class="control-label">Default Layout: </label>
-            </td>
-            <td>
-                <select class="form-control" @bind="@layouttype">
+                        }
+                </InputSelect>
+                <ValidationMessage For="@(() => Site.DefaultThemeType)" />
+            </div>
+        </div>
+        <div class="form-group row mb-1">
+            <label class="col-sm-3 col-form-label" for="Layout">Default Layout: </label>
+            <div class="col-sm-9">
+                <InputSelect id="defaultLayout" class="form-control" @bind-Value="Site.DefaultLayoutType">
                     <option value="">&lt;Select Layout&gt;</option>
                     @foreach (KeyValuePair<string, string> panelayout in panelayouts)
-                    {
+                        {
                         <option value="@panelayout.Key">@panelayout.Value</option>
-                    }
-                </select>
-            </td>
-        </tr>
-    </table>
-    <button type="button" class="btn btn-success" @onclick="SaveSite">Save</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+                        }
+                </InputSelect>
+                <ValidationMessage For="@(() => Site.DefaultLayoutType)" />
+            </div>
+        </div>
+        <div class="form-group row mb-1">
+            <label class="col-sm-3 col-form-label" for="IsDeleted">Is Deleted? </label>
+            <div class="col-sm-9">
+                <InputCheckbox class="form-control" @bind-Value="Site.IsDeleted"/>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-success">Save</button>
+        <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+        <br />
+        <br />
+        <AuditInfo CreatedBy="@Site.CreatedBy" CreatedOn="@Site.CreatedOn" ModifiedBy="@Site.ModifiedBy" ModifiedOn="@Site.ModifiedOn" DeletedBy="@Site.DeletedBy" DeletedOn="@Site.DeletedOn"></AuditInfo>
+    </EditForm>
 }
 
 @code {
@@ -66,30 +73,28 @@ else
     Dictionary<string, string> themes = new Dictionary<string, string>();
     Dictionary<string, string> panelayouts = new Dictionary<string, string>();
 
-    string name = "";
-    string logo = "";
-    string themetype;
-    string layouttype;
+    Site Site = new Site();
+    public string isDeleted {
+        get { return Site.IsDeleted.ToString(); }
+        set { Site.IsDeleted = Convert.ToBoolean(value); }
+    }
 
     protected override void OnInitialized()
     {
         themes = ThemeService.GetThemeTypes(PageState.Themes);
         panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes);
-        name = PageState.Site.Name;
-        logo = PageState.Site.Logo;
-        themetype = PageState.Site.DefaultThemeType;
-        layouttype = PageState.Site.DefaultLayoutType;
+        Site = PageState.Site;
     }
 
     private async Task SaveSite()
     {
-        Site site = PageState.Site;
-        site.Name = name;
-        site.Logo = (logo == null ? "" : logo);
-        site.DefaultThemeType = themetype;
-        site.DefaultLayoutType = (layouttype == null ? "" : layouttype);
-        site = await SiteService.UpdateSiteAsync(site);
+        Site = await SiteService.UpdateSiteAsync(Site);
 
         NavigationManager.NavigateTo(NavigateUrl());
+    }
+
+    private void InvalidSubmit()
+    {
+
     }
 }
