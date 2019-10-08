@@ -55,9 +55,23 @@ else
                 </select>
             </td>
         </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Is Deleted? </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@isdeleted">
+                    <option value="True">Yes</option>
+                    <option value="False">No</option>
+                </select>
+            </td>
+        </tr>
     </table>
     <button type="button" class="btn btn-success" @onclick="SaveSite">Save</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <br />
+    <br />
+    <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>
 }
 
 @code {
@@ -71,6 +85,14 @@ else
     string themetype;
     string layouttype;
 
+    string createdby;
+    DateTime createdon;
+    string modifiedby;
+    DateTime modifiedon;
+    string deletedby;
+    DateTime? deletedon;
+    string isdeleted;
+
     protected override void OnInitialized()
     {
         themes = ThemeService.GetThemeTypes(PageState.Themes);
@@ -79,6 +101,14 @@ else
         logo = PageState.Site.Logo;
         themetype = PageState.Site.DefaultThemeType;
         layouttype = PageState.Site.DefaultLayoutType;
+
+        createdby = PageState.Site.CreatedBy;
+        createdon = PageState.Site.CreatedOn;
+        modifiedby = PageState.Site.ModifiedBy;
+        modifiedon = PageState.Site.ModifiedOn;
+        deletedby = PageState.Site.DeletedBy;
+        deletedon = PageState.Site.DeletedOn;
+        isdeleted = PageState.Site.IsDeleted.ToString();
     }
 
     private async Task SaveSite()
@@ -88,6 +118,8 @@ else
         site.Logo = (logo == null ? "" : logo);
         site.DefaultThemeType = themetype;
         site.DefaultLayoutType = (layouttype == null ? "" : layouttype);
+        site.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
+
         site = await SiteService.UpdateSiteAsync(site);
 
         NavigationManager.NavigateTo(NavigateUrl());
