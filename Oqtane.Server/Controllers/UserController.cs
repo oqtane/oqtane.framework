@@ -152,9 +152,19 @@ namespace Oqtane.Controllers
         // DELETE api/<controller>/5?siteid=x
         [HttpDelete("{id}")]
         [Authorize(Roles = Constants.AdminRole)]
-        public void Delete(int id)
+        public async Task Delete(int id)
         {
-            Users.DeleteUser(id);
+            IdentityUser identityuser = await IdentityUserManager.FindByNameAsync(Users.GetUser(id).Username);
+            
+            if (identityuser != null)
+            {
+                var result = await IdentityUserManager.DeleteAsync(identityuser);
+
+                if (result != null)
+                {
+                    Users.DeleteUser(id);
+                }
+            }
         }
 
         // POST api/<controller>/login
