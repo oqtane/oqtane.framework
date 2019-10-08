@@ -2,10 +2,14 @@
 {
     public class Constants
     {
+        public const string PackageId = "Oqtane.Framework";
+        public const string Version = "0.0.1";
+
         public const string DefaultPage = "Oqtane.Shared.ThemeBuilder, Oqtane.Client";
         public const string DefaultContainer = "Oqtane.Shared.ContainerBuilder, Oqtane.Client";
         public const string DefaultAdminContainer = "Oqtane.Themes.AdminContainer, Oqtane.Client";
-        public const string DefaultSettingsControl = "Oqtane.Modules.Admin.ModuleSettings.Index, Oqtane.Client";
+        public static readonly string[] DefaultModuleActions = new[] { "Settings", "Import", "Export" }; 
+        public const string DefaultModuleActionsTemplate = "Oqtane.Modules.Admin.Modules.{Control}, Oqtane.Client";
         public const string PageManagementModule = "Oqtane.Modules.Admin.Pages, Oqtane.Client";
         public const string ModuleMessageControl = "Oqtane.Modules.Controls.ModuleMessage, Oqtane.Client";
         public const string DefaultControl = "Index";

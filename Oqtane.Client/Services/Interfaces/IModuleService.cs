@@ -12,5 +12,7 @@ namespace Oqtane.Services
         Task<Module> AddModuleAsync(Module Module);
         Task<Module> UpdateModuleAsync(Module Module);
         Task DeleteModuleAsync(int ModuleId);
+        Task<bool> ImportModuleAsync(int ModuleId, string Content);
+        Task<string> ExportModuleAsync(int ModuleId);
     }
 }

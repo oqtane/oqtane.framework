@@ -9,7 +9,8 @@
     protected override Task OnParametersSetAsync()
     {
         title = ModuleState.Title;
-        if (PageState.Control == "Settings")
+        // check for core module actions component
+        if (Constants.DefaultModuleActions.Contains(PageState.Control))
         {
             title = PageState.Control;
         }

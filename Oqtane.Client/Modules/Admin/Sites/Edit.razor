@@ -2,6 +2,7 @@
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject ISiteService SiteService
+@inject IAliasService AliasService
 @inject IThemeService  ThemeService
 
 @if (themes == null)
@@ -17,6 +18,14 @@ else
             </td>
             <td>
                 <input class="form-control" @bind="@name" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Aliases: </label>
+            </td>
+            <td>
+                <textarea class="form-control" @bind="@urls" rows="3" />
             </td>
         </tr>
         <tr>
@@ -80,7 +89,9 @@ else
     Dictionary<string, string> themes = new Dictionary<string, string>();
     Dictionary<string, string> panelayouts = new Dictionary<string, string>();
 
+    List<Alias> aliases;
     string name = "";
+    string urls = "";
     string logo = "";
     string themetype;
     string layouttype;
@@ -95,9 +106,14 @@ else
 
     protected override void OnInitialized()
     {
+        aliases = PageState.Aliases.Where(item => item.TenantId == PageState.Alias.TenantId && item.SiteId == PageState.Site.SiteId).ToList();
         themes = ThemeService.GetThemeTypes(PageState.Themes);
         panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes);
         name = PageState.Site.Name;
+        foreach (Alias alias in aliases)
+        {
+            urls += alias.Name + "\n";
+        }
         logo = PageState.Site.Logo;
         themetype = PageState.Site.DefaultThemeType;
         layouttype = PageState.Site.DefaultLayoutType;
@@ -121,6 +137,27 @@ else
         site.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
 
         site = await SiteService.UpdateSiteAsync(site);
+
+        urls = urls.Replace("\n", ",");
+        string[] names = urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+        foreach (Alias alias in aliases)
+        {
+            if (!names.Contains(alias.Name))
+            {
+                await AliasService.DeleteAliasAsync(alias.AliasId);
+            }
+        }
+        foreach (string name in names)
+        {
+            if (!aliases.Exists(item => item.Name == name))
+            {
+                Alias alias = new Alias();
+                alias.Name = name;
+                alias.TenantId = PageState.Alias.TenantId;
+                alias.SiteId = site.SiteId;
+                await AliasService.AddAliasAsync(alias);
+            }
+        }
 
         NavigationManager.NavigateTo(NavigateUrl());
     }

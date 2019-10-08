@@ -1,9 +1,12 @@
 ﻿using DbUp;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Oqtane.Infrastructure;
 using Oqtane.Models;
+using Oqtane.Shared;
 using System;
 using System.Data.SqlClient;
 using System.IO;
@@ -17,28 +20,41 @@ namespace Oqtane.Controllers
     public class InstallationController : Controller
     {
         private readonly IConfigurationRoot Config;
+        private readonly IInstallationManager InstallationManager;
 
-        public InstallationController(IConfigurationRoot Config)
+        public InstallationController(IConfigurationRoot Config, IInstallationManager InstallationManager)
         {
             this.Config = Config;
+            this.InstallationManager = InstallationManager;
         }
 
         // POST api/<controller>
         [HttpPost]
-        public GenericResponse Post([FromBody] string connectionString)
+        public GenericResponse Post([FromBody] string connectionstring)
         {
             var response = new GenericResponse { Success = false, Message = "" };
 
             if (ModelState.IsValid)
             {
-                bool exists = IsInstalled().Success;
+                bool master = false;
+                string defaultconnectionstring = Config.GetConnectionString("DefaultConnection");
+                if (string.IsNullOrEmpty(defaultconnectionstring) || connectionstring != defaultconnectionstring)
+                {
+                    master = true;
+                }
+
+                bool exists = false;
+                if (master)
+                {
+                    exists = IsInstalled().Success;
+                }
 
                 if (!exists)
                 {
                     string datadirectory = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
-                    connectionString = connectionString.Replace("|DataDirectory|", datadirectory);
+                    connectionstring = connectionstring.Replace("|DataDirectory|", datadirectory);
 
-                    SqlConnection connection = new SqlConnection(connectionString);
+                    SqlConnection connection = new SqlConnection(connectionstring);
                     try
                     {
                         using (connection)
@@ -57,7 +73,7 @@ namespace Oqtane.Controllers
                     {
                         string masterConnectionString = "";
                         string databaseName = "";
-                        string[] fragments = connectionString.Split(';', StringSplitOptions.RemoveEmptyEntries);
+                        string[] fragments = connectionstring.Split(';', StringSplitOptions.RemoveEmptyEntries);
                         foreach (string fragment in fragments)
                         {
                             if (fragment.ToLower().Contains("initial catalog=") || fragment.ToLower().Contains("database="))
@@ -79,7 +95,7 @@ namespace Oqtane.Controllers
                             {
                                 connection.Open();
                                 SqlCommand command;
-                                if (connectionString.ToLower().Contains("attachdbfilename=")) // LocalDB
+                                if (connectionstring.ToLower().Contains("attachdbfilename=")) // LocalDB
                                 {
                                     command = new SqlCommand("CREATE DATABASE [" + databaseName + "] ON ( NAME = '" + databaseName + "', FILENAME = '" + datadirectory + "\\" + databaseName + ".mdf')", connection);
                                 }
@@ -104,14 +120,17 @@ namespace Oqtane.Controllers
                     {
                         // get master initialization script and update connectionstring and alias in seed data
                         string initializationScript = "";
-                        using (StreamReader reader = new StreamReader(Directory.GetCurrentDirectory() + "\\Scripts\\Master.sql"))
+                        if (master)
                         {
-                            initializationScript = reader.ReadToEnd();
+                            using (StreamReader reader = new StreamReader(Directory.GetCurrentDirectory() + "\\Scripts\\Master.sql"))
+                            {
+                                initializationScript = reader.ReadToEnd();
+                            }
+                            initializationScript = initializationScript.Replace("{ConnectionString}", connectionstring);
+                            initializationScript = initializationScript.Replace("{Alias}", HttpContext.Request.Host.Value);
                         }
-                        initializationScript = initializationScript.Replace("{ConnectionString}", connectionString);
-                        initializationScript = initializationScript.Replace("{Alias}", HttpContext.Request.Host.Value);
 
-                        var dbUpgradeConfig = DeployChanges.To.SqlDatabase(connectionString)
+                        var dbUpgradeConfig = DeployChanges.To.SqlDatabase(connectionstring)
                             .WithScript(new DbUp.Engine.SqlScript("Master.sql", initializationScript))
                             .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly()); // tenant scripts should be added to /Scripts folder as Embedded Resources
                         var dbUpgrade = dbUpgradeConfig.Build();
@@ -125,19 +144,22 @@ namespace Oqtane.Controllers
                             else
                             {
                                 // update appsettings
-                                string config = "";
-                                using (StreamReader reader = new StreamReader(Directory.GetCurrentDirectory() + "\\appsettings.json"))
+                                if (master)
                                 {
-                                    config = reader.ReadToEnd();
+                                    string config = "";
+                                    using (StreamReader reader = new StreamReader(Directory.GetCurrentDirectory() + "\\appsettings.json"))
+                                    {
+                                        config = reader.ReadToEnd();
+                                    }
+                                    connectionstring = connectionstring.Replace(datadirectory, "|DataDirectory|");
+                                    connectionstring = connectionstring.Replace(@"\", @"\\");
+                                    config = config.Replace("DefaultConnection\": \"", "DefaultConnection\": \"" + connectionstring);
+                                    using (StreamWriter writer = new StreamWriter(Directory.GetCurrentDirectory() + "\\appsettings.json"))
+                                    {
+                                        writer.WriteLine(config);
+                                    }
+                                    Config.Reload();
                                 }
-                                connectionString = connectionString.Replace(datadirectory, "|DataDirectory|");
-                                connectionString = connectionString.Replace(@"\", @"\\");
-                                config = config.Replace("DefaultConnection\": \"", "DefaultConnection\": \"" + connectionString);
-                                using (StreamWriter writer = new StreamWriter(Directory.GetCurrentDirectory() + "\\appsettings.json"))
-                                {
-                                    writer.WriteLine(config);
-                                }
-                                Config.Reload();
                                 response.Success = true;
                             }
                         }
@@ -234,6 +256,15 @@ namespace Oqtane.Controllers
                     // TODO: log result.Error.Message;
                 }
             }
+        }
+
+        [HttpGet("upgrade")]
+        [Authorize(Roles = Constants.HostRole)]
+        public GenericResponse Upgrade()
+        {
+            var response = new GenericResponse { Success = true, Message = "" };
+            InstallationManager.InstallPackages("Framework");
+            return response;
         }
     }
 

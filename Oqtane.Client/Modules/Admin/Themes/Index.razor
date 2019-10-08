@@ -1,6 +1,8 @@
 ﻿@namespace Oqtane.Modules.Admin.Themes
 @inherits ModuleBase
+@inject NavigationManager NavigationManager
 @inject IThemeService ThemeService
+@inject IPackageService PackageService
 
 @if (themes == null)
 {
@@ -14,10 +16,19 @@ else
         <Header>
             <th>Name</th>
             <th>Version</th>
+            <th>&nbsp;</th>
+            <th>&nbsp;</th>
         </Header>
         <Row>
             <td>@context.Name</td>
             <td>@context.Version</td>
+            <td><ActionLink Action="Delete" Parameters="@($"id=" + context.ThemeName)" Class="btn btn-danger" /></td>
+            <td>
+                @if (UpgradeAvailable(context.ThemeName, context.Version))
+                {
+                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadTheme(context.ThemeName, context.Version))>Upgrade</button>
+                }
+            </td>
         </Row>
     </Pager>
 }
@@ -26,9 +37,29 @@ else
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
 
     List<Theme> themes;
+    List<Package> packages;
 
     protected override async Task OnInitializedAsync()
     {
         themes = await ThemeService.GetThemesAsync();
+        packages = await PackageService.GetPackagesAsync("module");
+    }
+
+    private bool UpgradeAvailable(string themename, string version)
+    {
+        bool upgradeavailable = false;
+        Package package = packages.Where(item => item.PackageId == Utilities.GetTypeName(themename)).FirstOrDefault();
+        if (package != null)
+        {
+            upgradeavailable = (Version.Parse(package.Version).CompareTo(Version.Parse(version)) > 0);
+        }
+        return upgradeavailable;
+    }
+
+    private async Task DownloadTheme(string themename, string version)
+    {
+        await PackageService.DownloadPackageAsync(themename, version, "Themes");
+        await ThemeService.InstallThemesAsync();
+        NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
     }
 }

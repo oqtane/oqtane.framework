@@ -19,7 +19,7 @@ else
             </td>
             <td>
                 <select class="form-control" @bind="@tenantid">
-                    <option value="">&lt;Select Tenant&gt;</option>
+                    <option value="-1">&lt;Select Tenant&gt;</option>
                     @foreach (Tenant tenant in tenants)
                     {
                         <option value="@tenant.TenantId">@tenant.Name</option>
@@ -37,10 +37,10 @@ else
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Alias: </label>
+                <label for="Name" class="control-label">Aliases: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@url" />
+                <textarea class="form-control" @bind="@urls" rows="3" />
             </td>
         </tr>
         <tr>
@@ -91,9 +91,9 @@ else
     Dictionary<string, string> panelayouts = new Dictionary<string, string>();
 
     List<Tenant> tenants;
-    string tenantid = "";
+    string tenantid = "-1";
     string name = "";
-    string url = "";
+    string urls = "";
     string logo = "";
     string themetype;
     string layouttype;
@@ -101,7 +101,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         tenants = await TenantService.GetTenantsAsync();
-        url = PageState.Alias.Name;
+        urls = PageState.Alias.Name;
         themes = ThemeService.GetThemeTypes(PageState.Themes);
         panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes);
     }
@@ -115,12 +115,16 @@ else
         site.DefaultLayoutType = (layouttype == null ? "" : layouttype);
         site = await SiteService.AddSiteAsync(site);
 
-        Alias alias = new Alias();
-        alias.Name = url;
-        alias.TenantId = int.Parse(tenantid);
-        alias.SiteId = site.SiteId;
-        await AliasService.AddAliasAsync(alias);
+        urls = urls.Replace("\n", ",");
+        foreach(string name in urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+        {
+            Alias alias = new Alias();
+            alias.Name = name;
+            alias.TenantId = int.Parse(tenantid);
+            alias.SiteId = site.SiteId;
+            await AliasService.AddAliasAsync(alias);
+        }
 
-        NavigationManager.NavigateTo("http://" + url, true);
+        NavigationManager.NavigateTo("http://" + urls[0], true);
     }
 }

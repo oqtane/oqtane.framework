@@ -11,7 +11,7 @@
             <label for="Name" class="control-label">Theme: </label>
         </td>
         <td>
-            <FileUpload Filter=".nupkg"></FileUpload>
+            <FileUpload Filter=".nupkg" @ref="fileupload"></FileUpload>
         </td>
     </tr>
 </table>
@@ -49,18 +49,55 @@
 
     bool uploaded = false;
     List<Package> packages;
+    FileUpload fileupload;
 
     protected override async Task OnInitializedAsync()
     {
+        List<Theme> themes = await ThemeService.GetThemesAsync();
         packages = await PackageService.GetPackagesAsync("theme");
+        foreach(Package package in packages.ToArray())
+        {
+            if (themes.Exists(item => Utilities.GetTypeName(item.ThemeName) == package.PackageId))
+            {
+                packages.Remove(package);
+            }
+        }
     }
 
     private async Task UploadTheme()
     {
-        await FileService.UploadFilesAsync("Themes");
-        ModuleInstance.AddModuleMessage("Theme Uploaded Successfully. Click Install To Complete Installation.", MessageType.Success);
-        uploaded = true;
-        StateHasChanged();
+        string[] files = await fileupload.GetFiles();
+        if (files.Length > 0)
+        {
+            if (files[0].Contains(".Theme."))
+            {
+                try
+                {
+                    if (await FileService.UploadFilesAsync("Themes", files, ""))
+                    {
+                        ModuleInstance.AddModuleMessage("Theme Uploaded Successfully. Click Install To Complete Installation.", MessageType.Success);
+                        uploaded = true;
+                        StateHasChanged();
+                    }
+                    else
+                    {
+                        ModuleInstance.AddModuleMessage("Theme Upload Failed.", MessageType.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ModuleInstance.AddModuleMessage("Theme Upload Failed. " + ex.Message, MessageType.Error);
+                }
+            }
+            else
+            {
+                ModuleInstance.AddModuleMessage("Invalid Theme Package", MessageType.Error);
+            }
+        }
+        else
+        {
+            ModuleInstance.AddModuleMessage("You Must Select A Theme To Upload", MessageType.Warning);
+        }
     }
 
     private async Task InstallThemes()

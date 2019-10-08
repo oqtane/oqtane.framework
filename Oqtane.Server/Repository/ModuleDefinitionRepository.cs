@@ -5,31 +5,32 @@ using Oqtane.Models;
 using System.Reflection;
 using System;
 using Oqtane.Modules;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Oqtane.Repository
 {
     public class ModuleDefinitionRepository : IModuleDefinitionRepository
     {
         private MasterDBContext db;
+        private readonly IMemoryCache _cache;
         private readonly IPermissionRepository Permissions;
 
-        public ModuleDefinitionRepository(MasterDBContext context, IPermissionRepository Permissions)
+        public ModuleDefinitionRepository(MasterDBContext context, IMemoryCache cache, IPermissionRepository Permissions)
         {
             db = context;
+            _cache = cache;
             this.Permissions = Permissions;
         }
 
         private List<ModuleDefinition> LoadModuleDefinitions(int SiteId)
         {
-            List<ModuleDefinition> ModuleDefinitions = new List<ModuleDefinition>();
+            List<ModuleDefinition> ModuleDefinitions;
 
-            // iterate through Oqtane module assemblies
-            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies()
-                .Where(item => item.FullName.StartsWith("Oqtane.") || item.FullName.Contains(".Module.")).ToArray();
-            foreach (Assembly assembly in assemblies)
+            ModuleDefinitions = _cache.GetOrCreate("moduledefinitions", entry =>
             {
-                ModuleDefinitions = LoadModuleDefinitionsFromAssembly(ModuleDefinitions, assembly);
-            }
+                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+                return LoadModuleDefinitionsFromAssemblies();
+            });
 
             // sync module definitions with database
             List<ModuleDefinition> moduledefs = db.ModuleDefinition.ToList();
@@ -62,6 +63,19 @@ namespace Oqtane.Repository
                 db.ModuleDefinition.Remove(moduledefinition); // delete
             }
 
+            return ModuleDefinitions;
+        }
+
+        private List<ModuleDefinition> LoadModuleDefinitionsFromAssemblies()
+        {
+            List<ModuleDefinition> ModuleDefinitions = new List<ModuleDefinition>();
+            // iterate through Oqtane module assemblies
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(item => item.FullName.StartsWith("Oqtane.") || item.FullName.Contains(".Module.")).ToArray();
+            foreach (Assembly assembly in assemblies)
+            {
+                ModuleDefinitions = LoadModuleDefinitionsFromAssembly(ModuleDefinitions, assembly);
+            }
             return ModuleDefinitions;
         }
 
@@ -105,6 +119,7 @@ namespace Oqtane.Repository
                                 License = GetProperty(properties, "License"),
                                 Dependencies = GetProperty(properties, "Dependencies"),
                                 PermissionNames = GetProperty(properties, "PermissionNames"),
+                                ServerAssemblyName = GetProperty(properties, "ServerAssemblyName"),
                                 ControlTypeTemplate = ModuleType + ".{Control}" + ", " + typename[1],
                                 ControlTypeRoutes = "",
                                 AssemblyName = assembly.FullName.Split(",")[0]
@@ -125,6 +140,7 @@ namespace Oqtane.Repository
                                 License = "",
                                 Dependencies = "",
                                 PermissionNames = "",
+                                ServerAssemblyName = "",
                                 ControlTypeTemplate = ModuleType + ".{Control}" + ", " + typename[1],
                                 ControlTypeRoutes = "",
                                 AssemblyName = assembly.FullName.Split(",")[0]

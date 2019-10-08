@@ -59,6 +59,18 @@ namespace Oqtane.Shared
             return url;
         }
 
+        public static string GetTypeName(string fullyqualifiedtypename)
+        {
+            if (fullyqualifiedtypename.Contains(","))
+            {
+                return fullyqualifiedtypename.Substring(0, fullyqualifiedtypename.IndexOf(","));
+            }
+            else
+            {
+                return fullyqualifiedtypename;
+            }
+        }
+
         public static string GetTypeNameClass(string typename)
         {
             if (typename.Contains(","))
