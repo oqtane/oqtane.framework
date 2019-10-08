@@ -100,6 +100,20 @@ namespace Oqtane.Shared
             }
         }
 
+        public ValueTask<string[]> GetFiles(string name)
+        {
+            try
+            {
+                return jsRuntime.InvokeAsync<string[]>(
+                    "interop.getFiles",
+                    name);
+            }
+            catch
+            {
+                return new ValueTask<string[]>(Task.FromResult(new string[0]));
+            }
+        }
+
         public Task UploadFiles(string posturl, string folder, string name)
         {
             try

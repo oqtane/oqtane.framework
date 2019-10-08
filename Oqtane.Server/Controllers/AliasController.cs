@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
+using System.Linq;
 
 namespace Oqtane.Controllers
 {

@@ -1,12 +1,10 @@
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Net.Http;
 using Microsoft.AspNetCore.Components;
 using Oqtane.Services;
 using Oqtane.Modules.HtmlText.Models;
 using Oqtane.Shared;
-using System.Text.Json;
+using Oqtane.Models;
 
 namespace Oqtane.Modules.HtmlText.Services
 {
@@ -57,5 +55,6 @@ namespace Oqtane.Modules.HtmlText.Services
         {
             await http.DeleteAsync(apiurl + "/" + ModuleId.ToString() + "?entityid=" + ModuleId.ToString());
         }
+
     }
 }

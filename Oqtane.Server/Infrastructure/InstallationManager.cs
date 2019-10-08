@@ -45,11 +45,12 @@ namespace Oqtane.Infrastructure
                         foreach (ZipArchiveEntry entry in archive.Entries)
                         {
                             string filename = Path.GetFileName(entry.FullName);
-                            switch (Path.GetExtension(filename))
+                            switch (Path.GetExtension(filename).ToLower())
                             {
                                 case ".dll":
                                     entry.ExtractToFile(Path.Combine(binfolder, filename), true);
                                     break;
+                                case ".nuspec":
                                 case ".png":
                                 case ".jpg":
                                 case ".jpeg":

@@ -9,6 +9,8 @@ using System.Threading;
 using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Authorization;
+using Oqtane.Shared;
 
 namespace Oqtane.Controllers
 {
@@ -24,6 +26,7 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>?tag=x
         [HttpGet]
+        [Authorize(Roles = Constants.HostRole)]
         public async Task<IEnumerable<Package>> Get(string tag)
         {
             List<Package> packages = new List<Package>();
@@ -52,6 +55,7 @@ namespace Oqtane.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = Constants.HostRole)]
         public async Task Post(string packageid, string version, string folder)
         {
             using (var httpClient = new HttpClient())

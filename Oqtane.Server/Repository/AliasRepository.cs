@@ -31,6 +31,7 @@ namespace Oqtane.Repository
         {
             db.Alias.Add(Alias);
             db.SaveChanges();
+            _cache.Remove("aliases");
             return Alias;
         }
 
@@ -38,6 +39,7 @@ namespace Oqtane.Repository
         {
             db.Entry(Alias).State = EntityState.Modified;
             db.SaveChanges();
+            _cache.Remove("aliases");
             return Alias;
         }
 
@@ -50,6 +52,7 @@ namespace Oqtane.Repository
         {
             Alias alias = db.Alias.Find(AliasId);
             db.Alias.Remove(alias);
+            _cache.Remove("aliases");
             db.SaveChanges();
         }
     }

@@ -6,7 +6,7 @@ namespace Oqtane.Services
 {
     public interface IFileService
     {
-        Task UploadFilesAsync(string Folder);
-        Task UploadFilesAsync(string Folder, string FileUploadName);
+        Task<List<string>> GetFilesAsync(string Folder);
+        Task<bool> UploadFilesAsync(string Folder, string[] Files, string FileUploadName);
     }
 }

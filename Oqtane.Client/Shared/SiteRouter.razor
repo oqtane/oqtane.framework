@@ -342,9 +342,10 @@
 
                 // get IModuleControl properties
                 typename = module.ModuleType;
-                if (control == "Settings")
+                // check for core module actions component
+                if (Constants.DefaultModuleActions.Contains(control)) 
                 {
-                    typename = Constants.DefaultSettingsControl;
+                    typename = Constants.DefaultModuleActionsTemplate.Replace("{Control}", control);
                 }
                 Type moduletype = Type.GetType(typename);
                 if (moduletype != null)
@@ -358,7 +359,7 @@
             }
 
             // ensure module's pane exists in current page and if not, assign it to the Admin pane
-            if (!panes.Contains(module.Pane))
+            if (!panes.ToLower().Contains(module.Pane.ToLower()))
             {
                 module.Pane = Constants.AdminPane;
             }

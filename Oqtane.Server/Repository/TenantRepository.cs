@@ -32,6 +32,7 @@ namespace Oqtane.Repository
         {
             db.Tenant.Add(Tenant);
             db.SaveChanges();
+            _cache.Remove("tenants");
             return Tenant;
         }
 
@@ -39,6 +40,7 @@ namespace Oqtane.Repository
         {
             db.Entry(Tenant).State = EntityState.Modified;
             db.SaveChanges();
+            _cache.Remove("tenants");
             return Tenant;
         }
 
@@ -52,6 +54,7 @@ namespace Oqtane.Repository
             Tenant tenant = db.Tenant.Find(TenantId);
             db.Tenant.Remove(tenant);
             db.SaveChanges();
+            _cache.Remove("tenants");
         }
     }
 }

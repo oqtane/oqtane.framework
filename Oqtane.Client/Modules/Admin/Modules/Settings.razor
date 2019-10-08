@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Modules.Admin.ModuleSettings
+﻿@namespace Oqtane.Modules.Admin.Modules
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IThemeService ThemeService
@@ -6,7 +6,7 @@
 @inject IPageModuleService PageModuleService
 
 <table class="table table-borderless">
-    <thead>
+    <tbody>
         <tr>
             <td>
                 <label for="Title" class="control-label">Title: </label>
@@ -15,8 +15,6 @@
                 <input type="text" name="Title" class="form-control" @bind="@title" />
             </td>
         </tr>
-    </thead>
-    <tbody>
         <tr>
             <td>
                 <label for="Container" class="control-label">Container: </label>

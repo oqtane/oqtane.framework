@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -17,7 +18,25 @@ namespace Oqtane.Controllers
             this.environment = environment;
         }
 
-        // GET api/<controller>/current
+        // GET: api/<controller>?folder=x
+        [HttpGet]
+        public IEnumerable<string> Get(string folder)
+        {
+            List<string> files = new List<string>();
+            folder = folder.Replace("/", "\\");
+            if (folder.StartsWith("\\")) folder = folder.Substring(1);
+            folder = Path.Combine(environment.WebRootPath, folder);
+            if (Directory.Exists(folder))
+            {
+                foreach(string file in Directory.GetFiles(folder))
+                {
+                    files.Add(file);
+                }
+            }
+            return files;
+        }
+
+        // POST api/<controller>/upload
         [HttpPost("upload")]
         public async Task UploadFile(string folder, IFormFile file)
         {

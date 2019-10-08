@@ -11,7 +11,7 @@
             <label for="Name" class="control-label">Module: </label>
         </td>
         <td>
-            <FileUpload Filter=".nupkg"></FileUpload>
+            <FileUpload Filter=".nupkg" @ref="fileupload"></FileUpload>
         </td>
     </tr>
 </table>
@@ -50,18 +50,55 @@
 
     bool uploaded = false;
     List<Package> packages;
+    FileUpload fileupload;
 
     protected override async Task OnInitializedAsync()
     {
+        List<ModuleDefinition> moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
         packages = await PackageService.GetPackagesAsync("module");
+        foreach(Package package in packages.ToArray())
+        {
+            if (moduledefinitions.Exists(item => Utilities.GetTypeName(item.ModuleDefinitionName) == package.PackageId))
+            {
+                packages.Remove(package);
+            }
+        }
     }
 
     private async Task UploadFile()
     {
-        await FileService.UploadFilesAsync("Modules");
-        ModuleInstance.AddModuleMessage("Module Uploaded Successfully. Click Install To Complete Installation.", MessageType.Success);
-        uploaded = true;
-        StateHasChanged();
+        string[] files = await fileupload.GetFiles();
+        if (files.Length > 0)
+        {
+            if (files[0].Contains(".Module."))
+            {
+                try
+                {
+                    if (await FileService.UploadFilesAsync("Modules", files, ""))
+                    {
+                        ModuleInstance.AddModuleMessage("Module Uploaded Successfully. Click Install To Complete Installation.", MessageType.Success);
+                        uploaded = true;
+                        StateHasChanged();
+                    }
+                    else
+                    {
+                        ModuleInstance.AddModuleMessage("Module Upload Failed.", MessageType.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ModuleInstance.AddModuleMessage("Module Upload Failed. " + ex.Message, MessageType.Error);
+                }
+            }
+            else
+            {
+                ModuleInstance.AddModuleMessage("Invalid Module Package", MessageType.Error);
+            }
+        }
+        else
+        {
+            ModuleInstance.AddModuleMessage("You Must Select A Module To Upload", MessageType.Warning);
+        }
     }
 
     private async Task InstallModules()

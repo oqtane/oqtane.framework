@@ -35,5 +35,10 @@ namespace Oqtane.Services
         {
             return await http.PostJsonAsync<GenericResponse>(apiurl, connectionstring);
         }
+
+        public async Task<GenericResponse> Upgrade()
+        {
+            return await http.GetJsonAsync<GenericResponse>(apiurl + "/upgrade");
+        }
     }
 }

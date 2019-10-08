@@ -2,6 +2,7 @@
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject ITenantService TenantService
+@inject IInstallationService InstallationService
 
 <table class="table table-borderless">
     <tr>
@@ -41,12 +42,20 @@
 
     private async Task SaveTenant()
     {
-        Tenant tenant = new Tenant();
-        tenant.Name = name;
-        tenant.DBConnectionString = connectionstring;
-        tenant.DBSchema = schema;
-        await TenantService.AddTenantAsync(tenant);
+        GenericResponse response = await InstallationService.Install(connectionstring);
+        if (response.Success)
+        {
+            Tenant tenant = new Tenant();
+            tenant.Name = name;
+            tenant.DBConnectionString = connectionstring;
+            tenant.DBSchema = schema;
+            await TenantService.AddTenantAsync(tenant);
 
-        NavigationManager.NavigateTo(NavigateUrl());
+            NavigationManager.NavigateTo(NavigateUrl());
+        }
+        else
+        {
+            ModuleInstance.AddModuleMessage(response.Message, MessageType.Error);
+        }
     }
 }

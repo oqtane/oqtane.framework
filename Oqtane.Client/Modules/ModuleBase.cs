@@ -3,6 +3,7 @@ using Microsoft.JSInterop;
 using Oqtane.Shared;
 using Oqtane.Models;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Oqtane.Modules
 {
@@ -19,6 +20,14 @@ namespace Oqtane.Modules
 
         [CascadingParameter] 
         protected ModuleInstance ModuleInstance { get; set; }
+
+        protected ModuleDefinition ModuleDefinition
+        {
+            get
+            {
+                return PageState.ModuleDefinitions.Where(item => item.ModuleDefinitionName == ModuleState.ModuleDefinitionName).FirstOrDefault();
+            }
+        }
 
         public virtual SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.View; } set { } } // default security
 

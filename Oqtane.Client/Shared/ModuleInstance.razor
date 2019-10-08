@@ -21,10 +21,12 @@
         DynamicComponent = builder =>
         {
             string typename = ModuleState.ModuleType;
-            if (PageState.Control == "Settings") // module settings are a core component
-        {
-                typename = Constants.DefaultSettingsControl;
+            // check for core module actions component
+            if (Constants.DefaultModuleActions.Contains(PageState.Control)) 
+            {
+                typename = Constants.DefaultModuleActionsTemplate.Replace("{Control}", PageState.Control);
             }
+
             Type moduleType = null;
             if (typename != null)
             {

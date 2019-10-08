@@ -60,5 +60,15 @@ namespace Oqtane.Services
         {
             await http.DeleteAsync(apiurl + "/" + ModuleId.ToString());
         }
+
+        public async Task<bool> ImportModuleAsync(int ModuleId, string Content)
+        {
+            return await http.PostJsonAsync<bool>(apiurl + "/import?moduleid=" + ModuleId, Content);
+        }
+
+        public async Task<string> ExportModuleAsync(int ModuleId)
+        {
+            return await http.GetStringAsync(apiurl + "/export?moduleid=" + ModuleId.ToString());
+        }
     }
 }

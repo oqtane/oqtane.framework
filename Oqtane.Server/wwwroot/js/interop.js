@@ -64,6 +64,16 @@ window.interop = {
         document.body.appendChild(form);
         form.submit();
     },
+    getFiles: function (name) {
+        var files = [];
+        var fileinput = document.getElementById(name);
+        if (fileinput !== null) {
+            for (var i = 0; i < fileinput.files.length; i++) {
+                files.push(fileinput.files[i].name);
+            }
+        } 
+        return files;
+    },
     uploadFiles: function (posturl, folder, name) {
         var files = document.getElementById(name + 'FileInput').files;
         var progressinfo = document.getElementById(name + 'ProgressInfo');

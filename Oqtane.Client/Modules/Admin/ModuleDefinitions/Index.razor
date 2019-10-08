@@ -1,6 +1,8 @@
 ﻿@namespace Oqtane.Modules.Admin.ModuleDefinitions
 @inherits ModuleBase
+@inject NavigationManager NavigationManager
 @inject IModuleDefinitionService ModuleDefinitionService
+@inject IPackageService PackageService
 
 @if (moduledefinitions == null)
 {
@@ -16,12 +18,19 @@ else
             <th>Version</th>
             <th>&nbsp;</th>
             <th>&nbsp;</th>
+            <th>&nbsp;</th>
         </Header>
         <Row>
             <td>@context.Name</td>
             <td>@context.Version</td>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ModuleDefinitionId.ToString())" /></td>
             <td><ActionLink Action="Delete" Parameters="@($"id=" + context.ModuleDefinitionId.ToString())" Class="btn btn-danger" /></td>
+            <td>
+                @if (UpgradeAvailable(context.ModuleDefinitionName, context.Version))
+                {
+                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadModule(context.ModuleDefinitionName, context.Version))>Upgrade</button>
+                }
+            </td>
         </Row>
     </Pager>
 }
@@ -30,9 +39,29 @@ else
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
 
     List<ModuleDefinition> moduledefinitions;
+    List<Package> packages;
 
     protected override async Task OnInitializedAsync()
     {
         moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
+        packages = await PackageService.GetPackagesAsync("module");
+    }
+
+    private bool UpgradeAvailable(string moduledefinitionname, string version)
+    {
+        bool upgradeavailable = false;
+        Package package = packages.Where(item => item.PackageId == Utilities.GetTypeName(moduledefinitionname)).FirstOrDefault();
+        if (package != null)
+        {
+            upgradeavailable = (Version.Parse(package.Version).CompareTo(Version.Parse(version)) > 0);
+        }
+        return upgradeavailable;
+    }
+
+    private async Task DownloadModule(string moduledefinitionname, string version)
+    {
+        await PackageService.DownloadPackageAsync(moduledefinitionname, version, "Modules");
+        await ModuleDefinitionService.InstallModulesAsync();
+        NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
     }
 }

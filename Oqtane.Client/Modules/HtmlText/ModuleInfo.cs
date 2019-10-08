@@ -2,7 +2,7 @@
 
 namespace Oqtane.Modules.HtmlText
 {
-    public class Module : IModule
+    public class ModuleInfo : IModule
     {
         public Dictionary<string, string> Properties
         {
@@ -12,7 +12,8 @@ namespace Oqtane.Modules.HtmlText
                 {
                     { "Name", "HtmlText" },
                     { "Description", "Renders HTML or Text" },
-                    { "Version", "1.0.0" }
+                    { "Version", "1.0.0" },
+                    { "ServerAssemblyName", "Oqtane.Server" }
                 };
                 return properties;
             }

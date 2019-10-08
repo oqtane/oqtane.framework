@@ -48,8 +48,13 @@
                     actions.Add(new ActionViewModel { Action = pane, Name = "Move To " + pane + " Pane" });
                 }
             }
-            actions.Add(new ActionViewModel { Action = "settings", Name = "Settings" });
-            actions.Add(new ActionViewModel { Action = "delete", Name = "Delete" });
+            actions.Add(new ActionViewModel { Action = "settings", Name = "Manage Settings" });
+            if (ModuleDefinition.ServerAssemblyName != "")
+            {
+                actions.Add(new ActionViewModel { Action = "import", Name = "Import Content" });
+                actions.Add(new ActionViewModel { Action = "export", Name = "Export Content" });
+            }
+            actions.Add(new ActionViewModel { Action = "delete", Name = "Delete Module" });
         }
     }
 
@@ -84,6 +89,12 @@
                     break;
                 case "settings":
                     url = EditUrl(pagemodule.ModuleId, "Settings");
+                    break;
+                case "import":
+                    url = EditUrl(pagemodule.ModuleId, "Import");
+                    break;
+                case "export":
+                    url = EditUrl(pagemodule.ModuleId, "Export");
                     break;
                 case "delete":
                     await PageModuleService.DeletePageModuleAsync(pagemodule.PageModuleId);

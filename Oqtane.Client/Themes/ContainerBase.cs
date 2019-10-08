@@ -3,6 +3,7 @@ using Microsoft.JSInterop;
 using Oqtane.Shared;
 using Oqtane.Models;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Oqtane.Themes
 {
@@ -16,6 +17,14 @@ namespace Oqtane.Themes
 
         [CascadingParameter]
         protected Module ModuleState { get; set; }
+
+        protected ModuleDefinition ModuleDefinition
+        {
+            get
+            {
+                return PageState.ModuleDefinitions.Where(item => item.ModuleDefinitionName == ModuleState.ModuleDefinitionName).FirstOrDefault();
+            }
+        }
 
         public virtual string Name { get; set; }
 
