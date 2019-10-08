@@ -89,8 +89,9 @@ else
     Dictionary<string, string> themes = new Dictionary<string, string>();
     Dictionary<string, string> panelayouts = new Dictionary<string, string>();
 
-    List<Alias> aliases;
+    int siteid;
     string name = "";
+    List<Alias> aliases;
     string urls = "";
     string logo = "";
     string themetype;
@@ -104,61 +105,91 @@ else
     DateTime? deletedon;
     string isdeleted;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        aliases = PageState.Aliases.Where(item => item.TenantId == PageState.Alias.TenantId && item.SiteId == PageState.Site.SiteId).ToList();
-        themes = ThemeService.GetThemeTypes(PageState.Themes);
-        panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes);
-        name = PageState.Site.Name;
-        foreach (Alias alias in aliases)
+        try
         {
-            urls += alias.Name + "\n";
-        }
-        logo = PageState.Site.Logo;
-        themetype = PageState.Site.DefaultThemeType;
-        layouttype = PageState.Site.DefaultLayoutType;
+            themes = ThemeService.GetThemeTypes(PageState.Themes);
+            panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes);
 
-        createdby = PageState.Site.CreatedBy;
-        createdon = PageState.Site.CreatedOn;
-        modifiedby = PageState.Site.ModifiedBy;
-        modifiedon = PageState.Site.ModifiedOn;
-        deletedby = PageState.Site.DeletedBy;
-        deletedon = PageState.Site.DeletedOn;
-        isdeleted = PageState.Site.IsDeleted.ToString();
+            siteid = Int32.Parse(PageState.QueryString["id"]);
+            Site site = await SiteService.GetSiteAsync(siteid);
+            if (site != null)
+            {
+                name = site.Name;
+                aliases = PageState.Aliases.Where(item => item.SiteId == site.SiteId).ToList();
+                foreach (Alias alias in aliases)
+                {
+                    urls += alias.Name + "\n";
+                }
+                logo = site.Logo;
+                themetype = site.DefaultThemeType;
+                layouttype = site.DefaultLayoutType;
+
+                createdby = site.CreatedBy;
+                createdon = site.CreatedOn;
+                modifiedby = site.ModifiedBy;
+                modifiedon = site.ModifiedOn;
+                deletedby = site.DeletedBy;
+                deletedon = site.DeletedOn;
+                isdeleted = site.IsDeleted.ToString();
+            }
+        }
+        catch (Exception ex)
+        {
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+        }
     }
 
     private async Task SaveSite()
     {
-        Site site = PageState.Site;
-        site.Name = name;
-        site.Logo = (logo == null ? "" : logo);
-        site.DefaultThemeType = themetype;
-        site.DefaultLayoutType = (layouttype == null ? "" : layouttype);
-        site.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
-
-        site = await SiteService.UpdateSiteAsync(site);
-
-        urls = urls.Replace("\n", ",");
-        string[] names = urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-        foreach (Alias alias in aliases)
+        try
         {
-            if (!names.Contains(alias.Name))
+            if (name != "" && urls != "" && themetype != "")
             {
-                await AliasService.DeleteAliasAsync(alias.AliasId);
+                Site site = await SiteService.GetSiteAsync(siteid);
+                if (site != null)
+                {
+                    site.Name = name;
+                    site.Logo = (logo == null ? "" : logo);
+                    site.DefaultThemeType = themetype;
+                    site.DefaultLayoutType = (layouttype == null ? "" : layouttype);
+                    site.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
+
+                    site = await SiteService.UpdateSiteAsync(site);
+
+                    urls = urls.Replace("\n", ",");
+                    string[] names = urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (Alias alias in aliases)
+                    {
+                        if (!names.Contains(alias.Name))
+                        {
+                            await AliasService.DeleteAliasAsync(alias.AliasId);
+                        }
+                    }
+                    foreach (string name in names)
+                    {
+                        if (!aliases.Exists(item => item.Name == name))
+                        {
+                            Alias alias = new Alias();
+                            alias.Name = name;
+                            alias.TenantId = PageState.Alias.TenantId;
+                            alias.SiteId = site.SiteId;
+                            await AliasService.AddAliasAsync(alias);
+                        }
+                    }
+
+                    NavigationManager.NavigateTo(NavigateUrl());
+                }
+            }
+            else
+            {
+                ModuleInstance.AddModuleMessage("You Must Provide A Site Name, Alias, And Default Theme", MessageType.Warning);
             }
         }
-        foreach (string name in names)
+        catch (Exception ex)
         {
-            if (!aliases.Exists(item => item.Name == name))
-            {
-                Alias alias = new Alias();
-                alias.Name = name;
-                alias.TenantId = PageState.Alias.TenantId;
-                alias.SiteId = site.SiteId;
-                await AliasService.AddAliasAsync(alias);
-            }
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
         }
-
-        NavigationManager.NavigateTo(NavigateUrl());
     }
 }

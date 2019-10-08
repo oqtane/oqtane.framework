@@ -95,8 +95,8 @@ else
     string name = "";
     string urls = "";
     string logo = "";
-    string themetype;
-    string layouttype;
+    string themetype = "";
+    string layouttype = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -108,23 +108,31 @@ else
 
     private async Task SaveSite()
     {
-        Site site = new Site();
-        site.Name = name;
-        site.Logo = (logo == null ? "" : logo);
-        site.DefaultThemeType = themetype;
-        site.DefaultLayoutType = (layouttype == null ? "" : layouttype);
-        site = await SiteService.AddSiteAsync(site);
-
-        urls = urls.Replace("\n", ",");
-        foreach(string name in urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+        if (name != "" && urls != "" && themetype != "")
         {
-            Alias alias = new Alias();
-            alias.Name = name;
-            alias.TenantId = int.Parse(tenantid);
-            alias.SiteId = site.SiteId;
-            await AliasService.AddAliasAsync(alias);
+            Site site = new Site();
+            site.Name = name;
+            site.Logo = (logo == null ? "" : logo);
+            site.DefaultThemeType = themetype;
+            site.DefaultLayoutType = (layouttype == null ? "" : layouttype);
+            site = await SiteService.AddSiteAsync(site);
+
+            urls = urls.Replace("\n", ",");
+            foreach(string name in urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                Alias alias = new Alias();
+                alias.Name = name;
+                alias.TenantId = int.Parse(tenantid);
+                alias.SiteId = site.SiteId;
+                await AliasService.AddAliasAsync(alias);
+            }
+
+            NavigationManager.NavigateTo("http://" + urls.Split(',')[0], true);
+        }
+        else
+        {
+            ModuleInstance.AddModuleMessage("You Must Provide A Site Name, Alias, And Default Theme", MessageType.Warning);
         }
 
-        NavigationManager.NavigateTo("http://" + urls[0], true);
     }
 }
