@@ -42,6 +42,7 @@
 
     private async Task SaveTenant()
     {
+        connectionstring = connectionstring.Replace("\\\\", "\\");
         GenericResponse response = await InstallationService.Install(connectionstring);
         if (response.Success)
         {

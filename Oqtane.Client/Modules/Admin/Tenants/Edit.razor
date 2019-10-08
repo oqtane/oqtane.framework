@@ -60,6 +60,7 @@
     }
     private async Task SaveTenant()
     {
+        connectionstring = connectionstring.Replace("\\\\", "\\");
         Tenant tenant = await TenantService.GetTenantAsync(tenantid);
         if (tenant != null)
         {

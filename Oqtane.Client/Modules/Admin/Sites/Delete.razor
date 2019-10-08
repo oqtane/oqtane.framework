@@ -21,6 +21,14 @@ else
         </tr>
         <tr>
             <td>
+                <label for="Name" class="control-label">Aliases: </label>
+            </td>
+            <td>
+                <textarea class="form-control" @bind="@urls" rows="3" disabled />
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <label for="Name" class="control-label">Logo: </label>
             </td>
             <td>
@@ -80,7 +88,10 @@ else
     Dictionary<string, string> themes = new Dictionary<string, string>();
     Dictionary<string, string> panelayouts = new Dictionary<string, string>();
 
+    int siteid;
     string name = "";
+    List<Alias> aliases;
+    string urls = "";
     string logo = "";
     string themetype;
     string layouttype;
@@ -92,27 +103,52 @@ else
     DateTime? deletedon;
     string isdeleted;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        themes = ThemeService.GetThemeTypes(PageState.Themes);
-        panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes);
-        name = PageState.Site.Name;
-        logo = PageState.Site.Logo;
-        themetype = PageState.Site.DefaultThemeType;
-        layouttype = PageState.Site.DefaultLayoutType;
+        try
+        {
+            themes = ThemeService.GetThemeTypes(PageState.Themes);
+            panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes);
 
-        createdby = PageState.Site.CreatedBy;
-        createdon = PageState.Site.CreatedOn;
-        modifiedby = PageState.Site.ModifiedBy;
-        modifiedon = PageState.Site.ModifiedOn;
-        deletedby = PageState.Site.DeletedBy;
-        deletedon = PageState.Site.DeletedOn;
-        isdeleted = PageState.Site.IsDeleted.ToString();
+            siteid = Int32.Parse(PageState.QueryString["id"]);
+            Site site = await SiteService.GetSiteAsync(siteid);
+            if (site != null)
+            {
+                name = site.Name;
+                aliases = PageState.Aliases.Where(item => item.SiteId == site.SiteId).ToList();
+                foreach (Alias alias in aliases)
+                {
+                    urls += alias.Name + "\n";
+                }
+                logo = site.Logo;
+                themetype = site.DefaultThemeType;
+                layouttype = site.DefaultLayoutType;
+
+                createdby = site.CreatedBy;
+                createdon = site.CreatedOn;
+                modifiedby = site.ModifiedBy;
+                modifiedon = site.ModifiedOn;
+                deletedby = site.DeletedBy;
+                deletedon = site.DeletedOn;
+                isdeleted = site.IsDeleted.ToString();
+            }
+        }
+        catch (Exception ex)
+        {
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+        }
     }
 
     private async Task DeleteSite()
     {
-        await SiteService.DeleteSiteAsync(PageState.Site.SiteId);
-        NavigationManager.NavigateTo(NavigateUrl());
+        try
+        {
+            await SiteService.DeleteSiteAsync(PageState.Site.SiteId);
+            NavigationManager.NavigateTo(NavigateUrl());
+        }
+        catch (Exception ex)
+        {
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+        }
     }
 }

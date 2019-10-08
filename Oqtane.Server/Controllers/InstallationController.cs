@@ -38,7 +38,7 @@ namespace Oqtane.Controllers
             {
                 bool master = false;
                 string defaultconnectionstring = Config.GetConnectionString("DefaultConnection");
-                if (string.IsNullOrEmpty(defaultconnectionstring) || connectionstring != defaultconnectionstring)
+                if (string.IsNullOrEmpty(defaultconnectionstring) || connectionstring == defaultconnectionstring)
                 {
                     master = true;
                 }
@@ -126,7 +126,7 @@ namespace Oqtane.Controllers
                             {
                                 initializationScript = reader.ReadToEnd();
                             }
-                            initializationScript = initializationScript.Replace("{ConnectionString}", connectionstring);
+                            initializationScript = initializationScript.Replace("{ConnectionString}", connectionstring.Replace(datadirectory, "|DataDirectory|"));
                             initializationScript = initializationScript.Replace("{Alias}", HttpContext.Request.Host.Value);
                         }
 
@@ -218,8 +218,11 @@ namespace Oqtane.Controllers
                     {
                         foreach (Tenant tenant in db.Tenant.ToList())
                         {
+                            connectionString = tenant.DBConnectionString;
+                            connectionString = connectionString.Replace("|DataDirectory|", datadirectory);
+
                             // upgrade framework
-                            dbUpgradeConfig = DeployChanges.To.SqlDatabase(tenant.DBConnectionString)
+                            dbUpgradeConfig = DeployChanges.To.SqlDatabase(connectionString)
                                 .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly());
                             dbUpgrade = dbUpgradeConfig.Build();
                             if (dbUpgrade.IsUpgradeRequired())
@@ -233,7 +236,7 @@ namespace Oqtane.Controllers
                             // iterate through Oqtane module assemblies and execute any database scripts
                             foreach (Assembly assembly in assemblies)
                             {
-                                InstallModule(assembly, tenant.DBConnectionString);
+                                InstallModule(assembly, connectionString);
                             }
                         }
                     }
