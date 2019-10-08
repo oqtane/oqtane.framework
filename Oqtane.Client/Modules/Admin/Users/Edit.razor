@@ -62,9 +62,23 @@
                 </td>
             </tr>
         }
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Is Deleted? </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@isdeleted">
+                    <option value="True">Yes</option>
+                    <option value="False">No</option>
+                </select>
+            </td>
+        </tr>
     </table>
     <button type="button" class="btn btn-primary" @onclick="SaveUser">Save</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <br />
+    <br />
+    <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>
 }
 
 @code {
@@ -78,6 +92,13 @@
     List<Profile> profiles;
     Dictionary<string, string> settings;
     string category = "";
+    string createdby;
+    DateTime createdon;
+    string modifiedby;
+    DateTime modifiedon;
+    string deletedby;
+    DateTime? deletedon;
+    string isdeleted;
 
     protected override async Task OnInitializedAsync()
     {
@@ -93,6 +114,13 @@
                 email = user.Email;
                 displayname = user.DisplayName;
                 settings = await SettingService.GetUserSettingsAsync(user.UserId);
+                createdby = user.CreatedBy;
+                createdon = user.CreatedOn;
+                modifiedby = user.ModifiedBy;
+                modifiedon = user.ModifiedOn;
+                deletedby = user.DeletedBy;
+                deletedon = user.DeletedOn;
+                isdeleted = user.IsDeleted.ToString();
             }
         }
         catch (Exception ex)
@@ -115,7 +143,9 @@
             user.Username = username;
             user.Password = password;
             user.Email = email;
-            user.DisplayName = displayname;
+            user.DisplayName = string.IsNullOrWhiteSpace(user.DisplayName) ? user.Username : user.DisplayName;
+            user.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
+
             user = await UserService.UpdateUserAsync(user);
             await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
 

@@ -100,8 +100,10 @@
             user.Username = username;
             user.Password = password;
             user.Email = email;
-            user.DisplayName = displayname;
+            user.DisplayName = string.IsNullOrWhiteSpace(user.DisplayName) ? user.Username : user.DisplayName;
+
             user = await UserService.AddUserAsync(user);
+            
             if (user != null)
             {
                 await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
