@@ -2,7 +2,7 @@
 
 namespace Oqtane.Models
 {
-    public class Site : IAuditable
+    public class Site : IAuditable, IDeletable
     {
         public int SiteId { get; set; }
         public string Name { get; set; }
@@ -15,5 +15,8 @@ namespace Oqtane.Models
         public DateTime CreatedOn { get; set; }
         public string ModifiedBy { get; set; }
         public DateTime ModifiedOn { get; set; }
+        public string DeletedBy { get; set; }
+        public DateTime? DeletedOn { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

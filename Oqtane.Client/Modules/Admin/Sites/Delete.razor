@@ -16,7 +16,7 @@ else
                 <label for="Name" class="control-label">Name: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@name" readonly />
+                <input class="form-control" @bind="@name" disabled />
             </td>
         </tr>
         <tr>
@@ -24,7 +24,7 @@ else
                 <label for="Name" class="control-label">Logo: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@logo" readonly />
+                <input class="form-control" @bind="@logo" disabled />
             </td>
         </tr>
         <tr>
@@ -32,7 +32,7 @@ else
                 <label for="Name" class="control-label">Default Theme: </label>
             </td>
             <td>
-                <select class="form-control" @bind="@themetype" readonly>
+                <select class="form-control" @bind="@themetype" disabled>
                     <option value="">&lt;Select Theme&gt;</option>
                     @foreach (KeyValuePair<string, string> item in themes)
                     {
@@ -46,7 +46,7 @@ else
                 <label for="Name" class="control-label">Default Layout: </label>
             </td>
             <td>
-                <select class="form-control" @bind="@layouttype" readonly>
+                <select class="form-control" @bind="@layouttype" disabled>
                     <option value="">&lt;Select Layout&gt;</option>
                     @foreach (KeyValuePair<string, string> panelayout in panelayouts)
                     {
@@ -55,9 +55,23 @@ else
                 </select>
             </td>
         </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Is Deleted? </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@isdeleted" disabled>
+                    <option value="True">Yes</option>
+                    <option value="False">No</option>
+                </select>
+            </td>
+        </tr>
     </table>
     <button type="button" class="btn btn-success" @onclick="DeleteSite">Delete</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <br />
+    <br />
+    <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>
 }
 
 @code {
@@ -70,6 +84,13 @@ else
     string logo = "";
     string themetype;
     string layouttype;
+    string createdby;
+    DateTime createdon;
+    string modifiedby;
+    DateTime modifiedon;
+    string deletedby;
+    DateTime? deletedon;
+    string isdeleted;
 
     protected override void OnInitialized()
     {
@@ -79,6 +100,14 @@ else
         logo = PageState.Site.Logo;
         themetype = PageState.Site.DefaultThemeType;
         layouttype = PageState.Site.DefaultLayoutType;
+
+        createdby = PageState.Site.CreatedBy;
+        createdon = PageState.Site.CreatedOn;
+        modifiedby = PageState.Site.ModifiedBy;
+        modifiedon = PageState.Site.ModifiedOn;
+        deletedby = PageState.Site.DeletedBy;
+        deletedon = PageState.Site.DeletedOn;
+        isdeleted = PageState.Site.IsDeleted.ToString();
     }
 
     private async Task DeleteSite()
