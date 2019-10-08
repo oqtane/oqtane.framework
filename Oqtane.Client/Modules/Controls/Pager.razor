@@ -98,7 +98,7 @@
 
     public void UpdateList(int CurrentPage)
     {
-        ItemList = Items.Skip((Page - 1) * MaxItems).Take(MaxItems);
+        ItemList = Items.Skip((CurrentPage - 1) * MaxItems).Take(MaxItems);
         Page = CurrentPage;
         StateHasChanged();
     }
