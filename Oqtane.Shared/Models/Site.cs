@@ -1,12 +1,10 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 
 namespace Oqtane.Models
 {
     public class Site : IAuditable, IDeletable
     {
         public int SiteId { get; set; }
-        [StringLength(20, ErrorMessage = "Length must be more than 5 and less than 20 characters", MinimumLength = 5)]
         public string Name { get; set; }
         public string Logo { get; set; }
         public string DefaultThemeType { get; set; }
