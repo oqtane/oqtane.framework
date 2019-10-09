@@ -1,0 +1,51 @@
+﻿@namespace Oqtane.Modules.Admin.Files
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject IFileService FileService
+
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Files: </label>
+        </td>
+        <td>
+            <FileUpload Multiple="true" @ref="fileupload"></FileUpload>
+        </td>
+    </tr>
+</table>
+<button type="button" class="btn btn-primary" @onclick="UploadFile">Upload</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+
+    FileUpload fileupload;
+
+    private async Task UploadFile()
+    {
+        string[] files = await fileupload.GetFiles();
+        if (files.Length > 0)
+        {
+            try
+            {
+                if (await FileService.UploadFilesAsync(PageState.Site.SiteRootPath, files, ""))
+                {
+                    ModuleInstance.AddModuleMessage("Files Uploaded Successfully", MessageType.Success);
+                }
+                else
+                {
+                    ModuleInstance.AddModuleMessage("Upload Failed", MessageType.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                ModuleInstance.AddModuleMessage("Upload Failed. " + ex.Message, MessageType.Error);
+            }
+        }
+        else
+        {
+            ModuleInstance.AddModuleMessage("You Must Select Some Files To Upload", MessageType.Warning);
+        }
+    }
+}

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Models
 {
@@ -19,5 +20,23 @@ namespace Oqtane.Models
         public string DeletedBy { get; set; }
         public DateTime? DeletedOn { get; set; }
         public bool IsDeleted { get; set; }
+
+        [NotMapped]
+        public string TenantRootPath
+        {
+            get
+            {
+                return "Tenants/" + TenantId.ToString() + "/";
+            }
+        }
+
+        [NotMapped]
+        public string SiteRootPath
+        {
+            get
+            {
+                return "Tenants/" + TenantId.ToString() + "/Sites/" + SiteId.ToString() + "/";
+            }
+        }
     }
 }

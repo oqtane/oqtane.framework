@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -37,19 +38,34 @@ namespace Oqtane.Services
             bool success = false;
             var interop = new Interop(jsRuntime);
             await interop.UploadFiles(apiurl + "/upload", Folder, FileUploadName);
-            List<string> files = await GetFilesAsync(Folder);
-            if (files.Count > 0)
+
+            // uploading files is asynchronous so we need to wait for the upload to complete
+            int attempts = 0;
+            while (attempts < 5 && success == false)
             {
-                success = true;
-                foreach (string file in Files)
+                Thread.Sleep(2000); // wait 2 seconds
+
+                List<string> files = await GetFilesAsync(Folder);
+                if (files.Count > 0)
                 {
-                    if (!files.Contains(file))
+                    success = true;
+                    foreach (string file in Files)
                     {
-                        success = false;
+                        if (!files.Contains(file))
+                        {
+                            success = false;
+                        }
                     }
                 }
+                attempts += 1;
             }
+
             return success;
+        }
+
+        public async Task DeleteFileAsync(string Folder, string File)
+        {
+            await http.DeleteAsync(apiurl + "?folder=" + Folder + "&file=" + File);
         }
     }
 }

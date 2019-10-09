@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Oqtane.Shared;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,7 +14,8 @@ namespace Oqtane.Controllers
     public class FileController : Controller
     {
         private readonly IWebHostEnvironment environment;
-        
+        private readonly string WhiteList = "jpg,jpeg,jpe,gif,bmp,png,mov,wmv,avi,mp4,mp3,doc,docx,xls,xlsx,ppt,pptx,pdf,txt,zip,nupkg";
+
         public FileController(IWebHostEnvironment environment)
         {
             this.environment = environment;
@@ -23,14 +26,12 @@ namespace Oqtane.Controllers
         public IEnumerable<string> Get(string folder)
         {
             List<string> files = new List<string>();
-            folder = folder.Replace("/", "\\");
-            if (folder.StartsWith("\\")) folder = folder.Substring(1);
-            folder = Path.Combine(environment.WebRootPath, folder);
+            folder = GetFolder(folder);
             if (Directory.Exists(folder))
             {
-                foreach(string file in Directory.GetFiles(folder))
+                foreach (string file in Directory.GetFiles(folder))
                 {
-                    files.Add(file);
+                    files.Add(Path.GetFileName(file));
                 }
             }
             return files;
@@ -38,16 +39,12 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>/upload
         [HttpPost("upload")]
+        [Authorize(Roles = Constants.AdminRole)]
         public async Task UploadFile(string folder, IFormFile file)
         {
             if (file.Length > 0)
             {
-                if (!folder.Contains(":\\"))
-                {
-                    folder = folder.Replace("/", "\\");
-                    if (folder.StartsWith("\\")) folder = folder.Substring(1);
-                    folder = Path.Combine(environment.WebRootPath, folder);
-                }
+                folder = GetFolder(folder);
                 if (!Directory.Exists(folder))
                 {
                     Directory.CreateDirectory(folder);
@@ -85,7 +82,7 @@ namespace Oqtane.Controllers
                                 await chunk.CopyToAsync(stream);
                             }
                         }
-                        catch 
+                        catch
                         {
                             success = false;
                         }
@@ -98,6 +95,13 @@ namespace Oqtane.Controllers
                     foreach (string filepart in fileparts)
                     {
                         System.IO.File.Delete(filepart);
+                    }
+
+                    // check for allowable file extensions
+                    if (!WhiteList.Contains(Path.GetExtension(filename).Replace(".", "")))
+                    {
+                        System.IO.File.Delete(Path.Combine(folder, filename));
+                        success = false;
                     }
                 }
             }
@@ -112,6 +116,25 @@ namespace Oqtane.Controllers
                     System.IO.File.Delete(filepart);
                 }
             }
+        }
+
+        // DELETE api/<controller>/?folder=x&file=y
+        [HttpDelete]
+        [Authorize(Roles = Constants.AdminRole)]
+        public void Delete(string folder, string file)
+        {
+            file = Path.Combine(GetFolder(folder) + file);
+            if (System.IO.File.Exists(file))
+            {
+                System.IO.File.Delete(file);
+            }
+        }
+
+        private string GetFolder(string folder)
+        {
+            folder = folder.Replace("/", "\\");
+            if (folder.StartsWith("\\")) folder = folder.Substring(1);
+            return Path.Combine(environment.WebRootPath, folder);
         }
     }
 }
