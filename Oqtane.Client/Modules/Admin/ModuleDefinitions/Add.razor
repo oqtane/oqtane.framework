@@ -103,7 +103,7 @@
 
     private async Task InstallModules()
     {
-        await ModuleDefinitionService.InstallModulesAsync();
+        await ModuleDefinitionService.InstallModuleDefinitionsAsync();
         NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
     }
 

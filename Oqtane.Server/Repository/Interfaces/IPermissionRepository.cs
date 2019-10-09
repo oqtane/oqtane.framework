@@ -13,6 +13,7 @@ namespace Oqtane.Repository
         void UpdatePermissions(int SiteId, string EntityName, int EntityId, string Permissions);
         Permission GetPermission(int PermissionId);
         void DeletePermission(int PermissionId);
+        void DeletePermissions(int SiteId, string EntityName, int EntityId);
         string EncodePermissions(int EntityId, IEnumerable<Permission> Permissions);
         IEnumerable<Permission> DecodePermissions(string Permissions, int SiteId, string EntityName, int EntityId);
      }

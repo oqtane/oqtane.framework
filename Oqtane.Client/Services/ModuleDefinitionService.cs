@@ -69,9 +69,14 @@ namespace Oqtane.Services
             await http.PutJsonAsync(apiurl + "/" + ModuleDefinition.ModuleDefinitionId.ToString(), ModuleDefinition);
         }
 
-        public async Task InstallModulesAsync()
+        public async Task InstallModuleDefinitionsAsync()
         {
             await http.GetJsonAsync<List<string>>(apiurl + "/install");
+        }
+
+        public async Task DeleteModuleDefinitionAsync(int ModuleDefinitionId, int SiteId)
+        {
+            await http.DeleteAsync(apiurl + "/" + ModuleDefinitionId.ToString() + "?siteid=" + SiteId.ToString());
         }
     }
 }

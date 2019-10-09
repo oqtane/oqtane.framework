@@ -117,7 +117,7 @@ else
             if (site != null)
             {
                 name = site.Name;
-                aliases = PageState.Aliases.Where(item => item.SiteId == site.SiteId).ToList();
+                aliases = PageState.Aliases.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList();
                 foreach (Alias alias in aliases)
                 {
                     urls += alias.Name + "\n";
@@ -173,7 +173,7 @@ else
                         {
                             Alias alias = new Alias();
                             alias.Name = name;
-                            alias.TenantId = PageState.Alias.TenantId;
+                            alias.TenantId = site.TenantId;
                             alias.SiteId = site.SiteId;
                             await AliasService.AddAliasAsync(alias);
                         }

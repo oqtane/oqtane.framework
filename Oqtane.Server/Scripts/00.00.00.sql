@@ -6,6 +6,7 @@ Create tables
 
 CREATE TABLE [dbo].[Site](
 	[SiteId] [int] IDENTITY(1,1) NOT NULL,
+	[TenantId] [int] NOT NULL,
 	[Name] [nvarchar](200) NOT NULL,
 	[Logo] [nvarchar](50) NOT NULL,
 	[DefaultThemeType] [nvarchar](200) NOT NULL,
