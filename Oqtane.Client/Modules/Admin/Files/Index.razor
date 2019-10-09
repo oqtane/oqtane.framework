@@ -1,0 +1,44 @@
+﻿@namespace Oqtane.Modules.Admin.Files
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject IFileService FileService
+
+@if (Files == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <ActionLink Action="Add" Text="Add File" Style="float: right; margin: 10px;" />
+
+    <Pager Items="@Files">
+        <Header>
+            <th>Name</th>
+            <th>&nbsp;</th>
+        </Header>
+        <Row>
+            <td>@context</td>
+            <td>
+                <button type="button" class="btn btn-danger" @onclick=@(async () => await DeleteFile(context))>Delete</button>
+            </td>
+        </Row>
+    </Pager>
+}
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+
+    List<string> Files;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Files = await FileService.GetFilesAsync(PageState.Site.SiteRootPath);
+    }
+
+    private async Task DeleteFile(string filename)
+    {
+        await FileService.DeleteFileAsync(PageState.Site.SiteRootPath, filename);
+        Files = await FileService.GetFilesAsync(PageState.Site.SiteRootPath);
+        ModuleInstance.AddModuleMessage("File Deleted", MessageType.Success);
+    }
+}

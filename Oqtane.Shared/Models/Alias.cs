@@ -57,41 +57,5 @@ namespace Oqtane.Models
                 }
             }
         }
-
-        [NotMapped]
-        public string TenantRootPath
-        {
-            get
-            {
-                return "Tenants/" + TenantId.ToString() + "/";
-            }
-        }
-
-        [NotMapped]
-        public string TenantRootUrl
-        {
-            get
-            {
-                return BaseUrl + "/Tenants/" + TenantId.ToString() + "/";
-            }
-        }
-
-        [NotMapped]
-        public string SiteRootPath
-        {
-            get
-            {
-                return "Tenants/" + TenantId.ToString() + "/Sites/" + SiteId.ToString() + "/";
-            }
-        }
-
-        [NotMapped]
-        public string SiteRootUrl
-        {
-            get
-            {
-                return BaseUrl + "/Tenants/" + TenantId.ToString() + "/Sites/" + SiteId.ToString() + "/";
-            }
-        }
     }
 }
