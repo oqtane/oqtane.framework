@@ -61,10 +61,10 @@ namespace Oqtane.Services
             return themes.OrderBy(item => item.Name).ToList();
         }
 
-        public Dictionary<string, string> GetThemeTypes(List<Theme> themes)
+        public Dictionary<string, string> GetThemeTypes(List<Theme> Themes)
         {
             var selectableThemes = new Dictionary<string, string>();
-            foreach (Theme theme in themes)
+            foreach (Theme theme in Themes)
             {
                 foreach (string themecontrol in theme.ThemeControls.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
                 {
@@ -74,10 +74,10 @@ namespace Oqtane.Services
             return selectableThemes;
         }
 
-        public Dictionary<string, string> GetPaneLayoutTypes(List<Theme> themes)
+        public Dictionary<string, string> GetPaneLayoutTypes(List<Theme> Themes)
         {
             var selectablePaneLayouts = new Dictionary<string, string>();
-            foreach (Theme theme in themes)
+            foreach (Theme theme in Themes)
             {
                 foreach (string panelayout in theme.PaneLayouts.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
                 {
@@ -87,10 +87,10 @@ namespace Oqtane.Services
             return selectablePaneLayouts;
         }
 
-        public Dictionary<string, string> GetContainerTypes(List<Theme> themes)
+        public Dictionary<string, string> GetContainerTypes(List<Theme> Themes)
         {
             var selectableContainers = new Dictionary<string, string>();
-            foreach (Theme theme in themes)
+            foreach (Theme theme in Themes)
             {
                 foreach (string container in theme.ContainerControls.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
                 {
@@ -103,6 +103,11 @@ namespace Oqtane.Services
         public async Task InstallThemesAsync()
         {
             await http.GetJsonAsync<List<string>>(apiurl + "/install");
+        }
+
+        public async Task DeleteThemeAsync(string ThemeName)
+        {
+            await http.DeleteAsync(apiurl + "/" + ThemeName);
         }
     }
 }

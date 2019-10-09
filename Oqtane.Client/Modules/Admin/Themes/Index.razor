@@ -22,7 +22,12 @@ else
         <Row>
             <td>@context.Name</td>
             <td>@context.Version</td>
-            <td><ActionLink Action="Delete" Parameters="@($"id=" + context.ThemeName)" Class="btn btn-danger" /></td>
+            <td>
+                @if (context.AssemblyName != "Oqtane.Client")
+                {
+                    <button type="button" class="btn btn-danger" @onclick=@(async () => await DeleteTheme(context.ThemeName))>Delete</button>
+                }
+            </td>
             <td>
                 @if (UpgradeAvailable(context.ThemeName, context.Version))
                 {
@@ -60,6 +65,12 @@ else
     {
         await PackageService.DownloadPackageAsync(themename, version, "Themes");
         await ThemeService.InstallThemesAsync();
+        NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
+    }
+
+    private async Task DeleteTheme(string themename)
+    {
+        await ThemeService.DeleteThemeAsync(themename);
         NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
     }
 }

@@ -77,8 +77,13 @@ namespace Oqtane.Infrastructure
             if (install)
             {
                 // restart application
-                HostApplicationLifetime.StopApplication();
+                RestartApplication();
             }
+        }
+
+        public void RestartApplication()
+        {
+            HostApplicationLifetime.StopApplication();
         }
     }
 }

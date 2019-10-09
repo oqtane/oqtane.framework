@@ -108,9 +108,10 @@ else
 
     private async Task SaveSite()
     {
-        if (name != "" && urls != "" && themetype != "")
+        if (tenantid != "-1" && name != "" && urls != "" && themetype != "")
         {
             Site site = new Site();
+            site.TenantId = int.Parse(tenantid);
             site.Name = name;
             site.Logo = (logo == null ? "" : logo);
             site.DefaultThemeType = themetype;
@@ -131,7 +132,7 @@ else
         }
         else
         {
-            ModuleInstance.AddModuleMessage("You Must Provide A Site Name, Alias, And Default Theme", MessageType.Warning);
+            ModuleInstance.AddModuleMessage("You Must Provide A Tenant, Site Name, Alias, And Default Theme", MessageType.Warning);
         }
 
     }

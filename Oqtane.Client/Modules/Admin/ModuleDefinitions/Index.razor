@@ -24,7 +24,12 @@ else
             <td>@context.Name</td>
             <td>@context.Version</td>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ModuleDefinitionId.ToString())" /></td>
-            <td><ActionLink Action="Delete" Parameters="@($"id=" + context.ModuleDefinitionId.ToString())" Class="btn btn-danger" /></td>
+            <td>
+                @if (context.AssemblyName != "Oqtane.Client")
+                {
+                    <button type="button" class="btn btn-danger" @onclick=@(async () => await DeleteModule(context.ModuleDefinitionId, context.SiteId))>Delete</button>
+                }
+            </td>
             <td>
                 @if (UpgradeAvailable(context.ModuleDefinitionName, context.Version))
                 {
@@ -61,7 +66,13 @@ else
     private async Task DownloadModule(string moduledefinitionname, string version)
     {
         await PackageService.DownloadPackageAsync(moduledefinitionname, version, "Modules");
-        await ModuleDefinitionService.InstallModulesAsync();
+        await ModuleDefinitionService.InstallModuleDefinitionsAsync();
+        NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
+    }
+
+    private async Task DeleteModule(int moduledefinitionid, int siteid)
+    {
+        await ModuleDefinitionService.DeleteModuleDefinitionAsync(moduledefinitionid, siteid);
         NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
     }
 }

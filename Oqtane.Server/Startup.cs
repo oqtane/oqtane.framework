@@ -187,8 +187,8 @@ namespace Oqtane.Server
                 Assembly assembly = assemblies.Where(item => item.Location == file.FullName).FirstOrDefault();
                 if (assembly == null)
                 {
-                    // load assembly ( as long as dependencies are in /bin they will load as well )
-                    assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName);
+                    // load assembly from stream to prevent locking file ( as long as dependencies are in /bin they will load as well )
+                    assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(file.FullName)));
                     moduleassemblies.Add(assembly);
                 }
             }
@@ -200,8 +200,8 @@ namespace Oqtane.Server
                 Assembly assembly = assemblies.Where(item => item.Location == file.FullName).FirstOrDefault();
                 if (assembly == null)
                 {
-                    // load assembly ( as long as dependencies are in /bin they will load as well )
-                    assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName);
+                    // load assembly from stream to prevent locking file ( as long as dependencies are in /bin they will load as well )
+                    assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(file.FullName)));
                 }
             }
 
@@ -374,9 +374,8 @@ namespace Oqtane.Server
                 Assembly assembly = assemblies.Where(item => item.Location == file.FullName).FirstOrDefault();
                 if (assembly == null)
                 {
-                    // load assembly ( as long as dependencies are in /bin they will load as well )
-                    assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName);
-                    moduleassemblies.Add(assembly);
+                    // load assembly from stream to prevent locking file ( as long as dependencies are in /bin they will load as well )
+                    assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(file.FullName)));
                 }
             }
 
@@ -387,8 +386,8 @@ namespace Oqtane.Server
                 Assembly assembly = assemblies.Where(item => item.Location == file.FullName).FirstOrDefault();
                 if (assembly == null)
                 {
-                    // load assembly ( as long as dependencies are in /bin they will load as well )
-                    assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName);
+                    // load assembly from stream to prevent locking file ( as long as dependencies are in /bin they will load as well )
+                    assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(file.FullName)));
                 }
             }
 

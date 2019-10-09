@@ -5,6 +5,7 @@ namespace Oqtane.Models
     public class Site : IAuditable, IDeletable
     {
         public int SiteId { get; set; }
+        public int TenantId { get; set; }
         public string Name { get; set; }
         public string Logo { get; set; }
         public string DefaultThemeType { get; set; }

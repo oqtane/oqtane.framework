@@ -186,5 +186,13 @@ namespace Oqtane.Repository
         {
             Permissions.UpdatePermissions(ModuleDefinition.SiteId, "ModuleDefinition", ModuleDefinition.ModuleDefinitionId, ModuleDefinition.Permissions);
         }
+
+        public void DeleteModuleDefinition(int ModuleDefinitionId, int SiteId)
+        {
+            ModuleDefinition ModuleDefinition = db.ModuleDefinition.Find(ModuleDefinitionId);
+            Permissions.DeletePermissions(SiteId, "ModuleDefinition", ModuleDefinitionId);
+            db.ModuleDefinition.Remove(ModuleDefinition);
+            db.SaveChanges();
+        }
     }
 }

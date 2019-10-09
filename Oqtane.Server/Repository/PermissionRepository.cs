@@ -61,8 +61,9 @@ namespace Oqtane.Repository
             // get current permissions and delete
             IEnumerable<Permission> permissions = db.Permission
                 .Where(item => item.EntityName == EntityName)
-                .Where(item => item.EntityId == EntityId);
-            foreach(Permission permission in permissions)
+                .Where(item => item.EntityId == EntityId)
+                .Where(item => item.SiteId == SiteId);
+            foreach (Permission permission in permissions)
             {
                 db.Permission.Remove(permission);
             }
@@ -84,6 +85,19 @@ namespace Oqtane.Repository
         {
             Permission Permission = db.Permission.Find(PermissionId);
             db.Permission.Remove(Permission);
+            db.SaveChanges();
+        }
+
+        public void DeletePermissions(int SiteId, string EntityName, int EntityId)
+        {
+            IEnumerable<Permission> permissions = db.Permission
+                .Where(item => item.EntityName == EntityName)
+                .Where(item => item.EntityId == EntityId)
+                .Where(item => item.SiteId == SiteId);
+            foreach (Permission permission in permissions)
+            {
+                db.Permission.Remove(permission);
+            }
             db.SaveChanges();
         }
 

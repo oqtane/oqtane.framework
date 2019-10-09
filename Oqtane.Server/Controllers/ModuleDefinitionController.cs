@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using Oqtane.Infrastructure;
 using System.IO;
 using System.Reflection;
+using System.Linq;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Oqtane.Controllers
 {
@@ -15,11 +17,13 @@ namespace Oqtane.Controllers
     {
         private readonly IModuleDefinitionRepository ModuleDefinitions;
         private readonly IInstallationManager InstallationManager;
+        private readonly IWebHostEnvironment environment;
 
-        public ModuleDefinitionController(IModuleDefinitionRepository ModuleDefinitions, IInstallationManager InstallationManager)
+        public ModuleDefinitionController(IModuleDefinitionRepository ModuleDefinitions, IInstallationManager InstallationManager, IWebHostEnvironment environment)
         {
             this.ModuleDefinitions = ModuleDefinitions;
             this.InstallationManager = InstallationManager;
+            this.environment = environment;
         }
 
         // GET: api/<controller>?siteid=x
@@ -54,6 +58,35 @@ namespace Oqtane.Controllers
         public void InstallModules()
         {
             InstallationManager.InstallPackages("Modules");
+        }
+
+        // DELETE api/<controller>/5?siteid=x
+        [HttpDelete("{id}")]
+        [Authorize(Roles = Constants.HostRole)]
+        public void Delete(int id, int siteid)
+        {
+            List<ModuleDefinition> moduledefinitions = ModuleDefinitions.GetModuleDefinitions(siteid).ToList();
+            ModuleDefinition moduledefinition = moduledefinitions.Where(item => item.ModuleDefinitionId == id).FirstOrDefault();
+            if (moduledefinition != null)
+            {
+                string moduledefinitionname = moduledefinition.ModuleDefinitionName.Substring(0, moduledefinition.ModuleDefinitionName.IndexOf(","));
+
+                string folder = Path.Combine(environment.WebRootPath, "Modules\\" + moduledefinitionname);
+                if (Directory.Exists(folder))
+                {
+                    Directory.Delete(folder, true);
+                }
+
+                string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                foreach (string file in Directory.EnumerateFiles(binfolder, moduledefinitionname + "*.dll"))
+                {
+                    System.IO.File.Delete(file);
+                }
+
+                ModuleDefinitions.DeleteModuleDefinition(id, siteid);
+
+                InstallationManager.RestartApplication();
+            }
         }
     }
 }
