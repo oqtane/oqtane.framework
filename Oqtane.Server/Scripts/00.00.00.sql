@@ -18,7 +18,7 @@ CREATE TABLE [dbo].[Site](
 	[ModifiedOn] [datetime] NOT NULL,
 	[DeletedBy] [nvarchar](256) NULL,
 	[DeletedOn] [datetime] NULL,
-	[IsDeleted][bit] NOT NULL
+	[IsDeleted][bit] NOT NULL,
   CONSTRAINT [PK_Site] PRIMARY KEY CLUSTERED 
   (
 	[SiteId] ASC
@@ -44,7 +44,7 @@ CREATE TABLE [dbo].[Page](
 	[ModifiedOn] [datetime] NOT NULL,
 	[DeletedBy] [nvarchar](256) NULL,
 	[DeletedOn] [datetime] NULL,
-	[IsDeleted][bit] NOT NULL
+	[IsDeleted][bit] NOT NULL,
   CONSTRAINT [PK_Page] PRIMARY KEY CLUSTERED 
   (
 	[PageId] ASC
@@ -79,6 +79,9 @@ CREATE TABLE [dbo].[PageModule](
 	[CreatedOn] [datetime] NOT NULL,
 	[ModifiedBy] [nvarchar](256) NOT NULL,
 	[ModifiedOn] [datetime] NOT NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedOn] [datetime] NULL,
+	[IsDeleted][bit] NOT NULL,
   CONSTRAINT [PK_PageModule] PRIMARY KEY CLUSTERED 
   (
 	[PageModuleId] ASC
@@ -97,7 +100,7 @@ CREATE TABLE [dbo].[User](
 	[ModifiedOn] [datetime] NOT NULL,
 	[DeletedBy] [nvarchar](256) NULL,
 	[DeletedOn] [datetime] NULL,
-	[IsDeleted][bit] NOT NULL
+	[IsDeleted][bit] NOT NULL,
   CONSTRAINT [PK_User] PRIMARY KEY CLUSTERED 
   (
 	[UserId] ASC
