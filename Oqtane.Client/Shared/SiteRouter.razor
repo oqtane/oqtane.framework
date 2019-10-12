@@ -38,7 +38,7 @@
         {
             if (PageState != null)
             {
-                builder.OpenComponent(0, Type.GetType(Constants.DefaultPage));
+                builder.OpenComponent(0, Type.GetType(Constants.PageComponent));
                 builder.CloseComponent();
             }
         };
@@ -343,7 +343,7 @@
                 // get IModuleControl properties
                 typename = module.ModuleType;
                 // check for core module actions component
-                if (Constants.DefaultModuleActions.Contains(control)) 
+                if (Constants.DefaultModuleActions.Contains(control))
                 {
                     typename = Constants.DefaultModuleActionsTemplate.Replace("{Control}", control);
                 }
@@ -407,7 +407,6 @@
             // use first alias if Uri does not exist
             alias = aliases.FirstOrDefault();
         }
-        alias.Scheme = uri.Scheme;
         return alias;
     }
 

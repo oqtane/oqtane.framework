@@ -114,7 +114,7 @@
             <button type="button" class="btn btn-success" @onclick="Install">Install Now</button><br /><br />
             @((MarkupString)@Message)
         </div>
-        <div class="loading" style="@LoadingDisplay"></div>
+        <div class="app-progress-indicator" style="@LoadingDisplay"></div>
     </div>
 </div>
 
@@ -177,7 +177,7 @@
                 site.TenantId = tenants.FirstOrDefault().TenantId;
                 site.Name = "Default Site";
                 site.Logo = "oqtane.png";
-                site.DefaultThemeType = "Oqtane.Themes.Theme2.Theme2, Oqtane.Client";
+                site.DefaultThemeType = Constants.DefaultTheme;
                 site.DefaultLayoutType = "";
                 site = await SiteService.AddSiteAsync(site);
 

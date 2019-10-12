@@ -14,6 +14,8 @@ namespace Oqtane.Services
 
         Task<User> AddUserAsync(User User);
 
+        Task<User> AddUserAsync(User User, Alias alias);
+
         Task<User> UpdateUserAsync(User User);
 
         Task DeleteUserAsync(int UserId);

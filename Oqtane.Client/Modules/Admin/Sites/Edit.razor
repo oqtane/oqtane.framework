@@ -89,6 +89,7 @@ else
     Dictionary<string, string> themes = new Dictionary<string, string>();
     Dictionary<string, string> panelayouts = new Dictionary<string, string>();
 
+    Alias Alias;
     int siteid;
     string name = "";
     List<Alias> aliases;
@@ -111,9 +112,10 @@ else
         {
             themes = ThemeService.GetThemeTypes(PageState.Themes);
             panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes);
+            Alias = PageState.Aliases.Where(item => item.AliasId == Int32.Parse(PageState.QueryString["id"])).FirstOrDefault();
 
-            siteid = Int32.Parse(PageState.QueryString["id"]);
-            Site site = await SiteService.GetSiteAsync(siteid);
+            siteid = Alias.SiteId;
+            Site site = await SiteService.GetSiteAsync(siteid, Alias);
             if (site != null)
             {
                 name = site.Name;
@@ -137,7 +139,7 @@ else
         }
         catch (Exception ex)
         {
-            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+            AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
 
@@ -147,7 +149,7 @@ else
         {
             if (name != "" && urls != "" && themetype != "")
             {
-                Site site = await SiteService.GetSiteAsync(siteid);
+                Site site = await SiteService.GetSiteAsync(siteid, Alias);
                 if (site != null)
                 {
                     site.Name = name;
@@ -156,7 +158,7 @@ else
                     site.DefaultLayoutType = (layouttype == null ? "" : layouttype);
                     site.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
 
-                    site = await SiteService.UpdateSiteAsync(site);
+                    site = await SiteService.UpdateSiteAsync(site, Alias);
 
                     urls = urls.Replace("\n", ",");
                     string[] names = urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
@@ -184,12 +186,12 @@ else
             }
             else
             {
-                ModuleInstance.AddModuleMessage("You Must Provide A Site Name, Alias, And Default Theme", MessageType.Warning);
+                AddModuleMessage("You Must Provide A Site Name, Alias, And Default Theme", MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
-            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+            AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
 }

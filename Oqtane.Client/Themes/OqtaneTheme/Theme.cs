@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Oqtane.Themes.Theme2
+namespace Oqtane.Themes.OqtaneTheme
 {
     public class Theme : ITheme
     {
@@ -10,7 +10,7 @@ namespace Oqtane.Themes.Theme2
             {
                 Dictionary<string, string> properties = new Dictionary<string, string>
                 {
-                    { "Name", "Theme2" },
+                    { "Name", "Oqtane Theme" },
                     { "Version", "1.0.0" }
                 };
                 return properties;

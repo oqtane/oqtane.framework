@@ -49,7 +49,7 @@ else
         }
         if (!upgradeavailable)
         {
-            ModuleInstance.AddModuleMessage("Framework Is Up To Date", MessageType.Info);
+            AddModuleMessage("Framework Is Up To Date", MessageType.Info);
         }
     }
 
@@ -64,28 +64,28 @@ else
                 {
                     if (await FileService.UploadFilesAsync("Framework", files, ""))
                     {
-                        ModuleInstance.AddModuleMessage("Framework Uploaded Successfully. Click Upgrade To Complete Installation.", MessageType.Success);
+                        AddModuleMessage("Framework Uploaded Successfully. Click Upgrade To Complete Installation.", MessageType.Success);
                         uploaded = true;
                         StateHasChanged();
                     }
                     else
                     {
-                        ModuleInstance.AddModuleMessage("Framework Upload Failed.", MessageType.Error);
+                        AddModuleMessage("Framework Upload Failed.", MessageType.Error);
                     }
                 }
                 catch (Exception ex)
                 {
-                    ModuleInstance.AddModuleMessage("Framework Upload Failed. " + ex.Message, MessageType.Error);
+                    AddModuleMessage("Framework Upload Failed. " + ex.Message, MessageType.Error);
                 }
             }
             else
             {
-                ModuleInstance.AddModuleMessage("Invalid Framework Package", MessageType.Error);
+                AddModuleMessage("Invalid Framework Package", MessageType.Error);
             }
         }
         else
         {
-            ModuleInstance.AddModuleMessage("You Must Select A Framework Package To Upload", MessageType.Warning);
+            AddModuleMessage("You Must Select A Framework Package To Upload", MessageType.Warning);
         }
     }
 

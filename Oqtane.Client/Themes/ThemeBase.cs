@@ -12,7 +12,6 @@ namespace Oqtane.Themes
 
         [CascadingParameter]
         protected PageState PageState { get; set; }
-        public virtual string Name { get; set; }
         public virtual string Panes { get; set; }
 
         public string ThemePath()
@@ -20,14 +19,14 @@ namespace Oqtane.Themes
             return "Themes/" + this.GetType().Namespace + "/";
         }
 
-        public async Task AddCSS(string Url)
+        public async Task IncludeCSS(string Url)
         {
             if (!Url.StartsWith("http"))
             {
                 Url = ThemePath() + Url;
             }
             var interop = new Interop(JSRuntime);
-            await interop.AddCSS("Theme:" + Utilities.CreateIdFromUrl(Url), Url);
+            await interop.IncludeCSS("Theme", Url);
         }
 
         public string NavigateUrl()

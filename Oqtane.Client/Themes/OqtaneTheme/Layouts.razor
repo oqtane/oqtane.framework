@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Themes.Theme3
+﻿@namespace Oqtane.Themes.OqtaneTheme
 @inherits ThemeBase
 
 <div class="sidebar">
@@ -8,7 +8,7 @@
 
 <div class="main">
     <div class="top-row px-4">
-        <h1>@PageState.Page.Name - Theme #3</h1> <div class="ml-md-auto"><UserProfile /> <Login /> <ControlPanel /></div>
+        <h1>@PageState.Page.Name</h1> <div class="ml-md-auto"><UserProfile /> <Login /> <ControlPanel /></div>
     </div>
     <div class="container">
         <PaneLayout />
@@ -19,6 +19,8 @@
 </div>
 
 @code {
-    public override string Name { get { return "Theme3"; } }
-    public override string Panes { get { return ""; } }
+    protected override async Task OnParametersSetAsync()
+    {
+        await IncludeCSS("Theme.css");
+    }
 }

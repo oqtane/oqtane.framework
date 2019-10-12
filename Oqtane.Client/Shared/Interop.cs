@@ -41,28 +41,13 @@ namespace Oqtane.Shared
             }
         }
 
-        public Task AddCSS(string id, string url)
+        public Task IncludeCSS(string id, string url)
         {
             try
             {
                 jsRuntime.InvokeAsync<string>(
-                    "interop.addCSS",
+                    "interop.includeCSS",
                     id, url);
-                return Task.CompletedTask;
-            }
-            catch
-            {
-                return Task.CompletedTask;
-            }
-        }
-
-        public Task RemoveCSS(string pattern)
-        {
-            try
-            {
-                jsRuntime.InvokeAsync<string>(
-                    "interop.removeCSS",
-                    pattern);
                 return Task.CompletedTask;
             }
             catch

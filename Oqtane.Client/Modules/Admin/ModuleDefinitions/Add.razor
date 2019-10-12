@@ -76,28 +76,28 @@
                 {
                     if (await FileService.UploadFilesAsync("Modules", files, ""))
                     {
-                        ModuleInstance.AddModuleMessage("Module Uploaded Successfully. Click Install To Complete Installation.", MessageType.Success);
+                        AddModuleMessage("Module Uploaded Successfully. Click Install To Complete Installation.", MessageType.Success);
                         uploaded = true;
                         StateHasChanged();
                     }
                     else
                     {
-                        ModuleInstance.AddModuleMessage("Module Upload Failed.", MessageType.Error);
+                        AddModuleMessage("Module Upload Failed.", MessageType.Error);
                     }
                 }
                 catch (Exception ex)
                 {
-                    ModuleInstance.AddModuleMessage("Module Upload Failed. " + ex.Message, MessageType.Error);
+                    AddModuleMessage("Module Upload Failed. " + ex.Message, MessageType.Error);
                 }
             }
             else
             {
-                ModuleInstance.AddModuleMessage("Invalid Module Package", MessageType.Error);
+                AddModuleMessage("Invalid Module Package", MessageType.Error);
             }
         }
         else
         {
-            ModuleInstance.AddModuleMessage("You Must Select A Module To Upload", MessageType.Warning);
+            AddModuleMessage("You Must Select A Module To Upload", MessageType.Warning);
         }
     }
 
@@ -110,7 +110,7 @@
     private async Task DownloadModule(string moduledefinitionname, string version)
     {
         await PackageService.DownloadPackageAsync(moduledefinitionname, version, "Modules");
-        ModuleInstance.AddModuleMessage("Module Downloaded Successfully. Click Install To Complete Installation.", MessageType.Success);
+        AddModuleMessage("Module Downloaded Successfully. Click Install To Complete Installation.", MessageType.Success);
         uploaded = true;
         StateHasChanged();
     }

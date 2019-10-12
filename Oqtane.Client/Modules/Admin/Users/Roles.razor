@@ -84,7 +84,7 @@ else
         }
         catch (Exception ex)
         {
-            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+            AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
 
@@ -145,16 +145,16 @@ else
                     await UserRoleService.AddUserRoleAsync(userrole);
                 }
                 await GetUserRoles();
-                ModuleInstance.AddModuleMessage("User Assigned To Role", MessageType.Success);
+                AddModuleMessage("User Assigned To Role", MessageType.Success);
             }
             else
             {
-                ModuleInstance.AddModuleMessage("You Must Select A Role", MessageType.Warning);
+                AddModuleMessage("You Must Select A Role", MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
-            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+            AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
 
@@ -162,7 +162,7 @@ else
     {
         await UserRoleService.DeleteUserRoleAsync(UserRoleId);
         await GetUserRoles();
-        ModuleInstance.AddModuleMessage("User Removed From Role", MessageType.Success);
+        AddModuleMessage("User Removed From Role", MessageType.Success);
     }
 
 }

@@ -15,33 +15,6 @@ namespace Oqtane.Models
         public string ModifiedBy { get; set; }
         public DateTime ModifiedOn { get; set; }
 
-
-        [NotMapped]
-        public string Scheme { get; set; }
-
-        [NotMapped]
-        public string Url
-        {
-            get
-            {
-                return Scheme + "://" + Name;
-            }
-        }
-
-        [NotMapped]
-        public string BaseUrl
-        {
-            get
-            {
-                string name = Name;
-                if (name.Contains("/"))
-                {
-                    name = name.Substring(0, name.IndexOf("/"));
-                }
-                return Scheme + "://" + name;
-            }
-        }
-
         [NotMapped]
         public string Path
         {

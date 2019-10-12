@@ -8,6 +8,7 @@ namespace Oqtane.Models
         public string Name { get; set; }
         public string DBConnectionString { get; set; }
         public string DBSchema { get; set; }
+        public bool IsInitialized { get; set; }
 
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
