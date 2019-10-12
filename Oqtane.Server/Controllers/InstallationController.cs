@@ -210,6 +210,19 @@ namespace Oqtane.Controllers
                 }
                 else
                 {
+                    using (var db = new InstallationContext(connectionString))
+                    {
+                        ApplicationVersion version = db.ApplicationVersion.ToList().LastOrDefault();
+                        if (version == null || version.Version != Constants.Version)
+                        {
+                            version = new ApplicationVersion();
+                            version.Version = Constants.Version;
+                            version.CreatedOn = DateTime.Now;
+                            db.ApplicationVersion.Add(version);
+                            db.SaveChanges();
+                        }
+                    }
+
                     Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies()
                         .Where(item => item.FullName.Contains(".Module.")).ToArray();
 
@@ -283,6 +296,7 @@ namespace Oqtane.Controllers
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
            => optionsBuilder.UseSqlServer(_connectionString);
 
+        public virtual DbSet<ApplicationVersion> ApplicationVersion { get; set; }
         public virtual DbSet<Tenant> Tenant { get; set; }
     }
 }

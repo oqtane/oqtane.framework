@@ -16,7 +16,6 @@
 <button type="button" class="btn btn-primary" @onclick="UploadFile">Upload</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
-
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 
@@ -29,23 +28,25 @@
         {
             try
             {
+                ShowProgressIndicator();
+
                 if (await FileService.UploadFilesAsync(PageState.Site.SiteRootPath, files, ""))
                 {
-                    ModuleInstance.AddModuleMessage("Files Uploaded Successfully", MessageType.Success);
+                    AddModuleMessage("Files Uploaded Successfully", MessageType.Success);
                 }
                 else
                 {
-                    ModuleInstance.AddModuleMessage("Upload Failed", MessageType.Error);
+                    AddModuleMessage("Upload Failed", MessageType.Error);
                 }
             }
             catch (Exception ex)
             {
-                ModuleInstance.AddModuleMessage("Upload Failed. " + ex.Message, MessageType.Error);
+                AddModuleMessage("Upload Failed. " + ex.Message, MessageType.Error);
             }
         }
         else
         {
-            ModuleInstance.AddModuleMessage("You Must Select Some Files To Upload", MessageType.Warning);
+            AddModuleMessage("You Must Select Some Files To Upload", MessageType.Warning);
         }
     }
 }

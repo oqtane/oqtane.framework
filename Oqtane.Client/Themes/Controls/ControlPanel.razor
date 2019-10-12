@@ -9,9 +9,9 @@
 
 @if (UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions))
 {
-    <div id="actions" class="overlay">
-        <a href="javascript:void(0)" class="closebtn" onclick="closeActions()">x</a>
-        <div class="overlay-content">
+    <div id="actions" class="app-controlpanel">
+        <a href="javascript:void(0)" class="app-controlpanel-close" onclick="closeActions()">x</a>
+        <div class="app-controlpanel-content">
             <ul class="nav flex-column">
                 <li class="nav-item px-3">
                     <NavLink class="btn btn-primary mx-auto" href="@NavigateUrl("admin")">Admin Dashboard</NavLink>

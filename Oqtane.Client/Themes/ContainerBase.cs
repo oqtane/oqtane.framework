@@ -33,16 +33,6 @@ namespace Oqtane.Themes
             return "Themes/" + this.GetType().Namespace + "/";
         }
 
-        public async Task AddCSS(string Url)
-        {
-            if (!Url.StartsWith("http"))
-            {
-                Url = ThemePath() + Url;
-            }
-            var interop = new Interop(JSRuntime);
-            await interop.AddCSS("Theme:" + Utilities.CreateIdFromUrl(Url), Url);
-        }
-
         public string NavigateUrl()
         {
             return NavigateUrl(PageState.Page.Path);

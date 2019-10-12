@@ -39,6 +39,6 @@ else
     {
         await FileService.DeleteFileAsync(PageState.Site.SiteRootPath, filename);
         Files = await FileService.GetFilesAsync(PageState.Site.SiteRootPath);
-        ModuleInstance.AddModuleMessage("File Deleted", MessageType.Success);
+        AddModuleMessage("File Deleted", MessageType.Success);
     }
 }

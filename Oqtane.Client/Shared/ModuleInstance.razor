@@ -1,9 +1,14 @@
 ﻿@namespace Oqtane.Shared
 
+<ModuleMessage Message="@message" Type="MessageType.Error" />
 <CascadingValue Value="this">
     <ModuleMessage @ref="modulemessage" />
     @DynamicComponent
 </CascadingValue>
+@if (progressindicator)
+{
+    <div class="app-progress-indicator"></div>
+}
 
 @code {
     [CascadingParameter]
@@ -13,8 +18,11 @@
     private Module ModuleState { get; set; }
 
     private ModuleMessage modulemessage { get; set; }
+    string message;
 
     RenderFragment DynamicComponent { get; set; }
+
+    bool progressindicator = false;
 
     protected override void OnParametersSet()
     {
@@ -22,7 +30,7 @@
         {
             string typename = ModuleState.ModuleType;
             // check for core module actions component
-            if (Constants.DefaultModuleActions.Contains(PageState.Control)) 
+            if (Constants.DefaultModuleActions.Contains(PageState.Control))
             {
                 typename = Constants.DefaultModuleActionsTemplate.Replace("{Control}", PageState.Control);
             }
@@ -40,13 +48,26 @@
             else
             {
                 // module does not exist with typename specified
-                modulemessage.SetModuleMessage("Error Loading Component For Module " + ModuleState.ModuleDefinitionName, MessageType.Error);
+                message = "Module Does Not Have A Component Named " + Utilities.GetTypeNameClass(typename) + ".razor";
             }
         };
     }
 
     public void AddModuleMessage(string message, MessageType type)
     {
+        progressindicator = false;
         modulemessage.SetModuleMessage(message, type);
+    }
+
+    public void ShowProgressIndicator()
+    {
+        progressindicator = true;
+        StateHasChanged();
+    }
+
+    public void HideProgressIndicator()
+    {
+        progressindicator = true;
+        StateHasChanged();
     }
 }

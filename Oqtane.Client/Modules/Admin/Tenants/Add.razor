@@ -42,6 +42,8 @@
 
     private async Task SaveTenant()
     {
+        ShowProgressIndicator();
+
         connectionstring = connectionstring.Replace("\\\\", "\\");
         GenericResponse response = await InstallationService.Install(connectionstring);
         if (response.Success)
@@ -50,13 +52,14 @@
             tenant.Name = name;
             tenant.DBConnectionString = connectionstring;
             tenant.DBSchema = schema;
+            tenant.IsInitialized = false;
             await TenantService.AddTenantAsync(tenant);
 
             NavigationManager.NavigateTo(NavigateUrl());
         }
         else
         {
-            ModuleInstance.AddModuleMessage(response.Message, MessageType.Error);
+            AddModuleMessage(response.Message, MessageType.Error);
         }
     }
 }

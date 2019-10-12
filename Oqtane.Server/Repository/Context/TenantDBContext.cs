@@ -19,7 +19,7 @@ namespace Oqtane.Repository
 
         public TenantDBContext(ITenantResolver TenantResolver, IHttpContextAccessor accessor) : base(TenantResolver, accessor)
         {
-            // ContextBase handles multi-tenant database connections
+            // DBContextBase handles multi-tenant database connections
         }
 
     }

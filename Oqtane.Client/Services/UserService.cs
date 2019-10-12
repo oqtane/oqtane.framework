@@ -55,6 +55,18 @@ namespace Oqtane.Services
             }
         }
 
+        public async Task<User> AddUserAsync(User User, Alias Alias)
+        {
+            try
+            {
+                return await http.PostJsonAsync<User>(CreateApiUrl(Alias, NavigationManager.Uri, "User"), User);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public async Task<User> UpdateUserAsync(User User)
         {
             return await http.PutJsonAsync<User>(apiurl + "/" + User.UserId.ToString(), User);

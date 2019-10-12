@@ -1,7 +1,7 @@
 ﻿@namespace Oqtane.Modules.Admin.Sites
 @inherits ModuleBase
-
-@inject ISiteService SiteService
+@inject NavigationManager NavigationManager
+@inject IAliasService AliasService
 
 @if (sites == null)
 {
@@ -18,9 +18,9 @@ else
             <th>&nbsp;</th>
         </Header>
         <Row>
-            <td>@context.Name</td>
-            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.SiteId.ToString())" /></td>
-            <td><ActionLink Action="Delete" Parameters="@($"id=" + context.SiteId.ToString())" Class="btn btn-danger" /></td>
+            <td><a href="@(scheme + context.Name)">@context.Name</a></td>
+            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.AliasId.ToString())" /></td>
+            <td><ActionLink Action="Delete" Parameters="@($"id=" + context.AliasId.ToString())" Class="btn btn-danger" /></td>
         </Row>
     </Pager>
 }
@@ -28,10 +28,21 @@ else
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
 
-    List<Site> sites;
+    List<Alias> sites;
+    string scheme;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        sites = await SiteService.GetSitesAsync();
+        Uri uri = new Uri(NavigationManager.Uri);
+        scheme = uri.Scheme + "://";
+
+        sites = new List<Alias>();
+        foreach (Alias alias in PageState.Aliases.OrderBy(item => item.Name))
+        {
+            if (!sites.Exists(item => item.TenantId == alias.TenantId && item.SiteId == alias.SiteId))
+            {
+                sites.Add(alias);
+            }
+        }
     }
 }

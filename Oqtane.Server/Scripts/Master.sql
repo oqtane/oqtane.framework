@@ -24,6 +24,7 @@ CREATE TABLE [dbo].[Tenant](
 	[Name] [nvarchar](100) NOT NULL,
 	[DBConnectionString] [nvarchar](1024) NOT NULL,
 	[DBSchema] [nvarchar](50) NOT NULL,
+	[IsInitialized] [bit] NOT NULL,
 	[CreatedBy] [nvarchar](256) NOT NULL,
 	[CreatedOn] [datetime] NOT NULL,
 	[ModifiedBy] [nvarchar](256) NOT NULL,
@@ -49,6 +50,17 @@ CREATE TABLE [dbo].[ModuleDefinition](
 )
 GO
 
+CREATE TABLE [dbo].[ApplicationVersion](
+	[ApplicationVersionId] [int] IDENTITY(1,1) NOT NULL,
+	[Version] [nvarchar](50) NOT NULL,
+	[CreatedOn] [datetime] NOT NULL
+  CONSTRAINT [PK_ApplicationVersion] PRIMARY KEY CLUSTERED 
+  (
+	[ApplicationVersionId] ASC
+  )
+)
+GO
+
 /*  
 
 Create foreign key relationships
@@ -66,8 +78,8 @@ Create seed data
 */
 SET IDENTITY_INSERT [dbo].[Tenant] ON 
 GO
-INSERT [dbo].[Tenant] ([TenantId], [Name], [DBConnectionString], [DBSchema], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (1, N'Tenant1', N'{ConnectionString}', N'', '', getdate(), '', getdate())
+INSERT [dbo].[Tenant] ([TenantId], [Name], [DBConnectionString], [DBSchema], [IsInitialized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (1, N'Master', N'{ConnectionString}', N'', 1, '', getdate(), '', getdate())
 GO
 SET IDENTITY_INSERT [dbo].[Tenant] OFF
 GO

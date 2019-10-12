@@ -88,6 +88,7 @@ else
     Dictionary<string, string> themes = new Dictionary<string, string>();
     Dictionary<string, string> panelayouts = new Dictionary<string, string>();
 
+    Alias Alias;
     int siteid;
     string name = "";
     List<Alias> aliases;
@@ -109,9 +110,10 @@ else
         {
             themes = ThemeService.GetThemeTypes(PageState.Themes);
             panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes);
+            Alias = PageState.Aliases.Where(item => item.AliasId == Int32.Parse(PageState.QueryString["id"])).FirstOrDefault();
 
-            siteid = Int32.Parse(PageState.QueryString["id"]);
-            Site site = await SiteService.GetSiteAsync(siteid);
+            siteid = Alias.SiteId;
+            Site site = await SiteService.GetSiteAsync(siteid, Alias);
             if (site != null)
             {
                 name = site.Name;
@@ -135,7 +137,7 @@ else
         }
         catch (Exception ex)
         {
-            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+            AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
 
@@ -143,12 +145,12 @@ else
     {
         try
         {
-            await SiteService.DeleteSiteAsync(PageState.Site.SiteId);
+            await SiteService.DeleteSiteAsync(siteid, Alias);
             NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {
-            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+            AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
 }

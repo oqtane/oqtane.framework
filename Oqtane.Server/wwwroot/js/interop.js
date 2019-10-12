@@ -28,21 +28,19 @@ window.interop = {
             return "";
         }
     },
-    addCSS: function (id, url) {
-        if (document.getElementById(id) === null) {
-            var link = document.createElement("link");
+    includeCSS: function (id, url) {
+        var link = document.getElementById('yourid');
+        if (link === null) {
+            link = document.createElement("link");
             link.id = id;
             link.type = "text/css";
             link.rel = "stylesheet";
             link.href = url;
             document.head.appendChild(link);
         }
-    },
-    removeCSS: function (pattern) {
-        var links = document.getElementsByTagName("link");
-        for (var i = 0; i < links.length; i++) {
-            if (links[i].id.includes(pattern)) {
-                document.head.removeChild(links[i]);
+        else {
+            if (link.href !== url) {
+                link.setAttribute('href', url);
             }
         }
     },

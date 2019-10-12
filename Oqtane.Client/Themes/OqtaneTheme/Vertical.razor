@@ -1,5 +1,5 @@
-﻿@namespace Oqtane.Themes.Theme3
-@inherits ThemeBase
+﻿@namespace Oqtane.Themes.OqtaneTheme
+@inherits LayoutBase
 
 <div class="row px-4">
     <Pane Name="Top" />
@@ -9,6 +9,5 @@
 </div>
 
 @code {
-    public override string Name { get { return "Vertical Layout"; } }
     public override string Panes { get { return "Top;Bottom"; } }
 }

@@ -94,12 +94,12 @@
             }
             else
             {
-                ModuleInstance.AddModuleMessage("Current User Is Not Logged In", MessageType.Warning);
+                AddModuleMessage("Current User Is Not Logged In", MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
-            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+            AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
 
@@ -124,7 +124,7 @@
         }
         catch (Exception ex)
         {
-            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+            AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
 

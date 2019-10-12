@@ -10,149 +10,14 @@ app {
     flex-direction: column;
 }
 
-.top-row {
-    height: 3.5rem;
-    display: flex;
-    align-items: center;
-}
-
-.main {
-    flex: 1;
-}
-
-    .main .top-row {
-        background-color: #e6e6e6;
-        border-bottom: 1px solid #d6d5d5;
-    }
-
-.sidebar {
-    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
-}
-
-    .sidebar .top-row {
-        background-color: rgba(0,0,0,0.4);
-    }
-
-    .sidebar .navbar-brand {
-        font-size: 1.1rem;
-    }
-
-    .sidebar .oi {
-        width: 2rem;
-        font-size: 1.1rem;
-        vertical-align: text-top;
-        top: -2px;
-    }
-
-.nav-item {
-    font-size: 0.9rem;
-    padding-bottom: 0.5rem;
-}
-
-    .nav-item:first-of-type {
-        padding-top: 1rem;
-    }
-
-    .nav-item:last-of-type {
-        padding-bottom: 1rem;
-    }
-
-    .nav-item a {
-        color: #d7d7d7;
-        border-radius: 4px;
-        height: 3rem;
-        display: flex;
-        align-items: center;
-        line-height: 3rem;
-    }
-
-        .nav-item a.active {
-            background-color: rgba(255,255,255,0.25);
-            color: white;
-        }
-
-        .nav-item a:hover {
-            background-color: rgba(255,255,255,0.1);
-            color: white;
-        }
-
-.content {
-    padding-top: 1.1rem;
-}
-
-.navbar-toggler {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-@media (max-width: 767.98px) {
-    .main .top-row {
-        display: none;
-    }
-}
-
-@media (min-width: 768px) {
-    app {
-        flex-direction: row;
-    }
-
-    .sidebar {
-        width: 250px;
-        height: 100vh;
-        position: sticky;
-        top: 0;
-    }
-
-    .main .top-row {
-        position: sticky;
-        top: 0;
-        z-index: 9999;
-    }
-
-    .main > div {
-        padding-left: 2rem !important;
-        padding-right: 1.5rem !important;
-    }
-
-    .navbar-toggler {
-        display: none;
-    }
-
-    .sidebar .collapse {
-        /* Never collapse the sidebar for wide screens */
-        display: block;
-    }
-}
-
-@-webkit-keyframes sk-stretchdelay {
-    0%, 40%, 100% {
-        -webkit-transform: scaleY(0.4)
-    }
-
-    20% {
-        -webkit-transform: scaleY(1.0)
-    }
-}
-
-@keyframes sk-stretchdelay {
-    0%, 40%, 100% {
-        transform: scaleY(0.4);
-        -webkit-transform: scaleY(0.4);
-    }
-
-    20% {
-        transform: scaleY(1.0);
-        -webkit-transform: scaleY(1.0);
-    }
-}
-
 /* Control Panel */
-.overlay {
+.app-controlpanel {
     height: 100%;
     width: 0;
     position: fixed; /* Stay in place */
     z-index: 9999; /* Sit on top */
-    right: 0; /* Position at right side of screen */
-    top: 0; /* Position at top of screen */
+    right: 0;
+    top: 0;
     background-color: rgb(0,0,0); /* Black fallback color */
     background-color: rgba(0,0,0, 0.9); /* Black w/opacity */
     overflow-x: hidden; /* Disable horizontal scroll */
@@ -160,7 +25,7 @@ app {
 }
 
 /* Position the content inside the overlay */
-.overlay-content {
+.app-controlpanel-content {
     position: relative;
     top: 5%; /* 5% from the top */
     width: 100%; /* 100% width */
@@ -169,7 +34,7 @@ app {
 }
 
 /* Position the close button (top right corner) */
-.overlay .closebtn {
+.app-controlpanel .closebtn {
     position: absolute;
     top: 20px;
     right: 45px;
@@ -178,11 +43,11 @@ app {
 
 /* When the height of the screen is less than 450 pixels, change the font-size of the links and position the close button again, so they don't overlap */
 @media screen and (max-height: 450px) {
-    .overlay a {
+    .app-controlpanel a {
         font-size: 20px
     }
 
-    .overlay .closebtn {
+    .app-controlpanel-close {
         font-size: 40px;
         top: 15px;
         right: 35px;
@@ -190,7 +55,7 @@ app {
 }
 
 /* Admin Modal */
-.modal {
+.app-admin-modal {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
     z-index: 9999; /* Sit on top */
@@ -203,7 +68,7 @@ app {
     background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
 }
 
-.modal-content {
+.app-admin-modal-content {
     background-color: #fefefe;
     margin: 5% auto; /* 5% from the top and centered */
     padding: 20px;
@@ -211,22 +76,22 @@ app {
     width: 80%; /* Could be more or less, depending on screen size */
 }
 
-.close {
+.app-admin-modal-close {
     position: absolute;
     top: 20px;
     right: 45px;
     font-size: 40px;
 }
 
-.close:hover,
-.close:focus {
+    .app-admin-modal-close:hover,
+    .app-admin-modal-close:focus {
         color: black;
         text-decoration: none;
         cursor: pointer;
-}
+    }
 
 /* Action Menu */
-.dropdown-toggle {
+.app-actions-toggle {
     background-color: transparent;
     border-color: #fff;
     border-style: hidden;
@@ -235,20 +100,20 @@ app {
     border-left: none;
 }
 
-.pane-admin-border {
+.app-pane-admin-border {
     width: 100%;
     border-width: 1px;
     border-style: dashed;
     border-color: gray;
 }
 
-.pane-admin-title {
+.app-pane-admin-title {
     width: 100%;
     text-align: center;
     color: gray;
 }
 
-.loading {
+.app-progress-indicator {
     background: rgba(0,0,0,0.2) url('../loading.gif') no-repeat 50% 50%;
     width: 100%;
     height: 100%;

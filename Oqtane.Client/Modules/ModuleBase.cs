@@ -42,16 +42,6 @@ namespace Oqtane.Modules
             return "Modules/" + this.GetType().Namespace + "/";
         }
 
-        public async Task AddCSS(string Url)
-        {
-            if (!Url.StartsWith("http"))
-            {
-                Url = ModulePath() + Url;
-            }
-            var interop = new Interop(JSRuntime);
-            await interop.AddCSS("Module:" + Utilities.CreateIdFromUrl(Url), Url);
-        }
-
         public string NavigateUrl()
         {
             return NavigateUrl(PageState.Page.Path);
@@ -105,6 +95,21 @@ namespace Oqtane.Modules
         public string EditUrl(string path, int moduleid, string action, string parameters)
         {
             return Utilities.EditUrl(PageState.Alias.Path, path, moduleid, action, parameters);
+        }
+
+        public void AddModuleMessage(string message, MessageType type)
+        {
+            AddModuleMessage(message, type);
+        }
+
+        public void ShowProgressIndicator()
+        {
+            ModuleInstance.ShowProgressIndicator();
+        }
+
+        public void HideProgressIndicator()
+        {
+            ModuleInstance.HideProgressIndicator();
         }
     }
 }

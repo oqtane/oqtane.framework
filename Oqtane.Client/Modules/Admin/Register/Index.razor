@@ -39,17 +39,25 @@
                 user.DisplayName = Username;
                 user.Email = Email;
                 user.Password = Password;
-                await UserService.AddUserAsync(user);
-                NavigationManager.NavigateTo(NavigateUrl(""));
+                user = await UserService.AddUserAsync(user);
+
+                if (user != null)
+                {
+                    NavigationManager.NavigateTo(NavigateUrl(""));
+                }
+                else
+                {
+                    AddModuleMessage("Error Adding User. Please Ensure Password Meets Complexity Requirements And Username Is Not Already In Use.", MessageType.Error);
+                }
             }
             else
             {
-                ModuleInstance.AddModuleMessage("You Must Provide A Username, Password, and Email Address", MessageType.Warning);
+                AddModuleMessage("You Must Provide A Username, Password, and Email Address", MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
-            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+            AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
 
