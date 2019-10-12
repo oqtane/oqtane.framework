@@ -9,11 +9,15 @@ namespace Oqtane.Repository
     {
         private TenantDBContext db;
         private readonly IPermissionRepository Permissions;
+        private readonly IPageModuleRepository PageModules;
+        private readonly IModuleRepository ModuleRepository;
 
-        public PageRepository(TenantDBContext context, IPermissionRepository Permissions)
+        public PageRepository(TenantDBContext context, IPermissionRepository Permissions, IPageModuleRepository PageModules, IModuleRepository ModuleRepository)
         {
             db = context;
             this.Permissions = Permissions;
+            this.PageModules = PageModules;
+            this.ModuleRepository = ModuleRepository;
         }
 
         public IEnumerable<Page> GetPages()
@@ -62,7 +66,21 @@ namespace Oqtane.Repository
         public void DeletePage(int PageId)
         {
             Page Page = db.Page.Find(PageId);
-            Permissions.UpdatePermissions(Page.SiteId, "Page", PageId, "");
+
+            IEnumerable<PageModule> pageModules = db.PageModule.Where(item => item.PageId == PageId).ToList();
+            foreach (var pageModule in pageModules)
+            {
+                PageModules.DeletePageModule(pageModule.PageModuleId);
+
+                IEnumerable<Module> modules = db.Module.Where(item => item.ModuleId == pageModule.ModuleId).ToList();
+                foreach (var module in modules)
+                {
+                    ModuleRepository.DeleteModule(module.ModuleId);
+                }
+            }
+
+            Permissions.DeletePermissions(Page.SiteId, "Page", PageId);
+
             db.Page.Remove(Page);
             db.SaveChanges();
         }
