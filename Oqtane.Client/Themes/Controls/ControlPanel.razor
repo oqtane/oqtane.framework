@@ -196,6 +196,8 @@
                     pages.Add(p);
                 }
             }
+            var panes = PageState.Page.Panes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            pane = panes.Count() == 1 ? panes.SingleOrDefault() : "";
             containers = ThemeService.GetContainerTypes(PageState.Themes);
             containertype = PageState.Site.DefaultContainerType;
             List<Module> modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId, Constants.PageManagementModule);
