@@ -39,6 +39,10 @@ At this point Oqtane offers a minimum of desired functionality and is not recomm
 
 # Example Screenshots
 
+Install Wizard:
+
+![Installer](https://github.com/oqtane/framework/blob/master/installer.png?raw=true "Installer")
+
 Default view after installation:
 
 ![Home](https://github.com/oqtane/framework/blob/master/screenshot0.png?raw=true "Home")
