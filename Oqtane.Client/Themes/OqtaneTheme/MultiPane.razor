@@ -1,0 +1,18 @@
+﻿@namespace Oqtane.Themes.OqtaneTheme
+@inherits LayoutBase
+
+<div class="row px-4">
+    <Pane Name="Top" />
+</div>
+<div class="row px-4">
+    <div class="col-sm"><Pane Name="Left" /></div>
+    <div class="col-sm"><Pane Name="Content" /></div>
+    <div class="col-sm"><Pane Name="Right" /></div>
+</div>
+<div class="row px-4">
+    <Pane Name="Bottom" />
+</div>
+
+@code {
+    public override string Panes { get { return "Top;Left;Content;Right;Bottom"; } }
+}

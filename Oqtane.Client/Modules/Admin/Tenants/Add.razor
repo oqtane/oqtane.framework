@@ -40,6 +40,20 @@
     string connectionstring = "";
     string schema = "";
 
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            List<Tenant> tenants = await TenantService.GetTenantsAsync();
+            connectionstring = tenants.FirstOrDefault().DBConnectionString;
+            schema = tenants.FirstOrDefault().DBSchema;
+        }
+        catch (Exception ex)
+        {
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+
     private async Task SaveTenant()
     {
         ShowProgressIndicator();

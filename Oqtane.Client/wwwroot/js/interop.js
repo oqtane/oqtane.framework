@@ -29,7 +29,7 @@ window.interop = {
         }
     },
     includeCSS: function (id, url) {
-        var link = document.getElementById('yourid');
+        var link = document.getElementById(id);
         if (link === null) {
             link = document.createElement("link");
             link.id = id;

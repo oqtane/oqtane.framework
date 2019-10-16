@@ -99,7 +99,7 @@ namespace Oqtane.Modules
 
         public void AddModuleMessage(string message, MessageType type)
         {
-            AddModuleMessage(message, type);
+            ModuleInstance.AddModuleMessage(message, type);
         }
 
         public void ShowProgressIndicator()

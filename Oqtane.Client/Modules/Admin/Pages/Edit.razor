@@ -99,11 +99,18 @@
                 <label for="Name" class="control-label">Theme: </label>
             </td>
             <td>
-                <select class="form-control" @bind="@themetype">
+                <select class="form-control" @onchange="(e => ThemeChanged(e))">
                     <option value="">&lt;Select Theme&gt;</option>
                     @foreach (KeyValuePair<string, string> item in themes)
                     {
-                        <option value="@item.Key">@item.Value</option>
+                        if (item.Key == themetype)
+                        {
+                            <option value="@item.Key" selected>@item.Value</option>
+                        }
+                        else
+                        {
+                            <option value="@item.Key">@item.Value</option>
+                        }
                     }
                 </select>
             </td>
@@ -195,7 +202,6 @@
             children = PageState.Pages.Where(item => item.ParentId == null).ToList();
 
             themes = ThemeService.GetThemeTypes(PageState.Themes);
-            panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes);
 
             PageId = Int32.Parse(PageState.QueryString["id"]);
             Page page = PageState.Pages.Where(item => item.PageId == PageId).FirstOrDefault();
@@ -219,6 +225,7 @@
                 isnavigation = page.IsNavigation.ToString();
                 mode = (page.EditMode) ? "edit" : "view";
                 themetype = page.ThemeType;
+                panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes, themetype);
                 layouttype = page.LayoutType;
                 icon = page.Icon;
                 permissions = page.Permissions;
@@ -266,102 +273,128 @@
         }
     }
 
+    private void ThemeChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            themetype = (string)e.Value;
+            if (themetype != "")
+            {
+                panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes, themetype);
+            }
+            else
+            {
+                panelayouts = new Dictionary<string, string>();
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+
     private async Task SavePage()
     {
         try
         {
-            Page page = PageState.Pages.Where(item => item.PageId == PageId).FirstOrDefault();
-            string currentpath = page.Path;
+            if (name != "" && !string.IsNullOrEmpty(themetype) && (panelayouts.Count == 0 || !string.IsNullOrEmpty(layouttype)))
+            {
+                Page page = PageState.Pages.Where(item => item.PageId == PageId).FirstOrDefault();
+                string currentpath = page.Path;
 
-            page.Name = name;
-            if (path == "")
-            {
-                path = name;
-            }
-            if (path.Contains("/"))
-            {
-                path = path.Substring(path.LastIndexOf("/") + 1);
-            }
-            if (string.IsNullOrEmpty(parentid))
-            {
-                page.ParentId = null;
-                page.Path = Utilities.GetFriendlyUrl(path);
-            }
-            else
-            {
-                page.ParentId = Int32.Parse(parentid);
-                Page parent = PageState.Pages.Where(item => item.PageId == page.ParentId).FirstOrDefault();
-                if (parent.Path == "")
+                page.Name = name;
+                if (path == "" && name.ToLower() != "home")
                 {
-                    page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(path);
+                    path = name;
+                }
+                if (path.Contains("/"))
+                {
+                    path = path.Substring(path.LastIndexOf("/") + 1);
+                }
+                if (string.IsNullOrEmpty(parentid))
+                {
+                    page.ParentId = null;
+                    page.Path = Utilities.GetFriendlyUrl(path);
                 }
                 else
                 {
-                    page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(path);
+                    page.ParentId = Int32.Parse(parentid);
+                    Page parent = PageState.Pages.Where(item => item.PageId == page.ParentId).FirstOrDefault();
+                    if (parent.Path == "")
+                    {
+                        page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(path);
+                    }
+                    else
+                    {
+                        page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(path);
+                    }
                 }
-            }
-            if (insert != "=")
-            {
-                Page child;
-                switch (insert)
+                if (insert != "=")
                 {
-                    case "<<":
-                        page.Order = 0;
-                        break;
-                    case "<":
-                        child = PageState.Pages.Where(item => item.PageId == childid).FirstOrDefault();
-                        page.Order = child.Order - 1;
-                        break;
-                    case ">":
-                        child = PageState.Pages.Where(item => item.PageId == childid).FirstOrDefault();
-                        page.Order = child.Order + 1;
-                        break;
-                    case ">>":
-                        page.Order = int.MaxValue;
-                        break;
+                    Page child;
+                    switch (insert)
+                    {
+                        case "<<":
+                            page.Order = 0;
+                            break;
+                        case "<":
+                            child = PageState.Pages.Where(item => item.PageId == childid).FirstOrDefault();
+                            page.Order = child.Order - 1;
+                            break;
+                        case ">":
+                            child = PageState.Pages.Where(item => item.PageId == childid).FirstOrDefault();
+                            page.Order = child.Order + 1;
+                            break;
+                        case ">>":
+                            page.Order = int.MaxValue;
+                            break;
+                    }
                 }
-            }
-            page.IsNavigation = (isnavigation == null ? true : Boolean.Parse(isnavigation));
-            page.EditMode = (mode == "edit" ? true : false);
-            page.ThemeType = themetype;
-            page.LayoutType = (layouttype == null ? "" : layouttype);
-            page.Icon = (icon == null ? "" : icon);
-            Type type;
-            if (!string.IsNullOrEmpty(layouttype))
-            {
-                type = Type.GetType(layouttype);
+                page.IsNavigation = (isnavigation == null ? true : Boolean.Parse(isnavigation));
+                page.EditMode = (mode == "edit" ? true : false);
+                page.ThemeType = themetype;
+                page.LayoutType = (layouttype == null ? "" : layouttype);
+                page.Icon = (icon == null ? "" : icon);
+                page.Permissions = permissiongrid.GetPermissions();
+                page.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
+
+                if (page.ThemeType == PageState.Site.DefaultThemeType)
+                {
+                    page.ThemeType = "";
+                }
+                if (page.LayoutType == PageState.Site.DefaultLayoutType)
+                {
+                    page.LayoutType = "";
+                }
+
+                await PageService.UpdatePageAsync(page);
+                await PageService.UpdatePageOrderAsync(page.SiteId, page.ParentId);
+                if (currentparentid == "")
+                {
+                    await PageService.UpdatePageOrderAsync(page.SiteId, null);
+                }
+                else
+                {
+                    await PageService.UpdatePageOrderAsync(page.SiteId, int.Parse(currentparentid));
+                }
+
+                // update child paths
+                if (parentid != currentparentid)
+                {
+                    foreach (Page p in PageState.Pages.Where(item => item.Path.StartsWith(currentpath)))
+                    {
+                        p.Path = p.Path.Replace(currentpath, page.Path);
+                        await PageService.UpdatePageAsync(p);
+                    }
+                }
+
+                NavigationManager.NavigateTo(NavigateUrl(page.Path, Reload.Site));
             }
             else
             {
-                type = Type.GetType(themetype);
+                AddModuleMessage("You Must Provide Page Name And Theme", MessageType.Warning);
             }
-            System.Reflection.PropertyInfo property = type.GetProperty("Panes");
-            page.Panes = (string)property.GetValue(Activator.CreateInstance(type), null);
-            page.Permissions = permissiongrid.GetPermissions();
-            page.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
-
-            await PageService.UpdatePageAsync(page);
-            await PageService.UpdatePageOrderAsync(page.SiteId, page.ParentId);
-            if (currentparentid == "")
-            {
-                await PageService.UpdatePageOrderAsync(page.SiteId, null);
-            }
-            else
-            {
-                await PageService.UpdatePageOrderAsync(page.SiteId, int.Parse(currentparentid));
-            }
-
-            // update child paths
-            if (parentid != currentparentid)
-            {
-                foreach (Page p in PageState.Pages.Where(item => item.Path.StartsWith(currentpath)))
-                {
-                    p.Path = p.Path.Replace(currentpath, page.Path);
-                    await PageService.UpdatePageAsync(p);
-                }
-            }
-
-            NavigationManager.NavigateTo(NavigateUrl(page.Path, Reload.Site));
         }
         catch (Exception ex)
         {

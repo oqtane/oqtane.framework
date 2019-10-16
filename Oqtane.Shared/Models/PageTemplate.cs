@@ -18,10 +18,9 @@ namespace Oqtane.Models
     public class PageTemplateModule
     {
         public string ModuleDefinitionName { get; set; }
-        public string ModulePermissions { get; set; }
         public string Title { get; set; }
         public string Pane { get; set; }
-        public string ContainerType { get; set; }
+        public string ModulePermissions { get; set; }
         public string Content { get; set; }
     }
 }

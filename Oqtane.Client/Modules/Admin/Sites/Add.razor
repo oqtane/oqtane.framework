@@ -57,7 +57,7 @@ else
             <label for="Name" class="control-label">Default Theme: </label>
         </td>
         <td>
-            <select class="form-control" @bind="@themetype">
+            <select class="form-control" @onchange="(e => ThemeChanged(e))">
                 <option value="">&lt;Select Theme&gt;</option>
                 @foreach (KeyValuePair<string, string> item in themes)
                 {
@@ -76,6 +76,20 @@ else
                 @foreach (KeyValuePair<string, string> panelayout in panelayouts)
                 {
                     <option value="@panelayout.Key">@panelayout.Value</option>
+                }
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Default Container: </label>
+        </td>
+        <td>
+            <select class="form-control" @bind="@containertype">
+                <option value="">&lt;Select Container&gt;</option>
+                @foreach (KeyValuePair<string, string>container in containers)
+                {
+                    <option value="@container.Key">@container.Value</option>
                 }
             </select>
         </td>
@@ -109,6 +123,7 @@ else
 
     Dictionary<string, string> themes = new Dictionary<string, string>();
     Dictionary<string, string> panelayouts = new Dictionary<string, string>();
+    Dictionary<string, string> containers = new Dictionary<string, string>();
 
     List<Tenant> tenants;
     string tenantid = "-1";
@@ -117,6 +132,7 @@ else
     string logo = "";
     string themetype = "";
     string layouttype = "";
+    string containertype = "";
     bool isinitialized = true;
     string username = "";
     string password = "";
@@ -126,7 +142,7 @@ else
         tenants = await TenantService.GetTenantsAsync();
         urls = PageState.Alias.Name;
         themes = ThemeService.GetThemeTypes(PageState.Themes);
-        panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes);
+        containers = ThemeService.GetContainerTypes(PageState.Themes);
         username = PageState.User.Username;
     }
 
@@ -151,9 +167,30 @@ else
         }
     }
 
+    private void ThemeChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            themetype = (string)e.Value;
+            if (themetype != "")
+            {
+                panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes, themetype);
+            }
+            else
+            {
+                panelayouts = new Dictionary<string, string>();
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+
     private async Task SaveSite()
     {
-        if (tenantid != "-1" && name != "" && urls != "" && themetype != "")
+        if (tenantid != "-1" && name != "" && urls != "" && !string.IsNullOrEmpty(themetype) && (panelayouts.Count == 0 || !string.IsNullOrEmpty(layouttype)) && !string.IsNullOrEmpty(containertype))
         {
             bool isvalid = true;
 
@@ -187,6 +224,7 @@ else
                 site.Logo = (logo == null ? "" : logo);
                 site.DefaultThemeType = themetype;
                 site.DefaultLayoutType = (layouttype == null ? "" : layouttype);
+                site.DefaultContainerType = containertype;
                 site = await SiteService.AddSiteAsync(site, aliases[0]);
 
                 foreach(Alias alias in aliases)
@@ -223,7 +261,7 @@ else
         }
         else
         {
-            AddModuleMessage("You Must Provide A Tenant, Site Name, Alias, And Default Theme", MessageType.Warning);
+            AddModuleMessage("You Must Provide A Tenant, Site Name, Alias, And Default Theme/Container", MessageType.Warning);
         }
 
     }

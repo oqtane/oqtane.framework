@@ -13,50 +13,33 @@ app {
 /* Control Panel */
 .app-controlpanel {
     height: 100%;
-    width: 0;
+    width: 0%;
     position: fixed; /* Stay in place */
     z-index: 9999; /* Sit on top */
     right: 0;
     top: 0;
-    background-color: rgb(0,0,0); /* Black fallback color */
-    background-color: rgba(0,0,0, 0.9); /* Black w/opacity */
     overflow-x: hidden; /* Disable horizontal scroll */
     transition: 0.5s; /* 0.5 second transition effect to slide in or slide down the overlay (height or width, depending on reveal) */
 }
 
-/* Position the content inside the overlay */
-.app-controlpanel-content {
-    position: relative;
-    top: 5%; /* 5% from the top */
-    width: 100%; /* 100% width */
-    text-align: center; /* Centered text/links */
-    margin-top: 30px; /* 30px top margin to avoid conflict with the close button on smaller screens */
-}
-
-/* Position the close button (top right corner) */
-.app-controlpanel .closebtn {
-    position: absolute;
-    top: 20px;
-    right: 45px;
-    font-size: 40px;
-}
-
-/* When the height of the screen is less than 450 pixels, change the font-size of the links and position the close button again, so they don't overlap */
-@media screen and (max-height: 450px) {
-    .app-controlpanel a {
-        font-size: 20px
+    /* Position the content inside the overlay */
+    .app-controlpanel .card-body {
+        position: relative;
+        width: 100%; /* 100% width */
     }
 
-    .app-controlpanel-close {
-        font-size: 40px;
-        top: 15px;
-        right: 35px;
+    /* Pad the navigation links */
+    .app-controlpanel .nav-item {
+        font-size: 0.9rem;
+        padding-bottom: 0.5rem;
     }
-}
+
+    .app-controlpanel .card-body .control-label {
+        color: white;
+    }
 
 /* Admin Modal */
-.app-admin-modal {
-    display: none; /* Hidden by default */
+.app-admin-modal .modal {
     position: fixed; /* Stay in place */
     z-index: 9999; /* Sit on top */
     left: 0;
@@ -64,40 +47,19 @@ app {
     width: 100%; /* Full width */
     height: 100%; /* Full height */
     overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    background: rgba(0,0,0,0.3); /* Dim background */
 }
 
-.app-admin-modal-content {
-    background-color: #fefefe;
+.app-admin-modal .modal-dialog {
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    max-width: none; /* Override default of 500px */
+}
+
+.app-admin-modal .modal-content {
     margin: 5% auto; /* 5% from the top and centered */
     padding: 20px;
-    border: 1px solid #888;
     width: 80%; /* Could be more or less, depending on screen size */
-}
-
-.app-admin-modal-close {
-    position: absolute;
-    top: 20px;
-    right: 45px;
-    font-size: 40px;
-}
-
-    .app-admin-modal-close:hover,
-    .app-admin-modal-close:focus {
-        color: black;
-        text-decoration: none;
-        cursor: pointer;
-    }
-
-/* Action Menu */
-.app-actions-toggle {
-    background-color: transparent;
-    border-color: #fff;
-    border-style: hidden;
-    border-top: none;
-    border-right: none;
-    border-left: none;
 }
 
 .app-pane-admin-border {
@@ -121,4 +83,11 @@ app {
     top: 0;
     left: 0;
     z-index: 9999; /* Sit on top */
+}
+
+.app-rule {
+    width: 100%;
+    color: gray;
+    height: 1px;
+    background-color: gray;
 }

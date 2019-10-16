@@ -74,14 +74,17 @@ namespace Oqtane.Services
             return selectableThemes;
         }
 
-        public Dictionary<string, string> GetPaneLayoutTypes(List<Theme> Themes)
+        public Dictionary<string, string> GetPaneLayoutTypes(List<Theme> Themes, string ThemeName)
         {
             var selectablePaneLayouts = new Dictionary<string, string>();
             foreach (Theme theme in Themes)
-            {
-                foreach (string panelayout in theme.PaneLayouts.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+            { 
+                if (ThemeName.StartsWith(theme.ThemeName))
                 {
-                    selectablePaneLayouts.Add(panelayout, theme.Name + " - " + @Utilities.GetTypeNameClass(panelayout));
+                    foreach (string panelayout in theme.PaneLayouts.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        selectablePaneLayouts.Add(panelayout, theme.Name + " - " + @Utilities.GetTypeNameClass(panelayout));
+                    }
                 }
             }
             return selectablePaneLayouts;
