@@ -22,18 +22,8 @@ Security
 - Logging
 - Need support for JwT tokens for external client access to API
 
-Design
-- Need modern Admin UI theme
-- Need to cleanly separate site.css
-
 Admin
 - Need ability to soft delete core entities
-- Drag and Drop modules
-
-Upgrade
-- Need ability to upgrade application seamlessly
-- integrated store/catalog of extensions
-- auto update - provide url to check for updates, perhaps even download in background - core and extensions
 
 Database
 - Need ability to run on SQLite
