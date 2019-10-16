@@ -39,6 +39,10 @@ At this point Oqtane offers a minimum of desired functionality and is not recomm
 
 # Example Screenshots
 
+Default view after installation:
+
+![Home](https://github.com/oqtane/framework/blob/master/screenshot0.png?raw=true "Home")
+
 A seamless login flow utilizing .NET Core Identity services:
 
 ![Login](https://github.com/oqtane/framework/blob/master/screenshot1.png?raw=true "Login")
