@@ -1,30 +1,20 @@
 ﻿@namespace Oqtane.Themes.OqtaneTheme
 @inherits ThemeBase
 
-<div class="sidebar">
-    <div align="center"><Logo /></div>
-    <Menu />
-</div>
-
-<div class="main">
-    <div class="top-row px-4">
-        <h1>@PageState.Page.Name</h1> <div class="ml-md-auto"><UserProfile /> <Login /> <ControlPanel /></div>
-    </div>
+<main role="main">
+    <nav class="navbar navbar-expand-md navbar-dark bg-primary fixed-top">
+        <Logo /><Menu Orientation="Horizontal" /><div class="ml-md-auto"><UserProfile /> <Login /> <ControlPanel ButtonClass="btn-outline-secondary" CardClass="bg-light" /></div>
+    </nav>
     <div class="container">
-        <div class="row px-4">
-            <Pane Name="Top" />
-        </div>
-        <div class="row px-4">
-            <Pane Name="Bottom" />
-        </div>
+        <PaneLayout />
         <div class="row px-4">
             <Pane Name="Admin" />
         </div>
     </div>
-</div>
+</main>
 
 @code {
-    public override string Panes { get { return "Left;Right"; } }
+    public override string Panes { get { return ""; } }
 
     protected override async Task OnParametersSetAsync()
     {

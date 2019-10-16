@@ -39,8 +39,17 @@ namespace Oqtane.Controllers
                 List<Models.Module> modulelist = new List<Models.Module>();
                 foreach (PageModule pagemodule in PageModules.GetPageModules(int.Parse(pageid)))
                 {
-                    Models.Module module = pagemodule.Module;
+                    Models.Module module = new Models.Module();
+                    module.SiteId = pagemodule.Module.SiteId;
+                    module.ModuleDefinitionName = pagemodule.Module.ModuleDefinitionName;
+                    module.Permissions = pagemodule.Module.Permissions;
+                    module.CreatedBy = pagemodule.Module.CreatedBy;
+                    module.CreatedOn = pagemodule.Module.CreatedOn;
+                    module.ModifiedBy = pagemodule.Module.ModifiedBy;
+                    module.ModifiedOn = pagemodule.Module.ModifiedOn;
+
                     module.PageModuleId = pagemodule.PageModuleId;
+                    module.ModuleId = pagemodule.ModuleId;
                     module.PageId = pagemodule.PageId;
                     module.Title = pagemodule.Title;
                     module.Pane = pagemodule.Pane;

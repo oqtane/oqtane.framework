@@ -11,6 +11,7 @@ namespace Oqtane.Models
         public string Logo { get; set; }
         public string DefaultThemeType { get; set; }
         public string DefaultLayoutType { get; set; }
+        public string DefaultContainerType { get; set; }
 
 
         public string CreatedBy { get; set; }

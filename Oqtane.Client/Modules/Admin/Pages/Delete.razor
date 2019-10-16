@@ -66,7 +66,14 @@
                     <option value="">&lt;Select Theme&gt;</option>
                     @foreach (KeyValuePair<string, string> item in themes)
                     {
-                        <option value="@item.Key">@item.Value</option>
+                        if (item.Key == themetype)
+                        {
+                            <option value="@item.Key" selected>@item.Value</option>
+                        }
+                        else
+                        {
+                            <option value="@item.Key">@item.Value</option>
+                        }
                     }
                 </select>
             </td>
@@ -140,7 +147,6 @@
         try
         {
             themes = ThemeService.GetThemeTypes(PageState.Themes);
-            panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes);
 
             PageId = Int32.Parse(PageState.QueryString["id"]);
             Page page = PageState.Pages.Where(item => item.PageId == PageId).FirstOrDefault();
@@ -151,6 +157,7 @@
                 isnavigation = page.IsNavigation.ToString();
                 mode = (page.EditMode) ? "edit" : "view";
                 themetype = page.ThemeType;
+                panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes, themetype);
                 layouttype = page.LayoutType;
                 icon = page.Icon;
                 permissions = page.Permissions;

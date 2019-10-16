@@ -11,7 +11,7 @@
             <img src="oqtane.png" />
         </div>
     </div>
-    <hr style="width: 100%; color: gray; height: 1px; background-color:gray;" />
+    <hr class="app-rule" />
     <h2 class="text-center">Database Configuration</h2>
     <div class="row">
         <div class="mx-auto text-center">
@@ -75,7 +75,7 @@
             </table>
         </div>
     </div>
-    <hr style="width: 100%; color: gray; height: 1px; background-color:gray;" />
+    <hr class="app-rule" />
     <h2 class="text-center">Application Administrator</h2>
     <div class="row">
         <div class="mx-auto text-center">
@@ -178,7 +178,8 @@
                 site.Name = "Default Site";
                 site.Logo = "oqtane.png";
                 site.DefaultThemeType = Constants.DefaultTheme;
-                site.DefaultLayoutType = "";
+                site.DefaultLayoutType = Constants.DefaultLayout;
+                site.DefaultContainerType = Constants.DefaultContainer;
                 site = await SiteService.AddSiteAsync(site);
 
                 User user = new User();

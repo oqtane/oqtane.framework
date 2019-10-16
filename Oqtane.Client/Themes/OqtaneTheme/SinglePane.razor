@@ -1,0 +1,10 @@
+﻿@namespace Oqtane.Themes.OqtaneTheme
+@inherits LayoutBase
+
+<div class="row px-4">
+    <Pane Name="Content" />
+</div>
+
+@code {
+    public override string Panes { get { return "Content"; } }
+}

@@ -8,8 +8,9 @@
         public const string PageComponent = "Oqtane.Shared.ThemeBuilder, Oqtane.Client";
         public const string ContainerComponent = "Oqtane.Shared.ContainerBuilder, Oqtane.Client";
 
-        public const string DefaultTheme = "Oqtane.Themes.OqtaneTheme.Default, Oqtane.Client";
-        public const string DefaultContainer = "Oqtane.Themes.OqtaneTheme.Container, Oqtane.Client";
+        public const string DefaultTheme = "Oqtane.Themes.BlazorTheme.Default, Oqtane.Client";
+        public const string DefaultLayout = "";
+        public const string DefaultContainer = "Oqtane.Themes.BlazorTheme.Container, Oqtane.Client";
         public const string DefaultAdminContainer = "Oqtane.Themes.AdminContainer, Oqtane.Client";
 
         public static readonly string[] DefaultModuleActions = new[] { "Settings", "Import", "Export" }; 

@@ -26,7 +26,7 @@ else
 
 @if (upgradeavailable)
 {
-    <hr />
+    <hr class="app-rule" />
     <div class="mx-auto text-center"><h2>Upgrade Available</h2></div>
 
     <button type="button" class="btn btn-success" @onclick=@(async () => await Download(Constants.PackageId, Constants.Version))>Upgrade Framework</button>

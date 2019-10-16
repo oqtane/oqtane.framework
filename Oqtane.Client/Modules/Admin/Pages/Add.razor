@@ -88,7 +88,7 @@
             <label for="Name" class="control-label">Theme: </label>
         </td>
         <td>
-            <select class="form-control" @bind="@themetype">
+            <select class="form-control" @onchange="(e => ThemeChanged(e))">
                 <option value="">&lt;Select Theme&gt;</option>
                 @foreach (KeyValuePair<string, string> item in themes)
                 {
@@ -161,9 +161,9 @@
             children = PageState.Pages.Where(item => item.ParentId == null).ToList();
 
             themes = ThemeService.GetThemeTypes(PageState.Themes);
-            panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes);
-
             themetype = PageState.Site.DefaultThemeType;
+
+            panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes, themetype);
             layouttype = PageState.Site.DefaultLayoutType;
 
             List<PermissionString> permissionstrings = new List<PermissionString>();
@@ -198,78 +198,106 @@
         }
     }
 
+    private void ThemeChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            themetype = (string)e.Value;
+            if (themetype != "")
+            {
+                panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes, themetype);
+            }
+            else
+            {
+                panelayouts = new Dictionary<string, string>();
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+
     private async Task SavePage()
     {
         try
         {
-            Page page = new Page();
-            page.SiteId = PageState.Page.SiteId;
-            page.Name = name;
-            if (path == "")
+            if (name != "" && !string.IsNullOrEmpty(themetype) && (panelayouts.Count == 0 || !string.IsNullOrEmpty(layouttype)))
             {
-                path = name;
-            }
-            if (path.Contains("/"))
-            {
-                path = path.Substring(path.LastIndexOf("/") + 1);
-            }
-            if (string.IsNullOrEmpty(parentid))
-            {
-                page.ParentId = null;
-                page.Path = Utilities.GetFriendlyUrl(path);
-            }
-            else
-            {
-                page.ParentId = Int32.Parse(parentid);
-                Page parent = PageState.Pages.Where(item => item.PageId == page.ParentId).FirstOrDefault();
-                if (parent.Path == "")
+                Page page = new Page();
+                page.SiteId = PageState.Page.SiteId;
+                page.Name = name;
+                if (path == "")
                 {
-                    page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(path);
+                    path = name;
+                }
+                if (path.Contains("/"))
+                {
+                    path = path.Substring(path.LastIndexOf("/") + 1);
+                }
+                if (string.IsNullOrEmpty(parentid))
+                {
+                    page.ParentId = null;
+                    page.Path = Utilities.GetFriendlyUrl(path);
                 }
                 else
                 {
-                    page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(path);
+                    page.ParentId = Int32.Parse(parentid);
+                    Page parent = PageState.Pages.Where(item => item.PageId == page.ParentId).FirstOrDefault();
+                    if (parent.Path == "")
+                    {
+                        page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(path);
+                    }
+                    else
+                    {
+                        page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(path);
+                    }
                 }
-            }
-            Page child;
-            switch (insert)
-            {
-                case "<<":
-                    page.Order = 0;
-                    break;
-                case "<":
-                    child = PageState.Pages.Where(item => item.PageId == childid).FirstOrDefault();
-                    page.Order = child.Order - 1;
-                    break;
-                case ">":
-                    child = PageState.Pages.Where(item => item.PageId == childid).FirstOrDefault();
-                    page.Order = child.Order + 1;
-                    break;
-                case ">>":
-                    page.Order = int.MaxValue;
-                    break;
-            }
-            page.IsNavigation = (isnavigation == null ? true : Boolean.Parse(isnavigation));
-            page.EditMode = (mode == "edit" ? true : false);
-            page.ThemeType = themetype;
-            page.LayoutType = (layouttype == null ? "" : layouttype);
-            page.Icon = (icon == null ? "" : icon);
-            Type type;
-            if (!string.IsNullOrEmpty(layouttype))
-            {
-                type = Type.GetType(layouttype);
+                Page child;
+                switch (insert)
+                {
+                    case "<<":
+                        page.Order = 0;
+                        break;
+                    case "<":
+                        child = PageState.Pages.Where(item => item.PageId == childid).FirstOrDefault();
+                        page.Order = child.Order - 1;
+                        break;
+                    case ">":
+                        child = PageState.Pages.Where(item => item.PageId == childid).FirstOrDefault();
+                        page.Order = child.Order + 1;
+                        break;
+                    case ">>":
+                        page.Order = int.MaxValue;
+                        break;
+                }
+                page.IsNavigation = (isnavigation == null ? true : Boolean.Parse(isnavigation));
+                page.EditMode = (mode == "edit" ? true : false);
+                page.ThemeType = themetype;
+                page.LayoutType = (layouttype == null ? "" : layouttype);
+                page.Icon = (icon == null ? "" : icon);
+                page.Permissions = permissiongrid.GetPermissions();
+
+                if (page.ThemeType == PageState.Site.DefaultThemeType)
+                {
+                    page.ThemeType = "";
+                }
+                if (page.LayoutType == PageState.Site.DefaultLayoutType)
+                {
+                    page.LayoutType = "";
+                }
+
+                await PageService.AddPageAsync(page);
+                await PageService.UpdatePageOrderAsync(page.SiteId, page.ParentId);
+
+                NavigationManager.NavigateTo(NavigateUrl(page.Path, Reload.Site));
             }
             else
             {
-                type = Type.GetType(themetype);
+                AddModuleMessage("You Must Provide Page Name And Theme", MessageType.Warning);
             }
-            System.Reflection.PropertyInfo property = type.GetProperty("Panes");
-            page.Panes = (string)property.GetValue(Activator.CreateInstance(type), null);
-            page.Permissions = permissiongrid.GetPermissions();
-            await PageService.AddPageAsync(page);
-            await PageService.UpdatePageOrderAsync(page.SiteId, page.ParentId);
 
-            NavigationManager.NavigateTo(NavigateUrl(page.Path, Reload.Site));
         }
         catch (Exception ex)
         {

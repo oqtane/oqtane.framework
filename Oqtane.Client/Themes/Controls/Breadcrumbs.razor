@@ -1,0 +1,31 @@
+﻿@namespace Oqtane.Themes.Controls
+@inherits ThemeControlBase
+
+@if (breadcrumbs != "")
+{
+    @((MarkupString)breadcrumbs)
+}
+
+@code {
+    string breadcrumbs = "";
+
+    protected override void OnParametersSet()
+    {
+        breadcrumbs = "";
+        int? pageid = PageState.Page.PageId;
+        for (int i = PageState.Pages.Count - 1; i >= 0; i--)
+        {
+            Page p = PageState.Pages[i];
+            if (p.PageId == pageid)
+            {
+                breadcrumbs = "<li class=\"breadcrumb-item" + ((p.PageId == PageState.Page.PageId) ? " active" : "") +
+                    "\"><a href=\"" + NavigateUrl(p.Path) + "\">" + p.Name + "</a></li>" + breadcrumbs;
+                pageid = p.ParentId;
+            }
+        }
+        if (breadcrumbs != "")
+        {
+            breadcrumbs = "<ol class=\"breadcrumb\">" + breadcrumbs + "</ol>";
+        }
+    }
+}
