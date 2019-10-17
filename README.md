@@ -22,18 +22,8 @@ Security
 - Logging
 - Need support for JwT tokens for external client access to API
 
-Design
-- Need modern Admin UI theme
-- Need to cleanly separate site.css
-
 Admin
 - Need ability to soft delete core entities
-- Drag and Drop modules
-
-Upgrade
-- Need ability to upgrade application seamlessly
-- integrated store/catalog of extensions
-- auto update - provide url to check for updates, perhaps even download in background - core and extensions
 
 Database
 - Need ability to run on SQLite
@@ -48,6 +38,14 @@ At this point Oqtane offers a minimum of desired functionality and is not recomm
 [Announcing Oqtane... a Modular Application Framework for Blazor!](https://www.oqtane.org/Resources/Blog/PostId/520/announcing-oqtane-a-modular-application-framework-for-blazor)
 
 # Example Screenshots
+
+Install Wizard:
+
+![Installer](https://github.com/oqtane/framework/blob/master/installer.png?raw=true "Installer")
+
+Default view after installation:
+
+![Home](https://github.com/oqtane/framework/blob/master/screenshot0.png?raw=true "Home")
 
 A seamless login flow utilizing .NET Core Identity services:
 

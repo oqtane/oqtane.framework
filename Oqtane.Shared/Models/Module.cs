@@ -17,6 +17,9 @@ namespace Oqtane.Models
         public DateTime ModifiedOn { get; set; }
 
         [NotMapped]
+        public bool IsDeleted { get; set; }
+
+        [NotMapped]
         public string Permissions { get; set; }
 
         // PageModule properties

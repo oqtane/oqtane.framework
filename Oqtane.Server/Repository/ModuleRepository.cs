@@ -64,7 +64,7 @@ namespace Oqtane.Repository
         public void DeleteModule(int ModuleId)
         {
             Module Module = db.Module.Find(ModuleId);
-            Permissions.UpdatePermissions(Module.SiteId, "Module", ModuleId, "");
+            Permissions.DeletePermissions(Module.SiteId, "Module", ModuleId);
             db.Module.Remove(Module);
             db.SaveChanges();
         }
