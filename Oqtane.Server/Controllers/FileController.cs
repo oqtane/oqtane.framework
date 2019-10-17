@@ -6,6 +6,7 @@ using Oqtane.Shared;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Oqtane.Controllers
@@ -67,11 +68,11 @@ namespace Oqtane.Controllers
             string[] fileparts = Directory.GetFiles(folder, filename + token + "*"); // list of all file parts
 
             // if all of the file parts exist ( note that file parts can arrive out of order )
-            if (fileparts.Length == totalparts)
+            if (fileparts.Length == totalparts && CanAccessFiles(fileparts))
             {
                 // merge file parts
                 bool success = true;
-                using (var stream = new FileStream(Path.Combine(folder, filename), FileMode.Create))
+                using (var stream = new FileStream(Path.Combine(folder, filename + ".tmp"), FileMode.Create))
                 {
                     foreach (string filepart in fileparts)
                     {
@@ -89,7 +90,7 @@ namespace Oqtane.Controllers
                     }
                 }
 
-                // delete file parts
+                // delete file parts and rename file
                 if (success)
                 {
                     foreach (string filepart in fileparts)
@@ -100,13 +101,17 @@ namespace Oqtane.Controllers
                     // check for allowable file extensions
                     if (!WhiteList.Contains(Path.GetExtension(filename).Replace(".", "")))
                     {
-                        System.IO.File.Delete(Path.Combine(folder, filename));
-                        success = false;
+                        System.IO.File.Delete(Path.Combine(folder, filename + ".tmp"));
+                    }
+                    else
+                    {
+                        // rename file now that the entire process is completed
+                        System.IO.File.Move(Path.Combine(folder, filename + ".tmp"), Path.Combine(folder, filename));
                     }
                 }
             }
 
-            // clean up file parts which are more than 2 hours old ( which can happen if a file upload failed )
+            // clean up file parts which are more than 2 hours old ( which can happen if a prior file upload failed )
             fileparts = Directory.GetFiles(folder, "*" + token + "*");
             foreach (string filepart in fileparts)
             {
@@ -116,6 +121,43 @@ namespace Oqtane.Controllers
                     System.IO.File.Delete(filepart);
                 }
             }
+        }
+
+        private bool CanAccessFiles(string[] files)
+        {
+            // ensure files are not locked by another process ( ie. still being written to )
+            bool canaccess = true;
+            FileStream stream = null;
+            foreach (string file in files)
+            {
+                int attempts = 0;
+                bool locked = true;
+                while (attempts < 5 && locked == true)
+                {
+                    try
+                    {
+                        stream = System.IO.File.Open(file, FileMode.Open, FileAccess.Read, FileShare.None);
+                        locked = false;
+                    }
+                    catch // file is locked by another process
+                    {                    
+                        Thread.Sleep(1000); // wait 1 second
+                    }
+                    finally
+                    {
+                        if (stream != null)
+                        {
+                            stream.Close();
+                        }
+                    }
+                    attempts += 1;
+                }
+                if (locked && canaccess)
+                {
+                    canaccess = false;
+                }
+            }
+            return canaccess;
         }
 
         // DELETE api/<controller>/?folder=x&file=y
