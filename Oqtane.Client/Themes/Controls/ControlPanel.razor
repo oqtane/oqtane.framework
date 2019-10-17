@@ -162,7 +162,7 @@
     string cardclass = "text-white bg-secondary";
     string message = "";
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         if (!string.IsNullOrEmpty(ButtonClass))
         {
@@ -257,7 +257,8 @@
             PageModule pagemodule = new PageModule();
             pagemodule.PageId = PageState.Page.PageId;
             pagemodule.ModuleId = int.Parse(moduleid);
-            if (title == "")
+            pagemodule.Title = title;
+            if (pagemodule.Title == "")
             {
                 if (moduletype == "new")
                 {
