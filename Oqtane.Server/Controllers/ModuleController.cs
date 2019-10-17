@@ -47,6 +47,7 @@ namespace Oqtane.Controllers
                     module.CreatedOn = pagemodule.Module.CreatedOn;
                     module.ModifiedBy = pagemodule.Module.ModifiedBy;
                     module.ModifiedOn = pagemodule.Module.ModifiedOn;
+                    module.IsDeleted = pagemodule.IsDeleted;
 
                     module.PageModuleId = pagemodule.PageModuleId;
                     module.ModuleId = pagemodule.ModuleId;
