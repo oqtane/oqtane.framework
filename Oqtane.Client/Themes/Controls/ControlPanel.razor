@@ -189,19 +189,25 @@
                 }
             }
             moduledefinitions = PageState.ModuleDefinitions.Where(item => item.Categories == "").ToList();
-            foreach(Page p in PageState.Pages)
-            {
-                if (UserSecurity.IsAuthorized(PageState.User, "View", p.Permissions))
-                {
-                    pages.Add(p);
-                }
-            }
             containers = ThemeService.GetContainerTypes(PageState.Themes);
             containertype = PageState.Site.DefaultContainerType;
             List<Module> modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId, Constants.PageManagementModule);
             if (modules.Count > 0)
             {
                 pagemanagementmoduleid = modules.FirstOrDefault().ModuleId;
+            }
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        pages = new List<Page>();
+
+        foreach(Page p in PageState.Pages)
+        {
+            if (UserSecurity.IsAuthorized(PageState.User, "View", p.Permissions))
+            {
+                pages.Add(p);
             }
         }
     }
