@@ -17,7 +17,7 @@ else
             <th>&nbsp;</th>
         </Header>
         <Row>
-            <td>@context</td>
+            <td><a href="@(uri.Scheme + "://" + uri.Authority + "/" + PageState.Site.SiteRootPath + context)" target="_new">@context</a></td>
             <td>
                 <button type="button" class="btn btn-danger" @onclick=@(async () => await DeleteFile(context))>Delete</button>
             </td>
@@ -29,10 +29,12 @@ else
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 
     List<string> Files;
+    Uri uri;
 
     protected override async Task OnParametersSetAsync()
     {
         Files = await FileService.GetFilesAsync(PageState.Site.SiteRootPath);
+        uri = new Uri(NavigationManager.Uri);
     }
 
     private async Task DeleteFile(string filename)
