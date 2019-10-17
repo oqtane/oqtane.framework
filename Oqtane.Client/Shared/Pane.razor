@@ -117,7 +117,7 @@
                 }
                 else
                 {
-                    foreach (Module module in PageState.Modules.Where(item => item.Pane.ToLower() == Name.ToLower()).OrderBy(x => x.Order).ToArray())
+                    foreach (Module module in PageState.Modules.Where(item => item.Pane.ToLower() == Name.ToLower() && !item.IsDeleted).OrderBy(x => x.Order).ToArray())
                     {
                         // check if user is authorized to view module
                         if (UserSecurity.IsAuthorized(PageState.User, "View", module.Permissions))

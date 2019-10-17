@@ -23,7 +23,7 @@
 }
 
 @code {
-    List<ActionViewModel> actions;
+        List<ActionViewModel> actions;
 
     protected override void OnParametersSet()
     {
@@ -103,7 +103,8 @@
                     url = EditUrl(pagemodule.ModuleId, "Export");
                     break;
                 case "delete":
-                    await PageModuleService.DeletePageModuleAsync(pagemodule.PageModuleId);
+                    pagemodule.IsDeleted = true;
+                    await PageModuleService.UpdatePageModuleAsync(pagemodule);
                     await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
                     break;
                 default: // move to pane
