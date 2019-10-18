@@ -149,6 +149,7 @@
     List<string> categories = new List<string>();
     List<ModuleDefinition> moduledefinitions;
     List<Page> pages;
+    string pageid = "";
     string moduleid = "";
     List<Module> modules = new List<Module>();
     Dictionary<string, string> containers = new Dictionary<string, string>();
@@ -221,7 +222,7 @@
 
     private void PageChanged(ChangeEventArgs e)
     {
-        string pageid = (string)e.Value;
+        pageid = (string)e.Value;
         if (pageid != "")
         {
             foreach(Module module in PageState.Modules.Where(item => item.PageId == int.Parse(pageid)))
@@ -251,7 +252,7 @@
             }
 
             PageModule pagemodule = new PageModule();
-            pagemodule.PageId = PageState.Page.PageId;
+            pagemodule.PageId = string.IsNullOrWhiteSpace(pageid) ? PageState.Page.PageId : int.Parse(pageid);
             pagemodule.ModuleId = int.Parse(moduleid);
             pagemodule.Title = title;
             if (pagemodule.Title == "")
