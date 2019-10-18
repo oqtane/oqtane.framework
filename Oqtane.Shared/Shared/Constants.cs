@@ -13,8 +13,10 @@
         public const string DefaultContainer = "Oqtane.Themes.BlazorTheme.Container, Oqtane.Client";
         public const string DefaultAdminContainer = "Oqtane.Themes.AdminContainer, Oqtane.Client";
 
+        // Default Module Actions are reserved and should not be used by modules
         public static readonly string[] DefaultModuleActions = new[] { "Settings", "Import", "Export" }; 
         public const string DefaultModuleActionsTemplate = "Oqtane.Modules.Admin.Modules.{Control}, Oqtane.Client";
+        public const string AdminDashboardModule = "Oqtane.Modules.Admin.Dashboard, Oqtane.Client";
         public const string PageManagementModule = "Oqtane.Modules.Admin.Pages, Oqtane.Client";
         public const string ModuleMessageControl = "Oqtane.Modules.Controls.ModuleMessage, Oqtane.Client";
 

@@ -7,7 +7,7 @@ namespace Oqtane.Services
     public interface IFileService
     {
         Task<List<string>> GetFilesAsync(string Folder);
-        Task<bool> UploadFilesAsync(string Folder, string[] Files, string FileUploadName);
+        Task<string> UploadFilesAsync(string Folder, string[] Files, string FileUploadName);
         Task DeleteFileAsync(string Folder, string File);
     }
 }

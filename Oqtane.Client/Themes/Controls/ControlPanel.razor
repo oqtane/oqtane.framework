@@ -152,7 +152,6 @@
     string moduleid = "";
     List<Module> modules = new List<Module>();
     Dictionary<string, string> containers = new Dictionary<string, string>();
-    int pagemanagementmoduleid = -1;
     string moduledefinitionname = "";
     string pane = "";
     string title = "";
@@ -162,7 +161,7 @@
     string cardclass = "text-white bg-secondary";
     string message = "";
 
-    protected override async Task OnParametersSetAsync()
+    protected override void OnParametersSet()
     {
         if (!string.IsNullOrEmpty(ButtonClass))
         {
@@ -200,11 +199,6 @@
             pane = panes.Count() == 1 ? panes.SingleOrDefault() : "";
             containers = ThemeService.GetContainerTypes(PageState.Themes);
             containertype = PageState.Site.DefaultContainerType;
-            List<Module> modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId, Constants.PageManagementModule);
-            if (modules.Count > 0)
-            {
-                pagemanagementmoduleid = modules.FirstOrDefault().ModuleId;
-            }
         }
     }
 
@@ -223,12 +217,12 @@
         StateHasChanged();
     }
 
-    private async Task PageChanged(ChangeEventArgs e)
+    private void PageChanged(ChangeEventArgs e)
     {
         string pageid = (string)e.Value;
         if (pageid != "")
         {
-            foreach(Module module in await ModuleService.GetModulesAsync(int.Parse(pageid)))
+            foreach(Module module in PageState.Modules.Where(item => item.PageId == int.Parse(pageid)))
             {
                 if (UserSecurity.IsAuthorized(PageState.User, "View", module.Permissions))
                 {
@@ -287,27 +281,6 @@
         }
     }
 
-    private string PageUrl(string action)
-    {
-        string url = "";
-        if (pagemanagementmoduleid != -1)
-        {
-            switch (action)
-            {
-                case "Add":
-                    url = EditUrl("admin/pages", pagemanagementmoduleid, action, "");
-                    break;
-                case "Edit":
-                    url = EditUrl("admin/pages", pagemanagementmoduleid, action, "id=" + PageState.Page.PageId.ToString());
-                    break;
-                case "Delete":
-                    url = EditUrl("admin/pages", pagemanagementmoduleid, action, "id=" + PageState.Page.PageId.ToString());
-                    break;
-            }
-        }
-        return url;
-    }
-
     private void EditMode()
     {
         if (UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions))
@@ -343,15 +316,42 @@
     private void Navigate(string location)
     {
         HideControlPanel();
+        Module module;
         switch (location)
         {
             case "Admin":
-                NavigationManager.NavigateTo(NavigateUrl("admin"));
+                // get admin dashboard moduleid
+                module = PageState.Modules.Where(item => item.ModuleDefinitionName == Constants.AdminDashboardModule).FirstOrDefault();
+                if (module != null)
+                {
+                    NavigationManager.NavigateTo(EditUrl(PageState.Page.Path, module.ModuleId, "Index", ""));
+                }
                 break;
             case "Add":
             case "Edit":
             case "Delete":
-                NavigationManager.NavigateTo(PageUrl(location));
+                string url = "";
+                // get page management moduleid
+                module = PageState.Modules.Where(item => item.ModuleDefinitionName == Constants.PageManagementModule).FirstOrDefault();
+                if (module != null)
+                {
+                    switch (location)
+                    {
+                        case "Add":
+                            url = EditUrl(PageState.Page.Path, module.ModuleId, location, "");
+                            break;
+                        case "Edit":
+                            url = EditUrl(PageState.Page.Path, module.ModuleId, location, "id=" + PageState.Page.PageId.ToString());
+                            break;
+                        case "Delete":
+                            url = EditUrl(PageState.Page.Path, module.ModuleId, location, "id=" + PageState.Page.PageId.ToString());
+                            break;
+                    }
+                }
+                if (url != "")
+                {
+                    NavigationManager.NavigateTo(url);
+                }
                 break;
         }
     }

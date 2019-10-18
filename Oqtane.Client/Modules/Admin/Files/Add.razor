@@ -30,13 +30,14 @@
             {
                 ShowProgressIndicator();
 
-                if (await FileService.UploadFilesAsync(PageState.Site.SiteRootPath, files, ""))
+                string result = await FileService.UploadFilesAsync(PageState.Site.SiteRootPath, files, "");
+                if (result == "")
                 {
                     AddModuleMessage("Files Uploaded Successfully", MessageType.Success);
                 }
                 else
                 {
-                    AddModuleMessage("Upload Failed", MessageType.Error);
+                    AddModuleMessage("Upload Failed For " + result.Replace(",",", ") + ". This Could Be Due To A Network Error Or Because A File Type Is Restricted.", MessageType.Error);
                 }
             }
             catch (Exception ex)

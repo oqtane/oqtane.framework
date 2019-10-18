@@ -20,10 +20,11 @@ namespace Oqtane.Repository
         {
             return db.PageModule;
         }
-        public IEnumerable<PageModule> GetPageModules(int PageId)
+        public IEnumerable<PageModule> GetPageModules(int SiteId)
         {
-            IEnumerable<PageModule> pagemodules = db.PageModule.Where(item => item.PageId == PageId)
-                .Include(item => item.Module); // eager load modules
+            IEnumerable<PageModule> pagemodules = db.PageModule
+                .Include(item => item.Module) // eager load modules
+                .Where(item => item.Module.SiteId == SiteId);
             if (pagemodules != null && pagemodules.Any())
             {
                 IEnumerable<Permission> permissions = Permissions.GetPermissions(pagemodules.FirstOrDefault().Module.SiteId, "Module").ToList();

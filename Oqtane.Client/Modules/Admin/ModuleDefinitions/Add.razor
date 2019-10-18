@@ -74,7 +74,8 @@
             {
                 try
                 {
-                    if (await FileService.UploadFilesAsync("Modules", files, ""))
+                    string result = await FileService.UploadFilesAsync("Modules", files, "");
+                    if (result == "")
                     {
                         AddModuleMessage("Module Uploaded Successfully. Click Install To Complete Installation.", MessageType.Success);
                         uploaded = true;
@@ -82,7 +83,7 @@
                     }
                     else
                     {
-                        AddModuleMessage("Module Upload Failed.", MessageType.Error);
+                        AddModuleMessage("Upload Failed For " + result.Replace(",",", ") + ". This Could Be Due To A Network Error Or Because A File Type Is Restricted.", MessageType.Error);
                     }
                 }
                 catch (Exception ex)

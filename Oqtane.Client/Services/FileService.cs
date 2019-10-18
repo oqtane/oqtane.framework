@@ -33,17 +33,20 @@ namespace Oqtane.Services
             return await http.GetJsonAsync<List<string>>(apiurl + "?folder=" + Folder);
         }
 
-        public async Task<bool> UploadFilesAsync(string Folder, string[] Files, string FileUploadName)
+        public async Task<string> UploadFilesAsync(string Folder, string[] Files, string FileUploadName)
         {
-            bool success = false;
+            string result = "";
+
             var interop = new Interop(jsRuntime);
             await interop.UploadFiles(apiurl + "/upload", Folder, FileUploadName);
 
             // uploading files is asynchronous so we need to wait for the upload to complete
+            bool success = false;
             int attempts = 0;
             while (attempts < 5 && success == false)
             {
                 Thread.Sleep(2000); // wait 2 seconds
+                result = "";
 
                 List<string> files = await GetFilesAsync(Folder);
                 if (files.Count > 0)
@@ -54,13 +57,18 @@ namespace Oqtane.Services
                         if (!files.Contains(file))
                         {
                             success = false;
+                            result += file + ",";
                         }
                     }
                 }
                 attempts += 1;
             }
+            if (!success)
+            {
+                result = result.Substring(0, result.Length - 1);
+            }
 
-            return success;
+            return result;
         }
 
         public async Task DeleteFileAsync(string Folder, string File)

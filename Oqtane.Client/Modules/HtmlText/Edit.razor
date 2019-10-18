@@ -6,13 +6,13 @@
 @inject HttpClient http
 @inject SiteState sitestate
 
-<table class="form-group">
+<table class="table table-borderless">
     <tr>
         <td>
             <label for="Name" class="control-label">Content: </label>
         </td>
         <td>
-            <textarea class="form-control" @bind="@content" rows="5" style="width:400px;" />
+            <textarea class="form-control" @bind="@content" rows="5" />
         </td>
     </tr>
 </table>
