@@ -62,7 +62,8 @@ else
             {
                 try
                 {
-                    if (await FileService.UploadFilesAsync("Framework", files, ""))
+                    string result = await FileService.UploadFilesAsync("Framework", files, "");
+                    if (result == "")
                     {
                         AddModuleMessage("Framework Uploaded Successfully. Click Upgrade To Complete Installation.", MessageType.Success);
                         uploaded = true;
@@ -70,7 +71,7 @@ else
                     }
                     else
                     {
-                        AddModuleMessage("Framework Upload Failed.", MessageType.Error);
+                        AddModuleMessage("Upload Failed For " + result.Replace(",",", ") + ". This Could Be Due To A Network Error Or Because A File Type Is Restricted.", MessageType.Error);
                     }
                 }
                 catch (Exception ex)

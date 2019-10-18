@@ -17,15 +17,15 @@
         }
     }
 </div>
-<br />
-<br />
 
 @code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+
     List<Page> pages;
 
     protected override void OnInitialized()
     {
-    // display list of pages which are children of current page
-    pages = PageState.Pages.Where(item => item.ParentId == PageState.Page.PageId).ToList();
+        Page admin = PageState.Pages.Where(item => item.Path == "admin").FirstOrDefault();
+        pages = PageState.Pages.Where(item => item.ParentId == admin.PageId).ToList();
     }
 }

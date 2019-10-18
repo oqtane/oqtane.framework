@@ -159,18 +159,18 @@
             // extract admin route elements from path
             string[] segments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             int result;
+            // check if path has moduleid and control specification ie. page/moduleid/control/
             if (segments.Length >= 2 && int.TryParse(segments[segments.Length - 2], out result))
             {
-                // path has moduleid and control specification ie. page/moduleid/control/
                 control = segments[segments.Length - 1];
                 moduleid = result;
                 path = path.Replace(moduleid.ToString() + "/" + control + "/", "");
             }
             else
             {
-                if (segments.Length >= 2 && int.TryParse(segments[segments.Length - 2], out result))
+                // check if path has only moduleid specification ie. page/moduleid/
+                if (segments.Length >= 1 && int.TryParse(segments[segments.Length - 1], out result))
                 {
-                    // path has only moduleid specification ie. page/moduleid/
                     moduleid = result;
                     path = path.Replace(moduleid.ToString() + "/", "");
                 }
@@ -244,8 +244,8 @@
 
                     if (PageState == null || reload >= Reload.Page)
                     {
-                        modules = await ModuleService.GetModulesAsync(page.PageId);
-                        modules = ProcessModules(modules, moduledefinitions, pagestate.Control, page.Panes, site);
+                        modules = await ModuleService.GetModulesAsync(site.SiteId);
+                        modules = ProcessModules(modules, moduledefinitions, page.PageId, pagestate.ModuleId, pagestate.Control, page.Panes, site.DefaultContainerType);
                     }
                     else
                     {
@@ -341,15 +341,9 @@
         return page;
     }
 
-    private List<Module> ProcessModules(List<Module> modules, List<ModuleDefinition> moduledefinitions, string control, string panes, Site site)
+    private List<Module> ProcessModules(List<Module> modules, List<ModuleDefinition> moduledefinitions, int pageid, int moduleid, string control, string panes, string defaultcontainertype)
     {
         ModuleDefinition moduledefinition;
-
-        if (control == "")
-        {
-            control = Constants.DefaultControl;
-        }
-
         Dictionary<string, int> paneindex = new Dictionary<string, int>();
         foreach (Module module in modules)
         {
@@ -358,62 +352,80 @@
             if (moduledefinition != null)
             {
                 string typename = moduledefinition.ControlTypeTemplate;
-                if (moduledefinition.ControlTypeRoutes != "")
+                if (module.ModuleId == moduleid && control != "")
                 {
-                    foreach (string route in moduledefinition.ControlTypeRoutes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                    // check if the module defines custom routes
+                    if (moduledefinition.ControlTypeRoutes != "")
                     {
-                        if (route.StartsWith(control + "="))
+                        foreach (string route in moduledefinition.ControlTypeRoutes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
                         {
-                            typename = route.Replace(control + "=", "");
+                            if (route.StartsWith(control + "="))
+                            {
+                                typename = route.Replace(control + "=", "");
+                            }
+                        }
+                    }
+                    module.ModuleType = typename.Replace("{Control}", control);
+
+                    // admin controls need to load additional metadata from the IModuleControl interface
+                    if (moduleid == module.ModuleId)
+                    {
+                        typename = module.ModuleType;
+                        // check for core module actions component
+                        if (Constants.DefaultModuleActions.Contains(control))
+                        {
+                            typename = Constants.DefaultModuleActionsTemplate.Replace("{Control}", control);
+                        }
+                        Type moduletype = Type.GetType(typename);
+                        if (moduletype != null)
+                        {
+                            var moduleobject = Activator.CreateInstance(moduletype);
+                            module.SecurityAccessLevel = (SecurityAccessLevel)moduletype.GetProperty("SecurityAccessLevel").GetValue(moduleobject, null);
+                            module.ControlTitle = (string)moduletype.GetProperty("Title").GetValue(moduleobject);
+                            module.Actions = (string)moduletype.GetProperty("Actions").GetValue(moduleobject);
+                            module.UseAdminContainer = (bool)moduletype.GetProperty("UseAdminContainer").GetValue(moduleobject);
                         }
                     }
                 }
-                module.ModuleType = typename.Replace("{Control}", control);
-
-                // get IModuleControl properties
-                typename = module.ModuleType;
-                // check for core module actions component
-                if (Constants.DefaultModuleActions.Contains(control))
+                else
                 {
-                    typename = Constants.DefaultModuleActionsTemplate.Replace("{Control}", control);
+                    module.ModuleType = typename.Replace("{Control}", Constants.DefaultControl);
                 }
-                Type moduletype = Type.GetType(typename);
-                if (moduletype != null)
+
+            }
+
+            if (module.PageId == pageid)
+            {
+                // ensure module's pane exists in current page and if not, assign it to the Admin pane
+                if (!panes.ToLower().Contains(module.Pane.ToLower()))
                 {
-                    var moduleobject = Activator.CreateInstance(moduletype);
-                    module.SecurityAccessLevel = (SecurityAccessLevel)moduletype.GetProperty("SecurityAccessLevel").GetValue(moduleobject, null);
-                    module.ControlTitle = (string)moduletype.GetProperty("Title").GetValue(moduleobject);
-                    module.Actions = (string)moduletype.GetProperty("Actions").GetValue(moduleobject);
-                    module.UseAdminContainer = (bool)moduletype.GetProperty("UseAdminContainer").GetValue(moduleobject);
+                    module.Pane = Constants.AdminPane;
                 }
-            }
 
-            // ensure module's pane exists in current page and if not, assign it to the Admin pane
-            if (!panes.ToLower().Contains(module.Pane.ToLower()))
-            {
-                module.Pane = Constants.AdminPane;
+                // calculate module position within pane
+                if (paneindex.ContainsKey(module.Pane))
+                {
+                    paneindex[module.Pane] += 1;
+                }
+                else
+                {
+                    paneindex.Add(module.Pane, 0);
+                }
+                module.PaneModuleIndex = paneindex[module.Pane];
             }
-
-            // calculate module position within pane
-            if (paneindex.ContainsKey(module.Pane))
-            {
-                paneindex[module.Pane] += 1;
-            }
-            else
-            {
-                paneindex.Add(module.Pane, 0);
-            }
-            module.PaneModuleIndex = paneindex[module.Pane];
 
             if (string.IsNullOrEmpty(module.ContainerType))
             {
-                module.ContainerType = site.DefaultContainerType;
+                module.ContainerType = defaultcontainertype;
             }
         }
 
         foreach (Module module in modules)
         {
-            module.PaneModuleCount = paneindex[module.Pane] + 1;
+            if (module.PageId == pageid)
+            {
+                module.PaneModuleCount = paneindex[module.Pane] + 1;
+            }
         }
         return modules;
     }

@@ -21,19 +21,6 @@ namespace Oqtane.Repository
             return db.Module;
         }
 
-        public IEnumerable<Module> GetModules(int SiteId, string ModuleDefinitionName)
-        {
-            IEnumerable<Permission> permissions = Permissions.GetPermissions(SiteId, "Module").ToList();
-            IEnumerable<Module> modules = db.Module
-                .Where(item => item.SiteId == SiteId)
-                .Where(item => item.ModuleDefinitionName == ModuleDefinitionName);
-            foreach (Module module in modules)
-            {
-                module.Permissions = Permissions.EncodePermissions(module.ModuleId, permissions);
-            }
-            return modules;
-        }
-
         public Module AddModule(Module Module)
         {
             db.Module.Add(Module);

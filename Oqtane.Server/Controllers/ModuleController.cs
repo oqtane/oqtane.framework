@@ -29,41 +29,33 @@ namespace Oqtane.Controllers
             this.ServiceProvider = ServiceProvider;
         }
 
-        // GET: api/<controller>?pageid=x
-        // GET: api/<controller>?siteid=x&moduledefinitionname=x
+        // GET: api/<controller>?siteid=x
         [HttpGet]
-        public IEnumerable<Models.Module> Get(string pageid, string siteid, string moduledefinitionname)
+        public IEnumerable<Models.Module> Get(string siteid)
         {
-            if (!string.IsNullOrEmpty(pageid))
+            List<Models.Module> modulelist = new List<Models.Module>();
+            foreach (PageModule pagemodule in PageModules.GetPageModules(int.Parse(siteid)))
             {
-                List<Models.Module> modulelist = new List<Models.Module>();
-                foreach (PageModule pagemodule in PageModules.GetPageModules(int.Parse(pageid)))
-                {
-                    Models.Module module = new Models.Module();
-                    module.SiteId = pagemodule.Module.SiteId;
-                    module.ModuleDefinitionName = pagemodule.Module.ModuleDefinitionName;
-                    module.Permissions = pagemodule.Module.Permissions;
-                    module.CreatedBy = pagemodule.Module.CreatedBy;
-                    module.CreatedOn = pagemodule.Module.CreatedOn;
-                    module.ModifiedBy = pagemodule.Module.ModifiedBy;
-                    module.ModifiedOn = pagemodule.Module.ModifiedOn;
-                    module.IsDeleted = pagemodule.IsDeleted;
+                Models.Module module = new Models.Module();
+                module.SiteId = pagemodule.Module.SiteId;
+                module.ModuleDefinitionName = pagemodule.Module.ModuleDefinitionName;
+                module.Permissions = pagemodule.Module.Permissions;
+                module.CreatedBy = pagemodule.Module.CreatedBy;
+                module.CreatedOn = pagemodule.Module.CreatedOn;
+                module.ModifiedBy = pagemodule.Module.ModifiedBy;
+                module.ModifiedOn = pagemodule.Module.ModifiedOn;
+                module.IsDeleted = pagemodule.IsDeleted;
 
-                    module.PageModuleId = pagemodule.PageModuleId;
-                    module.ModuleId = pagemodule.ModuleId;
-                    module.PageId = pagemodule.PageId;
-                    module.Title = pagemodule.Title;
-                    module.Pane = pagemodule.Pane;
-                    module.Order = pagemodule.Order;
-                    module.ContainerType = pagemodule.ContainerType;
-                    modulelist.Add(module);
-                }
-                return modulelist;
+                module.PageModuleId = pagemodule.PageModuleId;
+                module.ModuleId = pagemodule.ModuleId;
+                module.PageId = pagemodule.PageId;
+                module.Title = pagemodule.Title;
+                module.Pane = pagemodule.Pane;
+                module.Order = pagemodule.Order;
+                module.ContainerType = pagemodule.ContainerType;
+                modulelist.Add(module);
             }
-            else
-            {
-                return Modules.GetModules(int.Parse(siteid), moduledefinitionname);
-            }
+            return modulelist;
         }
 
         // GET api/<controller>/5
