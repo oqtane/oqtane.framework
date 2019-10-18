@@ -48,7 +48,7 @@
                                         }
                                     </select>
                                     <select class="form-control" @bind="@moduledefinitionname">
-                                        <option value="">&lt;Select Module&gt;</option>
+                                        <option value="-">&lt;Select Module&gt;</option>
                                         @foreach (var moduledefinition in moduledefinitions)
                                         {
                                             if (moduledefinition.Permissions == "[]" || UserSecurity.IsAuthorized(PageState.User, "Utilize", moduledefinition.Permissions))
@@ -69,7 +69,7 @@
                                     }
                                 </select>
                                 <select class="form-control" @bind="@moduleid">
-                                    <option value="">&lt;Select Module&gt;</option>
+                                    <option value="-">&lt;Select Module&gt;</option>
                                     @foreach (Module module in modules)
                                     {
                                         <option value="@module.ModuleId">@module.Title</option>
@@ -148,11 +148,12 @@
     string moduletype = "new";
     List<string> categories = new List<string>();
     List<ModuleDefinition> moduledefinitions;
-    List<Page> pages = new List<Page>();
-    string moduleid = "";
+    List<Page> pages;
+    string pageid = "";
+    string moduleid = "-";
     List<Module> modules = new List<Module>();
     Dictionary<string, string> containers = new Dictionary<string, string>();
-    string moduledefinitionname = "";
+    string moduledefinitionname = "-";
     string pane = "";
     string title = "";
     string containertype = "";
@@ -174,6 +175,8 @@
 
         if (UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions))
         {
+            pages = new List<Page>();
+
             foreach (ModuleDefinition moduledefinition in PageState.ModuleDefinitions)
             {
                 if (moduledefinition.Categories != "")
@@ -213,16 +216,16 @@
         {
             moduledefinitions = PageState.ModuleDefinitions.Where(item => item.Categories.Contains(e.Value.ToString())).ToList();
         }
-        moduledefinitionname = "";
+        moduledefinitionname = "-";
         StateHasChanged();
     }
 
     private void PageChanged(ChangeEventArgs e)
     {
-        string pageid = (string)e.Value;
+        pageid = (string)e.Value;
         if (pageid != "")
         {
-            foreach(Module module in PageState.Modules.Where(item => item.PageId == int.Parse(pageid)))
+            foreach(Module module in PageState.Modules.Where(item => item.PageId == int.Parse(pageid) && !item.IsDeleted))
             {
                 if (UserSecurity.IsAuthorized(PageState.User, "View", module.Permissions))
                 {
@@ -230,7 +233,7 @@
                 }
             }
         }
-        moduleid = "";
+        moduleid = "-";
         StateHasChanged();
     }
 
@@ -249,7 +252,7 @@
             }
 
             PageModule pagemodule = new PageModule();
-            pagemodule.PageId = PageState.Page.PageId;
+            pagemodule.PageId = string.IsNullOrWhiteSpace(pageid) ? PageState.Page.PageId : int.Parse(pageid);
             pagemodule.ModuleId = int.Parse(moduleid);
             pagemodule.Title = title;
             if (pagemodule.Title == "")
@@ -276,6 +279,12 @@
             await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
 
             message = "<br /><div class=\"alert alert-success\" role=\"alert\">Module Added To Page</div>";
+
+            moduledefinitionname = "-";
+            pane = "";
+            title = "";
+            containertype = "";
+            moduleid = "-";
 
             NavigationManager.NavigateTo(NavigateUrl(Reload.Page));
         }
