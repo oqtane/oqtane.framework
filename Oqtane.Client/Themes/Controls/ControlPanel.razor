@@ -48,7 +48,7 @@
                                         }
                                     </select>
                                     <select class="form-control" @bind="@moduledefinitionname">
-                                        <option value="">&lt;Select Module&gt;</option>
+                                        <option value="-">&lt;Select Module&gt;</option>
                                         @foreach (var moduledefinition in moduledefinitions)
                                         {
                                             if (moduledefinition.Permissions == "[]" || UserSecurity.IsAuthorized(PageState.User, "Utilize", moduledefinition.Permissions))
@@ -148,11 +148,11 @@
     string moduletype = "new";
     List<string> categories = new List<string>();
     List<ModuleDefinition> moduledefinitions;
-    List<Page> pages = new List<Page>();
+    List<Page> pages;
     string moduleid = "";
     List<Module> modules = new List<Module>();
     Dictionary<string, string> containers = new Dictionary<string, string>();
-    string moduledefinitionname = "";
+    string moduledefinitionname = "-";
     string pane = "";
     string title = "";
     string containertype = "";
@@ -174,6 +174,8 @@
 
         if (UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions))
         {
+            pages = new List<Page>();
+
             foreach (ModuleDefinition moduledefinition in PageState.ModuleDefinitions)
             {
                 if (moduledefinition.Categories != "")
@@ -213,7 +215,7 @@
         {
             moduledefinitions = PageState.ModuleDefinitions.Where(item => item.Categories.Contains(e.Value.ToString())).ToList();
         }
-        moduledefinitionname = "";
+        moduledefinitionname = "-";
         StateHasChanged();
     }
 
