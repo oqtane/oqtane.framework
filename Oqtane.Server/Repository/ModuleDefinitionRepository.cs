@@ -6,6 +6,7 @@ using System.Reflection;
 using System;
 using Oqtane.Modules;
 using Microsoft.Extensions.Caching.Memory;
+using Oqtane.Shared;
 
 namespace Oqtane.Repository
 {
@@ -120,7 +121,7 @@ namespace Oqtane.Repository
                                 Dependencies = GetProperty(properties, "Dependencies"),
                                 PermissionNames = GetProperty(properties, "PermissionNames"),
                                 ServerAssemblyName = GetProperty(properties, "ServerAssemblyName"),
-                                ControlTypeTemplate = ModuleType + ".{Control}" + ", " + typename[1],
+                                ControlTypeTemplate = ModuleType + "." + Constants.ActionToken + ", " + typename[1],
                                 ControlTypeRoutes = "",
                                 AssemblyName = assembly.FullName.Split(",")[0]
                             };
@@ -141,7 +142,7 @@ namespace Oqtane.Repository
                                 Dependencies = "",
                                 PermissionNames = "",
                                 ServerAssemblyName = "",
-                                ControlTypeTemplate = ModuleType + ".{Control}" + ", " + typename[1],
+                                ControlTypeTemplate = ModuleType + "." + Constants.ActionToken + ", " + typename[1],
                                 ControlTypeRoutes = "",
                                 AssemblyName = assembly.FullName.Split(",")[0]
                             };

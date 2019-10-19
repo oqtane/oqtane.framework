@@ -30,9 +30,9 @@
         {
             string typename = ModuleState.ModuleType;
             // check for core module actions component
-            if (Constants.DefaultModuleActions.Contains(PageState.Control))
+            if (Constants.DefaultModuleActions.Contains(PageState.Action))
             {
-                typename = Constants.DefaultModuleActionsTemplate.Replace("{Control}", PageState.Control);
+                typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, PageState.Action);
             }
 
             Type moduleType = null;
