@@ -100,17 +100,6 @@
                 <input class="form-control" @bind="@icon" disabled />
             </td>
         </tr>
-        <tr>
-            <td>
-                <label for="Name" class="control-label">Is Deleted? </label>
-            </td>
-            <td>
-                <select class="form-control" @bind="@isdeleted" disabled>
-                    <option value="True">Yes</option>
-                    <option value="False">No</option>
-                </select>
-            </td>
-        </tr>
     </table>
 <button type="button" class="btn btn-danger" @onclick="DeletePage">Delete</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
@@ -140,7 +129,6 @@
     DateTime modifiedon;
     string deletedby;
     DateTime? deletedon;
-    string isdeleted;
 
     protected override void OnInitialized()
     {
@@ -167,7 +155,6 @@
                 modifiedon = page.ModifiedOn;
                 deletedby = page.DeletedBy;
                 deletedon = page.DeletedOn;
-                isdeleted = page.IsDeleted.ToString();
             }
         }
         catch (Exception ex)

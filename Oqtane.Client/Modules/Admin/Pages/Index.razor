@@ -1,11 +1,13 @@
 ﻿@namespace Oqtane.Modules.Admin.Pages
 @inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject IPageService PageService
 
 @if (PageState.Pages != null)
 {
     <ActionLink Action="Add" Text="Add Page" Style="float: right; margin: 10px;" />
 
-    <Pager Items="@PageState.Pages">
+    <Pager Items="@PageState.Pages.Where(item => !item.IsDeleted)">
         <Header>
             <th>Name</th>
             <th>&nbsp;</th>
@@ -14,11 +16,25 @@
         <Row>
             <td>@(new string('-', context.Level * 2))@(context.Name)</td>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.PageId.ToString())" /></td>
-            <td><ActionLink Action="Delete" Parameters="@($"id=" + context.PageId.ToString())" Class="btn btn-danger" /></td>
+            <td><button @onclick="@(() => Delete(context))" class="btn btn-danger">Delete</button></td>
         </Row>
     </Pager>
 }
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+
+    private async Task Delete(Page Page)
+    {
+        try
+        {
+            Page.IsDeleted = true;
+            await PageService.UpdatePageAsync(Page);
+            NavigationManager.NavigateTo(NavigateUrl("admin/pages", Reload.Site));
+        }
+        catch (Exception ex)
+        {
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
 }

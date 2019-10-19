@@ -5,6 +5,7 @@
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject IThemeService ThemeService
 @inject IModuleService ModuleService
+@inject IPageService PageService
 @inject IPageModuleService PageModuleService
 
 @if (UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions))
@@ -23,7 +24,7 @@
                     <li class="nav-item px-3">&nbsp;</li>
                     <li class="nav-item px-3"><button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Navigate("Add"))>Add Page</button></li>
                     <li class="nav-item px-3"><button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Navigate("Edit"))>Edit Page</button></li>
-                    <li class="nav-item px-3"><button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Navigate("Delete"))>Delete Page</button></li>
+                    <li class="nav-item px-3"><button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => await Delete(PageState.Page))>Delete Page</button></li>
                 </ul>
                 <hr class="app-rule" />
                 <table class="table table-borderless">
@@ -191,7 +192,7 @@
                 }
             }
             moduledefinitions = PageState.ModuleDefinitions.Where(item => item.Categories == "").ToList();
-            foreach(Page p in PageState.Pages)
+            foreach (Page p in PageState.Pages)
             {
                 if (UserSecurity.IsAuthorized(PageState.User, "View", p.Permissions))
                 {
@@ -225,7 +226,7 @@
         pageid = (string)e.Value;
         if (pageid != "")
         {
-            foreach(Module module in PageState.Modules.Where(item => item.PageId == int.Parse(pageid) && !item.IsDeleted))
+            foreach (Module module in PageState.Modules.Where(item => item.PageId == int.Parse(pageid) && !item.IsDeleted))
             {
                 if (UserSecurity.IsAuthorized(PageState.User, "View", module.Permissions))
                 {
@@ -338,7 +339,6 @@
                 break;
             case "Add":
             case "Edit":
-            case "Delete":
                 string url = "";
                 // get page management moduleid
                 module = PageState.Modules.Where(item => item.ModuleDefinitionName == Constants.PageManagementModule).FirstOrDefault();
@@ -352,9 +352,6 @@
                         case "Edit":
                             url = EditUrl(PageState.Page.Path, module.ModuleId, location, "id=" + PageState.Page.PageId.ToString());
                             break;
-                        case "Delete":
-                            url = EditUrl(PageState.Page.Path, module.ModuleId, location, "id=" + PageState.Page.PageId.ToString());
-                            break;
                     }
                 }
                 if (url != "")
@@ -363,5 +360,12 @@
                 }
                 break;
         }
+    }
+
+    private async Task Delete(Page Page)
+    {
+        Page.IsDeleted = true;
+        await PageService.UpdatePageAsync(Page);
+        NavigationManager.NavigateTo(NavigateUrl("", Reload.Site));
     }
 }
