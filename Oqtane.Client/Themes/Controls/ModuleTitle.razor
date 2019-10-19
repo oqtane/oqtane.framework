@@ -10,9 +10,9 @@
     {
         title = ModuleState.Title;
         // check for core module actions component
-        if (Constants.DefaultModuleActions.Contains(PageState.Control))
+        if (Constants.DefaultModuleActions.Contains(PageState.Action))
         {
-            title = PageState.Control;
+            title = PageState.Action;
         }
         return Task.CompletedTask;
     }

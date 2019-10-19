@@ -13,15 +13,17 @@
         public const string DefaultContainer = "Oqtane.Themes.BlazorTheme.Container, Oqtane.Client";
         public const string DefaultAdminContainer = "Oqtane.Themes.AdminContainer, Oqtane.Client";
 
+        public const string ActionToken = "{Action}";
+        public const string DefaultAction = "Index";
+        public const string AdminPane = "Admin";
+
         // Default Module Actions are reserved and should not be used by modules
-        public static readonly string[] DefaultModuleActions = new[] { "Settings", "Import", "Export" }; 
-        public const string DefaultModuleActionsTemplate = "Oqtane.Modules.Admin.Modules.{Control}, Oqtane.Client";
+        public static readonly string[] DefaultModuleActions = new[] { "Settings", "Import", "Export" };
+        public static readonly string DefaultModuleActionsTemplate = "Oqtane.Modules.Admin.Modules." + ActionToken + ", Oqtane.Client";
+
         public const string AdminDashboardModule = "Oqtane.Modules.Admin.Dashboard, Oqtane.Client";
         public const string PageManagementModule = "Oqtane.Modules.Admin.Pages, Oqtane.Client";
-        public const string ModuleMessageControl = "Oqtane.Modules.Controls.ModuleMessage, Oqtane.Client";
-
-        public const string DefaultControl = "Index";
-        public const string AdminPane = "Admin";
+        public const string ModuleMessageComponent = "Oqtane.Modules.Controls.ModuleMessage, Oqtane.Client";
 
         public const string AllUsersRole = "All Users";
         public const string HostRole = "Host Users";

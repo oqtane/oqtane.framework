@@ -77,7 +77,7 @@
         User user;
         List<Module> modules;
         int moduleid = -1;
-        string control = "";
+        string action = "";
         bool editmode = false;
         bool designmode = false;
         Reload reload = Reload.None;
@@ -162,9 +162,9 @@
             // check if path has moduleid and control specification ie. page/moduleid/control/
             if (segments.Length >= 2 && int.TryParse(segments[segments.Length - 2], out result))
             {
-                control = segments[segments.Length - 1];
+                action = segments[segments.Length - 1];
                 moduleid = result;
-                path = path.Replace(moduleid.ToString() + "/" + control + "/", "");
+                path = path.Replace(moduleid.ToString() + "/" + action + "/", "");
             }
             else
             {
@@ -235,9 +235,9 @@
                     pagestate.Uri = new Uri(_absoluteUri, UriKind.Absolute);
                     pagestate.QueryString = querystring;
                     pagestate.ModuleId = moduleid;
-                    pagestate.Control = control;
+                    pagestate.Action = action;
 
-                    if (PageState != null && (PageState.ModuleId != pagestate.ModuleId || PageState.Control != pagestate.Control))
+                    if (PageState != null && (PageState.ModuleId != pagestate.ModuleId || PageState.Action != pagestate.Action))
                     {
                         reload = Reload.Page;
                     }
@@ -245,7 +245,7 @@
                     if (PageState == null || reload >= Reload.Page)
                     {
                         modules = await ModuleService.GetModulesAsync(site.SiteId);
-                        modules = ProcessModules(modules, moduledefinitions, page.PageId, pagestate.ModuleId, pagestate.Control, page.Panes, site.DefaultContainerType);
+                        modules = ProcessModules(modules, moduledefinitions, page.PageId, pagestate.ModuleId, pagestate.Action, page.Panes, site.DefaultContainerType);
                     }
                     else
                     {
@@ -365,7 +365,7 @@
                             }
                         }
                     }
-                    module.ModuleType = typename.Replace("{Control}", control);
+                    module.ModuleType = typename.Replace(Constants.ActionToken, control);
 
                     // admin controls need to load additional metadata from the IModuleControl interface
                     if (moduleid == module.ModuleId)
@@ -374,7 +374,7 @@
                         // check for core module actions component
                         if (Constants.DefaultModuleActions.Contains(control))
                         {
-                            typename = Constants.DefaultModuleActionsTemplate.Replace("{Control}", control);
+                            typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, control);
                         }
                         Type moduletype = Type.GetType(typename);
                         if (moduletype != null)
@@ -389,7 +389,7 @@
                 }
                 else
                 {
-                    module.ModuleType = typename.Replace("{Control}", Constants.DefaultControl);
+                    module.ModuleType = typename.Replace(Constants.ActionToken, Constants.DefaultAction);
                 }
 
             }

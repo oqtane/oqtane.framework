@@ -19,7 +19,7 @@
     {
         ModuleState = Module; // passed in from Pane component
         string container = ModuleState.ContainerType;
-        if (PageState.ModuleId != -1 && PageState.Control != "" && ModuleState.UseAdminContainer)
+        if (PageState.ModuleId != -1 && PageState.Action != "" && ModuleState.UseAdminContainer)
         {
             container = Constants.DefaultAdminContainer;
         }
@@ -35,7 +35,7 @@
             else
             {
             // container does not exist with type specified
-            builder.OpenComponent(0, Type.GetType(Constants.ModuleMessageControl));
+            builder.OpenComponent(0, Type.GetType(Constants.ModuleMessageComponent));
                 builder.AddAttribute(1, "Message", "Error Loading Module Container " + container);
                 builder.CloseComponent();
             }

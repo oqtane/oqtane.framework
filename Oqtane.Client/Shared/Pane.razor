@@ -38,7 +38,7 @@
 
         DynamicComponent = builder =>
         {
-            if (PageState.ModuleId != -1 && PageState.Control != "")
+            if (PageState.ModuleId != -1 && PageState.Action != "")
             {
                 if (Name.ToLower() == Constants.AdminPane.ToLower())
                 {
@@ -47,15 +47,15 @@
                     {
                         string typename = module.ModuleType;
                         // check for core module actions component
-                        if (Constants.DefaultModuleActions.Contains(PageState.Control)) 
+                        if (Constants.DefaultModuleActions.Contains(PageState.Action)) 
                         {
-                            typename = Constants.DefaultModuleActionsTemplate.Replace("{Control}", PageState.Control);
+                            typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, PageState.Action);
                         }
                         Type moduleType = Type.GetType(typename);
                         if (moduleType != null)
                         {
                             bool authorized = false;
-                            if (Constants.DefaultModuleActions.Contains(PageState.Control))
+                            if (Constants.DefaultModuleActions.Contains(PageState.Action))
                             {
                                 authorized = UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions);
                             }
@@ -83,7 +83,7 @@
                             }
                             if (authorized)
                             {
-                                if (!Constants.DefaultModuleActions.Contains(PageState.Control) && module.ControlTitle != "")
+                                if (!Constants.DefaultModuleActions.Contains(PageState.Action) && module.ControlTitle != "")
                                 {
                                     module.Title = module.ControlTitle;
                                 }
