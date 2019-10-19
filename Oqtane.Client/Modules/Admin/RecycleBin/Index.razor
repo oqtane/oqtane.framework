@@ -1,0 +1,67 @@
+﻿@namespace Oqtane.Modules.Admin.RecycleBin
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject IPageModuleService PageModuleService
+@inject IPageService PageService
+
+@*Add TabControl with Pages and Modules tabs*@
+<h3>Pages</h3>
+@if (pageModules.Count == 0)
+{
+    <p>No deleted pages</p>
+}
+else
+{
+    <Pager Items="@pageModules">
+        <Header>
+            <th>Name</th>
+            <th>Deletion audit</th>
+            <th>&nbsp;</th>
+            <th>&nbsp;</th>
+        </Header>
+        <Row>
+            <td>@context.Name</td>
+            <td>@context.DeletedBy - @context.DeletedOn</td>
+            <td><button @onclick="@(() => Restore(context))" class="btn btn-info" title="Restore">Restore</button></td>
+            <td><button @onclick="@(() => Delete(context.PageId))" class="btn btn-danger">Delete</button></td>
+        </Row>
+    </Pager>
+}
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+
+    List<Page> pageModules = new List<Page>();
+
+    protected override void OnParametersSet()
+    {
+        pageModules = PageState.Pages.Where(item => item.IsDeleted).ToList();
+    }
+
+    private async Task Restore(Page Page)
+    {
+        try
+        {
+            Page.IsDeleted = false;
+            await PageService.UpdatePageAsync(Page);
+            NavigationManager.NavigateTo(NavigateUrl("admin/recyclebin", Reload.Site));
+        }
+        catch (Exception ex)
+        {
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+
+    private async Task Delete(int PageId)
+    {
+        try
+        {
+            await PageService.DeletePageAsync(PageId);
+            NavigationManager.NavigateTo(NavigateUrl("admin/recyclebin", Reload.Site));
+        }
+        catch (Exception ex)
+        {
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+}
