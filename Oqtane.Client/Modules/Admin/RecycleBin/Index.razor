@@ -60,9 +60,7 @@
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
-
-    bool loadentities { get; set; }
-
+        
     List<Page> pages { get; set; }
     List<PageModule> pageModules { get; set; }
 
@@ -70,9 +68,6 @@
     {
         pages = new List<Page>();
         pageModules = new List<PageModule>();
-
-        loadentities = true;
-
         await LoadEntities();
     }
 
@@ -83,15 +78,11 @@
 
     private async Task LoadEntities()
     {
-        if (loadentities)
+        pageModules.Clear();
+        foreach (var module in PageState.Modules.Where(item => item.IsDeleted))
         {
-            pageModules.Clear();
-            foreach (var module in PageState.Modules.Where(item => item.IsDeleted))
-            {
-                var pageModule = await PageModuleService.GetPageModuleAsync(module.PageModuleId);
-                pageModules.Add(pageModule);
-            }
-            loadentities = false;
+            var pageModule = await PageModuleService.GetPageModuleAsync(module.PageModuleId);
+            pageModules.Add(pageModule);
         }
     }
 
@@ -133,7 +124,6 @@
         {
             PageModule.IsDeleted = false;
             await PageModuleService.UpdatePageModuleAsync(PageModule);
-            loadentities = true;
             await LoadEntities();
             NavigationManager.NavigateTo(NavigateUrl("admin/recyclebin", Reload.Site));
         }
@@ -153,7 +143,6 @@
                 await ModuleService.DeleteModuleAsync(ModuleId);
             }
             PageState.Modules.RemoveAt(PageState.Modules.FindIndex(item => item.ModuleId == ModuleId));
-            loadentities = true;
             await LoadEntities();
             NavigationManager.NavigateTo(NavigateUrl("admin/recyclebin", Reload.Site));
         }
