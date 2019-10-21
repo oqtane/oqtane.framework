@@ -3,12 +3,12 @@
 
 <CascadingValue Value="this">
     <div>
-        @foreach (TabPage tabPage in Pages)
+        @foreach (TabPanel tabPanel in Pages)
         {
             <button type="button"
-                    class="btn @GetButtonClass(tabPage)"
-                    @onclick=@( () => ActivatePage(tabPage) )>
-                @tabPage.Text
+                    class="btn @GetButtonClass(tabPanel)"
+                    @onclick=@( () => ActivatePage(tabPanel) )>
+                @tabPanel.Text
             </button>
         }
     </div>
@@ -16,27 +16,27 @@
 </CascadingValue>
 
 @code {
-    // Next line is needed so we are able to add <TabPage> components inside
+    // Next line is needed so we are able to add <TabPanel> components inside
     [Parameter]
     public RenderFragment ChildContent { get; set; }
 
-    public TabPage ActivePage { get; set; }
-    List<TabPage> Pages = new List<TabPage>();
+    public TabPanel ActivePage { get; set; }
+    List<TabPanel> Pages = new List<TabPanel>();
 
-    internal void AddPage(TabPage tabPage)
+    internal void AddPage(TabPanel tabPanel)
     {
-        Pages.Add(tabPage);
+        Pages.Add(tabPanel);
         if (Pages.Count == 1)
-            ActivePage = tabPage;
+            ActivePage = tabPanel;
         StateHasChanged();
     }
 
-    string GetButtonClass(TabPage page)
+    string GetButtonClass(TabPanel page)
     {
         return page == ActivePage ? "btn-primary" : "btn-secondary";
     }
 
-    void ActivatePage(TabPage page)
+    void ActivatePage(TabPanel page)
     {
         ActivePage = page;
     }

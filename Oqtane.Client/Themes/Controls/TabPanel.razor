@@ -1,7 +1,7 @@
 ﻿@namespace Oqtane.Themes.Controls
 @inherits ThemeControlBase
 
-@if (Parent.ActivePage == (TabPage)(object)this)
+@if (Parent.ActivePage == (TabPanel)(object)this)
 {
     @ChildContent
 }
@@ -19,9 +19,9 @@
     protected override void OnInitialized()
     {
         if (Parent == null)
-            throw new ArgumentNullException(nameof(Parent), "TabPage must exist within a TabControl");
+            throw new ArgumentNullException(nameof(Parent), "TabPanel must exist within a TabControl");
 
         base.OnInitialized();
-        Parent.AddPage((TabPage)(object)this);
+        Parent.AddPage((TabPanel)(object)this);
     }
 }
