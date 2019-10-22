@@ -7,6 +7,7 @@ using Oqtane.Shared;
 using System.Linq;
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
+using Oqtane.Infrastructure;
 
 namespace Oqtane.Controllers
 {
@@ -16,12 +17,14 @@ namespace Oqtane.Controllers
         private readonly ISiteRepository Sites;
         private readonly ITenantResolver Tenants;
         private readonly IWebHostEnvironment environment;
+        private readonly ILogManager logger;
 
-        public SiteController(ISiteRepository Sites, ITenantResolver Tenants, IWebHostEnvironment environment)
+        public SiteController(ISiteRepository Sites, ITenantResolver Tenants, IWebHostEnvironment environment, ILogManager logger)
         {
             this.Sites = Sites;
             this.Tenants = Tenants;
             this.environment = environment;
+            this.logger = logger;
         }
 
         // GET: api/<controller>
@@ -61,6 +64,7 @@ namespace Oqtane.Controllers
                     {
                         Directory.CreateDirectory(folder);
                     }
+                    logger.AddLog(this.GetType().FullName, LogLevel.Information, "Site Added {Site}", Site);
                 }
             }
             return Site;
@@ -74,6 +78,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Site = Sites.UpdateSite(Site);
+                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Site Updated {Site}", Site);
             }
             return Site;
         }
@@ -84,6 +89,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             Sites.DeleteSite(id);
+            logger.AddLog(this.GetType().FullName, LogLevel.Information, "Site Deleted {SiteId}", id);
         }
     }
 }

@@ -1,0 +1,38 @@
+﻿@namespace Oqtane.Modules.Admin.Logs
+@inherits ModuleBase
+@inject ILogService LogService
+
+@if (Logs == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <Pager Items="@Logs">
+        <Header>
+            <th>Date</th>
+            <th>Level</th>
+            <th>Url</th>
+            <th>Category</th>
+            <th>Message</th>
+        </Header>
+        <Row>
+            <td>@context.LogDate</td>
+            <td>@context.Level</td>
+            <td>@context.Url</td>
+            <td>@context.Category</td>
+            <td>@context.Message</td>
+        </Row>
+    </Pager>
+}
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+
+    List<Log> Logs;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Logs = await LogService.GetLogsAsync(PageState.Site.SiteId);
+    }
+}

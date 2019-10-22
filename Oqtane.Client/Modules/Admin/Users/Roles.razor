@@ -84,14 +84,23 @@ else
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Loading Roles {Error}", ex.Message);
+            AddModuleMessage("Error Loading Roles", MessageType.Error);
         }
     }
 
     private async Task GetUserRoles()
     {
-        userroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
-        userroles = userroles.Where(item => item.UserId == userid).ToList();
+        try
+        {
+            userroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
+            userroles = userroles.Where(item => item.UserId == userid).ToList();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading User Roles {UserId} {Error}", userid, ex.Message);
+            AddModuleMessage("Error Loading User Roles", MessageType.Error);
+        }
     }
 
     private async Task SaveUserRole()
@@ -145,6 +154,7 @@ else
                     await UserRoleService.AddUserRoleAsync(userrole);
                 }
                 await GetUserRoles();
+                await logger.LogInformation("User Assigned To Role {UserRole}", userrole);
                 AddModuleMessage("User Assigned To Role", MessageType.Success);
             }
             else
@@ -154,15 +164,24 @@ else
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Saving User Roles {UserId} {Error}", userid, ex.Message);
+            AddModuleMessage("Error Saving User Roles", MessageType.Error);
         }
     }
 
     private async Task DeleteUserRole(int UserRoleId)
     {
-        await UserRoleService.DeleteUserRoleAsync(UserRoleId);
-        await GetUserRoles();
-        AddModuleMessage("User Removed From Role", MessageType.Success);
+        try
+        {
+            await UserRoleService.DeleteUserRoleAsync(UserRoleId);
+            await GetUserRoles();
+            await logger.LogInformation("User Removed From Role {UserRoleId}", UserRoleId);
+            AddModuleMessage("User Removed From Role", MessageType.Success);
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Removing User From Role {UserRoleId} {Error}", UserRoleId, ex.Message);
+            AddModuleMessage("Error Removing User From Role", MessageType.Error);
+        }
     }
-
 }

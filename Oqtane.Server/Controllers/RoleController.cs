@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
+using Oqtane.Infrastructure;
 
 namespace Oqtane.Controllers
 {
@@ -11,10 +12,12 @@ namespace Oqtane.Controllers
     public class RoleController : Controller
     {
         private readonly IRoleRepository Roles;
+        private readonly ILogManager logger;
 
-        public RoleController(IRoleRepository Roles)
+        public RoleController(IRoleRepository Roles, ILogManager logger)
         {
             this.Roles = Roles;
+            this.logger = logger;
         }
 
         // GET: api/<controller>?siteid=x
@@ -46,6 +49,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Role = Roles.AddRole(Role);
+                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Role Added {Role}", Role);
             }
             return Role;
         }
@@ -58,6 +62,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Role = Roles.UpdateRole(Role);
+                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Role Updated {Role}", Role);
             }
             return Role;
         }
@@ -68,6 +73,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             Roles.DeleteRole(id);
+            logger.AddLog(this.GetType().FullName, LogLevel.Information, "Role Deleted {RoleId}", id);
         }
     }
 }

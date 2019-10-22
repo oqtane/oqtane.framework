@@ -49,6 +49,7 @@
         }
         catch (Exception ex)
         {
+            await logger.LogError(ex, "An Error Occurred Loading Html/Text Content. " + ex.Message);
             AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
@@ -71,11 +72,13 @@
                 htmltext.Content = content;
                 await htmltextservice.AddHtmlTextAsync(htmltext);
             }
+            await logger.LogInformation("Html/Text Content Saved {HtmlText}", htmltext);
             NavigationManager.NavigateTo(NavigateUrl(Reload.Page));
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Saving Content {Error}", ex.Message);
+            AddModuleMessage("Error Saving Content", MessageType.Error);
         }
     }
 }

@@ -43,10 +43,12 @@
 
                 if (user != null)
                 {
+                    await logger.LogInformation("User Created {Username} {Email}", Username, Email);
                     NavigationManager.NavigateTo(NavigateUrl(""));
                 }
                 else
                 {
+                    await logger.LogError("Error Adding User {Username} {Email}", Username, Email);
                     AddModuleMessage("Error Adding User. Please Ensure Password Meets Complexity Requirements And Username Is Not Already In Use.", MessageType.Error);
                 }
             }
@@ -57,7 +59,8 @@
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Adding User {Username} {Email} {Error}", Username, Email, ex.Message);
+            AddModuleMessage("Error Adding User", MessageType.Error);
         }
     }
 

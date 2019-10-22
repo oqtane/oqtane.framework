@@ -55,16 +55,26 @@
         }
         catch (Exception ex)
         {
+            await logger.LogError(ex, "Error Loading Tenant {TenantId} {Error}", tenantid, ex.Message);
             AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
     private async Task DeleteTenant()
     {
-        Tenant tenant = await TenantService.GetTenantAsync(tenantid);
-        if (tenant != null)
+        try
         {
-            await TenantService.DeleteTenantAsync(tenantid);
+            Tenant tenant = await TenantService.GetTenantAsync(tenantid);
+            if (tenant != null)
+            {
+                await TenantService.DeleteTenantAsync(tenantid);
+                await logger.LogInformation("Tenant Deleted {TenantId}", tenantid);
+                NavigationManager.NavigateTo(NavigateUrl());
+            }
         }
-        NavigationManager.NavigateTo(NavigateUrl());
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Tenant {TenantId} {Error}", tenantid, ex.Message);
+            AddModuleMessage("Error Deleting Tenant", MessageType.Error);
+        }
     }
 }

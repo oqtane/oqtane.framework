@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Security.Claims;
 using Oqtane.Shared;
+using Oqtane.Infrastructure;
 
 namespace Oqtane.Controllers
 {
@@ -20,14 +21,16 @@ namespace Oqtane.Controllers
         private readonly IUserRoleRepository UserRoles;
         private readonly UserManager<IdentityUser> IdentityUserManager;
         private readonly SignInManager<IdentityUser> IdentitySignInManager;
+        private readonly ILogManager logger;
 
-        public UserController(IUserRepository Users, IRoleRepository Roles, IUserRoleRepository UserRoles, UserManager<IdentityUser> IdentityUserManager, SignInManager<IdentityUser> IdentitySignInManager)
+        public UserController(IUserRepository Users, IRoleRepository Roles, IUserRoleRepository UserRoles, UserManager<IdentityUser> IdentityUserManager, SignInManager<IdentityUser> IdentitySignInManager, ILogManager logger)
         {
             this.Users = Users;
             this.Roles = Roles;
             this.UserRoles = UserRoles;
             this.IdentityUserManager = IdentityUserManager;
             this.IdentitySignInManager = IdentitySignInManager;
+            this.logger = logger;
         }
 
         // GET: api/<controller>?siteid=x
@@ -123,6 +126,8 @@ namespace Oqtane.Controllers
                         UserRoles.AddUserRole(userrole);
                     }
                 }
+                user.Password = ""; // remove sensitive information
+                logger.AddLog(this.GetType().FullName, LogLevel.Information, "User Added {User}", user);
             }
 
             return user;
@@ -145,6 +150,8 @@ namespace Oqtane.Controllers
                     }
                 }
                 User = Users.UpdateUser(User);
+                User.Password = ""; // remove sensitive information
+                logger.AddLog(this.GetType().FullName, LogLevel.Information, "User Updated {User}", User);
             }
             return User;
         }
@@ -163,6 +170,7 @@ namespace Oqtane.Controllers
                 if (result != null)
                 {
                     Users.DeleteUser(id);
+                    logger.AddLog(this.GetType().FullName, LogLevel.Information, "User Deleted {UserId}", id);
                 }
             }
         }
@@ -185,11 +193,16 @@ namespace Oqtane.Controllers
                         if (user != null)
                         {
                             user.IsAuthenticated = true;
+                            logger.AddLog(this.GetType().FullName, LogLevel.Information, "User Login Successful {Username}", User.Username);
                             if (SetCookie)
                             {
                                 await IdentitySignInManager.SignInAsync(identityuser, IsPersistent);
                             }
                         }
+                    }
+                    else
+                    {
+                        logger.AddLog(this.GetType().FullName, LogLevel.Error, "User Login Failed {Username}", User.Username);
                     }
                 }
             }
@@ -203,6 +216,7 @@ namespace Oqtane.Controllers
         public async Task Logout([FromBody] User User)
         {
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+            logger.AddLog(this.GetType().FullName, LogLevel.Information, "User Logout {Username}", User.Username);
         }
 
         // GET api/<controller>/current

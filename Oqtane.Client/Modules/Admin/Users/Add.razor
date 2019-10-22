@@ -87,7 +87,8 @@
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Loading User Profile {Error}", ex.Message);
+            AddModuleMessage("Error Loading User Profile", MessageType.Error);
         }
     }
 
@@ -107,16 +108,19 @@
             if (user != null)
             {
                 await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
+                await logger.LogInformation("User Created {User}", user);
                 NavigationManager.NavigateTo(NavigateUrl());
             }
             else
             {
+                await logger.LogError("Error Adding User {Username} {Email}", username, email);
                 AddModuleMessage("Error Adding User. Please Ensure Password Meets Complexity Requirements And Username Is Not Already In Use.", MessageType.Error);
             }
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Adding User {Username} {Email} {Error}", username, email, ex.Message);
+            AddModuleMessage("Error Adding User", MessageType.Error);
         }
     }
 
@@ -126,4 +130,4 @@
         settings = SettingService.SetSetting(settings, SettingName, value);
     }
 
-    }
+}

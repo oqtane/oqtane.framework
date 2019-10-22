@@ -5,6 +5,7 @@ using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
 using System.Linq;
+using Oqtane.Infrastructure;
 
 namespace Oqtane.Controllers
 {
@@ -12,10 +13,12 @@ namespace Oqtane.Controllers
     public class PageController : Controller
     {
         private readonly IPageRepository Pages;
+        private readonly ILogManager logger;
 
-        public PageController(IPageRepository Pages)
+        public PageController(IPageRepository Pages, ILogManager logger)
         {
             this.Pages = Pages;
+            this.logger = logger;
         }
 
         // GET: api/<controller>?siteid=x
@@ -47,6 +50,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Page = Pages.AddPage(Page);
+                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Page Added {Page}", Page);
             }
             return Page;
         }
@@ -59,6 +63,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Page = Pages.UpdatePage(Page);
+                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Page Updated {Page}", Page);
             }
             return Page;
         }
@@ -79,6 +84,7 @@ namespace Oqtane.Controllers
                 }
                 order += 2;
             }
+            logger.AddLog(this.GetType().FullName, LogLevel.Information, "Page Order Updated {SiteId} {ParentId}", siteid, parentid);
         }
 
         // DELETE api/<controller>/5
@@ -87,6 +93,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             Pages.DeletePage(id);
+            logger.AddLog(this.GetType().FullName, LogLevel.Information, "Page Deleted {PageId}", id);
         }
     }
 }

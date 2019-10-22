@@ -5,6 +5,7 @@ using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
 using System.Linq;
+using Oqtane.Infrastructure;
 
 namespace Oqtane.Controllers
 {
@@ -13,11 +14,13 @@ namespace Oqtane.Controllers
     {
         private readonly IPageModuleRepository PageModules;
         private readonly IModuleRepository Modules;
+        private readonly ILogManager logger;
 
-        public PageModuleController(IPageModuleRepository PageModules, IModuleRepository Modules)
+        public PageModuleController(IPageModuleRepository PageModules, IModuleRepository Modules, ILogManager logger)
         {
             this.PageModules = PageModules;
             this.Modules = Modules;
+            this.logger = logger;
         }
 
         // GET: api/<controller>
@@ -42,6 +45,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 PageModule = PageModules.AddPageModule(PageModule);
+                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Page Module Added {PageModule}", PageModule);
             }
             return PageModule;
         }
@@ -54,6 +58,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 PageModule = PageModules.UpdatePageModule(PageModule);
+                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Page Module Updated {PageModule}", PageModule);
             }
             return PageModule;
         }
@@ -74,6 +79,7 @@ namespace Oqtane.Controllers
                 }
                 order += 2;
             }
+            logger.AddLog(this.GetType().FullName, LogLevel.Information, "Page Module Order Updated {PageId} {Pane}", pageid, pane);
         }
 
         // DELETE api/<controller>/5
@@ -82,6 +88,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             PageModules.DeletePageModule(id);
+            logger.AddLog(this.GetType().FullName, LogLevel.Information, "Page Module Deleted {PageModuleId}", id);
         }
     }
 }

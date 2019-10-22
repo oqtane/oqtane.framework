@@ -5,6 +5,7 @@ using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
 using Oqtane.Security;
+using Oqtane.Infrastructure;
 
 namespace Oqtane.Controllers
 {
@@ -13,11 +14,13 @@ namespace Oqtane.Controllers
     {
         private readonly ISettingRepository Settings;
         private readonly IUserPermissions UserPermissions;
+        private readonly ILogManager logger;
 
-        public SettingController(ISettingRepository Settings, IUserPermissions UserPermissions)
+        public SettingController(ISettingRepository Settings, IUserPermissions UserPermissions, ILogManager logger)
         {
             this.Settings = Settings;
             this.UserPermissions = UserPermissions;
+            this.logger = logger;
         }
 
         // GET: api/<controller>
@@ -42,6 +45,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && IsAuthorized(Setting.EntityName, Setting.EntityId))
             {
                 Setting = Settings.AddSetting(Setting);
+                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Setting Added {Setting}", Setting);
             }
             return Setting;
         }
@@ -54,6 +58,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && IsAuthorized(Setting.EntityName, Setting.EntityId))
             {
                 Setting = Settings.UpdateSetting(Setting);
+                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Setting Updated {Setting}", Setting);
             }
             return Setting;
         }
@@ -64,6 +69,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             Settings.DeleteSetting(id);
+            logger.AddLog(this.GetType().FullName, LogLevel.Information, "Setting Deleted {SettingId}", id);
         }
 
         private bool IsAuthorized(string EntityName, int EntityId)

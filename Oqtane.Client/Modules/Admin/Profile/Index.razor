@@ -99,7 +99,8 @@
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Loading User Profile {Error}", ex.Message);
+            AddModuleMessage("Error Loading User Profile", MessageType.Error);
         }
     }
 
@@ -119,12 +120,14 @@
             user.DisplayName = displayname;
             await UserService.UpdateUserAsync(user);
             await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
+            await logger.LogInformation("User Profile Saved");
 
             NavigationManager.NavigateTo(NavigateUrl(""));
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Saving User Profile {Error}", ex.Message);
+            AddModuleMessage("Error Saving User Profile", MessageType.Error);
         }
     }
 

@@ -50,7 +50,8 @@
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Loading Tenants {Error}", ex.Message);
+            AddModuleMessage("Error Loading Tenants", MessageType.Error);
         }
     }
 
@@ -68,11 +69,13 @@
             tenant.DBSchema = schema;
             tenant.IsInitialized = false;
             await TenantService.AddTenantAsync(tenant);
+            await logger.LogInformation("Tenant Created {Tenant}", tenant);
 
             NavigationManager.NavigateTo(NavigateUrl());
         }
         else
         {
+            await logger.LogError("Error Creating Tenant {Error}", response.Message);
             AddModuleMessage(response.Message, MessageType.Error);
         }
     }

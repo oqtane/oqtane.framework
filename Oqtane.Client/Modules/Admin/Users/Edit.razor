@@ -125,7 +125,8 @@
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Loading User {UserId} {Error}", userid, ex.Message);
+            AddModuleMessage("Error Loading User", MessageType.Error);
         }
     }
 
@@ -148,12 +149,14 @@
 
             user = await UserService.UpdateUserAsync(user);
             await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
+            await logger.LogInformation("User Saved {User}", user);
 
             NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Saving User {Username} {Email} {Error}", username, email, ex.Message);
+            AddModuleMessage("Error Saving User", MessageType.Error);
         }
     }
 

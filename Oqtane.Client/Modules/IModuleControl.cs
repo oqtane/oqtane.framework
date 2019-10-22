@@ -1,4 +1,6 @@
-﻿namespace Oqtane.Modules
+﻿using Oqtane.Shared;
+
+namespace Oqtane.Modules
 {
     public interface IModuleControl
     {

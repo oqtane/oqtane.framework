@@ -164,11 +164,12 @@ else
         }
         catch (Exception ex)
         {
+            await logger.LogError(ex, "Error Loading Site {SiteId} {Error}", siteid, ex.Message);
             AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
 
-    private void ThemeChanged(ChangeEventArgs e)
+    private async void ThemeChanged(ChangeEventArgs e)
     {
         try
         {
@@ -185,7 +186,8 @@ else
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", themetype, ex.Message);
+            AddModuleMessage("Error Loading Pane Layouts For Theme", MessageType.Error);
         }
     }
 
@@ -227,6 +229,7 @@ else
                             await AliasService.AddAliasAsync(alias);
                         }
                     }
+                    await logger.LogInformation("Site Saved {Site}", site);
 
                     NavigationManager.NavigateTo(NavigateUrl(Reload.Site));
                 }
@@ -238,7 +241,8 @@ else
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Saving Site {SiteId} {Error}", siteid, ex.Message);
+            AddModuleMessage("Error Saving Site", MessageType.Error);
         }
     }
 }

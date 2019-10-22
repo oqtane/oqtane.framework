@@ -54,14 +54,22 @@
 
     protected override async Task OnInitializedAsync()
     {
-        List<ModuleDefinition> moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
-        packages = await PackageService.GetPackagesAsync("module");
-        foreach(Package package in packages.ToArray())
+        try
         {
-            if (moduledefinitions.Exists(item => Utilities.GetTypeName(item.ModuleDefinitionName) == package.PackageId))
+            List<ModuleDefinition> moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
+            packages = await PackageService.GetPackagesAsync("module");
+            foreach(Package package in packages.ToArray())
             {
-                packages.Remove(package);
+                if (moduledefinitions.Exists(item => Utilities.GetTypeName(item.ModuleDefinitionName) == package.PackageId))
+                {
+                    packages.Remove(package);
+                }
             }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Packages {Error}", ex.Message);
+            AddModuleMessage("Error Loading Packages", MessageType.Error);
         }
     }
 
@@ -77,22 +85,26 @@
                     string result = await FileService.UploadFilesAsync("Modules", files, "");
                     if (result == "")
                     {
+                        await logger.LogInformation("Module Uploaded Successfully {Package}", files[0]);
                         AddModuleMessage("Module Uploaded Successfully. Click Install To Complete Installation.", MessageType.Success);
                         uploaded = true;
                         StateHasChanged();
                     }
                     else
                     {
-                        AddModuleMessage("Upload Failed For " + result.Replace(",",", ") + ". This Could Be Due To A Network Error Or Because A File Type Is Restricted.", MessageType.Error);
+                        await logger.LogError("Module Upload Failed For {Package}", files[0]);
+                        AddModuleMessage("Module Upload Failed For " + result.Replace(",",", ") + ". This Could Be Due To A Network Error Or Because A File Type Is Restricted.", MessageType.Error);
                     }
                 }
                 catch (Exception ex)
                 {
-                    AddModuleMessage("Module Upload Failed. " + ex.Message, MessageType.Error);
+                    await logger.LogError(ex, "Module Upload Failed For {Package} {Error}", files[0], ex.Message);
+                    AddModuleMessage("Module Upload Failed.", MessageType.Error);
                 }
             }
             else
             {
+                await logger.LogError("Invalid Module Package {Package}", files[0]);
                 AddModuleMessage("Invalid Module Package", MessageType.Error);
             }
         }
@@ -104,15 +116,31 @@
 
     private async Task InstallModules()
     {
-        await ModuleDefinitionService.InstallModuleDefinitionsAsync();
-        NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
+        try
+        {
+            await ModuleDefinitionService.InstallModuleDefinitionsAsync();
+            NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Installating Module");
+        }
     }
 
     private async Task DownloadModule(string moduledefinitionname, string version)
     {
-        await PackageService.DownloadPackageAsync(moduledefinitionname, version, "Modules");
-        AddModuleMessage("Module Downloaded Successfully. Click Install To Complete Installation.", MessageType.Success);
-        uploaded = true;
-        StateHasChanged();
+        try
+        {
+            await PackageService.DownloadPackageAsync(moduledefinitionname, version, "Modules");
+            await logger.LogInformation("Module {ModuleDefinitionName} {Version} Downloaded Successfully", moduledefinitionname, version);
+            AddModuleMessage("Module Downloaded Successfully. Click Install To Complete Installation.", MessageType.Success);
+            uploaded = true;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Downloading Module {ModuleDefinitionName} {Version}", moduledefinitionname, version);
+            AddModuleMessage("Error Downloading Module", MessageType.Error);
+        }
     }
 }

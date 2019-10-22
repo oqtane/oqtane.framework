@@ -182,7 +182,7 @@
 
     PermissionGrid permissiongrid;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         try
         {
@@ -227,11 +227,12 @@
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Loading Page {PageId} {Error}", PageId, ex.Message);
+            AddModuleMessage("Error Loading Page", MessageType.Error);
         }
     }
 
-    private void ParentChanged(ChangeEventArgs e)
+    private async void ParentChanged(ChangeEventArgs e)
     {
         try
         {
@@ -256,11 +257,12 @@
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Loading Child Pages For Parent {PageId} {Error}", parentid, ex.Message);
+            AddModuleMessage("Error Loading Child Pages For Parent", MessageType.Error);
         }
     }
 
-    private void ThemeChanged(ChangeEventArgs e)
+    private async void ThemeChanged(ChangeEventArgs e)
     {
         try
         {
@@ -277,17 +279,19 @@
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", themetype, ex.Message);
+            AddModuleMessage("Error Loading Pane Layouts For Theme", MessageType.Error);
         }
     }
 
     private async Task SavePage()
     {
+        Page page = null;
         try
         {
             if (name != "" && !string.IsNullOrEmpty(themetype) && (panelayouts.Count == 0 || !string.IsNullOrEmpty(layouttype)))
             {
-                Page page = PageState.Pages.Where(item => item.PageId == PageId).FirstOrDefault();
+                page = PageState.Pages.Where(item => item.PageId == PageId).FirstOrDefault();
                 string currentpath = page.Path;
 
                 page.Name = name;
@@ -375,6 +379,7 @@
                     }
                 }
 
+                await logger.LogInformation("Page Saved {Page}", page);
                 NavigationManager.NavigateTo(NavigateUrl(page.Path, Reload.Site));
             }
             else
@@ -384,7 +389,8 @@
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Saving Page {Page} {Error}", page, ex.Message);
+            AddModuleMessage("Error Saving Page", MessageType.Error);
         }
     }
 }

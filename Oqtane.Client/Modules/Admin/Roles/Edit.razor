@@ -71,7 +71,8 @@
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Loading Role {RoleId} {Error}", roleid, ex.Message);
+            AddModuleMessage("Error Loading Role", MessageType.Error);
         }
     }
 
@@ -80,20 +81,18 @@
         try
         {
             Role role = await RoleService.GetRoleAsync(roleid);
-            if (role != null)
-            {
-                role.Name = name;
-                role.Description = description;
-                role.IsAutoAssigned = (isautoassigned == null ? false : Boolean.Parse(isautoassigned));
-                role.IsSystem = (issystem == null ? false : Boolean.Parse(issystem));
-                await RoleService.UpdateRoleAsync(role);
-            }
+            role.Name = name;
+            role.Description = description;
+            role.IsAutoAssigned = (isautoassigned == null ? false : Boolean.Parse(isautoassigned));
+            role.IsSystem = (issystem == null ? false : Boolean.Parse(issystem));
+            role = await RoleService.UpdateRoleAsync(role);
+            await logger.LogInformation("Role Saved {Role}", role);
             NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Saving Role {RoleId} {Error}", roleid, ex.Message);
+            AddModuleMessage("Error Saving Role", MessageType.Error);
         }
     }
-
 }
