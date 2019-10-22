@@ -6,69 +6,81 @@
 @inject IPageService PageService
 
 <TabControl>
-    <TabPage Text="Pages">
+    <TabPanel Text="Pages">
         @if (pages.Count == 0)
         {
             <br/>
-            <p>No deleted pages</p>
+            <p>No Deleted Pages</p>
         }
         else
         {
             <Pager Items="@pages">
                 <Header>
                     <th>Name</th>
-                    <th>Deletion Audit</th>
+                    <th>Deleted By</th>
+                    <th>Deleted On</th>
                     <th>&nbsp;</th>
                     <th>&nbsp;</th>
                 </Header>
                 <Row>
                     <td>@context.Name</td>
-                    <td>@context.DeletedBy - @context.DeletedOn</td>
+                    <td>@context.DeletedBy</td>
+                    <td>@context.DeletedOn</td>
                     <td><button @onclick="@(() => RestorePage(context))" class="btn btn-info" title="Restore">Restore</button></td>
                     <td><button @onclick="@(() => DeletePage(context.PageId))" class="btn btn-danger">Delete</button></td>
                 </Row>
             </Pager>
         }
-    </TabPage>
-    <TabPage Text="Page Modules">
+    </TabPanel>
+    <TabPanel Text="Modules">
         @if (pageModules.Count == 0)
         {
             <br/>
-            <p>No deleted modules in pages</p>
+            <p>No Deleted Modules</p>
         }
         else
         {
             <Pager Items="@pageModules">
                 <Header>
-                    <th>Page Name</th>
-                    <th>Control Title</th>
-                    <th>Deletion Audit</th>
+                    <th>Page</th>
+                    <th>Module</th>
+                    <th>Deleted By</th>
+                    <th>Deleted On</th>
                     <th>&nbsp;</th>
                     <th>&nbsp;</th>
                 </Header>
                 <Row>
                     <td>@PageState.Pages.Find(item => item.PageId == context.PageId).Name</td>
                     <td>@context.Title</td>
-                    <td>@context.DeletedBy - @context.DeletedOn</td>
+                    <td>@context.DeletedBy</td>
+                    <td>@context.DeletedOn</td>
                     <td><button @onclick="@(() => RestorePageModule(context))" class="btn btn-info" title="Restore">Restore</button></td>
                     <td><button @onclick="@(() => DeletePageModule(context.PageModuleId, context.ModuleId))" class="btn btn-danger">Delete</button></td>
                 </Row>
             </Pager>
         }
-    </TabPage>
+    </TabPanel>
 </TabControl>
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
-        
+
     List<Page> pages { get; set; }
     List<PageModule> pageModules { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        pages = new List<Page>();
-        pageModules = new List<PageModule>();
-        await LoadEntities();
+        try
+        {
+            pages = new List<Page>();
+            pageModules = new List<PageModule>();
+            await LoadEntities();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Deleted Pages Or Modules {Error}", ex.Message);
+            AddModuleMessage("Error Loading Deleted Pages Or Modules", MessageType.Error);
+        }
     }
 
     protected override void OnParametersSet()
@@ -92,11 +104,13 @@
         {
             Page.IsDeleted = false;
             await PageService.UpdatePageAsync(Page);
-            NavigationManager.NavigateTo(NavigateUrl("admin/recyclebin", Reload.Site));
+            await logger.LogInformation("Page Restored {Page}", Page);
+            NavigationManager.NavigateTo(NavigateUrl(Reload.Site));
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Restoring Deleted Page {Page} {Error}", Page, ex.Message);
+            AddModuleMessage("Error Restoring Deleted Page", MessageType.Error);
         }
     }
 
@@ -110,10 +124,12 @@
             {
                 await ModuleService.DeleteModuleAsync(module.ModuleId);
             }
-            NavigationManager.NavigateTo(NavigateUrl("admin/recyclebin", Reload.Site));
+            await logger.LogInformation("Page Permanently Deleted {PageId}", PageId);
+            NavigationManager.NavigateTo(NavigateUrl(Reload.Site));
         }
         catch (Exception ex)
         {
+            await logger.LogError(ex, "Error Permanently Deleting Page {PageId} {Error}", PageId, ex.Message);
             AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
@@ -125,11 +141,13 @@
             PageModule.IsDeleted = false;
             await PageModuleService.UpdatePageModuleAsync(PageModule);
             await LoadEntities();
-            NavigationManager.NavigateTo(NavigateUrl("admin/recyclebin", Reload.Site));
+            await logger.LogInformation("Page Module Restored {PageModule}", PageModule);
+            NavigationManager.NavigateTo(NavigateUrl(Reload.Site));
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Restoring Deleted Page Module {PageModule} {Error}", PageModule, ex.Message);
+            AddModuleMessage("Error Restoring Deleted Page Module", MessageType.Error);
         }
     }
 
@@ -144,11 +162,13 @@
             }
             PageState.Modules.RemoveAt(PageState.Modules.FindIndex(item => item.ModuleId == ModuleId));
             await LoadEntities();
-            NavigationManager.NavigateTo(NavigateUrl("admin/recyclebin", Reload.Site));
+            await logger.LogInformation("Page Module Permanently Deleted {PageModuleId}", PageModuleId);
+            NavigationManager.NavigateTo(NavigateUrl(Reload.Site));
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Permanently Deleting Page Module {PageModuleId} {Error}", PageModuleId, ex.Message);
+            AddModuleMessage("Error Permanently Deleting Page Module", MessageType.Error);
         }
     }
 }
