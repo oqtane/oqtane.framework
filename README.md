@@ -19,11 +19,7 @@ Oqtane uses Blazor, a new web framework for .NET Core that lets you build intera
 This project is a work in progress and the schedule for implementing the items identified below is dependent upon the availability of community members who are able to assist.
 
 Security
-- Logging
 - Need support for JwT tokens for external client access to API
-
-Admin
-- Need ability to soft delete core entities
 
 Database
 - Need ability to run on SQLite
