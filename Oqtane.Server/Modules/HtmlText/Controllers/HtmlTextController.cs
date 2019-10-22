@@ -5,6 +5,7 @@ using Oqtane.Modules.HtmlText.Repository;
 using Microsoft.AspNetCore.Http;
 using Oqtane.Infrastructure;
 using Oqtane.Shared;
+using System;
 
 namespace Oqtane.Modules.HtmlText.Controllers
 {
@@ -30,12 +31,20 @@ namespace Oqtane.Modules.HtmlText.Controllers
         [Authorize(Policy = "ViewModule")]
         public HtmlTextInfo Get(int id)
         {
-            HtmlTextInfo HtmlText = null;
-            if (EntityId == id)
+            try
             {
-               HtmlText = htmltext.GetHtmlText(id);
+                HtmlTextInfo HtmlText = null;
+                if (EntityId == id)
+                {
+                    HtmlText = htmltext.GetHtmlText(id);
+                }
+                return HtmlText;
             }
-            return HtmlText;
+            catch (Exception ex)
+            {
+                logger.AddLog(this.GetType().FullName, LogLevel.Error, ex, "Get Error {Error}", ex.Message);
+                throw;
+            }
         }
 
         // POST api/<controller>
@@ -43,12 +52,20 @@ namespace Oqtane.Modules.HtmlText.Controllers
         [Authorize(Policy = "EditModule")]
         public HtmlTextInfo Post([FromBody] HtmlTextInfo HtmlText)
         {
-            if (ModelState.IsValid && HtmlText.ModuleId == EntityId)
+            try
             {
-                HtmlText = htmltext.AddHtmlText(HtmlText);
-                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Html/Text Added {HtmlText}", HtmlText);
+                if (ModelState.IsValid && HtmlText.ModuleId == EntityId)
+                {
+                    HtmlText = htmltext.AddHtmlText(HtmlText);
+                    logger.AddLog(this.GetType().FullName, LogLevel.Information, "Html/Text Added {HtmlText}", HtmlText);
+                }
+                return HtmlText;
             }
-            return HtmlText;
+            catch (Exception ex)
+            {
+                logger.AddLog(this.GetType().FullName, LogLevel.Error, ex, "Post Error {Error}", ex.Message);
+                throw;
+            }
         }
 
         // PUT api/<controller>/5
@@ -56,12 +73,20 @@ namespace Oqtane.Modules.HtmlText.Controllers
         [Authorize(Policy = "EditModule")]
         public HtmlTextInfo Put(int id, [FromBody] HtmlTextInfo HtmlText)
         {
-            if (ModelState.IsValid && HtmlText.ModuleId == EntityId)
+            try
             {
-                HtmlText = htmltext.UpdateHtmlText(HtmlText);
-                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Html/Text Updated {HtmlText}", HtmlText);
+                if (ModelState.IsValid && HtmlText.ModuleId == EntityId)
+                {
+                    HtmlText = htmltext.UpdateHtmlText(HtmlText);
+                    logger.AddLog(this.GetType().FullName, LogLevel.Information, "Html/Text Updated {HtmlText}", HtmlText);
+                }
+                return HtmlText;
             }
-            return HtmlText; 
+            catch (Exception ex)
+            {
+                logger.AddLog(this.GetType().FullName, LogLevel.Error, ex, "Put Error {Error}", ex.Message);
+                throw;
+            }
         }
 
         // DELETE api/<controller>/5
@@ -69,10 +94,18 @@ namespace Oqtane.Modules.HtmlText.Controllers
         [Authorize(Policy = "EditModule")]
         public void Delete(int id)
         {
-            if (id == EntityId)
+            try
             {
-                htmltext.DeleteHtmlText(id);
-                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Html/Text Deleted {HtmlTextId}", id);
+                if (id == EntityId)
+                {
+                    htmltext.DeleteHtmlText(id);
+                    logger.AddLog(this.GetType().FullName, LogLevel.Information, "Html/Text Deleted {HtmlTextId}", id);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.AddLog(this.GetType().FullName, LogLevel.Error, ex, "Delete Error {Error}", ex.Message);
+                throw;
             }
         }
     }

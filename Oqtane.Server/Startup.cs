@@ -152,10 +152,9 @@ namespace Oqtane.Server
             services.AddSingleton<IConfigurationRoot>(Configuration);
             services.AddSingleton<IInstallationManager, InstallationManager>();
 
-            // install any modules or themes
-            ServiceProvider sp = services.BuildServiceProvider();
-            var InstallationManager = sp.GetRequiredService<IInstallationManager>();
-            InstallationManager.InstallPackages("Modules,Themes");
+            //ServiceProvider sp = services.BuildServiceProvider();
+            //var InstallationManager = sp.GetRequiredService<IInstallationManager>();
+            //InstallationManager.InstallPackages("Modules,Themes");
 
             // register transient scoped core services
             services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
@@ -239,7 +238,7 @@ namespace Oqtane.Server
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IInstallationManager InstallationManager)
         {
             if (env.IsDevelopment())
             {
@@ -250,6 +249,9 @@ namespace Oqtane.Server
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            // install any modules or themes
+            InstallationManager.InstallPackages("Modules,Themes");
 
             app.UseHttpsRedirection();
 
@@ -442,6 +444,9 @@ namespace Oqtane.Server
                 app.UseDeveloperExceptionPage();
                 app.UseBlazorDebugging();
             }
+
+            // install any modules or themes
+            InstallationManager.InstallPackages("Modules,Themes");
 
             app.UseClientSideBlazorFiles<Client.Startup>();
             app.UseStaticFiles();
