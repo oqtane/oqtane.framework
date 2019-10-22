@@ -149,7 +149,7 @@
     string moduletype = "new";
     List<string> categories = new List<string>();
     List<ModuleDefinition> moduledefinitions;
-    List<Page> pages;
+    List<Page> pages = new List<Page>();
     string pageid = "";
     string moduleid = "-";
     List<Module> modules = new List<Module>();
@@ -176,7 +176,7 @@
 
         if (UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions))
         {
-            pages = new List<Page>();
+            pages?.Clear();
 
             foreach (ModuleDefinition moduledefinition in PageState.ModuleDefinitions)
             {
@@ -224,6 +224,7 @@
     private void PageChanged(ChangeEventArgs e)
     {
         pageid = (string)e.Value;
+        modules?.Clear();
         if (pageid != "")
         {
             foreach (Module module in PageState.Modules.Where(item => item.PageId == int.Parse(pageid) && !item.IsDeleted))

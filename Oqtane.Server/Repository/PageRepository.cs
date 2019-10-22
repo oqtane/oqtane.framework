@@ -10,14 +10,12 @@ namespace Oqtane.Repository
         private TenantDBContext db;
         private readonly IPermissionRepository Permissions;
         private readonly IPageModuleRepository PageModules;
-        private readonly IModuleRepository ModuleRepository;
 
-        public PageRepository(TenantDBContext context, IPermissionRepository Permissions, IPageModuleRepository PageModules, IModuleRepository ModuleRepository)
+        public PageRepository(TenantDBContext context, IPermissionRepository Permissions, IPageModuleRepository PageModules)
         {
             db = context;
             this.Permissions = Permissions;
             this.PageModules = PageModules;
-            this.ModuleRepository = ModuleRepository;
         }
 
         public IEnumerable<Page> GetPages()
