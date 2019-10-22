@@ -37,11 +37,11 @@ namespace Oqtane.Controllers
 
         // GET api/<controller>/filename
         [HttpGet("{filename}")]
-        public IActionResult Get(string filename)
+        public IActionResult Get(string assemblyname)
         {
             string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            byte[] file = System.IO.File.ReadAllBytes(Path.Combine(binfolder, filename));
-            return File(file, "application/octet-stream", filename);
+            byte[] file = System.IO.File.ReadAllBytes(Path.Combine(binfolder, assemblyname));
+            return File(file, "application/octet-stream", assemblyname);
         }
 
         // PUT api/<controller>/5
