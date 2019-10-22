@@ -6,7 +6,7 @@
 @inject IPageService PageService
 
 <TabControl>
-    <TabPage Text="Pages">
+    <TabPanel Text="Pages">
         @if (pages.Count == 0)
         {
             <br/>
@@ -29,8 +29,8 @@
                 </Row>
             </Pager>
         }
-    </TabPage>
-    <TabPage Text="Page Modules">
+    </TabPanel>
+    <TabPanel Text="Page Modules">
         @if (pageModules.Count == 0)
         {
             <br/>
@@ -55,7 +55,7 @@
                 </Row>
             </Pager>
         }
-    </TabPage>
+    </TabPanel>
 </TabControl>
 
 @code {
