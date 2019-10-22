@@ -64,12 +64,14 @@
             role.Description = description;
             role.IsAutoAssigned = (isautoassigned == null ? false : Boolean.Parse(isautoassigned));
             role.IsSystem = (issystem == null ? false : Boolean.Parse(issystem));
-            await RoleService.AddRoleAsync(role);
+            role = await RoleService.AddRoleAsync(role);
+            await logger.LogInformation("Role Added {Role}", role);
 
             NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {
+            await logger.LogError(ex, "Error Adding Role", ex.Message);
             AddModuleMessage(ex.Message, MessageType.Error);
         }
     }

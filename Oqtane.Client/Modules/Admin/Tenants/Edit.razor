@@ -55,21 +55,32 @@
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Loading Tenant {TenantId} {Error}", tenantid, ex.Message);
+            AddModuleMessage("Error Loading Tenant", MessageType.Error);
         }
     }
 
     private async Task SaveTenant()
     {
-        connectionstring = connectionstring.Replace("\\\\", "\\");
-        Tenant tenant = await TenantService.GetTenantAsync(tenantid);
-        if (tenant != null)
+        try
         {
-            tenant.Name = name;
-            tenant.DBConnectionString = connectionstring;
-            tenant.DBSchema = schema;
-            await TenantService.UpdateTenantAsync(tenant);
+            connectionstring = connectionstring.Replace("\\\\", "\\");
+            Tenant tenant = await TenantService.GetTenantAsync(tenantid);
+            if (tenant != null)
+            {
+                tenant.Name = name;
+                tenant.DBConnectionString = connectionstring;
+                tenant.DBSchema = schema;
+                await TenantService.UpdateTenantAsync(tenant);
+                await logger.LogInformation("Tenant Saved {TenantId}", tenantid);
+
+                NavigationManager.NavigateTo(NavigateUrl());
+            }
         }
-        NavigationManager.NavigateTo(NavigateUrl());
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Saving Tenant {TenantId} {Error}", tenantid, ex.Message);
+            AddModuleMessage("Error Saving Tenant", MessageType.Error);
+        }
     }
 }

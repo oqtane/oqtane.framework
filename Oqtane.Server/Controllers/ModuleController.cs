@@ -10,6 +10,7 @@ using System;
 using Oqtane.Modules;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
+using Oqtane.Infrastructure;
 
 namespace Oqtane.Controllers
 {
@@ -20,13 +21,15 @@ namespace Oqtane.Controllers
         private readonly IPageModuleRepository PageModules;
         private readonly IModuleDefinitionRepository ModuleDefinitions;
         private readonly IServiceProvider ServiceProvider;
+        private readonly ILogManager logger;
 
-        public ModuleController(IModuleRepository Modules, IPageModuleRepository PageModules, IModuleDefinitionRepository ModuleDefinitions, IServiceProvider ServiceProvider)
+        public ModuleController(IModuleRepository Modules, IPageModuleRepository PageModules, IModuleDefinitionRepository ModuleDefinitions, IServiceProvider ServiceProvider, ILogManager logger)
         {
             this.Modules = Modules;
             this.PageModules = PageModules;
             this.ModuleDefinitions = ModuleDefinitions;
             this.ServiceProvider = ServiceProvider;
+            this.logger = logger;
         }
 
         // GET: api/<controller>?siteid=x
@@ -73,6 +76,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Module = Modules.AddModule(Module);
+                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Module Added {Module}", Module);
             }
             return Module;
         }
@@ -85,6 +89,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Module = Modules.UpdateModule(Module);
+                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Module Updated {Module}", Module);
             }
             return Module;
         }
@@ -95,6 +100,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             Modules.DeleteModule(id);
+            logger.AddLog(this.GetType().FullName, LogLevel.Information, "Module Deleted {ModuleId}", id);
         }
 
         // GET api/<controller>/export?moduleid=x
@@ -135,6 +141,7 @@ namespace Oqtane.Controllers
                             }
                         }
                         content = JsonSerializer.Serialize(modulecontent);
+                        logger.AddLog(this.GetType().FullName, LogLevel.Information, "Module Content Exported {ModuleId}", moduleid);
                     }
                 }
             }
@@ -180,6 +187,7 @@ namespace Oqtane.Controllers
                                             var moduleobject = ActivatorUtilities.CreateInstance(ServiceProvider, moduletype);
                                             ((IPortable)moduleobject).ImportModule(module, modulecontent.Content, modulecontent.Version);
                                             success = true;
+                                            logger.AddLog(this.GetType().FullName, LogLevel.Information, "Module Content Imported {ModuleId}", moduleid);
                                         }
                                     }
                                 }

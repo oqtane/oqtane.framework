@@ -33,14 +33,31 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
-        Files = await FileService.GetFilesAsync(PageState.Site.SiteRootPath);
-        uri = new Uri(NavigationManager.Uri);
+        try
+        {
+            Files = await FileService.GetFilesAsync(PageState.Site.SiteRootPath);
+            uri = new Uri(NavigationManager.Uri);
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError("Error Loading Files {Error}", ex.Message);
+            AddModuleMessage("Error Loading Files", MessageType.Error);
+        }
     }
 
     private async Task DeleteFile(string filename)
     {
-        await FileService.DeleteFileAsync(PageState.Site.SiteRootPath, filename);
-        Files = await FileService.GetFilesAsync(PageState.Site.SiteRootPath);
-        AddModuleMessage("File Deleted", MessageType.Success);
+        try
+        {
+            await FileService.DeleteFileAsync(PageState.Site.SiteRootPath, filename);
+            Files = await FileService.GetFilesAsync(PageState.Site.SiteRootPath);
+            await logger.LogInformation("File Deleted");
+            AddModuleMessage("File Deleted", MessageType.Success);
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError("Error Deleting File {Error}", ex.Message);
+            AddModuleMessage("Error Deleting File", MessageType.Error);
+        }
     }
 }

@@ -130,7 +130,7 @@
     string deletedby;
     DateTime? deletedon;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         try
         {
@@ -159,7 +159,8 @@
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Loading Page {PageId} {Error}", PageId, ex.Message);
+            AddModuleMessage("Error Loading Page", MessageType.Error);
         }
     }
 
@@ -167,12 +168,14 @@
     {
         try
         {
-            await PageService.DeletePageAsync(Int32.Parse(PageState.QueryString["id"]));
-            NavigationManager.NavigateTo(NavigateUrl("", Reload.Site));
+            await PageService.DeletePageAsync(PageId);
+            await logger.LogInformation("Page Deleted {PageId}", PageId);
+            NavigationManager.NavigateTo(NavigateUrl("", Reload.Site)); // redirect to home page
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Deleting Page {PageId} {Error}", PageId, ex.Message);
+            AddModuleMessage("Error Deleting Page", MessageType.Error);
         }
     }
 }

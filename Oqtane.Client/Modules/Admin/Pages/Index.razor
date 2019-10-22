@@ -34,7 +34,8 @@
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Loading Pages {Error}", ex.Message);
+            AddModuleMessage("Error Loading Pages", MessageType.Error);
         }
     }
 }

@@ -88,7 +88,8 @@
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Loading User {UserId} {Error}", userid, ex.Message);
+            AddModuleMessage("Error Loading User", MessageType.Error);
         }
     }
 
@@ -100,14 +101,15 @@
             if (user != null)
             {
                 await UserService.DeleteUserAsync(userid);
+                await logger.LogInformation("User Deleted {UserId}", userid);
+                NavigationManager.NavigateTo(NavigateUrl());
             }
 
-            NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {
+            await logger.LogError(ex, "Error Loading User {UserId} {Error}", userid, ex.Message);
             AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
-
 }

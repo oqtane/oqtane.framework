@@ -71,7 +71,8 @@
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Loading Role {RoleId} {Error}", roleid, ex.Message);
+            AddModuleMessage("Error Loading Role", MessageType.Error);
         }
     }
 
@@ -80,11 +81,13 @@
         try
         {
             await RoleService.DeleteRoleAsync(roleid);
+            await logger.LogInformation("Role Deleted {RoleId}", roleid);
             NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Deleting Role {RoleId} {Error}", roleid, ex.Message);
+            AddModuleMessage("Error Deleting Role", MessageType.Error);
         }
     }
 

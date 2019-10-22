@@ -204,6 +204,30 @@ CREATE TABLE [dbo].[Profile](
 
 GO
 
+CREATE TABLE [dbo].[Log] (
+
+   [LogId] [int] IDENTITY(1,1) NOT NULL,
+   [SiteId] [int] NOT NULL,
+   [LogDate] [datetime] NOT NULL,
+   [PageId] [int] NULL,
+   [ModuleId] [int] NULL,
+   [UserId] [int] NULL,
+   [Url] [nvarchar](200) NOT NULL,
+   [Server] [nvarchar](200) NOT NULL,
+   [Category] [nvarchar](200) NOT NULL,
+   [Level] [nvarchar](20) NOT NULL,
+   [Message] [nvarchar](max) NOT NULL,
+   [MessageTemplate] [nvarchar](max) NOT NULL,
+   [Exception] [nvarchar](max) NULL,
+   [Properties] [nvarchar](max) NULL
+
+   CONSTRAINT [PK_Log] PRIMARY KEY CLUSTERED 
+   (
+     [LogId] ASC
+   ) 
+)
+GO
+
 CREATE TABLE [dbo].[HtmlText](
 	[HtmlTextId] [int] IDENTITY(1,1) NOT NULL,
 	[ModuleId] [int] NOT NULL,
@@ -271,6 +295,11 @@ REFERENCES [dbo].[Role] ([RoleId])
 GO
 
 ALTER TABLE [dbo].[Profile] WITH NOCHECK ADD CONSTRAINT [FK_Profile_Sites] FOREIGN KEY([SiteId])
+REFERENCES [dbo].[Site] ([SiteId])
+ON DELETE CASCADE
+GO
+
+ALTER TABLE [dbo].[Log] WITH CHECK ADD CONSTRAINT [FK_Log_Site] FOREIGN KEY([SiteId])
 REFERENCES [dbo].[Site] ([SiteId])
 ON DELETE CASCADE
 GO

@@ -64,6 +64,7 @@
             }
             else
             {
+                await logger.LogInformation("Login Failed For Username {Username}", Username);
                 AddModuleMessage("Login Failed. Please Remember That Passwords Are Case Sensitive.", MessageType.Error);
             }
         }
@@ -82,6 +83,7 @@
             }
             else
             {
+                await logger.LogInformation("Login Failed For Username {Username}", Username);
                 AddModuleMessage("Login Failed. Please Remember That Passwords Are Case Sensitive.", MessageType.Error);
             }
         }

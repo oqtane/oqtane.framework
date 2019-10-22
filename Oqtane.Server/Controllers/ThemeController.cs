@@ -18,12 +18,14 @@ namespace Oqtane.Controllers
         private readonly IThemeRepository Themes;
         private readonly IInstallationManager InstallationManager;
         private readonly IWebHostEnvironment environment;
+        private readonly ILogManager logger;
 
-        public ThemeController(IThemeRepository Themes, IInstallationManager InstallationManager, IWebHostEnvironment environment)
+        public ThemeController(IThemeRepository Themes, IInstallationManager InstallationManager, IWebHostEnvironment environment, ILogManager logger)
         {
             this.Themes = Themes;
             this.InstallationManager = InstallationManager;
             this.environment = environment;
+            this.logger = logger;
         }
 
         // GET: api/<controller>
@@ -47,6 +49,7 @@ namespace Oqtane.Controllers
         public void InstallThemes()
         {
             InstallationManager.InstallPackages("Themes");
+            logger.AddLog(this.GetType().FullName, LogLevel.Information, "Themes Installed");
         }
 
         // DELETE api/<controller>/xxx
@@ -71,6 +74,7 @@ namespace Oqtane.Controllers
                 {
                     System.IO.File.Delete(file);
                 }
+                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Theme Deleted {ThemeName}", themename);
 
                 InstallationManager.RestartApplication();
             }

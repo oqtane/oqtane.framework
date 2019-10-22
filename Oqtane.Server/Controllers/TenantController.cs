@@ -4,6 +4,7 @@ using Oqtane.Repository;
 using Oqtane.Models;
 using System.Collections.Generic;
 using Oqtane.Shared;
+using Oqtane.Infrastructure;
 
 namespace Oqtane.Controllers
 {
@@ -11,10 +12,12 @@ namespace Oqtane.Controllers
     public class TenantController : Controller
     {
         private readonly ITenantRepository Tenants;
+        private readonly ILogManager logger;
 
-        public TenantController(ITenantRepository Tenants)
+        public TenantController(ITenantRepository Tenants, ILogManager logger)
         {
             this.Tenants = Tenants;
+            this.logger = logger;
         }
 
         // GET: api/<controller>
@@ -39,6 +42,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Tenant = Tenants.AddTenant(Tenant);
+                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Tenant Added {TenantId}", Tenant.TenantId);
             }
             return Tenant;
         }
@@ -51,6 +55,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Tenant = Tenants.UpdateTenant(Tenant);
+                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Tenant Updated {TenantId}", Tenant.TenantId);
             }
             return Tenant;
         }
@@ -61,6 +66,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             Tenants.DeleteTenant(id);
+            logger.AddLog(this.GetType().FullName, LogLevel.Information, "Tenant Deleted {TenantId}", id);
         }
     }
 }

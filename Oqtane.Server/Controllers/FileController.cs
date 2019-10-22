@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Oqtane.Infrastructure;
 using Oqtane.Shared;
 using System;
 using System.Collections.Generic;
@@ -15,11 +16,13 @@ namespace Oqtane.Controllers
     public class FileController : Controller
     {
         private readonly IWebHostEnvironment environment;
+        private readonly ILogManager logger;
         private readonly string WhiteList = "jpg,jpeg,jpe,gif,bmp,png,mov,wmv,avi,mp4,mp3,doc,docx,xls,xlsx,ppt,pptx,pdf,txt,zip,nupkg";
 
-        public FileController(IWebHostEnvironment environment)
+        public FileController(IWebHostEnvironment environment, ILogManager logger)
         {
             this.environment = environment;
+            this.logger = logger;
         }
 
         // GET: api/<controller>?folder=x
@@ -107,6 +110,7 @@ namespace Oqtane.Controllers
                     {
                         // rename file now that the entire process is completed
                         System.IO.File.Move(Path.Combine(folder, filename + ".tmp"), Path.Combine(folder, filename));
+                        logger.AddLog(this.GetType().FullName, LogLevel.Information, "File Uploaded {File}", Path.Combine(folder, filename));
                     }
                 }
             }
@@ -169,6 +173,7 @@ namespace Oqtane.Controllers
             if (System.IO.File.Exists(file))
             {
                 System.IO.File.Delete(file);
+                logger.AddLog(this.GetType().FullName, LogLevel.Information, "File Deleted {File}", file);
             }
         }
 

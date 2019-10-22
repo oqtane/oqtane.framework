@@ -30,8 +30,16 @@
     {
         if (content != "")
         {
-            await ModuleService.ImportModuleAsync(ModuleState.ModuleId, content);
-            NavigationManager.NavigateTo(NavigateUrl(Reload.Page));
+            try
+            {
+                await ModuleService.ImportModuleAsync(ModuleState.ModuleId, content);
+                NavigationManager.NavigateTo(NavigateUrl(Reload.Page));
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Importing Module {ModuleId} {Error}", ModuleState.ModuleId, ex.Message);
+                AddModuleMessage("Error Importing Module", MessageType.Error);
+            }
         }
         else
         {

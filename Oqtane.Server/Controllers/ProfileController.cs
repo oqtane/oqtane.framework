@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
+using Oqtane.Infrastructure;
 
 namespace Oqtane.Controllers
 {
@@ -11,10 +12,12 @@ namespace Oqtane.Controllers
     public class ProfileController : Controller
     {
         private readonly IProfileRepository Profiles;
+        private readonly ILogManager logger;
 
-        public ProfileController(IProfileRepository Profiles)
+        public ProfileController(IProfileRepository Profiles, ILogManager logger)
         {
             this.Profiles = Profiles;
+            this.logger = logger;
         }
 
         // GET: api/<controller>?siteid=x
@@ -46,6 +49,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Profile = Profiles.AddProfile(Profile);
+                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Profile Added {Profile}", Profile);
             }
             return Profile;
         }
@@ -58,6 +62,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Profile = Profiles.UpdateProfile(Profile);
+                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Profile Updated {Profile}", Profile);
             }
             return Profile;
         }
@@ -68,6 +73,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             Profiles.DeleteProfile(id);
+            logger.AddLog(this.GetType().FullName, LogLevel.Information, "Profile Deleted {ProfileId}", id);
         }
     }
 }

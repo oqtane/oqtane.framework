@@ -146,7 +146,7 @@ else
         username = PageState.User.Username;
     }
 
-    private void TenantChanged(ChangeEventArgs e)
+    private async void TenantChanged(ChangeEventArgs e)
     {
         try
         {
@@ -163,11 +163,12 @@ else
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Loading Tenant {TenantId} {Error}", tenantid, ex.Message);
+            AddModuleMessage("Error Loading Tenant", MessageType.Error);
         }
     }
 
-    private void ThemeChanged(ChangeEventArgs e)
+    private async void ThemeChanged(ChangeEventArgs e)
     {
         try
         {
@@ -184,7 +185,8 @@ else
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", themetype, ex.Message);
+            AddModuleMessage("Error Loading Pane Layouts For Theme", MessageType.Error);
         }
     }
 
@@ -250,12 +252,14 @@ else
                         await TenantService.UpdateTenantAsync(tenant);
                     }
                 }
+                await logger.LogInformation("Site Created {Site}", site);
 
                 Uri uri = new Uri(NavigationManager.Uri);
                 NavigationManager.NavigateTo(uri.Scheme + "://" + aliases[0].Name, true);
             }
             else
             {
+                await logger.LogError("Invalid Password Entered For Host {Username}", username);
                 AddModuleMessage("Invalid Host Password", MessageType.Error);
             }
         }

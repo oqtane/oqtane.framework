@@ -163,7 +163,8 @@ else
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Loading Site {SiteId} {Error}", siteid, ex.Message);
+            AddModuleMessage("Error Loading Site", MessageType.Error);
         }
     }
 
@@ -172,10 +173,12 @@ else
         try
         {
             await SiteService.DeleteSiteAsync(siteid, Alias);
+            await logger.LogInformation("Sited Deleted {SiteId}", siteid);
             NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {
+            await logger.LogError(ex, "Error Deleting Site {Error}", ex.Message);
             AddModuleMessage(ex.Message, MessageType.Error);
         }
     }

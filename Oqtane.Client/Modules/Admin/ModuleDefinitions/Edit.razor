@@ -40,7 +40,7 @@
 
     PermissionGrid permissiongrid;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         try
         {
@@ -58,7 +58,8 @@
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Loading ModuleDefinition {ModuleDefinitionId} {Error}", ModuleDefinitionId, ex.Message);
+            AddModuleMessage("Error Loading Module", MessageType.Error);
         }
     }
 
@@ -69,11 +70,13 @@
             ModuleDefinition moduledefinition = PageState.ModuleDefinitions.Where(item => item.ModuleDefinitionId == ModuleDefinitionId).FirstOrDefault();
             moduledefinition.Permissions = permissiongrid.GetPermissions();
             await ModuleDefinitionService.UpdateModuleDefinitionAsync(moduledefinition);
+            await logger.LogInformation("ModuleDefinition Saved {ModuleDefinition}", moduledefinition);
             NavigationManager.NavigateTo(NavigateUrl(Reload.Site));
         }
         catch (Exception ex)
         {
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Saving ModuleDefinition {ModuleDefinitionId} {Error}", ModuleDefinitionId, ex.Message);
+            AddModuleMessage("Error Saving Module", MessageType.Error);
         }
     }
 }
