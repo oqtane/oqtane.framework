@@ -93,9 +93,16 @@ namespace Oqtane.Infrastructure
                     if (message.IndexOf("}", index) != -1)
                     {
                         names.Add(message.Substring(index + 1, message.IndexOf("}", index) - index - 1));
-                        if (values.Length > (names.Count - 1) && values[names.Count - 1] != null)
+                        if (values.Length > (names.Count - 1))
                         {
-                            message = message.Replace("{" + names[names.Count - 1] + "}", values[names.Count - 1].ToString());
+                            if (values[names.Count - 1] != null)
+                            {
+                                message = message.Replace("{" + names[names.Count - 1] + "}", values[names.Count - 1].ToString());
+                            }
+                            else
+                            {
+                                message = message.Replace("{" + names[names.Count - 1] + "}", "with Null " + names[names.Count - 1]);
+                            }
                         }
                     }
                     index = message.IndexOf("{", index + 1);
@@ -122,6 +129,7 @@ namespace Oqtane.Infrastructure
             }
             Log.Message = message;
             Log.Properties = properties;
+            System.Diagnostics.Debug.WriteLine(message);
             return Log;
         }
     }
