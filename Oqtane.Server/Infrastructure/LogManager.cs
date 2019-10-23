@@ -93,7 +93,7 @@ namespace Oqtane.Infrastructure
                     if (message.IndexOf("}", index) != -1)
                     {
                         names.Add(message.Substring(index + 1, message.IndexOf("}", index) - index - 1));
-                        if (values.Length > (names.Count - 1))
+                        if (values.Length > (names.Count - 1) && values[names.Count - 1] != null)
                         {
                             message = message.Replace("{" + names[names.Count - 1] + "}", values[names.Count - 1].ToString());
                         }
