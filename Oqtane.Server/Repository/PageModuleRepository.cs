@@ -62,6 +62,18 @@ namespace Oqtane.Repository
             return pagemodule;
         }
 
+        public PageModule GetPageModule(int PageId, int ModuleId)
+        {
+            PageModule pagemodule = db.PageModule.Include(item => item.Module) // eager load modules
+                .SingleOrDefault(item => item.PageId == PageId && item.ModuleId == ModuleId);
+            if (pagemodule != null)
+            {
+                IEnumerable<Permission> permissions = Permissions.GetPermissions("Module", pagemodule.ModuleId);
+                pagemodule.Module.Permissions = Permissions.EncodePermissions(pagemodule.ModuleId, permissions);
+            }
+            return pagemodule;
+        }
+
         public void DeletePageModule(int PageModuleId)
         {
             PageModule PageModule = db.PageModule.Find(PageModuleId);

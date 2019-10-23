@@ -27,9 +27,14 @@ namespace Oqtane.Services
             get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "Log"); }
         }
 
-        public async Task<List<Log>> GetLogsAsync(int SiteId)
+        public async Task<List<Log>> GetLogsAsync(int SiteId, string Level, int Rows)
         {
-            return await http.GetJsonAsync<List<Log>>(apiurl + "?siteid=" + SiteId.ToString());
+            return await http.GetJsonAsync<List<Log>>(apiurl + "?siteid=" + SiteId.ToString() + "&level=" + Level + "&rows=" + Rows.ToString());
+        }
+
+        public async Task<Log> GetLogAsync(int LogId)
+        {
+            return await http.GetJsonAsync<Log>(apiurl + "/" + LogId.ToString());
         }
 
         public async Task Log(int? PageId, int? ModuleId, int? UserId, string category, LogLevel level, Exception exception, string message, params object[] args)

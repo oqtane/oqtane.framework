@@ -10,6 +10,7 @@ namespace Oqtane.Repository
         PageModule AddPageModule(PageModule PageModule);
         PageModule UpdatePageModule(PageModule PageModule);
         PageModule GetPageModule(int PageModuleId);
+        PageModule GetPageModule(int PageId, int ModuleId);
         void DeletePageModule(int PageModuleId);
     }
 }
