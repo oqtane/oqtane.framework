@@ -2,7 +2,6 @@
 @inject NavigationManager NavigationManager
 @inject IInstallationService InstallationService
 @inject ISiteService SiteService
-@inject ITenantService TenantService
 @inject IUserService UserService
 
 <div class="container">
@@ -172,9 +171,8 @@
             GenericResponse response = await InstallationService.Install(connectionstring);
             if (response.Success)
             {
-                List<Tenant> tenants = await TenantService.GetTenantsAsync();
                 Site site = new Site();
-                site.TenantId = tenants.FirstOrDefault().TenantId;
+                site.TenantId = -1; // will be populated on server
                 site.Name = "Default Site";
                 site.Logo = "oqtane.png";
                 site.DefaultThemeType = Constants.DefaultTheme;

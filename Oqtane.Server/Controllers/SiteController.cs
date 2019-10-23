@@ -50,7 +50,10 @@ namespace Oqtane.Controllers
                 bool authorized;
                 if (!Sites.GetSites().Any())
                 {
-                    authorized = true; // provision initial site during installation
+                    // provision initial site during installation
+                    authorized = true; 
+                    Tenant tenant = Tenants.GetTenant();
+                    Site.TenantId = tenant.TenantId;
                 }
                 else
                 {

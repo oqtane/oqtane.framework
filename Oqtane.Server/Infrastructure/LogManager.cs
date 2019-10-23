@@ -95,27 +95,29 @@ namespace Oqtane.Infrastructure
                         names.Add(message.Substring(index + 1, message.IndexOf("}", index) - index - 1));
                         if (values.Length > (names.Count - 1))
                         {
-                            message = message.Replace("{" + names[names.Count - 1] + "}", values[names.Count - 1]?.ToString() ?? "null");
+                            if (values[names.Count - 1] == null)
+                            {
+                                message = message.Replace("{" + names[names.Count - 1] + "}", "null");
+                            }
+                            else
+                            {
+                                message = message.Replace("{" + names[names.Count - 1] + "}", values[names.Count - 1].ToString());
+                            }
                         }
                     }
                     index = message.IndexOf("{", index + 1);
                 }
                 // rebuild properties into dictionary
-                Dictionary<string, string> propertydictionary = new Dictionary<string, string>();
+                Dictionary<string, object> propertydictionary = new Dictionary<string, object>();
                 for (int i = 0; i < values.Length; i++)
                 {
-                    string value = "";
-                    if (values[i] != null)
-                    {
-                        value = values[i].ToString();
-                    }
                     if (i < names.Count)
                     {
-                        propertydictionary.Add(names[i], value);
+                        propertydictionary.Add(names[i], values[i]);
                     }
                     else
                     {
-                        propertydictionary.Add("Property" + i.ToString(), value);
+                        propertydictionary.Add("Property" + i.ToString(), values[i]);
                     }
                 }
                 properties = JsonSerializer.Serialize(propertydictionary);
