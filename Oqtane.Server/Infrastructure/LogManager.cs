@@ -97,7 +97,7 @@ namespace Oqtane.Infrastructure
                         {
                             if (values[names.Count - 1] != null)
                             {
-                                message = message.Replace("{" + names[names.Count - 1] + "}", values[names.Count - 1].ToString());
+                                message = message.Replace("{" + names[names.Count - 1] + "}", names[names.Count - 1] + ":" + values[names.Count - 1].ToString());
                             }
                             else
                             {
@@ -129,7 +129,6 @@ namespace Oqtane.Infrastructure
             }
             Log.Message = message;
             Log.Properties = properties;
-            System.Diagnostics.Debug.WriteLine(message);
             return Log;
         }
     }
