@@ -95,14 +95,7 @@ namespace Oqtane.Infrastructure
                         names.Add(message.Substring(index + 1, message.IndexOf("}", index) - index - 1));
                         if (values.Length > (names.Count - 1))
                         {
-                            if (values[names.Count - 1] != null)
-                            {
-                                message = message.Replace("{" + names[names.Count - 1] + "}", names[names.Count - 1] + ":" + values[names.Count - 1].ToString());
-                            }
-                            else
-                            {
-                                message = message.Replace("{" + names[names.Count - 1] + "}", "with Null " + names[names.Count - 1]);
-                            }
+                            message = message.Replace("{" + names[names.Count - 1] + "}", names[names.Count - 1] + ":" + values[names.Count - 1]?.ToString() ?? "null");
                         }
                     }
                     index = message.IndexOf("{", index + 1);
