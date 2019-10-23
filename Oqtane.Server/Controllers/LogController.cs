@@ -3,6 +3,8 @@ using Oqtane.Models;
 using System.Collections.Generic;
 using Oqtane.Repository;
 using Oqtane.Infrastructure;
+using Microsoft.AspNetCore.Authorization;
+using Oqtane.Shared;
 
 namespace Oqtane.Controllers
 {
@@ -19,11 +21,20 @@ namespace Oqtane.Controllers
             this.Logs = Logs;
         }
 
-        // GET: api/<controller>?siteid=x
+        // GET: api/<controller>?siteid=x&level=y
         [HttpGet]
-        public IEnumerable<Log> Get(string siteid)
+        [Authorize(Roles = Constants.AdminRole)]
+        public IEnumerable<Log> Get(string siteid, string level, string rows)
         {
-            return Logs.GetLogs(int.Parse(siteid));
+            return Logs.GetLogs(int.Parse(siteid), level, int.Parse(rows));
+        }
+
+        // GET api/<controller>/5
+        [HttpGet("{id}")]
+        [Authorize(Roles = Constants.AdminRole)]
+        public Log Get(int id)
+        {
+            return Logs.GetLog(id);
         }
 
         // POST api/<controller>

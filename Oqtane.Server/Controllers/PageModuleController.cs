@@ -37,6 +37,13 @@ namespace Oqtane.Controllers
             return PageModules.GetPageModule(id);
         }
 
+        // GET: api/<controller>/pageid/moduleid
+        [HttpGet("{pageid}/{moduleid}")]
+        public PageModule Get(int pageid, int moduleid)
+        {
+            return PageModules.GetPageModule(pageid, moduleid);
+        }
+
         // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = Constants.AdminRole)]

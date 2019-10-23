@@ -8,7 +8,8 @@ namespace Oqtane.Services
 {
     public interface ILogService
     {
-        Task<List<Log>> GetLogsAsync(int SiteId);
+        Task<List<Log>> GetLogsAsync(int SiteId, string Level, int Rows);
+        Task<Log> GetLogAsync(int LogId);
         Task Log(int? PageId, int? ModuleId, int? UserId, string component, LogLevel level, Exception exception, string message, params object[] args);
     }
 }
