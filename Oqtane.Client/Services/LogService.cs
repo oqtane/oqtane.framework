@@ -27,9 +27,9 @@ namespace Oqtane.Services
             get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "Log"); }
         }
 
-        public async Task<List<Log>> GetLogsAsync(int SiteId, string Level, int Rows)
+        public async Task<List<Log>> GetLogsAsync(int SiteId, string Level, string Function, int Rows)
         {
-            return await http.GetJsonAsync<List<Log>>(apiurl + "?siteid=" + SiteId.ToString() + "&level=" + Level + "&rows=" + Rows.ToString());
+            return await http.GetJsonAsync<List<Log>>(apiurl + "?siteid=" + SiteId.ToString() + "&level=" + Level + "&function=" + Function + "&rows=" + Rows.ToString());
         }
 
         public async Task<Log> GetLogAsync(int LogId)
@@ -37,7 +37,7 @@ namespace Oqtane.Services
             return await http.GetJsonAsync<Log>(apiurl + "/" + LogId.ToString());
         }
 
-        public async Task Log(int? PageId, int? ModuleId, int? UserId, string category, LogLevel level, Exception exception, string message, params object[] args)
+        public async Task Log(int? PageId, int? ModuleId, int? UserId, string category, string feature, LogFunction function, LogLevel level, Exception exception, string message, params object[] args)
         {
             Log log = new Log();
             log.SiteId = sitestate.Alias.SiteId;
@@ -46,6 +46,8 @@ namespace Oqtane.Services
             log.UserId = UserId;
             log.Url = NavigationManager.Uri;
             log.Category = category;
+            log.Feature = feature;
+            log.Function = Enum.GetName(typeof(LogFunction), function);
             log.Level = Enum.GetName(typeof(LogLevel), level);
             if (exception != null)
             {

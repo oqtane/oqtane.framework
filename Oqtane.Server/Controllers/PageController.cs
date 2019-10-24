@@ -50,7 +50,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Page = Pages.AddPage(Page);
-                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Page Added {Page}", Page);
+                logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Create, "Page Added {Page}", Page);
             }
             return Page;
         }
@@ -63,7 +63,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Page = Pages.UpdatePage(Page);
-                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Page Updated {Page}", Page);
+                logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Update, "Page Updated {Page}", Page);
             }
             return Page;
         }
@@ -84,7 +84,7 @@ namespace Oqtane.Controllers
                 }
                 order += 2;
             }
-            logger.AddLog(this.GetType().FullName, LogLevel.Information, "Page Order Updated {SiteId} {ParentId}", siteid, parentid);
+            logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Update, "Page Order Updated {SiteId} {ParentId}", siteid, parentid);
         }
 
         // DELETE api/<controller>/5
@@ -93,7 +93,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             Pages.DeletePage(id);
-            logger.AddLog(this.GetType().FullName, LogLevel.Information, "Page Deleted {PageId}", id);
+            logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Delete, "Page Deleted {PageId}", id);
         }
     }
 }

@@ -21,12 +21,12 @@ namespace Oqtane.Controllers
             this.Logs = Logs;
         }
 
-        // GET: api/<controller>?siteid=x&level=y
+        // GET: api/<controller>?siteid=x&level=y&function=z&rows=50
         [HttpGet]
         [Authorize(Roles = Constants.AdminRole)]
-        public IEnumerable<Log> Get(string siteid, string level, string rows)
+        public IEnumerable<Log> Get(string siteid, string level, string function, string rows)
         {
-            return Logs.GetLogs(int.Parse(siteid), level, int.Parse(rows));
+            return Logs.GetLogs(int.Parse(siteid), level, function, int.Parse(rows));
         }
 
         // GET api/<controller>/5
@@ -43,7 +43,7 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                Logger.AddLog(Log);
+                Logger.Log(Log);
             }
         }
     }

@@ -19,6 +19,16 @@ else
             <option value="Error">Error</option>
             <option value="Critical">Critical</option>
         </select>
+        <label>Function: </label>
+        <select class="form-control" @onchange="(e => FunctionChanged(e))">
+            <option value="-">&lt;All Functions&gt;</option>
+            <option value="Create">Create</option>
+            <option value="Read">Read</option>
+            <option value="Update">Update</option>
+            <option value="Delete">Delete</option>
+            <option value="Security">Security</option>
+            <option value="Other">Other</option>
+        </select>
         <label>Rows: </label>
         <select class="form-control" @onchange="(e => RowsChanged(e))">
             <option value="10">10</option>
@@ -26,34 +36,44 @@ else
             <option value="100">100</option>
         </select>
     </div>
+    @if(Logs.Any())
+    { 
     <Pager Items="@Logs">
         <Header>
-            <th>Date</th>
-            <th>Category</th>
-            <th>Level</th>
             <th>&nbsp;</th>
+            <th>Date</th>
+            <th>Level</th>
+            <th>Feature</th>
+            <th>Function</th>
         </Header>
         <Row>
-            <td>@context.LogDate</td>
-            <td>@context.Category</td>
-            <td>@context.Level</td>
             <td><ActionLink Action="Detail" Parameters="@($"id=" + context.LogId.ToString())" /></td>
+            <td>@context.LogDate</td>
+            <td>@context.Level</td>
+            <td>@context.Feature</td>
+            <td>@context.Function</td>
         </Row>
     </Pager>
+    }
+    else
+    {
+    <p><em>No Logs Match The Criteria Specified</em></p>
+    }
 }
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 
     string level = "-";
-    string rows = "50";
+    string function = "-";
+    string rows = "10";
     List<Log> Logs;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            Logs = await LogService.GetLogsAsync(PageState.Site.SiteId, ((level == "-") ? "" : level), int.Parse(rows));
+            await GetLogs();
         }
         catch (Exception ex)
         {
@@ -67,7 +87,7 @@ else
         try
         {
             level = (string)e.Value;
-            Logs = await LogService.GetLogsAsync(PageState.Site.SiteId, ((level == "-") ? "" : level), int.Parse(rows));
+            await GetLogs();
             StateHasChanged();
         }
         catch (Exception ex)
@@ -77,12 +97,12 @@ else
         }
     }
 
-    private async void RowsChanged(ChangeEventArgs e)
+    private async void FunctionChanged(ChangeEventArgs e)
     {
         try
         {
-            rows = (string)e.Value;
-            Logs = await LogService.GetLogsAsync(PageState.Site.SiteId, ((level == "-") ? "" : level), int.Parse(rows));
+            function = (string)e.Value;
+            await GetLogs();
             StateHasChanged();
         }
         catch (Exception ex)
@@ -90,5 +110,26 @@ else
             await logger.LogError(ex, "Error Loading Logs {Error}", ex.Message);
             AddModuleMessage("Error Loading Logs", MessageType.Error);
         }
+    }
+
+
+    private async void RowsChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            rows = (string)e.Value;
+            await GetLogs();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Logs {Error}", ex.Message);
+            AddModuleMessage("Error Loading Logs", MessageType.Error);
+        }
+    }
+
+    private async Task GetLogs()
+    {
+        Logs = await LogService.GetLogsAsync(PageState.Site.SiteId, ((level == "-") ? "" : level), ((function == "-") ? "" : function), int.Parse(rows));
     }
 }

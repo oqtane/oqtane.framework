@@ -1,4 +1,4 @@
-﻿namespace Oqtane.Modules
+﻿namespace Oqtane.Shared
 {
     public enum MessageType
     {

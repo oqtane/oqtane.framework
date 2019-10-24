@@ -45,7 +45,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && IsAuthorized(Setting.EntityName, Setting.EntityId))
             {
                 Setting = Settings.AddSetting(Setting);
-                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Setting Added {Setting}", Setting);
+                logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Create, "Setting Added {Setting}", Setting);
             }
             return Setting;
         }
@@ -58,7 +58,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && IsAuthorized(Setting.EntityName, Setting.EntityId))
             {
                 Setting = Settings.UpdateSetting(Setting);
-                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Setting Updated {Setting}", Setting);
+                logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Update, "Setting Updated {Setting}", Setting);
             }
             return Setting;
         }
@@ -69,7 +69,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             Settings.DeleteSetting(id);
-            logger.AddLog(this.GetType().FullName, LogLevel.Information, "Setting Deleted {SettingId}", id);
+            logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Delete, "Setting Deleted {SettingId}", id);
         }
 
         private bool IsAuthorized(string EntityName, int EntityId)

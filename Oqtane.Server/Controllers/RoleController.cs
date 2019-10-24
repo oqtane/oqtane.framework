@@ -49,7 +49,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Role = Roles.AddRole(Role);
-                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Role Added {Role}", Role);
+                logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Create, "Role Added {Role}", Role);
             }
             return Role;
         }
@@ -62,7 +62,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Role = Roles.UpdateRole(Role);
-                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Role Updated {Role}", Role);
+                logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Update, "Role Updated {Role}", Role);
             }
             return Role;
         }
@@ -73,7 +73,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             Roles.DeleteRole(id);
-            logger.AddLog(this.GetType().FullName, LogLevel.Information, "Role Deleted {RoleId}", id);
+            logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Delete, "Role Deleted {RoleId}", id);
         }
     }
 }

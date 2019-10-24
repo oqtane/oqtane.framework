@@ -215,6 +215,8 @@ CREATE TABLE [dbo].[Log] (
    [Url] [nvarchar](200) NOT NULL,
    [Server] [nvarchar](200) NOT NULL,
    [Category] [nvarchar](200) NOT NULL,
+   [Feature] [nvarchar](200) NOT NULL,
+   [Function] [nvarchar](20) NOT NULL,
    [Level] [nvarchar](20) NOT NULL,
    [Message] [nvarchar](max) NOT NULL,
    [MessageTemplate] [nvarchar](max) NOT NULL,

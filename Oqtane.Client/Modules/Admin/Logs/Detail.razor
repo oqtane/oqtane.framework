@@ -6,108 +6,124 @@
 @inject IPageModuleService PageModuleService
 @inject IUserService UserService
 
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <label class="control-label">Date: </label>
-        </td>
-        <td>
-            <input class="form-control" @bind="@logdate" disabled />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label class="control-label">Category: </label>
-        </td>
-        <td>
-            <input class="form-control" @bind="@category" disabled />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label class="control-label">Level: </label>
-        </td>
-        <td>
-            <input class="form-control" @bind="@level" disabled />
-        </td>
-    </tr>
-    @if (pagename != "")
-    {
+    <table class="table table-borderless">
         <tr>
             <td>
-                <label class="control-label">Page: </label>
+                <label class="control-label">Date/Time: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@pagename" disabled />
+                <input class="form-control" @bind="@logdate" disabled />
             </td>
         </tr>
-    }
-    @if (moduletitle != "")
-    {
         <tr>
             <td>
-                <label class="control-label">Module: </label>
+                <label class="control-label">Level: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@moduletitle" disabled />
+                <input class="form-control" @bind="@level" disabled />
             </td>
         </tr>
-    }
-    @if (username != "")
-    {
         <tr>
             <td>
-                <label class="control-label">User: </label>
+                <label class="control-label">Feature: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@username" disabled />
+                <input class="form-control" @bind="@feature" disabled />
             </td>
         </tr>
-    }
-    <tr>
-        <td>
-            <label class="control-label">Template: </label>
-        </td>
-        <td>
-            <input class="form-control" @bind="@template" disabled />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label class="control-label">Message: </label>
-        </td>
-        <td>
-            <textarea class="form-control" @bind="@message" rows="5" disabled />
-        </td>
-    </tr>
-    @if (!string.IsNullOrEmpty(exception))
-    {
         <tr>
             <td>
-                <label class="control-label">Exception: </label>
+                <label class="control-label">Function: </label>
             </td>
             <td>
-                <textarea class="form-control" @bind="@exception" rows="5" disabled />
+                <input class="form-control" @bind="@function" disabled />
             </td>
         </tr>
-    }
-    <tr>
-        <td>
-            <label class="control-label">Properties: </label>
-        </td>
-        <td>
-            <textarea class="form-control" @bind="@properties" rows="5" disabled />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label class="control-label">Server: </label>
-        </td>
-        <td>
-            <input class="form-control" @bind="@server" disabled />
-        </td>
-    </tr>
-</table>
+        <tr>
+            <td>
+                <label class="control-label">Category: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@category" disabled />
+            </td>
+        </tr>
+        @if (pagename != "")
+        {
+            <tr>
+                <td>
+                    <label class="control-label">Page: </label>
+                </td>
+                <td>
+                    <input class="form-control" @bind="@pagename" disabled />
+                </td>
+            </tr>
+        }
+        @if (moduletitle != "")
+        {
+            <tr>
+                <td>
+                    <label class="control-label">Module: </label>
+                </td>
+                <td>
+                    <input class="form-control" @bind="@moduletitle" disabled />
+                </td>
+            </tr>
+        }
+        @if (username != "")
+        {
+            <tr>
+                <td>
+                    <label class="control-label">User: </label>
+                </td>
+                <td>
+                    <input class="form-control" @bind="@username" disabled />
+                </td>
+            </tr>
+        }
+        <tr>
+            <td>
+                <label class="control-label">Template: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@template" disabled />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="control-label">Message: </label>
+            </td>
+            <td>
+                <textarea class="form-control" @bind="@message" rows="5" disabled />
+            </td>
+        </tr>
+        @if (!string.IsNullOrEmpty(exception))
+        {
+            <tr>
+                <td>
+                    <label class="control-label">Exception: </label>
+                </td>
+                <td>
+                    <textarea class="form-control" @bind="@exception" rows="5" disabled />
+                </td>
+            </tr>
+        }
+        <tr>
+            <td>
+                <label class="control-label">Properties: </label>
+            </td>
+            <td>
+                <textarea class="form-control" @bind="@properties" rows="5" disabled />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="control-label">Server: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@server" disabled />
+            </td>
+        </tr>
+    </table>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
 @code {
@@ -115,8 +131,10 @@
 
     int logid;
     string logdate = "";
-    string category = "";
     string level = "";
+    string feature = "";
+    string function = "";
+    string category = "";
     string pagename = "";
     string moduletitle = "";
     string username = "";
@@ -136,8 +154,10 @@
             if (log != null)
             {
                 logdate = log.LogDate.ToString();
-                category = log.Category;
                 level = log.Level;
+                feature = log.Feature;
+                function = log.Function;
+                category = log.Category;
                 if (log.PageId != null)
                 {
                     Page page = await PageService.GetPageAsync(log.PageId.Value);

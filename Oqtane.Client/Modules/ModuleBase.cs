@@ -135,7 +135,25 @@ namespace Oqtane.Modules
             {
                 UserId = PageState.User.UserId;
             }
-            await LoggingService.Log(PageId, ModuleId, UserId, this.GetType().ToString(), level, exception, message, args);
+            string category = this.GetType().AssemblyQualifiedName;
+            string feature = Utilities.GetTypeNameLastSegment(category, 1);
+            LogFunction function;
+            switch (PageState.Action)
+            {
+                case "Add":
+                    function = LogFunction.Create;
+                    break;
+                case "Edit":
+                    function = LogFunction.Update;
+                    break;
+                case "Delete":
+                    function = LogFunction.Delete;
+                    break;
+                default:
+                    function = LogFunction.Read;
+                    break;
+            }
+            await LoggingService.Log(PageId, ModuleId, UserId, category, feature, function, level, exception, message, args);
         }
 
         public class Logger

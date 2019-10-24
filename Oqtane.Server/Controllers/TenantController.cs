@@ -44,7 +44,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Tenant = Tenants.AddTenant(Tenant);
-                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Tenant Added {TenantId}", Tenant.TenantId);
+                logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Create, "Tenant Added {TenantId}", Tenant.TenantId);
             }
             return Tenant;
         }
@@ -57,7 +57,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Tenant = Tenants.UpdateTenant(Tenant);
-                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Tenant Updated {TenantId}", Tenant.TenantId);
+                logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Update, "Tenant Updated {TenantId}", Tenant.TenantId);
             }
             return Tenant;
         }
@@ -68,7 +68,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             Tenants.DeleteTenant(id);
-            logger.AddLog(this.GetType().FullName, LogLevel.Information, "Tenant Deleted {TenantId}", id);
+            logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Delete, "Tenant Deleted {TenantId}", id);
         }
     }
 }

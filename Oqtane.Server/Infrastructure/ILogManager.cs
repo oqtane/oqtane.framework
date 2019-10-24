@@ -6,8 +6,8 @@ namespace Oqtane.Infrastructure
 {
     public interface ILogManager
     {
-        void AddLog(string Category, LogLevel Level, string Message, params object[] Args);
-        void AddLog(string Category, LogLevel Level, Exception Exception, string Message, params object[] Args);
-        void AddLog(Log Log);
+        void Log(LogLevel Level, string Category, LogFunction Function, string Message, params object[] Args);
+        void Log(LogLevel Level, string Category, LogFunction Function, Exception Exception, string Message, params object[] Args);
+        void Log(Log Log);
     }
 }

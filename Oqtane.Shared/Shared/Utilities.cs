@@ -5,7 +5,6 @@ namespace Oqtane.Shared
 {
     public class Utilities
     {
-
         public static string NavigateUrl(string alias, string path, string parameters, Reload reload)
         {
             string url = "";
@@ -71,14 +70,21 @@ namespace Oqtane.Shared
             }
         }
 
-        public static string GetTypeNameClass(string typename)
+        public static string GetTypeNameLastSegment(string typename, int segment)
         {
             if (typename.Contains(","))
             {
+                // remove assembly if fully qualified type
                 typename = typename.Substring(0, typename.IndexOf(","));
             }
-            string[] fragments = typename.Split('.');
-            return fragments[fragments.Length - 1];
+            // segment 0 is the last segment, segment 1 is the second to last segment, etc...
+            string[] segments = typename.Split('.');
+            string name = "";
+            if (segment < segments.Length)
+            {
+                name = segments[segments.Length - (segment + 1)];
+            }
+            return name;
         }
 
         public static string GetFriendlyUrl(string text)
