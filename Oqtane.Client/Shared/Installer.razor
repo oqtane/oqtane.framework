@@ -128,14 +128,14 @@
     private string HostEmail = "";
     private string Message = "";
 
-    private string IntegratedSecurityDisplay = "display:none;";
-    private string LoadingDisplay = "display:none;";
+    private string IntegratedSecurityDisplay = "display: none;";
+    private string LoadingDisplay = "display: none;";
 
     private void SetIntegratedSecurity(ChangeEventArgs e)
     {
         if (Convert.ToBoolean(e.Value))
         {
-            IntegratedSecurityDisplay = "display:none;";
+            IntegratedSecurityDisplay = "display: none;";
         }
         else
         {
@@ -158,7 +158,7 @@
             else
             {
                 connectionstring = "Data Source=" + ServerName + ";Initial Catalog=" + DatabaseName + ";";
-                if (IntegratedSecurityDisplay == "display:none;")
+                if (IntegratedSecurityDisplay == "display: none;")
                 {
                     connectionstring += "Integrated Security=SSPI;";
                 }
@@ -193,7 +193,7 @@
             else
             {
                 Message = "<div class=\"alert alert-danger\" role=\"alert\">" + response.Message + "</div>";
-                LoadingDisplay = "display:none;";
+                LoadingDisplay = "display: none;";
             }
         }
         else
