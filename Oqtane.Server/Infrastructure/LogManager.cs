@@ -25,12 +25,12 @@ namespace Oqtane.Infrastructure
             this.Accessor = Accessor;
         }
 
-        public void AddLog(string Category, LogLevel Level, string Message, params object[] Args)
+        public void Log(LogLevel Level, string Category, LogFunction Function, string Message, params object[] Args)
         {
-            AddLog(Category, Level, null, Message, Args);
+            Log(Level, Category, Function, null, Message, Args);
         }
 
-        public void AddLog(string Category, LogLevel Level, Exception Exception, string Message, params object[] Args)
+        public void Log(LogLevel Level, string Category, LogFunction Function, Exception Exception, string Message, params object[] Args)
         {
             Alias alias = TenantResolver.GetAlias();
             Log log = new Log();
@@ -48,6 +48,8 @@ namespace Oqtane.Infrastructure
             }
 
             log.Category = Category;
+            log.Feature = Utilities.GetTypeNameLastSegment(Category, 0);
+            log.Function = Enum.GetName(typeof(LogFunction), Function);
             log.Level = Enum.GetName(typeof(LogLevel), Level);
             if (Exception != null)
             {
@@ -56,10 +58,10 @@ namespace Oqtane.Infrastructure
             log.Message = Message;
             log.MessageTemplate = "";
             log.Properties = JsonSerializer.Serialize(Args);
-            AddLog(log);
+            Log(log);
         }
 
-        public void AddLog(Log Log)
+        public void Log(Log Log)
         {
             LogLevel minlevel = LogLevel.Information;
             var section = Config.GetSection("Logging:LogLevel:Default");

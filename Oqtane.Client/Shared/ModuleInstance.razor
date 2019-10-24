@@ -48,7 +48,7 @@
             else
             {
                 // module does not exist with typename specified
-                message = "Module Does Not Have A Component Named " + Utilities.GetTypeNameClass(typename) + ".razor";
+                message = "Module Does Not Have A Component Named " + Utilities.GetTypeNameLastSegment(typename, 0) + ".razor";
             }
         };
     }

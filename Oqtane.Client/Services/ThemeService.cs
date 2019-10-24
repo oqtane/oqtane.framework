@@ -68,7 +68,7 @@ namespace Oqtane.Services
             {
                 foreach (string themecontrol in theme.ThemeControls.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    selectableThemes.Add(themecontrol, theme.Name + " - " + Utilities.GetTypeNameClass(themecontrol));
+                    selectableThemes.Add(themecontrol, theme.Name + " - " + Utilities.GetTypeNameLastSegment(themecontrol, 0));
                 }
             }
             return selectableThemes;
@@ -83,7 +83,7 @@ namespace Oqtane.Services
                 {
                     foreach (string panelayout in theme.PaneLayouts.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
                     {
-                        selectablePaneLayouts.Add(panelayout, theme.Name + " - " + @Utilities.GetTypeNameClass(panelayout));
+                        selectablePaneLayouts.Add(panelayout, theme.Name + " - " + @Utilities.GetTypeNameLastSegment(panelayout, 0));
                     }
                 }
             }
@@ -97,7 +97,7 @@ namespace Oqtane.Services
             {
                 foreach (string container in theme.ContainerControls.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    selectableContainers.Add(container, theme.Name + " - " + @Utilities.GetTypeNameClass(container));
+                    selectableContainers.Add(container, theme.Name + " - " + @Utilities.GetTypeNameLastSegment(container, 0));
                 }
             }
             return selectableContainers;

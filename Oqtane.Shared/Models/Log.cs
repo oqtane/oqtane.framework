@@ -13,7 +13,9 @@ namespace Oqtane.Models
         public int? UserId { get; set; }
         public string Url { get; set; }
         public string Server { get; set; }
-        public string Category { get; set; }
+        public string Category { get; set; } // usually the full typename of the 
+        public string Feature { get; set; }
+        public string Function { get; set; }
         public string Level { get; set; }
         public string Message { get; set; }
         public string MessageTemplate { get; set; }

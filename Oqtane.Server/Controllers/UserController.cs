@@ -127,7 +127,7 @@ namespace Oqtane.Controllers
                     }
                 }
                 user.Password = ""; // remove sensitive information
-                logger.AddLog(this.GetType().FullName, LogLevel.Information, "User Added {User}", user);
+                logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Create, "User Added {User}", user);
             }
 
             return user;
@@ -151,7 +151,7 @@ namespace Oqtane.Controllers
                 }
                 User = Users.UpdateUser(User);
                 User.Password = ""; // remove sensitive information
-                logger.AddLog(this.GetType().FullName, LogLevel.Information, "User Updated {User}", User);
+                logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Update, "User Updated {User}", User);
             }
             return User;
         }
@@ -170,7 +170,7 @@ namespace Oqtane.Controllers
                 if (result != null)
                 {
                     Users.DeleteUser(id);
-                    logger.AddLog(this.GetType().FullName, LogLevel.Information, "User Deleted {UserId}", id);
+                    logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Delete, "User Deleted {UserId}", id);
                 }
             }
         }
@@ -193,7 +193,7 @@ namespace Oqtane.Controllers
                         if (user != null)
                         {
                             user.IsAuthenticated = true;
-                            logger.AddLog(this.GetType().FullName, LogLevel.Information, "User Login Successful {Username}", User.Username);
+                            logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Security, "User Login Successful {Username}", User.Username);
                             if (SetCookie)
                             {
                                 await IdentitySignInManager.SignInAsync(identityuser, IsPersistent);
@@ -202,7 +202,7 @@ namespace Oqtane.Controllers
                     }
                     else
                     {
-                        logger.AddLog(this.GetType().FullName, LogLevel.Error, "User Login Failed {Username}", User.Username);
+                        logger.Log(LogLevel.Error, this.GetType().AssemblyQualifiedName, LogFunction.Security, "User Login Failed {Username}", User.Username);
                     }
                 }
             }
@@ -216,7 +216,7 @@ namespace Oqtane.Controllers
         public async Task Logout([FromBody] User User)
         {
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
-            logger.AddLog(this.GetType().FullName, LogLevel.Information, "User Logout {Username}", User.Username);
+            logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Security, "User Logout {Username}", User.Username);
         }
 
         // GET api/<controller>/current

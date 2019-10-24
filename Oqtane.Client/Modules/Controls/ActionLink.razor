@@ -57,7 +57,7 @@
 
         if (PageState.EditMode)
         {
-            string typename = ModuleState.ModuleType.Replace(Utilities.GetTypeNameClass(ModuleState.ModuleType) + ",", Action + ",");
+            string typename = ModuleState.ModuleType.Replace(Utilities.GetTypeNameLastSegment(ModuleState.ModuleType, 0) + ",", Action + ",");
             Type moduleType = Type.GetType(typename);
             if (moduleType != null)
             {

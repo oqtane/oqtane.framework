@@ -67,7 +67,7 @@ namespace Oqtane.Controllers
                     {
                         Directory.CreateDirectory(folder);
                     }
-                    logger.AddLog(this.GetType().FullName, LogLevel.Information, "Site Added {Site}", Site);
+                    logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Create, "Site Added {Site}", Site);
                 }
             }
             return Site;
@@ -81,7 +81,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Site = Sites.UpdateSite(Site);
-                logger.AddLog(this.GetType().FullName, LogLevel.Information, "Site Updated {Site}", Site);
+                logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Update, "Site Updated {Site}", Site);
             }
             return Site;
         }
@@ -92,7 +92,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             Sites.DeleteSite(id);
-            logger.AddLog(this.GetType().FullName, LogLevel.Information, "Site Deleted {SiteId}", id);
+            logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Delete, "Site Deleted {SiteId}", id);
         }
     }
 }

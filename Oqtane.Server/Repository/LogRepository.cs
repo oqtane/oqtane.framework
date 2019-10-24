@@ -14,17 +14,33 @@ namespace Oqtane.Repository
             db = context;
         }
 
-        public IEnumerable<Log> GetLogs(int SiteId, string Level, int Rows)
+        public IEnumerable<Log> GetLogs(int SiteId, string Level, string Function, int Rows)
         {
             if (Level == null)
             {
-                return db.Log.Where(item => item.SiteId == SiteId).
-                    OrderByDescending(item => item.LogDate).Take(Rows);
+                if (Function == null)
+                {
+                    return db.Log.Where(item => item.SiteId == SiteId).
+                        OrderByDescending(item => item.LogDate).Take(Rows);
+                }
+                else
+                {
+                    return db.Log.Where(item => item.SiteId == SiteId && item.Function == Function).
+                        OrderByDescending(item => item.LogDate).Take(Rows);
+                }
             }
             else
             {
-                return db.Log.Where(item => item.SiteId == SiteId && item.Level == Level)
-                    .OrderByDescending(item => item.LogDate).Take(Rows);
+                if (Function == null)
+                {
+                    return db.Log.Where(item => item.SiteId == SiteId && item.Level == Level)
+                        .OrderByDescending(item => item.LogDate).Take(Rows);
+                }
+                else
+                {
+                    return db.Log.Where(item => item.SiteId == SiteId && item.Level == Level && item.Function == Function)
+                        .OrderByDescending(item => item.LogDate).Take(Rows);
+                }
             }
         }
 
