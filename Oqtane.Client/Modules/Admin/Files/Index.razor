@@ -9,18 +9,16 @@
 }
 else
 {
-    <ActionLink Action="Add" Text="Add Files" Style="float: right; margin: 10px;" />
+    <ActionLink Action="Add" Text="Add Files" />
 
     <Pager Items="@Files">
         <Header>
-            <th>Name</th>
             <th>&nbsp;</th>
+            <th>Name</th>
         </Header>
         <Row>
+            <td><ConfirmationDialog Header="Delete File" Message="@("Are You Sure You Wish To Delete " + context + "?")" Action="Delete" Class="btn btn-danger" OnClick="@(async () => await DeleteFile(context))" /></td>
             <td><a href="@(uri.Scheme + "://" + uri.Authority + "/" + PageState.Site.SiteRootPath + context)" target="_new">@context</a></td>
-            <td>
-                <button type="button" class="btn btn-danger" @onclick=@(async () => await DeleteFile(context))>Delete</button>
-            </td>
         </Row>
     </Pager>
 }
@@ -40,7 +38,7 @@ else
         }
         catch (Exception ex)
         {
-            await logger.LogError("Error Loading Files {Error}", ex.Message);
+            await logger.LogError(ex, "Error Loading Files {Error}", ex.Message);
             AddModuleMessage("Error Loading Files", MessageType.Error);
         }
     }
@@ -51,13 +49,13 @@ else
         {
             await FileService.DeleteFileAsync(PageState.Site.SiteRootPath, filename);
             Files = await FileService.GetFilesAsync(PageState.Site.SiteRootPath);
-            await logger.LogInformation("File Deleted");
-            AddModuleMessage("File Deleted", MessageType.Success);
+            await logger.LogInformation("File Deleted {File}", filename);
+            AddModuleMessage("File " + filename + " Deleted", MessageType.Success);
         }
         catch (Exception ex)
         {
-            await logger.LogError("Error Deleting File {Error}", ex.Message);
-            AddModuleMessage("Error Deleting File", MessageType.Error);
+            await logger.LogError(ex, "Error Deleting File {File} {Error}", filename, ex.Message);
+            AddModuleMessage("Error Deleting File " + filename, MessageType.Error);
         }
     }
 }

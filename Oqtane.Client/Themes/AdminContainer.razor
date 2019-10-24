@@ -3,14 +3,12 @@
 @inject NavigationManager NavigationManager
 
 <div class="app-admin-modal">
-    <div class="modal" style="display: block">
-        <div class="modal-dialog" role="document">
+    <div class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title"><ModuleTitle /></h5>
-                    <button type="button" class="close" @onclick="CloseModal" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <button type="button" class="close" @onclick="CloseModal" aria-label="Close">&times;</button>
                 </div>
                 <div class="modal-body">
                     <ModuleInstance />

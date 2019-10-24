@@ -44,6 +44,7 @@ app {
     z-index: 9999; /* Sit on top */
     left: 0;
     top: 0;
+    display: block;
     width: 100%; /* Full width */
     height: 100%; /* Full height */
     overflow: auto; /* Enable scroll if needed */
