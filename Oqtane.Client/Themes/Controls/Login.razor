@@ -31,7 +31,7 @@
 
     private async Task LogoutUser()
     {
-        await UserService.LogoutUserAsync();
+        await UserService.LogoutUserAsync(PageState.User);
 
         var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
         if (authstateprovider == null)

@@ -81,10 +81,10 @@ namespace Oqtane.Services
             return await http.PostJsonAsync<User>(apiurl + "/login?setcookie=" + SetCookie.ToString() + "&persistent =" + IsPersistent.ToString(), User);
         }
 
-        public async Task LogoutUserAsync()
+        public async Task LogoutUserAsync(User User)
         {
             // best practices recommend post is preferrable to get for logout
-            await http.PostJsonAsync(apiurl + "/logout", null); 
+            await http.PostJsonAsync(apiurl + "/logout", User); 
         }
     }
 }
