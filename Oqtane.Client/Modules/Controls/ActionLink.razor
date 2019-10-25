@@ -12,16 +12,19 @@
     public string Action { get; set; }
 
     [Parameter]
-    public string Text { get; set; } // optional
+    public string Text { get; set; } // optional - defaults to Action if not specified
 
     [Parameter]
-    public string Parameters { get; set; } // optional
+    public string Parameters { get; set; } // optional - querystring parameter should be in the form of "id=x&name=y"
 
     [Parameter]
-    public string Class { get; set; } // optional
+    public string Class { get; set; } // optional - defaults to primary if not specified
 
     [Parameter]
     public string Style { get; set; } // optional
+
+    [Parameter]
+    public string Control { get; set; } // optional - can be used to explicitly link an Action to a Module Control
 
     string text = "";
     string url = "";
@@ -57,7 +60,15 @@
 
         if (PageState.EditMode)
         {
-            string typename = ModuleState.ModuleType.Replace(Utilities.GetTypeNameLastSegment(ModuleState.ModuleType, 0) + ",", Action + ",");
+            string typename;
+            if (string.IsNullOrEmpty(Control))
+            {
+                typename = ModuleState.ModuleType.Replace(Utilities.GetTypeNameLastSegment(ModuleState.ModuleType, 0) + ",", Action + ",");
+            }
+            else
+            {
+                typename = ModuleState.ModuleType.Replace(Utilities.GetTypeNameLastSegment(ModuleState.ModuleType, 0) + ",", Control + ",");
+            }
             Type moduleType = Type.GetType(typename);
             if (moduleType != null)
             {

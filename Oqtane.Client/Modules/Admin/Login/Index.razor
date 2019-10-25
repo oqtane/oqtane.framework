@@ -56,6 +56,7 @@
             user = await UserService.LoginUserAsync(user, false, false);
             if (user.IsAuthenticated)
             {
+                await logger.LogInformation("Login Successful For Username {Username}", Username);
                 // complete the login on the server so that the cookies are set correctly on SignalR
                 var interop = new Interop(jsRuntime);
                 string antiforgerytoken = await interop.GetElementByName("__RequestVerificationToken");
@@ -78,6 +79,7 @@
             user = await UserService.LoginUserAsync(user, true, Remember);
             if (user.IsAuthenticated)
             {
+                await logger.LogInformation("Login Successful For Username {Username}", Username);
                 authstateprovider.NotifyAuthenticationChanged();
                 NavigationManager.NavigateTo(NavigateUrl(ReturnUrl, Reload.Site));
             }

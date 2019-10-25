@@ -125,7 +125,7 @@ namespace Oqtane.Modules
             ModuleInstance.HideProgressIndicator();
         }
 
-        // logging method
+        // logging methods
         public async Task Log(LogLevel level, Exception exception, string message, params object[] args)
         {
             int PageId = PageState.Page.PageId;
@@ -152,6 +152,10 @@ namespace Oqtane.Modules
                 default:
                     function = LogFunction.Read;
                     break;
+            }
+            if (feature == "Login")
+            {
+                function = LogFunction.Security;
             }
             await LoggingService.Log(PageId, ModuleId, UserId, category, feature, function, level, exception, message, args);
         }
