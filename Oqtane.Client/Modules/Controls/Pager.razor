@@ -44,7 +44,7 @@
 
 @code {
     int Pages = 0;
-    int Page;
+    int Page = 1;
     int MaxItems;
     int MaxPages;
     int StartPage;
@@ -85,7 +85,6 @@
         {
             MaxPages = int.Parse(DisplayPages);
         }
-        Page = 1;
 
         if (Items != null)
         {
@@ -107,7 +106,15 @@
     {
         if (direction == "forward")
         {
-            StartPage = EndPage + 1;
+            if (EndPage + 1 < Pages)
+            {
+                StartPage = EndPage + 1;
+            }
+            else
+            {
+                StartPage = 1;
+            }
+
             if (EndPage + MaxPages < Pages)
             {
                 EndPage = StartPage + MaxPages - 1;
