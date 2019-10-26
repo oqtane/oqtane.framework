@@ -17,7 +17,7 @@ namespace Oqtane.Infrastructure
             this.environment = environment;
         }
 
-        public void InstallPackages(string Folders)
+        public void InstallPackages(string Folders, bool Restart)
         {
             bool install = false;
             string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
@@ -73,7 +73,7 @@ namespace Oqtane.Infrastructure
                 }
             }
 
-            if (install)
+            if (install && Restart)
             {
                 // restart application
                 RestartApplication();

@@ -251,7 +251,7 @@ namespace Oqtane.Server
             }
 
             // install any modules or themes
-            InstallationManager.InstallPackages("Modules,Themes");
+            InstallationManager.InstallPackages("Modules,Themes", false);
 
             app.UseHttpsRedirection();
 

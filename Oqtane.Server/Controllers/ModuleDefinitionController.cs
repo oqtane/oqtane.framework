@@ -52,7 +52,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 ModuleDefinitions.UpdateModuleDefinition(ModuleDefinition);
-                logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Update, "Module Definition Updated {ModuleDefinition}", ModuleDefinition);
+                logger.Log(LogLevel.Information, this, LogFunction.Update, "Module Definition Updated {ModuleDefinition}", ModuleDefinition);
             }
         }
 
@@ -60,8 +60,8 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.HostRole)]
         public void InstallModules()
         {
-            InstallationManager.InstallPackages("Modules");
-            logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Create, "Modules Installed");
+            InstallationManager.InstallPackages("Modules", true);
+            logger.Log(LogLevel.Information, this, LogFunction.Create, "Modules Installed");
         }
 
         // DELETE api/<controller>/5?siteid=x
@@ -88,7 +88,7 @@ namespace Oqtane.Controllers
                 }
 
                 ModuleDefinitions.DeleteModuleDefinition(id, siteid);
-                logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Delete, "Module Deleted {ModuleDefinitionId}", id);
+                logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Deleted {ModuleDefinitionId}", id);
 
                 InstallationManager.RestartApplication();
             }
