@@ -76,7 +76,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Module = Modules.AddModule(Module);
-                logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Create, "Module Added {Module}", Module);
+                logger.Log(LogLevel.Information, this, LogFunction.Create, "Module Added {Module}", Module);
             }
             return Module;
         }
@@ -89,7 +89,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Module = Modules.UpdateModule(Module);
-                logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Update, "Module Updated {Module}", Module);
+                logger.Log(LogLevel.Information, this, LogFunction.Update, "Module Updated {Module}", Module);
             }
             return Module;
         }
@@ -100,7 +100,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             Modules.DeleteModule(id);
-            logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Delete, "Module Deleted {ModuleId}", id);
+            logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Deleted {ModuleId}", id);
         }
 
         // GET api/<controller>/export?moduleid=x
@@ -141,7 +141,7 @@ namespace Oqtane.Controllers
                             }
                         }
                         content = JsonSerializer.Serialize(modulecontent);
-                        logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Read, "Module Content Exported {ModuleId}", moduleid);
+                        logger.Log(LogLevel.Information, this, LogFunction.Read, "Module Content Exported {ModuleId}", moduleid);
                     }
                 }
             }
@@ -187,7 +187,7 @@ namespace Oqtane.Controllers
                                             var moduleobject = ActivatorUtilities.CreateInstance(ServiceProvider, moduletype);
                                             ((IPortable)moduleobject).ImportModule(module, modulecontent.Content, modulecontent.Version);
                                             success = true;
-                                            logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Update, "Module Content Imported {ModuleId}", moduleid);
+                                            logger.Log(LogLevel.Information, this, LogFunction.Update, "Module Content Imported {ModuleId}", moduleid);
                                         }
                                     }
                                 }

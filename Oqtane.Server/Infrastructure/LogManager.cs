@@ -25,12 +25,12 @@ namespace Oqtane.Infrastructure
             this.Accessor = Accessor;
         }
 
-        public void Log(LogLevel Level, string Category, LogFunction Function, string Message, params object[] Args)
+        public void Log(LogLevel Level, object Class, LogFunction Function, string Message, params object[] Args)
         {
-            Log(Level, Category, Function, null, Message, Args);
+            Log(Level, Class.GetType().AssemblyQualifiedName, Function, null, Message, Args);
         }
 
-        public void Log(LogLevel Level, string Category, LogFunction Function, Exception Exception, string Message, params object[] Args)
+        public void Log(LogLevel Level, object Class, LogFunction Function, Exception Exception, string Message, params object[] Args)
         {
             Alias alias = TenantResolver.GetAlias();
             Log log = new Log();
@@ -47,8 +47,15 @@ namespace Oqtane.Infrastructure
                 log.Url = request.Scheme.ToString() + "://" + request.Host.ToString() + request.Path.ToString() + request.QueryString.ToString();
             }
 
-            log.Category = Category;
-            log.Feature = Utilities.GetTypeNameLastSegment(Category, 0);
+            if (Class.GetType() != null)
+            {
+                log.Category = Class.GetType().AssemblyQualifiedName;
+            }
+            else
+            {
+                log.Category = Class.ToString();
+            }
+            log.Feature = Utilities.GetTypeNameLastSegment(log.Category, 0);
             log.Function = Enum.GetName(typeof(LogFunction), Function);
             log.Level = Enum.GetName(typeof(LogLevel), Level);
             if (Exception != null)

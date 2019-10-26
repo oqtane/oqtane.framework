@@ -48,8 +48,8 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.HostRole)]
         public void InstallThemes()
         {
-            InstallationManager.InstallPackages("Themes");
-            logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Create, "Themes Installed");
+            InstallationManager.InstallPackages("Themes", true);
+            logger.Log(LogLevel.Information, this, LogFunction.Create, "Themes Installed");
         }
 
         // DELETE api/<controller>/xxx
@@ -74,7 +74,7 @@ namespace Oqtane.Controllers
                 {
                     System.IO.File.Delete(file);
                 }
-                logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Delete, "Theme Deleted {ThemeName}", themename);
+                logger.Log(LogLevel.Information, this, LogFunction.Delete, "Theme Deleted {ThemeName}", themename);
 
                 InstallationManager.RestartApplication();
             }

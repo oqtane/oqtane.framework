@@ -42,7 +42,7 @@ namespace Oqtane.Modules.HtmlText.Controllers
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, this.GetType().AssemblyQualifiedName, LogFunction.Read, ex, "Get Error {Error}", ex.Message);
+                logger.Log(LogLevel.Error, this, LogFunction.Read, ex, "Get Error {Error}", ex.Message);
                 throw;
             }
         }
@@ -57,13 +57,13 @@ namespace Oqtane.Modules.HtmlText.Controllers
                 if (ModelState.IsValid && HtmlText.ModuleId == EntityId)
                 {
                     HtmlText = htmltext.AddHtmlText(HtmlText);
-                    logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Create, "Html/Text Added {HtmlText}", HtmlText);
+                    logger.Log(LogLevel.Information, this, LogFunction.Create, "Html/Text Added {HtmlText}", HtmlText);
                 }
                 return HtmlText;
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, this.GetType().AssemblyQualifiedName, LogFunction.Create, ex, "Post Error {Error}", ex.Message);
+                logger.Log(LogLevel.Error, this, LogFunction.Create, ex, "Post Error {Error}", ex.Message);
                 throw;
             }
         }
@@ -78,13 +78,13 @@ namespace Oqtane.Modules.HtmlText.Controllers
                 if (ModelState.IsValid && HtmlText.ModuleId == EntityId)
                 {
                     HtmlText = htmltext.UpdateHtmlText(HtmlText);
-                    logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Update, "Html/Text Updated {HtmlText}", HtmlText);
+                    logger.Log(LogLevel.Information, this, LogFunction.Update, "Html/Text Updated {HtmlText}", HtmlText);
                 }
                 return HtmlText;
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, this.GetType().AssemblyQualifiedName, LogFunction.Update, ex, "Put Error {Error}", ex.Message);
+                logger.Log(LogLevel.Error, this, LogFunction.Update, ex, "Put Error {Error}", ex.Message);
                 throw;
             }
         }
@@ -99,12 +99,12 @@ namespace Oqtane.Modules.HtmlText.Controllers
                 if (id == EntityId)
                 {
                     htmltext.DeleteHtmlText(id);
-                    logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Delete, "Html/Text Deleted {HtmlTextId}", id);
+                    logger.Log(LogLevel.Information, this, LogFunction.Delete, "Html/Text Deleted {HtmlTextId}", id);
                 }
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, this.GetType().AssemblyQualifiedName, LogFunction.Delete, ex, "Delete Error {Error}", ex.Message);
+                logger.Log(LogLevel.Error, this, LogFunction.Delete, ex, "Delete Error {Error}", ex.Message);
                 throw;
             }
         }

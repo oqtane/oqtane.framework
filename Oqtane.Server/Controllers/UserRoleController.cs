@@ -49,7 +49,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 UserRole = UserRoles.AddUserRole(UserRole);
-                logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Create, "User Role Added {UserRole}", UserRole);
+                logger.Log(LogLevel.Information, this, LogFunction.Create, "User Role Added {UserRole}", UserRole);
             }
             return UserRole;
         }
@@ -62,7 +62,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 UserRole = UserRoles.UpdateUserRole(UserRole);
-                logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Update, "User Role Updated {UserRole}", UserRole);
+                logger.Log(LogLevel.Information, this, LogFunction.Update, "User Role Updated {UserRole}", UserRole);
             }
             return UserRole;
         }
@@ -73,7 +73,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             UserRoles.DeleteUserRole(id);
-            logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Delete, "User Role Deleted {UserRoleId}", id);
+            logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Role Deleted {UserRoleId}", id);
         }
     }
 }

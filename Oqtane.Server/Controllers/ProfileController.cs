@@ -49,7 +49,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Profile = Profiles.AddProfile(Profile);
-                logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Create, "Profile Added {Profile}", Profile);
+                logger.Log(LogLevel.Information, this, LogFunction.Create, "Profile Added {Profile}", Profile);
             }
             return Profile;
         }
@@ -62,7 +62,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Profile = Profiles.UpdateProfile(Profile);
-                logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Update, "Profile Updated {Profile}", Profile);
+                logger.Log(LogLevel.Information, this, LogFunction.Update, "Profile Updated {Profile}", Profile);
             }
             return Profile;
         }
@@ -73,7 +73,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             Profiles.DeleteProfile(id);
-            logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Delete, "Profile Deleted {ProfileId}", id);
+            logger.Log(LogLevel.Information, this, LogFunction.Delete, "Profile Deleted {ProfileId}", id);
         }
     }
 }

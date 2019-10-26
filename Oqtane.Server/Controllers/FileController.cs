@@ -110,7 +110,7 @@ namespace Oqtane.Controllers
                     {
                         // rename file now that the entire process is completed
                         System.IO.File.Move(Path.Combine(folder, filename + ".tmp"), Path.Combine(folder, filename));
-                        logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Create, "File Uploaded {File}", Path.Combine(folder, filename));
+                        logger.Log(LogLevel.Information, this, LogFunction.Create, "File Uploaded {File}", Path.Combine(folder, filename));
                     }
                 }
             }
@@ -173,7 +173,7 @@ namespace Oqtane.Controllers
             if (System.IO.File.Exists(file))
             {
                 System.IO.File.Delete(file);
-                logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Delete, "File Deleted {File}", file);
+                logger.Log(LogLevel.Information, this, LogFunction.Delete, "File Deleted {File}", file);
             }
         }
 

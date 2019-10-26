@@ -32,7 +32,7 @@ namespace Oqtane.Security
                 }
                 else
                 {
-                    logger.Log(LogLevel.Error, this.GetType().AssemblyQualifiedName, LogFunction.Security, "User {User} Does Not Have {PermissionName} Permission For {EntityName}:{EntityId}", context.User, requirement.PermissionName, requirement.EntityName, EntityId);
+                    logger.Log(LogLevel.Error, this, LogFunction.Security, "User {User} Does Not Have {PermissionName} Permission For {EntityName}:{EntityId}", context.User, requirement.PermissionName, requirement.EntityName, EntityId);
                 }
             }
             return Task.CompletedTask;

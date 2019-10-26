@@ -42,7 +42,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Permission = Permissions.AddPermission(Permission);
-                logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Create, "Permission Added {Permission}", Permission);
+                logger.Log(LogLevel.Information, this, LogFunction.Create, "Permission Added {Permission}", Permission);
             }
             return Permission;
         }
@@ -55,7 +55,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Permission = Permissions.UpdatePermission(Permission);
-                logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Update, "Permission Updated {Permission}", Permission);
+                logger.Log(LogLevel.Information, this, LogFunction.Update, "Permission Updated {Permission}", Permission);
             }
             return Permission;
         }
@@ -66,7 +66,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             Permissions.DeletePermission(id);
-            logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Delete, "Permission Deleted {PermissionId}", id);
+            logger.Log(LogLevel.Information, this, LogFunction.Delete, "Permission Deleted {PermissionId}", id);
         }
     }
 }

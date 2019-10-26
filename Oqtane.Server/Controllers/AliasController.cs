@@ -42,7 +42,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Alias = Aliases.AddAlias(Alias);
-                logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Create, "Alias Added {Alias}", Alias);
+                logger.Log(LogLevel.Information, this, LogFunction.Create, "Alias Added {Alias}", Alias);
             }
             return Alias;
         }
@@ -55,7 +55,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Alias = Aliases.UpdateAlias(Alias);
-                logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Update, "Alias Updated {Alias}", Alias);
+                logger.Log(LogLevel.Information, this, LogFunction.Update, "Alias Updated {Alias}", Alias);
             }
             return Alias;
         }
@@ -66,7 +66,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             Aliases.DeleteAlias(id);
-            logger.Log(LogLevel.Information, this.GetType().AssemblyQualifiedName, LogFunction.Delete, "Alias Deleted {AliasId}", id);
+            logger.Log(LogLevel.Information, this, LogFunction.Delete, "Alias Deleted {AliasId}", id);
         }
     }
 }
