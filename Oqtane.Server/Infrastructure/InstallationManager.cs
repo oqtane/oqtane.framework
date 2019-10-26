@@ -50,7 +50,6 @@ namespace Oqtane.Infrastructure
                                 case ".dll":
                                     entry.ExtractToFile(Path.Combine(binfolder, filename), true);
                                     break;
-                                case ".nuspec":
                                 case ".png":
                                 case ".jpg":
                                 case ".jpeg":

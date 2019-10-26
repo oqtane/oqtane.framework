@@ -1,62 +1,65 @@
 ﻿@namespace Oqtane.Modules.Controls
 @inherits ModuleBase
-@inject IUserService UserService
 
+@if (visible)
+{
+    <div class="app-admin-modal">
+        <div class="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">@Header</h5>
+                        <button type="button" class="close" @onclick="DisplayModal" aria-label="Close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p>@Message</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="@Class" @onclick="Confirm">@Action</button>
+                        <button type="button" class="btn btn-secondary" @onclick="DisplayModal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 @if (authorized)
 {
-    <NavLink class="@classname" href="@url" style="@style">@text</NavLink>
+    <button class="@Class" @onclick="DisplayModal">@Action</button>
 }
 
 @code {
     [Parameter]
-    public string Action { get; set; } // required
+    public string Header { get; set; } // required
+
+    [Parameter]
+    public string Message { get; set; } // required 
+
+    [Parameter]
+    public string Action { get; set; } // defaults to Ok if not specified
 
     [Parameter]
     public SecurityAccessLevel? Security { get; set; } // optional - can be used to explicitly specify SecurityAccessLevel
 
     [Parameter]
-    public string Text { get; set; } // optional - defaults to Action if not specified
+    public string Class { get; set; } // optional
 
     [Parameter]
-    public string Parameters { get; set; } // optional - querystring parameter should be in the form of "id=x&name=y"
+    public Action OnClick { get; set; } // required - executes a method in the calling component
 
-    [Parameter]
-    public string Class { get; set; } // optional - defaults to primary if not specified
-
-    [Parameter]
-    public string Style { get; set; } // optional
-
-    string text = "";
-    string url = "";
-    string parameters = "";
-    string classname = "btn btn-primary";
-    string style = "";
+    bool visible = false;
     bool authorized = false;
 
     protected override void OnParametersSet()
     {
-        text = Action;
-        if (!String.IsNullOrEmpty(Text))
+        if (string.IsNullOrEmpty(Action))
         {
-            text = Text;
+            Action = "Ok";
         }
-
-        if (!String.IsNullOrEmpty(Parameters))
+        if (string.IsNullOrEmpty(Class))
         {
-            parameters = Parameters;
+            Class = "btn btn-success";
         }
-
-        if (!string.IsNullOrEmpty(Class))
-        {
-            classname = Class;
-        }
-
-        if (!string.IsNullOrEmpty(Style))
-        {
-            style = Style;
-        }
-
-        url = EditUrl(Action, parameters);
         authorized = IsAuthorized();
     }
 
@@ -78,7 +81,6 @@
                 else
                 {
                     security = SecurityAccessLevel.Anonymous; // occurs when an action does not have a corresponding module control
-                    Class = "btn btn-warning"; // alert developer of missing module comtrol
                 }
             }
             else
@@ -105,5 +107,17 @@
             }
         }
         return authorized;
+    }
+
+    private void DisplayModal()
+    {
+        visible = !visible;
+        StateHasChanged();
+    }
+
+    private void Confirm()
+    {
+        DisplayModal();
+        OnClick();
     }
 }

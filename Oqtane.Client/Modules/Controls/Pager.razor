@@ -2,7 +2,9 @@
 @inherits ModuleBase
 @typeparam TableItem
 
-<p align="center">
+<p>
+    @if(Format == "Table")
+    {
     <table class="table table-borderless">
         <thead>
             <tr>@Header</tr>
@@ -14,7 +16,18 @@
             }
         </tbody>
     </table>
-    <div>
+    }
+    @if(Format == "Grid")
+    {
+    <div class="container">
+        <div class="row">@Header</div>
+        @foreach (var item in ItemList)
+        {
+            <div class="row">@Row(item)</div>
+        }
+    </div>
+    }
+    <div class="mx-auto text-center">
         @if (Page > MaxPages)
         {
             <button class="btn btn-secondary" @onclick=@(async () => SetPagerSize("back"))><span class="oi oi-media-skip-backward" title="back" aria-hidden="true"></span></button>
@@ -51,6 +64,9 @@
     int EndPage;
 
     [Parameter]
+    public string Format { get; set; }
+
+    [Parameter]
     public RenderFragment Header { get; set; }
 
     [Parameter]
@@ -69,6 +85,10 @@
 
     protected override void OnParametersSet()
     {
+        if (string.IsNullOrEmpty(Format))
+        {
+            Format = "Table";
+        }
         if (string.IsNullOrEmpty(PageSize))
         {
             MaxItems = 10;
