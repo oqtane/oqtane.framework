@@ -3,6 +3,9 @@ using System.IO;
 using System.IO.Compression;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Hosting;
+using System.Xml;
+using Oqtane.Shared;
+using System;
 
 namespace Oqtane.Infrastructure
 {
@@ -32,38 +35,65 @@ namespace Oqtane.Infrastructure
                     Directory.CreateDirectory(folder);
                 }
 
-                // iterate through theme packages
+                // iterate through packages
                 foreach (string packagename in Directory.GetFiles(folder, "*.nupkg"))
                 {
                     string name = Path.GetFileNameWithoutExtension(packagename);
                     string[] segments = name.Split('.');
                     name = string.Join('.', segments, 0, segments.Length - 3);
 
-                    // iterate through files and deploy to appropriate locations
+                    // iterate through files
                     using (ZipArchive archive = ZipFile.OpenRead(packagename))
                     {
+                        string frameworkversion = "";
+                        // locate nuspec
                         foreach (ZipArchiveEntry entry in archive.Entries)
                         {
-                            string filename = Path.GetFileName(entry.FullName);
-                            switch (Path.GetExtension(filename).ToLower())
+                            if (entry.FullName.ToLower().EndsWith(".nuspec"))
                             {
-                                case ".dll":
-                                    entry.ExtractToFile(Path.Combine(binfolder, filename), true);
-                                    break;
-                                case ".png":
-                                case ".jpg":
-                                case ".jpeg":
-                                case ".gif":
-                                case ".svg":
-                                case ".js":
-                                case ".css":
-                                    filename = folder + "\\" + entry.FullName.Replace("wwwroot", name).Replace("/", "\\");
-                                    if (!Directory.Exists(Path.GetDirectoryName(filename)))
-                                    {
-                                        Directory.CreateDirectory(Path.GetDirectoryName(filename));
-                                    }
-                                    entry.ExtractToFile(filename, true);
-                                    break;
+                                // open nuspec
+                                XmlTextReader reader = new XmlTextReader(entry.Open());
+                                reader.Namespaces = false; // remove namespace
+                                XmlDocument doc = new XmlDocument();
+                                doc.Load(reader);
+                                // get framework dependency
+                                XmlNode node = doc.SelectSingleNode("/package/metadata/dependencies/dependency[@id='Oqtane.Framework']");
+                                if (node != null)
+                                {
+                                    frameworkversion = node.Attributes["version"].Value;
+                                }
+                                reader.Close();
+                            }
+                        }
+
+                        // if compatible with framework version
+                        if (frameworkversion == "" || Version.Parse(Constants.Version).CompareTo(Version.Parse(frameworkversion)) >= 0)
+                        {
+                            // deploy to appropriate locations
+                            foreach (ZipArchiveEntry entry in archive.Entries)
+                            {
+                                string filename = Path.GetFileName(entry.FullName);
+                                switch (Path.GetExtension(filename).ToLower())
+                                {
+                                    case ".pdb":
+                                    case ".dll":
+                                        entry.ExtractToFile(Path.Combine(binfolder, filename), true);
+                                        break;
+                                    case ".png":
+                                    case ".jpg":
+                                    case ".jpeg":
+                                    case ".gif":
+                                    case ".svg":
+                                    case ".js":
+                                    case ".css":
+                                        filename = folder + "\\" + entry.FullName.Replace("wwwroot", name).Replace("/", "\\");
+                                        if (!Directory.Exists(Path.GetDirectoryName(filename)))
+                                        {
+                                            Directory.CreateDirectory(Path.GetDirectoryName(filename));
+                                        }
+                                        entry.ExtractToFile(filename, true);
+                                        break;
+                                }
                             }
                         }
                     }
