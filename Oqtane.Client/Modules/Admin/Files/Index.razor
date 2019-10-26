@@ -17,7 +17,7 @@ else
             <th>Name</th>
         </Header>
         <Row>
-            <td><ConfirmationDialog Header="Delete File" Message="@("Are You Sure You Wish To Delete " + context + "?")" Action="Delete" Class="btn btn-danger" OnClick="@(async () => await DeleteFile(context))" /></td>
+            <td><ActionDialog Header="Delete File" Message="@("Are You Sure You Wish To Delete " + context + "?")" Action="Delete" Class="btn btn-danger" OnClick="@(async () => await DeleteFile(context))" /></td>
             <td><a href="@(uri.Scheme + "://" + uri.Authority + "/" + PageState.Site.SiteRootPath + context)" target="_new">@context</a></td>
         </Row>
     </Pager>
