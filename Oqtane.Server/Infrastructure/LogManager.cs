@@ -47,15 +47,17 @@ namespace Oqtane.Infrastructure
                 log.Url = request.Scheme.ToString() + "://" + request.Host.ToString() + request.Path.ToString() + request.QueryString.ToString();
             }
 
-            if (Class.GetType() != null)
+            Type type = Type.GetType(Class.ToString());
+            if (type != null)
             {
-                log.Category = Class.GetType().AssemblyQualifiedName;
+                log.Category = type.AssemblyQualifiedName;
+                log.Feature = Utilities.GetTypeNameLastSegment(log.Category, 0);
             }
             else
             {
                 log.Category = Class.ToString();
+                log.Feature = log.Category;
             }
-            log.Feature = Utilities.GetTypeNameLastSegment(log.Category, 0);
             log.Function = Enum.GetName(typeof(LogFunction), Function);
             log.Level = Enum.GetName(typeof(LogLevel), Level);
             if (Exception != null)

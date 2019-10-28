@@ -5,7 +5,7 @@
 <p>
     @if(Format == "Table")
     {
-    <table class="table table-borderless">
+    <table class="@Class">
         <thead>
             <tr>@Header</tr>
         </thead>
@@ -19,7 +19,7 @@
     }
     @if(Format == "Grid")
     {
-    <div class="container">
+    <div class="@Class">
         <div class="row">@Header</div>
         @foreach (var item in ItemList)
         {
@@ -81,6 +81,9 @@
     [Parameter]
     public string DisplayPages { get; set; }
 
+    [Parameter]
+    public string Class { get; set; }
+
     IEnumerable<TableItem> ItemList { get; set; }
 
     protected override void OnParametersSet()
@@ -88,6 +91,17 @@
         if (string.IsNullOrEmpty(Format))
         {
             Format = "Table";
+        }
+        if (string.IsNullOrEmpty(Class))
+        {
+            if (Format == "Table")
+            {
+                Class = "table table-borderless";
+            }
+            else
+            {
+                Class = "container";
+            }
         }
         if (string.IsNullOrEmpty(PageSize))
         {
