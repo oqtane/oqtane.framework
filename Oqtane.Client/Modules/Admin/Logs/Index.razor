@@ -36,8 +36,8 @@ else
             <option value="100">100</option>
         </select>
     </div>
-    @if(Logs.Any())
-    { 
+    @if (Logs.Any())
+    {
     <Pager Items="@Logs">
         <Header>
             <th>&nbsp;</th>
@@ -47,11 +47,11 @@ else
             <th>Function</th>
         </Header>
         <Row>
-            <td><ActionLink Action="Detail" Parameters="@($"id=" + context.LogId.ToString())" /></td>
-            <td>@context.LogDate</td>
-            <td>@context.Level</td>
-            <td>@context.Feature</td>
-            <td>@context.Function</td>
+            <td class="@GetClass(context.Function)"><ActionLink Action="Detail" Parameters="@($"id=" + context.LogId.ToString())" /></td>
+            <td class="@GetClass(context.Function)">@context.LogDate</td>
+            <td class="@GetClass(context.Function)">@context.Level</td>
+            <td class="@GetClass(context.Function)">@context.Feature</td>
+            <td class="@GetClass(context.Function)">@context.Function</td>
         </Row>
     </Pager>
     }
@@ -131,5 +131,32 @@ else
     private async Task GetLogs()
     {
         Logs = await LogService.GetLogsAsync(PageState.Site.SiteId, ((level == "-") ? "" : level), ((function == "-") ? "" : function), int.Parse(rows));
+    }
+
+    private string GetClass(string function)
+    {
+        string classname = "";
+        switch (function)
+        {
+            case "Create":
+                classname = "table-primary";
+                break;
+            case "Read":
+                classname = "table-secondary";
+                break;
+            case "Update":
+                classname = "table-success";
+                break;
+            case "Delete":
+                classname = "table-danger";
+                break;
+            case "Security":
+                classname = "table-warning";
+                break;
+            default:
+                classname = "";
+                break;
+        }
+        return classname;
     }
 }
