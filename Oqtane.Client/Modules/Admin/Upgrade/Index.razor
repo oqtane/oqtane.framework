@@ -94,8 +94,9 @@ else
         }
     }
 
-    private void Upgrade()
+    private async Task Upgrade()
     {
+        await InstallationService.Upgrade();
         NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
     }
 
