@@ -279,7 +279,7 @@ namespace Oqtane.Controllers
         public GenericResponse Upgrade()
         {
             var response = new GenericResponse { Success = true, Message = "" };
-            InstallationManager.InstallPackages("Framework", true);
+            InstallationManager.UpgradeFramework();
             return response;
         }
     }
