@@ -116,14 +116,23 @@ namespace Oqtane.Infrastructure
             string folder = Path.Combine(environment.WebRootPath, "Framework");
             if (Directory.Exists(folder))
             {
-                string upgradepackage = "";
-
-                // iterate through packages
-                foreach (string packagename in Directory.GetFiles(folder, "Oqtane.Framework.*.nupkg"))
+                // get package with highest version and clean up any others
+                string packagename = "";
+                foreach(string package in Directory.GetFiles(folder, "Oqtane.Framework.*.nupkg"))
                 {
+                    if (packagename != "")
+                    {
+                        File.Delete(packagename);
+                    }
+                    packagename = package;
+                }
+
+                if (packagename != "")
+                {
+                    // verify package version
+                    string packageversion = "";
                     using (ZipArchive archive = ZipFile.OpenRead(packagename))
                     {
-                        string frameworkversion = "";
                         // locate nuspec
                         foreach (ZipArchiveEntry entry in archive.Entries)
                         {
@@ -138,54 +147,29 @@ namespace Oqtane.Infrastructure
                                 XmlNode node = doc.SelectSingleNode("/package/metadata/version");
                                 if (node != null)
                                 {
-                                    frameworkversion = node.InnerText;
+                                    packageversion = node.InnerText;
                                 }
                                 reader.Close();
                             }
                         }
-
-                        // ensure package version is higher than current framework
-                        if (frameworkversion != "" && Version.Parse(Constants.Version).CompareTo(Version.Parse(frameworkversion)) < 0)
-                        {
-                            upgradepackage = packagename;
-                        }
-                        else
-                        {
-                            File.Delete(packagename);
-                        }
                     }
-                }
 
-                if (upgradepackage != "")
-                {
-                    FinishUpgrade(upgradepackage);
+                    // ensure package version is higher than current framework version
+                    if (packageversion != "" && Version.Parse(Constants.Version).CompareTo(Version.Parse(packageversion)) < 0)
+                    {
+                        FinishUpgrade();
+                    }
                 }
             }
         }
 
-        private void FinishUpgrade(string packagename)
+        private void FinishUpgrade()
         {
             string folder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
             // check if upgrade application exists
             if (File.Exists(Path.Combine(folder, "Oqtane.Upgrade.exe")))
             {
-                // unzip package
-                using (ZipArchive archive = ZipFile.OpenRead(packagename))
-                {
-                    foreach (ZipArchiveEntry entry in archive.Entries)
-                    {
-                        string filename = Path.GetFileName(entry.FullName);
-                        if (Path.GetExtension(filename) == ".dll")
-                        {
-                            entry.ExtractToFile(Path.Combine(Path.Combine(environment.WebRootPath, "Framework"), filename), true);
-                        }
-                    }
-                }
-
-                // delete package
-                File.Delete(packagename);
-
                 // run upgrade application
                 var process = new Process();
                 process.StartInfo.FileName = Path.Combine(folder, "Oqtane.Upgrade.exe");
