@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Reflection;
 using System.Threading;
 
@@ -9,89 +11,131 @@ namespace Oqtane.Upgrade
         static void Main(string[] args)
         {
             string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+
             // assumes that the application executable must be deployed to the /bin of the Oqtane.Server project
             if (binfolder.Contains("Oqtane.Server\\bin"))
             {
-                // ie. Oqtane.Server\bin\Debug\netcoreapp3.0\Oqtane.Upgrade.exe
+                // ie. binfolder = Oqtane.Server\bin\Debug\netcoreapp3.0\
                 string rootfolder = Directory.GetParent(binfolder).Parent.Parent.FullName;
                 string deployfolder = Path.Combine(rootfolder, "wwwroot\\Framework");
 
-                // take the app offline
-                if (File.Exists(Path.Combine(rootfolder, "app_offline.bak")))
-                {
-                    File.Move(Path.Combine(rootfolder, "app_offline.bak"), Path.Combine(rootfolder, "app_offline.htm"));
-                }
-
                 if (Directory.Exists(deployfolder))
                 {
-                    string filename;
-                    string[] files = Directory.GetFiles(deployfolder);
-                    if (CanAccessFiles(files, binfolder))
+                    string packagename = "";
+                    string[] packages = Directory.GetFiles(deployfolder, "Oqtane.Framework.*.nupkg");
+                    if (packages.Length > 0)
                     {
-                        // backup the files 
-                        foreach (string file in files)
+                        packagename = packages[packages.Length - 1]; // use highest version 
+                    }
+
+                    if (packagename != "")
+                    {
+                        // take the app offline
+                        if (File.Exists(Path.Combine(rootfolder, "app_offline.bak")))
                         {
-                            filename = Path.Combine(binfolder, Path.GetFileName(file));
-                            if (File.Exists(filename))
+                            File.Move(Path.Combine(rootfolder, "app_offline.bak"), Path.Combine(rootfolder, "app_offline.htm"));
+                        }
+
+                        // get list of files in package
+                        List<string> files = new List<string>();
+                        using (ZipArchive archive = ZipFile.OpenRead(packagename))
+                        {
+                            foreach (ZipArchiveEntry entry in archive.Entries)
                             {
+                                if (Path.GetExtension(entry.FullName) == ".dll")
+                                {
+                                    files.Add(Path.GetFileName(entry.FullName));
+                                }
+                            }
+                        }
+
+                        // ensure files are not locked
+                        string filename;
+                        if (CanAccessFiles(files, binfolder))
+                        {
+                            // create backup
+                            foreach (string file in files)
+                            {
+                                filename = Path.Combine(binfolder, Path.GetFileName(file));
+                                if (File.Exists(filename.Replace(".dll", ".bak")))
+                                {
+                                    File.Delete(filename.Replace(".dll", ".bak"));
+                                }
                                 File.Move(filename, filename.Replace(".dll", ".bak"));
                             }
+
+                            // extract files
+                            bool success = true;
+                            try
+                            {
+                                using (ZipArchive archive = ZipFile.OpenRead(packagename))
+                                {
+                                    foreach (ZipArchiveEntry entry in archive.Entries)
+                                    {
+                                        filename = Path.GetFileName(entry.FullName);
+                                        if (files.Contains(filename))
+                                        {
+                                            entry.ExtractToFile(Path.Combine(binfolder, filename), true);
+                                        }
+                                    }
+                                }
+
+                            }
+                            catch
+                            {
+                                // an error occurred extracting a file
+                                success = false;
+                            }
+
+                            if (success) 
+                            {
+                                // clean up backup
+                                foreach (string file in files)
+                                {
+                                    filename = Path.Combine(binfolder, Path.GetFileName(file));
+                                    if (File.Exists(filename.Replace(".dll", ".bak")))
+                                    {
+                                        File.Delete(filename.Replace(".dll", ".bak"));
+                                    }
+                                }
+                            }
+                            else 
+                            {
+                                // restore on failure
+                                foreach (string file in files)
+                                {
+                                    filename = Path.Combine(binfolder, Path.GetFileName(file));
+                                    if (File.Exists(filename))
+                                    {
+                                        File.Delete(filename);
+                                    }
+                                    File.Move(filename.Replace(".dll", ".bak"), filename);
+                                }
+                            }
+
+                            // delete package
+                            File.Delete(packagename);
                         }
 
-                        // copy the new files
-                        bool success = true;
-                        try
+                        // bring the app back online
+                        if (File.Exists(Path.Combine(rootfolder, "app_offline.htm")))
                         {
-                            foreach (string file in files)
-                            {
-                                filename = Path.Combine(binfolder, Path.GetFileName(file));
-                                // delete the file from the /bin if it exists
-                                if (File.Exists(filename))
-                                {
-                                    File.Delete(filename);
-                                }
-                                // copy the new file to the /bin
-                                File.Move(Path.Combine(deployfolder, Path.GetFileName(file)), filename);
-                            }
-                        }
-                        catch
-                        {
-                            // an error occurred deleting or moving a file
-                            success = false;
-                        }
-
-                        // restore on failure
-                        if (!success)
-                        {
-                            foreach (string file in files)
-                            {
-                                filename = Path.Combine(binfolder, Path.GetFileName(file));
-                                if (File.Exists(filename))
-                                {
-                                    File.Move(filename, filename.Replace(".bak", ".dll"));
-                                }
-                            }
+                            File.Move(Path.Combine(rootfolder, "app_offline.htm"), Path.Combine(rootfolder, "app_offline.bak"));
                         }
                     }
-                }
-
-                // bring the app back online
-                if (File.Exists(Path.Combine(rootfolder, "app_offline.htm")))
-                {
-                    File.Move(Path.Combine(rootfolder, "app_offline.htm"), Path.Combine(rootfolder, "app_offline.bak"));
                 }
             }
  
             return;
         }
 
-        private static bool CanAccessFiles(string[] files, string folder)
+        private static bool CanAccessFiles(List<string> files, string folder)
         {
             // ensure files are not locked by another process - the shutdownTimeLimit defines the duration for app shutdown
             bool canaccess = true;
             FileStream stream = null;
             int i = 0;
-            while (i < (files.Length - 1) && canaccess)
+            while (i < (files.Count - 1) && canaccess)
             {
                 string filepath = Path.Combine(folder, Path.GetFileName(files[i]));
                 int attempts = 0;
