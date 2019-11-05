@@ -50,6 +50,41 @@ CREATE TABLE [dbo].[ModuleDefinition](
 )
 GO
 
+CREATE TABLE [dbo].[Schedule] (
+	[ScheduleId] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](200) NULL,
+	[JobType] [nvarchar](200) NOT NULL,
+	[Period] [int] NOT NULL,
+	[Frequency] [char](1) NOT NULL,
+	[StartDate] [datetime] NULL,
+	[IsActive] [bit] NOT NULL,
+	[RetentionHistory] [int] NOT NULL,
+	[CreatedBy] [nvarchar](256) NULL,
+	[CreatedOn] [datetime] NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedOn] [datetime] NULL,
+    CONSTRAINT [PK_Schedule] PRIMARY KEY CLUSTERED 
+    (
+	  [ScheduleId] ASC
+    )
+)
+GO
+
+CREATE TABLE [dbo].[ScheduleLog] (
+	[ScheduleLogId] [int] IDENTITY(1,1) NOT NULL,
+	[ScheduleId] [int] NOT NULL,
+	[StartDate] [datetime] NOT NULL,
+	[FinishDate] [datetime] NULL,
+	[Succeeded] [bit] NULL,
+	[Notes] [nvarchar](max) NULL,
+	[NextExecution] [datetime] NULL,
+    CONSTRAINT [PK_ScheduleLog] PRIMARY KEY CLUSTERED 
+    (
+	  [ScheduleLogId] ASC
+    ) 
+)
+GO
+
 CREATE TABLE [dbo].[ApplicationVersion](
 	[ApplicationVersionId] [int] IDENTITY(1,1) NOT NULL,
 	[Version] [nvarchar](50) NOT NULL,
@@ -68,6 +103,11 @@ Create foreign key relationships
 */
 ALTER TABLE [dbo].[Alias]  WITH CHECK ADD  CONSTRAINT [FK_Alias_Tenant] FOREIGN KEY([TenantId])
 REFERENCES [dbo].[Tenant] ([TenantId])
+ON DELETE CASCADE
+GO
+
+ALTER TABLE [dbo].[ScheduleLog]  WITH NOCHECK ADD CONSTRAINT [FK_ScheduleLog_Schedule] FOREIGN KEY([ScheduleId])
+REFERENCES [dbo].[Schedule] ([ScheduleId])
 ON DELETE CASCADE
 GO
 
