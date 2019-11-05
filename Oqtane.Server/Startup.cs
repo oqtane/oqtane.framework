@@ -100,6 +100,8 @@ namespace Oqtane.Server
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<IPackageService, PackageService>();
             services.AddScoped<ILogService, LogService>();
+            services.AddScoped<IScheduleService, ScheduleService>();
+            services.AddScoped<IScheduleLogService, ScheduleLogService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -175,6 +177,8 @@ namespace Oqtane.Server
             services.AddTransient<ISettingRepository, SettingRepository>();
             services.AddTransient<ILogRepository, LogRepository>();
             services.AddTransient<ILogManager, LogManager>();
+            services.AddTransient<IScheduleRepository, ScheduleRepository>();
+            services.AddTransient<IScheduleLogRepository, ScheduleLogRepository>();
 
             // get list of loaded assemblies
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -367,6 +371,8 @@ namespace Oqtane.Server
             services.AddTransient<ISettingRepository, SettingRepository>();
             services.AddTransient<ILogRepository, LogRepository>();
             services.AddTransient<ILogManager, LogManager>();
+            services.AddTransient<IScheduleRepository, ScheduleRepository>();
+            services.AddTransient<IScheduleLogRepository, ScheduleLogRepository>();
 
             // get list of loaded assemblies
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();

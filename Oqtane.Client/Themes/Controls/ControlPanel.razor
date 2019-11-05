@@ -7,24 +7,49 @@
 @inject IModuleService ModuleService
 @inject IPageService PageService
 @inject IPageModuleService PageModuleService
+@inject ILogService logger
 
 @if (UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions))
 {
     <div class="app-controlpanel" style="@display">
-        <div class="card @cardclass mb-3">
-            <div class="card-header">
+        <div class="@CardClass">
+            <div class="@HeaderClass">
                 Control Panel
                 <button type="button" class="close" @onclick="HideControlPanel" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="card-body">
+            <div class="@BodyClass">
                 <ul class="nav flex-column">
                     <li class="nav-item px-3"><button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Navigate("Admin"))>Admin Dashboard</button></li>
                     <li class="nav-item px-3">&nbsp;</li>
                     <li class="nav-item px-3"><button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Navigate("Add"))>Add Page</button></li>
                     <li class="nav-item px-3"><button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Navigate("Edit"))>Edit Page</button></li>
-                    <li class="nav-item px-3"><button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => await Delete(PageState.Page))>Delete Page</button></li>
+                    <li class="nav-item px-3">
+                        <button class="btn btn-primary btn-block mx-auto" @onclick="ConfirmDelete">Delete Page</button>
+                        @if (deleteconfirmation)
+                        {
+                            <div class="app-admin-modal">
+                                <div class="modal" tabindex="-1" role="dialog">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Delete Page</h5>
+                                                <button type="button" class="close" @onclick="ConfirmDelete" aria-label="Close">&times;</button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Are You Sure You Want To Delete This Page?</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-danger" @onclick="DeletePage">Delete</button>
+                                                <button type="button" class="btn btn-secondary" @onclick="ConfirmDelete">Cancel</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </li>
                 </ul>
                 <hr class="app-rule" />
                 <table class="table table-borderless">
@@ -124,17 +149,17 @@
 
     @if (PageState.EditMode)
     {
-        <button type="button" class="btn @buttonclass active" data-toggle="button" aria-pressed="true" autocomplete="off" @onclick="EditMode">
+        <button type="button" class="btn @ButtonClass active" data-toggle="button" aria-pressed="true" autocomplete="off" @onclick="(async () => ToggleEditMode(PageState.EditMode))">
             <span class="oi oi-pencil"></span>
         </button>
     }
     else
     {
-        <button type="button" class="btn @buttonclass" data-toggle="button" aria-pressed="false" autocomplete="off" @onclick="EditMode">
+        <button type="button" class="btn @ButtonClass" data-toggle="button" aria-pressed="false" autocomplete="off" @onclick="(async () => ToggleEditMode(PageState.EditMode))">
             <span class="oi oi-pencil"></span>
         </button>
     }
-    <button type="button" class="btn @buttonclass" @onclick="ShowControlPanel">
+    <button type="button" class="btn @ButtonClass" @onclick="ShowControlPanel">
         <span class="oi oi-menu"></span>
     </button>
 }
@@ -146,6 +171,13 @@
     [Parameter]
     public string CardClass { get; set; }
 
+    [Parameter]
+    public string HeaderClass { get; set; }
+
+    [Parameter]
+    public string BodyClass { get; set; }
+
+    bool deleteconfirmation = false;
     string moduletype = "new";
     List<string> categories = new List<string>();
     List<ModuleDefinition> moduledefinitions;
@@ -159,19 +191,25 @@
     string title = "";
     string containertype = "";
     string display = "display: none;";
-    string buttonclass = "btn-outline-primary";
-    string cardclass = "text-white bg-secondary";
     string message = "";
 
     protected override void OnParametersSet()
     {
-        if (!string.IsNullOrEmpty(ButtonClass))
+        if (string.IsNullOrEmpty(ButtonClass))
         {
-            buttonclass = ButtonClass;
+            ButtonClass = "btn-outline-primary";
         }
-        if (!string.IsNullOrEmpty(CardClass))
+        if (string.IsNullOrEmpty(CardClass))
         {
-            cardclass = CardClass;
+            CardClass = "card bg-secondary mb-3";
+        }
+        if (string.IsNullOrEmpty(HeaderClass))
+        {
+            HeaderClass = "card-header text-white";
+        }
+        if (string.IsNullOrEmpty(BodyClass))
+        {
+            BodyClass = "card-body";
         }
 
         if (UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions))
@@ -292,11 +330,11 @@
         }
     }
 
-    private void EditMode()
+    private void ToggleEditMode(bool EditMode)
     {
         if (UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions))
         {
-            if (PageState.EditMode)
+            if (EditMode)
             {
                 PageState.EditMode = false;
                 PageState.DesignMode = false;
@@ -363,10 +401,26 @@
         }
     }
 
-    private async Task Delete(Page Page)
+    private void ConfirmDelete()
     {
-        Page.IsDeleted = true;
-        await PageService.UpdatePageAsync(Page);
-        NavigationManager.NavigateTo(NavigateUrl("", Reload.Site));
+        deleteconfirmation = !deleteconfirmation;
+        StateHasChanged();
+    }
+
+    private async Task DeletePage()
+    {
+        ConfirmDelete();
+        Page page = PageState.Page;
+        try
+        {
+            page.IsDeleted = true;
+            await PageService.UpdatePageAsync(page);
+            await logger.Log(page.PageId, null, PageState.User.UserId, this.GetType().AssemblyQualifiedName, "ControlPanel", LogFunction.Delete, LogLevel.Information, null, "Page Deleted {Page}", page);
+            NavigationManager.NavigateTo(NavigateUrl("", Reload.Site));
+        }
+        catch (Exception ex)
+        {
+            await logger.Log(page.PageId, null, PageState.User.UserId, this.GetType().AssemblyQualifiedName, "ControlPanel", LogFunction.Delete, LogLevel.Information, ex, "Page Deleted {Page} {Error}", page, ex.Message);
+        }
     }
 }

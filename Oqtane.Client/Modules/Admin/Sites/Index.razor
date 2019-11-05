@@ -2,6 +2,7 @@
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IAliasService AliasService
+@inject ISiteService SiteService
 
 @if (sites == null)
 {
@@ -9,18 +10,18 @@
 }
 else
 {
-    <ActionLink Action="Add" Text="Add Site" Style="float: right; margin: 10px;" />
+    <ActionLink Action="Add" Text="Add Site" />
 
     <Pager Items="@sites">
         <Header>
+            <th>&nbsp;</th>
+            <th>&nbsp;</th>
             <th>Name</th>
-            <th>&nbsp;</th>
-            <th>&nbsp;</th>
         </Header>
         <Row>
-            <td><a href="@(scheme + context.Name)">@context.Name</a></td>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.AliasId.ToString())" /></td>
-            <td><ActionLink Action="Delete" Parameters="@($"id=" + context.AliasId.ToString())" Class="btn btn-danger" /></td>
+            <td><ActionDialog Header="Delete Site" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Site?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteSite(context))" /></td>
+            <td><a href="@(scheme + context.Name)">@context.Name</a></td>
         </Row>
     </Pager>
 }
@@ -31,7 +32,7 @@ else
     List<Alias> sites;
     string scheme;
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
         Uri uri = new Uri(NavigationManager.Uri);
         scheme = uri.Scheme + "://";
@@ -43,6 +44,21 @@ else
             {
                 sites.Add(alias);
             }
+        }
+    }
+
+    private async Task DeleteSite(Alias Alias)
+    {
+        try
+        {
+            await SiteService.DeleteSiteAsync(Alias.SiteId, Alias);
+            await logger.LogInformation("Sited Deleted {Alias}", Alias);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Site {Error}", ex.Message);
+            AddModuleMessage("Error Deleting Site", MessageType.Error);
         }
     }
 }

@@ -18,6 +18,8 @@ namespace Oqtane.Repository
         public virtual DbSet<Alias> Alias { get; set; }
         public virtual DbSet<Tenant> Tenant { get; set; }
         public virtual DbSet<ModuleDefinition> ModuleDefinition { get; set; }
+        public virtual DbSet<Schedule> Schedule { get; set; }
+        public virtual DbSet<ScheduleLog> ScheduleLog { get; set; }
 
         public override int SaveChanges()
         {

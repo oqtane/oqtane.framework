@@ -8,18 +8,18 @@
 }
 else
 {
-    <ActionLink Action="Add" Text="Add Tenant" Style="float: right; margin: 10px;" />
+    <ActionLink Action="Add" Text="Add Tenant" />
 
     <Pager Items="@tenants">
         <Header>
+            <th>&nbsp;</th>
+            <th>&nbsp;</th>
             <th>Name</th>
-            <th>&nbsp;</th>
-            <th>&nbsp;</th>
         </Header>
         <Row>
-            <td>@context.Name</td>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.TenantId.ToString())" /></td>
-            <td><ActionLink Action="Delete" Parameters="@($"id=" + context.TenantId.ToString())" Class="btn btn-danger" /></td>
+            <td><ActionDialog Header="Delete Tenant" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Tenant?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteTenant(context))" /></td>
+            <td>@context.Name</td>
         </Row>
     </Pager>
 
@@ -30,8 +30,23 @@ else
 
     List<Tenant> tenants;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         tenants = await TenantService.GetTenantsAsync();
+    }
+
+    private async Task DeleteTenant(Tenant Tenant)
+    {
+        try
+        {
+            await TenantService.DeleteTenantAsync(Tenant.TenantId);
+            await logger.LogInformation("Tenant Deleted {Tenant}", Tenant);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Tenant {Tenant} {Error}", Tenant, ex.Message);
+            AddModuleMessage("Error Deleting Tenant", MessageType.Error);
+        }
     }
 }

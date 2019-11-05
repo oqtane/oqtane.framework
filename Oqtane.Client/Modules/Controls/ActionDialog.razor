@@ -25,7 +25,7 @@
 }
 @if (authorized)
 {
-    <button class="@Class" @onclick="DisplayModal">@Action</button>
+    <button class="@Class" @onclick="DisplayModal">@Text</button>
 }
 
 @code {
@@ -42,6 +42,9 @@
     public SecurityAccessLevel? Security { get; set; } // optional - can be used to explicitly specify SecurityAccessLevel
 
     [Parameter]
+    public string Text { get; set; } // optional - defaults to Action if not specified
+
+    [Parameter]
     public string Class { get; set; } // optional
 
     [Parameter]
@@ -55,6 +58,10 @@
         if (string.IsNullOrEmpty(Action))
         {
             Action = "Ok";
+        }
+        if (string.IsNullOrEmpty(Text))
+        {
+            Text = Action;
         }
         if (string.IsNullOrEmpty(Class))
         {
