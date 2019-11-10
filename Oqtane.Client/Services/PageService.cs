@@ -39,6 +39,11 @@ namespace Oqtane.Services
             return await http.GetJsonAsync<Page>(apiurl + "/" + PageId.ToString());
         }
 
+        public async Task<Page> GetPageAsync(int PageId, int UserId)
+        {
+            return await http.GetJsonAsync<Page>(apiurl + "/" + PageId.ToString() + "?userid=" + UserId.ToString());
+        }
+
         public async Task<Page> AddPageAsync(Page Page)
         {
             return await http.PostJsonAsync<Page>(apiurl, Page);
@@ -49,9 +54,9 @@ namespace Oqtane.Services
             return await http.PutJsonAsync<Page>(apiurl + "/" + Page.PageId.ToString(), Page);
         }
 
-        public async Task UpdatePageOrderAsync(int SiteId, int? ParentId)
+        public async Task UpdatePageOrderAsync(int SiteId, int PageId, int? ParentId)
         {
-            await http.PutJsonAsync(apiurl + "/?siteid=" + SiteId.ToString() + "&parentid=" + ((ParentId == null) ? "" : ParentId.ToString()), null);
+            await http.PutJsonAsync(apiurl + "/?siteid=" + SiteId.ToString() + "&pageid=" + PageId.ToString() + "&parentid=" + ((ParentId == null) ? "" : ParentId.ToString()), null);
         }
 
         public async Task DeletePageAsync(int PageId)

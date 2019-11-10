@@ -16,8 +16,11 @@ namespace Oqtane.Security
 
         public bool IsAuthorized(ClaimsPrincipal User, string EntityName, int EntityId, string PermissionName)
         {
-            string permissionstrings = Permissions.EncodePermissions(EntityId, Permissions.GetPermissions(EntityName, EntityId, PermissionName).ToList());
+            return IsAuthorized(User, PermissionName, Permissions.EncodePermissions(EntityId, Permissions.GetPermissions(EntityName, EntityId, PermissionName).ToList()));
+        }
 
+        public bool IsAuthorized(ClaimsPrincipal User, string PermissionName, string Permissions)
+        {
             User user = new User();
             user.UserId = -1;
             user.Roles = "";
@@ -36,7 +39,7 @@ namespace Oqtane.Security
                 }
             }
 
-            return UserSecurity.IsAuthorized(user, PermissionName, permissionstrings);
+            return UserSecurity.IsAuthorized(user, PermissionName, Permissions);
         }
     }
 }

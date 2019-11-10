@@ -16,6 +16,8 @@ namespace Oqtane.Models
         public string Icon { get; set; }
         public bool IsNavigation { get; set; }
         public bool EditMode { get; set; }
+        public int? UserId { get; set; }
+        public bool IsPersonalizable { get; set; }
 
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }

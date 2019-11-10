@@ -9,6 +9,7 @@ namespace Oqtane.Models
         public string Path { get; set; }
         public string Icon { get; set; }
         public bool IsNavigation { get; set; }
+        public bool IsPersonalizable { get; set; }
         public bool EditMode { get; set; }
         public string PagePermissions { get; set; }
         public List<PageTemplateModule> PageTemplateModules { get; set; }

@@ -218,11 +218,11 @@
 
             if (page != null)
             {
-                page = ProcessPage(page, site);
-
                 // check if user is authorized to view page
                 if (UserSecurity.IsAuthorized(user, "View", page.Permissions))
                 {
+                    page = await ProcessPage(page, site, user);
+
                     pagestate = new PageState();
                     pagestate.ModuleDefinitions = moduledefinitions;
                     pagestate.Themes = themes;
@@ -260,11 +260,16 @@
                 else
                 {
                     // user is not authorized to view page
+                    if (path != "")
+                    {
+                        NavigationManager.NavigateTo("");
+                    }
                 }
             }
             else
             {
                 // page does not exist
+                NavigationManager.NavigateTo("");
             }
         }
         else
@@ -313,10 +318,16 @@
         return querystring;
     }
 
-    private Page ProcessPage(Page page, Site site)
+    private async Task<Page> ProcessPage(Page page, Site site, User user)
     {
         try
         {
+            if (page.IsPersonalizable && user != null)
+            {
+                // load the personalized page
+                page = await PageService.GetPageAsync(page.PageId, user.UserId);
+            }
+
             if (string.IsNullOrEmpty(page.ThemeType))
             {
                 page.ThemeType = site.DefaultThemeType;
