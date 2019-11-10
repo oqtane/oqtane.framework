@@ -11,6 +11,7 @@ using Oqtane.Modules;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 using Oqtane.Infrastructure;
+using Oqtane.Security;
 
 namespace Oqtane.Controllers
 {
@@ -21,14 +22,16 @@ namespace Oqtane.Controllers
         private readonly IPageModuleRepository PageModules;
         private readonly IModuleDefinitionRepository ModuleDefinitions;
         private readonly IServiceProvider ServiceProvider;
+        private readonly IUserPermissions UserPermissions;
         private readonly ILogManager logger;
 
-        public ModuleController(IModuleRepository Modules, IPageModuleRepository PageModules, IModuleDefinitionRepository ModuleDefinitions, IServiceProvider ServiceProvider, ILogManager logger)
+        public ModuleController(IModuleRepository Modules, IPageModuleRepository PageModules, IModuleDefinitionRepository ModuleDefinitions, IServiceProvider ServiceProvider, IUserPermissions UserPermissions, ILogManager logger)
         {
             this.Modules = Modules;
             this.PageModules = PageModules;
             this.ModuleDefinitions = ModuleDefinitions;
             this.ServiceProvider = ServiceProvider;
+            this.UserPermissions = UserPermissions;
             this.logger = logger;
         }
 
@@ -70,10 +73,10 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        [Authorize(Roles = Constants.AdminRole)]
+        [Authorize(Roles = Constants.RegisteredRole)]
         public Models.Module Post([FromBody] Models.Module Module)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && UserPermissions.IsAuthorized(User, "Edit", Module.Permissions))
             {
                 Module = Modules.AddModule(Module);
                 logger.Log(LogLevel.Information, this, LogFunction.Create, "Module Added {Module}", Module);
@@ -83,10 +86,10 @@ namespace Oqtane.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        [Authorize(Roles = Constants.AdminRole)]
+        [Authorize(Roles = Constants.RegisteredRole)]
         public Models.Module Put(int id, [FromBody] Models.Module Module)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && UserPermissions.IsAuthorized(User, "Module", Module.ModuleId, "Edit"))
             {
                 Module = Modules.UpdateModule(Module);
                 logger.Log(LogLevel.Information, this, LogFunction.Update, "Module Updated {Module}", Module);
@@ -96,69 +99,75 @@ namespace Oqtane.Controllers
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = Constants.AdminRole)]
+        [Authorize(Roles = Constants.RegisteredRole)]
         public void Delete(int id)
         {
-            Modules.DeleteModule(id);
-            logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Deleted {ModuleId}", id);
+            if (UserPermissions.IsAuthorized(User, "Module", id, "Edit"))
+            {
+                Modules.DeleteModule(id);
+                logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Deleted {ModuleId}", id);
+            }
         }
 
         // GET api/<controller>/export?moduleid=x
         [HttpGet("export")]
-        [Authorize(Roles = Constants.AdminRole)]
+        [Authorize(Roles = Constants.RegisteredRole)]
         public string Export(int moduleid)
         {
             string content = "";
-            try
+            if (UserPermissions.IsAuthorized(User, "Module", moduleid, "View"))
             {
-                Models.Module module = Modules.GetModule(moduleid);
-                if (module != null)
+                try
                 {
-                    List<ModuleDefinition> moduledefinitions = ModuleDefinitions.GetModuleDefinitions(module.SiteId).ToList();
-                    ModuleDefinition moduledefinition = moduledefinitions.Where(item => item.ModuleDefinitionName == module.ModuleDefinitionName).FirstOrDefault();
-                    if (moduledefinition != null)
+                    Models.Module module = Modules.GetModule(moduleid);
+                    if (module != null)
                     {
-                        ModuleContent modulecontent = new ModuleContent();
-                        modulecontent.ModuleDefinitionName = moduledefinition.ModuleDefinitionName;
-                        modulecontent.Version = moduledefinition.Version;
-                        modulecontent.Content = "";
-
-                        if (moduledefinition.ServerAssemblyName != "")
+                        List<ModuleDefinition> moduledefinitions = ModuleDefinitions.GetModuleDefinitions(module.SiteId).ToList();
+                        ModuleDefinition moduledefinition = moduledefinitions.Where(item => item.ModuleDefinitionName == module.ModuleDefinitionName).FirstOrDefault();
+                        if (moduledefinition != null)
                         {
-                            Assembly assembly = AppDomain.CurrentDomain.GetAssemblies()
-                                .Where(item => item.FullName.StartsWith(moduledefinition.ServerAssemblyName)).FirstOrDefault();
-                            if (assembly != null)
+                            ModuleContent modulecontent = new ModuleContent();
+                            modulecontent.ModuleDefinitionName = moduledefinition.ModuleDefinitionName;
+                            modulecontent.Version = moduledefinition.Version;
+                            modulecontent.Content = "";
+
+                            if (moduledefinition.ServerAssemblyName != "")
                             {
-                                Type moduletype = assembly.GetTypes()
-                                    .Where(item => item.Namespace != null)
-                                    .Where(item => item.Namespace.StartsWith(moduledefinition.ModuleDefinitionName.Substring(0, moduledefinition.ModuleDefinitionName.IndexOf(","))))
-                                    .Where(item => item.GetInterfaces().Contains(typeof(IPortable))).FirstOrDefault();
-                                if (moduletype != null)
+                                Assembly assembly = AppDomain.CurrentDomain.GetAssemblies()
+                                    .Where(item => item.FullName.StartsWith(moduledefinition.ServerAssemblyName)).FirstOrDefault();
+                                if (assembly != null)
                                 {
-                                    var moduleobject = ActivatorUtilities.CreateInstance(ServiceProvider, moduletype);
-                                    modulecontent.Content = ((IPortable)moduleobject).ExportModule(module);
+                                    Type moduletype = assembly.GetTypes()
+                                        .Where(item => item.Namespace != null)
+                                        .Where(item => item.Namespace.StartsWith(moduledefinition.ModuleDefinitionName.Substring(0, moduledefinition.ModuleDefinitionName.IndexOf(","))))
+                                        .Where(item => item.GetInterfaces().Contains(typeof(IPortable))).FirstOrDefault();
+                                    if (moduletype != null)
+                                    {
+                                        var moduleobject = ActivatorUtilities.CreateInstance(ServiceProvider, moduletype);
+                                        modulecontent.Content = ((IPortable)moduleobject).ExportModule(module);
+                                    }
                                 }
                             }
+                            content = JsonSerializer.Serialize(modulecontent);
+                            logger.Log(LogLevel.Information, this, LogFunction.Read, "Module Content Exported {ModuleId}", moduleid);
                         }
-                        content = JsonSerializer.Serialize(modulecontent);
-                        logger.Log(LogLevel.Information, this, LogFunction.Read, "Module Content Exported {ModuleId}", moduleid);
                     }
                 }
-            }
-            catch
-            {
-                // error occurred during export
+                catch
+                {
+                    // error occurred during export
+                }
             }
             return content;
         }
 
         // POST api/<controller>/import?moduleid=x
         [HttpPost("import")]
-        [Authorize(Roles = Constants.AdminRole)]
+        [Authorize(Roles = Constants.RegisteredRole)]
         public bool Import(int moduleid, [FromBody] string Content)
         {
             bool success = false;
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && UserPermissions.IsAuthorized(User, "Module", moduleid, "Edit"))
             {
                 try
                 {

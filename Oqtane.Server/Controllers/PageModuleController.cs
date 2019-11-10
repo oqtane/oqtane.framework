@@ -6,6 +6,7 @@ using Oqtane.Models;
 using Oqtane.Shared;
 using System.Linq;
 using Oqtane.Infrastructure;
+using Oqtane.Security;
 
 namespace Oqtane.Controllers
 {
@@ -13,13 +14,13 @@ namespace Oqtane.Controllers
     public class PageModuleController : Controller
     {
         private readonly IPageModuleRepository PageModules;
-        private readonly IModuleRepository Modules;
+        private readonly IUserPermissions UserPermissions;
         private readonly ILogManager logger;
 
-        public PageModuleController(IPageModuleRepository PageModules, IModuleRepository Modules, ILogManager logger)
+        public PageModuleController(IPageModuleRepository PageModules, IUserPermissions UserPermissions, ILogManager logger)
         {
             this.PageModules = PageModules;
-            this.Modules = Modules;
+            this.UserPermissions = UserPermissions;
             this.logger = logger;
         }
 
@@ -46,10 +47,10 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        [Authorize(Roles = Constants.AdminRole)]
+        [Authorize(Roles = Constants.RegisteredRole)]
         public PageModule Post([FromBody] PageModule PageModule)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && UserPermissions.IsAuthorized(User, "Page", PageModule.PageId, "Edit"))
             {
                 PageModule = PageModules.AddPageModule(PageModule);
                 logger.Log(LogLevel.Information, this, LogFunction.Create, "Page Module Added {PageModule}", PageModule);
@@ -59,10 +60,10 @@ namespace Oqtane.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        [Authorize(Roles = Constants.AdminRole)]
+        [Authorize(Roles = Constants.RegisteredRole)]
         public PageModule Put(int id, [FromBody] PageModule PageModule)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && UserPermissions.IsAuthorized(User, "Page", PageModule.PageId, "Edit"))
             {
                 PageModule = PageModules.UpdatePageModule(PageModule);
                 logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Module Updated {PageModule}", PageModule);
@@ -72,30 +73,37 @@ namespace Oqtane.Controllers
 
         // PUT api/<controller>/?pageid=x&pane=y
         [HttpPut]
-        [Authorize(Roles = Constants.AdminRole)]
+        [Authorize(Roles = Constants.RegisteredRole)]
         public void Put(int pageid, string pane)
         {
-            int order = 1;
-            List<PageModule> pagemodules = PageModules.GetPageModules(pageid).ToList();
-            foreach (PageModule pagemodule in pagemodules.Where(item => item.Pane == pane).OrderBy(item => item.Order))
+            if (UserPermissions.IsAuthorized(User, "Page", pageid, "Edit"))
             {
-                if (pagemodule.Order != order)
+                int order = 1;
+                List<PageModule> pagemodules = PageModules.GetPageModules(pageid).ToList();
+                foreach (PageModule pagemodule in pagemodules.Where(item => item.Pane == pane).OrderBy(item => item.Order))
                 {
-                    pagemodule.Order = order;
-                    PageModules.UpdatePageModule(pagemodule);
+                    if (pagemodule.Order != order)
+                    {
+                        pagemodule.Order = order;
+                        PageModules.UpdatePageModule(pagemodule);
+                    }
+                    order += 2;
                 }
-                order += 2;
+                logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Module Order Updated {PageId} {Pane}", pageid, pane);
             }
-            logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Module Order Updated {PageId} {Pane}", pageid, pane);
         }
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = Constants.AdminRole)]
+        [Authorize(Roles = Constants.RegisteredRole)]
         public void Delete(int id)
         {
-            PageModules.DeletePageModule(id);
-            logger.Log(LogLevel.Information, this, LogFunction.Delete, "Page Module Deleted {PageModuleId}", id);
+            PageModule pagemodule = PageModules.GetPageModule(id);
+            if (UserPermissions.IsAuthorized(User, "Page", pagemodule.PageId, "Edit"))
+            {
+                PageModules.DeletePageModule(id);
+                logger.Log(LogLevel.Information, this, LogFunction.Delete, "Page Module Deleted {PageModuleId}", id);
+            }
         }
     }
 }

@@ -10,6 +10,7 @@ namespace Oqtane.Repository
         Page AddPage(Page Page);
         Page UpdatePage(Page Page);
         Page GetPage(int PageId);
+        Page GetPage(int PageId, int UserId);
         void DeletePage(int PageId);
     }
 }

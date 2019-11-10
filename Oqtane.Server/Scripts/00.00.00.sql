@@ -38,6 +38,8 @@ CREATE TABLE [dbo].[Page](
 	[IsNavigation] [bit] NOT NULL,
 	[LayoutType] [nvarchar](200) NOT NULL,
 	[EditMode] [bit] NOT NULL,
+	[UserId] [int] NULL,
+	[IsPersonalizable] [bit] NOT NULL,
 	[CreatedBy] [nvarchar](256) NOT NULL,
 	[CreatedOn] [datetime] NOT NULL,
 	[ModifiedBy] [nvarchar](256) NOT NULL,
@@ -346,7 +348,8 @@ GO
 CREATE UNIQUE NONCLUSTERED INDEX IX_Page ON dbo.Page
 	(
 	SiteId,
-	[Path]
+	[Path],
+	UserId
 	) ON [PRIMARY]
 GO
 
