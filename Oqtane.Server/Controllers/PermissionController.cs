@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
+using Oqtane.Infrastructure;
 
 namespace Oqtane.Controllers
 {
@@ -11,10 +12,12 @@ namespace Oqtane.Controllers
     public class PermissionController : Controller
     {
         private readonly IPermissionRepository Permissions;
+        private readonly ILogManager logger;
 
-        public PermissionController(IPermissionRepository Permissions)
+        public PermissionController(IPermissionRepository Permissions, ILogManager logger)
         {
             this.Permissions = Permissions;
+            this.logger = logger;
         }
 
         // GET: api/<controller>
@@ -39,6 +42,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Permission = Permissions.AddPermission(Permission);
+                logger.Log(LogLevel.Information, this, LogFunction.Create, "Permission Added {Permission}", Permission);
             }
             return Permission;
         }
@@ -51,6 +55,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Permission = Permissions.UpdatePermission(Permission);
+                logger.Log(LogLevel.Information, this, LogFunction.Update, "Permission Updated {Permission}", Permission);
             }
             return Permission;
         }
@@ -61,6 +66,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             Permissions.DeletePermission(id);
+            logger.Log(LogLevel.Information, this, LogFunction.Delete, "Permission Deleted {PermissionId}", id);
         }
     }
 }

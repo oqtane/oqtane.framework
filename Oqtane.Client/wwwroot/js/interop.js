@@ -28,15 +28,21 @@ window.interop = {
             return "";
         }
     },
-    addCSS: function (fileName) {
-        var head = document.head;
-        var link = document.createElement("link");
-
-        link.type = "text/css";
-        link.rel = "stylesheet";
-        link.href = fileName;
-
-        head.appendChild(link);
+    includeCSS: function (id, url) {
+        var link = document.getElementById(id);
+        if (link === null) {
+            link = document.createElement("link");
+            link.id = id;
+            link.type = "text/css";
+            link.rel = "stylesheet";
+            link.href = url;
+            document.head.appendChild(link);
+        }
+        else {
+            if (link.href !== url) {
+                link.setAttribute('href', url);
+            }
+        }
     },
     submitForm: function (path, fields) {
         const form = document.createElement('form');
@@ -55,6 +61,16 @@ window.interop = {
 
         document.body.appendChild(form);
         form.submit();
+    },
+    getFiles: function (name) {
+        var files = [];
+        var fileinput = document.getElementById(name);
+        if (fileinput !== null) {
+            for (var i = 0; i < fileinput.files.length; i++) {
+                files.push(fileinput.files[i].name);
+            }
+        }
+        return files;
     },
     uploadFiles: function (posturl, folder, name) {
         var files = document.getElementById(name + 'FileInput').files;

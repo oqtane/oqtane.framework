@@ -1,0 +1,43 @@
+﻿@namespace Oqtane.Modules.Controls
+@inherits ModuleBase
+
+<CascadingValue Value="this">
+    <div>
+        @foreach (TabPanel tabPanel in TabPanels)
+        {
+            <button type="button"
+                    class="btn @GetButtonClass(tabPanel)"
+                    @onclick=@( () => ActivateTabPanel(tabPanel) )>
+                @tabPanel.Text
+            </button>
+        }
+    </div>
+    @ChildContent
+</CascadingValue>
+
+@code {
+    // Next line is needed so we are able to add <TabPanel> components inside
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    public TabPanel ActiveTabPanel { get; set; }
+    List<TabPanel> TabPanels = new List<TabPanel>();
+
+    internal void AddTabPanel(TabPanel tabPanel)
+    {
+        TabPanels.Add(tabPanel);
+        if (TabPanels.Count == 1)
+            ActiveTabPanel = tabPanel;
+        StateHasChanged();
+    }
+
+    string GetButtonClass(TabPanel tabPanel)
+    {
+        return tabPanel == ActiveTabPanel ? "btn-primary" : "btn-secondary";
+    }
+
+    void ActivateTabPanel(TabPanel tabPanel)
+    {
+        ActiveTabPanel = tabPanel;
+    }
+}

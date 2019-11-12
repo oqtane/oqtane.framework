@@ -1,0 +1,144 @@
+﻿@namespace Oqtane.Modules.Admin.UserProfile
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject IUserService UserService
+@inject IProfileService ProfileService
+@inject ISettingService SettingService
+
+@if (PageState.User != null && profiles != null)
+{
+    <table class="table table-borderless">
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Username: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@username" readonly />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Password: </label>
+            </td>
+            <td>
+                <input type="password" class="form-control" @bind="@password" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Email: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@email" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Full Name: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@displayname" />
+            </td>
+        </tr>
+
+        @foreach (Profile profile in profiles)
+        {
+            var p = profile;
+            if (p.Category != category)
+            {
+                <tr>
+                    <th colspan="2" style="text-align: center;">
+                        @p.Category
+                    </th>
+                </tr>
+                category = p.Category;
+            }
+            <tr>
+                <td>
+                    <label for="@p.Name" class="control-label">@p.Title: </label>
+                </td>
+                <td>
+                    <input class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" placeholder="@p.Description" @onchange="(e => ProfileChanged(e, p.Name))" />
+                </td>
+            </tr>
+        }
+    </table>
+    <button type="button" class="btn btn-primary" @onclick="SaveUser">Save</button>
+    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+    <br />
+    <br />
+}
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.View; } }
+
+    string username = "";
+    string password = "";
+    string email = "";
+    string displayname = "";
+    List<Profile> profiles;
+    Dictionary<string, string> settings;
+    string category = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (PageState.User != null)
+            {
+                username = PageState.User.Username;
+                email = PageState.User.Email;
+                displayname = PageState.User.DisplayName;
+                profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
+                settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
+            }
+            else
+            {
+                AddModuleMessage("Current User Is Not Logged In", MessageType.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading User Profile {Error}", ex.Message);
+            AddModuleMessage("Error Loading User Profile", MessageType.Error);
+        }
+    }
+
+    private string GetProfileValue(string SettingName, string DefaultValue)
+    {
+        return SettingService.GetSetting(settings, SettingName, DefaultValue);
+    }
+
+    private async Task SaveUser()
+    {
+        try
+        {
+            User user = PageState.User;
+            user.Username = username;
+            user.Password = password;
+            user.Email = email;
+            user.DisplayName = displayname;
+            await UserService.UpdateUserAsync(user);
+            await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
+            await logger.LogInformation("User Profile Saved");
+
+            NavigationManager.NavigateTo(NavigateUrl(""));
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Saving User Profile {Error}", ex.Message);
+            AddModuleMessage("Error Saving User Profile", MessageType.Error);
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo(NavigateUrl(""));
+    }
+
+    private void ProfileChanged(ChangeEventArgs e, string SettingName)
+    {
+        string value = (string)e.Value;
+        settings = SettingService.SetSetting(settings, SettingName, value);
+    }
+}

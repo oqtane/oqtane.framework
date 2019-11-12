@@ -52,6 +52,10 @@ namespace Oqtane.Client
             services.AddScoped<IUserRoleService, UserRoleService>();
             services.AddScoped<ISettingService, SettingService>();
             services.AddScoped<IFileService, FileService>();
+            services.AddScoped<IPackageService, PackageService>();
+            services.AddScoped<ILogService, LogService>();
+            services.AddScoped<IScheduleService, ScheduleService>();
+            services.AddScoped<IScheduleLogService, ScheduleLogService>();
 
             // dynamically register module contexts and repository services
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();

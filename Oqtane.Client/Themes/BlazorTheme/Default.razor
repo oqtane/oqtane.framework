@@ -1,0 +1,31 @@
+﻿@namespace Oqtane.Themes.BlazorTheme
+@inherits ThemeBase
+
+<div class="sidebar">
+    <div align="center"><Logo /></div>
+    <Menu Orientation="Vertical" />
+</div>
+
+<div class="main">
+    <div class="top-row px-4">
+        <Breadcrumbs /> <div class="ml-md-auto"><UserProfile /> <Login /> <ControlPanel /></div>
+    </div>
+    <div class="container">
+        <div class="row px-4">
+            <Pane Name="Content" />
+        </div>
+        <div class="row px-4">
+            <Pane Name="Admin" />
+        </div>
+    </div>
+</div>
+
+@code {
+    public override string Panes { get { return "Content"; } }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await IncludeCSS("Theme.css");
+    }
+
+}

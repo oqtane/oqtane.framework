@@ -1,0 +1,56 @@
+﻿@namespace Oqtane.Modules.Admin.Files
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject IFileService FileService
+
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Files: </label>
+        </td>
+        <td>
+            <FileUpload Multiple="true" @ref="fileupload"></FileUpload>
+        </td>
+    </tr>
+</table>
+<button type="button" class="btn btn-primary" @onclick="UploadFile">Upload</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+
+    FileUpload fileupload;
+
+    private async Task UploadFile()
+    {
+        string[] files = await fileupload.GetFiles();
+        if (files.Length > 0)
+        {
+            try
+            {
+                ShowProgressIndicator();
+
+                string result = await FileService.UploadFilesAsync(PageState.Site.SiteRootPath, files, "");
+                if (result == "")
+                {
+                    await logger.LogInformation("Files Uploaded Successfully");
+                    AddModuleMessage("Files Uploaded Successfully", MessageType.Success);
+                }
+                else
+                {
+                    await logger.LogError("Upload Failed For {Files}", result.Replace(",",", "));
+                    AddModuleMessage("Upload Failed For " + result.Replace(",",", ") + ". This Could Be Due To A Network Error Or Because A File Type Is Restricted.", MessageType.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Upload Failed {Error}", ex.Message);
+                AddModuleMessage("Upload Failed. " + ex.Message, MessageType.Error);
+            }
+        }
+        else
+        {
+            AddModuleMessage("You Must Select Some Files To Upload", MessageType.Warning);
+        }
+    }
+}

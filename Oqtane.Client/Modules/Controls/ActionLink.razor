@@ -1,10 +1,4 @@
-﻿@using Microsoft.AspNetCore.Components.Routing
-@using Microsoft.AspNetCore.Components.Web
-@using Oqtane.Modules
-@using Oqtane.Services
-@using Oqtane.Shared
-@using Oqtane.Security
-@namespace Oqtane.Modules.Controls
+﻿@namespace Oqtane.Modules.Controls
 @inherits ModuleBase
 @inject IUserService UserService
 
@@ -15,16 +9,19 @@
 
 @code {
     [Parameter]
-    public string Action { get; set; }
+    public string Action { get; set; } // required
 
     [Parameter]
-    public string Text { get; set; } // optional
+    public SecurityAccessLevel? Security { get; set; } // optional - can be used to explicitly specify SecurityAccessLevel
 
     [Parameter]
-    public string Parameters { get; set; } // optional
+    public string Text { get; set; } // optional - defaults to Action if not specified
 
     [Parameter]
-    public string Class { get; set; } // optional
+    public string Parameters { get; set; } // optional - querystring parameter should be in the form of "id=x&name=y"
+
+    [Parameter]
+    public string Class { get; set; } // optional - defaults to primary if not specified
 
     [Parameter]
     public string Style { get; set; } // optional
@@ -39,12 +36,12 @@
     protected override void OnParametersSet()
     {
         text = Action;
-        if (!String.IsNullOrEmpty(Text))
+        if (!string.IsNullOrEmpty(Text))
         {
             text = Text;
         }
 
-        if (!String.IsNullOrEmpty(Parameters))
+        if (!string.IsNullOrEmpty(Parameters))
         {
             parameters = Parameters;
         }
@@ -60,34 +57,53 @@
         }
 
         url = EditUrl(Action, parameters);
+        authorized = IsAuthorized();
+    }
 
+    private bool IsAuthorized()
+    {
+        bool authorized = false;
         if (PageState.EditMode)
         {
-            string typename = ModuleState.ModuleType.Replace(Utilities.GetTypeNameClass(ModuleState.ModuleType) + ",", Action + ",");
-            Type moduleType = Type.GetType(typename);
-            if (moduleType != null)
+            SecurityAccessLevel security = SecurityAccessLevel.Host;
+            if (Security == null)
             {
-                var moduleobject = Activator.CreateInstance(moduleType);
-                SecurityAccessLevel SecurityAccessLevel = (SecurityAccessLevel)moduleType.GetProperty("SecurityAccessLevel").GetValue(moduleobject, null);
-                switch (SecurityAccessLevel)
+                string typename = ModuleState.ModuleType.Replace(Utilities.GetTypeNameLastSegment(ModuleState.ModuleType, 0) + ",", Action + ",");
+                Type moduleType = Type.GetType(typename);
+                if (moduleType != null)
                 {
-                    case SecurityAccessLevel.Anonymous:
-                        authorized = true;
-                        break;
-                    case SecurityAccessLevel.View:
-                        authorized = UserSecurity.IsAuthorized(PageState.User, "View", ModuleState.Permissions);
-                        break;
-                    case SecurityAccessLevel.Edit:
-                        authorized = UserSecurity.IsAuthorized(PageState.User, "Edit", ModuleState.Permissions);
-                        break;
-                    case SecurityAccessLevel.Admin:
-                        authorized = UserSecurity.IsAuthorized(PageState.User, Constants.AdminRole);
-                        break;
-                    case SecurityAccessLevel.Host:
-                        authorized = UserSecurity.IsAuthorized(PageState.User, Constants.HostRole);
-                        break;
+                    var moduleobject = Activator.CreateInstance(moduleType);
+                    security = (SecurityAccessLevel)moduleType.GetProperty("SecurityAccessLevel").GetValue(moduleobject, null);
+                }
+                else
+                {
+                    security = SecurityAccessLevel.Anonymous; // occurs when an action does not have a corresponding module control
+                    Class = "btn btn-warning"; // alert developer of missing module comtrol
                 }
             }
+            else
+            {
+                security = Security.Value;
+            }
+            switch (security)
+            {
+                case SecurityAccessLevel.Anonymous:
+                    authorized = true;
+                    break;
+                case SecurityAccessLevel.View:
+                    authorized = UserSecurity.IsAuthorized(PageState.User, "View", ModuleState.Permissions);
+                    break;
+                case SecurityAccessLevel.Edit:
+                    authorized = UserSecurity.IsAuthorized(PageState.User, "Edit", ModuleState.Permissions);
+                    break;
+                case SecurityAccessLevel.Admin:
+                    authorized = UserSecurity.IsAuthorized(PageState.User, Constants.AdminRole);
+                    break;
+                case SecurityAccessLevel.Host:
+                    authorized = UserSecurity.IsAuthorized(PageState.User, Constants.HostRole);
+                    break;
+            }
         }
+        return authorized;
     }
 }

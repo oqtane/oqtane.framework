@@ -1,13 +1,4 @@
-﻿@using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.AspNetCore.Components.Web
-@using Microsoft.AspNetCore.Components.Routing
-@using Oqtane.Modules
-@using Microsoft.JSInterop
-@using Oqtane.Models
-@using Oqtane.Services
-@using Oqtane.Providers
-@using Oqtane.Shared
-@namespace Oqtane.Modules.Admin.Login
+﻿@namespace Oqtane.Modules.Admin.Login
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IJSRuntime jsRuntime
@@ -23,7 +14,6 @@
     </Authorized>
     <NotAuthorized>
         <div class="container">
-            @((MarkupString)Message)
             <div class="form-group">
                 <label for="Username" class="control-label">Username: </label>
                 <input type="text" name="Username" class="form-control" placeholder="Username" @bind="@Username" />
@@ -47,7 +37,6 @@
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Anonymous; } }
 
-    public string Message { get; set; } = "";
     public string Username { get; set; } = "";
     public string Password { get; set; } = "";
     public bool Remember { get; set; } = false;
@@ -67,6 +56,7 @@
             user = await UserService.LoginUserAsync(user, false, false);
             if (user.IsAuthenticated)
             {
+                await logger.LogInformation("Login Successful For Username {Username}", Username);
                 // complete the login on the server so that the cookies are set correctly on SignalR
                 var interop = new Interop(jsRuntime);
                 string antiforgerytoken = await interop.GetElementByName("__RequestVerificationToken");
@@ -75,7 +65,8 @@
             }
             else
             {
-                Message = "<div class=\"alert alert-danger\" role=\"alert\">Login Failed. Please Remember That Passwords Are Case Sensitive.</div>";
+                await logger.LogInformation("Login Failed For Username {Username}", Username);
+                AddModuleMessage("Login Failed. Please Remember That Passwords Are Case Sensitive.", MessageType.Error);
             }
         }
         else
@@ -88,13 +79,14 @@
             user = await UserService.LoginUserAsync(user, true, Remember);
             if (user.IsAuthenticated)
             {
+                await logger.LogInformation("Login Successful For Username {Username}", Username);
                 authstateprovider.NotifyAuthenticationChanged();
-                PageState.Reload = Constants.ReloadSite;
-                NavigationManager.NavigateTo(NavigateUrl(ReturnUrl));
+                NavigationManager.NavigateTo(NavigateUrl(ReturnUrl, Reload.Site));
             }
             else
             {
-                Message = "<div class=\"alert alert-danger\" role=\"alert\">Login Failed. Please Remember That Passwords Are Case Sensitive.</div>";
+                await logger.LogInformation("Login Failed For Username {Username}", Username);
+                AddModuleMessage("Login Failed. Please Remember That Passwords Are Case Sensitive.", MessageType.Error);
             }
         }
     }

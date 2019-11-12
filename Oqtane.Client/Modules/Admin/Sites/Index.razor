@@ -1,11 +1,7 @@
-﻿@using Microsoft.AspNetCore.Components.Web
-@using Oqtane.Services
-@using Oqtane.Models
-@using Oqtane.Modules
-@using Oqtane.Modules.Controls
-@namespace Oqtane.Modules.Admin.Sites
+﻿@namespace Oqtane.Modules.Admin.Sites
 @inherits ModuleBase
-
+@inject NavigationManager NavigationManager
+@inject IAliasService AliasService
 @inject ISiteService SiteService
 
 @if (sites == null)
@@ -14,31 +10,55 @@
 }
 else
 {
-    <table class="table table-borderless">
-        <thead>
-            <tr>
-                <th>Name</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var site in sites)
-            {
-                <tr>
-                    <td>@site.Name</td>
-                </tr>
-            }
-        </tbody>
-    </table>
     <ActionLink Action="Add" Text="Add Site" />
+
+    <Pager Items="@sites">
+        <Header>
+            <th>&nbsp;</th>
+            <th>&nbsp;</th>
+            <th>Name</th>
+        </Header>
+        <Row>
+            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.AliasId.ToString())" /></td>
+            <td><ActionDialog Header="Delete Site" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Site?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteSite(context))" /></td>
+            <td><a href="@(scheme + context.Name)">@context.Name</a></td>
+        </Row>
+    </Pager>
 }
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
 
-    List<Site> sites;
+    List<Alias> sites;
+    string scheme;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnParametersSet()
     {
-        sites = await SiteService.GetSitesAsync();
+        Uri uri = new Uri(NavigationManager.Uri);
+        scheme = uri.Scheme + "://";
+
+        sites = new List<Alias>();
+        foreach (Alias alias in PageState.Aliases.OrderBy(item => item.Name))
+        {
+            if (!sites.Exists(item => item.TenantId == alias.TenantId && item.SiteId == alias.SiteId))
+            {
+                sites.Add(alias);
+            }
+        }
+    }
+
+    private async Task DeleteSite(Alias Alias)
+    {
+        try
+        {
+            await SiteService.DeleteSiteAsync(Alias.SiteId, Alias);
+            await logger.LogInformation("Sited Deleted {Alias}", Alias);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Site {Error}", ex.Message);
+            AddModuleMessage("Error Deleting Site", MessageType.Error);
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Blazor.Hosting;
+// used by client-side Blazor
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore;
 

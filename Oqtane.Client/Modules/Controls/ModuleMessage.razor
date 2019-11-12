@@ -1,12 +1,9 @@
-﻿@using Microsoft.AspNetCore.Components.Web
-@using Oqtane.Modules
-@namespace Oqtane.Modules.Controls
+﻿@namespace Oqtane.Modules.Controls
 @inherits ModuleBase
 
-@if (Message != "")
+@if (!string.IsNullOrEmpty(message))
 {
-    <div class="@type">@Message</div>
-    <br />
+    <div class="@classname" role="alert">@message</div>
     <br />
 }
 
@@ -17,24 +14,40 @@
     [Parameter]
     public MessageType Type { get; set; }
 
-    string type = "alert alert-danger";
+    string message = "";
+    string classname = "alert alert-danger";
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
-        switch (Type)
+        message = Message;
+        classname = GetMessageType(Type);
+    }
+
+    public void SetModuleMessage(string message, MessageType type)
+    {
+        this.message = message;
+        classname = GetMessageType(type);
+        StateHasChanged();
+    }
+
+    private string GetMessageType(MessageType type)
+    {
+        string classname = "";
+        switch (type)
         {
             case MessageType.Success:
-                type = "alert alert-success";
+                classname = "alert alert-success";
                 break;
             case MessageType.Info:
-                type = "alert alert-info";
+                classname = "alert alert-info";
                 break;
             case MessageType.Warning:
-                type = "alert alert-warning";
+                classname = "alert alert-warning";
                 break;
             case MessageType.Error:
-                type = "alert alert-danger";
+                classname = "alert alert-danger";
                 break;
         }
+        return classname;
     }
 }

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Security.Claims;
 using Oqtane.Shared;
+using Oqtane.Infrastructure;
 
 namespace Oqtane.Controllers
 {
@@ -16,35 +17,27 @@ namespace Oqtane.Controllers
     public class UserController : Controller
     {
         private readonly IUserRepository Users;
-        private readonly ISiteUserRepository SiteUsers;
         private readonly IRoleRepository Roles;
         private readonly IUserRoleRepository UserRoles;
         private readonly UserManager<IdentityUser> IdentityUserManager;
         private readonly SignInManager<IdentityUser> IdentitySignInManager;
+        private readonly ILogManager logger;
 
-        public UserController(IUserRepository Users, ISiteUserRepository SiteUsers, IRoleRepository Roles, IUserRoleRepository UserRoles, UserManager<IdentityUser> IdentityUserManager, SignInManager<IdentityUser> IdentitySignInManager)
+        public UserController(IUserRepository Users, IRoleRepository Roles, IUserRoleRepository UserRoles, UserManager<IdentityUser> IdentityUserManager, SignInManager<IdentityUser> IdentitySignInManager, ILogManager logger)
         {
             this.Users = Users;
-            this.SiteUsers = SiteUsers;
             this.Roles = Roles;
             this.UserRoles = UserRoles;
             this.IdentityUserManager = IdentityUserManager;
             this.IdentitySignInManager = IdentitySignInManager;
+            this.logger = logger;
         }
 
         // GET: api/<controller>?siteid=x
         [HttpGet]
-        public IEnumerable<User> Get(string siteid)
+        public IEnumerable<User> Get()
         {
-            List<User> users = new List<User>();
-            IEnumerable<SiteUser> siteusers = SiteUsers.GetSiteUsers(int.Parse(siteid));
-            foreach (SiteUser siteuser in siteusers)
-            {
-                User user = siteuser.User;
-                user.SiteId = siteuser.SiteId;
-                users.Add(user);
-            }
-            return users;
+            return Users.GetUsers();
         }
 
         // GET api/<controller>/5?siteid=x
@@ -55,18 +48,7 @@ namespace Oqtane.Controllers
             if (user != null)
             {
                 user.SiteId = int.Parse(siteid);
-                if (!user.IsHost) // host users are part of every site by default
-                {
-                    SiteUser siteuser = SiteUsers.GetSiteUser(user.SiteId, id);
-                    if (siteuser != null)
-                    {
-                        user.Roles = GetUserRoles(user.UserId, user.SiteId);
-                    }
-                }
-                else
-                {
-                    user.Roles = ";" + Constants.HostRole + ";" + Constants.AdminRole + ";";
-                }
+                user.Roles = GetUserRoles(user.UserId, user.SiteId);
             }
             return user;
         }
@@ -79,22 +61,7 @@ namespace Oqtane.Controllers
             if (user != null)
             {
                 user.SiteId = int.Parse(siteid);
-                if (!user.IsHost) // host users are part of every site by default
-                {
-                    SiteUser siteuser = SiteUsers.GetSiteUser(user.SiteId, user.UserId);
-                    if (siteuser != null)
-                    {
-                        user.Roles = GetUserRoles(user.UserId, user.SiteId);
-                    }
-                    else
-                    {
-                        user = null;
-                    }
-                }
-                else
-                {
-                    user.Roles = ";" + Constants.HostRole + ";" + Constants.AdminRole + ";";
-                }
+                user.Roles = GetUserRoles(user.UserId, user.SiteId);
             }
             return user;
         }
@@ -107,67 +74,60 @@ namespace Oqtane.Controllers
 
             if (ModelState.IsValid)
             {
-                //bool installed = true;
-                //if (!Users.GetUsers().Any())
-                //{
-                //    installed = false; // during initial installation we need to be able to create the host user
-                //}
+                int hostroleid = -1;
+                if (!Users.GetUsers().Any())
+                {
+                    hostroleid = Roles.GetRoles(User.SiteId, true).Where(item => item.Name == Constants.HostRole).FirstOrDefault().RoleId;
+                }
+
                 IdentityUser identityuser = await IdentityUserManager.FindByNameAsync(User.Username);
                 if (identityuser == null)
                 {
                     identityuser = new IdentityUser();
                     identityuser.UserName = User.Username;
-                    identityuser.Email = User.Username;
+                    identityuser.Email = User.Email;
                     var result = await IdentityUserManager.CreateAsync(identityuser, User.Password);
                     if (result.Succeeded)
                     {
                         user = Users.AddUser(User);
-                        if (!user.IsHost) // host users are part of every site by default
-                        {
-                            SiteUser siteuser = new SiteUser();
-                            siteuser.SiteId = User.SiteId;
-                            siteuser.UserId = user.UserId;
-                            SiteUsers.AddSiteUser(siteuser);
 
-                            List<Role> roles = Roles.GetRoles(user.SiteId).Where(item => item.IsAutoAssigned == true).ToList();
-                            foreach (Role role in roles)
-                            {
-                                UserRole userrole = new UserRole();
-                                userrole.UserId = user.UserId;
-                                userrole.RoleId = role.RoleId;
-                                userrole.EffectiveDate = null;
-                                userrole.ExpiryDate = null;
-                                UserRoles.AddUserRole(userrole);
-                            }
+                        // assign to host role if this is the initial installation
+                        if (hostroleid != -1)
+                        {
+                            UserRole userrole = new UserRole();
+                            userrole.UserId = user.UserId;
+                            userrole.RoleId = hostroleid;
+                            userrole.EffectiveDate = null;
+                            userrole.ExpiryDate = null;
+                            UserRoles.AddUserRole(userrole);
                         }
                     }
                 }
                 else
                 {
-                    user = Users.GetUser(User.Username);
-                    SiteUser siteuser = SiteUsers.GetSiteUser(User.SiteId, user.UserId);
-                    if (siteuser == null)
+                    var result = await IdentitySignInManager.CheckPasswordSignInAsync(identityuser, User.Password, false);
+                    if (result.Succeeded)
                     {
-                        if (!user.IsHost) // host users are part of every site by default
-                        {
-                            siteuser = new SiteUser();
-                            siteuser.SiteId = User.SiteId;
-                            siteuser.UserId = user.UserId;
-                            SiteUsers.AddSiteUser(siteuser);
-
-                            List<Role> roles = Roles.GetRoles(User.SiteId).Where(item => item.IsAutoAssigned == true).ToList();
-                            foreach (Role role in roles)
-                            {
-                                UserRole userrole = new UserRole();
-                                userrole.UserId = user.UserId;
-                                userrole.RoleId = role.RoleId;
-                                userrole.EffectiveDate = null;
-                                userrole.ExpiryDate = null;
-                                UserRoles.AddUserRole(userrole);
-                            }
-                        }
+                        user = Users.GetUser(User.Username);
                     }
                 }
+
+                if (user != null && hostroleid == -1)
+                {
+                    // add auto assigned roles to user for site
+                    List<Role> roles = Roles.GetRoles(User.SiteId).Where(item => item.IsAutoAssigned == true).ToList();
+                    foreach (Role role in roles)
+                    {
+                        UserRole userrole = new UserRole();
+                        userrole.UserId = user.UserId;
+                        userrole.RoleId = role.RoleId;
+                        userrole.EffectiveDate = null;
+                        userrole.ExpiryDate = null;
+                        UserRoles.AddUserRole(userrole);
+                    }
+                }
+                user.Password = ""; // remove sensitive information
+                logger.Log(LogLevel.Information, this, LogFunction.Create, "User Added {User}", user);
             }
 
             return user;
@@ -176,11 +136,22 @@ namespace Oqtane.Controllers
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize]
-        public User Put(int id, [FromBody] User User)
+        public async Task<User> Put(int id, [FromBody] User User)
         {
             if (ModelState.IsValid)
             {
+                if (User.Password != "")
+                {
+                    IdentityUser identityuser = await IdentityUserManager.FindByNameAsync(User.Username);
+                    if (identityuser != null)
+                    {
+                        identityuser.PasswordHash = IdentityUserManager.PasswordHasher.HashPassword(identityuser, User.Password);
+                        await IdentityUserManager.UpdateAsync(identityuser);
+                    }
+                }
                 User = Users.UpdateUser(User);
+                User.Password = ""; // remove sensitive information
+                logger.Log(LogLevel.Information, this, LogFunction.Update, "User Updated {User}", User);
             }
             return User;
         }
@@ -188,12 +159,19 @@ namespace Oqtane.Controllers
         // DELETE api/<controller>/5?siteid=x
         [HttpDelete("{id}")]
         [Authorize(Roles = Constants.AdminRole)]
-        public void Delete(int id, string siteid)
+        public async Task Delete(int id)
         {
-            SiteUser siteuser = SiteUsers.GetSiteUser(id, int.Parse(siteid));
-            if (siteuser != null)
+            IdentityUser identityuser = await IdentityUserManager.FindByNameAsync(Users.GetUser(id).Username);
+            
+            if (identityuser != null)
             {
-                SiteUsers.DeleteSiteUser(siteuser.SiteUserId);
+                var result = await IdentityUserManager.DeleteAsync(identityuser);
+
+                if (result != null)
+                {
+                    Users.DeleteUser(id);
+                    logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Deleted {UserId}", id);
+                }
             }
         }
 
@@ -214,23 +192,17 @@ namespace Oqtane.Controllers
                         user = Users.GetUser(identityuser.UserName);
                         if (user != null)
                         {
-                            if (!user.IsHost) // host users are part of every site by default
-                            {
-                                SiteUser siteuser = SiteUsers.GetSiteUser(User.SiteId, user.UserId);
-                                if (siteuser != null)
-                                {
-                                    user.IsAuthenticated = true;
-                                }
-                            }
-                            else
-                            {
-                                user.IsAuthenticated = true;
-                            }
-                            if (user.IsAuthenticated && SetCookie)
+                            user.IsAuthenticated = true;
+                            logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful {Username}", User.Username);
+                            if (SetCookie)
                             {
                                 await IdentitySignInManager.SignInAsync(identityuser, IsPersistent);
                             }
                         }
+                    }
+                    else
+                    {
+                        logger.Log(LogLevel.Error, this, LogFunction.Security, "User Login Failed {Username}", User.Username);
                     }
                 }
             }
@@ -244,6 +216,7 @@ namespace Oqtane.Controllers
         public async Task Logout([FromBody] User User)
         {
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+            logger.Log(LogLevel.Information, this, LogFunction.Security, "User Logout {Username}", User.Username);
         }
 
         // GET api/<controller>/current
@@ -266,10 +239,14 @@ namespace Oqtane.Controllers
         private string GetUserRoles(int UserId, int SiteId)
         {
             string roles = "";
-            IEnumerable<UserRole> userroles = UserRoles.GetUserRoles(UserId, SiteId);
+            List<UserRole> userroles = UserRoles.GetUserRoles(UserId, SiteId).ToList();
             foreach (UserRole userrole in userroles)
             {
                 roles += userrole.Role.Name + ";";
+                if (userrole.Role.Name == Constants.HostRole && userroles.Where(item => item.Role.Name == Constants.AdminRole).FirstOrDefault() == null)
+                {
+                    roles += Constants.AdminRole + ";";
+                }
             }
             if (roles != "") roles = ";" + roles;
             return roles;

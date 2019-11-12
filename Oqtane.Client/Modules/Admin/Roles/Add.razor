@@ -1,0 +1,79 @@
+﻿@namespace Oqtane.Modules.Admin.Roles
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject IRoleService RoleService
+
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Name: </label>
+        </td>
+        <td>
+            <input class="form-control" @bind="@name" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Description: </label>
+        </td>
+        <td>
+            <textarea class="form-control" @bind="@description" rows="5" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Auto Assigned? </label>
+        </td>
+        <td>
+            <select class="form-control" @bind="@isautoassigned">
+                <option value="True">Yes</option>
+                <option value="False">No</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">System Role? </label>
+        </td>
+        <td>
+            <select class="form-control" @bind="@issystem">
+                <option value="True">Yes</option>
+                <option value="False">No</option>
+            </select>
+        </td>
+    </tr>
+</table>
+<button type="button" class="btn btn-success" @onclick="SaveRole">Save</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+
+    string name = "";
+    string description = "";
+    string isautoassigned = "False";
+    string issystem = "False";
+
+    private async Task SaveRole()
+    {
+        try
+        {
+            Role role = new Role();
+            role.SiteId = PageState.Page.SiteId;
+            role.Name = name;
+            role.Description = description;
+            role.IsAutoAssigned = (isautoassigned == null ? false : Boolean.Parse(isautoassigned));
+            role.IsSystem = (issystem == null ? false : Boolean.Parse(issystem));
+            role = await RoleService.AddRoleAsync(role);
+            await logger.LogInformation("Role Added {Role}", role);
+
+            NavigationManager.NavigateTo(NavigateUrl());
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Adding Role", ex.Message);
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+
+}

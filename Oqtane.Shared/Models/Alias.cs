@@ -15,19 +15,6 @@ namespace Oqtane.Models
         public string ModifiedBy { get; set; }
         public DateTime ModifiedOn { get; set; }
 
-
-        [NotMapped]
-        public string Scheme { get; set; }
-
-        [NotMapped]
-        public string Url
-        {
-            get
-            {
-                return Scheme + "://" + Name;
-            }
-        }
-
         [NotMapped]
         public string Path
         {
@@ -41,42 +28,6 @@ namespace Oqtane.Models
                 {
                     return "";
                 }
-            }
-        }
-
-        [NotMapped]
-        public string TenantRootPath
-        {
-            get
-            {
-                return "Tenants/" + TenantId.ToString() + "/";
-            }
-        }
-
-        [NotMapped]
-        public string TenantRootUrl
-        {
-            get
-            {
-                return Url + "/Tenants/" + TenantId.ToString() + "/";
-            }
-        }
-
-        [NotMapped]
-        public string SiteRootPath
-        {
-            get
-            {
-                return "Tenants/" + TenantId.ToString() + "/Sites/" + SiteId.ToString() + "/";
-            }
-        }
-
-        [NotMapped]
-        public string SiteRootUrl
-        {
-            get
-            {
-                return Url + "/Tenants/" + TenantId.ToString() + "/Sites/" + SiteId.ToString() + "/";
             }
         }
     }

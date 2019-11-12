@@ -1,0 +1,248 @@
+﻿@namespace Oqtane.Modules.Admin.Sites
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject ISiteService SiteService
+@inject IAliasService AliasService
+@inject IThemeService  ThemeService
+
+@if (themes == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Name: </label>
+        </td>
+        <td>
+            <input class="form-control" @bind="@name" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Aliases: </label>
+        </td>
+        <td>
+            <textarea class="form-control" @bind="@urls" rows="3" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Logo: </label>
+        </td>
+        <td>
+            <input class="form-control" @bind="@logo" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Default Theme: </label>
+        </td>
+        <td>
+            <select class="form-control" @onchange="(e => ThemeChanged(e))">
+                <option value="">&lt;Select Theme&gt;</option>
+                @foreach (KeyValuePair<string, string> item in themes)
+                {
+                    if (item.Key == themetype)
+                    {
+                        <option value="@item.Key" selected>@item.Value</option>
+                    }
+                    else
+                    {
+                        <option value="@item.Key">@item.Value</option>
+                    }
+                }
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Default Layout: </label>
+        </td>
+        <td>
+            <select class="form-control" @bind="@layouttype">
+                <option value="">&lt;Select Layout&gt;</option>
+                @foreach (KeyValuePair<string, string> panelayout in panelayouts)
+                {
+                    <option value="@panelayout.Key">@panelayout.Value</option>
+                }
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Default Container: </label>
+        </td>
+        <td>
+            <select class="form-control" @bind="@containertype">
+                <option value="">&lt;Select Container&gt;</option>
+                @foreach (KeyValuePair<string, string> container in containers)
+                {
+                    <option value="@container.Key">@container.Value</option>
+                }
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Is Deleted? </label>
+        </td>
+        <td>
+            <select class="form-control" @bind="@isdeleted">
+                <option value="True">Yes</option>
+                <option value="False">No</option>
+            </select>
+        </td>
+    </tr>
+</table>
+    <button type="button" class="btn btn-success" @onclick="SaveSite">Save</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <br />
+    <br />
+    <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>
+}
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+
+    Dictionary<string, string> themes = new Dictionary<string, string>();
+    Dictionary<string, string> panelayouts = new Dictionary<string, string>();
+    Dictionary<string, string> containers = new Dictionary<string, string>();
+
+    Alias Alias;
+    int siteid;
+    string name = "";
+    List<Alias> aliases;
+    string urls = "";
+    string logo = "";
+    string themetype;
+    string layouttype;
+    string containertype;
+
+    string createdby;
+    DateTime createdon;
+    string modifiedby;
+    DateTime modifiedon;
+    string deletedby;
+    DateTime? deletedon;
+    string isdeleted;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            themes = ThemeService.GetThemeTypes(PageState.Themes);
+            containers = ThemeService.GetContainerTypes(PageState.Themes);
+            Alias = PageState.Aliases.Where(item => item.AliasId == Int32.Parse(PageState.QueryString["id"])).FirstOrDefault();
+
+            siteid = Alias.SiteId;
+            Site site = await SiteService.GetSiteAsync(siteid, Alias);
+            if (site != null)
+            {
+                name = site.Name;
+                aliases = PageState.Aliases.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList();
+                foreach (Alias alias in aliases)
+                {
+                    urls += alias.Name + "\n";
+                }
+                logo = site.Logo;
+                themetype = site.DefaultThemeType;
+                panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes, themetype);
+                layouttype = site.DefaultLayoutType;
+                containertype = site.DefaultContainerType;
+
+                createdby = site.CreatedBy;
+                createdon = site.CreatedOn;
+                modifiedby = site.ModifiedBy;
+                modifiedon = site.ModifiedOn;
+                deletedby = site.DeletedBy;
+                deletedon = site.DeletedOn;
+                isdeleted = site.IsDeleted.ToString();
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Site {SiteId} {Error}", siteid, ex.Message);
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+
+    private async void ThemeChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            themetype = (string)e.Value;
+            if (themetype != "")
+            {
+                panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes, themetype);
+            }
+            else
+            {
+                panelayouts = new Dictionary<string, string>();
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", themetype, ex.Message);
+            AddModuleMessage("Error Loading Pane Layouts For Theme", MessageType.Error);
+        }
+    }
+
+    private async Task SaveSite()
+    {
+        try
+        {
+            if (name != "" && urls != "" && !string.IsNullOrEmpty(themetype) && (panelayouts.Count == 0 || !string.IsNullOrEmpty(layouttype)) && !string.IsNullOrEmpty(containertype))
+            {
+                Site site = await SiteService.GetSiteAsync(siteid, Alias);
+                if (site != null)
+                {
+                    site.Name = name;
+                    site.Logo = (logo == null ? "" : logo);
+                    site.DefaultThemeType = themetype;
+                    site.DefaultLayoutType = (layouttype == null ? "" : layouttype);
+                    site.DefaultContainerType = containertype;
+                    site.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
+
+                    site = await SiteService.UpdateSiteAsync(site, Alias);
+
+                    urls = urls.Replace("\n", ",");
+                    string[] names = urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (Alias alias in aliases)
+                    {
+                        if (!names.Contains(alias.Name))
+                        {
+                            await AliasService.DeleteAliasAsync(alias.AliasId);
+                        }
+                    }
+                    foreach (string name in names)
+                    {
+                        if (!aliases.Exists(item => item.Name == name))
+                        {
+                            Alias alias = new Alias();
+                            alias.Name = name;
+                            alias.TenantId = site.TenantId;
+                            alias.SiteId = site.SiteId;
+                            await AliasService.AddAliasAsync(alias);
+                        }
+                    }
+                    await logger.LogInformation("Site Saved {Site}", site);
+
+                    NavigationManager.NavigateTo(NavigateUrl(Reload.Site));
+                }
+            }
+            else
+            {
+                AddModuleMessage("You Must Provide A Site Name, Alias, And Default Theme/Container", MessageType.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Saving Site {SiteId} {Error}", siteid, ex.Message);
+            AddModuleMessage("Error Saving Site", MessageType.Error);
+        }
+    }
+}

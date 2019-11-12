@@ -26,19 +26,13 @@ namespace Oqtane.Services
             get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "Module"); }
         }
 
-        public async Task<List<Module>> GetModulesAsync(int PageId)
+        public async Task<List<Module>> GetModulesAsync(int SiteId)
         {
-            List<Module> modules = await http.GetJsonAsync<List<Module>>(apiurl + "?pageid=" + PageId.ToString());
+            List<Module> modules = await http.GetJsonAsync<List<Module>>(apiurl + "?siteid=" + SiteId.ToString());
             modules = modules
                 .OrderBy(item => item.Order)
                 .ToList();
             return modules;
-        }
-
-        public async Task<List<Module>> GetModulesAsync(int SiteId, string ModuleDefinitionName)
-        {
-            List<Module> modules = await http.GetJsonAsync<List<Module>>(apiurl + "?siteid=" + SiteId.ToString() + "&moduledefinitionname=" + ModuleDefinitionName);
-            return modules.ToList();
         }
 
         public async Task<Module> GetModuleAsync(int ModuleId)
@@ -59,6 +53,16 @@ namespace Oqtane.Services
         public async Task DeleteModuleAsync(int ModuleId)
         {
             await http.DeleteAsync(apiurl + "/" + ModuleId.ToString());
+        }
+
+        public async Task<bool> ImportModuleAsync(int ModuleId, string Content)
+        {
+            return await http.PostJsonAsync<bool>(apiurl + "/import?moduleid=" + ModuleId, Content);
+        }
+
+        public async Task<string> ExportModuleAsync(int ModuleId)
+        {
+            return await http.GetStringAsync(apiurl + "/export?moduleid=" + ModuleId.ToString());
         }
     }
 }

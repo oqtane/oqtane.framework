@@ -1,0 +1,195 @@
+﻿@namespace Oqtane.Modules.Controls
+@inherits ModuleBase
+@typeparam TableItem
+
+<p>
+    @if(Format == "Table")
+    {
+    <table class="@Class">
+        <thead>
+            <tr>@Header</tr>
+        </thead>
+        <tbody>
+            @foreach (var item in ItemList)
+            {
+                <tr>@Row(item)</tr>
+            }
+        </tbody>
+    </table>
+    }
+    @if(Format == "Grid")
+    {
+    <div class="@Class">
+        <div class="row">@Header</div>
+        @foreach (var item in ItemList)
+        {
+            <div class="row">@Row(item)</div>
+        }
+    </div>
+    }
+    <div class="mx-auto text-center">
+        @if (Page > MaxPages)
+        {
+            <button class="btn btn-secondary" @onclick=@(async () => SetPagerSize("back"))><span class="oi oi-media-skip-backward" title="back" aria-hidden="true"></span></button>
+        }
+        @if (EndPage > 1)
+        {
+            <button class="btn btn-secondary" @onclick=@(async () => NavigateToPage("previous"))><span class="oi oi-chevron-left" title="previous" aria-hidden="true"></span></button>            
+            @for (int i = StartPage; i <= EndPage; i++)
+            {
+                var pager = i;
+                <button class="btn @((pager == Page) ? "btn-primary" : "btn-link")" @onclick=@(async () => UpdateList(pager))>
+                    @pager
+                </button>
+            }
+            <button class="btn btn-secondary" @onclick=@(async () => NavigateToPage("next"))><span class="oi oi-chevron-right" title="next" aria-hidden="true"></span></button>
+        }
+        @if (EndPage < Pages)
+        {
+            <button class="btn btn-secondary" @onclick=@(async () => SetPagerSize("forward"))><span class="oi oi-media-skip-forward" title="forward" aria-hidden="true"></span></button>
+        }
+        @if (EndPage > 1)
+        {
+            <span class="btn btn-link disabled">Page @Page of @Pages</span>
+        }
+    </div>
+</p>
+
+@code {
+    int Pages = 0;
+    int Page = 1;
+    int MaxItems;
+    int MaxPages;
+    int StartPage;
+    int EndPage;
+
+    [Parameter]
+    public string Format { get; set; }
+
+    [Parameter]
+    public RenderFragment Header { get; set; }
+
+    [Parameter]
+    public RenderFragment<TableItem> Row { get; set; }
+
+    [Parameter]
+    public IEnumerable<TableItem> Items { get; set; }
+
+    [Parameter]
+    public string PageSize { get; set; }
+
+    [Parameter]
+    public string DisplayPages { get; set; }
+
+    [Parameter]
+    public string Class { get; set; }
+
+    IEnumerable<TableItem> ItemList { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (string.IsNullOrEmpty(Format))
+        {
+            Format = "Table";
+        }
+        if (string.IsNullOrEmpty(Class))
+        {
+            if (Format == "Table")
+            {
+                Class = "table table-borderless";
+            }
+            else
+            {
+                Class = "container";
+            }
+        }
+        if (string.IsNullOrEmpty(PageSize))
+        {
+            MaxItems = 10;
+        }
+        else
+        {
+            MaxItems = int.Parse(PageSize);
+        }
+        if (string.IsNullOrEmpty(DisplayPages))
+        {
+            MaxPages = 5;
+        }
+        else
+        {
+            MaxPages = int.Parse(DisplayPages);
+        }
+
+        if (Items != null)
+        {
+            ItemList = Items.Skip((Page - 1) * MaxItems).Take(MaxItems);
+            Pages = (int)Math.Ceiling(Items.Count() / (decimal)MaxItems);
+        }
+
+        SetPagerSize("forward");
+    }
+
+    public void UpdateList(int CurrentPage)
+    {
+        ItemList = Items.Skip((CurrentPage - 1) * MaxItems).Take(MaxItems);
+        Page = CurrentPage;
+        StateHasChanged();
+    }
+
+    public void SetPagerSize(string direction)
+    {
+        if (direction == "forward")
+        {
+            if (EndPage + 1 < Pages)
+            {
+                StartPage = EndPage + 1;
+            }
+            else
+            {
+                StartPage = 1;
+            }
+
+            if (EndPage + MaxPages < Pages)
+            {
+                EndPage = StartPage + MaxPages - 1;
+            }
+            else
+            {
+                EndPage = Pages;
+            }
+            StateHasChanged();
+        }
+        else if (direction == "back")
+        {
+            EndPage = StartPage - 1;
+            StartPage = StartPage - MaxPages;
+        }
+    }
+
+    public void NavigateToPage(string direction)
+    {
+        if (direction == "next")
+        {
+            if (Page < Pages)
+            {
+                if (Page == EndPage)
+                {
+                    SetPagerSize("forward");
+                }
+                Page += 1;
+            }
+        }
+        else if (direction == "previous")
+        {
+            if (Page > 1)
+            {
+                if (Page == StartPage)
+                {
+                    SetPagerSize("back");
+                }
+                Page -= 1;
+            }
+        }
+        UpdateList(Page);
+    }
+}

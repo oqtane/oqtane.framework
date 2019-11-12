@@ -1,14 +1,9 @@
-﻿@using Microsoft.AspNetCore.Components.Routing
-@using Microsoft.AspNetCore.Components.Web
-@using Oqtane.Modules.Controls
-@using Oqtane.Modules
-@using Oqtane.Services
-@using Oqtane.Shared
-@namespace Oqtane.Modules.Admin.ModuleDefinitions
+﻿@namespace Oqtane.Modules.Admin.ModuleDefinitions
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IFileService FileService
 @inject IModuleDefinitionService ModuleDefinitionService
+@inject IPackageService PackageService
 
 <table class="table table-borderless">
     <tr>
@@ -16,36 +11,136 @@
             <label for="Name" class="control-label">Module: </label>
         </td>
         <td>
-            <FileUpload Filter=".nupkg"></FileUpload>
+            <FileUpload Filter=".nupkg" @ref="fileupload"></FileUpload>
         </td>
     </tr>
 </table>
+<button type="button" class="btn btn-primary" @onclick="UploadFile">Upload Module</button>
+
+@if (packages != null)
+{
+    <hr class="app-rule" />
+    <div class="mx-auto text-center"><h2>Available Modules</h2></div>
+
+    <Pager Items="@packages">
+        <Header>
+            <th>Name</th>
+            <th>Version</th>
+            <th></th>
+        </Header>
+        <Row>
+            <td>@context.Name</td>
+            <td>@context.Version</td>
+            <td>
+                <button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadModule(context.PackageId, context.Version))>Download Module</button>
+            </td>
+        </Row>
+    </Pager>
+}
+
 @if (uploaded)
 {
-    <button type="button" class="btn btn-success" @onclick="InstallFile">Install</button>
-}
-else
-{
-    <button type="button" class="btn btn-success" @onclick="UploadFile">Upload</button>
+    <button type="button" class="btn btn-success" @onclick="InstallModules">Install</button>
 }
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
 
     bool uploaded = false;
+    List<Package> packages;
+    FileUpload fileupload;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            List<ModuleDefinition> moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
+            packages = await PackageService.GetPackagesAsync("module");
+            foreach(Package package in packages.ToArray())
+            {
+                if (moduledefinitions.Exists(item => Utilities.GetTypeName(item.ModuleDefinitionName) == package.PackageId))
+                {
+                    packages.Remove(package);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Packages {Error}", ex.Message);
+            AddModuleMessage("Error Loading Packages", MessageType.Error);
+        }
+    }
 
     private async Task UploadFile()
     {
-        await FileService.UploadFilesAsync("Modules");
-        uploaded = true;
-        StateHasChanged();
+        string[] files = await fileupload.GetFiles();
+        if (files.Length > 0)
+        {
+            if (files[0].Contains(".Module."))
+            {
+                try
+                {
+                    string result = await FileService.UploadFilesAsync("Modules", files, "");
+                    if (result == "")
+                    {
+                        await logger.LogInformation("Module Uploaded Successfully {Package}", files[0]);
+                        AddModuleMessage("Module Uploaded Successfully. Click Install To Complete Installation.", MessageType.Success);
+                        uploaded = true;
+                        StateHasChanged();
+                    }
+                    else
+                    {
+                        await logger.LogError("Module Upload Failed For {Package}", files[0]);
+                        AddModuleMessage("Module Upload Failed For " + result.Replace(",",", ") + ". This Could Be Due To A Network Error Or Because A File Type Is Restricted.", MessageType.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    await logger.LogError(ex, "Module Upload Failed For {Package} {Error}", files[0], ex.Message);
+                    AddModuleMessage("Module Upload Failed.", MessageType.Error);
+                }
+            }
+            else
+            {
+                await logger.LogError("Invalid Module Package {Package}", files[0]);
+                AddModuleMessage("Invalid Module Package", MessageType.Error);
+            }
+        }
+        else
+        {
+            AddModuleMessage("You Must Select A Module To Upload", MessageType.Warning);
+        }
     }
 
-    private async Task InstallFile()
+    private async Task InstallModules()
     {
-        await ModuleDefinitionService.InstallModulesAsync();
-        PageState.Reload = Constants.ReloadApplication;
-        NavigationManager.NavigateTo(NavigateUrl());
+        try
+        {
+            await ModuleDefinitionService.InstallModuleDefinitionsAsync();
+            NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Installating Module");
+        }
+    }
+
+    private async Task DownloadModule(string moduledefinitionname, string version)
+    {
+        try
+        {
+            await PackageService.DownloadPackageAsync(moduledefinitionname, version, "Modules");
+            await logger.LogInformation("Module {ModuleDefinitionName} {Version} Downloaded Successfully", moduledefinitionname, version);
+            AddModuleMessage("Module Downloaded Successfully. Click Install To Complete Installation.", MessageType.Success);
+            uploaded = true;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Downloading Module {ModuleDefinitionName} {Version}", moduledefinitionname, version);
+            AddModuleMessage("Error Downloading Module", MessageType.Error);
+        }
     }
 }

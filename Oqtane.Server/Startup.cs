@@ -26,12 +26,14 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using System.Net;
 using Microsoft.AspNetCore.Authorization;
+using Oqtane.Infrastructure;
 
 namespace Oqtane.Server
 {
     public class Startup
     {
         public IConfigurationRoot Configuration { get; }
+
         public Startup(IWebHostEnvironment env)
         {
             var builder = new ConfigurationBuilder()
@@ -96,6 +98,10 @@ namespace Oqtane.Server
             services.AddScoped<IUserRoleService, UserRoleService>();
             services.AddScoped<ISettingService, SettingService>();
             services.AddScoped<IFileService, FileService>();
+            services.AddScoped<IPackageService, PackageService>();
+            services.AddScoped<ILogService, LogService>();
+            services.AddScoped<IScheduleService, ScheduleService>();
+            services.AddScoped<IScheduleLogService, ScheduleLogService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -144,33 +150,17 @@ namespace Oqtane.Server
             // register custom claims principal factory for role claims
             services.AddTransient<IUserClaimsPrincipalFactory<IdentityUser>, ClaimsPrincipalFactory<IdentityUser>>();
 
-            // get list of loaded assemblies
-            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-
-            // iterate through Oqtane module assemblies in /bin ( filter is narrow to optimize loading process )
-            string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            DirectoryInfo folder = new DirectoryInfo(path);
-            List<Assembly> moduleassemblies = new List<Assembly>();
-            foreach (FileInfo file in folder.EnumerateFiles("*.Module.*.dll"))
-            {
-                // check if assembly is already loaded
-                Assembly assembly = assemblies.Where(item => item.Location == file.FullName).FirstOrDefault();
-                if (assembly == null)
-                {
-                    // load assembly ( as long as dependencies are in /bin they will load as well )
-                    assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName);
-                    moduleassemblies.Add(assembly);
-                }
-            }
-
-            services.AddMvc().AddModuleAssemblies(moduleassemblies).AddNewtonsoftJson();
-
             // register singleton scoped core services
             services.AddSingleton<IConfigurationRoot>(Configuration);
-            services.AddSingleton<IModuleDefinitionRepository, ModuleDefinitionRepository>();
-            services.AddSingleton<IThemeRepository, ThemeRepository>();
+            services.AddSingleton<IInstallationManager, InstallationManager>();
+
+            //ServiceProvider sp = services.BuildServiceProvider();
+            //var InstallationManager = sp.GetRequiredService<IInstallationManager>();
+            //InstallationManager.InstallPackages("Modules,Themes");
 
             // register transient scoped core services
+            services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
+            services.AddTransient<IThemeRepository, ThemeRepository>();
             services.AddTransient<IUserPermissions, UserPermissions>();
             services.AddTransient<ITenantResolver, TenantResolver>();
             services.AddTransient<IAliasRepository, AliasRepository>();
@@ -181,11 +171,47 @@ namespace Oqtane.Server
             services.AddTransient<IPageModuleRepository, PageModuleRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IProfileRepository, ProfileRepository>();
-            services.AddTransient<ISiteUserRepository, SiteUserRepository>();
             services.AddTransient<IRoleRepository, RoleRepository>();
             services.AddTransient<IUserRoleRepository, UserRoleRepository>();
             services.AddTransient<IPermissionRepository, PermissionRepository>();
             services.AddTransient<ISettingRepository, SettingRepository>();
+            services.AddTransient<ILogRepository, LogRepository>();
+            services.AddTransient<ILogManager, LogManager>();
+            services.AddTransient<IScheduleRepository, ScheduleRepository>();
+            services.AddTransient<IScheduleLogRepository, ScheduleLogRepository>();
+
+            // get list of loaded assemblies
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            DirectoryInfo folder = new DirectoryInfo(path);
+            List<Assembly> moduleassemblies = new List<Assembly>();
+
+            // iterate through Oqtane module assemblies in /bin ( filter is narrow to optimize loading process )
+            foreach (FileInfo file in folder.EnumerateFiles("*.Module.*.dll"))
+            {
+                // check if assembly is already loaded
+                Assembly assembly = assemblies.Where(item => item.Location == file.FullName).FirstOrDefault();
+                if (assembly == null)
+                {
+                    // load assembly from stream to prevent locking file ( as long as dependencies are in /bin they will load as well )
+                    assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(file.FullName)));
+                    moduleassemblies.Add(assembly);
+                }
+            }
+
+            // iterate through Oqtane theme assemblies in /bin ( filter is narrow to optimize loading process )
+            foreach (FileInfo file in folder.EnumerateFiles("*.Theme.*.dll"))
+            {
+                // check if assembly is already loaded
+                Assembly assembly = assemblies.Where(item => item.Location == file.FullName).FirstOrDefault();
+                if (assembly == null)
+                {
+                    // load assembly from stream to prevent locking file ( as long as dependencies are in /bin they will load as well )
+                    assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(file.FullName)));
+                }
+            }
+
+            services.AddMvc().AddModuleAssemblies(moduleassemblies).AddNewtonsoftJson();
 
             // dynamically register module services, contexts, and repository classes
             assemblies = AppDomain.CurrentDomain.GetAssemblies()
@@ -216,7 +242,7 @@ namespace Oqtane.Server
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IInstallationManager InstallationManager)
         {
             if (env.IsDevelopment())
             {
@@ -227,6 +253,9 @@ namespace Oqtane.Server
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            // install any modules or themes
+            InstallationManager.InstallPackages("Modules,Themes", false);
 
             app.UseHttpsRedirection();
 
@@ -257,6 +286,16 @@ namespace Oqtane.Server
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            // register authorization services
+            services.AddAuthorizationCore(options =>
+            {
+                options.AddPolicy("ViewPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", "View")));
+                options.AddPolicy("EditPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", "Edit")));
+                options.AddPolicy("ViewModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", "View")));
+                options.AddPolicy("EditModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", "Edit")));
+            });
+            services.AddScoped<IAuthorizationHandler, PermissionHandler>();
+            
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddDbContext<MasterDBContext>(options =>
@@ -288,15 +327,8 @@ namespace Oqtane.Server
                 options.User.RequireUniqueEmail = false;
             });
 
-            // register authorization services
-            services.AddAuthorizationCore(options =>
-            {
-                options.AddPolicy("ViewPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", "View")));
-                options.AddPolicy("EditPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", "Edit")));
-                options.AddPolicy("ViewModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", "View")));
-                options.AddPolicy("EditModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", "Edit")));
-            });
-            services.AddScoped<IAuthorizationHandler, PermissionHandler>();
+            services.AddAuthentication(IdentityConstants.ApplicationScheme)
+                .AddCookie(IdentityConstants.ApplicationScheme);
 
             services.ConfigureApplicationCookie(options =>
             {
@@ -311,33 +343,18 @@ namespace Oqtane.Server
             // register custom claims principal factory for role claims
             services.AddTransient<IUserClaimsPrincipalFactory<IdentityUser>, ClaimsPrincipalFactory<IdentityUser>>();
 
-            // get list of loaded assemblies
-            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-
-            // iterate through Oqtane module assemblies in /bin ( filter is narrow to optimize loading process )
-            string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            DirectoryInfo folder = new DirectoryInfo(path);
-            List<Assembly> moduleassemblies = new List<Assembly>();
-            foreach (FileInfo file in folder.EnumerateFiles("*.Module.*.dll"))
-            {
-                // check if assembly is already loaded
-                Assembly assembly = assemblies.Where(item => item.Location == file.FullName).FirstOrDefault();
-                if (assembly == null)
-                {
-                    // load assembly ( as long as dependencies are in /bin they will load as well )
-                    assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName);
-                    moduleassemblies.Add(assembly);
-                }
-            }
-
-            services.AddMvc().AddModuleAssemblies(moduleassemblies).AddNewtonsoftJson();
-
             // register singleton scoped core services
             services.AddSingleton<IConfigurationRoot>(Configuration);
-            services.AddSingleton<IModuleDefinitionRepository, ModuleDefinitionRepository>();
-            services.AddSingleton<IThemeRepository, ThemeRepository>();
+            services.AddSingleton<IInstallationManager, InstallationManager>();
+
+            // install any modules or themes
+            ServiceProvider sp = services.BuildServiceProvider();
+            var InstallationManager = sp.GetRequiredService<IInstallationManager>();
+            InstallationManager.InstallPackages("Modules,Themes");
 
             // register transient scoped core services
+            services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
+            services.AddTransient<IThemeRepository, ThemeRepository>();
             services.AddTransient<IUserPermissions, UserPermissions>();
             services.AddTransient<ITenantResolver, TenantResolver>();
             services.AddTransient<IAliasRepository, AliasRepository>();
@@ -347,11 +364,47 @@ namespace Oqtane.Server
             services.AddTransient<IModuleRepository, ModuleRepository>();
             services.AddTransient<IPageModuleRepository, PageModuleRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
-            services.AddTransient<ISiteUserRepository, SiteUserRepository>();
+            services.AddTransient<IProfileRepository, ProfileRepository>();
             services.AddTransient<IRoleRepository, RoleRepository>();
             services.AddTransient<IUserRoleRepository, UserRoleRepository>();
             services.AddTransient<IPermissionRepository, PermissionRepository>();
             services.AddTransient<ISettingRepository, SettingRepository>();
+            services.AddTransient<ILogRepository, LogRepository>();
+            services.AddTransient<ILogManager, LogManager>();
+            services.AddTransient<IScheduleRepository, ScheduleRepository>();
+            services.AddTransient<IScheduleLogRepository, ScheduleLogRepository>();
+
+            // get list of loaded assemblies
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            DirectoryInfo folder = new DirectoryInfo(path);
+            List<Assembly> moduleassemblies = new List<Assembly>();
+
+            // iterate through Oqtane module assemblies in /bin ( filter is narrow to optimize loading process )
+            foreach (FileInfo file in folder.EnumerateFiles("*.Module.*.dll"))
+            {
+                // check if assembly is already loaded
+                Assembly assembly = assemblies.Where(item => item.Location == file.FullName).FirstOrDefault();
+                if (assembly == null)
+                {
+                    // load assembly from stream to prevent locking file ( as long as dependencies are in /bin they will load as well )
+                    assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(file.FullName)));
+                }
+            }
+
+            // iterate through Oqtane theme assemblies in /bin ( filter is narrow to optimize loading process )
+            foreach (FileInfo file in folder.EnumerateFiles("*.Theme.*.dll"))
+            {
+                // check if assembly is already loaded
+                Assembly assembly = assemblies.Where(item => item.Location == file.FullName).FirstOrDefault();
+                if (assembly == null)
+                {
+                    // load assembly from stream to prevent locking file ( as long as dependencies are in /bin they will load as well )
+                    assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(file.FullName)));
+                }
+            }
+
+            services.AddMvc().AddModuleAssemblies(moduleassemblies).AddNewtonsoftJson();
            
             // dynamically register module services, contexts, and repository classes
             assemblies = AppDomain.CurrentDomain.GetAssemblies()
@@ -398,7 +451,11 @@ namespace Oqtane.Server
                 app.UseBlazorDebugging();
             }
 
+            // install any modules or themes
+            InstallationManager.InstallPackages("Modules,Themes");
+
             app.UseClientSideBlazorFiles<Client.Startup>();
+            app.UseStaticFiles();
 
             app.UseRouting();
             app.UseAuthentication();

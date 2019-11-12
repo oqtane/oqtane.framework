@@ -3,13 +3,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Models
 {
-    public class User : IAuditable
+    public class User : IAuditable, IDeletable
     {
         public int UserId { get; set; }
         public string Username { get; set; }
         public string DisplayName { get; set; }
         public string Email { get; set; }
-        public bool IsHost { get; set; }
+
         [NotMapped]
         public int SiteId { get; set; }
         [NotMapped]
@@ -19,6 +19,9 @@ namespace Oqtane.Models
         public DateTime CreatedOn { get; set; }
         public string ModifiedBy { get; set; }
         public DateTime ModifiedOn { get; set; }
+        public string DeletedBy { get; set; }
+        public DateTime? DeletedOn { get; set; }
+        public bool IsDeleted { get; set; }
 
         [NotMapped]
         public string Password { get; set; }

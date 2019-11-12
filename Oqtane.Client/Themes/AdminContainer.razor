@@ -1,17 +1,16 @@
-﻿@using Oqtane.Shared
-@using Oqtane.Themes.Controls
-@namespace Oqtane.Themes
+﻿@namespace Oqtane.Themes
 @inherits ContainerBase
-<div id="modal" class="modal" style="display: block">
-    <div class="modal-content">
-        <a href="@closeurl" class="close">x</a>
-        <div class="container">
-            <div class="row px-4">
-                <h2><ModuleTitle /></h2>
-                <hr style="width: 100%; color: gray; height: 1px; background-color:gray;" />
-            </div>
-            <div class="row px-4">
-                <div class="container">
+@inject NavigationManager NavigationManager
+
+<div class="app-admin-modal">
+    <div class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><ModuleTitle /></h5>
+                    <button type="button" class="close" @onclick="CloseModal" aria-label="Close">&times;</button>
+                </div>
+                <div class="modal-body">
                     <ModuleInstance />
                 </div>
             </div>
@@ -20,11 +19,9 @@
 </div>
 
 @code {
-    string closeurl;
-
-    protected override void OnInitialized()
+    private void CloseModal()
     {
-        closeurl = NavigateUrl();
+        NavigationManager.NavigateTo(NavigateUrl());
     }
 }
 

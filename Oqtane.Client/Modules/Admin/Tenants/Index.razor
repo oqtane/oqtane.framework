@@ -1,0 +1,52 @@
+﻿@namespace Oqtane.Modules.Admin.Tenants
+@inherits ModuleBase
+@inject ITenantService TenantService
+
+@if (tenants == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <ActionLink Action="Add" Text="Add Tenant" />
+
+    <Pager Items="@tenants">
+        <Header>
+            <th>&nbsp;</th>
+            <th>&nbsp;</th>
+            <th>Name</th>
+        </Header>
+        <Row>
+            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.TenantId.ToString())" /></td>
+            <td><ActionDialog Header="Delete Tenant" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Tenant?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteTenant(context))" /></td>
+            <td>@context.Name</td>
+        </Row>
+    </Pager>
+
+}
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+
+    List<Tenant> tenants;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        tenants = await TenantService.GetTenantsAsync();
+    }
+
+    private async Task DeleteTenant(Tenant Tenant)
+    {
+        try
+        {
+            await TenantService.DeleteTenantAsync(Tenant.TenantId);
+            await logger.LogInformation("Tenant Deleted {Tenant}", Tenant);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Tenant {Tenant} {Error}", Tenant, ex.Message);
+            AddModuleMessage("Error Deleting Tenant", MessageType.Error);
+        }
+    }
+}

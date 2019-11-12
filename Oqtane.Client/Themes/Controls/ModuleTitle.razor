@@ -1,9 +1,7 @@
-﻿@using Microsoft.AspNetCore.Components.Web
-@using Oqtane.Themes
-@namespace Oqtane.Themes.Controls
+﻿@namespace Oqtane.Themes.Controls
 @inherits ContainerBase
 
-@title
+@((MarkupString)title)
 
 @code {
     string title = "";
@@ -11,9 +9,10 @@
     protected override Task OnParametersSetAsync()
     {
         title = ModuleState.Title;
-        if (PageState.Control == "Settings")
+        // check for core module actions component
+        if (Constants.DefaultModuleActions.Contains(PageState.Action))
         {
-            title = PageState.Control;
+            title = PageState.Action;
         }
         return Task.CompletedTask;
     }

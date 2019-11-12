@@ -4,6 +4,10 @@ using Microsoft.AspNetCore.Authorization;
 using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
+using System.Linq;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
+using Oqtane.Infrastructure;
 
 namespace Oqtane.Controllers
 {
@@ -11,10 +15,16 @@ namespace Oqtane.Controllers
     public class SiteController : Controller
     {
         private readonly ISiteRepository Sites;
+        private readonly ITenantResolver Tenants;
+        private readonly IWebHostEnvironment environment;
+        private readonly ILogManager logger;
 
-        public SiteController(ISiteRepository Sites)
+        public SiteController(ISiteRepository Sites, ITenantResolver Tenants, IWebHostEnvironment environment, ILogManager logger)
         {
             this.Sites = Sites;
+            this.Tenants = Tenants;
+            this.environment = environment;
+            this.logger = logger;
         }
 
         // GET: api/<controller>
@@ -33,12 +43,32 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        [Authorize(Roles = Constants.HostRole)]
         public Site Post([FromBody] Site Site)
         {
             if (ModelState.IsValid)
             {
-                Site = Sites.AddSite(Site);
+                bool authorized;
+                if (!Sites.GetSites().Any())
+                {
+                    // provision initial site during installation
+                    authorized = true; 
+                    Tenant tenant = Tenants.GetTenant();
+                    Site.TenantId = tenant.TenantId;
+                }
+                else
+                {
+                    authorized = User.IsInRole(Constants.HostRole);
+                }
+                if (authorized)
+                {
+                    Site = Sites.AddSite(Site);
+                    string folder = environment.WebRootPath + "\\Tenants\\" + Tenants.GetTenant().TenantId.ToString() + "\\Sites\\" + Site.SiteId.ToString();
+                    if (!Directory.Exists(folder))
+                    {
+                        Directory.CreateDirectory(folder);
+                    }
+                    logger.Log(LogLevel.Information, this, LogFunction.Create, "Site Added {Site}", Site);
+                }
             }
             return Site;
         }
@@ -51,6 +81,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Site = Sites.UpdateSite(Site);
+                logger.Log(LogLevel.Information, this, LogFunction.Update, "Site Updated {Site}", Site);
             }
             return Site;
         }
@@ -61,6 +92,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             Sites.DeleteSite(id);
+            logger.Log(LogLevel.Information, this, LogFunction.Delete, "Site Deleted {SiteId}", id);
         }
     }
 }

@@ -1,0 +1,165 @@
+﻿@namespace Oqtane.Modules.Admin.Profiles
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject IProfileService ProfileService
+
+    <table class="table table-borderless">
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Name: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@name" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Title: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@title" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Description: </label>
+            </td>
+            <td>
+                <textarea class="form-control" @bind="@description" rows="5" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Category: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@category" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Order: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@vieworder" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Length: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@maxlength" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Default Value: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@defaultvalue" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Required? </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@isrequired">
+                    <option value="True">Yes</option>
+                    <option value="False">No</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Private? </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@isprivate">
+                    <option value="True">Yes</option>
+                    <option value="False">No</option>
+                </select>
+            </td>
+        </tr>
+    </table>
+<button type="button" class="btn btn-success" @onclick="SaveProfile">Save</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+    public override string Actions { get { return "Add,Edit"; } }
+
+    int profileid = -1;
+    string name = "";
+    string title = "";
+    string description = "";
+    string category = "";
+    string vieworder = "0";
+    string maxlength = "0";
+    string defaultvalue = "";
+    string isrequired = "False";
+    string isprivate = "False";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (PageState.QueryString.ContainsKey("id"))
+            {
+                profileid = Int32.Parse(PageState.QueryString["id"]);
+                Profile profile = await ProfileService.GetProfileAsync(profileid);
+                if (profile != null)
+                {
+                    name = profile.Name;
+                    title = profile.Title;
+                    description = profile.Description;
+                    category = profile.Category;
+                    vieworder = profile.ViewOrder.ToString();
+                    maxlength = profile.MaxLength.ToString();
+                    defaultvalue = profile.DefaultValue;
+                    isrequired = profile.IsRequired.ToString();
+                    isprivate = profile.IsPrivate.ToString();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Profile {ProfileId} {Error}", profileid, ex.Message);
+            AddModuleMessage("Error Loading Profile", MessageType.Error);
+        }
+    }
+
+    private async Task SaveProfile()
+    {
+        try
+        {
+            Profile profile;
+            if (profileid != -1)
+            {
+                profile = await ProfileService.GetProfileAsync(profileid);
+            }
+            else
+            {
+                profile = new Profile();
+            }
+            profile.Name = name;
+            profile.Title = title;
+            profile.Description = description;
+            profile.Category = category;
+            profile.ViewOrder = int.Parse(vieworder);
+            profile.MaxLength = int.Parse(maxlength);
+            profile.DefaultValue = defaultvalue;
+            profile.IsRequired = (isrequired == null ? false : Boolean.Parse(isrequired));
+            profile.IsPrivate = (isprivate == null ? false : Boolean.Parse(isprivate));
+            profile = await ProfileService.UpdateProfileAsync(profile);
+            await logger.LogInformation("Profile Saved {Profile}", profile);
+            NavigationManager.NavigateTo(NavigateUrl());
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Saving Profile {ProfleId} {Error}", profileid, ex.Message);
+            AddModuleMessage("Error Saving Profile", MessageType.Error);
+        }
+    }
+}

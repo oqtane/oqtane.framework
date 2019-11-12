@@ -5,6 +5,9 @@ namespace Oqtane.Repository
 {
     public interface IModuleDefinitionRepository
     {
-        IEnumerable<ModuleDefinition> GetModuleDefinitions();
+        IEnumerable<ModuleDefinition> GetModuleDefinitions(int SideId);
+        void UpdateModuleDefinition(ModuleDefinition ModuleDefinition);
+        void DeleteModuleDefinition(int ModuleDefinitionId, int SiteId);
+
     }
 }

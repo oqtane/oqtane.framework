@@ -1,0 +1,82 @@
+﻿@namespace Oqtane.Modules.Admin.ModuleDefinitions
+@inherits ModuleBase
+@inject IModuleDefinitionService ModuleDefinitionService
+@inject NavigationManager NavigationManager
+
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Name: </label>
+        </td>
+        <td>
+            <input class="form-control" @bind="@name" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Permissions: </label>
+        </td>
+        <td>
+            <PermissionGrid EntityName="ModuleDefinition" PermissionNames="Utilize" Permissions="@permissions" @ref="permissiongrid" />
+        </td>
+    </tr>
+</table>
+<button type="button" class="btn btn-success" @onclick="SaveModuleDefinition">Save</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+<br />
+<br />
+<AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+
+    int ModuleDefinitionId;
+    string name;
+    string permissions;
+    string createdby;
+    DateTime createdon;
+    string modifiedby;
+    DateTime modifiedon;
+
+    PermissionGrid permissiongrid;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            ModuleDefinitionId = Int32.Parse(PageState.QueryString["id"]);
+            ModuleDefinition moduledefinition = PageState.ModuleDefinitions.Where(item => item.ModuleDefinitionId == ModuleDefinitionId).FirstOrDefault();
+            if (moduledefinition != null)
+            {
+                name = moduledefinition.Name;
+                permissions = moduledefinition.Permissions;
+                createdby = moduledefinition.CreatedBy;
+                createdon = moduledefinition.CreatedOn;
+                modifiedby = moduledefinition.ModifiedBy;
+                modifiedon = moduledefinition.ModifiedOn;
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading ModuleDefinition {ModuleDefinitionId} {Error}", ModuleDefinitionId, ex.Message);
+            AddModuleMessage("Error Loading Module", MessageType.Error);
+        }
+    }
+
+    private async Task SaveModuleDefinition()
+    {
+        try
+        {
+            ModuleDefinition moduledefinition = PageState.ModuleDefinitions.Where(item => item.ModuleDefinitionId == ModuleDefinitionId).FirstOrDefault();
+            moduledefinition.Permissions = permissiongrid.GetPermissions();
+            await ModuleDefinitionService.UpdateModuleDefinitionAsync(moduledefinition);
+            await logger.LogInformation("ModuleDefinition Saved {ModuleDefinition}", moduledefinition);
+            NavigationManager.NavigateTo(NavigateUrl(Reload.Site));
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Saving ModuleDefinition {ModuleDefinitionId} {Error}", ModuleDefinitionId, ex.Message);
+            AddModuleMessage("Error Saving Module", MessageType.Error);
+        }
+    }
+}

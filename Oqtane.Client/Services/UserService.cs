@@ -27,9 +27,9 @@ namespace Oqtane.Services
             get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "User"); }
         }
 
-        public async Task<List<User>> GetUsersAsync(int SiteId)
+        public async Task<List<User>> GetUsersAsync()
         {
-            List<User> users = await http.GetJsonAsync<List<User>>(apiurl + "?siteid=" + SiteId.ToString());
+            List<User> users = await http.GetJsonAsync<List<User>>(apiurl);
             return users.OrderBy(item => item.DisplayName).ToList();
         }
 
@@ -45,7 +45,26 @@ namespace Oqtane.Services
 
         public async Task<User> AddUserAsync(User User)
         {
-            return await http.PostJsonAsync<User>(apiurl, User);
+            try
+            {
+                return await http.PostJsonAsync<User>(apiurl, User);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public async Task<User> AddUserAsync(User User, Alias Alias)
+        {
+            try
+            {
+                return await http.PostJsonAsync<User>(CreateApiUrl(Alias, NavigationManager.Uri, "User"), User);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public async Task<User> UpdateUserAsync(User User)
@@ -59,13 +78,13 @@ namespace Oqtane.Services
 
         public async Task<User> LoginUserAsync(User User, bool SetCookie, bool IsPersistent)
         {
-            return await http.PostJsonAsync<User>(apiurl + "/login?setcookie=" + SetCookie.ToString() + "&persistent =" + IsPersistent.ToString(), User);
+            return await http.PostJsonAsync<User>(apiurl + "/login?setcookie=" + SetCookie.ToString() + "&persistent=" + IsPersistent.ToString(), User);
         }
 
-        public async Task LogoutUserAsync()
+        public async Task LogoutUserAsync(User User)
         {
             // best practices recommend post is preferrable to get for logout
-            await http.PostJsonAsync(apiurl + "/logout", null); 
+            await http.PostJsonAsync(apiurl + "/logout", User); 
         }
     }
 }

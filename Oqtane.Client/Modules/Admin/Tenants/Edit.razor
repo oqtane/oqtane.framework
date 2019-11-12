@@ -1,0 +1,86 @@
+﻿@namespace Oqtane.Modules.Admin.Tenants
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject ITenantService TenantService
+
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Name: </label>
+        </td>
+        <td>
+            <input class="form-control" @bind="@name" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Connection String: </label>
+        </td>
+        <td>
+            <input class="form-control" @bind="@connectionstring" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Schema: </label>
+        </td>
+        <td>
+            <input class="form-control" @bind="@schema" />
+        </td>
+    </tr>
+</table>
+<button type="button" class="btn btn-success" @onclick="SaveTenant">Save</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+
+    int tenantid;
+    string name = "";
+    string connectionstring = "";
+    string schema = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            tenantid = Int32.Parse(PageState.QueryString["id"]);
+            Tenant tenant = await TenantService.GetTenantAsync(tenantid);
+            if (tenant != null)
+            {
+                name = tenant.Name;
+                connectionstring = tenant.DBConnectionString;
+                schema = tenant.DBSchema;
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Tenant {TenantId} {Error}", tenantid, ex.Message);
+            AddModuleMessage("Error Loading Tenant", MessageType.Error);
+        }
+    }
+
+    private async Task SaveTenant()
+    {
+        try
+        {
+            connectionstring = connectionstring.Replace("\\\\", "\\");
+            Tenant tenant = await TenantService.GetTenantAsync(tenantid);
+            if (tenant != null)
+            {
+                tenant.Name = name;
+                tenant.DBConnectionString = connectionstring;
+                tenant.DBSchema = schema;
+                await TenantService.UpdateTenantAsync(tenant);
+                await logger.LogInformation("Tenant Saved {TenantId}", tenantid);
+
+                NavigationManager.NavigateTo(NavigateUrl());
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Saving Tenant {TenantId} {Error}", tenantid, ex.Message);
+            AddModuleMessage("Error Saving Tenant", MessageType.Error);
+        }
+    }
+}

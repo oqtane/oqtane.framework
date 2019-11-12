@@ -1,10 +1,7 @@
-﻿@using Microsoft.AspNetCore.Components.Web
-@using Oqtane.Services
-@using Oqtane.Models
-@using Oqtane.Shared
-@namespace Oqtane.Shared
+﻿@namespace Oqtane.Shared
 @inject NavigationManager NavigationManager
 @inject IInstallationService InstallationService
+@inject ISiteService SiteService
 @inject IUserService UserService
 
 <div class="container">
@@ -13,7 +10,7 @@
             <img src="oqtane.png" />
         </div>
     </div>
-    <hr style="width: 100%; color: gray; height: 1px; background-color:gray;" />
+    <hr class="app-rule" />
     <h2 class="text-center">Database Configuration</h2>
     <div class="row">
         <div class="mx-auto text-center">
@@ -35,7 +32,7 @@
                             <label for="Title" class="control-label" style="font-weight: bold">Server: </label>
                         </td>
                         <td>
-                            <input type="text" id="ServerName" class="form-control" @bind="@ServerName" />
+                            <input type="text" class="form-control" @bind="@ServerName" />
                         </td>
                     </tr>
                     <tr>
@@ -43,7 +40,7 @@
                             <label for="Title" class="control-label" style="font-weight: bold">Database: </label>
                         </td>
                         <td>
-                            <input type="text" id="DatabaseName" class="form-control" @bind="@DatabaseName" />
+                            <input type="text" class="form-control" @bind="@DatabaseName" />
                         </td>
                     </tr>
                     <tr>
@@ -62,7 +59,7 @@
                             <label for="Title" class="control-label" style="font-weight: bold">Username: </label>
                         </td>
                         <td>
-                            <input type="text" id="Username" class="form-control" @bind="@Username" />
+                            <input type="text" class="form-control" @bind="@Username" />
                         </td>
                     </tr>
                     <tr style="@IntegratedSecurityDisplay">
@@ -70,14 +67,14 @@
                             <label for="Title" class="control-label" style="font-weight: bold">Password: </label>
                         </td>
                         <td>
-                            <input type="password" id="Password" class="form-control" @bind="@Password" />
+                            <input type="password" class="form-control" @bind="@Password" />
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
-    <hr style="width: 100%; color: gray; height: 1px; background-color:gray;" />
+    <hr class="app-rule" />
     <h2 class="text-center">Application Administrator</h2>
     <div class="row">
         <div class="mx-auto text-center">
@@ -85,10 +82,10 @@
                 <tbody>
                     <tr>
                         <td>
-                            <label for="Title" class="control-label" style="font-weight: bold">Email: </label>
+                            <label for="Title" class="control-label" style="font-weight: bold">Username: </label>
                         </td>
                         <td>
-                            <input type="text" id="Email" class="form-control" @bind="@Email" />
+                            <input type="text" class="form-control" @bind="@HostUsername" />
                         </td>
                     </tr>
                     <tr>
@@ -96,7 +93,15 @@
                             <label for="Title" class="control-label" style="font-weight: bold">Password: </label>
                         </td>
                         <td>
-                            <input type="password" id="Email" class="form-control" @bind="@HostPassword" />
+                            <input type="password" class="form-control" @bind="@HostPassword" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="Title" class="control-label" style="font-weight: bold">Email: </label>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" @bind="@HostEmail" />
                         </td>
                     </tr>
                 </tbody>
@@ -108,7 +113,7 @@
             <button type="button" class="btn btn-success" @onclick="Install">Install Now</button><br /><br />
             @((MarkupString)@Message)
         </div>
-        <div class="loading" style="@LoadingDisplay"></div>
+        <div class="app-progress-indicator" style="@LoadingDisplay"></div>
     </div>
 </div>
 
@@ -118,18 +123,19 @@
     private string DatabaseName = "Oqtane-" + DateTime.Now.ToString("yyyyMMddHHmm");
     private string Username = "";
     private string Password = "";
-    private string Email = "";
+    private string HostUsername = "host";
     private string HostPassword = "";
+    private string HostEmail = "";
     private string Message = "";
 
-    private string IntegratedSecurityDisplay = "display:none;";
-    private string LoadingDisplay = "display:none;";
+    private string IntegratedSecurityDisplay = "display: none;";
+    private string LoadingDisplay = "display: none;";
 
     private void SetIntegratedSecurity(ChangeEventArgs e)
     {
         if (Convert.ToBoolean(e.Value))
         {
-            IntegratedSecurityDisplay = "display:none;";
+            IntegratedSecurityDisplay = "display: none;";
         }
         else
         {
@@ -139,7 +145,7 @@
 
     private async Task Install()
     {
-        if (HostPassword.Length >= 6)
+        if (HostUsername != "" & HostPassword.Length >= 6 & HostEmail != "")
         {
             LoadingDisplay = "";
             StateHasChanged();
@@ -152,7 +158,7 @@
             else
             {
                 connectionstring = "Data Source=" + ServerName + ";Initial Catalog=" + DatabaseName + ";";
-                if (IntegratedSecurityDisplay == "display:none;")
+                if (IntegratedSecurityDisplay == "display: none;")
                 {
                     connectionstring += "Integrated Security=SSPI;";
                 }
@@ -165,13 +171,21 @@
             GenericResponse response = await InstallationService.Install(connectionstring);
             if (response.Success)
             {
+                Site site = new Site();
+                site.TenantId = -1; // will be populated on server
+                site.Name = "Default Site";
+                site.Logo = "oqtane.png";
+                site.DefaultThemeType = Constants.DefaultTheme;
+                site.DefaultLayoutType = Constants.DefaultLayout;
+                site.DefaultContainerType = Constants.DefaultContainer;
+                site = await SiteService.AddSiteAsync(site);
+
                 User user = new User();
-                user.SiteId = 1;
-                user.Username = Email;
-                user.DisplayName = Email;
-                user.Email = Email;
-                user.IsHost = true;
+                user.SiteId = site.SiteId;
+                user.Username = HostUsername;
                 user.Password = HostPassword;
+                user.Email = HostEmail;
+                user.DisplayName = HostUsername;
                 user = await UserService.AddUserAsync(user);
 
                 NavigationManager.NavigateTo("", true);
@@ -179,12 +193,12 @@
             else
             {
                 Message = "<div class=\"alert alert-danger\" role=\"alert\">" + response.Message + "</div>";
-                LoadingDisplay = "display:none;";
+                LoadingDisplay = "display: none;";
             }
         }
         else
         {
-            Message = "<div class=\"alert alert-danger\" role=\"alert\">Password Must Be 6 Characters Or Greater</div>";
+            Message = "<div class=\"alert alert-danger\" role=\"alert\">Username And Email Must Be Provided And Password Must Be Greater Than 5 Characters</div>";
         }
     }
 }

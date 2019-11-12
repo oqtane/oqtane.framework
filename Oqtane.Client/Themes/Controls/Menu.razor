@@ -1,29 +1,40 @@
-﻿@using Microsoft.AspNetCore.Components.Routing
-@using Microsoft.AspNetCore.Components.Web
-@using Oqtane.Themes
-@using Oqtane.Services
-@using Oqtane.Models;
-@using Oqtane.Security
-@namespace Oqtane.Themes.Controls
-@inherits ThemeObjectBase
-@inject IUserService UserService
+﻿@namespace Oqtane.Themes.Controls
+@inherits ThemeControlBase
 
 @if (menu != "")
 {
-    @((MarkupString)menu)
+    <div class="app-menu">
+        @((MarkupString)menu)
+    </div>
 }
 
 @code {
+    [Parameter]
+    public string Orientation { get; set; }
+
     string menu = "";
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
+    {
+        switch (Orientation)
+        {
+            case "Horizontal":
+                CreateHorizontalMenu();
+                break;
+            default: // Vertical
+                CreateVerticalMenu();
+                break;
+        }
+    }
+
+    private void CreateVerticalMenu()
     {
         int level = -1;
         int securitylevel = int.MaxValue;
 
         menu = "<ul class=\"nav flex-column\">\n";
 
-        foreach (Page p in PageState.Pages.Where(item => item.IsNavigation))
+        foreach (Page p in PageState.Pages.Where(item => item.IsNavigation && !item.IsDeleted))
         {
             if (UserSecurity.IsAuthorized(PageState.User, "View", p.Permissions) && p.Level <= securitylevel)
             {
@@ -37,7 +48,7 @@
                 }
                 if (p.Icon != "")
                 {
-                    menu += "<span class=\"oi " + p.Icon + "\" aria-hidden=\"true\"></span>";
+                    menu += "<span class=\"oi oi-" + p.Icon + "\" aria-hidden=\"true\"></span>";
                 }
                 menu += p.Name;
                 menu += "</a>\n";
@@ -54,5 +65,34 @@
             }
         }
         menu += "</ul>";
+    }
+
+    private void CreateHorizontalMenu()
+    {
+        menu = "<button class=\"navbar-toggler\" type=\"button\" data-toggle=\"collapse\" data-target=\"#Menu\" aria-controls=\"Menu\" aria-expanded=\"false\" aria-label=\"Toggle navigation\"><span class=\"navbar-toggler-icon\"></span></button>";
+        menu += "<div class=\"collapse navbar-collapse\" id=\"Menu\">";
+        menu += "<ul class=\"navbar-nav mr-auto\">";
+        foreach (Page p in PageState.Pages.Where(item => item.IsNavigation && !item.IsDeleted))
+        {
+            if (UserSecurity.IsAuthorized(PageState.User, "View", p.Permissions) && p.ParentId == PageState.Page.ParentId && p.Level == PageState.Page.Level)
+            {
+                if (p.PageId == PageState.Page.PageId)
+                {
+                    menu += "<li class=\"nav-item active\">" +
+                        "<a class=\"nav-link\" href=\"" + NavigateUrl(p.Path) + "\">" +
+                        ((p.Icon != "") ? "<span class=\"oi oi-" + p.Icon + "\" aria-hidden=\"true\"></span> " : "") + 
+                        p.Name + " <span class=\"sr-only\">(current)</span></a></li>";
+                }
+                else
+                {
+                    menu += "<li class=\"nav-item\">" +
+                        "<a class=\"nav-link\" href=\"" + NavigateUrl(p.Path) + "\">" +
+                        ((p.Icon != "") ? "<span class=\"oi oi-" + p.Icon + "\" aria-hidden=\"true\"></span> " : "") + 
+                        p.Name + "</a></li>";
+                }
+            }
+        }
+        menu += "</ul>";
+        menu += "</div>";
     }
 }

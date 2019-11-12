@@ -1,0 +1,51 @@
+﻿@namespace Oqtane.Modules.Admin.Profiles
+@inherits ModuleBase
+@inject IProfileService ProfileService
+
+@if (Profiles == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <ActionLink Action="Add" Security="SecurityAccessLevel.Admin" Text="Add Profile" />
+
+    <Pager Items="@Profiles">
+        <Header>
+            <th>&nbsp;</th>
+            <th>&nbsp;</th>
+            <th>Name</th>
+        </Header>
+        <Row>
+            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ProfileId.ToString())" /></td>
+            <td><ActionDialog Header="Delete Profile" Message="@("Are You Sure You Wish To Delete " + context.Name + "?")" Action="Delete" Class="btn btn-danger" OnClick="@(async () => await DeleteProfile(context.ProfileId))" /></td>
+            <td>@context.Name</td>
+        </Row>
+    </Pager>
+}
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+
+    List<Profile> Profiles;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
+    }
+
+    private async Task DeleteProfile(int ProfileId)
+    {
+        try
+        {
+            await ProfileService.DeleteProfileAsync(ProfileId);
+            await logger.LogInformation("Profile Deleted {ProfileId}", ProfileId);
+            AddModuleMessage("Profile Deleted", MessageType.Success);
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Profile {ProfileId} {Error}", ProfileId, ex.Message);
+            AddModuleMessage("Error Deleting Profile", MessageType.Error);
+        }
+    }
+}

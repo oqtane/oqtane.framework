@@ -28,10 +28,10 @@ namespace Oqtane.Services
             get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "ModuleDefinition"); }
         }
 
-        public async Task<List<ModuleDefinition>> GetModuleDefinitionsAsync()
+        public async Task<List<ModuleDefinition>> GetModuleDefinitionsAsync(int SiteId)
         {
             // get list of modules from the server
-            List<ModuleDefinition> moduledefinitions = await http.GetJsonAsync<List<ModuleDefinition>>(apiurl);
+            List<ModuleDefinition> moduledefinitions = await http.GetJsonAsync<List<ModuleDefinition>>(apiurl + "?siteid=" + SiteId.ToString());
 
             // get list of loaded assemblies on the client ( in the client-side hosting module the browser client has its own app domain )
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -47,7 +47,7 @@ namespace Oqtane.Services
                         if (assemblies.Where(item => item.FullName.StartsWith(assemblyname + ",")).FirstOrDefault() == null)
                         {
                             // download assembly from server and load
-                            var bytes = await http.GetByteArrayAsync("_framework/_bin/" + assemblyname + ".dll");
+                            var bytes = await http.GetByteArrayAsync(apiurl + "/" + assemblyname + ".dll");
                             Assembly.Load(bytes);
                         }
                     }
@@ -56,7 +56,7 @@ namespace Oqtane.Services
                 if (assemblies.Where(item => item.FullName.StartsWith(moduledefinition.AssemblyName + ",")).FirstOrDefault() == null)
                 {
                     // download assembly from server and load
-                    var bytes = await http.GetByteArrayAsync("_framework/_bin/" + moduledefinition.AssemblyName + ".dll");
+                    var bytes = await http.GetByteArrayAsync(apiurl + "/" + moduledefinition.AssemblyName + ".dll");
                     Assembly.Load(bytes);
                 }
             }
@@ -64,9 +64,19 @@ namespace Oqtane.Services
             return moduledefinitions.OrderBy(item => item.Name).ToList();
         }
 
-        public async Task InstallModulesAsync()
+        public async Task UpdateModuleDefinitionAsync(ModuleDefinition ModuleDefinition)
+        {
+            await http.PutJsonAsync(apiurl + "/" + ModuleDefinition.ModuleDefinitionId.ToString(), ModuleDefinition);
+        }
+
+        public async Task InstallModuleDefinitionsAsync()
         {
             await http.GetJsonAsync<List<string>>(apiurl + "/install");
+        }
+
+        public async Task DeleteModuleDefinitionAsync(int ModuleDefinitionId, int SiteId)
+        {
+            await http.DeleteAsync(apiurl + "/" + ModuleDefinitionId.ToString() + "?siteid=" + SiteId.ToString());
         }
     }
 }

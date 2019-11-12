@@ -1,4 +1,5 @@
 ﻿using Oqtane.Modules;
+using Oqtane.Shared;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -15,6 +16,13 @@ namespace Oqtane.Models
         public DateTime CreatedOn { get; set; }
         public string ModifiedBy { get; set; }
         public DateTime ModifiedOn { get; set; }
+        
+        [NotMapped]
+        public string DeletedBy { get; set; }
+        [NotMapped]
+        public DateTime? DeletedOn { get; set; }
+        [NotMapped]
+        public bool IsDeleted { get; set; }
 
         [NotMapped]
         public string Permissions { get; set; }

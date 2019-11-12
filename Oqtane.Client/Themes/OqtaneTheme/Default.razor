@@ -1,0 +1,23 @@
+﻿@namespace Oqtane.Themes.OqtaneTheme
+@inherits ThemeBase
+
+<main role="main">
+    <nav class="navbar navbar-expand-md navbar-dark bg-primary fixed-top">
+        <Logo /><Menu Orientation="Horizontal" /><div class="ml-md-auto"><UserProfile /> <Login /> <ControlPanel ButtonClass="btn-outline-secondary" CardClass="bg-light" /></div>
+    </nav>
+    <div class="container">
+        <PaneLayout />
+        <div class="row px-4">
+            <Pane Name="Admin" />
+        </div>
+    </div>
+</main>
+
+@code {
+    public override string Panes { get { return ""; } }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await IncludeCSS("Theme.css");
+    }
+}

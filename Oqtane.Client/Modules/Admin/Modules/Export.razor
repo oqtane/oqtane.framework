@@ -1,0 +1,32 @@
+﻿@namespace Oqtane.Modules.Admin.Modules
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject IModuleService ModuleService
+
+<table class="table table-borderless">
+    <tbody>
+        <tr>
+            <td>
+                <label for="Title" class="control-label">Content: </label>
+            </td>
+            <td>
+                <textarea class="form-control" @bind="@content" rows="5" />
+            </td>
+        </tr>
+    </tbody>
+</table>
+<button type="button" class="btn btn-success" @onclick="ExportModule">Export</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+    public override string Title { get { return "Export Module"; } }
+
+    string content = "";
+
+    private async Task ExportModule()
+    {
+        content = await ModuleService.ExportModuleAsync(ModuleState.ModuleId);
+    }
+}

@@ -1,0 +1,207 @@
+﻿@namespace Oqtane.Modules.Admin.Logs
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject ILogService LogService
+@inject IPageService PageService
+@inject IPageModuleService PageModuleService
+@inject IUserService UserService
+
+    <table class="table table-borderless">
+        <tr>
+            <td>
+                <label class="control-label">Date/Time: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@logdate" disabled />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="control-label">Level: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@level" disabled />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="control-label">Feature: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@feature" disabled />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="control-label">Function: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@function" disabled />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="control-label">Category: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@category" disabled />
+            </td>
+        </tr>
+        @if (pagename != "")
+        {
+            <tr>
+                <td>
+                    <label class="control-label">Page: </label>
+                </td>
+                <td>
+                    <input class="form-control" @bind="@pagename" disabled />
+                </td>
+            </tr>
+        }
+        @if (moduletitle != "")
+        {
+            <tr>
+                <td>
+                    <label class="control-label">Module: </label>
+                </td>
+                <td>
+                    <input class="form-control" @bind="@moduletitle" disabled />
+                </td>
+            </tr>
+        }
+        @if (username != "")
+        {
+            <tr>
+                <td>
+                    <label class="control-label">User: </label>
+                </td>
+                <td>
+                    <input class="form-control" @bind="@username" disabled />
+                </td>
+            </tr>
+        }
+        <tr>
+            <td>
+                <label class="control-label">Url: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@url" disabled />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="control-label">Template: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@template" disabled />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="control-label">Message: </label>
+            </td>
+            <td>
+                <textarea class="form-control" @bind="@message" rows="5" disabled />
+            </td>
+        </tr>
+        @if (!string.IsNullOrEmpty(exception))
+        {
+            <tr>
+                <td>
+                    <label class="control-label">Exception: </label>
+                </td>
+                <td>
+                    <textarea class="form-control" @bind="@exception" rows="5" disabled />
+                </td>
+            </tr>
+        }
+        <tr>
+            <td>
+                <label class="control-label">Properties: </label>
+            </td>
+            <td>
+                <textarea class="form-control" @bind="@properties" rows="5" disabled />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="control-label">Server: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@server" disabled />
+            </td>
+        </tr>
+    </table>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+
+    int logid;
+    string logdate = "";
+    string level = "";
+    string feature = "";
+    string function = "";
+    string category = "";
+    string pagename = "";
+    string moduletitle = "";
+    string username = "";
+    string url = "";
+    string template = "";
+    string message = "";
+    string exception = "";
+    string properties = "";
+    string server = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            logid = Int32.Parse(PageState.QueryString["id"]);
+            Log log = await LogService.GetLogAsync(logid);
+            if (log != null)
+            {
+                logdate = log.LogDate.ToString();
+                level = log.Level;
+                feature = log.Feature;
+                function = log.Function;
+                category = log.Category;
+                if (log.PageId != null)
+                {
+                    Page page = await PageService.GetPageAsync(log.PageId.Value);
+                    if (page != null)
+                    {
+                        pagename = page.Name;
+                    }
+                }
+                if (log.PageId != null && log.ModuleId != null)
+                {
+                    PageModule pagemodule = await PageModuleService.GetPageModuleAsync(log.PageId.Value, log.ModuleId.Value);
+                    if (pagemodule != null)
+                    {
+                        moduletitle = pagemodule.Title;
+                    }
+                }
+                if (log.UserId != null)
+                {
+                    User user = await UserService.GetUserAsync(log.UserId.Value, PageState.Site.SiteId);
+                    if (user != null)
+                    {
+                        username = user.Username;
+                    }
+                }
+                url = log.Url;
+                template = log.MessageTemplate;
+                message = log.Message;
+                exception = log.Exception;
+                properties = log.Properties;
+                server = log.Server;
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Log {LogId} {Error}", logid, ex.Message);
+            AddModuleMessage("Error Loading Log", MessageType.Error);
+        }
+    }
+}

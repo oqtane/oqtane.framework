@@ -1,0 +1,121 @@
+﻿@namespace Oqtane.Modules.Admin.Themes
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject IFileService FileService
+@inject IThemeService ThemeService
+@inject IPackageService PackageService
+
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Theme: </label>
+        </td>
+        <td>
+            <FileUpload Filter=".nupkg" @ref="fileupload"></FileUpload>
+        </td>
+    </tr>
+</table>
+<button type="button" class="btn btn-primary" @onclick="UploadTheme">Upload Theme</button>
+
+@if (packages != null)
+{
+    <hr class="app-rule" />
+    <div class="mx-auto text-center"><h2>Available Themes</h2></div>
+
+    <Pager Items="@packages">
+        <Header>
+            <th>Name</th>
+            <th>Version</th>
+            <th></th>
+        </Header>
+        <Row>
+            <td>@context.Name</td>
+            <td>@context.Version</td>
+            <td>
+                <button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadTheme(context.PackageId, context.Version))>Download Theme</button>
+            </td>
+        </Row>
+    </Pager>
+}
+
+@if (uploaded)
+{
+    <button type="button" class="btn btn-success" @onclick="InstallThemes">Install</button>
+}
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+
+    bool uploaded = false;
+    List<Package> packages;
+    FileUpload fileupload;
+
+    protected override async Task OnInitializedAsync()
+    {
+        List<Theme> themes = await ThemeService.GetThemesAsync();
+        packages = await PackageService.GetPackagesAsync("theme");
+        foreach(Package package in packages.ToArray())
+        {
+            if (themes.Exists(item => Utilities.GetTypeName(item.ThemeName) == package.PackageId))
+            {
+                packages.Remove(package);
+            }
+        }
+    }
+
+    private async Task UploadTheme()
+    {
+        string[] files = await fileupload.GetFiles();
+        if (files.Length > 0)
+        {
+            if (files[0].Contains(".Theme."))
+            {
+                try
+                {
+                    string result = await FileService.UploadFilesAsync("Themes", files, "");
+                    if (result == "")
+                    {
+                        await logger.LogInformation("Theme Uploaded {Package}", files[0]);
+                        AddModuleMessage("Theme Uploaded Successfully. Click Install To Complete Installation.", MessageType.Success);
+                        uploaded = true;
+                        StateHasChanged();
+                    }
+                    else
+                    {
+                        await logger.LogInformation("Theme Upload Failed For {Package}", result.Replace(",",", "));
+                        AddModuleMessage("Upload Failed For " + result.Replace(",",", ") + ". This Could Be Due To A Network Error Or Because A File Type Is Restricted.", MessageType.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    await logger.LogError(ex, "Theme Upload Failed {Package} {Error}", files[0], ex.Message);
+                    AddModuleMessage("Theme Upload Failed", MessageType.Error);
+                }
+            }
+            else
+            {
+                await logger.LogError("Invalid Theme Package {Package}", files[0]);
+                AddModuleMessage("Invalid Theme Package", MessageType.Error);
+            }
+        }
+        else
+        {
+            AddModuleMessage("You Must Select A Theme To Upload", MessageType.Warning);
+        }
+    }
+
+    private async Task InstallThemes()
+    {
+        await ThemeService.InstallThemesAsync();
+        NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
+    }
+
+    private async Task DownloadTheme(string packageid, string version)
+    {
+        await PackageService.DownloadPackageAsync(packageid, version, "Themes");
+        AddModuleMessage("Theme Downloaded Successfully. Click Install To Complete Installation.", MessageType.Success);
+        uploaded = true;
+        StateHasChanged();
+    }
+}

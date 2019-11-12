@@ -1,0 +1,133 @@
+﻿@namespace Oqtane.Modules.Admin.Users
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject IUserService UserService
+@inject IProfileService ProfileService
+@inject ISettingService SettingService
+
+@if (profiles != null)
+{
+    <table class="table table-borderless">
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Username: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@username" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Password: </label>
+            </td>
+            <td>
+                <input type="password" class="form-control" @bind="@password" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Email: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@email" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Full Name: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@displayname" />
+            </td>
+        </tr>
+
+        @foreach (Profile profile in profiles)
+        {
+            var p = profile;
+            if (p.Category != category)
+            {
+                <tr>
+                    <th colspan="2" style="text-align: center;">
+                        @p.Category
+                    </th>
+                </tr>
+                category = p.Category;
+            }
+            <tr>
+                <td>
+                    <label for="@p.Name" class="control-label">@p.Title: </label>
+                </td>
+                <td>
+                    <input class="form-control" maxlength="@p.MaxLength" placeholder="@p.Description" @onchange="(e => ProfileChanged(e, p.Name))" />
+                </td>
+            </tr>
+        }
+    </table>
+    <button type="button" class="btn btn-primary" @onclick="SaveUser">Save</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+}
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+
+    string username = "";
+    string password = "";
+    string email = "";
+    string displayname = "";
+    List<Profile> profiles;
+    Dictionary<string, string> settings;
+    string category = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
+            settings = new Dictionary<string, string>();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading User Profile {Error}", ex.Message);
+            AddModuleMessage("Error Loading User Profile", MessageType.Error);
+        }
+    }
+
+    private async Task SaveUser()
+    {
+        try
+        {
+            User user = new User();
+            user.SiteId = PageState.Site.SiteId;
+            user.Username = username;
+            user.Password = password;
+            user.Email = email;
+            user.DisplayName = string.IsNullOrWhiteSpace(user.DisplayName) ? user.Username : user.DisplayName;
+
+            user = await UserService.AddUserAsync(user);
+            
+            if (user != null)
+            {
+                await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
+                await logger.LogInformation("User Created {User}", user);
+                NavigationManager.NavigateTo(NavigateUrl());
+            }
+            else
+            {
+                await logger.LogError("Error Adding User {Username} {Email}", username, email);
+                AddModuleMessage("Error Adding User. Please Ensure Password Meets Complexity Requirements And Username Is Not Already In Use.", MessageType.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Adding User {Username} {Email} {Error}", username, email, ex.Message);
+            AddModuleMessage("Error Adding User", MessageType.Error);
+        }
+    }
+
+    private void ProfileChanged(ChangeEventArgs e, string SettingName)
+    {
+        string value = (string)e.Value;
+        settings = SettingService.SetSetting(settings, SettingName, value);
+    }
+
+}

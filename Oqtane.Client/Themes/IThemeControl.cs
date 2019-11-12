@@ -2,7 +2,6 @@
 {
     public interface IThemeControl
     {
-        string Name { get; }
-        string Panes { get; } // if a theme has different panes, delimit them with ";"
+        string Panes { get; } // identifies all panes in a theme ( delimited by ";" ) - assumed to be a layout if no panes specified
     }
 }

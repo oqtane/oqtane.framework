@@ -1,27 +1,18 @@
-﻿@using Microsoft.AspNetCore.Components.Web
-@using Oqtane.Modules.HtmlText.Services
-@using Oqtane.Modules
+﻿@using Oqtane.Modules.HtmlText.Services
 @using Oqtane.Modules.HtmlText.Models
-@using System.Net.Http;
-@using Oqtane.Modules.Controls
-@using Oqtane.Shared;
 @namespace Oqtane.Modules.HtmlText
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject HttpClient http
 @inject SiteState sitestate
 
-<ModuleMessage Message="@message" />
-
 @((MarkupString)content)
 
 <br />
 <ActionLink Action="Edit" />
-<br />
-<br />
+<br /><br />
 
 @code {
-    string message = "";
     string content;
 
     protected override async Task OnParametersSetAsync()
@@ -37,7 +28,7 @@
         }
         catch (Exception ex)
         {
-            message = ex.Message;
+            AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
 }

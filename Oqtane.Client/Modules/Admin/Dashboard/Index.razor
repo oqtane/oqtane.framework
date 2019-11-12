@@ -1,37 +1,31 @@
-﻿@using Microsoft.AspNetCore.Components.Web
-@using Microsoft.AspNetCore.Components.Routing
-@using Oqtane.Modules
-@using Oqtane.Services
-@using Oqtane.Models;
-@using Oqtane.Security
-@namespace Oqtane.Modules.Admin.Dashboard
+﻿@namespace Oqtane.Modules.Admin.Dashboard
 @inherits ModuleBase
 @inject IPageService PageService
 @inject IUserService UserService
 
-<ul class="list-group">
+<div class="row">
     @foreach (var p in pages)
     {
         if (UserSecurity.IsAuthorized(PageState.User, "View", p.Permissions))
         {
             string url = NavigateUrl(p.Path);
-            <li class="list-group-item">
+            <div class="col-md-2 mx-auto text-center">
                 <NavLink class="nav-link" href="@url" Match="NavLinkMatch.All">
-                    <span class="oi @p.Icon" aria-hidden="true"></span> @p.Name
+                    <h2><span class="oi oi-@p.Icon" aria-hidden="true"></span></h2>@p.Name
                 </NavLink>
-            </li>
+            </div>
         }
     }
-</ul>
-<br />
-<br />
+</div>
 
 @code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+
     List<Page> pages;
 
     protected override void OnInitialized()
     {
-        // display list of pages which are children of current page
-        pages = PageState.Pages.Where(item => item.ParentId == PageState.Page.PageId).ToList();
+        Page admin = PageState.Pages.Where(item => item.Path == "admin").FirstOrDefault();
+        pages = PageState.Pages.Where(item => item.ParentId == admin.PageId).ToList();
     }
 }

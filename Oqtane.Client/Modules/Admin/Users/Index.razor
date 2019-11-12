@@ -1,43 +1,59 @@
-﻿@using Microsoft.AspNetCore.Components.Web
-@using Oqtane.Services
-@using Oqtane.Models
-@using Oqtane.Modules
-@using Oqtane.Modules.Controls
-@namespace Oqtane.Modules.Admin.Users
+﻿@namespace Oqtane.Modules.Admin.Users
 @inherits ModuleBase
-
+@inject IUserRoleService UserRoleService
 @inject IUserService UserService
 
-@if (Users == null)
+@if (userroles == null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Name</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var User in Users)
-            {
-                <tr>
-                    <td>@User.Username</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <ActionLink Action="Add" Text="Add User" />
+
+    <Pager Items="@userroles">
+        <Header>
+            <th>&nbsp;</th>
+            <th>&nbsp;</th>
+            <th>&nbsp;</th>
+            <th>Name</th>
+        </Header>
+        <Row>
+            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.UserId.ToString())" /></td>
+            <td><ActionDialog Header="Delete User" Message="@("Are You Sure You Wish To Delete " + context.User.DisplayName + "?")" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteUser(context))" /></td>
+            <td><ActionLink Action="Roles" Parameters="@($"id=" + context.UserId.ToString())" /></td>
+            <td>@context.User.DisplayName</td>
+        </Row>
+    </Pager>
 }
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 
-    List<User> Users;
+    List<UserRole> userroles;
 
     protected override async Task OnInitializedAsync()
     {
-        Users = await UserService.GetUsersAsync(PageState.Site.SiteId);
+        userroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
+        userroles = userroles.Where(item => item.Role.Name == Constants.RegisteredRole).ToList();
+    }
+
+    private async Task DeleteUser(UserRole UserRole)
+    {
+        try
+        {
+            User user = await UserService.GetUserAsync(UserRole.UserId, PageState.Site.SiteId);
+            if (user != null)
+            {
+                await UserService.DeleteUserAsync(user.UserId);
+                await logger.LogInformation("User Deleted {User}", UserRole.User);
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting User {User} {Error}", UserRole.User, ex.Message);
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
     }
 }

@@ -1,0 +1,82 @@
+﻿@namespace Oqtane.Modules.Admin.Tenants
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject ITenantService TenantService
+@inject IInstallationService InstallationService
+
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Name: </label>
+        </td>
+        <td>
+            <input class="form-control" @bind="@name" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Connection String: </label>
+        </td>
+        <td>
+            <input class="form-control" @bind="@connectionstring" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Schema: </label>
+        </td>
+        <td>
+            <input class="form-control" @bind="@schema" />
+        </td>
+    </tr>
+</table>
+<button type="button" class="btn btn-success" @onclick="SaveTenant">Save</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+
+    string name = "";
+    string connectionstring = "";
+    string schema = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            List<Tenant> tenants = await TenantService.GetTenantsAsync();
+            connectionstring = tenants.FirstOrDefault().DBConnectionString;
+            schema = tenants.FirstOrDefault().DBSchema;
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Tenants {Error}", ex.Message);
+            AddModuleMessage("Error Loading Tenants", MessageType.Error);
+        }
+    }
+
+    private async Task SaveTenant()
+    {
+        ShowProgressIndicator();
+
+        connectionstring = connectionstring.Replace("\\\\", "\\");
+        GenericResponse response = await InstallationService.Install(connectionstring);
+        if (response.Success)
+        {
+            Tenant tenant = new Tenant();
+            tenant.Name = name;
+            tenant.DBConnectionString = connectionstring;
+            tenant.DBSchema = schema;
+            tenant.IsInitialized = false;
+            await TenantService.AddTenantAsync(tenant);
+            await logger.LogInformation("Tenant Created {Tenant}", tenant);
+
+            NavigationManager.NavigateTo(NavigateUrl());
+        }
+        else
+        {
+            await logger.LogError("Error Creating Tenant {Error}", response.Message);
+            AddModuleMessage(response.Message, MessageType.Error);
+        }
+    }
+}

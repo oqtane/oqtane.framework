@@ -1,0 +1,169 @@
+﻿@namespace Oqtane.Modules.Admin.Users
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject IUserService UserService
+@inject IProfileService ProfileService
+@inject ISettingService SettingService
+
+@if (profiles != null)
+{
+    <table class="table table-borderless">
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Username: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@username" readonly />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Password: </label>
+            </td>
+            <td>
+                <input type="password" class="form-control" @bind="@password" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Email: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@email" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Full Name: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@displayname" />
+            </td>
+        </tr>
+
+        @foreach (Profile profile in profiles)
+        {
+            var p = profile;
+            if (p.Category != category)
+            {
+                <tr>
+                    <th colspan="2" style="text-align: center;">
+                        @p.Category
+                    </th>
+                </tr>
+                category = p.Category;
+            }
+            <tr>
+                <td>
+                    <label for="@p.Name" class="control-label">@p.Title: </label>
+                </td>
+                <td>
+                    <input class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" placeholder="@p.Description" @onchange="(e => ProfileChanged(e, p.Name))" />
+                </td>
+            </tr>
+        }
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Is Deleted? </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@isdeleted">
+                    <option value="True">Yes</option>
+                    <option value="False">No</option>
+                </select>
+            </td>
+        </tr>
+    </table>
+    <button type="button" class="btn btn-primary" @onclick="SaveUser">Save</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <br />
+    <br />
+    <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>
+}
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+
+    int userid;
+    string username = "";
+    string password = "";
+    string email = "";
+    string displayname = "";
+    List<Profile> profiles;
+    Dictionary<string, string> settings;
+    string category = "";
+    string createdby;
+    DateTime createdon;
+    string modifiedby;
+    DateTime modifiedon;
+    string deletedby;
+    DateTime? deletedon;
+    string isdeleted;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
+
+            userid = Int32.Parse(PageState.QueryString["id"]);
+            User user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
+            if (user != null)
+            {
+                username = user.Username;
+                email = user.Email;
+                displayname = user.DisplayName;
+                settings = await SettingService.GetUserSettingsAsync(user.UserId);
+                createdby = user.CreatedBy;
+                createdon = user.CreatedOn;
+                modifiedby = user.ModifiedBy;
+                modifiedon = user.ModifiedOn;
+                deletedby = user.DeletedBy;
+                deletedon = user.DeletedOn;
+                isdeleted = user.IsDeleted.ToString();
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading User {UserId} {Error}", userid, ex.Message);
+            AddModuleMessage("Error Loading User", MessageType.Error);
+        }
+    }
+
+    private string GetProfileValue(string SettingName, string DefaultValue)
+    {
+        return SettingService.GetSetting(settings, SettingName, DefaultValue);
+    }
+
+    private async Task SaveUser()
+    {
+        try
+        {
+            User user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
+            user.SiteId = PageState.Site.SiteId;
+            user.Username = username;
+            user.Password = password;
+            user.Email = email;
+            user.DisplayName = string.IsNullOrWhiteSpace(user.DisplayName) ? user.Username : user.DisplayName;
+            user.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
+
+            user = await UserService.UpdateUserAsync(user);
+            await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
+            await logger.LogInformation("User Saved {User}", user);
+
+            NavigationManager.NavigateTo(NavigateUrl());
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Saving User {Username} {Email} {Error}", username, email, ex.Message);
+            AddModuleMessage("Error Saving User", MessageType.Error);
+        }
+    }
+
+    private void ProfileChanged(ChangeEventArgs e, string SettingName)
+    {
+        string value = (string)e.Value;
+        settings = SettingService.SetSetting(settings, SettingName, value);
+    }
+
+}

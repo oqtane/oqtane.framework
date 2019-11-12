@@ -1,12 +1,5 @@
-﻿@using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.AspNetCore.Components.Web
-@using Oqtane.Themes
-@using Oqtane.Services
-@using Oqtane.Providers
-@using Oqtane.Shared
-@using Microsoft.JSInterop
-@namespace Oqtane.Themes.Controls
-@inherits ThemeObjectBase
+﻿@namespace Oqtane.Themes.Controls
+@inherits ThemeControlBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject IJSRuntime jsRuntime
@@ -33,12 +26,12 @@
         {
             returnurl += "/" + PageState.Page.Path;
         }
-        NavigationManager.NavigateTo("login?returnurl=" + returnurl);
+        NavigationManager.NavigateTo(NavigateUrl("login", "returnurl=" + returnurl));
     }
 
     private async Task LogoutUser()
     {
-        await UserService.LogoutUserAsync();
+        await UserService.LogoutUserAsync(PageState.User);
 
         var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
         if (authstateprovider == null)
@@ -53,8 +46,7 @@
         {
             // client-side Blazor
             authstateprovider.NotifyAuthenticationChanged();
-            PageState.Reload = Constants.ReloadSite;
-            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "logout"));
+            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "logout", Reload.Site));
         }
     }
 }

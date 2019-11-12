@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
+using Oqtane.Infrastructure;
 
 namespace Oqtane.Controllers
 {
@@ -11,23 +12,25 @@ namespace Oqtane.Controllers
     public class UserRoleController : Controller
     {
         private readonly IUserRoleRepository UserRoles;
+        private readonly ILogManager logger;
 
-        public UserRoleController(IUserRoleRepository UserRoles)
+        public UserRoleController(IUserRoleRepository UserRoles, ILogManager logger)
         {
             this.UserRoles = UserRoles;
+            this.logger = logger;
         }
 
         // GET: api/<controller>?userid=x
         [HttpGet]
-        public IEnumerable<UserRole> Get(string userid)
+        public IEnumerable<UserRole> Get(string siteid)
         {
-            if (userid == "")
+            if (siteid == "")
             {
                 return UserRoles.GetUserRoles();
             }
             else
             {
-                return UserRoles.GetUserRoles(int.Parse(userid));
+                return UserRoles.GetUserRoles(int.Parse(siteid));
             }
         }
         
@@ -46,6 +49,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 UserRole = UserRoles.AddUserRole(UserRole);
+                logger.Log(LogLevel.Information, this, LogFunction.Create, "User Role Added {UserRole}", UserRole);
             }
             return UserRole;
         }
@@ -58,6 +62,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 UserRole = UserRoles.UpdateUserRole(UserRole);
+                logger.Log(LogLevel.Information, this, LogFunction.Update, "User Role Updated {UserRole}", UserRole);
             }
             return UserRole;
         }
@@ -68,6 +73,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             UserRoles.DeleteUserRole(id);
+            logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Role Deleted {UserRoleId}", id);
         }
     }
 }

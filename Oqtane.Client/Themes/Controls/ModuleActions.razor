@@ -1,10 +1,4 @@
-﻿@using Microsoft.AspNetCore.Components.Web
-@using Oqtane.Themes
-@using Oqtane.Services
-@using Oqtane.Models
-@using Oqtane.Shared
-@using Oqtane.Security
-@namespace Oqtane.Themes.Controls
+﻿@namespace Oqtane.Themes.Controls
 @inherits ContainerBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
@@ -12,25 +6,38 @@
 
 @if (PageState.DesignMode && UserSecurity.IsAuthorized(PageState.User, "Edit", ModuleState.Permissions))
 {
-    <div class="dropdown">
-        <button type="button" class="btn dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            @foreach (var action in actions)
-            {
-                <a class="dropdown-item" @onclick="(async () => await ModuleAction(action.Action))">@action.Name</a>
-            }
-        </div>
+    <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"></a>
+    <div class="dropdown-menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 37px, 0px);">
+    @foreach (var action in actions)
+    {
+        if (action.Action != "")
+        {
+            <a class="dropdown-item" @onclick="(async () => await ModuleAction(action.Action))">@action.Name</a>
+        }
+        else
+        {
+            <div class="dropdown-divider"></div>
+        }
+    }
     </div>
 }
 
 @code {
-    List<ActionViewModel> actions;
+        List<ActionViewModel> actions;
 
     protected override void OnParametersSet()
     {
         if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, "Edit", ModuleState.Permissions))
         {
             actions = new List<ActionViewModel>();
+            actions.Add(new ActionViewModel { Action = "settings", Name = "Manage Settings" });
+            if (ModuleDefinition.ServerAssemblyName != "")
+            {
+                actions.Add(new ActionViewModel { Action = "import", Name = "Import Content" });
+                actions.Add(new ActionViewModel { Action = "export", Name = "Export Content" });
+            }
+            actions.Add(new ActionViewModel { Action = "delete", Name = "Delete Module" });
+            actions.Add(new ActionViewModel { Action = "", Name = "" });
             if (ModuleState.PaneModuleIndex > 0)
             {
                 actions.Add(new ActionViewModel { Action = "<<", Name = "Move To Top" });
@@ -54,8 +61,6 @@
                     actions.Add(new ActionViewModel { Action = pane, Name = "Move To " + pane + " Pane" });
                 }
             }
-            actions.Add(new ActionViewModel { Action = "settings", Name = "Settings" });
-            actions.Add(new ActionViewModel { Action = "delete", Name = "Delete" });
         }
     }
 
@@ -65,7 +70,7 @@
         {
             PageModule pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
 
-            string url = NavigateUrl();
+            string url = NavigateUrl(Reload.Page);
             switch (action)
             {
                 case "<<":
@@ -91,8 +96,15 @@
                 case "settings":
                     url = EditUrl(pagemodule.ModuleId, "Settings");
                     break;
+                case "import":
+                    url = EditUrl(pagemodule.ModuleId, "Import");
+                    break;
+                case "export":
+                    url = EditUrl(pagemodule.ModuleId, "Export");
+                    break;
                 case "delete":
-                    await PageModuleService.DeletePageModuleAsync(pagemodule.PageModuleId);
+                    pagemodule.IsDeleted = true;
+                    await PageModuleService.UpdatePageModuleAsync(pagemodule);
                     await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
                     break;
                 default: // move to pane
@@ -104,7 +116,6 @@
                     await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pane);
                     break;
             }
-            PageState.Reload = Constants.ReloadPage;
             NavigationManager.NavigateTo(url);
         }
     }
