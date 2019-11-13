@@ -10,6 +10,5 @@ namespace Oqtane.Models
         public DateTime? FinishDate { get; set; }
         public bool? Succeeded { get; set; }
         public string Notes { get; set; }
-        public DateTime? NextExecution { get; set; }
     }
 }

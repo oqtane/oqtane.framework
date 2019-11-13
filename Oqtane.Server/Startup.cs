@@ -154,10 +154,6 @@ namespace Oqtane.Server
             services.AddSingleton<IConfigurationRoot>(Configuration);
             services.AddSingleton<IInstallationManager, InstallationManager>();
 
-            //ServiceProvider sp = services.BuildServiceProvider();
-            //var InstallationManager = sp.GetRequiredService<IInstallationManager>();
-            //InstallationManager.InstallPackages("Modules,Themes");
-
             // register transient scoped core services
             services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
             services.AddTransient<IThemeRepository, ThemeRepository>();
@@ -231,6 +227,21 @@ namespace Oqtane.Server
                     else
                     {
                         services.AddScoped(implementationtype, implementationtype); // no interface defined for service
+                    }
+                }
+            }
+
+            // dynamically register hosted services
+            foreach (Assembly assembly in assemblies)
+            {
+                Type[] servicetypes = assembly.GetTypes()
+                    .Where(item => item.GetInterfaces().Contains(typeof(IHostedService)))
+                    .ToArray();
+                foreach (Type servicetype in servicetypes)
+                {
+                    if (servicetype.Name != "HostedServiceBase")
+                    {
+                        services.AddSingleton(typeof(IHostedService), servicetype);
                     }
                 }
             }

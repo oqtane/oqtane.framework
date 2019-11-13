@@ -62,11 +62,18 @@ namespace Oqtane.Infrastructure
             log.Level = Enum.GetName(typeof(LogLevel), Level);
             if (Exception != null)
             {
-                log.Exception = JsonSerializer.Serialize(Exception.ToString());
+                log.Exception = Exception.ToString();
             }
             log.Message = Message;
             log.MessageTemplate = "";
-            log.Properties = JsonSerializer.Serialize(Args);
+            try
+            {
+                log.Properties = JsonSerializer.Serialize(Args);
+            }
+            catch // serialization error occurred
+            {
+                log.Properties = "";
+            }
             Log(log);
         }
 
