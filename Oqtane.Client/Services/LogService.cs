@@ -51,7 +51,7 @@ namespace Oqtane.Services
             log.Level = Enum.GetName(typeof(LogLevel), level);
             if (exception != null)
             {
-                log.Exception = JsonSerializer.Serialize(exception);
+                log.Exception = exception.ToString();
             }
             log.Message = message;
             log.MessageTemplate = "";
