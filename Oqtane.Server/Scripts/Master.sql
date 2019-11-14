@@ -52,12 +52,14 @@ GO
 
 CREATE TABLE [dbo].[Schedule] (
 	[ScheduleId] [int] IDENTITY(1,1) NOT NULL,
-	[Name] [nvarchar](200) NULL,
+	[Name] [nvarchar](200) NOT NULL,
 	[JobType] [nvarchar](200) NOT NULL,
 	[Period] [int] NOT NULL,
 	[Frequency] [char](1) NOT NULL,
 	[StartDate] [datetime] NULL,
 	[IsActive] [bit] NOT NULL,
+	[IsExecuting] [bit] NOT NULL,
+	[NextExecution] [datetime] NULL,
 	[RetentionHistory] [int] NOT NULL,
 	[CreatedBy] [nvarchar](256) NULL,
 	[CreatedOn] [datetime] NULL,
@@ -77,7 +79,6 @@ CREATE TABLE [dbo].[ScheduleLog] (
 	[FinishDate] [datetime] NULL,
 	[Succeeded] [bit] NULL,
 	[Notes] [nvarchar](max) NULL,
-	[NextExecution] [datetime] NULL,
     CONSTRAINT [PK_ScheduleLog] PRIMARY KEY CLUSTERED 
     (
 	  [ScheduleLogId] ASC

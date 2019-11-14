@@ -44,6 +44,10 @@ namespace Oqtane.Repository
                     moduledef = new ModuleDefinition { ModuleDefinitionName = moduledefinition.ModuleDefinitionName };
                     db.ModuleDefinition.Add(moduledef);
                     db.SaveChanges();
+                    if (moduledefinition.Permissions != "")
+                    {
+                        Permissions.UpdatePermissions(SiteId, "ModuleDefinition", moduledef.ModuleDefinitionId, moduledefinition.Permissions);
+                    }
                 }
                 else
                 {
@@ -123,7 +127,8 @@ namespace Oqtane.Repository
                                 ServerAssemblyName = GetProperty(properties, "ServerAssemblyName"),
                                 ControlTypeTemplate = ModuleType + "." + Constants.ActionToken + ", " + typename[1],
                                 ControlTypeRoutes = "",
-                                AssemblyName = assembly.FullName.Split(",")[0]
+                                AssemblyName = assembly.FullName.Split(",")[0],
+                                Permissions = ""
                             };
                         }
                         else
@@ -144,7 +149,8 @@ namespace Oqtane.Repository
                                 ServerAssemblyName = "",
                                 ControlTypeTemplate = ModuleType + "." + Constants.ActionToken + ", " + typename[1],
                                 ControlTypeRoutes = "",
-                                AssemblyName = assembly.FullName.Split(",")[0]
+                                AssemblyName = assembly.FullName.Split(",")[0],
+                                Permissions = ((QualifiedModuleType.StartsWith("Oqtane.Modules.Admin.")) ? "[{\"PermissionName\":\"Utilize\",\"Permissions\":\"Administrators\"}]" : "")
                             };
                         }
                         moduledefinitions.Add(moduledefinition);

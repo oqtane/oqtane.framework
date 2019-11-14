@@ -70,6 +70,18 @@ namespace Oqtane.Shared
             }
         }
 
+        public static string GetFullTypeName(string fullyqualifiedtypename)
+        {
+            if (fullyqualifiedtypename.Contains(", Version="))
+            {
+                return fullyqualifiedtypename.Substring(0, fullyqualifiedtypename.IndexOf(", Version="));
+            }
+            else
+            {
+                return fullyqualifiedtypename;
+            }
+        }
+
         public static string GetTypeNameLastSegment(string typename, int segment)
         {
             if (typename.Contains(","))

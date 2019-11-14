@@ -11,6 +11,8 @@ namespace Oqtane.Models
         public string Frequency { get; set; }
         public DateTime? StartDate { get; set; }
         public bool IsActive { get; set; }
+        public bool IsExecuting { get; set; }
+        public DateTime? NextExecution { get; set; }
         public int RetentionHistory { get; set; }
 
         public string CreatedBy { get; set; }

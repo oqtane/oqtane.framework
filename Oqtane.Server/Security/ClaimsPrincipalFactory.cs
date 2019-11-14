@@ -38,10 +38,17 @@ namespace Oqtane.Security
                 foreach (UserRole userrole in userroles)
                 {
                     id.AddClaim(new Claim(options.ClaimsIdentity.RoleClaimType, userrole.Role.Name));
-                    // host users are admins of every site
-                    if (userrole.Role.Name == Constants.HostRole && userroles.Where(item => item.Role.Name == Constants.AdminRole).FirstOrDefault() == null)
+                    // host users are members of every site
+                    if (userrole.Role.Name == Constants.HostRole)
                     {
-                        id.AddClaim(new Claim(options.ClaimsIdentity.RoleClaimType, Constants.AdminRole));
+                        if (userroles.Where(item => item.Role.Name == Constants.RegisteredRole).FirstOrDefault() == null)
+                        {
+                            id.AddClaim(new Claim(options.ClaimsIdentity.RoleClaimType, Constants.RegisteredRole));
+                        }
+                        if (userroles.Where(item => item.Role.Name == Constants.AdminRole).FirstOrDefault() == null)
+                        {
+                            id.AddClaim(new Claim(options.ClaimsIdentity.RoleClaimType, Constants.AdminRole));
+                        }
                     }
                 }
             }
