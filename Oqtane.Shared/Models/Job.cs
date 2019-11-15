@@ -2,15 +2,17 @@
 
 namespace Oqtane.Models
 {
-    public class Schedule : IAuditable
+    public class Job : IAuditable
     {
-        public int ScheduleId { get; set; }
+        public int JobId { get; set; }
         public string Name { get; set; }
         public string JobType { get; set; }
-        public int Period { get; set; }
         public string Frequency { get; set; }
+        public int Interval { get; set; }
         public DateTime? StartDate { get; set; }
-        public bool IsActive { get; set; }
+        public DateTime? EndDate { get; set; }
+        public bool IsEnabled { get; set; }
+        public bool IsStarted { get; set; }
         public bool IsExecuting { get; set; }
         public DateTime? NextExecution { get; set; }
         public int RetentionHistory { get; set; }

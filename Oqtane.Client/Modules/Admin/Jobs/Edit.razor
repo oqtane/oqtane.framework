@@ -1,0 +1,160 @@
+﻿@namespace Oqtane.Modules.Admin.Jobs
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject IJobService JobService
+
+    <table class="table table-borderless">
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Name: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@name" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Type: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@jobtype" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Enabled? </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@isenabled">
+                    <option value="True">Yes</option>
+                    <option value="False">No</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Runs Every: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@interval" />
+                <select class="form-control" @bind="@frequency">
+                    <option value="m">Minute(s)</option>
+                    <option value="H">Hour(s)</option>
+                    <option value="d">Day(s)</option>
+                    <option value="M">Month(s)</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Starting: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@startdate" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Ending: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@enddate" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Retention Log (Items): </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@retentionhistory" />
+            </td>
+        </tr>
+    </table>
+<button type="button" class="btn btn-success" @onclick="SaveJob">Save</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+
+    int jobid;
+    string name = "";
+    string jobtype = "";
+    string isenabled = "True";
+    string interval = "";
+    string frequency = "";
+    string startdate = "";
+    string enddate = "";
+    string retentionhistory = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            jobid = Int32.Parse(PageState.QueryString["id"]);
+            Job job = await JobService.GetJobAsync(jobid);
+            if (job != null)
+            {
+                name = job.Name;
+                jobtype = job.JobType;
+                isenabled = job.IsEnabled.ToString();
+                interval = job.Interval.ToString();
+                frequency = job.Frequency;
+                startdate = (job.StartDate != null) ? job.StartDate.ToString() : "";
+                enddate = (job.EndDate != null) ? job.EndDate.ToString() : "";
+                retentionhistory = job.RetentionHistory.ToString();
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Job {JobId} {Error}", jobid, ex.Message);
+            AddModuleMessage("Error Loading Job", MessageType.Error);
+        }
+    }
+
+    private async Task SaveJob()
+    {
+        if (name != "" && !string.IsNullOrEmpty(jobtype) && frequency != "" && interval != "" && retentionhistory != "")
+        {
+            Job job = await JobService.GetJobAsync(jobid);
+            job.Name = name;
+            job.JobType = jobtype;
+            job.IsEnabled = Boolean.Parse(isenabled);
+            job.Frequency = frequency;
+            job.Interval = int.Parse(interval);
+            if (startdate == "")
+            {
+                job.StartDate = null;
+            }
+            else
+            {
+                job.StartDate = DateTime.Parse(startdate);
+            }
+            if (enddate == "")
+            {
+                job.EndDate = null;
+            }
+            else
+            {
+                job.EndDate = DateTime.Parse(enddate);
+            }
+            job.RetentionHistory = int.Parse(retentionhistory);
+
+            try
+            {
+                job = await JobService.UpdateJobAsync(job);
+                await logger.LogInformation("Job Updated {Job}", job);
+                NavigationManager.NavigateTo(NavigateUrl());
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Udate Job {Job} {Error}", job, ex.Message);
+                AddModuleMessage("Error Updating Job", MessageType.Error);
+            }
+        }
+        else
+        {
+            AddModuleMessage("You Must Provide The Job Name, Type, Frequency, and Retention", MessageType.Warning);
+        }
+    }
+
+}

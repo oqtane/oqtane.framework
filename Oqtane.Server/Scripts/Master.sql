@@ -3,22 +3,6 @@
 Create tables
 
 */
-CREATE TABLE [dbo].[Alias](
-	[AliasId] [int] IDENTITY(1,1) NOT NULL,
-	[Name] [nvarchar](200) NOT NULL,
-	[TenantId] [int] NOT NULL,
-	[SiteId] [int] NOT NULL,
-	[CreatedBy] [nvarchar](256) NOT NULL,
-	[CreatedOn] [datetime] NOT NULL,
-	[ModifiedBy] [nvarchar](256) NOT NULL,
-	[ModifiedOn] [datetime] NOT NULL,
-  CONSTRAINT [PK_Alias] PRIMARY KEY CLUSTERED 
-  (
-	[AliasId] ASC
-  )
-)
-GO
-
 CREATE TABLE [dbo].[Tenant](
 	[TenantId] [int] IDENTITY(1,1) NOT NULL,
 	[Name] [nvarchar](100) NOT NULL,
@@ -36,6 +20,23 @@ CREATE TABLE [dbo].[Tenant](
 )
 GO
 
+CREATE TABLE [dbo].[Alias](
+	[AliasId] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](200) NOT NULL,
+	[TenantId] [int] NOT NULL,
+	[SiteId] [int] NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedOn] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NOT NULL,
+	[ModifiedOn] [datetime] NOT NULL,
+  CONSTRAINT [PK_Alias] PRIMARY KEY CLUSTERED 
+  (
+	[AliasId] ASC
+  )
+)
+GO
+
+
 CREATE TABLE [dbo].[ModuleDefinition](
 	[ModuleDefinitionId] [int] IDENTITY(1,1) NOT NULL,
 	[ModuleDefinitionName] [nvarchar](200) NOT NULL,
@@ -50,38 +51,40 @@ CREATE TABLE [dbo].[ModuleDefinition](
 )
 GO
 
-CREATE TABLE [dbo].[Schedule] (
-	[ScheduleId] [int] IDENTITY(1,1) NOT NULL,
+CREATE TABLE [dbo].[Job] (
+	[JobId] [int] IDENTITY(1,1) NOT NULL,
 	[Name] [nvarchar](200) NOT NULL,
 	[JobType] [nvarchar](200) NOT NULL,
-	[Period] [int] NOT NULL,
 	[Frequency] [char](1) NOT NULL,
+	[Interval] [int] NOT NULL,
 	[StartDate] [datetime] NULL,
-	[IsActive] [bit] NOT NULL,
+	[EndDate] [datetime] NULL,
+	[IsEnabled] [bit] NOT NULL,
+	[IsStarted] [bit] NOT NULL,
 	[IsExecuting] [bit] NOT NULL,
 	[NextExecution] [datetime] NULL,
 	[RetentionHistory] [int] NOT NULL,
-	[CreatedBy] [nvarchar](256) NULL,
-	[CreatedOn] [datetime] NULL,
-	[ModifiedBy] [nvarchar](256) NULL,
-	[ModifiedOn] [datetime] NULL,
-    CONSTRAINT [PK_Schedule] PRIMARY KEY CLUSTERED 
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedOn] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NOT NULL,
+	[ModifiedOn] [datetime] NOT NULL,
+    CONSTRAINT [PK_Job] PRIMARY KEY CLUSTERED 
     (
-	  [ScheduleId] ASC
+	  [JobId] ASC
     )
 )
 GO
 
-CREATE TABLE [dbo].[ScheduleLog] (
-	[ScheduleLogId] [int] IDENTITY(1,1) NOT NULL,
-	[ScheduleId] [int] NOT NULL,
+CREATE TABLE [dbo].[JobLog] (
+	[JobLogId] [int] IDENTITY(1,1) NOT NULL,
+	[JobId] [int] NOT NULL,
 	[StartDate] [datetime] NOT NULL,
 	[FinishDate] [datetime] NULL,
 	[Succeeded] [bit] NULL,
 	[Notes] [nvarchar](max) NULL,
-    CONSTRAINT [PK_ScheduleLog] PRIMARY KEY CLUSTERED 
+    CONSTRAINT [PK_JobLog] PRIMARY KEY CLUSTERED 
     (
-	  [ScheduleLogId] ASC
+	  [JobLogId] ASC
     ) 
 )
 GO
@@ -107,8 +110,8 @@ REFERENCES [dbo].[Tenant] ([TenantId])
 ON DELETE CASCADE
 GO
 
-ALTER TABLE [dbo].[ScheduleLog]  WITH NOCHECK ADD CONSTRAINT [FK_ScheduleLog_Schedule] FOREIGN KEY([ScheduleId])
-REFERENCES [dbo].[Schedule] ([ScheduleId])
+ALTER TABLE [dbo].[JobLog]  WITH NOCHECK ADD CONSTRAINT [FK_JobLog_Job] FOREIGN KEY([JobId])
+REFERENCES [dbo].[Job] ([JobId])
 ON DELETE CASCADE
 GO
 
@@ -132,3 +135,12 @@ VALUES (1, N'{Alias}', 1, 1, '', getdate(), '', getdate())
 GO
 SET IDENTITY_INSERT [dbo].[Alias] OFF
 GO
+
+SET IDENTITY_INSERT [dbo].[Job] ON 
+GO
+INSERT [dbo].[Job] ([JobId], [Name], [JobType], [Frequency], [Interval], [StartDate], [EndDate], [IsEnabled], [IsStarted], [IsExecuting], [NextExecution], [RetentionHistory],  [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
+VALUES (1, N'Sample Daily Job', N'Oqtane.Infrastructure.SampleJob, Oqtane.Server', N'd', 1, null, null, 1, 0, 0, null, 10, '', getdate(), '', getdate())
+GO
+SET IDENTITY_INSERT [dbo].[Job] OFF
+GO
+

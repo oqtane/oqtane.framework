@@ -1,0 +1,137 @@
+﻿@namespace Oqtane.Modules.Admin.Jobs
+@inherits ModuleBase
+@inject IJobService JobService
+
+@if (Jobs == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <ActionLink Action="Add" Text="Add Job" />
+    <ActionLink Action="Log" Class="btn btn-secondary" Text="View Logs" />
+    <button type="button" class="btn btn-secondary" @onclick="(async () => await Refresh())">Refresh</button>
+    <br /><br />
+
+    <Pager Items="@Jobs">
+        <Header>
+            <th>&nbsp;</th>
+            <th>&nbsp;</th>
+            <th>&nbsp;</th>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Frequency</th>
+            <th>Next Execution</th>
+            <th>&nbsp;</th>
+        </Header>
+        <Row>
+            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.JobId.ToString())" /></td>
+            <td><ActionDialog Header="Delete Job" Message="@("Are You Sure You Wish To Delete This Job?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteJob(context))" /></td>
+            <td><ActionLink Action="Log" Class="btn btn-secondary" Parameters="@($"id=" + context.JobId.ToString())" /></td>
+            <td>@context.Name</td>
+            <td>@DisplayStatus(context.IsEnabled, context.IsExecuting)</td>
+            <td>@DisplayFrequency(context.Interval, context.Frequency)</td>
+            <td>@context.NextExecution</td>
+            <td>
+                @if (context.IsStarted)
+                {
+                    <button type="button" class="btn btn-danger" @onclick="(async () => await StopJob(context.JobId))">Stop</button>
+                }
+                else
+                {
+                    <button type="button" class="btn btn-success" @onclick="(async () => await StartJob(context.JobId))">Start</button>
+                }
+            </td>
+        </Row>
+    </Pager>
+}
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+
+    List<Job> Jobs;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Jobs = await JobService.GetJobsAsync();
+    }
+
+    private string DisplayStatus(bool IsEnabled, bool IsExecuting)
+    {
+        string status = "";
+        if (!IsEnabled)
+        {
+            status = "Disabled";
+        }
+        else
+        {
+            if (IsExecuting)
+            {
+                status = "Executing";
+            }
+            else
+            {
+                status = "Idle";
+            }
+        }
+
+        return status;
+    }
+
+
+    private string DisplayFrequency(int Interval, string Frequency)
+    {
+        string frequency = "Every " + Interval.ToString() + " ";
+        switch (Frequency)
+        {
+            case "m":
+                frequency += "Minute";
+                break;
+            case "H":
+                frequency += "Hour";
+                break;
+            case "d":
+                frequency += "Day";
+                break;
+            case "M":
+                frequency += "Month";
+                break;
+        }
+        if (Interval > 1)
+        {
+            frequency += "s";
+        }
+        return frequency;
+    }
+
+    private async Task DeleteJob(Job Job)
+    {
+        try
+        {
+            await JobService.DeleteJobAsync(Job.JobId);
+            await logger.LogInformation("Job Deleted {Job}", Job);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Job {Job} {Error}", Job, ex.Message);
+            AddModuleMessage("Error Deleting Job", MessageType.Error);
+        }
+    }
+
+    private async Task StartJob(int JobId)
+    {
+        await JobService.StartJobAsync(JobId);
+    }
+
+    private async Task StopJob(int JobId)
+    {
+        await JobService.StopJobAsync(JobId);
+    }
+
+    private async Task Refresh()
+    {
+        Jobs = await JobService.GetJobsAsync();
+        StateHasChanged();
+    }
+}
