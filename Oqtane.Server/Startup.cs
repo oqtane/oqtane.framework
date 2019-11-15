@@ -50,8 +50,12 @@ namespace Oqtane.Server
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
+#if DEBUG
+            services.AddServerSideBlazor().AddCircuitOptions(options => { options.DetailedErrors = true; });
+#endif
+#if RELEASE
             services.AddServerSideBlazor();
-
+#endif
             // setup HttpClient for server side in a client side compatible fashion ( with auth cookie )
             if (!services.Any(x => x.ServiceType == typeof(HttpClient)))
             {
