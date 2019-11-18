@@ -83,10 +83,10 @@ namespace Oqtane.Server
                 options.AddPolicy("ViewModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", "View")));
                 options.AddPolicy("EditModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", "Edit")));
             });
-            services.AddScoped<IAuthorizationHandler, PermissionHandler>();
 
             // register scoped core services
             services.AddScoped<SiteState>();
+            services.AddScoped<IAuthorizationHandler, PermissionHandler>();
             services.AddScoped<IInstallationService, InstallationService>();
             services.AddScoped<IModuleDefinitionService, ModuleDefinitionService>();
             services.AddScoped<IThemeService, ThemeService>();
@@ -309,6 +309,9 @@ namespace Oqtane.Server
                 options.AddPolicy("ViewModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", "View")));
                 options.AddPolicy("EditModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", "Edit")));
             });
+
+            // register scoped core services
+            services.AddScoped<SiteState>();
             services.AddScoped<IAuthorizationHandler, PermissionHandler>();
             
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -361,11 +364,6 @@ namespace Oqtane.Server
             // register singleton scoped core services
             services.AddSingleton<IConfigurationRoot>(Configuration);
             services.AddSingleton<IInstallationManager, InstallationManager>();
-
-            // install any modules or themes
-            ServiceProvider sp = services.BuildServiceProvider();
-            var InstallationManager = sp.GetRequiredService<IInstallationManager>();
-            InstallationManager.InstallPackages("Modules,Themes");
 
             // register transient scoped core services
             services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
@@ -443,6 +441,21 @@ namespace Oqtane.Server
                 }
             }
 
+            // dynamically register hosted services
+            foreach (Assembly assembly in assemblies)
+            {
+                Type[] servicetypes = assembly.GetTypes()
+                    .Where(item => item.GetInterfaces().Contains(typeof(IHostedService)))
+                    .ToArray();
+                foreach (Type servicetype in servicetypes)
+                {
+                    if (servicetype.Name != "HostedServiceBase")
+                    {
+                        services.AddSingleton(typeof(IHostedService), servicetype);
+                    }
+                }
+            }
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Oqtane", Version = "v1" });
@@ -456,7 +469,7 @@ namespace Oqtane.Server
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IInstallationManager InstallationManager)
         {
             app.UseResponseCompression();
 
@@ -467,7 +480,7 @@ namespace Oqtane.Server
             }
 
             // install any modules or themes
-            InstallationManager.InstallPackages("Modules,Themes");
+            InstallationManager.InstallPackages("Modules,Themes", false);
 
             app.UseClientSideBlazorFiles<Client.Startup>();
             app.UseStaticFiles();
