@@ -78,20 +78,21 @@
 
     private async Task SaveRole()
     {
+        Role role = await RoleService.GetRoleAsync(roleid);
+        role.Name = name;
+        role.Description = description;
+        role.IsAutoAssigned = (isautoassigned == null ? false : Boolean.Parse(isautoassigned));
+        role.IsSystem = (issystem == null ? false : Boolean.Parse(issystem));
+
         try
         {
-            Role role = await RoleService.GetRoleAsync(roleid);
-            role.Name = name;
-            role.Description = description;
-            role.IsAutoAssigned = (isautoassigned == null ? false : Boolean.Parse(isautoassigned));
-            role.IsSystem = (issystem == null ? false : Boolean.Parse(issystem));
             role = await RoleService.UpdateRoleAsync(role);
             await logger.LogInformation("Role Saved {Role}", role);
             NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Saving Role {RoleId} {Error}", roleid, ex.Message);
+            await logger.LogError(ex, "Error Saving Role {Role} {Error}", role, ex.Message);
             AddModuleMessage("Error Saving Role", MessageType.Error);
         }
     }

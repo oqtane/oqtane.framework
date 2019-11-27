@@ -50,8 +50,12 @@ namespace Oqtane.Server
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
+#if DEBUG
+            services.AddServerSideBlazor().AddCircuitOptions(options => { options.DetailedErrors = true; });
+#endif
+#if RELEASE
             services.AddServerSideBlazor();
-
+#endif
             // setup HttpClient for server side in a client side compatible fashion ( with auth cookie )
             if (!services.Any(x => x.ServiceType == typeof(HttpClient)))
             {
@@ -79,10 +83,10 @@ namespace Oqtane.Server
                 options.AddPolicy("ViewModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", "View")));
                 options.AddPolicy("EditModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", "Edit")));
             });
-            services.AddScoped<IAuthorizationHandler, PermissionHandler>();
 
             // register scoped core services
             services.AddScoped<SiteState>();
+            services.AddScoped<IAuthorizationHandler, PermissionHandler>();
             services.AddScoped<IInstallationService, InstallationService>();
             services.AddScoped<IModuleDefinitionService, ModuleDefinitionService>();
             services.AddScoped<IThemeService, ThemeService>();
@@ -100,8 +104,8 @@ namespace Oqtane.Server
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<IPackageService, PackageService>();
             services.AddScoped<ILogService, LogService>();
-            services.AddScoped<IScheduleService, ScheduleService>();
-            services.AddScoped<IScheduleLogService, ScheduleLogService>();
+            services.AddScoped<IJobService, JobService>();
+            services.AddScoped<IJobLogService, JobLogService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -173,8 +177,8 @@ namespace Oqtane.Server
             services.AddTransient<ISettingRepository, SettingRepository>();
             services.AddTransient<ILogRepository, LogRepository>();
             services.AddTransient<ILogManager, LogManager>();
-            services.AddTransient<IScheduleRepository, ScheduleRepository>();
-            services.AddTransient<IScheduleLogRepository, ScheduleLogRepository>();
+            services.AddTransient<IJobRepository, JobRepository>();
+            services.AddTransient<IJobLogRepository, JobLogRepository>();
 
             // get list of loaded assemblies
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -305,6 +309,9 @@ namespace Oqtane.Server
                 options.AddPolicy("ViewModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", "View")));
                 options.AddPolicy("EditModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", "Edit")));
             });
+
+            // register scoped core services
+            services.AddScoped<SiteState>();
             services.AddScoped<IAuthorizationHandler, PermissionHandler>();
             
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -358,11 +365,6 @@ namespace Oqtane.Server
             services.AddSingleton<IConfigurationRoot>(Configuration);
             services.AddSingleton<IInstallationManager, InstallationManager>();
 
-            // install any modules or themes
-            ServiceProvider sp = services.BuildServiceProvider();
-            var InstallationManager = sp.GetRequiredService<IInstallationManager>();
-            InstallationManager.InstallPackages("Modules,Themes");
-
             // register transient scoped core services
             services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
             services.AddTransient<IThemeRepository, ThemeRepository>();
@@ -382,8 +384,8 @@ namespace Oqtane.Server
             services.AddTransient<ISettingRepository, SettingRepository>();
             services.AddTransient<ILogRepository, LogRepository>();
             services.AddTransient<ILogManager, LogManager>();
-            services.AddTransient<IScheduleRepository, ScheduleRepository>();
-            services.AddTransient<IScheduleLogRepository, ScheduleLogRepository>();
+            services.AddTransient<IJobRepository, JobRepository>();
+            services.AddTransient<IJobLogRepository, JobLogRepository>();
 
             // get list of loaded assemblies
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -439,6 +441,21 @@ namespace Oqtane.Server
                 }
             }
 
+            // dynamically register hosted services
+            foreach (Assembly assembly in assemblies)
+            {
+                Type[] servicetypes = assembly.GetTypes()
+                    .Where(item => item.GetInterfaces().Contains(typeof(IHostedService)))
+                    .ToArray();
+                foreach (Type servicetype in servicetypes)
+                {
+                    if (servicetype.Name != "HostedServiceBase")
+                    {
+                        services.AddSingleton(typeof(IHostedService), servicetype);
+                    }
+                }
+            }
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Oqtane", Version = "v1" });
@@ -452,7 +469,7 @@ namespace Oqtane.Server
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IInstallationManager InstallationManager)
         {
             app.UseResponseCompression();
 
@@ -463,7 +480,7 @@ namespace Oqtane.Server
             }
 
             // install any modules or themes
-            InstallationManager.InstallPackages("Modules,Themes");
+            InstallationManager.InstallPackages("Modules,Themes", false);
 
             app.UseClientSideBlazorFiles<Client.Startup>();
             app.UseStaticFiles();

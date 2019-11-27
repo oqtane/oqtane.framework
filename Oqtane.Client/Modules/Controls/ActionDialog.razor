@@ -15,7 +15,10 @@
                         <p>@Message</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="@Class" @onclick="Confirm">@Action</button>
+                        @if (!string.IsNullOrEmpty(Action))
+                        {
+                            <button type="button" class="@Class" @onclick="Confirm">@Action</button>
+                        }
                         <button type="button" class="btn btn-secondary" @onclick="DisplayModal">Cancel</button>
                     </div>
                 </div>
@@ -36,29 +39,25 @@
     public string Message { get; set; } // required 
 
     [Parameter]
-    public string Action { get; set; } // defaults to Ok if not specified
+    public string Text { get; set; } // optional - defaults to Action if not specified
+
+    [Parameter]
+    public string Action { get; set; } // optional 
 
     [Parameter]
     public SecurityAccessLevel? Security { get; set; } // optional - can be used to explicitly specify SecurityAccessLevel
 
     [Parameter]
-    public string Text { get; set; } // optional - defaults to Action if not specified
-
-    [Parameter]
     public string Class { get; set; } // optional
 
     [Parameter]
-    public Action OnClick { get; set; } // required - executes a method in the calling component
+    public Action OnClick { get; set; } // required if an Action is specified - executes a method in the calling component
 
     bool visible = false;
     bool authorized = false;
 
     protected override void OnParametersSet()
     {
-        if (string.IsNullOrEmpty(Action))
-        {
-            Action = "Ok";
-        }
         if (string.IsNullOrEmpty(Text))
         {
             Text = Action;

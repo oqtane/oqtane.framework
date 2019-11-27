@@ -42,7 +42,7 @@ namespace Oqtane.Repository
             ChangeTracker.DetectChanges();
 
             string username = "";
-            if (accessor.HttpContext.User.Identity.Name != null)
+            if (accessor.HttpContext != null && accessor.HttpContext.User.Identity.Name != null)
             {
                 username = accessor.HttpContext.User.Identity.Name;
             }

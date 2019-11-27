@@ -3,6 +3,7 @@ using System.Linq;
 using Oqtane.Models;
 using Microsoft.AspNetCore.Http;
 using System;
+using Oqtane.Shared;
 
 namespace Oqtane.Repository
 {
@@ -12,12 +13,14 @@ namespace Oqtane.Repository
         private readonly string aliasname;
         private readonly IAliasRepository Aliases;
         private readonly ITenantRepository Tenants;
+        private readonly SiteState sitestate;
 
-        public TenantResolver(MasterDBContext context, IHttpContextAccessor accessor, IAliasRepository Aliases, ITenantRepository Tenants)
+        public TenantResolver(MasterDBContext context, IHttpContextAccessor accessor, IAliasRepository Aliases, ITenantRepository Tenants, SiteState sitestate)
         {
             db = context;
             this.Aliases = Aliases;
             this.Tenants = Tenants;
+            this.sitestate = sitestate;
             aliasname = "";
 
             // get alias based on request context
@@ -33,6 +36,13 @@ namespace Oqtane.Repository
                 if (aliasname.EndsWith("/"))
                 {
                     aliasname = aliasname.Substring(0, aliasname.Length - 1);
+                }
+            }
+            else  // background processes can pass in an alias using the SiteState service
+            {
+                if (sitestate != null)
+                {
+                    aliasname = sitestate.Alias.Name;
                 }
             }
         }
