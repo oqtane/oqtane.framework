@@ -154,8 +154,7 @@ window.interop = {
         return editorElement.__quill.root.innerHTML;
     },
     loadQuillContent: function (editorElement, editorContent) {
-        content = JSON.parse(editorContent);
-        return editorElement.__quill.setContents(content, 'api');
+        return editorElement.__quill.root.innerHTML = editorContent;
     },
     enableQuillEditor: function (editorElement, mode) {
         editorElement.__quill.enable(mode);

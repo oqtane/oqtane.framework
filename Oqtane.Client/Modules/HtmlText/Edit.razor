@@ -41,9 +41,6 @@
                         <button class="ql-link"></button>
                     </span>
                 </ToolbarContent>
-                <EditorContent>
-                    @((MarkupString)@content)
-                </EditorContent>
             </RichTextEditor>
         </td>
     </tr>
@@ -79,6 +76,8 @@
                 createdon = htmltext.CreatedOn;
                 modifiedby = htmltext.ModifiedBy;
                 modifiedon = htmltext.ModifiedOn;
+
+                await RichTextEditorHtml.LoadContent(content);
             }
         }
         catch (Exception ex)

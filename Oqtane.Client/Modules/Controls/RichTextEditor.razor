@@ -6,13 +6,9 @@
     @ToolbarContent
 </div>
 <div @ref="@EditorElement">
-    @EditorContent
 </div>
 
 @code {
-    [Parameter]
-    public RenderFragment EditorContent { get; set; }
-
     [Parameter]
     public RenderFragment ToolbarContent { get; set; }
 
