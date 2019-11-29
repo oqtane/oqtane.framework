@@ -127,5 +127,37 @@ window.interop = {
                 request.send(data);
             }
         }
+    },
+    createQuill: function (
+        editorElement, toolBar, readOnly,
+        placeholder, theme, debugLevel) {
+
+        var options = {
+            debug: debugLevel,
+            modules: {
+                toolbar: toolBar
+            },
+            placeholder: placeholder,
+            readOnly: readOnly,
+            theme: theme
+        };
+
+        new Quill(editorElement, options);
+    },
+    getQuillContent: function (editorElement) {
+        return JSON.stringify(editorElement.__quill.getContents());
+    },
+    getQuillText: function (editorElement) {
+        return editorElement.__quill.getText();
+    },
+    getQuillHTML: function (editorElement) {
+        return editorElement.__quill.root.innerHTML;
+    },
+    loadQuillContent: function (editorElement, editorContent) {
+        content = JSON.parse(editorContent);
+        return editorElement.__quill.setContents(content, 'api');
+    },
+    enableQuillEditor: function (editorElement, mode) {
+        editorElement.__quill.enable(mode);
     }
 };

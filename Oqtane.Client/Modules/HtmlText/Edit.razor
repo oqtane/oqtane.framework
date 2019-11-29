@@ -1,5 +1,6 @@
 ﻿@using Oqtane.Modules.HtmlText.Services
 @using Oqtane.Modules.HtmlText.Models
+@using Oqtane.Modules.Controls
 @namespace Oqtane.Modules.HtmlText
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
@@ -12,7 +13,38 @@
             <label for="Name" class="control-label">Content: </label>
         </td>
         <td>
-            <textarea class="form-control" @bind="@content" rows="5" />
+            <RichTextEditor @ref="@RichTextEditorHtml">
+                <ToolbarContent>
+                    <select class="ql-header">
+                        <option selected=""></option>
+                        <option value="1"></option>
+                        <option value="2"></option>
+                        <option value="3"></option>
+                        <option value="4"></option>
+                        <option value="5"></option>
+                    </select>
+                    <span class="ql-formats">
+                        <button class="ql-bold"></button>
+                        <button class="ql-italic"></button>
+                        <button class="ql-underline"></button>
+                        <button class="ql-strike"></button>
+                    </span>
+                    <span class="ql-formats">
+                        <select class="ql-color"></select>
+                        <select class="ql-background"></select>
+                    </span>
+                    <span class="ql-formats">
+                        <button class="ql-list" value="ordered"></button>
+                        <button class="ql-list" value="bullet"></button>
+                    </span>
+                    <span class="ql-formats">
+                        <button class="ql-link"></button>
+                    </span>
+                </ToolbarContent>
+                <EditorContent>
+                    @((MarkupString)@content)
+                </EditorContent>
+            </RichTextEditor>
         </td>
     </tr>
 </table>
@@ -26,6 +58,7 @@
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Edit; } }
     public override string Title { get { return "Edit Html/Text"; } }
 
+    RichTextEditor RichTextEditorHtml;
     string content;
     string createdby;
     DateTime createdon;
@@ -38,6 +71,7 @@
         {
             HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, NavigationManager);
             HtmlTextInfo htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
+
             if (htmltext != null)
             {
                 content = htmltext.Content;
@@ -56,6 +90,8 @@
 
     private async Task SaveContent()
     {
+        content = await this.RichTextEditorHtml.GetHTML();
+
         try
         {
             HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, NavigationManager);
