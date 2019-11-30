@@ -13,38 +13,53 @@
             <label for="Name" class="control-label">Content: </label>
         </td>
         <td>
-            <RichTextEditor @ref="@RichTextEditorHtml">
-                <ToolbarContent>
-                    <select class="ql-header">
-                        <option selected=""></option>
-                        <option value="1"></option>
-                        <option value="2"></option>
-                        <option value="3"></option>
-                        <option value="4"></option>
-                        <option value="5"></option>
-                    </select>
-                    <span class="ql-formats">
-                        <button class="ql-bold"></button>
-                        <button class="ql-italic"></button>
-                        <button class="ql-underline"></button>
-                        <button class="ql-strike"></button>
-                    </span>
-                    <span class="ql-formats">
-                        <select class="ql-color"></select>
-                        <select class="ql-background"></select>
-                    </span>
-                    <span class="ql-formats">
-                        <button class="ql-list" value="ordered"></button>
-                        <button class="ql-list" value="bullet"></button>
-                    </span>
-                    <span class="ql-formats">
-                        <button class="ql-link"></button>
-                    </span>
-                </ToolbarContent>
-            </RichTextEditor>
+            @if (!RichTextEditorMode)
+            {
+                <textarea class="form-control" @bind="@content" rows="5" />
+            }
+            else
+            {
+                <RichTextEditor @ref="@RichTextEditorHtml">
+                    <ToolbarContent>
+                        <select class="ql-header">
+                            <option selected=""></option>
+                            <option value="1"></option>
+                            <option value="2"></option>
+                            <option value="3"></option>
+                            <option value="4"></option>
+                            <option value="5"></option>
+                        </select>
+                        <span class="ql-formats">
+                            <button class="ql-bold"></button>
+                            <button class="ql-italic"></button>
+                            <button class="ql-underline"></button>
+                            <button class="ql-strike"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <select class="ql-color"></select>
+                            <select class="ql-background"></select>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-list" value="ordered"></button>
+                            <button class="ql-list" value="bullet"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-link"></button>
+                        </span>
+                    </ToolbarContent>
+                </RichTextEditor>
+            }
         </td>
     </tr>
 </table>
+@if (!RichTextEditorMode)
+{
+    <button type="button" class="btn btn-secondary" @onclick="RichTextEditor">Rich Text Editor</button>
+}
+else
+{
+    <button type="button" class="btn btn-secondary" @onclick="RawHTMLEditor">Raw HTML Editor</button>
+}
 <button type="button" class="btn btn-success" @onclick="SaveContent">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 <br />
@@ -56,6 +71,7 @@
     public override string Title { get { return "Edit Html/Text"; } }
 
     RichTextEditor RichTextEditorHtml;
+    bool RichTextEditorMode = true;
     string content;
     string createdby;
     DateTime createdon;
@@ -66,19 +82,7 @@
     {
         try
         {
-            HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, NavigationManager);
-            HtmlTextInfo htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
-
-            if (htmltext != null)
-            {
-                content = htmltext.Content;
-                createdby = htmltext.CreatedBy;
-                createdon = htmltext.CreatedOn;
-                modifiedby = htmltext.ModifiedBy;
-                modifiedon = htmltext.ModifiedOn;
-
-                await RichTextEditorHtml.LoadContent(content);
-            }
+            await LoadText();
         }
         catch (Exception ex)
         {
@@ -87,9 +91,43 @@
         }
     }
 
+    private async Task LoadText()
+    {
+        HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, NavigationManager);
+        HtmlTextInfo htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
+        if (htmltext != null)
+        {
+            content = htmltext.Content;
+            createdby = htmltext.CreatedBy;
+            createdon = htmltext.CreatedOn;
+            modifiedby = htmltext.ModifiedBy;
+            modifiedon = htmltext.ModifiedOn;
+
+            if (RichTextEditorMode)
+            {
+                await RichTextEditorHtml.LoadContent(content);
+            }
+        }
+    }
+
+    private async Task RichTextEditor()
+    {
+        RichTextEditorMode = true;
+        await LoadText();
+    }
+
+    private async Task RawHTMLEditor()
+    {
+        RichTextEditorMode = false;
+        await LoadText();
+    }
+
     private async Task SaveContent()
     {
-        content = await this.RichTextEditorHtml.GetHTML();
+        if (RichTextEditorMode)
+        {
+            content = await this.RichTextEditorHtml.GetHTML();
+        }
 
         try
         {
