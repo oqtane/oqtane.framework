@@ -78,16 +78,20 @@ else
     string modifiedby;
     DateTime modifiedon;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task
+          OnAfterRenderAsync(bool firstRender)
     {
-        try
+        if (firstRender)
         {
-            await LoadText();
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "An Error Occurred Loading Html/Text Content. " + ex.Message);
-            AddModuleMessage(ex.Message, MessageType.Error);
+            try
+            {
+                await LoadText();
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "An Error Occurred Loading Html/Text Content. " + ex.Message);
+                AddModuleMessage(ex.Message, MessageType.Error);
+            }
         }
     }
 
