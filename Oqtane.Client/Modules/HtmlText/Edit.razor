@@ -110,6 +110,7 @@ else
             if (RichTextEditorMode)
             {
                 await RichTextEditorHtml.LoadContent(content);
+                StateHasChanged();
             }
         }
     }
