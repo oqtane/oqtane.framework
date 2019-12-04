@@ -1,0 +1,84 @@
+﻿@namespace Oqtane.Modules.Controls
+@inherits ModuleBase
+@inject IJSRuntime JSRuntime
+
+<div @ref="@ToolBar">
+    @ToolbarContent
+</div>
+<div @ref="@EditorElement">
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment ToolbarContent { get; set; }
+
+    [Parameter]
+    public bool ReadOnly { get; set; }
+        = false;
+
+    [Parameter]
+    public string Placeholder { get; set; }
+        = "Compose an epic...";
+
+    [Parameter]
+    public string Theme { get; set; }
+        = "snow";
+
+    [Parameter]
+    public string DebugLevel { get; set; }
+        = "info";
+
+    private ElementReference EditorElement;
+    private ElementReference ToolBar;
+
+    protected override async Task
+        OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await RichTextEditorInterop.CreateEditor(
+                JSRuntime,
+                EditorElement,
+                ToolBar,
+                ReadOnly,
+                Placeholder,
+                Theme,
+                DebugLevel);
+        }
+    }
+
+    public async Task<string> GetText()
+    {
+        return await RichTextEditorInterop.GetText(
+            JSRuntime,
+            EditorElement);
+    }
+
+    public async Task<string> GetHTML()
+    {
+        return await RichTextEditorInterop.GetHTML(
+            JSRuntime,
+            EditorElement);
+    }
+
+    public async Task<string> GetContent()
+    {
+        return await RichTextEditorInterop.GetContent(
+            JSRuntime,
+            EditorElement);
+    }
+
+    public async Task LoadContent(string Content)
+    {
+        await RichTextEditorInterop.LoadEditorContent(
+            JSRuntime,
+            EditorElement, Content);
+    }
+
+    public async Task EnableEditor(bool mode)
+    {
+        await RichTextEditorInterop.EnableEditor(
+            JSRuntime,
+            EditorElement, mode);
+    }
+}
