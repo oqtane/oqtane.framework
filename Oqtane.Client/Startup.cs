@@ -81,7 +81,6 @@ namespace Oqtane.Client
 
         public void Configure(IComponentsApplicationBuilder app)
         {
-            WebAssemblyHttpMessageHandler.DefaultCredentials = FetchCredentialsOption.Include;
             app.AddComponent<App>("app");
         }
 #endif
