@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 
@@ -8,6 +9,11 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IMvcBuilder AddOqtaneApplicationParts(this IMvcBuilder mvcBuilder)
         {
+            if (mvcBuilder is null)
+            {
+                throw new ArgumentNullException(nameof(mvcBuilder));
+            }
+
             // load MVC application parts from module assemblies
             foreach (var assembly in OqtaneServiceCollectionExtensions.GetOqtaneModuleAssemblies())
             {

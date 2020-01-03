@@ -20,6 +20,11 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IServiceCollection AddOqtaneModules(this IServiceCollection services)
         {
+            if (services is null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
             LoadAssemblies("Module");
 
             return services;
@@ -27,6 +32,11 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IServiceCollection AddOqtaneThemes(this IServiceCollection services)
         {
+            if (services is null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
             LoadAssemblies("Theme");
 
             return services;
@@ -34,6 +44,11 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IServiceCollection AddOqtaneServices(this IServiceCollection services)
         {
+            if (services is null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
             // dynamically register module services, contexts, and repository classes
             var assemblies = Assemblies.
                 Where(item => item.FullName.StartsWith("Oqtane.") || item.FullName.Contains(".Module.")).ToArray();
@@ -52,6 +67,11 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IServiceCollection AddOqtaneHostedServices(this IServiceCollection services)
         {
+            if (services is null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
             // dynamically register hosted services
             var hostedServiceType = typeof(IHostedService);
             foreach (var assembly in Assemblies)
