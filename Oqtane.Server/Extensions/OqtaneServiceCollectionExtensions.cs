@@ -20,42 +20,14 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IServiceCollection AddOqtaneModules(this IServiceCollection services)
         {
-            var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            var assembliesFolder = new DirectoryInfo(assemblyPath);
-
-            // iterate through Oqtane module assemblies in /bin ( filter is narrow to optimize loading process )
-            foreach (var file in assembliesFolder.EnumerateFiles("*.Module.*.dll"))
-            {
-                // check if assembly is already loaded
-                var assembly = Assemblies.Where(a => a.Location == file.FullName).FirstOrDefault();
-                if (assembly == null)
-                {
-                    // load assembly from stream to prevent locking file ( as long as dependencies are in /bin they will load as well )
-                    assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(file.FullName)));
-                    _oqtaneModuleAssemblies.Add(assembly);
-                }
-            }
+            LoadAssemblies("Module");
 
             return services;
         }
 
         public static IServiceCollection AddOqtaneThemes(this IServiceCollection services)
         {
-            var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            var assembliesFolder = new DirectoryInfo(assemblyPath);
-
-            // iterate through Oqtane theme assemblies in /bin ( filter is narrow to optimize loading process )
-            foreach (var file in assembliesFolder.EnumerateFiles("*.Theme.*.dll"))
-            {
-                // check if assembly is already loaded
-                var assembly = Assemblies.Where(a => a.Location == file.FullName).FirstOrDefault();
-                if (assembly == null)
-                {
-                    // load assembly from stream to prevent locking file ( as long as dependencies are in /bin they will load as well )
-                    assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(file.FullName)));
-                    _oqtaneModuleAssemblies.Add(assembly);
-                }
-            }
+            LoadAssemblies("Theme");
 
             return services;
         }
@@ -67,20 +39,11 @@ namespace Microsoft.Extensions.DependencyInjection
                 Where(item => item.FullName.StartsWith("Oqtane.") || item.FullName.Contains(".Module.")).ToArray();
             foreach (var assembly in assemblies)
             {
-                var implementationTypes = assembly.GetTypes()
-                    .Where(t => t.GetInterfaces().Contains(typeof(IService)))
-                    .ToArray();
+                var implementationTypes = assembly.GetInterfaces<IService>();
                 foreach (var implementationType in implementationTypes)
                 {
-                    var serviceType = Type.GetType(implementationType.AssemblyQualifiedName.Replace(implementationType.Name, "I" + implementationType.Name));
-                    if (serviceType != null)
-                    {
-                        services.AddScoped(serviceType, implementationType); // traditional service interface
-                    }
-                    else
-                    {
-                        services.AddScoped(implementationType, implementationType); // no interface defined for service
-                    }
+                    var serviceType = Type.GetType(implementationType.AssemblyQualifiedName.Replace(implementationType.Name, $"I{implementationType.Name}"));
+                    services.AddScoped(serviceType ?? implementationType, implementationType);
                 }
             }
 
@@ -90,21 +53,39 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddOqtaneHostedServices(this IServiceCollection services)
         {
             // dynamically register hosted services
+            var hostedServiceType = typeof(IHostedService);
             foreach (var assembly in Assemblies)
             {
-                var serviceTypes = assembly.GetTypes()
-                    .Where(t => t.GetInterfaces().Contains(typeof(IHostedService)))
-                    .ToArray();
+                var serviceTypes = assembly.GetTypes(hostedServiceType);
                 foreach (var serviceType in serviceTypes)
                 {
                     if (serviceType.Name != nameof(HostedServiceBase))
                     {
-                        services.AddSingleton(typeof(IHostedService), serviceType);
+                        services.AddSingleton(hostedServiceType, serviceType);
                     }
                 }
             }
 
             return services;
+        }
+
+        private static void LoadAssemblies(string pattern)
+        {
+            var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            var assembliesFolder = new DirectoryInfo(assemblyPath);
+
+            // iterate through Oqtane theme assemblies in /bin ( filter is narrow to optimize loading process )
+            foreach (var file in assembliesFolder.EnumerateFiles($"*.{pattern}.*.dll"))
+            {
+                // check if assembly is already loaded
+                var assembly = Assemblies.Where(a => a.Location == file.FullName).FirstOrDefault();
+                if (assembly == null)
+                {
+                    // load assembly from stream to prevent locking file ( as long as dependencies are in /bin they will load as well )
+                    assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(file.FullName)));
+                    _oqtaneModuleAssemblies.Add(assembly);
+                }
+            }
         }
     }
 }
