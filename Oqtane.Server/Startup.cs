@@ -27,6 +27,7 @@ using Microsoft.AspNetCore.Authentication;
 using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Oqtane.Infrastructure;
+using Oqtane.Models;
 
 namespace Oqtane.Server
 {
@@ -164,7 +165,7 @@ namespace Oqtane.Server
             services.AddTransient<IUserPermissions, UserPermissions>();
             services.AddTransient<ITenantResolver, TenantResolver>();
             services.AddTransient<IAliasRepository, AliasRepository>();
-            services.AddTransient<ITenantRepository, TenantRepository>();
+            services.AddTransient<Repository<Tenant>, TenantRepository>();
             services.AddTransient<ISiteRepository, SiteRepository>();
             services.AddTransient<IPageRepository, PageRepository>();
             services.AddTransient<IModuleRepository, ModuleRepository>();

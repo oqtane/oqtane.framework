@@ -11,10 +11,10 @@ namespace Oqtane.Controllers
     [Route("{site}/api/[controller]")]
     public class TenantController : Controller
     {
-        private readonly ITenantRepository _tenants;
+        private readonly Repository<Tenant> _tenants;
         private readonly ILogManager _logger;
 
-        public TenantController(ITenantRepository tenants, ILogManager logger)
+        public TenantController(Repository<Tenant> tenants, ILogManager logger)
         {
             _tenants = tenants;
             _logger = logger;

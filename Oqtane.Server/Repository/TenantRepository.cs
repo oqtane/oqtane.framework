@@ -1,62 +1,53 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Oqtane.Models;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.EntityFrameworkCore;
+using Oqtane.Models;
 
 namespace Oqtane.Repository
 {
-    public class TenantRepository : ITenantRepository
+    public class TenantRepository : Repository<Tenant>
     {
-        private readonly MasterDBContext db;
+        private static readonly string _key = "tenant";
+
+        private readonly MasterDBContext _context;
         private readonly IMemoryCache _cache;
 
         public TenantRepository(MasterDBContext context, IMemoryCache cache)
+            : base(context)
         {
-            db = context;
+            _context = context;
             _cache = cache;
         }
 
-        public IEnumerable<Tenant> GetAll()
+        public override Tenant Add(Tenant entity)
         {
-            return _cache.GetOrCreate("tenants", entry =>
+            _cache.Remove(_key);
+
+            return base.Add(entity);
+        }
+
+        public override IEnumerable<Tenant> GetAll()
+        {
+            return _cache.GetOrCreate(_key, entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromMinutes(30);
-                
-                return db.Tenant.ToList();
+
+                return _context.Set<Tenant>().ToList();
             });
         }
 
-        public Tenant Add(Tenant tenant)
+        public override void Delete(int id)
         {
-            db.Tenant.Add(tenant);
-            db.SaveChanges();
-            _cache.Remove("tenants");
-            
-            return tenant;
+            base.Delete(id);
+            _cache.Remove(_key);
         }
 
-        public Tenant Update(Tenant tenant)
+        public override Tenant Update(Tenant entity)
         {
-            db.Entry(tenant).State = EntityState.Modified;
-            db.SaveChanges();
-            _cache.Remove("tenants");
-            
-            return tenant;
-        }
+            _cache.Remove(_key);
 
-        public Tenant Get(int id)
-        {
-            return db.Tenant.Find(id);
-        }
-
-        public void Delete(int id)
-        { 
-            var tenant = db.Tenant.Find(id);
-            db.Tenant.Remove(tenant);
-            db.SaveChanges();
-            _cache.Remove("tenants");
+            return base.Update(entity);
         }
     }
 }

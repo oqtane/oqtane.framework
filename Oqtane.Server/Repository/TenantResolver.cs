@@ -12,14 +12,14 @@ namespace Oqtane.Repository
         private MasterDBContext db;
         private readonly string aliasname;
         private readonly IAliasRepository Aliases;
-        private readonly ITenantRepository Tenants;
+        private readonly Repository<Tenant> _tenants;
         private readonly SiteState sitestate;
 
-        public TenantResolver(MasterDBContext context, IHttpContextAccessor accessor, IAliasRepository Aliases, ITenantRepository Tenants, SiteState sitestate)
+        public TenantResolver(MasterDBContext context, IHttpContextAccessor accessor, IAliasRepository Aliases, Repository<Tenant> Tenants, SiteState sitestate)
         {
             db = context;
             this.Aliases = Aliases;
-            this.Tenants = Tenants;
+            _tenants = Tenants;
             this.sitestate = sitestate;
             aliasname = "";
 
@@ -59,7 +59,7 @@ namespace Oqtane.Repository
             var alias = GetAlias();
             if (alias != null)
             {
-                var tenants = Tenants.GetAll(); // cached
+                var tenants = _tenants.GetAll(); // cached
                 tenant = tenants.Where(item => item.TenantId == alias.TenantId).FirstOrDefault();
             }
             
