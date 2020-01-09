@@ -81,4 +81,11 @@
             JSRuntime,
             EditorElement, mode);
     }
+
+    public async Task InsertImage(string ImageURL)
+    {
+        await RichTextEditorInterop.InsertImage(
+            JSRuntime,
+            EditorElement, ImageURL);
+    }
 }

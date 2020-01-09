@@ -66,5 +66,15 @@ namespace Oqtane.Modules.Controls
             return jsRuntime.InvokeAsync<object>(
                 "interop.enableQuillEditor", quillElement, mode);
         }
+
+        internal static ValueTask<object> InsertImage(
+            IJSRuntime jsRuntime,
+            ElementReference quillElement,
+            string ImageURL)
+        {
+            return jsRuntime.InvokeAsync<object>(
+                "interop.insertQuillImage",
+                quillElement, ImageURL);
+        }
     }
 }
