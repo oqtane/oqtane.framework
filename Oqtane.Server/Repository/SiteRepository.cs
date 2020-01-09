@@ -171,8 +171,8 @@ namespace Oqtane.Repository
                 int? parentid = null;
                 if (pagetemplate.Parent != "")
                 {
-                    List<Page> pages = PageRepository.GetPages(site.SiteId).ToList();
-                    Page parent = pages.Where(item => item.Name == pagetemplate.Parent).FirstOrDefault();
+                    var pages = PageRepository.GetAll(site.SiteId).ToList();
+                    var parent = pages.Where(item => item.Name == pagetemplate.Parent).FirstOrDefault();
                     parentid = parent.PageId;
                 }
 
@@ -192,7 +192,7 @@ namespace Oqtane.Repository
                     IsPersonalizable = pagetemplate.IsPersonalizable,
                     UserId = null
                 };
-                page = PageRepository.AddPage(page);
+                page = PageRepository.Add(page);
 
                 foreach(PageTemplateModule pagetemplatemodule in pagetemplate.PageTemplateModules)
                 {

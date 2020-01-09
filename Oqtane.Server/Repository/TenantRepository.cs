@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Oqtane.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +9,7 @@ namespace Oqtane.Repository
 {
     public class TenantRepository : ITenantRepository
     {
-        private MasterDBContext db;
+        private readonly MasterDBContext db;
         private readonly IMemoryCache _cache;
 
         public TenantRepository(MasterDBContext context, IMemoryCache cache)
@@ -19,39 +18,42 @@ namespace Oqtane.Repository
             _cache = cache;
         }
 
-        public IEnumerable<Tenant> GetTenants()
+        public IEnumerable<Tenant> GetAll()
         {
             return _cache.GetOrCreate("tenants", entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+                
                 return db.Tenant.ToList();
             });
         }
 
-        public Tenant AddTenant(Tenant Tenant)
+        public Tenant Add(Tenant tenant)
         {
-            db.Tenant.Add(Tenant);
+            db.Tenant.Add(tenant);
             db.SaveChanges();
             _cache.Remove("tenants");
-            return Tenant;
+            
+            return tenant;
         }
 
-        public Tenant UpdateTenant(Tenant Tenant)
+        public Tenant Update(Tenant tenant)
         {
-            db.Entry(Tenant).State = EntityState.Modified;
+            db.Entry(tenant).State = EntityState.Modified;
             db.SaveChanges();
             _cache.Remove("tenants");
-            return Tenant;
+            
+            return tenant;
         }
 
-        public Tenant GetTenant(int TenantId)
+        public Tenant Get(int id)
         {
-            return db.Tenant.Find(TenantId);
+            return db.Tenant.Find(id);
         }
 
-        public void DeleteTenant(int TenantId)
+        public void Delete(int id)
         { 
-            Tenant tenant = db.Tenant.Find(TenantId);
+            var tenant = db.Tenant.Find(id);
             db.Tenant.Remove(tenant);
             db.SaveChanges();
             _cache.Remove("tenants");

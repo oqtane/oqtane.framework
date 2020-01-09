@@ -3,14 +3,10 @@ using Oqtane.Models;
 
 namespace Oqtane.Repository
 {
-    public interface IPageRepository
+    public interface IPageRepository : IRepository<Page>
     {
-        IEnumerable<Page> GetPages();
-        IEnumerable<Page> GetPages(int SiteId);
-        Page AddPage(Page Page);
-        Page UpdatePage(Page Page);
-        Page GetPage(int PageId);
-        Page GetPage(int PageId, int UserId);
-        void DeletePage(int PageId);
+        Page Get(int id, int userId);
+
+        IEnumerable<Page> GetAll(int siteId);
     }
 }

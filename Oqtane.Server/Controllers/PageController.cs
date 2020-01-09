@@ -13,15 +13,15 @@ namespace Oqtane.Controllers
     [Route("{site}/api/[controller]")]
     public class PageController : Controller
     {
-        private readonly IPageRepository Pages;
-        private readonly IUserPermissions UserPermissions;
-        private readonly ILogManager logger;
+        private readonly IPageRepository _pages;
+        private readonly IUserPermissions _userPermissions;
+        private readonly ILogManager _logger;
 
-        public PageController(IPageRepository Pages, IUserPermissions UserPermissions, ILogManager logger)
+        public PageController(IPageRepository pages, IUserPermissions userPermissions, ILogManager logger)
         {
-            this.Pages = Pages;
-            this.UserPermissions = UserPermissions;
-            this.logger = logger;
+            _pages = pages;
+            _userPermissions = userPermissions;
+            _logger = logger;
         }
 
         // GET: api/<controller>?siteid=x
@@ -30,11 +30,11 @@ namespace Oqtane.Controllers
         {
             if (siteid == "")
             {
-                return Pages.GetPages();
+                return _pages.GetAll();
             }
             else
             {
-                return Pages.GetPages(int.Parse(siteid));
+                return _pages.GetAll(int.Parse(siteid));
             }
         }
 
@@ -44,38 +44,38 @@ namespace Oqtane.Controllers
         {
             if (string.IsNullOrEmpty(userid))
             {
-                return Pages.GetPage(id);
+                return _pages.Get(id);
             }
             else
             {
-                return Pages.GetPage(id, int.Parse(userid));
+                return _pages.Get(id, int.Parse(userid));
             }
         }
 
         // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = Constants.RegisteredRole)]
-        public Page Post([FromBody] Page Page)
+        public Page Post([FromBody] Page page)
         {
-            if (ModelState.IsValid && UserPermissions.IsAuthorized(User, "Edit", Page.Permissions))
+            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, "Edit", page.Permissions))
             {
-                Page = Pages.AddPage(Page);
-                logger.Log(LogLevel.Information, this, LogFunction.Create, "Page Added {Page}", Page);
+                page = _pages.Add(page);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Page Added {Page}", page);
             }
-            return Page;
+            return page;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Roles = Constants.RegisteredRole)]
-        public Page Put(int id, [FromBody] Page Page)
+        public Page Put(int id, [FromBody] Page page)
         {
-            if (ModelState.IsValid && UserPermissions.IsAuthorized(User, "Page", Page.PageId, "Edit"))
+            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, "Page", page.PageId, "Edit"))
             {
-                Page = Pages.UpdatePage(Page);
-                logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Updated {Page}", Page);
+                page = _pages.Update(page);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Updated {Page}", page);
             }
-            return Page;
+            return page;
         }
 
         // PUT api/<controller>/?siteid=x&pageid=y&parentid=z
@@ -83,20 +83,20 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public void Put(int siteid, int pageid, int? parentid)
         {
-            if (UserPermissions.IsAuthorized(User, "Page", pageid, "Edit"))
+            if (_userPermissions.IsAuthorized(User, "Page", pageid, "Edit"))
             {
                 int order = 1;
-                List<Page> pages = Pages.GetPages(siteid).ToList();
+                List<Page> pages = _pages.GetAll(siteid).ToList();
                 foreach (Page page in pages.Where(item => item.ParentId == parentid).OrderBy(item => item.Order))
                 {
                     if (page.Order != order)
                     {
                         page.Order = order;
-                        Pages.UpdatePage(page);
+                        _pages.Update(page);
                     }
                     order += 2;
                 }
-                logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Order Updated {SiteId} {PageId} {ParentId}", siteid, pageid, parentid);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Order Updated {SiteId} {PageId} {ParentId}", siteid, pageid, parentid);
             }
         }
 
@@ -105,10 +105,10 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public void Delete(int id)
         {
-            if (UserPermissions.IsAuthorized(User, "Page", id, "Edit"))
+            if (_userPermissions.IsAuthorized(User, "Page", id, "Edit"))
             {
-                Pages.DeletePage(id);
-                logger.Log(LogLevel.Information, this, LogFunction.Delete, "Page Deleted {PageId}", id);
+                _pages.Delete(id);
+                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Page Deleted {PageId}", id);
             }
         }
     }

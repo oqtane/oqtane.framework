@@ -56,12 +56,13 @@ namespace Oqtane.Repository
         public Tenant GetTenant()
         {
             Tenant tenant = null;
-            Alias alias = GetAlias();
+            var alias = GetAlias();
             if (alias != null)
             {
-                IEnumerable<Tenant> tenants = Tenants.GetTenants(); // cached
+                var tenants = Tenants.GetAll(); // cached
                 tenant = tenants.Where(item => item.TenantId == alias.TenantId).FirstOrDefault();
             }
+            
             return tenant;
         }
     }
