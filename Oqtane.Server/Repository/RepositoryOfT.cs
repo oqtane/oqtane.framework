@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,13 +11,18 @@ namespace Oqtane.Repository
 
         public Repository(DbContext context)
         {
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public virtual IEnumerable<TEntity> GetAll() => _context.Set<TEntity>().ToList();
 
         public virtual TEntity Add(TEntity entity)
         {
+            if (entity is null)
+            {
+                throw new ArgumentNullException(nameof(entity));
+            }
+
             _context.Set<TEntity>().Add(entity);
             _context.SaveChanges();
 
@@ -25,6 +31,11 @@ namespace Oqtane.Repository
 
         public virtual TEntity Update(TEntity entity)
         {
+            if (entity is null)
+            {
+                throw new ArgumentNullException(nameof(entity));
+            }
+
             _context.Entry(entity).State = EntityState.Modified;
             _context.SaveChanges();
 
