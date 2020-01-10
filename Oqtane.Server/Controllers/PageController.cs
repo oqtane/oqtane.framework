@@ -42,7 +42,7 @@ namespace Oqtane.Controllers
         [HttpGet("{id}")]
         public Page Get(int id, string userid)
         {
-            if (userid == "")
+            if (string.IsNullOrEmpty(userid))
             {
                 return Pages.GetPage(id);
             }
