@@ -79,7 +79,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 var serviceTypes = assembly.GetTypes(hostedServiceType);
                 foreach (var serviceType in serviceTypes)
                 {
-                    if (serviceType.Name != nameof(HostedServiceBase))
+                    if (serviceType.IsSubclassOf(typeof(HostedServiceBase)))
                     {
                         services.AddSingleton(hostedServiceType, serviceType);
                     }
@@ -103,7 +103,11 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     // load assembly from stream to prevent locking file ( as long as dependencies are in /bin they will load as well )
                     assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(file.FullName)));
-                    _oqtaneModuleAssemblies.Add(assembly);
+                    if (pattern == "Module")
+                    {
+                        // build a list of module assemblies
+                        _oqtaneModuleAssemblies.Add(assembly);
+                    }
                 }
             }
         }
