@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,9 +11,12 @@ namespace Oqtane.Repository
         public Repository(DbContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
+            DbSet = _context.Set<TEntity>();
         }
 
-        public virtual IEnumerable<TEntity> GetAll() => _context.Set<TEntity>().ToList();
+        protected DbSet<TEntity> DbSet;
+
+        public virtual IQueryable<TEntity> GetAll() => DbSet;
 
         public virtual TEntity Add(TEntity entity)
         {
@@ -23,7 +25,7 @@ namespace Oqtane.Repository
                 throw new ArgumentNullException(nameof(entity));
             }
 
-            _context.Set<TEntity>().Add(entity);
+            DbSet.Add(entity);
             _context.SaveChanges();
 
             return entity;
@@ -44,13 +46,13 @@ namespace Oqtane.Repository
 
         public virtual TEntity Get(int id)
         {
-            return _context.Set<TEntity>().Find(id);
+            return DbSet.Find(id);
         }
 
         public virtual void Delete(int id)
         {
-            var tenant = _context.Set<TEntity>().Find(id);
-            _context.Set<TEntity>().Remove(tenant);
+            var entity = DbSet.Find(id);
+            DbSet.Remove(entity);
             _context.SaveChanges();
         }
     }

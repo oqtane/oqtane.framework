@@ -21,7 +21,7 @@ namespace Oqtane.Repository
         public IEnumerable<Page> GetAll(int siteId)
         {
             var permissions = _permissions.GetPermissions(siteId, "Page").ToList();
-            var pages = _context.Page.Where(item => item.SiteId == siteId && item.UserId == null);
+            var pages = DbSet.Where(item => item.SiteId == siteId && item.UserId == null);
             foreach(Page page in pages)
             {
                 page.Permissions = _permissions.EncodePermissions(page.PageId, permissions);
@@ -63,7 +63,7 @@ namespace Oqtane.Repository
             var page = base.Get(id);
             if (page != null)
             {
-                var personalized = _context.Page.Where(item => item.SiteId == page.SiteId && item.Path == page.Path && item.UserId == userId).FirstOrDefault();
+                var personalized = DbSet.Where(item => item.SiteId == page.SiteId && item.Path == page.Path && item.UserId == userId).FirstOrDefault();
                 if (personalized != null)
                 {
                     page = personalized;
@@ -89,8 +89,7 @@ namespace Oqtane.Repository
                 _pageModules.DeletePageModule(pageModule.PageModuleId);
             }
 
-            _context.Page.Remove(page);
-            _context.SaveChanges();
+            base.Delete(id);
         }
     }
 }

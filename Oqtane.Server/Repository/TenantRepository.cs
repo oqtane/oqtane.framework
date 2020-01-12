@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Models;
@@ -10,13 +9,11 @@ namespace Oqtane.Repository
     {
         private static readonly string _key = "tenant";
 
-        private readonly MasterDBContext _context;
         private readonly IMemoryCache _cache;
 
         public TenantRepository(MasterDBContext context, IMemoryCache cache)
             : base(context)
         {
-            _context = context;
             _cache = cache;
         }
 
@@ -27,13 +24,13 @@ namespace Oqtane.Repository
             return base.Add(entity);
         }
 
-        public override IEnumerable<Tenant> GetAll()
+        public override IQueryable<Tenant> GetAll()
         {
             return _cache.GetOrCreate(_key, entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromMinutes(30);
 
-                return _context.Set<Tenant>().ToList();
+                return DbSet;
             });
         }
 
