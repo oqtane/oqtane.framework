@@ -37,8 +37,8 @@ namespace Oqtane.Infrastructure
                         string JobType = Utilities.GetFullTypeName(this.GetType().AssemblyQualifiedName);
 
                         // load jobs and find current job
-                        IJobRepository Jobs = scope.ServiceProvider.GetRequiredService<IJobRepository>();
-                        Job Job = Jobs.GetJobs().Where(item => item.JobType == JobType).FirstOrDefault();
+                        var jobs = scope.ServiceProvider.GetRequiredService<Repository<Job>>();
+                        Job Job = jobs.GetAll().Where(item => item.JobType == JobType).FirstOrDefault();
                         if (Job != null && Job.IsEnabled && !Job.IsExecuting)
                         {
                             // set next execution date
@@ -70,7 +70,7 @@ namespace Oqtane.Infrastructure
 
                                 // update the job to indicate it is running
                                 Job.IsExecuting = true;
-                                Jobs.UpdateJob(Job);
+                                jobs.Update(Job);
 
                                 // execute the job
                                 try
@@ -91,7 +91,7 @@ namespace Oqtane.Infrastructure
                                 // update the job
                                 Job.NextExecution = CalculateNextExecution(Job.NextExecution.Value, Job.Frequency, Job.Interval);
                                 Job.IsExecuting = false;
-                                Jobs.UpdateJob(Job);
+                                jobs.Update(Job);
 
                                 // trim the job log
                                 List<JobLog> logs = JobLogs.GetJobLogs().Where(item => item.JobId == Job.JobId)
@@ -147,13 +147,13 @@ namespace Oqtane.Infrastructure
                 using (var scope = ServiceScopeFactory.CreateScope())
                 {
                     string JobType = Utilities.GetFullTypeName(this.GetType().AssemblyQualifiedName);
-                    IJobRepository Jobs = scope.ServiceProvider.GetRequiredService<IJobRepository>();
-                    Job Job = Jobs.GetJobs().Where(item => item.JobType == JobType).FirstOrDefault();
+                    var Jobs = scope.ServiceProvider.GetRequiredService<Repository<Job>>();
+                    Job Job = Jobs.GetAll().Where(item => item.JobType == JobType).FirstOrDefault();
                     if (Job != null)
                     {
                         Job.IsStarted = true;
                         Job.IsExecuting = false;
-                        Jobs.UpdateJob(Job);
+                        Jobs.Update(Job);
                     }
                 }
             }

@@ -14,7 +14,7 @@ namespace Oqtane.Repository
             DbSet = _context.Set<TEntity>();
         }
 
-        protected DbSet<TEntity> DbSet;
+        protected DbSet<TEntity> DbSet { get; }
 
         public virtual IQueryable<TEntity> GetAll() => DbSet;
 

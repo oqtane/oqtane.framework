@@ -14,11 +14,11 @@ namespace Oqtane.Controllers
     [Route("{site}/api/[controller]")]
     public class JobController : Controller
     {
-        private readonly IJobRepository Jobs;
+        private readonly Repository<Job> Jobs;
         private readonly ILogManager logger;
         private readonly IServiceProvider ServiceProvider;
 
-        public JobController(IJobRepository Jobs, ILogManager logger, IServiceProvider ServiceProvider)
+        public JobController(Repository<Job> Jobs, ILogManager logger, IServiceProvider ServiceProvider)
         {
             this.Jobs = Jobs;
             this.logger = logger;
@@ -29,14 +29,14 @@ namespace Oqtane.Controllers
         [HttpGet]
         public IEnumerable<Job> Get()
         {
-            return Jobs.GetJobs();
+            return Jobs.GetAll();
         }
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
         public Job Get(int id)
         {
-            return Jobs.GetJob(id);
+            return Jobs.Get(id);
         }
 
         // POST api/<controller>
@@ -46,7 +46,7 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                Job = Jobs.AddJob(Job);
+                Job = Jobs.Add(Job);
                 logger.Log(LogLevel.Information, this, LogFunction.Create, "Job Added {Job}", Job);
             }
             return Job;
@@ -59,7 +59,7 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                Job = Jobs.UpdateJob(Job);
+                Job = Jobs.Update(Job);
                 logger.Log(LogLevel.Information, this, LogFunction.Update, "Job Updated {Job}", Job);
             }
             return Job;
@@ -70,7 +70,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.HostRole)]
         public void Delete(int id)
         {
-            Jobs.DeleteJob(id);
+            Jobs.Delete(id);
             logger.Log(LogLevel.Information, this, LogFunction.Delete, "Job Deleted {JobId}", id);
         }
 
@@ -79,7 +79,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.HostRole)]
         public void Start(int id)
         {
-            Job job = Jobs.GetJob(id);
+            Job job = Jobs.Get(id);
             Type jobtype = Type.GetType(job.JobType);
             if (jobtype != null)
             {
@@ -93,7 +93,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.HostRole)]
         public void Stop(int id)
         {
-            Job job = Jobs.GetJob(id);
+            Job job = Jobs.Get(id);
             Type jobtype = Type.GetType(job.JobType);
             if (jobtype != null)
             {

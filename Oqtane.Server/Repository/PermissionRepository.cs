@@ -12,12 +12,12 @@ namespace Oqtane.Repository
     public class PermissionRepository : IPermissionRepository
     {
         private TenantDBContext db;
-        private readonly IRoleRepository Roles;
+        private readonly IRoleRepository _roleRepository;
 
         public PermissionRepository(TenantDBContext context, IRoleRepository Roles)
         {
             db = context;
-            this.Roles = Roles;
+            _roleRepository = Roles;
         }
 
         public IEnumerable<Permission> GetPermissions(int SiteId, string EntityName)
@@ -158,7 +158,7 @@ namespace Oqtane.Repository
         public IEnumerable<Permission> DecodePermissions(string PermissionStrings, int SiteId, string EntityName, int EntityId)
         {
             List<Permission> permissions = new List<Permission>();
-            List<Role> roles = Roles.GetRoles(SiteId, true).ToList();
+            List<Role> roles = _roleRepository.GetAll(SiteId, true).ToList();
             string securityid = "";
             foreach (PermissionString permissionstring in JsonSerializer.Deserialize<List<PermissionString>>(PermissionStrings))
             {

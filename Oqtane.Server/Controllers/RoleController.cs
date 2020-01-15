@@ -11,13 +11,13 @@ namespace Oqtane.Controllers
     [Route("{site}/api/[controller]")]
     public class RoleController : Controller
     {
-        private readonly IRoleRepository Roles;
-        private readonly ILogManager logger;
+        private readonly IRoleRepository _roles;
+        private readonly ILogManager _logger;
 
-        public RoleController(IRoleRepository Roles, ILogManager logger)
+        public RoleController(IRoleRepository roles, ILogManager logger)
         {
-            this.Roles = Roles;
-            this.logger = logger;
+            _roles = roles;
+            _logger = logger;
         }
 
         // GET: api/<controller>?siteid=x
@@ -26,11 +26,11 @@ namespace Oqtane.Controllers
         {
             if (siteid == "")
             {
-                return Roles.GetRoles();
+                return _roles.GetAll();
             }
             else
             {
-                return Roles.GetRoles(int.Parse(siteid));
+                return _roles.GetAll(int.Parse(siteid));
             }
         }
 
@@ -38,7 +38,7 @@ namespace Oqtane.Controllers
         [HttpGet("{id}")]
         public Role Get(int id)
         {
-            return Roles.GetRole(id);
+            return _roles.Get(id);
         }
 
         // POST api/<controller>
@@ -48,8 +48,8 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                Role = Roles.AddRole(Role);
-                logger.Log(LogLevel.Information, this, LogFunction.Create, "Role Added {Role}", Role);
+                Role = _roles.Add(Role);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Role Added {Role}", Role);
             }
             return Role;
         }
@@ -61,8 +61,8 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                Role = Roles.UpdateRole(Role);
-                logger.Log(LogLevel.Information, this, LogFunction.Update, "Role Updated {Role}", Role);
+                Role = _roles.Update(Role);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Role Updated {Role}", Role);
             }
             return Role;
         }
@@ -72,8 +72,8 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.AdminRole)]
         public void Delete(int id)
         {
-            Roles.DeleteRole(id);
-            logger.Log(LogLevel.Information, this, LogFunction.Delete, "Role Deleted {RoleId}", id);
+            _roles.Delete(id);
+            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Role Deleted {RoleId}", id);
         }
     }
 }

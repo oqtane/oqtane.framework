@@ -13,7 +13,7 @@ namespace Oqtane.Repository
     public class SiteRepository : ISiteRepository
     {
         private readonly TenantDBContext db;
-        private readonly IRoleRepository RoleRepository;
+        private readonly IRoleRepository _roleRepository;
         private readonly IProfileRepository ProfileRepository;
         private readonly IPageRepository PageRepository;
         private readonly IModuleRepository ModuleRepository;
@@ -22,10 +22,10 @@ namespace Oqtane.Repository
         private readonly IServiceProvider ServiceProvider;
         private readonly List<PageTemplate> SiteTemplate;
 
-        public SiteRepository(TenantDBContext context, IRoleRepository RoleRepository, IProfileRepository ProfileRepository, IPageRepository PageRepository, IModuleRepository ModuleRepository, IPageModuleRepository PageModuleRepository, IModuleDefinitionRepository ModuleDefinitionRepository, IServiceProvider ServiceProvider)
+        public SiteRepository(TenantDBContext context, IRoleRepository roleRepository, IProfileRepository ProfileRepository, IPageRepository PageRepository, IModuleRepository ModuleRepository, IPageModuleRepository PageModuleRepository, IModuleDefinitionRepository ModuleDefinitionRepository, IServiceProvider ServiceProvider)
         {
             db = context;
-            this.RoleRepository = RoleRepository;
+            _roleRepository = roleRepository;
             this.ProfileRepository = ProfileRepository;
             this.PageRepository = PageRepository;
             this.ModuleRepository = ModuleRepository;
@@ -143,18 +143,18 @@ namespace Oqtane.Repository
 
         private void CreateSite(Site site)
         {
-            List<Role> roles = RoleRepository.GetRoles(site.SiteId, true).ToList();
+            List<Role> roles = _roleRepository.GetAll(site.SiteId, true).ToList();
             if (!roles.Where(item => item.Name == Constants.AllUsersRole).Any())
             {
-                RoleRepository.AddRole(new Role { SiteId = null, Name = Constants.AllUsersRole, Description = "All Users", IsAutoAssigned = false, IsSystem = true });
+                _roleRepository.Add(new Role { SiteId = null, Name = Constants.AllUsersRole, Description = "All Users", IsAutoAssigned = false, IsSystem = true });
             }
             if (!roles.Where(item => item.Name == Constants.HostRole).Any())
             {
-                RoleRepository.AddRole(new Role { SiteId = null, Name = Constants.HostRole, Description = "Application Administrators", IsAutoAssigned = false, IsSystem = true });
+                _roleRepository.Add(new Role { SiteId = null, Name = Constants.HostRole, Description = "Application Administrators", IsAutoAssigned = false, IsSystem = true });
             }
 
-            RoleRepository.AddRole(new Role { SiteId = site.SiteId, Name = Constants.RegisteredRole, Description = "Registered Users", IsAutoAssigned = true, IsSystem = true });
-            RoleRepository.AddRole(new Role { SiteId = site.SiteId, Name = Constants.AdminRole, Description = "Site Administrators", IsAutoAssigned = false, IsSystem = true });
+            _roleRepository.Add(new Role { SiteId = site.SiteId, Name = Constants.RegisteredRole, Description = "Registered Users", IsAutoAssigned = true, IsSystem = true });
+            _roleRepository.Add(new Role { SiteId = site.SiteId, Name = Constants.AdminRole, Description = "Site Administrators", IsAutoAssigned = false, IsSystem = true });
 
             ProfileRepository.AddProfile(new Profile { SiteId = site.SiteId, Name = "FirstName", Title = "First Name", Description = "Your First Or Given Name", Category = "Name", ViewOrder = 1, MaxLength = 50, DefaultValue = "", IsRequired = true, IsPrivate = false });
             ProfileRepository.AddProfile(new Profile { SiteId = site.SiteId, Name = "LastName", Title = "Last Name", Description = "Your Last Or Family Name", Category = "Name", ViewOrder =  2, MaxLength = 50, DefaultValue = "", IsRequired = true, IsPrivate = false });

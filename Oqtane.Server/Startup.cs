@@ -172,13 +172,13 @@ namespace Oqtane.Server
             services.AddTransient<IPageModuleRepository, PageModuleRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IProfileRepository, ProfileRepository>();
-            services.AddTransient<IRoleRepository, RoleRepository>();
+            services.AddTransient<IRepository<Role>, RoleRepository>();
             services.AddTransient<IUserRoleRepository, UserRoleRepository>();
             services.AddTransient<IPermissionRepository, PermissionRepository>();
             services.AddTransient<ISettingRepository, SettingRepository>();
             services.AddTransient<ILogRepository, LogRepository>();
             services.AddTransient<ILogManager, LogManager>();
-            services.AddTransient<IJobRepository, JobRepository>();
+            services.AddTransient<Repository<Job>, JobRepository>();
             services.AddTransient<IJobLogRepository, JobLogRepository>();
 
             services.AddOqtaneModules();
@@ -312,7 +312,7 @@ namespace Oqtane.Server
             services.AddTransient<IUserPermissions, UserPermissions>();
             services.AddTransient<ITenantResolver, TenantResolver>();
             services.AddTransient<IAliasRepository, AliasRepository>();
-            services.AddTransient<ITenantRepository, TenantRepository>();
+            services.AddTransient<Repository<Tenant>, TenantRepository>();
             services.AddTransient<ISiteRepository, SiteRepository>();
             services.AddTransient<IPageRepository, PageRepository>();
             services.AddTransient<IModuleRepository, ModuleRepository>();
@@ -325,7 +325,7 @@ namespace Oqtane.Server
             services.AddTransient<ISettingRepository, SettingRepository>();
             services.AddTransient<ILogRepository, LogRepository>();
             services.AddTransient<ILogManager, LogManager>();
-            services.AddTransient<IJobRepository, JobRepository>();
+            services.AddTransient<Repository<Job>, JobRepository>();
             services.AddTransient<IJobLogRepository, JobLogRepository>();
 
             services.AddOqtaneModules();
