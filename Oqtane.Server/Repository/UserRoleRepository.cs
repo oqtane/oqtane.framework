@@ -23,7 +23,7 @@ namespace Oqtane.Repository
             return db.UserRole
                 .Include(item => item.Role) // eager load roles
                 .Include(item => item.User) // eager load users
-                .Where(item => item.Role.SiteId == SiteId);
+                .Where(item => item.Role.SiteId == SiteId || item.Role.SiteId == null);
         }
 
         public IEnumerable<UserRole> GetUserRoles(int UserId, int SiteId)

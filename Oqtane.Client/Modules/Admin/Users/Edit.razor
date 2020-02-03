@@ -26,6 +26,14 @@
         </tr>
         <tr>
             <td>
+                <label for="Name" class="control-label">Confirm Password: </label>
+            </td>
+            <td>
+                <input type="password" class="form-control" @bind="@confirm" />
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <label for="Name" class="control-label">Email: </label>
             </td>
             <td>
@@ -87,6 +95,7 @@
     int userid;
     string username = "";
     string password = "";
+    string confirm = "";
     string email = "";
     string displayname = "";
     List<Profile> profiles;
@@ -139,19 +148,33 @@
     {
         try
         {
-            User user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
-            user.SiteId = PageState.Site.SiteId;
-            user.Username = username;
-            user.Password = password;
-            user.Email = email;
-            user.DisplayName = string.IsNullOrWhiteSpace(user.DisplayName) ? user.Username : user.DisplayName;
-            user.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
+            if (username != "" && password != "" && confirm != "" && email != "")
+            {
+                if (password == confirm)
+                {
+                    User user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
+                    user.SiteId = PageState.Site.SiteId;
+                    user.Username = username;
+                    user.Password = password;
+                    user.Email = email;
+                    user.DisplayName = string.IsNullOrWhiteSpace(displayname) ? username : displayname;
+                    user.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
 
-            user = await UserService.UpdateUserAsync(user);
-            await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
-            await logger.LogInformation("User Saved {User}", user);
+                    user = await UserService.UpdateUserAsync(user);
+                    await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
+                    await logger.LogInformation("User Saved {User}", user);
 
-            NavigationManager.NavigateTo(NavigateUrl());
+                    NavigationManager.NavigateTo(NavigateUrl());
+                }
+                else
+                {
+                    AddModuleMessage("Passwords Entered Do Not Match", MessageType.Warning);
+                }
+            }
+            else
+            {
+                AddModuleMessage("You Must Provide A Username, Password, and Email Address", MessageType.Warning);
+            }
         }
         catch (Exception ex)
         {

@@ -1,0 +1,89 @@
+﻿@namespace Oqtane.Modules.Admin.Reset
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject IUserService UserService
+
+<div class="container">
+    <div class="form-group">
+        <label for="Username" class="control-label">Username: </label>
+        <input type="text" class="form-control" placeholder="Username" @bind="@Username" readonly />
+    </div>
+    <div class="form-group">
+        <label for="Password" class="control-label">Password: </label>
+        <input type="password" class="form-control" placeholder="Password" @bind="@Password" />
+    </div>
+    <div class="form-group">
+        <label for="Password" class="control-label">Confirm Password: </label>
+        <input type="password" class="form-control" placeholder="Password" @bind="@Confirm" />
+    </div>
+    <button type="button" class="btn btn-primary" @onclick="Reset">Reset Password</button>
+    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+</div>
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Anonymous; } }
+
+    string Username = "";
+    string Password = "";
+    string Confirm = "";
+
+    protected override void OnInitialized()
+    {
+        if (PageState.QueryString.ContainsKey("name") && PageState.QueryString.ContainsKey("token"))
+        {
+            Username = PageState.QueryString["name"];
+        }
+        else
+        { 
+            NavigationManager.NavigateTo(NavigateUrl(""));
+        }
+    }
+
+    private async Task Reset()
+    {
+        try
+        {
+            if (Username != "" && Password != "" && Confirm != "")
+            {
+                if (Password == Confirm)
+                {
+                    User user = new User();
+                    user.SiteId = PageState.Site.SiteId;
+                    user.Username = Username;
+                    user.DisplayName = Username;
+                    user.Password = Password;
+                    user = await UserService.ResetPasswordAsync(user, PageState.QueryString["token"]);
+
+                    if (user != null)
+                    {
+                        await logger.LogInformation("User Password Reset {Username}", Username);
+                        NavigationManager.NavigateTo(NavigateUrl("login"));
+                    }
+                    else
+                    {
+                        await logger.LogError("Error Resetting User Password {Username}", Username);
+                        AddModuleMessage("Error Resetting User Password. Please Ensure Password Meets Complexity Requirements.", MessageType.Error);
+                    }
+                }
+                else
+                {
+                    AddModuleMessage("Passwords Entered Do Not Match", MessageType.Warning);
+                }
+            }
+            else
+            {
+                AddModuleMessage("You Must Provide A Username, Password, and Email Address", MessageType.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Resetting User Password {Username} {Error}", Username, ex.Message);
+            AddModuleMessage("Error Resetting User Password", MessageType.Error);
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo(NavigateUrl(""));
+    }
+}

@@ -4,6 +4,7 @@
 @inject ISiteService SiteService
 @inject IAliasService AliasService
 @inject IThemeService  ThemeService
+@inject ISettingService  SettingService
 
 @if (themes == null)
 {
@@ -11,92 +12,141 @@
 }
 else
 {
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Name: </label>
-        </td>
-        <td>
-            <input class="form-control" @bind="@name" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Aliases: </label>
-        </td>
-        <td>
-            <textarea class="form-control" @bind="@urls" rows="3" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Logo: </label>
-        </td>
-        <td>
-            <input class="form-control" @bind="@logo" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Default Theme: </label>
-        </td>
-        <td>
-            <select class="form-control" @onchange="(e => ThemeChanged(e))">
-                <option value="">&lt;Select Theme&gt;</option>
-                @foreach (KeyValuePair<string, string> item in themes)
-                {
-                    if (item.Key == themetype)
+    <table class="table table-borderless">
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Name: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@name" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Aliases: </label>
+            </td>
+            <td>
+                <textarea class="form-control" @bind="@urls" rows="3" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Logo: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@logo" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Default Theme: </label>
+            </td>
+            <td>
+                <select class="form-control" @onchange="(e => ThemeChanged(e))">
+                    <option value="">&lt;Select Theme&gt;</option>
+                    @foreach (KeyValuePair<string, string> item in themes)
                     {
-                        <option value="@item.Key" selected>@item.Value</option>
+                        if (item.Key == themetype)
+                        {
+                            <option value="@item.Key" selected>@item.Value</option>
+                        }
+                        else
+                        {
+                            <option value="@item.Key">@item.Value</option>
+                        }
                     }
-                    else
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Default Layout: </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@layouttype">
+                    <option value="">&lt;Select Layout&gt;</option>
+                    @foreach (KeyValuePair<string, string> panelayout in panelayouts)
                     {
-                        <option value="@item.Key">@item.Value</option>
+                        <option value="@panelayout.Key">@panelayout.Value</option>
                     }
-                }
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Default Layout: </label>
-        </td>
-        <td>
-            <select class="form-control" @bind="@layouttype">
-                <option value="">&lt;Select Layout&gt;</option>
-                @foreach (KeyValuePair<string, string> panelayout in panelayouts)
-                {
-                    <option value="@panelayout.Key">@panelayout.Value</option>
-                }
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Default Container: </label>
-        </td>
-        <td>
-            <select class="form-control" @bind="@containertype">
-                <option value="">&lt;Select Container&gt;</option>
-                @foreach (KeyValuePair<string, string> container in containers)
-                {
-                    <option value="@container.Key">@container.Value</option>
-                }
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Is Deleted? </label>
-        </td>
-        <td>
-            <select class="form-control" @bind="@isdeleted">
-                <option value="True">Yes</option>
-                <option value="False">No</option>
-            </select>
-        </td>
-    </tr>
-</table>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Default Container: </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@containertype">
+                    <option value="">&lt;Select Container&gt;</option>
+                    @foreach (KeyValuePair<string, string> container in containers)
+                    {
+                        <option value="@container.Key">@container.Value</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Is Deleted? </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@isdeleted">
+                    <option value="True">Yes</option>
+                    <option value="False">No</option>
+                </select>
+            </td>
+        </tr>
+    </table>
+
+    <a data-toggle="collapse" class="app-link-unstyled" href="#SMTP" aria-expanded="false" aria-controls="SMTP">
+        <h5>SMTP Settings</h5><hr class="app-rule" />
+    </a>
+    <div class="collapse" id="SMTP">
+        <table class="table table-borderless">
+            <tr>
+                <td>
+                    <label for="Name" class="control-label">Host: </label>
+                </td>
+                <td>
+                    <input class="form-control" @bind="@smtphost" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="Name" class="control-label">Port: </label>
+                </td>
+                <td>
+                    <input class="form-control" @bind="@smtpport" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="Name" class="control-label">SSL Enabled: </label>
+                </td>
+                <td>
+                    <input class="form-control" @bind="@smtpssl" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="Name" class="control-label">Username: </label>
+                </td>
+                <td>
+                    <input class="form-control" @bind="@smtpusername" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="Name" class="control-label">Password: </label>
+                </td>
+                <td>
+                    <input type="password" class="form-control" @bind="@smtppassword" />
+                </td>
+            </tr>
+        </table>
+    </div>
+
     <button type="button" class="btn btn-success" @onclick="SaveSite">Save</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
     <br />
@@ -121,6 +171,12 @@ else
     string layouttype;
     string containertype;
 
+    string smtphost = "";
+    string smtpport = "";
+    string smtpssl = "";
+    string smtpusername = "";
+    string smtppassword = "";
+
     string createdby;
     DateTime createdon;
     string modifiedby;
@@ -135,8 +191,8 @@ else
         {
             themes = ThemeService.GetThemeTypes(PageState.Themes);
             containers = ThemeService.GetContainerTypes(PageState.Themes);
-            Alias = PageState.Aliases.Where(item => item.AliasId == Int32.Parse(PageState.QueryString["id"])).FirstOrDefault();
 
+            Alias = PageState.Aliases.Where(item => item.AliasId == Int32.Parse(PageState.QueryString["id"])).FirstOrDefault();
             siteid = Alias.SiteId;
             Site site = await SiteService.GetSiteAsync(siteid, Alias);
             if (site != null)
@@ -152,6 +208,13 @@ else
                 panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes, themetype);
                 layouttype = site.DefaultLayoutType;
                 containertype = site.DefaultContainerType;
+
+                Dictionary<string, string> settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
+                smtphost = SettingService.GetSetting(settings, "SMTPHost", "");
+                smtpport = SettingService.GetSetting(settings, "SMTPPort", "");
+                smtpssl = SettingService.GetSetting(settings, "SMTPSSL", "");
+                smtpusername = SettingService.GetSetting(settings, "SMTPUsername", "");
+                smtppassword = SettingService.GetSetting(settings, "SMTPPassword", "");
 
                 createdby = site.CreatedBy;
                 createdon = site.CreatedOn;
@@ -229,6 +292,15 @@ else
                             await AliasService.AddAliasAsync(alias);
                         }
                     }
+
+                    Dictionary<string, string> settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
+                    SettingService.SetSetting(settings, "SMTPHost", smtphost);
+                    SettingService.SetSetting(settings, "SMTPPort", smtpport);
+                    SettingService.SetSetting(settings, "SMTPSSL", smtpssl);
+                    SettingService.SetSetting(settings, "SMTPUsername", smtpusername);
+                    SettingService.SetSetting(settings, "SMTPPassword", smtppassword);
+                    await SettingService.UpdateModuleSettingsAsync(settings, site.SiteId);
+
                     await logger.LogInformation("Site Saved {Site}", site);
 
                     NavigationManager.NavigateTo(NavigateUrl(Reload.Site));

@@ -51,9 +51,13 @@
     public string Class { get; set; } // optional
 
     [Parameter]
+    public string EditMode { get; set; } // optional - specifies if a user must be in edit mode to see the action - default is true
+
+    [Parameter]
     public Action OnClick { get; set; } // required if an Action is specified - executes a method in the calling component
 
     bool visible = false;
+    bool editmode = true;
     bool authorized = false;
 
     protected override void OnParametersSet()
@@ -66,13 +70,17 @@
         {
             Class = "btn btn-success";
         }
+        if (!string.IsNullOrEmpty(EditMode))
+        {
+            editmode = bool.Parse(EditMode);
+        }
         authorized = IsAuthorized();
     }
 
     private bool IsAuthorized()
     {
         bool authorized = false;
-        if (PageState.EditMode)
+        if (PageState.EditMode || !editmode)
         {
             SecurityAccessLevel security = SecurityAccessLevel.Host;
             if (Security == null)

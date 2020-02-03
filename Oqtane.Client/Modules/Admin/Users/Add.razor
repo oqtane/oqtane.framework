@@ -26,6 +26,14 @@
         </tr>
         <tr>
             <td>
+                <label for="Name" class="control-label">Confirm Password: </label>
+            </td>
+            <td>
+                <input type="password" class="form-control" @bind="@confirm" />
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <label for="Name" class="control-label">Email: </label>
             </td>
             <td>
@@ -72,6 +80,7 @@
 
     string username = "";
     string password = "";
+    string confirm = "";
     string email = "";
     string displayname = "";
     List<Profile> profiles;
@@ -96,25 +105,39 @@
     {
         try
         {
-            User user = new User();
-            user.SiteId = PageState.Site.SiteId;
-            user.Username = username;
-            user.Password = password;
-            user.Email = email;
-            user.DisplayName = string.IsNullOrWhiteSpace(user.DisplayName) ? user.Username : user.DisplayName;
-
-            user = await UserService.AddUserAsync(user);
-            
-            if (user != null)
+            if (username != "" && password != "" && confirm != "" && email != "")
             {
-                await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
-                await logger.LogInformation("User Created {User}", user);
-                NavigationManager.NavigateTo(NavigateUrl());
+                if (password == confirm)
+                {
+                    User user = new User();
+                    user.SiteId = PageState.Site.SiteId;
+                    user.Username = username;
+                    user.Password = password;
+                    user.Email = email;
+                    user.DisplayName = string.IsNullOrWhiteSpace(displayname) ? username : displayname;
+
+                    user = await UserService.AddUserAsync(user);
+
+                    if (user != null)
+                    {
+                        await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
+                        await logger.LogInformation("User Created {User}", user);
+                        NavigationManager.NavigateTo(NavigateUrl());
+                    }
+                    else
+                    {
+                        await logger.LogError("Error Adding User {Username} {Email}", username, email);
+                        AddModuleMessage("Error Adding User. Please Ensure Password Meets Complexity Requirements And Username Is Not Already In Use.", MessageType.Error);
+                    }
+                }
+                else
+                {
+                    AddModuleMessage("Passwords Entered Do Not Match", MessageType.Warning);
+                }
             }
             else
             {
-                await logger.LogError("Error Adding User {Username} {Email}", username, email);
-                AddModuleMessage("Error Adding User. Please Ensure Password Meets Complexity Requirements And Username Is Not Already In Use.", MessageType.Error);
+                AddModuleMessage("You Must Provide A Username, Password, and Email Address", MessageType.Warning);
             }
         }
         catch (Exception ex)

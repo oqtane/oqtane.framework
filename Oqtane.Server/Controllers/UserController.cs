@@ -10,6 +10,9 @@ using System.Linq;
 using System.Security.Claims;
 using Oqtane.Shared;
 using Oqtane.Infrastructure;
+using System;
+using Microsoft.AspNetCore.Http;
+using System.Net;
 
 namespace Oqtane.Controllers
 {
@@ -21,15 +24,19 @@ namespace Oqtane.Controllers
         private readonly IUserRoleRepository UserRoles;
         private readonly UserManager<IdentityUser> IdentityUserManager;
         private readonly SignInManager<IdentityUser> IdentitySignInManager;
+        private readonly ITenantResolver Tenants;
+        private readonly INotificationRepository Notifications;
         private readonly ILogManager logger;
 
-        public UserController(IUserRepository Users, IRoleRepository Roles, IUserRoleRepository UserRoles, UserManager<IdentityUser> IdentityUserManager, SignInManager<IdentityUser> IdentitySignInManager, ILogManager logger)
+        public UserController(IUserRepository Users, IRoleRepository Roles, IUserRoleRepository UserRoles, UserManager<IdentityUser> IdentityUserManager, SignInManager<IdentityUser> IdentitySignInManager, ITenantResolver Tenants, INotificationRepository Notifications, ILogManager logger)
         {
             this.Users = Users;
             this.Roles = Roles;
             this.UserRoles = UserRoles;
             this.IdentityUserManager = IdentityUserManager;
             this.IdentitySignInManager = IdentitySignInManager;
+            this.Tenants = Tenants;
+            this.Notifications = Notifications;
             this.logger = logger;
         }
 
@@ -74,10 +81,11 @@ namespace Oqtane.Controllers
 
             if (ModelState.IsValid)
             {
-                int hostroleid = -1;
-                if (!Users.GetUsers().Any())
+                bool verified = true;
+                // users created by non-administrators must be verified
+                if (!base.User.IsInRole(Constants.AdminRole) && User.Username != Constants.HostUser)
                 {
-                    hostroleid = Roles.GetRoles(User.SiteId, true).Where(item => item.Name == Constants.HostRole).FirstOrDefault().RoleId;
+                    verified = false;
                 }
 
                 IdentityUser identityuser = await IdentityUserManager.FindByNameAsync(User.Username);
@@ -86,14 +94,34 @@ namespace Oqtane.Controllers
                     identityuser = new IdentityUser();
                     identityuser.UserName = User.Username;
                     identityuser.Email = User.Email;
+                    identityuser.EmailConfirmed = verified;
                     var result = await IdentityUserManager.CreateAsync(identityuser, User.Password);
                     if (result.Succeeded)
                     {
                         user = Users.AddUser(User);
-
-                        // assign to host role if this is the initial installation
-                        if (hostroleid != -1)
+                        if (!verified)
                         {
+                            Notification notification = new Notification();
+                            notification.SiteId = User.SiteId;
+                            notification.FromUserId = null;
+                            notification.ToUserId = user.UserId;
+                            notification.ToEmail = "";
+                            notification.Subject = "User Account Verification";
+                            string token = await IdentityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
+                            string alias = Tenants.GetAlias().Path;
+                            string url = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/pages/verify?name=" + User.Username + "&token=" + WebUtility.UrlEncode(token) + "&returnurl=" + (alias == "" ? "/" : alias);
+                            notification.Body = "Dear " + User.DisplayName + ",\n\nIn Order To Complete The Registration Of Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
+                            notification.ParentId = null;
+                            notification.CreatedOn = DateTime.Now;
+                            notification.IsDelivered = false;
+                            notification.DeliveredOn = null;
+                            Notifications.AddNotification(notification);
+                        }
+
+                        // assign to host role if this is the host user ( initial installation )
+                        if (User.Username == Constants.HostUser)
+                        {
+                            int hostroleid = Roles.GetRoles(User.SiteId, true).Where(item => item.Name == Constants.HostRole).FirstOrDefault().RoleId;
                             UserRole userrole = new UserRole();
                             userrole.UserId = user.UserId;
                             userrole.RoleId = hostroleid;
@@ -112,7 +140,7 @@ namespace Oqtane.Controllers
                     }
                 }
 
-                if (user != null && hostroleid == -1)
+                if (user != null && User.Username != Constants.HostUser)
                 {
                     // add auto assigned roles to user for site
                     List<Role> roles = Roles.GetRoles(User.SiteId).Where(item => item.IsAutoAssigned == true).ToList();
@@ -192,11 +220,18 @@ namespace Oqtane.Controllers
                         user = Users.GetUser(identityuser.UserName);
                         if (user != null)
                         {
-                            user.IsAuthenticated = true;
-                            logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful {Username}", User.Username);
-                            if (SetCookie)
+                            if (identityuser.EmailConfirmed)
                             {
-                                await IdentitySignInManager.SignInAsync(identityuser, IsPersistent);
+                                user.IsAuthenticated = true;
+                                logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful {Username}", User.Username);
+                                if (SetCookie)
+                                {
+                                    await IdentitySignInManager.SignInAsync(identityuser, IsPersistent);
+                                }
+                            }
+                            else
+                            {
+                                logger.Log(LogLevel.Information, this, LogFunction.Security, "User Not Verified {Username}", User.Username);
                             }
                         }
                     }
@@ -217,6 +252,68 @@ namespace Oqtane.Controllers
         {
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
             logger.Log(LogLevel.Information, this, LogFunction.Security, "User Logout {Username}", User.Username);
+        }
+
+        // POST api/<controller>/forgot
+        [HttpPost("forgot")]
+        public async Task Forgot([FromBody] User User)
+        {
+            if (ModelState.IsValid)
+            {
+                IdentityUser identityuser = await IdentityUserManager.FindByNameAsync(User.Username);
+                if (identityuser != null)
+                {
+                    Notification notification = new Notification();
+                    notification.SiteId = User.SiteId;
+                    notification.FromUserId = null;
+                    notification.ToUserId = User.UserId;
+                    notification.ToEmail = "";
+                    notification.Subject = "User Password Reset";
+                    string token = await IdentityUserManager.GeneratePasswordResetTokenAsync(identityuser);
+                    string url = HttpContext.Request.Scheme + "://" + Tenants.GetAlias().Name + "/reset?name=" + User.Username + "&token=" + WebUtility.UrlEncode(token);
+                    notification.Body = "Dear " + User.DisplayName + ",\n\nPlease Click The Link Displayed Below To Reset Your Password:\n\n" + url + "\n\nThank You!";
+                    notification.ParentId = null;
+                    notification.CreatedOn = DateTime.Now;
+                    notification.IsDelivered = false;
+                    notification.DeliveredOn = null;
+                    Notifications.AddNotification(notification);
+                    logger.Log(LogLevel.Information, this, LogFunction.Security, "Password Reset Notification Sent For {Username}", User.Username);
+                }
+                else
+                {
+                    logger.Log(LogLevel.Error, this, LogFunction.Security, "Password Reset Notification Failed For {Username}", User.Username);
+                }
+            }
+        }
+
+        // POST api/<controller>/reset
+        [HttpPost("reset")]
+        public async Task<User> Reset([FromBody] User User, string token)
+        {
+            User user = null;
+            if (ModelState.IsValid)
+            {
+                IdentityUser identityuser = await IdentityUserManager.FindByNameAsync(User.Username);
+                if (identityuser != null && !string.IsNullOrEmpty(token))
+                {
+                    var result = await IdentityUserManager.ResetPasswordAsync(identityuser, token, User.Password);
+                    if (result.Succeeded)
+                    {
+                        user = User;
+                        user.Password = "";
+                        logger.Log(LogLevel.Information, this, LogFunction.Security, "Password Reset For {Username}", User.Username);
+                    }
+                    else
+                    {
+                        logger.Log(LogLevel.Error, this, LogFunction.Security, "Password Reset Failed For {Username}", User.Username);
+                    }
+                }
+                else
+                {
+                    logger.Log(LogLevel.Error, this, LogFunction.Security, "Password Reset Failed For {Username}", User.Username);
+                }
+            }
+            return user;
         }
 
         // GET api/<controller>/current

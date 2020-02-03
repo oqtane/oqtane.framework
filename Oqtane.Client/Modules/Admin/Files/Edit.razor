@@ -1,0 +1,85 @@
+﻿@namespace Oqtane.Modules.Admin.Files
+@inherits ModuleBase
+@inject IFolderService FolderService
+@inject NavigationManager NavigationManager
+
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Name: </label>
+        </td>
+        <td>
+            <input class="form-control" @bind="@name" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Permissions: </label>
+        </td>
+        <td>
+            <PermissionGrid EntityName="Folder" PermissionNames="View,Edit" Permissions="@permissions" @ref="permissiongrid" />
+        </td>
+    </tr>
+</table>
+<button type="button" class="btn btn-success" @onclick="SaveFolder">Save</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+<br />
+<br />
+<AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+
+    int FolderId;
+    string name;
+    string permissions;
+    string createdby;
+    DateTime createdon;
+    string modifiedby;
+    DateTime modifiedon;
+
+    PermissionGrid permissiongrid;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            FolderId = Int32.Parse(PageState.QueryString["id"]);
+            Folder folder = await FolderService.GetFolderAsync(FolderId);
+            if (folder != null)
+            {
+                name = folder.Name;
+                permissions = folder.Permissions;
+                createdby = folder.CreatedBy;
+                createdon = folder.CreatedOn;
+                modifiedby = folder.ModifiedBy;
+                modifiedon = folder.ModifiedOn;
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Folder {FolderId} {Error}", FolderId, ex.Message);
+            AddModuleMessage("Error Loading Module", MessageType.Error);
+        }
+    }
+
+    private async Task SaveFolder()
+    {
+        try
+        {
+            Folder folder = await FolderService.GetFolderAsync(FolderId);
+            if (folder != null)
+            {
+                folder.Permissions = permissiongrid.GetPermissions();
+                await FolderService.UpdateFolderAsync(folder);
+                await logger.LogInformation("Folder Saved {Folder}", folder);
+                NavigationManager.NavigateTo(NavigateUrl(Reload.Site));
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Saving Folder {FolderId} {Error}", FolderId, ex.Message);
+            AddModuleMessage("Error Saving Module", MessageType.Error);
+        }
+    }
+}

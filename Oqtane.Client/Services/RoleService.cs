@@ -50,7 +50,7 @@ namespace Oqtane.Services
 
         public async Task<Role> UpdateRoleAsync(Role Role)
         {
-            return await http.PutJsonAsync<Role>(apiurl + "/" + Role.SiteId.ToString(), Role);
+            return await http.PutJsonAsync<Role>(apiurl + "/" + Role.RoleId.ToString(), Role);
         }
         public async Task DeleteRoleAsync(int RoleId)
         {

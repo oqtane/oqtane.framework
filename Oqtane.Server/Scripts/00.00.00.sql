@@ -214,7 +214,7 @@ CREATE TABLE [dbo].[Log] (
    [PageId] [int] NULL,
    [ModuleId] [int] NULL,
    [UserId] [int] NULL,
-   [Url] [nvarchar](200) NOT NULL,
+   [Url] [nvarchar](2048) NOT NULL,
    [Server] [nvarchar](200) NOT NULL,
    [Category] [nvarchar](200) NOT NULL,
    [Feature] [nvarchar](200) NOT NULL,
@@ -229,6 +229,49 @@ CREATE TABLE [dbo].[Log] (
    (
      [LogId] ASC
    ) 
+)
+GO
+
+CREATE TABLE [dbo].[Notification](
+	[NotificationId] [int] IDENTITY(1,1) NOT NULL,
+    [SiteId] [int] NOT NULL,
+	[FromUserId] [int] NULL,
+	[ToUserId] [int] NULL,
+	[ToEmail] [nvarchar](256) NOT NULL,
+	[Subject] [nvarchar](256) NOT NULL,
+	[Body] [nvarchar](max) NOT NULL,
+	[ParentId] [int] NULL,
+	[CreatedOn] [datetime] NOT NULL,
+	[IsDelivered] [bit] NOT NULL,
+	[DeliveredOn] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedOn] [datetime] NULL,
+	[IsDeleted][bit] NOT NULL,
+  CONSTRAINT [PK_Notification] PRIMARY KEY CLUSTERED 
+  (
+	[NotificationId] ASC
+  )
+)
+GO
+
+CREATE TABLE [dbo].[Folder](
+	[FolderId] [int] IDENTITY(1,1) NOT NULL,
+	[SiteId] [int] NOT NULL,
+	[Path] [nvarchar](50) NOT NULL,
+	[Name] [nvarchar](50) NOT NULL,
+	[ParentId] [int] NULL,
+	[Order] [int] NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedOn] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NOT NULL,
+	[ModifiedOn] [datetime] NOT NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedOn] [datetime] NULL,
+	[IsDeleted][bit] NOT NULL,
+  CONSTRAINT [PK_Folder] PRIMARY KEY CLUSTERED 
+  (
+	[FolderId] ASC
+  )
 )
 GO
 
@@ -308,6 +351,16 @@ REFERENCES [dbo].[Site] ([SiteId])
 ON DELETE CASCADE
 GO
 
+ALTER TABLE [dbo].[Notification] WITH CHECK ADD CONSTRAINT [FK_Notification_Site] FOREIGN KEY([SiteId])
+REFERENCES [dbo].[Site] ([SiteId])
+ON DELETE CASCADE
+GO
+
+ALTER TABLE [dbo].[Folder] WITH CHECK ADD CONSTRAINT [FK_Folder_Site] FOREIGN KEY([SiteId])
+REFERENCES [dbo].[Site] ([SiteId])
+ON DELETE CASCADE
+GO
+
 ALTER TABLE [dbo].[HtmlText] WITH CHECK ADD CONSTRAINT [FK_HtmlText_Module] FOREIGN KEY([ModuleId])
 REFERENCES [dbo].[Module] ([ModuleId])
 ON DELETE CASCADE
@@ -360,3 +413,9 @@ CREATE UNIQUE NONCLUSTERED INDEX IX_UserRole ON dbo.UserRole
 	) ON [PRIMARY]
 GO
 
+CREATE UNIQUE NONCLUSTERED INDEX IX_Folder ON dbo.Folder
+	(
+	SiteId,
+	[Path]
+	) ON [PRIMARY]
+GO
