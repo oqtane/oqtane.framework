@@ -5,6 +5,10 @@
 @inject IUserService UserService
 @inject IServiceProvider ServiceProvider
 
+@if (Message != "")
+{
+    <ModuleMessage Message="@Message" Type="@Type" />
+}
 <AuthorizeView>
     <Authorizing>
         <text>...</text>
@@ -30,6 +34,8 @@
             </div>
             <button type="button" class="btn btn-primary" @onclick="Login">Login</button>
             <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+            <br /><br />
+            <button type="button" class="btn btn-secondary" @onclick="Forgot">Forgot Password</button>
         </div>
     </NotAuthorized>
 </AuthorizeView>
@@ -37,14 +43,35 @@
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Anonymous; } }
 
-    public string Username { get; set; } = "";
-    public string Password { get; set; } = "";
-    public bool Remember { get; set; } = false;
+    string ReturnUrl = "";
+    public string Message = "";
+    public MessageType Type = MessageType.Info;
+    public string Username = "";
+    public string Password = "";
+    public bool Remember = false;
+
+    protected override void OnInitialized()
+    {
+        if (PageState.QueryString.ContainsKey("returnurl"))
+        {
+            ReturnUrl = PageState.QueryString["returnurl"];
+        }
+        if (PageState.QueryString.ContainsKey("verified"))
+        {
+            if (PageState.QueryString["verified"] == "1")
+            {
+                Message = "User Account Verified Successfully. You Can Now Login With Your Username And Password Below.";
+            }
+            else
+            {
+                Message = "User Account Could Not Be Verified. Please Contact Your Administrator For Further Instructions.";
+                Type = MessageType.Warning;
+            }
+        }
+    }
 
     private async Task Login()
     {
-        string ReturnUrl = PageState.QueryString["returnurl"];
-
         var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
         if (authstateprovider == null)
         {
@@ -61,12 +88,12 @@
                 var interop = new Interop(jsRuntime);
                 string antiforgerytoken = await interop.GetElementByName("__RequestVerificationToken");
                 var fields = new { __RequestVerificationToken = antiforgerytoken, username = Username, password = Password, remember = Remember, returnurl = ReturnUrl };
-                await interop.SubmitForm("/login/", fields);
+                await interop.SubmitForm("/pages/login/", fields);
             }
             else
             {
                 await logger.LogInformation("Login Failed For Username {Username}", Username);
-                AddModuleMessage("Login Failed. Please Remember That Passwords Are Case Sensitive.", MessageType.Error);
+                AddModuleMessage("Login Failed. Please Remember That Passwords Are Case Sensitive And User Accounts Require Email Verification When They Initially Created.", MessageType.Error);
             }
         }
         else
@@ -86,14 +113,36 @@
             else
             {
                 await logger.LogInformation("Login Failed For Username {Username}", Username);
-                AddModuleMessage("Login Failed. Please Remember That Passwords Are Case Sensitive.", MessageType.Error);
+                AddModuleMessage("Login Failed. Please Remember That Passwords Are Case Sensitive And User Accounts Require Verification When They Are Initially Created So You May Wish To Check Your Email.", MessageType.Error);
             }
         }
     }
 
     private void Cancel()
     {
-        string ReturnUrl = PageState.QueryString["returnurl"];
         NavigationManager.NavigateTo(ReturnUrl);
+    }
+
+    private async Task Forgot()
+    {
+        if (Username != "")
+        {
+            User user = await UserService.GetUserAsync(Username, PageState.Site.SiteId);
+            if (user != null)
+            {
+                await UserService.ForgotPasswordAsync(user);
+                Message = "Please Check The Email Address Associated To Your User Account For A Password Reset Notification";
+            }
+            else
+            {
+                Message = "User Does Not Exist";
+                Type = MessageType.Warning;
+            }
+        }
+        else
+        {
+            Message = "Please Enter The Username Related To Your Account And Then Click The Forgot Password Option";
+        }
+        StateHasChanged();
     }
 }

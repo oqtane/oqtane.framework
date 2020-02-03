@@ -86,5 +86,16 @@ namespace Oqtane.Services
             // best practices recommend post is preferrable to get for logout
             await http.PostJsonAsync(apiurl + "/logout", User); 
         }
+
+        public async Task ForgotPasswordAsync(User User)
+        {
+            await http.PostJsonAsync(apiurl + "/forgot", User);
+        }
+
+        public async Task<User> ResetPasswordAsync(User User, string Token)
+        {
+            return await http.PostJsonAsync<User>(apiurl + "/reset?token=" + Token, User);
+        }
+
     }
 }

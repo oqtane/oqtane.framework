@@ -25,6 +25,8 @@
         public const string PageManagementModule = "Oqtane.Modules.Admin.Pages, Oqtane.Client";
         public const string ModuleMessageComponent = "Oqtane.Modules.Controls.ModuleMessage, Oqtane.Client";
 
+        public const string HostUser = "host";
+
         public const string AllUsersRole = "All Users";
         public const string HostRole = "Host Users";
         public const string AdminRole = "Administrators";

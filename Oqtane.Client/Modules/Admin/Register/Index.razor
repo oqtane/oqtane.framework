@@ -3,6 +3,11 @@
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
 
+@if  (Message != "")
+{
+    <ModuleMessage Message="@Message" Type="MessageType.Info" />
+}
+
 <div class="container">
     <div class="form-group">
         <label for="Username" class="control-label">Username: </label>
@@ -13,43 +18,62 @@
         <input type="password" class="form-control" placeholder="Password" @bind="@Password" />
     </div>
     <div class="form-group">
-        <label for="Username" class="control-label">Email: </label>
-        <input type="text" class="form-control" placeholder="Username" @bind="@Email" />
+        <label for="Password" class="control-label">Confirm Password: </label>
+        <input type="password" class="form-control" placeholder="Password" @bind="@Confirm" />
     </div>
-    <button type="button" class="btn btn-primary" @onclick="RegisterUser">Register</button>
+    <div class="form-group">
+        <label for="Username" class="control-label">Email: </label>
+        <input type="text" class="form-control" placeholder="Email" @bind="@Email" />
+    </div>
+    <div class="form-group">
+        <label for="DisplayName" class="control-label">Full Name: </label>
+        <input type="text" class="form-control" placeholder="Full Name" @bind="@DisplayName" />
+    </div>
+    <button type="button" class="btn btn-primary" @onclick="Register">Register</button>
     <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
 </div>
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Anonymous; } }
 
+    string Message = "Please Note That Registration Requires A Valid Email Address In Order To Verify Your Identity";
     string Username = "";
     string Password = "";
+    string Confirm = "";
     string Email = "";
+    string DisplayName = "";
 
-    private async Task RegisterUser()
+    private async Task Register()
     {
         try
         {
-            if (Username != "" && Password != "" && Email != "")
+            Message = "";
+            if (Username != "" && Password != "" && Confirm != "" && Email != "")
             {
-                User user = new User();
-                user.SiteId = PageState.Site.SiteId;
-                user.Username = Username;
-                user.DisplayName = Username;
-                user.Email = Email;
-                user.Password = Password;
-                user = await UserService.AddUserAsync(user);
-
-                if (user != null)
+                if (Password == Confirm)
                 {
-                    await logger.LogInformation("User Created {Username} {Email}", Username, Email);
-                    NavigationManager.NavigateTo(NavigateUrl(""));
+                    User user = new User();
+                    user.SiteId = PageState.Site.SiteId;
+                    user.Username = Username;
+                    user.DisplayName = (DisplayName == "" ? Username : DisplayName);
+                    user.Email = Email;
+                    user.Password = Password;
+                    user = await UserService.AddUserAsync(user);
+
+                    if (user != null)
+                    {
+                        await logger.LogInformation("User Created {Username} {Email}", Username, Email);
+                        AddModuleMessage("User Account Created. Please Check Your Email For Verification Instructions.", MessageType.Info);
+                    }
+                    else
+                    {
+                        await logger.LogError("Error Adding User {Username} {Email}", Username, Email);
+                        AddModuleMessage("Error Adding User. Please Ensure Password Meets Complexity Requirements And Username Is Not Already In Use.", MessageType.Error);
+                    }
                 }
                 else
                 {
-                    await logger.LogError("Error Adding User {Username} {Email}", Username, Email);
-                    AddModuleMessage("Error Adding User. Please Ensure Password Meets Complexity Requirements And Username Is Not Already In Use.", MessageType.Error);
+                    AddModuleMessage("Passwords Entered Do Not Match", MessageType.Warning);
                 }
             }
             else

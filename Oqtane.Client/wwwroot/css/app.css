@@ -92,3 +92,21 @@ app {
     height: 1px;
     background-color: gray;
 }
+
+.app-link-unstyled, .app-link-unstyled:visited, .app-link-unstyled:hover, .app-link-unstyled:active, .app-link-unstyled:focus, .app-link-unstyled:active:hover {
+    font-style: inherit;
+    color: inherit;
+    background-color: transparent;
+    font-size: inherit;
+    text-decoration: none;
+    font-variant: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+    font-family: inherit;
+    border-radius: inherit;
+    border: inherit;
+    outline: inherit;
+    box-shadow: inherit;
+    padding: inherit;
+    vertical-align: inherit;
+}

@@ -4,69 +4,156 @@
 @inject IUserService UserService
 @inject IProfileService ProfileService
 @inject ISettingService SettingService
+@inject INotificationService NotificationService
 
 @if (PageState.User != null && profiles != null)
 {
-    <table class="table table-borderless">
-        <tr>
-            <td>
-                <label for="Name" class="control-label">Username: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@username" readonly />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="Name" class="control-label">Password: </label>
-            </td>
-            <td>
-                <input type="password" class="form-control" @bind="@password" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="Name" class="control-label">Email: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@email" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="Name" class="control-label">Full Name: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@displayname" />
-            </td>
-        </tr>
+<div class="container-fluid">
+    <div class="form-group">
 
-        @foreach (Profile profile in profiles)
-        {
-            var p = profile;
-            if (p.Category != category)
-            {
-                <tr>
-                    <th colspan="2" style="text-align: center;">
-                        @p.Category
-                    </th>
-                </tr>
-                category = p.Category;
-            }
-            <tr>
-                <td>
-                    <label for="@p.Name" class="control-label">@p.Title: </label>
-                </td>
-                <td>
-                    <input class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" placeholder="@p.Description" @onchange="(e => ProfileChanged(e, p.Name))" />
-                </td>
-            </tr>
-        }
-    </table>
-    <button type="button" class="btn btn-primary" @onclick="SaveUser">Save</button>
-    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
-    <br />
-    <br />
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#Profile" role="tab">
+                    Profile
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#Notifications" role="tab">
+                    Notifications
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div id="Profile" class="tab-pane fade show active" role="tabpanel">
+                <br />
+                <table class="table table-borderless">
+                    <tr>
+                        <td>
+                            <label for="Name" class="control-label">Username: </label>
+                        </td>
+                        <td>
+                            <input class="form-control" @bind="@username" readonly />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="Name" class="control-label">Password: </label>
+                        </td>
+                        <td>
+                            <input type="password" class="form-control" @bind="@password" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="Name" class="control-label">Confirm Password: </label>
+                        </td>
+                        <td>
+                            <input type="password" class="form-control" @bind="@confirm" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="Name" class="control-label">Email: </label>
+                        </td>
+                        <td>
+                            <input class="form-control" @bind="@email" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="Name" class="control-label">Full Name: </label>
+                        </td>
+                        <td>
+                            <input class="form-control" @bind="@displayname" />
+                        </td>
+                    </tr>
+
+                    @foreach (Profile profile in profiles)
+                    {
+                        var p = profile;
+                        if (p.Category != category)
+                        {
+                            <tr>
+                                <th colspan="2" style="text-align: center;">
+                                    @p.Category
+                                </th>
+                            </tr>
+                            category = p.Category;
+                        }
+                        <tr>
+                            <td>
+                                <label for="@p.Name" class="control-label">@p.Title: </label>
+                            </td>
+                            <td>
+                                <input class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" placeholder="@p.Description" @onchange="(e => ProfileChanged(e, p.Name))" />
+                            </td>
+                        </tr>
+                    }
+                </table>
+                <button type="button" class="btn btn-primary" @onclick="Save">Save</button>
+                <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+            </div>
+
+            <div id="Notifications" class="tab-pane fade" role="tabpanel">
+                <br />
+                <ActionLink Action="Add" Text="Send Notification" Security="SecurityAccessLevel.View" EditMode="false" />
+                <br /><br />
+                @if (filter == "to")
+                {
+                    <Pager Items="@notifications">
+                        <Header>
+                            <th>&nbsp;</th>
+                            <th>&nbsp;</th>
+                            <th>From</th>
+                            <th>Subject</th>
+                            <th>Received</th>
+                        </Header>
+                        <Row>
+                            <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" /></td>
+                            <td><ActionDialog Header="Delete Notification" Message="@("Are You Sure You Wish To Delete This Notification?")" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" /></td>
+                            <td>@(context.FromUser == null ? "System" : context.FromUser.DisplayName)</td>
+                            <td>@context.Subject</td>
+                            <td>@context.CreatedOn</td>
+                        </Row>
+                        <Detail>
+                            <td colspan="2"></td>
+                            <td colspan="3">@(context.Body.Length > 100 ? context.Body.Substring(0,100) : context.Body)</td>
+                        </Detail>
+                    </Pager>
+                }
+                else
+                {
+                    <Pager Items="@notifications">
+                        <Header>
+                            <th>&nbsp;</th>
+                            <th>&nbsp;</th>
+                            <th>To</th>
+                            <th>Subject</th>
+                            <th>Sent</th>
+                        </Header>
+                        <Row>
+                            <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" /></td>
+                            <td><ActionDialog Header="Delete Notification" Message="@("Are You Sure You Wish To Delete This Notification?")" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" /></td>
+                            <td>@(context.ToUser == null ? context.ToEmail : context.ToUser.DisplayName)</td>
+                            <td>@context.Subject</td>
+                            <td>@context.CreatedOn</td>
+                        </Row>
+                        <Detail>
+                            <td colspan="2"></td>
+                            <td colspan="3">@(context.Body.Length > 100 ? context.Body.Substring(0,100) : context.Body)</td>
+                        </Detail>
+                    </Pager>
+                }
+                <br /><hr />
+                <select class="form-control" @onchange="(e => FilterChanged(e))">
+                    <option value="to">Inbox</option>
+                    <option value="from">Sent Items</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
 }
 
 @code {
@@ -74,11 +161,14 @@
 
     string username = "";
     string password = "";
+    string confirm = "";
     string email = "";
     string displayname = "";
     List<Profile> profiles;
     Dictionary<string, string> settings;
     string category = "";
+    string filter = "to";
+    List<Notification> notifications;
 
     protected override async Task OnInitializedAsync()
     {
@@ -91,6 +181,7 @@
                 displayname = PageState.User.DisplayName;
                 profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
                 settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
+                await LoadNotificationsAsync();
             }
             else
             {
@@ -104,25 +195,45 @@
         }
     }
 
+    private async Task LoadNotificationsAsync()
+    {
+        notifications = await NotificationService.GetNotificationsAsync(PageState.Site.SiteId, filter, PageState.User.UserId);
+        notifications = notifications.Where(item => item.DeletedBy != PageState.User.Username).ToList();
+    }
+
     private string GetProfileValue(string SettingName, string DefaultValue)
     {
         return SettingService.GetSetting(settings, SettingName, DefaultValue);
     }
 
-    private async Task SaveUser()
+    private async Task Save()
     {
         try
         {
-            User user = PageState.User;
-            user.Username = username;
-            user.Password = password;
-            user.Email = email;
-            user.DisplayName = displayname;
-            await UserService.UpdateUserAsync(user);
-            await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
-            await logger.LogInformation("User Profile Saved");
+            if (password != "" && confirm != "" && email != "")
+            {
+                if (password == confirm)
+                {
+                    User user = PageState.User;
+                    user.Username = username;
+                    user.Password = password;
+                    user.Email = email;
+                    user.DisplayName = (displayname == "" ? username : displayname);
+                    await UserService.UpdateUserAsync(user);
+                    await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
+                    await logger.LogInformation("User Profile Saved");
 
-            NavigationManager.NavigateTo(NavigateUrl(""));
+                    NavigationManager.NavigateTo(NavigateUrl(""));
+                }
+                else
+                {
+                    AddModuleMessage("Passwords Entered Do Not Match", MessageType.Warning);
+                }
+            }
+            else
+            {
+                AddModuleMessage("You Must Provide A Username, Password, and Email Address", MessageType.Warning);
+            }
         }
         catch (Exception ex)
         {
@@ -141,4 +252,36 @@
         string value = (string)e.Value;
         settings = SettingService.SetSetting(settings, SettingName, value);
     }
+
+    private async Task Delete(Notification Notification)
+    {
+        try
+        {
+            if (!Notification.IsDeleted)
+            {
+                Notification.IsDeleted = true;
+                await NotificationService.UpdateNotificationAsync(Notification);
+            }
+            else
+            {
+                await NotificationService.DeleteNotificationAsync(Notification.NotificationId);
+            }
+            await logger.LogInformation("Notification Deleted {Notification}", Notification);
+            await LoadNotificationsAsync();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Notification {Notification} {Error}", Notification, ex.Message);
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+
+    private async void FilterChanged(ChangeEventArgs e)
+    {
+        filter = (string)e.Value;
+        await LoadNotificationsAsync();
+        StateHasChanged();
+    }
+
 }

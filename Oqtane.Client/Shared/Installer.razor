@@ -59,7 +59,7 @@
                             <label for="Title" class="control-label" style="font-weight: bold">Username: </label>
                         </td>
                         <td>
-                            <input type="text" class="form-control" @bind="@Username" />
+                            <input type="text" class="form-control" readonly @bind="@Username" />
                         </td>
                     </tr>
                     <tr style="@IntegratedSecurityDisplay">
@@ -85,7 +85,7 @@
                             <label for="Title" class="control-label" style="font-weight: bold">Username: </label>
                         </td>
                         <td>
-                            <input type="text" class="form-control" @bind="@HostUsername" />
+                            <input type="text" class="form-control" @bind="@HostUsername" readonly />
                         </td>
                     </tr>
                     <tr>
@@ -94,6 +94,14 @@
                         </td>
                         <td>
                             <input type="password" class="form-control" @bind="@HostPassword" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="Title" class="control-label" style="font-weight: bold">Confirm Password: </label>
+                        </td>
+                        <td>
+                            <input type="password" class="form-control" @bind="@ConfirmPassword" />
                         </td>
                     </tr>
                     <tr>
@@ -123,8 +131,9 @@
     private string DatabaseName = "Oqtane-" + DateTime.Now.ToString("yyyyMMddHHmm");
     private string Username = "";
     private string Password = "";
-    private string HostUsername = "host";
+    private string HostUsername = Constants.HostUser;
     private string HostPassword = "";
+    private string ConfirmPassword = "";
     private string HostEmail = "";
     private string Message = "";
 
@@ -145,7 +154,7 @@
 
     private async Task Install()
     {
-        if (HostUsername != "" & HostPassword.Length >= 6 & HostEmail != "")
+        if (HostUsername != "" && HostPassword.Length >= 6 && HostPassword == ConfirmPassword && HostEmail != "")
         {
             LoadingDisplay = "";
             StateHasChanged();
@@ -198,7 +207,7 @@
         }
         else
         {
-            Message = "<div class=\"alert alert-danger\" role=\"alert\">Username And Email Must Be Provided And Password Must Be Greater Than 5 Characters</div>";
+            Message = "<div class=\"alert alert-danger\" role=\"alert\">Please Enter All Fields And Ensure Passwords Match And Are Greater Than 5 Characters In Length</div>";
         }
     }
 }

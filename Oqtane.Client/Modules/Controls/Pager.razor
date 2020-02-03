@@ -13,6 +13,10 @@
             @foreach (var item in ItemList)
             {
                 <tr>@Row(item)</tr>
+                @if (Detail != null)
+                {
+                    <tr>@Detail(item)</tr>
+                }
             }
         </tbody>
     </table>
@@ -24,6 +28,10 @@
         @foreach (var item in ItemList)
         {
             <div class="row">@Row(item)</div>
+            @if (Detail != null)
+            {
+                <div class="row">@Detail(item)</div>
+            }
         }
     </div>
     }
@@ -71,6 +79,9 @@
 
     [Parameter]
     public RenderFragment<TableItem> Row { get; set; }
+
+    [Parameter]
+    public RenderFragment<TableItem> Detail { get; set; }
 
     [Parameter]
     public IEnumerable<TableItem> Items { get; set; }

@@ -23,5 +23,9 @@ namespace Oqtane.Services
         Task<User> LoginUserAsync(User User, bool SetCookie, bool IsPersistent);
 
         Task LogoutUserAsync(User User);
+
+        Task ForgotPasswordAsync(User User);
+
+        Task<User> ResetPasswordAsync(User User, string Token);
     }
 }

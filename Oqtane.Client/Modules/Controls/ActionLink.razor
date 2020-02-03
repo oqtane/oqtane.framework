@@ -26,11 +26,15 @@
     [Parameter]
     public string Style { get; set; } // optional
 
+    [Parameter]
+    public string EditMode { get; set; } // optional - specifies if a user must be in edit mode to see the action - default is true
+
     string text = "";
     string url = "";
     string parameters = "";
     string classname = "btn btn-primary";
     string style = "";
+    bool editmode = true;
     bool authorized = false;
 
     protected override void OnParametersSet()
@@ -56,6 +60,11 @@
             style = Style;
         }
 
+        if (!string.IsNullOrEmpty(EditMode))
+        {
+            editmode = bool.Parse(EditMode);
+        }
+
         url = EditUrl(Action, parameters);
         authorized = IsAuthorized();
     }
@@ -63,7 +72,7 @@
     private bool IsAuthorized()
     {
         bool authorized = false;
-        if (PageState.EditMode)
+        if (PageState.EditMode || !editmode)
         {
             SecurityAccessLevel security = SecurityAccessLevel.Host;
             if (Security == null)

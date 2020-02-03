@@ -106,6 +106,7 @@ namespace Oqtane.Server
             services.AddScoped<ILogService, LogService>();
             services.AddScoped<IJobService, JobService>();
             services.AddScoped<IJobLogService, JobLogService>();
+            services.AddScoped<INotificationService, NotificationService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -179,6 +180,7 @@ namespace Oqtane.Server
             services.AddTransient<ILogManager, LogManager>();
             services.AddTransient<IJobRepository, JobRepository>();
             services.AddTransient<IJobLogRepository, JobLogRepository>();
+            services.AddTransient<INotificationRepository, NotificationRepository>();
 
             services.AddOqtaneModules();
             services.AddOqtaneThemes();
@@ -326,6 +328,7 @@ namespace Oqtane.Server
             services.AddTransient<ILogManager, LogManager>();
             services.AddTransient<IJobRepository, JobRepository>();
             services.AddTransient<IJobLogRepository, JobLogRepository>();
+            services.AddTransient<INotificationRepository, NotificationRepository>();
 
             services.AddOqtaneModules();
             services.AddOqtaneThemes();
