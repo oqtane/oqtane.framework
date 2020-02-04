@@ -275,6 +275,24 @@ CREATE TABLE [dbo].[Folder](
 )
 GO
 
+CREATE TABLE [dbo].[File](
+	[FileId] [int] IDENTITY(1,1) NOT NULL,
+	[FolderId] [int] NOT NULL,
+	[Name] [nvarchar](50) NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedOn] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NOT NULL,
+	[ModifiedOn] [datetime] NOT NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedOn] [datetime] NULL,
+	[IsDeleted][bit] NOT NULL,
+  CONSTRAINT [PK_File] PRIMARY KEY CLUSTERED 
+  (
+	[FileId] ASC
+  )
+)
+GO
+
 CREATE TABLE [dbo].[HtmlText](
 	[HtmlTextId] [int] IDENTITY(1,1) NOT NULL,
 	[ModuleId] [int] NOT NULL,
@@ -358,6 +376,11 @@ GO
 
 ALTER TABLE [dbo].[Folder] WITH CHECK ADD CONSTRAINT [FK_Folder_Site] FOREIGN KEY([SiteId])
 REFERENCES [dbo].[Site] ([SiteId])
+ON DELETE CASCADE
+GO
+
+ALTER TABLE [dbo].[File] WITH CHECK ADD CONSTRAINT [FK_File_Folder] FOREIGN KEY([FolderId])
+REFERENCES [dbo].[Folder] ([FolderId])
 ON DELETE CASCADE
 GO
 
