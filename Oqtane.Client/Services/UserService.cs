@@ -87,6 +87,11 @@ namespace Oqtane.Services
             await http.PostJsonAsync(apiurl + "/logout", User); 
         }
 
+        public async Task<User> VerifyEmailAsync(User User, string Token)
+        {
+            return await http.PostJsonAsync<User>(apiurl + "/verify?token=" + Token, User);
+        }
+
         public async Task ForgotPasswordAsync(User User)
         {
             await http.PostJsonAsync(apiurl + "/forgot", User);

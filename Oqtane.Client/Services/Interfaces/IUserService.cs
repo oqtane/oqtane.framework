@@ -24,6 +24,8 @@ namespace Oqtane.Services
 
         Task LogoutUserAsync(User User);
 
+        Task<User> VerifyEmailAsync(User User, string Token);
+
         Task ForgotPasswordAsync(User User);
 
         Task<User> ResetPasswordAsync(User User, string Token);

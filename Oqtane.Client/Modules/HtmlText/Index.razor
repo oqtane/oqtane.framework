@@ -28,6 +28,7 @@
         }
         catch (Exception ex)
         {
+            await logger.LogError(ex, "An Error Occurred Loading Html/Text Content. " + ex.Message);
             AddModuleMessage(ex.Message, MessageType.Error);
         }
     }

@@ -38,7 +38,7 @@ namespace Oqtane.Controllers
             }
         }
 
-        // GET api/<controller>/5?userid=x
+        // GET api/<controller>/5
         [HttpGet("{id}")]
         public Folder Get(int id)
         {

@@ -50,15 +50,24 @@
     public string Password = "";
     public bool Remember = false;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         if (PageState.QueryString.ContainsKey("returnurl"))
         {
             ReturnUrl = PageState.QueryString["returnurl"];
         }
-        if (PageState.QueryString.ContainsKey("verified"))
+        if (PageState.QueryString.ContainsKey("name"))
         {
-            if (PageState.QueryString["verified"] == "1")
+            Username = PageState.QueryString["name"];
+        }
+        if (PageState.QueryString.ContainsKey("token"))
+        {
+            User user = new User();
+            user.SiteId = PageState.Site.SiteId;
+            user.Username = Username;
+            user = await UserService.VerifyEmailAsync(user, PageState.QueryString["token"]);
+
+            if (user != null)
             {
                 Message = "User Account Verified Successfully. You Can Now Login With Your Username And Password Below.";
             }
@@ -141,8 +150,8 @@
         }
         else
         {
-            Message = "Please Enter The Username Related To Your Account And Then Click The Forgot Password Option";
+            Message = "Please Enter The Username Related To Your Account And Then Select The Forgot Password Option Again";
         }
         StateHasChanged();
     }
-}
+    }

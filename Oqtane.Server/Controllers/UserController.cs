@@ -108,8 +108,7 @@ namespace Oqtane.Controllers
                             notification.ToEmail = "";
                             notification.Subject = "User Account Verification";
                             string token = await IdentityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
-                            string alias = Tenants.GetAlias().Path;
-                            string url = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/pages/verify?name=" + User.Username + "&token=" + WebUtility.UrlEncode(token) + "&returnurl=" + (alias == "" ? "/" : alias);
+                            string url = HttpContext.Request.Scheme + "://" + Tenants.GetAlias().Name + "/login?name=" + User.Username + "&token=" + WebUtility.UrlEncode(token);
                             notification.Body = "Dear " + User.DisplayName + ",\n\nIn Order To Complete The Registration Of Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
                             notification.ParentId = null;
                             notification.CreatedOn = DateTime.Now;
@@ -254,6 +253,35 @@ namespace Oqtane.Controllers
             logger.Log(LogLevel.Information, this, LogFunction.Security, "User Logout {Username}", User.Username);
         }
 
+        // POST api/<controller>/verify
+        [HttpPost("verify")]
+        public async Task<User> Verify([FromBody] User User, string token)
+        {
+            if (ModelState.IsValid)
+            {
+                IdentityUser identityuser = await IdentityUserManager.FindByNameAsync(User.Username);
+                if (identityuser != null)
+                {
+                    var result = await IdentityUserManager.ConfirmEmailAsync(identityuser, token);
+                    if (result.Succeeded)
+                    {
+                        logger.Log(LogLevel.Information, this, LogFunction.Security, "Email Verified For {Username}", User.Username);
+                    }
+                    else
+                    {
+                        logger.Log(LogLevel.Error, this, LogFunction.Security, "Email Verification Failed For {Username}", User.Username);
+                        User = null;
+                    }
+                }
+                else
+                {
+                    logger.Log(LogLevel.Error, this, LogFunction.Security, "Email Verification Failed For {Username}", User.Username);
+                    User = null;
+                }
+            }
+            return User;
+        }
+        
         // POST api/<controller>/forgot
         [HttpPost("forgot")]
         public async Task Forgot([FromBody] User User)
@@ -290,7 +318,6 @@ namespace Oqtane.Controllers
         [HttpPost("reset")]
         public async Task<User> Reset([FromBody] User User, string token)
         {
-            User user = null;
             if (ModelState.IsValid)
             {
                 IdentityUser identityuser = await IdentityUserManager.FindByNameAsync(User.Username);
@@ -299,21 +326,22 @@ namespace Oqtane.Controllers
                     var result = await IdentityUserManager.ResetPasswordAsync(identityuser, token, User.Password);
                     if (result.Succeeded)
                     {
-                        user = User;
-                        user.Password = "";
                         logger.Log(LogLevel.Information, this, LogFunction.Security, "Password Reset For {Username}", User.Username);
+                        User.Password = "";
                     }
                     else
                     {
                         logger.Log(LogLevel.Error, this, LogFunction.Security, "Password Reset Failed For {Username}", User.Username);
+                        User = null;
                     }
                 }
                 else
                 {
                     logger.Log(LogLevel.Error, this, LogFunction.Security, "Password Reset Failed For {Username}", User.Username);
+                    User = null;
                 }
             }
-            return user;
+            return User;
         }
 
         // GET api/<controller>/current

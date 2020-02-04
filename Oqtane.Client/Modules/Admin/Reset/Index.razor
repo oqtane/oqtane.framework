@@ -50,7 +50,6 @@
                     User user = new User();
                     user.SiteId = PageState.Site.SiteId;
                     user.Username = Username;
-                    user.DisplayName = Username;
                     user.Password = Password;
                     user = await UserService.ResetPasswordAsync(user, PageState.QueryString["token"]);
 
