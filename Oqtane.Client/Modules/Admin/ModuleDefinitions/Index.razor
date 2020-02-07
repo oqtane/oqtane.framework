@@ -51,6 +51,7 @@ else
         try
         {
             moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
+            moduledefinitions = moduledefinitions.Where(item => !item.IsDeleted).ToList();
             packages = await PackageService.GetPackagesAsync("module");
         }
         catch (Exception ex)
@@ -85,13 +86,15 @@ else
             await logger.LogError(ex, "Error Downloading Module {ModuleDefinitionName} {Version} {Error}", moduledefinitionname, version, ex.Message);
             AddModuleMessage("Error Downloading Module", MessageType.Error);
         }
-  }
+    }
 
     private async Task DeleteModule(ModuleDefinition ModuleDefinition)
     {
         try
         {
-            await ModuleDefinitionService.DeleteModuleDefinitionAsync(ModuleDefinition.ModuleDefinitionId, ModuleDefinition.SiteId);
+            ModuleDefinition.IsDeleted = true;
+
+            await ModuleDefinitionService.UpdateModuleDefinitionAsync(ModuleDefinition);
             await logger.LogInformation("Module Deleted {ModuleDefinition}", ModuleDefinition);
             NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
         }

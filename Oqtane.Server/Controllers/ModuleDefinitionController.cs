@@ -16,13 +16,22 @@ namespace Oqtane.Controllers
     public class ModuleDefinitionController : Controller
     {
         private readonly IModuleDefinitionRepository ModuleDefinitions;
+        private readonly IModuleRepository ModuleRepository;
+        private readonly IPageModuleRepository PageModuleRepository;
         private readonly IInstallationManager InstallationManager;
         private readonly IWebHostEnvironment environment;
         private readonly ILogManager logger;
 
-        public ModuleDefinitionController(IModuleDefinitionRepository ModuleDefinitions, IInstallationManager InstallationManager, IWebHostEnvironment environment, ILogManager logger)
+        public ModuleDefinitionController(IModuleDefinitionRepository ModuleDefinitions, 
+            IModuleRepository ModuleRepository, 
+            IPageModuleRepository PageModuleRepository,
+            IInstallationManager InstallationManager, 
+            IWebHostEnvironment environment, 
+            ILogManager logger)
         {
             this.ModuleDefinitions = ModuleDefinitions;
+            this.ModuleRepository = ModuleRepository;
+            this.PageModuleRepository = PageModuleRepository;
             this.InstallationManager = InstallationManager;
             this.environment = environment;
             this.logger = logger;
@@ -71,7 +80,11 @@ namespace Oqtane.Controllers
         {
             List<ModuleDefinition> moduledefinitions = ModuleDefinitions.GetModuleDefinitions(siteid).ToList();
             ModuleDefinition moduledefinition = moduledefinitions.Where(item => item.ModuleDefinitionId == id).FirstOrDefault();
-            if (moduledefinition != null)
+
+            var pagewithmodule = PageModuleRepository.GetPageModules(siteid)
+                .Where(item => item.Module.ModuleDefinitionName == moduledefinition.ModuleDefinitionName).ToList();
+            
+            if (moduledefinition != null && pagewithmodule.Count(item => !item.IsDeleted) == 0)
             {
                 string moduledefinitionname = moduledefinition.ModuleDefinitionName.Substring(0, moduledefinition.ModuleDefinitionName.IndexOf(","));
 
@@ -85,6 +98,15 @@ namespace Oqtane.Controllers
                 foreach (string file in Directory.EnumerateFiles(binfolder, moduledefinitionname + "*.dll"))
                 {
                     System.IO.File.Delete(file);
+                }
+
+                foreach (var pageModule in pagewithmodule.Where(item => item.IsDeleted))
+                {
+                    PageModuleRepository.DeletePageModule(pageModule.PageModuleId);
+                    logger.Log(LogLevel.Information, this, LogFunction.Delete, "PageModule Deleted {PageModuleId}", pageModule.PageModuleId);
+
+                    ModuleRepository.DeleteModule(pageModule.ModuleId);
+                    logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Deleted {ModuleId}", pageModule.ModuleId);
                 }
 
                 ModuleDefinitions.DeleteModuleDefinition(id, siteid);

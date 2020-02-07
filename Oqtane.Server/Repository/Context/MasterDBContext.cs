@@ -30,7 +30,7 @@ namespace Oqtane.Repository
             {
                 username = accessor.HttpContext.User.Identity.Name;
             }
-            DateTime date = DateTime.Now;
+            DateTime date = DateTime.UtcNow;
 
             var created = ChangeTracker.Entries()
                 .Where(x => x.State == EntityState.Added);
@@ -53,6 +53,22 @@ namespace Oqtane.Repository
                 {
                     item.CurrentValues[nameof(IAuditable.ModifiedBy)] = username;
                     item.CurrentValues[nameof(IAuditable.ModifiedOn)] = date;
+                }
+
+                if (item.Entity is IDeletable deleted && item.State != EntityState.Added)
+                {
+                    if ((bool)item.CurrentValues[nameof(IDeletable.IsDeleted)]
+                        && !item.GetDatabaseValues().GetValue<bool>(nameof(IDeletable.IsDeleted)))
+                    {
+                        item.CurrentValues[nameof(IDeletable.DeletedBy)] = username;
+                        item.CurrentValues[nameof(IDeletable.DeletedOn)] = date;
+                    }
+                    else if (!(bool)item.CurrentValues[nameof(IDeletable.IsDeleted)]
+                        && item.GetDatabaseValues().GetValue<bool>(nameof(IDeletable.IsDeleted)))
+                    {
+                        item.CurrentValues[nameof(IDeletable.DeletedBy)] = null;
+                        item.CurrentValues[nameof(IDeletable.DeletedOn)] = null;
+                    }
                 }
             }
 

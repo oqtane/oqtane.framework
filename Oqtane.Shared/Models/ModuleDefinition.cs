@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Models
 {
-    public class ModuleDefinition : IAuditable
+    public class ModuleDefinition : IAuditable, IDeletable
     {
         public int ModuleDefinitionId { get; set; }
         public string ModuleDefinitionName { get; set; }
@@ -12,6 +12,10 @@ namespace Oqtane.Models
         public DateTime CreatedOn { get; set; }
         public string ModifiedBy { get; set; }
         public DateTime ModifiedOn { get; set; }
+
+        public string DeletedBy { get; set; }
+        public DateTime? DeletedOn { get; set; }
+        public bool IsDeleted { get; set; }
 
         [NotMapped]
         public string Name { get; set; }

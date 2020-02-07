@@ -3,13 +3,14 @@
 @inject NavigationManager NavigationManager
 @inject IPageModuleService PageModuleService
 @inject IModuleService ModuleService
+@inject IModuleDefinitionService ModuleDefinitionService
 @inject IPageService PageService
 
 <TabControl>
     <TabPanel Text="Pages">
         @if (pages.Count == 0)
         {
-            <br/>
+            <br />
             <p>No Deleted Pages</p>
         }
         else
@@ -32,11 +33,11 @@
             </Pager>
         }
     </TabPanel>
-    <TabPanel Text="Modules">
+    <TabPanel Text="Page Modules">
         @if (pageModules.Count == 0)
         {
-            <br/>
-            <p>No Deleted Modules</p>
+            <br />
+            <p>No Deleted Modules in Pages</p>
         }
         else
         {
@@ -60,6 +61,32 @@
             </Pager>
         }
     </TabPanel>
+    <TabPanel Text="Modules">
+        @if (modules.Count == 0)
+        {
+            <br />
+            <p>No Deleted Modules</p>
+        }
+        else
+        {
+            <Pager Items="@modules">
+                <Header>
+                    <th>Module</th>
+                    <th>Deleted By</th>
+                    <th>Deleted On</th>
+                    <th>&nbsp;</th>
+                    <th>&nbsp;</th>
+                </Header>
+                <Row>
+                    <td>@context.ModuleDefinitionName.Split(',')[1]</td>
+                    <td>@context.DeletedBy</td>
+                    <td>@context.DeletedOn</td>
+                    <td><button @onclick="@(() => RestoreModule(context))" class="btn btn-info" title="Restore">Restore</button></td>
+                    <td><button @onclick="@(() => DeleteModule(context.ModuleDefinitionId, context.SiteId))" class="btn btn-danger">Delete</button></td>
+                </Row>
+            </Pager>
+        }
+    </TabPanel>
 </TabControl>
 
 @code {
@@ -67,6 +94,7 @@
 
     List<Page> pages { get; set; }
     List<PageModule> pageModules { get; set; }
+    List<ModuleDefinition> modules { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -74,7 +102,7 @@
         {
             pages = new List<Page>();
             pageModules = new List<PageModule>();
-            await LoadEntities();
+            modules = new List<ModuleDefinition>();
         }
         catch (Exception ex)
         {
@@ -83,9 +111,11 @@
         }
     }
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
         pages = PageState.Pages.Where(item => item.IsDeleted).ToList();
+        
+        await LoadEntities();
     }
 
     private async Task LoadEntities()
@@ -96,6 +126,10 @@
             var pageModule = await PageModuleService.GetPageModuleAsync(module.PageModuleId);
             pageModules.Add(pageModule);
         }
+
+        modules.Clear();        
+        var deletedModules = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
+        modules = deletedModules.Where(item => item.IsDeleted).ToList();
     }
 
     private async Task RestorePage(Page Page)
@@ -169,6 +203,38 @@
         {
             await logger.LogError(ex, "Error Permanently Deleting Page Module {PageModuleId} {Error}", PageModuleId, ex.Message);
             AddModuleMessage("Error Permanently Deleting Page Module", MessageType.Error);
+        }
+    }
+    
+    private async Task RestoreModule(ModuleDefinition ModuleDefinition)
+    {
+        try
+        {
+            ModuleDefinition.IsDeleted = false;
+
+            await ModuleDefinitionService.UpdateModuleDefinitionAsync(ModuleDefinition);
+            await logger.LogInformation("Module Restored {ModuleDefinition}", ModuleDefinition);
+            NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Module {ModuleDefinition} {Error}", ModuleDefinition, ex.Message);
+            AddModuleMessage("Error Deleting Module", MessageType.Error);
+        }
+    }
+
+    private async Task DeleteModule(int ModuleDefinitionId, int SiteId)
+    {
+        try
+        {
+            await ModuleDefinitionService.DeleteModuleDefinitionAsync(ModuleDefinitionId, SiteId);
+            await logger.LogInformation("Module Permanently Deleted {ModuleDefinition}", ModuleDefinition);
+            NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Module {ModuleDefinition} {Error}", ModuleDefinition, ex.Message);
+            AddModuleMessage("Error Deleting Module", MessageType.Error);
         }
     }
 }

@@ -60,6 +60,9 @@ namespace Oqtane.Repository
                 moduledefinition.CreatedOn = moduledef.CreatedOn;
                 moduledefinition.ModifiedBy = moduledef.ModifiedBy;
                 moduledefinition.ModifiedOn = moduledef.ModifiedOn;
+                moduledefinition.IsDeleted = moduledef.IsDeleted;
+                moduledefinition.DeletedBy = moduledef.DeletedBy;
+                moduledefinition.DeletedOn = moduledef.DeletedOn;
             }
 
             // any remaining module definitions are orphans
@@ -192,6 +195,8 @@ namespace Oqtane.Repository
         public void UpdateModuleDefinition(ModuleDefinition ModuleDefinition)
         {
             Permissions.UpdatePermissions(ModuleDefinition.SiteId, "ModuleDefinition", ModuleDefinition.ModuleDefinitionId, ModuleDefinition.Permissions);
+            db.ModuleDefinition.Update(ModuleDefinition);
+            db.SaveChanges();
         }
 
         public void DeleteModuleDefinition(int ModuleDefinitionId, int SiteId)

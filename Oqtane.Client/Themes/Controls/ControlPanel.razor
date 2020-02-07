@@ -239,7 +239,7 @@
                     }
                 }
             }
-            moduledefinitions = PageState.ModuleDefinitions.Where(item => item.Categories == "").ToList();
+            moduledefinitions = PageState.ModuleDefinitions.Where(item => item.Categories == "" && !item.IsDeleted).ToList();
             foreach (Page p in PageState.Pages)
             {
                 if (UserSecurity.IsAuthorized(PageState.User, "View", p.Permissions))

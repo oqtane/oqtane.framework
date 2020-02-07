@@ -44,6 +44,9 @@ CREATE TABLE [dbo].[ModuleDefinition](
 	[CreatedOn] [datetime] NOT NULL,
 	[ModifiedBy] [nvarchar](256) NOT NULL,
 	[ModifiedOn] [datetime] NOT NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedOn] [datetime] NULL,
+	[IsDeleted][bit] NOT NULL,
   CONSTRAINT [PK_ModuleDefinition] PRIMARY KEY CLUSTERED 
   (
 	[ModuleDefinitionId] ASC
