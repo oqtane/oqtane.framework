@@ -16,10 +16,15 @@ namespace Oqtane.Repository
             this.Permissions = Permissions;
         }
 
-        public IEnumerable<PageModule> GetPageModules()
+        public IEnumerable<PageModule> GetPageModules(bool LoadModules = false)
         {
+            if (LoadModules)
+            {
+                return db.PageModule.Include(item => item.Module);
+            }
             return db.PageModule;
         }
+
         public IEnumerable<PageModule> GetPageModules(int SiteId)
         {
             IEnumerable<PageModule> pagemodules = db.PageModule
