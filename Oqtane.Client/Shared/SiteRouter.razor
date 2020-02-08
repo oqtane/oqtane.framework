@@ -408,7 +408,7 @@
             if (module.PageId == pageid)
             {
                 // ensure module's pane exists in current page and if not, assign it to the Admin pane
-                if (!panes.ToLower().Contains(module.Pane.ToLower()))
+                if (panes == null || !panes.ToLower().Contains(module.Pane.ToLower()))
                 {
                     module.Pane = Constants.AdminPane;
                 }
