@@ -81,7 +81,7 @@ namespace Oqtane.Controllers
             List<ModuleDefinition> moduledefinitions = ModuleDefinitions.GetModuleDefinitions(siteid).ToList();
             ModuleDefinition moduledefinition = moduledefinitions.Where(item => item.ModuleDefinitionId == id).FirstOrDefault();
 
-            var pagewithmodule = PageModuleRepository.GetPageModules(siteid)
+            var pagewithmodule = PageModuleRepository.GetPageModules()
                 .Where(item => item.Module.ModuleDefinitionName == moduledefinition.ModuleDefinitionName).ToList();
             
             if (moduledefinition != null && pagewithmodule.Count(item => !item.IsDeleted) == 0)
