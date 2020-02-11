@@ -304,7 +304,7 @@
                     SettingService.SetSetting(settings, "SMTPSSL", smtpssl);
                     SettingService.SetSetting(settings, "SMTPUsername", smtpusername);
                     SettingService.SetSetting(settings, "SMTPPassword", smtppassword);
-                    await SettingService.UpdateModuleSettingsAsync(settings, site.SiteId);
+                    await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
 
                     await logger.LogInformation("Site Saved {Site}", site);
 
