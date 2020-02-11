@@ -39,17 +39,23 @@
             if (typename != null)
             {
                 moduleType = Type.GetType(typename);
-            }
-            if (moduleType != null)
-            {
-                builder.OpenComponent(0, moduleType);
-                builder.CloseComponent();
+
+                if (moduleType != null)
+                {
+                    builder.OpenComponent(0, moduleType);
+                    builder.CloseComponent();
+                }
+                else
+                {
+                    // module does not exist with typename specified
+                    message = "Module Does Not Have A Component Named " + Utilities.GetTypeNameLastSegment(typename, 0) + ".razor";
+                }
             }
             else
             {
-                // module does not exist with typename specified
-                message = "Module Does Not Have A Component Named " + Utilities.GetTypeNameLastSegment(typename, 0) + ".razor";
+                message = "Something is wrong with moduletype";
             }
+
         };
     }
 
