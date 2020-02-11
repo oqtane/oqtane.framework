@@ -26,7 +26,14 @@
 
         <div class="tab-content">
             <div id="Profile" class="tab-pane fade show active" role="tabpanel">
-                <br />
+                @if (photofileid != -1)
+                {
+                    <img src="@(ContentUrl(photofileid))" alt="@displayname" style="max-width: 400px" class="rounded-circle mx-auto d-block">
+                }
+                else
+                {
+                    <br />
+                }
                 <table class="table table-borderless">
                     <tr>
                         <td>
@@ -66,6 +73,14 @@
                         </td>
                         <td>
                             <input class="form-control" @bind="@displayname" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="Name" class="control-label">Photo: </label>
+                        </td>
+                        <td>
+                            <FileManager FileId="@photofileid.ToString()" @ref="filemanager" />
                         </td>
                     </tr>
 
@@ -164,6 +179,8 @@
     string confirm = "";
     string email = "";
     string displayname = "";
+    FileManager filemanager;
+    int photofileid = -1;
     List<Profile> profiles;
     Dictionary<string, string> settings;
     string category = "";
@@ -179,6 +196,10 @@
                 username = PageState.User.Username;
                 email = PageState.User.Email;
                 displayname = PageState.User.DisplayName;
+                if (PageState.User.PhotoFileId != null)
+                {
+                    photofileid = PageState.User.PhotoFileId.Value;
+                }
                 profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
                 settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
                 await LoadNotificationsAsync();
@@ -210,7 +231,7 @@
     {
         try
         {
-            if (password != "" && confirm != "" && email != "")
+            if (username != "" && email != "")
             {
                 if (password == confirm)
                 {
@@ -219,11 +240,15 @@
                     user.Password = password;
                     user.Email = email;
                     user.DisplayName = (displayname == "" ? username : displayname);
+                    user.PhotoFileId = null;
+                    photofileid = filemanager.GetFileId();
+                    if (photofileid != -1)
+                    {
+                        user.PhotoFileId = photofileid;
+                    }
                     await UserService.UpdateUserAsync(user);
                     await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
                     await logger.LogInformation("User Profile Saved");
-
-                    NavigationManager.NavigateTo(NavigateUrl(""));
                 }
                 else
                 {
@@ -232,7 +257,7 @@
             }
             else
             {
-                AddModuleMessage("You Must Provide A Username, Password, and Email Address", MessageType.Warning);
+                AddModuleMessage("You Must Provide A Username and Email Address", MessageType.Warning);
             }
         }
         catch (Exception ex)

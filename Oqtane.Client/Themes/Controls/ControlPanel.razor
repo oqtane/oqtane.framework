@@ -263,7 +263,7 @@
         }
         else
         {
-            moduledefinitions = PageState.ModuleDefinitions.Where(item => item.Categories.Contains(e.Value.ToString())).ToList();
+            moduledefinitions = PageState.ModuleDefinitions.Where(item => item.Categories.Contains(category)).ToList();
         }
         moduledefinitionname = "-";
         StateHasChanged();

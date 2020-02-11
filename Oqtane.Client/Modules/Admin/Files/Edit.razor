@@ -3,36 +3,70 @@
 @inject IFolderService FolderService
 @inject NavigationManager NavigationManager
 
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Name: </label>
-        </td>
-        <td>
-            <input class="form-control" @bind="@name" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Permissions: </label>
-        </td>
-        <td>
-            <PermissionGrid EntityName="Folder" PermissionNames="View,Edit" Permissions="@permissions" @ref="permissiongrid" />
-        </td>
-    </tr>
-</table>
-<button type="button" class="btn btn-success" @onclick="SaveFolder">Save</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
-<br />
-<br />
-<AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
+@if (folders != null)
+{
+    <table class="table table-borderless">
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Parent: </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@parentid">
+                    @if (PageState.QueryString.ContainsKey("id"))
+                    {
+                        <option value="-1">&lt;No Parent&gt;</option>
+                    }
+                    @foreach (Folder folder in folders)
+                    {
+                        <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Name: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@name" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Permissions: </label>
+            </td>
+            <td>
+                <PermissionGrid EntityName="Folder" PermissionNames="Browse,View,Edit" Permissions="@permissions" @ref="permissiongrid" />
+            </td>
+        </tr>
+    </table>
+    @if (!issystem)
+    {
+        <button type="button" class="btn btn-success" @onclick="SaveFolder">Save</button>
+    }
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    @if (!issystem && PageState.QueryString.ContainsKey("id"))
+    {
+        <button type="button" class="btn btn-danger" @onclick="DeleteFolder">Delete</button>
+    }
+    <br />
+    <br />
+    @if (PageState.QueryString.ContainsKey("id"))
+    {
+        <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
+    }
+}
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+    public override string Title { get { return "Folder Management"; } }
 
-    int FolderId;
+    List<Folder> folders;
+    int folderid;
     string name;
-    string permissions;
+    int parentid = -1;
+    bool issystem = false;
+    string permissions = "";
     string createdby;
     DateTime createdon;
     string modifiedby;
@@ -44,22 +78,38 @@
     {
         try
         {
-            FolderId = Int32.Parse(PageState.QueryString["id"]);
-            Folder folder = await FolderService.GetFolderAsync(FolderId);
-            if (folder != null)
+            folders = await FolderService.GetFoldersAsync(PageState.Site.SiteId);
+
+            if (PageState.QueryString.ContainsKey("id"))
             {
-                name = folder.Name;
-                permissions = folder.Permissions;
-                createdby = folder.CreatedBy;
-                createdon = folder.CreatedOn;
-                modifiedby = folder.ModifiedBy;
-                modifiedon = folder.ModifiedOn;
+                folderid = Int32.Parse(PageState.QueryString["id"]);
+                Folder folder = await FolderService.GetFolderAsync(folderid);
+                if (folder != null)
+                {
+                    parentid = (folder.ParentId == null) ? -1 : folder.ParentId.Value;
+                    name = folder.Name;
+                    issystem = folder.IsSystem;
+                    permissions = folder.Permissions;
+                    createdby = folder.CreatedBy;
+                    createdon = folder.CreatedOn;
+                    modifiedby = folder.ModifiedBy;
+                    modifiedon = folder.ModifiedOn;
+                }
+            }
+            else
+            {
+                parentid = folders[0].FolderId;
+                List<PermissionString> permissionstrings = new List<PermissionString>();
+                permissionstrings.Add(new PermissionString { PermissionName = "Browse", Permissions = Constants.AdminRole });
+                permissionstrings.Add(new PermissionString { PermissionName = "View", Permissions = Constants.AdminRole });
+                permissionstrings.Add(new PermissionString { PermissionName = "Edit", Permissions = Constants.AdminRole });
+                permissions = UserSecurity.SetPermissionStrings(permissionstrings);
             }
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading Folder {FolderId} {Error}", FolderId, ex.Message);
-            AddModuleMessage("Error Loading Module", MessageType.Error);
+            await logger.LogError(ex, "Error Loading Folder {FolderId} {Error}", folderid, ex.Message);
+            AddModuleMessage("Error Loading Folder", MessageType.Error);
         }
     }
 
@@ -67,19 +117,67 @@
     {
         try
         {
-            Folder folder = await FolderService.GetFolderAsync(FolderId);
-            if (folder != null)
+            if (name != "" && parentid != -1)
             {
+                Folder folder;
+                if (folderid != -1)
+                {
+                    folder = await FolderService.GetFolderAsync(folderid);
+                }
+                else
+                {
+                    folder = new Folder();
+                }
+
+                folder.SiteId = PageState.Site.SiteId;
+                if (parentid == -1)
+                {
+                    folder.ParentId = null;
+                }
+                else
+                {
+                    folder.ParentId = parentid;
+                }
+                folder.Name = name;
+                folder.IsSystem = issystem;
                 folder.Permissions = permissiongrid.GetPermissions();
-                await FolderService.UpdateFolderAsync(folder);
+
+                if (folderid != -1)
+                {
+                    folder = await FolderService.UpdateFolderAsync(folder);
+                }
+                else
+                {
+                    folder = await FolderService.AddFolderAsync(folder);
+                }
+                await FolderService.UpdateFolderOrderAsync(folder.SiteId, folder.FolderId, folder.ParentId);
                 await logger.LogInformation("Folder Saved {Folder}", folder);
                 NavigationManager.NavigateTo(NavigateUrl(Reload.Site));
+            }
+            else
+            {
+                AddModuleMessage("Folders Must Have A Parent And A Name", MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Saving Folder {FolderId} {Error}", FolderId, ex.Message);
+            await logger.LogError(ex, "Error Saving Folder {FolderId} {Error}", folderid, ex.Message);
             AddModuleMessage("Error Saving Module", MessageType.Error);
+        }
+    }
+
+    private async Task DeleteFolder()
+    {
+        try
+        {
+            await FolderService.DeleteFolderAsync(folderid);
+            await logger.LogInformation("Folder Deleted {Folder}", folderid);
+            AddModuleMessage("Folder Deleted", MessageType.Success);
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Folder {Folder} {Error}", folderid, ex.Message);
+            AddModuleMessage("Error Deleting Folder", MessageType.Error);
         }
     }
 }

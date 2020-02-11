@@ -8,7 +8,7 @@ namespace Oqtane.Models
         public int SiteId { get; set; }
         public int TenantId { get; set; }
         public string Name { get; set; }
-        public string Logo { get; set; }
+        public int? LogoFileId { get; set; }
         public string DefaultThemeType { get; set; }
         public string DefaultLayoutType { get; set; }
         public string DefaultContainerType { get; set; }

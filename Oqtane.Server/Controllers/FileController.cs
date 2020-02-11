@@ -3,12 +3,16 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Oqtane.Infrastructure;
+using Oqtane.Repository;
+using Oqtane.Models;
 using Oqtane.Shared;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Oqtane.Security;
+using System.Linq;
 
 namespace Oqtane.Controllers
 {
@@ -16,53 +20,163 @@ namespace Oqtane.Controllers
     public class FileController : Controller
     {
         private readonly IWebHostEnvironment environment;
+        private readonly IFileRepository Files;
+        private readonly IFolderRepository Folders;
+        private readonly IUserPermissions UserPermissions;
+        private readonly ITenantResolver Tenants;
         private readonly ILogManager logger;
         private readonly string WhiteList = "jpg,jpeg,jpe,gif,bmp,png,mov,wmv,avi,mp4,mp3,doc,docx,xls,xlsx,ppt,pptx,pdf,txt,zip,nupkg";
 
-        public FileController(IWebHostEnvironment environment, ILogManager logger)
+        public FileController(IWebHostEnvironment environment, IFileRepository Files, IFolderRepository Folders, IUserPermissions UserPermissions, ITenantResolver Tenants, ILogManager logger)
         {
             this.environment = environment;
+            this.Files = Files;
+            this.Folders = Folders;
+            this.UserPermissions = UserPermissions;
+            this.Tenants = Tenants;
             this.logger = logger;
         }
 
         // GET: api/<controller>?folder=x
         [HttpGet]
-        public IEnumerable<string> Get(string folder)
+        public IEnumerable<Models.File> Get(string folder)
         {
-            List<string> files = new List<string>();
-            folder = GetFolder(folder);
-            if (Directory.Exists(folder))
+            List<Models.File> files = new List<Models.File>();
+            int folderid;
+            if (int.TryParse(folder, out folderid))
             {
-                foreach (string file in Directory.GetFiles(folder))
+                Folder Folder = Folders.GetFolder(folderid);
+                if (Folder != null && UserPermissions.IsAuthorized(User, "Browse", Folder.Permissions))
                 {
-                    files.Add(Path.GetFileName(file));
+                    files = Files.GetFiles(folderid).ToList();
+                }
+            }
+            else
+            {
+                if (User.IsInRole(Constants.HostRole))
+                {
+                    folder = GetFolderPath(folder);
+                    if (Directory.Exists(folder))
+                    {
+                        foreach (string file in Directory.GetFiles(folder))
+                        {
+                            files.Add(new Models.File { Name = Path.GetFileName(file), Extension = Path.GetExtension(file).Replace(".","") });
+                        }
+                    }
                 }
             }
             return files;
         }
 
+        // GET api/<controller>/5
+        [HttpGet("{id}")]
+        public Models.File Get(int id)
+        {
+            return Files.GetFile(id);
+        }
+
+        // PUT api/<controller>/5
+        [HttpPut("{id}")]
+        [Authorize(Roles = Constants.RegisteredRole)]
+        public Models.File Put(int id, [FromBody] Models.File File)
+        {
+            if (ModelState.IsValid && UserPermissions.IsAuthorized(User, "Folder", File.Folder.FolderId, "Edit"))
+            {
+                File = Files.UpdateFile(File);
+                logger.Log(LogLevel.Information, this, LogFunction.Update, "File Updated {File}", File);
+            }
+            return File;
+        }
+
+        // DELETE api/<controller>/5
+        [HttpDelete("{id}")]
+        [Authorize(Roles = Constants.RegisteredRole)]
+        public void Delete(int id)
+        {
+            Models.File File = Files.GetFile(id);
+            if (UserPermissions.IsAuthorized(User, "Folder", File.Folder.FolderId, "Edit"))
+            {
+                Files.DeleteFile(id);
+
+                string filepath = Path.Combine(GetFolderPath(File.Folder) + File.Name);
+                if (System.IO.File.Exists(filepath))
+                {
+                    System.IO.File.Delete(filepath);
+                }
+                logger.Log(LogLevel.Information, this, LogFunction.Delete, "File Deleted {File}", File);
+            }
+        }
+
+        // GET api/<controller>/upload?url=x&folderid=y
+        [HttpGet("upload")]
+        public Models.File UploadFile(string url, string folderid)
+        {
+            Models.File file = null;
+            Folder folder = Folders.GetFolder(int.Parse(folderid));
+            if (folder != null && UserPermissions.IsAuthorized(User, "Edit", folder.Permissions))
+            {
+                string folderpath = GetFolderPath(folder);
+                CreateDirectory(folderpath);
+                string filename = url.Substring(url.LastIndexOf("/") + 1);
+                try
+                {
+                    var client = new System.Net.WebClient();
+                    client.DownloadFile(url, folderpath + filename);
+                    FileInfo fileinfo = new FileInfo(folderpath + filename);
+                    file = Files.AddFile(new Models.File { Name = filename, FolderId = folder.FolderId, Extension = fileinfo.Extension.Replace(".",""), Size = (int)fileinfo.Length });
+                }
+                catch
+                {
+                    logger.Log(LogLevel.Error, this, LogFunction.Create, "File Could Not Be Downloaded From Url {Url}", url);
+                }
+            }
+            return file;
+        }
+        
         // POST api/<controller>/upload
         [HttpPost("upload")]
-        [Authorize(Roles = Constants.AdminRole)]
         public async Task UploadFile(string folder, IFormFile file)
         {
             if (file.Length > 0)
             {
-                folder = GetFolder(folder);
-                if (!Directory.Exists(folder))
+                string folderpath = "";
+                int folderid = -1;
+                if (int.TryParse(folder, out folderid))
                 {
-                    Directory.CreateDirectory(folder);
+                    Folder Folder = Folders.GetFolder(folderid);
+                    if (Folder != null && UserPermissions.IsAuthorized(User, "Edit", Folder.Permissions))
+                    {
+                        folderpath = GetFolderPath(Folder); 
+                    }
                 }
-                using (var stream = new FileStream(Path.Combine(folder, file.FileName), FileMode.Create))
+                else
                 {
-                    await file.CopyToAsync(stream);
+                    if (User.IsInRole(Constants.HostRole))
+                    {
+                        folderpath = GetFolderPath(folder);
+                    }
                 }
-                await MergeFile(folder, file.FileName);
+                if (folderpath != "")
+                {
+                    CreateDirectory(folderpath);
+                    using (var stream = new FileStream(Path.Combine(folderpath, file.FileName), FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+                    string upload = await MergeFile(folderpath, file.FileName);
+                    if (upload != "" && folderid != -1)
+                    {
+                        FileInfo fileinfo = new FileInfo(folderpath + upload);
+                        Files.AddFile(new Models.File { Name = upload, FolderId = folderid, Extension = fileinfo.Extension.Replace(".", ""), Size = (int)fileinfo.Length });
+                    }
+                }
             }
         }
 
-        private async Task MergeFile(string folder, string filename)
+        private async Task<string> MergeFile(string folder, string filename)
         {
+            string merged = "";
+
             // parse the filename which is in the format of filename.ext.part_x_y 
             string token = ".part_";
             string parts = Path.GetExtension(filename).Replace(token, ""); // returns "x_y"
@@ -112,6 +226,7 @@ namespace Oqtane.Controllers
                         System.IO.File.Move(Path.Combine(folder, filename + ".tmp"), Path.Combine(folder, filename));
                         logger.Log(LogLevel.Information, this, LogFunction.Create, "File Uploaded {File}", Path.Combine(folder, filename));
                     }
+                    merged = filename;
                 }
             }
 
@@ -125,6 +240,8 @@ namespace Oqtane.Controllers
                     System.IO.File.Delete(filepart);
                 }
             }
+
+            return merged;
         }
 
         private bool CanAccessFiles(string[] files)
@@ -164,24 +281,47 @@ namespace Oqtane.Controllers
             return canaccess;
         }
 
-        // DELETE api/<controller>/?folder=x&file=y
-        [HttpDelete]
-        [Authorize(Roles = Constants.AdminRole)]
-        public void Delete(string folder, string file)
+        // GET api/<controller>/download/5
+        [HttpGet("download/{id}")]
+        public IActionResult Download(int id)
         {
-            file = Path.Combine(GetFolder(folder) + file);
-            if (System.IO.File.Exists(file))
+            Models.File file = Files.GetFile(id);
+            if (file != null && UserPermissions.IsAuthorized(User, "View", file.Folder.Permissions))
             {
-                System.IO.File.Delete(file);
-                logger.Log(LogLevel.Information, this, LogFunction.Delete, "File Deleted {File}", file);
+                byte[] filebytes = System.IO.File.ReadAllBytes(GetFolderPath(file.Folder) + file.Name);
+                return File(filebytes, "application/octet-stream", file.Name);
+            }
+            else
+            {
+                return NotFound();
             }
         }
 
-        private string GetFolder(string folder)
+        private string GetFolderPath(Folder folder)
         {
-            folder = folder.Replace("/", "\\");
-            if (folder.StartsWith("\\")) folder = folder.Substring(1);
+            return environment.ContentRootPath + "\\Content\\Tenants\\" + Tenants.GetTenant().TenantId.ToString() + "\\Sites\\" + folder.SiteId.ToString() + "\\" + folder.Path;
+        }
+
+        private string GetFolderPath(string folder)
+        {
             return Path.Combine(environment.WebRootPath, folder);
+        }
+
+        private void CreateDirectory(string folderpath)
+        {
+            if (!Directory.Exists(folderpath))
+            {
+                string path = "";
+                string[] folders = folderpath.Split(new char[] { '\\' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string folder in folders)
+                {
+                    path += folder + "\\";
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+                }
+            }
         }
     }
 }

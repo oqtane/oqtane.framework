@@ -62,11 +62,6 @@ namespace Oqtane.Controllers
                 if (authorized)
                 {
                     Site = Sites.AddSite(Site);
-                    string folder = environment.WebRootPath + "\\Tenants\\" + Tenants.GetTenant().TenantId.ToString() + "\\Sites\\" + Site.SiteId.ToString();
-                    if (!Directory.Exists(folder))
-                    {
-                        Directory.CreateDirectory(folder);
-                    }
                     logger.Log(LogLevel.Information, this, LogFunction.Create, "Site Added {Site}", Site);
                 }
             }

@@ -87,13 +87,13 @@ namespace Oqtane.Shared
             }
         }
 
-        public ValueTask<string[]> GetFiles(string name)
+        public ValueTask<string[]> GetFiles(string id)
         {
             try
             {
                 return jsRuntime.InvokeAsync<string[]>(
                     "interop.getFiles",
-                    name);
+                    id);
             }
             catch
             {
@@ -101,13 +101,13 @@ namespace Oqtane.Shared
             }
         }
 
-        public Task UploadFiles(string posturl, string folder, string name)
+        public Task UploadFiles(string posturl, string folder, string id)
         {
             try
             {
                 jsRuntime.InvokeAsync<string>(
                 "interop.uploadFiles",
-                posturl, folder, name);
+                posturl, folder, id);
                 return Task.CompletedTask;
             }
             catch

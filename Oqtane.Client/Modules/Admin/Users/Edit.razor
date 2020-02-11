@@ -7,6 +7,14 @@
 
 @if (profiles != null)
 {
+    @if (photofileid != -1)
+    {
+        <img src="@(ContentUrl(photofileid))" alt="@displayname" style="max-width: 400px" class="rounded-circle mx-auto d-block">
+    }
+    else
+    {
+        <br />
+    }
     <table class="table table-borderless">
         <tr>
             <td>
@@ -46,6 +54,14 @@
             </td>
             <td>
                 <input class="form-control" @bind="@displayname" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Photo: </label>
+            </td>
+            <td>
+                <FileManager FileId="@photofileid.ToString()" @ref="filemanager" />
             </td>
         </tr>
 
@@ -98,6 +114,8 @@
     string confirm = "";
     string email = "";
     string displayname = "";
+    FileManager filemanager;
+    int photofileid = -1;
     List<Profile> profiles;
     Dictionary<string, string> settings;
     string category = "";
@@ -122,6 +140,10 @@
                 username = user.Username;
                 email = user.Email;
                 displayname = user.DisplayName;
+                if (user.PhotoFileId != null)
+                {
+                    photofileid = user.PhotoFileId.Value;
+                }
                 settings = await SettingService.GetUserSettingsAsync(user.UserId);
                 createdby = user.CreatedBy;
                 createdon = user.CreatedOn;
@@ -158,6 +180,12 @@
                     user.Password = password;
                     user.Email = email;
                     user.DisplayName = string.IsNullOrWhiteSpace(displayname) ? username : displayname;
+                    user.PhotoFileId = null;
+                    photofileid = filemanager.GetFileId();
+                    if (photofileid != -1)
+                    {
+                        user.PhotoFileId = photofileid;
+                    }
                     user.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
 
                     user = await UserService.UpdateUserAsync(user);

@@ -52,5 +52,16 @@ namespace Oqtane.Themes
         {
             return Utilities.EditUrl(PageState.Alias.Path, path, moduleid, action, parameters);
         }
+
+        public string ContentUrl(int fileid)
+        {
+            string apiurl = PageState.Uri.Scheme + "://" + PageState.Alias.Name + "/";
+            if (PageState.Alias.Path == "")
+            {
+                apiurl += "~/";
+            }
+            apiurl += "api/File/Download/" + fileid.ToString();
+            return apiurl;
+        }
     }
 }

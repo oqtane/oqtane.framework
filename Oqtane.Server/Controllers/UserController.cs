@@ -26,9 +26,10 @@ namespace Oqtane.Controllers
         private readonly SignInManager<IdentityUser> IdentitySignInManager;
         private readonly ITenantResolver Tenants;
         private readonly INotificationRepository Notifications;
+        private readonly IFolderRepository Folders;
         private readonly ILogManager logger;
 
-        public UserController(IUserRepository Users, IRoleRepository Roles, IUserRoleRepository UserRoles, UserManager<IdentityUser> IdentityUserManager, SignInManager<IdentityUser> IdentitySignInManager, ITenantResolver Tenants, INotificationRepository Notifications, ILogManager logger)
+        public UserController(IUserRepository Users, IRoleRepository Roles, IUserRoleRepository UserRoles, UserManager<IdentityUser> IdentityUserManager, SignInManager<IdentityUser> IdentitySignInManager, ITenantResolver Tenants, INotificationRepository Notifications, IFolderRepository Folders, ILogManager logger)
         {
             this.Users = Users;
             this.Roles = Roles;
@@ -36,12 +37,14 @@ namespace Oqtane.Controllers
             this.IdentityUserManager = IdentityUserManager;
             this.IdentitySignInManager = IdentitySignInManager;
             this.Tenants = Tenants;
+            this.Folders = Folders;
             this.Notifications = Notifications;
             this.logger = logger;
         }
 
         // GET: api/<controller>?siteid=x
         [HttpGet]
+        [Authorize(Roles = Constants.AdminRole)]
         public IEnumerable<User> Get()
         {
             return Users.GetUsers();
@@ -98,6 +101,8 @@ namespace Oqtane.Controllers
                     var result = await IdentityUserManager.CreateAsync(identityuser, User.Password);
                     if (result.Succeeded)
                     {
+                        User.LastLoginOn = null;
+                        User.LastIPAddress = "";
                         user = Users.AddUser(User);
                         if (!verified)
                         {
@@ -127,6 +132,14 @@ namespace Oqtane.Controllers
                             userrole.EffectiveDate = null;
                             userrole.ExpiryDate = null;
                             UserRoles.AddUserRole(userrole);
+                        }
+
+                        // add folder for user
+                        Folder folder = Folders.GetFolder(User.SiteId, "Users\\");
+                        if (folder != null)
+                        {
+                            Folders.AddFolder(new Folder { SiteId = folder.SiteId, ParentId = folder.FolderId, Name = "My Folder", Path = folder.Path + user.UserId.ToString() + "\\", Order = 1, IsSystem = true, 
+                                Permissions = "[{\"PermissionName\":\"Browse\",\"Permissions\":\"[" + user.UserId.ToString() + "]\"},{\"PermissionName\":\"View\",\"Permissions\":\"All Users\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"[" + user.UserId.ToString() + "]\"}]" });
                         }
                     }
                 }
@@ -222,6 +235,9 @@ namespace Oqtane.Controllers
                             if (identityuser.EmailConfirmed)
                             {
                                 user.IsAuthenticated = true;
+                                user.LastLoginOn = DateTime.Now;
+                                user.LastIPAddress = HttpContext.Connection.RemoteIpAddress.ToString();
+                                Users.UpdateUser(user);
                                 logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful {Username}", User.Username);
                                 if (SetCookie)
                                 {

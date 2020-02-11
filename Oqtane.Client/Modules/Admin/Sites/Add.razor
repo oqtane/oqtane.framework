@@ -49,7 +49,7 @@ else
             <label for="Name" class="control-label">Logo: </label>
         </td>
         <td>
-            <input class="form-control" @bind="@logo" />
+            <FileManager @ref="filemanager" />
         </td>
     </tr>
     <tr>
@@ -129,7 +129,7 @@ else
     string tenantid = "-1";
     string name = "";
     string urls = "";
-    string logo = "";
+    FileManager filemanager;
     string themetype = "";
     string layouttype = "";
     string containertype = "";
@@ -223,7 +223,12 @@ else
                 Site site = new Site();
                 site.TenantId = int.Parse(tenantid);
                 site.Name = name;
-                site.Logo = (logo == null ? "" : logo);
+                site.LogoFileId = null;
+                int logofileid = filemanager.GetFileId();
+                if (logofileid != -1)
+                {
+                    site.LogoFileId = logofileid;
+                }
                 site.DefaultThemeType = themetype;
                 site.DefaultLayoutType = (layouttype == null ? "" : layouttype);
                 site.DefaultContainerType = containertype;

@@ -6,12 +6,8 @@
 @inject IThemeService  ThemeService
 @inject ISettingService  SettingService
 
-@if (themes == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
+@if (themes != null)
+{ 
     <table class="table table-borderless">
         <tr>
             <td>
@@ -34,7 +30,7 @@ else
                 <label for="Name" class="control-label">Logo: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@logo" />
+                <FileManager FileId="@logofileid.ToString()" @ref="filemanager" />
             </td>
         </tr>
         <tr>
@@ -157,16 +153,17 @@ else
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
 
-    Dictionary<string, string> themes = new Dictionary<string, string>();
-    Dictionary<string, string> panelayouts = new Dictionary<string, string>();
-    Dictionary<string, string> containers = new Dictionary<string, string>();
+    Dictionary<string, string> themes;
+    Dictionary<string, string> panelayouts;
+    Dictionary<string, string> containers;
 
     Alias Alias;
     int siteid;
     string name = "";
     List<Alias> aliases;
     string urls = "";
-    string logo = "";
+    int logofileid = -1;
+    FileManager filemanager;
     string themetype;
     string layouttype;
     string containertype;
@@ -189,9 +186,6 @@ else
     {
         try
         {
-            themes = ThemeService.GetThemeTypes(PageState.Themes);
-            containers = ThemeService.GetContainerTypes(PageState.Themes);
-
             Alias = PageState.Aliases.Where(item => item.AliasId == Int32.Parse(PageState.QueryString["id"])).FirstOrDefault();
             siteid = Alias.SiteId;
             Site site = await SiteService.GetSiteAsync(siteid, Alias);
@@ -203,7 +197,10 @@ else
                 {
                     urls += alias.Name + "\n";
                 }
-                logo = site.Logo;
+                if (site.LogoFileId != null)
+                {
+                    logofileid = site.LogoFileId.Value;
+                }
                 themetype = site.DefaultThemeType;
                 panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes, themetype);
                 layouttype = site.DefaultLayoutType;
@@ -224,6 +221,9 @@ else
                 deletedon = site.DeletedOn;
                 isdeleted = site.IsDeleted.ToString();
             }
+
+            themes = ThemeService.GetThemeTypes(PageState.Themes);
+            containers = ThemeService.GetContainerTypes(PageState.Themes);
         }
         catch (Exception ex)
         {
@@ -264,7 +264,12 @@ else
                 if (site != null)
                 {
                     site.Name = name;
-                    site.Logo = (logo == null ? "" : logo);
+                    site.LogoFileId = null;
+                    int logofileid = filemanager.GetFileId();
+                    if (logofileid != -1)
+                    {
+                        site.LogoFileId = logofileid;
+                    }
                     site.DefaultThemeType = themetype;
                     site.DefaultLayoutType = (layouttype == null ? "" : layouttype);
                     site.DefaultContainerType = containertype;
