@@ -82,6 +82,9 @@ namespace Oqtane.Server
                 options.AddPolicy("EditPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", "Edit")));
                 options.AddPolicy("ViewModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", "View")));
                 options.AddPolicy("EditModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", "Edit")));
+                options.AddPolicy("ViewFolder", policy => policy.Requirements.Add(new PermissionRequirement("Folder", "View")));
+                options.AddPolicy("EditFolder", policy => policy.Requirements.Add(new PermissionRequirement("Folder", "Edit")));
+                options.AddPolicy("ListFolder", policy => policy.Requirements.Add(new PermissionRequirement("Folder", "List")));
             });
 
             // register scoped core services
@@ -101,12 +104,13 @@ namespace Oqtane.Server
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IUserRoleService, UserRoleService>();
             services.AddScoped<ISettingService, SettingService>();
-            services.AddScoped<IFileService, FileService>();
             services.AddScoped<IPackageService, PackageService>();
             services.AddScoped<ILogService, LogService>();
             services.AddScoped<IJobService, JobService>();
             services.AddScoped<IJobLogService, JobLogService>();
             services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<IFolderService, FolderService>();
+            services.AddScoped<IFileService, FileService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -181,6 +185,8 @@ namespace Oqtane.Server
             services.AddTransient<IJobRepository, JobRepository>();
             services.AddTransient<IJobLogRepository, JobLogRepository>();
             services.AddTransient<INotificationRepository, NotificationRepository>();
+            services.AddTransient<IFolderRepository, FolderRepository>();
+            services.AddTransient<IFileRepository, FileRepository>();
 
             services.AddOqtaneModules();
             services.AddOqtaneThemes();
@@ -329,6 +335,8 @@ namespace Oqtane.Server
             services.AddTransient<IJobRepository, JobRepository>();
             services.AddTransient<IJobLogRepository, JobLogRepository>();
             services.AddTransient<INotificationRepository, NotificationRepository>();
+            services.AddTransient<IFolderRepository, FolderRepository>();
+            services.AddTransient<IFileRepository, FileRepository>();
 
             services.AddOqtaneModules();
             services.AddOqtaneThemes();

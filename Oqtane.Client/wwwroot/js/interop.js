@@ -62,9 +62,9 @@ window.interop = {
         document.body.appendChild(form);
         form.submit();
     },
-    getFiles: function (name) {
+    getFiles: function (id) {
         var files = [];
-        var fileinput = document.getElementById(name);
+        var fileinput = document.getElementById(id);
         if (fileinput !== null) {
             for (var i = 0; i < fileinput.files.length; i++) {
                 files.push(fileinput.files[i].name);
@@ -72,10 +72,10 @@ window.interop = {
         }
         return files;
     },
-    uploadFiles: function (posturl, folder, name) {
-        var files = document.getElementById(name + 'FileInput').files;
-        var progressinfo = document.getElementById(name + 'ProgressInfo');
-        var progressbar = document.getElementById(name + 'ProgressBar');
+    uploadFiles: function (posturl, folder, id) {
+        var files = document.getElementById(id + 'FileInput').files;
+        var progressinfo = document.getElementById(id + 'ProgressInfo');
+        var progressbar = document.getElementById(id + 'ProgressBar');
         var filename = '';
 
         for (var i = 0; i < files.length; i++) {

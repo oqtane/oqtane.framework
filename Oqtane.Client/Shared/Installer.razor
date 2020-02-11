@@ -98,7 +98,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <label for="Title" class="control-label" style="font-weight: bold">Confirm Password: </label>
+                            <label for="Title" class="control-label" style="font-weight: bold">Confirm: </label>
                         </td>
                         <td>
                             <input type="password" class="form-control" @bind="@ConfirmPassword" />
@@ -142,7 +142,7 @@
 
     private void SetIntegratedSecurity(ChangeEventArgs e)
     {
-        if (Convert.ToBoolean(e.Value))
+        if (Convert.ToBoolean((string)e.Value))
         {
             IntegratedSecurityDisplay = "display: none;";
         }
@@ -183,7 +183,7 @@
                 Site site = new Site();
                 site.TenantId = -1; // will be populated on server
                 site.Name = "Default Site";
-                site.Logo = "oqtane.png";
+                site.LogoFileId = null;
                 site.DefaultThemeType = Constants.DefaultTheme;
                 site.DefaultLayoutType = Constants.DefaultLayout;
                 site.DefaultContainerType = Constants.DefaultContainer;

@@ -53,7 +53,18 @@ namespace Oqtane.Repository
             Folder folder = db.Folder.Find(FolderId);
             if (folder != null)
             {
-                IEnumerable<Permission> permissions = Permissions.GetPermissions("Folder", folder.FolderId);
+                IEnumerable<Permission> permissions = Permissions.GetPermissions("Folder", folder.FolderId).ToList();
+                folder.Permissions = Permissions.EncodePermissions(folder.FolderId, permissions);
+            }
+            return folder;
+        }
+
+        public Folder GetFolder(int SiteId, string Path)
+        {
+            Folder folder = db.Folder.Where(item => item.SiteId == SiteId && item.Path == Path).FirstOrDefault();
+            if (folder != null)
+            {
+                IEnumerable<Permission> permissions = Permissions.GetPermissions("Folder", folder.FolderId).ToList();
                 folder.Permissions = Permissions.EncodePermissions(folder.FolderId, permissions);
             }
             return folder;

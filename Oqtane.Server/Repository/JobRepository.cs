@@ -3,21 +3,28 @@ using System.Linq;
 using Oqtane.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Oqtane.Repository
 {
     public class JobRepository : IJobRepository
     {
         private MasterDBContext db;
+        private readonly IMemoryCache _cache;
 
-        public JobRepository(MasterDBContext context)
+        public JobRepository(MasterDBContext context, IMemoryCache cache)
         {
             db = context;
+            _cache = cache;
         }
 
         public IEnumerable<Job> GetJobs()
         {
-            return db.Job.ToList();
+            return _cache.GetOrCreate("jobs", entry =>
+            {
+                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+                return db.Job.ToList();
+            });
         }
 
         public Job AddJob(Job Job)

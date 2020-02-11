@@ -52,6 +52,12 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid && UserPermissions.IsAuthorized(User, "Edit", Folder.Permissions))
             {
+                Folder.Path = "";
+                if (string.IsNullOrEmpty(Folder.Path) && Folder.ParentId != null)
+                {
+                    Folder parent = Folders.GetFolder(Folder.ParentId.Value);
+                    Folder.Path = parent.Path + Folder.Name + "\\";
+                }
                 Folder = Folders.AddFolder(Folder);
                 logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Added {Folder}", Folder);
             }
@@ -65,6 +71,12 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid && UserPermissions.IsAuthorized(User, "Folder", Folder.FolderId, "Edit"))
             {
+                Folder.Path = "";
+                if (string.IsNullOrEmpty(Folder.Path) && Folder.ParentId != null)
+                {
+                    Folder parent = Folders.GetFolder(Folder.ParentId.Value);
+                    Folder.Path = parent.Path + Folder.Name + "\\";
+                }
                 Folder = Folders.UpdateFolder(Folder);
                 logger.Log(LogLevel.Information, this, LogFunction.Update, "Folder Updated {Folder}", Folder);
             }

@@ -18,8 +18,8 @@ namespace Oqtane.Repository
 
         public IEnumerable<File> GetFiles(int FolderId)
         {
-            IEnumerable<Permission> permissions = Permissions.GetPermissions("Folder", FolderId);
-            IEnumerable<File> files = db.File.Where(item => item.FolderId == FolderId);
+            IEnumerable<Permission> permissions = Permissions.GetPermissions("Folder", FolderId).ToList();
+            IEnumerable<File> files = db.File.Where(item => item.FolderId == FolderId).Include(item => item.Folder);
             foreach (File file in files)
             {
                 file.Folder.Permissions = Permissions.EncodePermissions(FolderId, permissions);
@@ -43,10 +43,10 @@ namespace Oqtane.Repository
 
         public File GetFile(int FileId)
         {
-            File file = db.File.Find(FileId);
+            File file = db.File.Where(item => item.FileId == FileId).Include(item => item.Folder).FirstOrDefault();
             if (file != null)
             {
-                IEnumerable<Permission> permissions = Permissions.GetPermissions("Folder", file.FolderId);
+                IEnumerable<Permission> permissions = Permissions.GetPermissions("Folder", file.FolderId).ToList();
                 file.Folder.Permissions = Permissions.EncodePermissions(file.FolderId, permissions);
             }
             return file;

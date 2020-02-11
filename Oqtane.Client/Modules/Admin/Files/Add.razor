@@ -2,55 +2,109 @@
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IFileService FileService
+@inject IFolderService FolderService
 
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Files: </label>
-        </td>
-        <td>
-            <FileUpload Multiple="true" @ref="fileupload"></FileUpload>
-        </td>
-    </tr>
-</table>
-<button type="button" class="btn btn-primary" @onclick="UploadFile">Upload</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+@if (folders != null)
+{
+    <div class="container-fluid">
+        <div class="form-group">
+
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#Upload" role="tab">
+                        Upload Files
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#Download" role="tab">
+                        Download Files
+                    </a>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <div id="Upload" class="tab-pane fade show active" role="tabpanel">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td>
+                                <label for="Name" class="control-label">Upload: </label>
+                            </td>
+                            <td>
+                                <FileManager UploadMultiple="true" ShowFiles="false" FolderId="@folderid.ToString()" />
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div id="Download" class="tab-pane fade" role="tabpanel">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td>
+                                <label for="Name" class="control-label">Url: </label>
+                            </td>
+                            <td>
+                                <input class="form-control" @bind="@url" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="Name" class="control-label">Folder: </label>
+                            </td>
+                            <td>
+                                <select class="form-control" @bind="@folderid">
+                                    <option value="-1">&lt;Select Folder&gt;</option>
+                                    @foreach (Folder folder in folders)
+                                    {
+                                        <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                                    }
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
+                    <button type="button" class="btn btn-primary" @onclick="Download">Download</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+}
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 
-    FileUpload fileupload;
+    string url = "";
+    List<Folder> folders;
+    int folderid = -1;
 
-    private async Task UploadFile()
+    protected override async Task OnInitializedAsync()
     {
-        string[] files = await fileupload.GetFiles();
-        if (files.Length > 0)
-        {
-            try
-            {
-                ShowProgressIndicator();
+        folders = await FolderService.GetFoldersAsync(ModuleState.SiteId);
 
-                string result = await FileService.UploadFilesAsync(PageState.Site.SiteRootPath, files, "");
-                if (result == "")
-                {
-                    await logger.LogInformation("Files Uploaded Successfully");
-                    AddModuleMessage("Files Uploaded Successfully", MessageType.Success);
-                }
-                else
-                {
-                    await logger.LogError("Upload Failed For {Files}", result.Replace(",",", "));
-                    AddModuleMessage("Upload Failed For " + result.Replace(",",", ") + ". This Could Be Due To A Network Error Or Because A File Type Is Restricted.", MessageType.Error);
-                }
-            }
-            catch (Exception ex)
+        if (PageState.QueryString.ContainsKey("id"))
+        {
+            folderid = int.Parse(PageState.QueryString["id"]);
+        }
+    }
+
+    private async Task Download()
+    {
+        try
+        {
+            if (url != "" && folderid != -1)
             {
-                await logger.LogError(ex, "Upload Failed {Error}", ex.Message);
-                AddModuleMessage("Upload Failed. " + ex.Message, MessageType.Error);
+                await FileService.UploadFileAsync(url, folderid);
+                await logger.LogInformation("File Downloaded Successfully From Url {Url}", url);
+                AddModuleMessage("File Downloaded Successfully From Url", MessageType.Success);
+            }
+            else
+            {
+                AddModuleMessage("You Must Enter A Url And Select A Folder", MessageType.Warning);
             }
         }
-        else
+        catch (Exception ex)
         {
-            AddModuleMessage("You Must Select Some Files To Upload", MessageType.Warning);
+            await logger.LogError(ex, "Error Downloading File From Url {Url} {Error}", url, ex.Message);
+            AddModuleMessage("Error Downloading File From Url. Please Verify That The Url Is Valid.", MessageType.Error);
         }
     }
 }

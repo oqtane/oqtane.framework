@@ -11,11 +11,10 @@
             <label for="Name" class="control-label">Module: </label>
         </td>
         <td>
-            <FileUpload Filter=".nupkg" @ref="fileupload"></FileUpload>
+            <FileManager Filter=".nupkg" ShowFiles="false" Folder="Modules" />
         </td>
     </tr>
 </table>
-<button type="button" class="btn btn-primary" @onclick="UploadFile">Upload Module</button>
 
 @if (packages != null)
 {
@@ -38,19 +37,14 @@
     </Pager>
 }
 
-@if (uploaded)
-{
-    <button type="button" class="btn btn-success" @onclick="InstallModules">Install</button>
-}
+<button type="button" class="btn btn-success" @onclick="InstallModules">Install</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
 
-    bool uploaded = false;
     List<Package> packages;
-    FileUpload fileupload;
 
     protected override async Task OnInitializedAsync()
     {
@@ -70,47 +64,6 @@
         {
             await logger.LogError(ex, "Error Loading Packages {Error}", ex.Message);
             AddModuleMessage("Error Loading Packages", MessageType.Error);
-        }
-    }
-
-    private async Task UploadFile()
-    {
-        string[] files = await fileupload.GetFiles();
-        if (files.Length > 0)
-        {
-            if (files[0].Contains(".Module."))
-            {
-                try
-                {
-                    string result = await FileService.UploadFilesAsync("Modules", files, "");
-                    if (result == "")
-                    {
-                        await logger.LogInformation("Module Uploaded Successfully {Package}", files[0]);
-                        AddModuleMessage("Module Uploaded Successfully. Click Install To Complete Installation.", MessageType.Success);
-                        uploaded = true;
-                        StateHasChanged();
-                    }
-                    else
-                    {
-                        await logger.LogError("Module Upload Failed For {Package}", files[0]);
-                        AddModuleMessage("Module Upload Failed For " + result.Replace(",",", ") + ". This Could Be Due To A Network Error Or Because A File Type Is Restricted.", MessageType.Error);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    await logger.LogError(ex, "Module Upload Failed For {Package} {Error}", files[0], ex.Message);
-                    AddModuleMessage("Module Upload Failed.", MessageType.Error);
-                }
-            }
-            else
-            {
-                await logger.LogError("Invalid Module Package {Package}", files[0]);
-                AddModuleMessage("Invalid Module Package", MessageType.Error);
-            }
-        }
-        else
-        {
-            AddModuleMessage("You Must Select A Module To Upload", MessageType.Warning);
         }
     }
 
@@ -134,7 +87,6 @@
             await PackageService.DownloadPackageAsync(moduledefinitionname, version, "Modules");
             await logger.LogInformation("Module {ModuleDefinitionName} {Version} Downloaded Successfully", moduledefinitionname, version);
             AddModuleMessage("Module Downloaded Successfully. Click Install To Complete Installation.", MessageType.Success);
-            uploaded = true;
             StateHasChanged();
         }
         catch (Exception ex)

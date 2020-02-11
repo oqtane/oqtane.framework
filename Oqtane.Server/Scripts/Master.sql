@@ -139,7 +139,7 @@ GO
 SET IDENTITY_INSERT [dbo].[Job] ON 
 GO
 INSERT [dbo].[Job] ([JobId], [Name], [JobType], [Frequency], [Interval], [StartDate], [EndDate], [IsEnabled], [IsStarted], [IsExecuting], [NextExecution], [RetentionHistory],  [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (1, N'Notification Job', N'Oqtane.Infrastructure.NotificationJob, Oqtane.Server', N'm', 1, null, null, 1, 0, 0, null, 10, '', getdate(), '', getdate())
+VALUES (1, N'Notification Job', N'Oqtane.Infrastructure.NotificationJob, Oqtane.Server', N'm', 1, null, null, 0, 0, 0, null, 10, '', getdate(), '', getdate())
 GO
 SET IDENTITY_INSERT [dbo].[Job] OFF
 GO

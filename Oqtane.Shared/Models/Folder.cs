@@ -11,6 +11,7 @@ namespace Oqtane.Models
         public string Name { get; set; }
         public string Path { get; set; }
         public int Order { get; set; }
+        public bool IsSystem { get; set; }
 
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }

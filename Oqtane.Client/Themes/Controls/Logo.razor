@@ -9,10 +9,10 @@
 
     protected override void OnParametersSet()
     {
-        if (PageState.Site.Logo != "")
+        if (PageState.Site.LogoFileId != null)
         {
             Uri uri = new Uri(NavigationManager.Uri);
-            logo = "<a href=\"" + uri.Scheme + "://" + uri.Authority + "\"><img src=\"" + uri.Scheme + "://" + uri.Authority + "/" + PageState.Site.SiteRootPath + PageState.Site.Logo + "\" alt=\"" + PageState.Site.Name + "\"/></a>";
+            logo = "<a href=\"" + uri.Scheme + "://" + uri.Authority + "\"><img src=\"" + ContentUrl(PageState.Site.LogoFileId.Value) + "\" alt=\"" + PageState.Site.Name + "\"/></a>";
         }
     }
 }
