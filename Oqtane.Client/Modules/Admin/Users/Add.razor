@@ -48,14 +48,6 @@
                 <input class="form-control" @bind="@displayname" />
             </td>
         </tr>
-        <tr>
-            <td>
-                <label for="Name" class="control-label">Photo: </label>
-            </td>
-            <td>
-                <FileManager @ref="filemanager" />
-            </td>
-        </tr>
 
         @foreach (Profile profile in profiles)
         {
@@ -91,7 +83,6 @@
     string confirm = "";
     string email = "";
     string displayname = "";
-    FileManager filemanager;
     List<Profile> profiles;
     Dictionary<string, string> settings;
     string category = "";
@@ -125,11 +116,6 @@
                     user.Email = email;
                     user.DisplayName = string.IsNullOrWhiteSpace(displayname) ? username : displayname;
                     user.PhotoFileId = null;
-                    int photofileid = filemanager.GetFileId();
-                    if (photofileid != -1)
-                    {
-                        user.PhotoFileId = photofileid;
-                    }
 
                     user = await UserService.AddUserAsync(user);
 
