@@ -20,6 +20,5 @@ namespace Oqtane.Shared
         public int ModuleId { get; set; }
         public string Action { get; set; }
         public bool EditMode { get; set; }
-        public bool DesignMode { get; set; }
     }
 }

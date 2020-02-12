@@ -25,7 +25,7 @@
 
     protected override void OnParametersSet()
     {
-        if (PageState.DesignMode && UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions) && Name != Constants.AdminPane)
+        if (PageState.EditMode && !PageState.Page.EditMode && UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions) && Name != Constants.AdminPane)
         {
             paneadminborder = "app-pane-admin-border";
             panetitle = "<div class=\"app-pane-admin-title\">" + Name + " Pane</div>";
