@@ -79,7 +79,6 @@
         int moduleid = -1;
         string action = "";
         bool editmode = false;
-        bool designmode = false;
         Reload reload = Reload.None;
 
         // get Url path and querystring ( and remove anchors )
@@ -104,7 +103,6 @@
         if (PageState != null)
         {
             editmode = PageState.EditMode;
-            designmode = PageState.DesignMode;
         }
 
         if (PageState == null || reload == Reload.Application)
@@ -199,7 +197,6 @@
                 page = pages.Where(item => item.Path == path).FirstOrDefault();
                 reload = Reload.Page;
                 editmode = page.EditMode;
-                designmode = false;
             }
 
             user = null;
@@ -218,6 +215,11 @@
 
             if (page != null)
             {
+                if (PageState == null)
+                {
+                    editmode = page.EditMode;
+                }
+
                 // check if user is authorized to view page
                 if (UserSecurity.IsAuthorized(user, "View", page.Permissions))
                 {
@@ -253,7 +255,6 @@
                     }
                     pagestate.Modules = modules;
                     pagestate.EditMode = editmode;
-                    pagestate.DesignMode = designmode;
 
                     OnStateChange?.Invoke(pagestate);
                 }

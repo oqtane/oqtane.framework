@@ -153,17 +153,26 @@
 
 @if (UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions) || (PageState.Page.IsPersonalizable && PageState.User != null))
 {
-    @if (PageState.EditMode)
+    @if (PageState.Page.EditMode)
     {
-        <button type="button" class="btn @ButtonClass active" data-toggle="button" aria-pressed="true" autocomplete="off" @onclick="(async () => await ToggleEditMode(PageState.EditMode))">
+        <button type="button" class="btn @ButtonClass active" aria-pressed="true" autocomplete="off">
             <span class="oi oi-pencil"></span>
         </button>
     }
     else
     {
-        <button type="button" class="btn @ButtonClass" data-toggle="button" aria-pressed="false" autocomplete="off" @onclick="(async () => await ToggleEditMode(PageState.EditMode))">
-            <span class="oi oi-pencil"></span>
-        </button>
+        if (PageState.EditMode)
+        {
+            <button type="button" class="btn @ButtonClass active" data-toggle="button" aria-pressed="true" autocomplete="off" @onclick="(async () => await ToggleEditMode(PageState.EditMode))">
+                <span class="oi oi-pencil"></span>
+            </button>
+        }
+        else
+        {
+            <button type="button" class="btn @ButtonClass" data-toggle="button" aria-pressed="false" autocomplete="off" @onclick="(async () => await ToggleEditMode(PageState.EditMode))">
+                <span class="oi oi-pencil"></span>
+            </button>
+        }
     }
 }
 
@@ -347,12 +356,10 @@
             if (EditMode)
             {
                 PageState.EditMode = false;
-                PageState.DesignMode = false;
             }
             else
             {
                 PageState.EditMode = true;
-                PageState.DesignMode = true;
             }
             NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "edit=" + ((PageState.EditMode) ? "1" : "0"), Reload.Page));
         }
@@ -362,7 +369,6 @@
             {
                 await CreatePersonalizedPage();
                 PageState.EditMode = true;
-                PageState.DesignMode = true;
                 NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "edit=" + ((PageState.EditMode) ? "1" : "0"), Reload.Page));
             }
         }
