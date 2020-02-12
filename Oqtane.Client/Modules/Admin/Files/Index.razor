@@ -52,7 +52,7 @@
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 
     List<Folder> Folders;
-    int folderid;
+    int folderid = -1;
     List<File> Files;
     Uri uri;
 
@@ -61,7 +61,7 @@
         try
         {
             Folders = await FolderService.GetFoldersAsync(PageState.Site.SiteId);
-            if (Folders.Count > 0)
+            if (folderid == -1 && Folders.Count > 0)
             {
                 folderid = Folders[0].FolderId;
                 await GetFiles();
