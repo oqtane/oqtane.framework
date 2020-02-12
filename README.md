@@ -19,20 +19,20 @@ Oqtane uses Blazor, a new web framework for .NET Core that lets you build intera
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
 
 V1 (MVP)
-- Multi-Tenant ( Shared Database & Isolated Database ) *done*
-- Modular Architecture / Headless API *done*
-- Dynamic Page Compositing Model / Site & Page Management *done*
-- Authentication / User Management / Profile Management *done*
-- Authorization / Roles Management / Granular Permissions *done*
-- Dynamic Routing *done*
-- Extensibility via Custom Modules *done*
-- Extensibility via Custom Themes *done*
-- Event Logging *done*
-- Folder / File Management *done*
-- Recycle Bin *done*
-- Scheduled Jobs ( Background Processing ) *done*
-- Notifications / Email Delivery *done*
-- Auto-Upgrade Framework *done*
+- Multi-Tenant ( Shared Database & Isolated Database ) **done**
+- Modular Architecture / Headless API **done**
+- Dynamic Page Compositing Model / Site & Page Management **done**
+- Authentication / User Management / Profile Management **done**
+- Authorization / Roles Management / Granular Permissions **done**
+- Dynamic Routing **done**
+- Extensibility via Custom Modules **done**
+- Extensibility via Custom Themes **done**
+- Event Logging **done**
+- Folder / File Management **done**
+- Recycle Bin **done**
+- Scheduled Jobs ( Background Processing ) **done**
+- Notifications / Email Delivery **done**
+- Auto-Upgrade Framework **done**
 
 V.Next
 - Localization
