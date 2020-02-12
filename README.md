@@ -18,6 +18,27 @@ Oqtane uses Blazor, a new web framework for .NET Core that lets you build intera
 # Roadmap
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
 
+V1 (MVP)
+- Multi-Tenant ( Shared Database & Isolated Database )
+- Modular Architecture / Headless API
+- Dynamic Page Compositing Model / Site & Page Management
+- Authentication / User Management / Profile Management
+- Authorization / Roles Management / Granular Permissions
+- Dynamic Routing
+- Extensibility via Custom Modules
+- Extensibility via Custom Themes
+- Event Logging
+- Folder / File Management
+- Recycle Bin
+- Scheduled Jobs ( Background Processing )
+- Notifications / Email Delivery
+- Auto-Upgrade Framework
+
+V.Next
+- Localization
+- Migrate to Code-Behind Pattern ( *.razor.cs )
+- Generic Repository Pattern
+
 # Background
 Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Initially created as a proof of concept, Oqtane is a native Blazor application written from the ground up using modern .NET Core technology. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly templates (skins), and extensibility via third party modules.
 
