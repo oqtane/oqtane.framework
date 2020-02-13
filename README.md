@@ -35,6 +35,7 @@ V1 (MVP)
 - Auto-Upgrade Framework **done**
 
 V.Next
+- Optional Encryption of Settings Values ( ie. via an IsSecure flag )
 - Localization
 - Migrate to Code-Behind Pattern ( *.razor.cs )
 - Generic Repository Pattern
