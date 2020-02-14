@@ -6,8 +6,6 @@ namespace Oqtane.Services
 {
     public interface IProfileService
     {
-        Task<List<Profile>> GetProfilesAsync();
-
         Task<List<Profile>> GetProfilesAsync(int SiteId);
 
         Task<Profile> GetProfileAsync(int ProfileId);

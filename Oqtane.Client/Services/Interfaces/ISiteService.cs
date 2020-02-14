@@ -7,7 +7,6 @@ namespace Oqtane.Services
     public interface ISiteService
     {
         Task<List<Site>> GetSitesAsync();
-        Task<List<Site>> GetSitesAsync(Alias Alias);
 
         Task<Site> GetSiteAsync(int SiteId);
         Task<Site> GetSiteAsync(int SiteId, Alias Alias);

@@ -24,14 +24,7 @@ namespace Oqtane.Controllers
         [HttpGet]
         public IEnumerable<UserRole> Get(string siteid)
         {
-            if (siteid == "")
-            {
-                return UserRoles.GetUserRoles();
-            }
-            else
-            {
-                return UserRoles.GetUserRoles(int.Parse(siteid));
-            }
+            return UserRoles.GetUserRoles(int.Parse(siteid));
         }
         
         // GET api/<controller>/5

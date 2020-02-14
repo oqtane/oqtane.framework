@@ -42,14 +42,6 @@ namespace Oqtane.Controllers
             this.logger = logger;
         }
 
-        // GET: api/<controller>?siteid=x
-        [HttpGet]
-        [Authorize(Roles = Constants.AdminRole)]
-        public IEnumerable<User> Get()
-        {
-            return Users.GetUsers();
-        }
-
         // GET api/<controller>/5?siteid=x
         [HttpGet("{id}")]
         public User Get(int id, string siteid)

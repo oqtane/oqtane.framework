@@ -31,11 +31,6 @@ namespace Oqtane.Services
             List<Site> sites = await http.GetJsonAsync<List<Site>>(apiurl);
             return sites.OrderBy(item => item.Name).ToList();
         }
-        public async Task<List<Site>> GetSitesAsync(Alias Alias)
-        {
-            List<Site> sites = await http.GetJsonAsync<List<Site>>(CreateApiUrl(Alias, NavigationManager.Uri, "Site"));
-            return sites.OrderBy(item => item.Name).ToList();
-        }
 
         public async Task<Site> GetSiteAsync(int SiteId)
         {

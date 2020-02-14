@@ -24,13 +24,6 @@ namespace Oqtane.Controllers
             this.logger = logger;
         }
 
-        // GET: api/<controller>
-        [HttpGet]
-        public IEnumerable<PageModule> Get()
-        {
-            return PageModules.GetPageModules();
-        }
-
         // GET api/<controller>/5
         [HttpGet("{id}")]
         public PageModule Get(int id)

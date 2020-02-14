@@ -26,11 +26,6 @@ namespace Oqtane.Services
             get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "UserRole"); }
         }
 
-        public async Task<List<UserRole>> GetUserRolesAsync()
-        {
-            return await http.GetJsonAsync<List<UserRole>>(apiurl);
-        }
-
         public async Task<List<UserRole>> GetUserRolesAsync(int SiteId)
         {
             return await http.GetJsonAsync<List<UserRole>>(apiurl + "?siteid=" + SiteId.ToString());
