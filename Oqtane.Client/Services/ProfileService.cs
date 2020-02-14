@@ -26,11 +26,6 @@ namespace Oqtane.Services
             get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "Profile"); }
         }
 
-        public async Task<List<Profile>> GetProfilesAsync()
-        {
-            return await http.GetJsonAsync<List<Profile>>(apiurl);
-        }
-
         public async Task<List<Profile>> GetProfilesAsync(int SiteId)
         {
             List<Profile> Profiles = await http.GetJsonAsync<List<Profile>>(apiurl + "?siteid=" + SiteId.ToString());

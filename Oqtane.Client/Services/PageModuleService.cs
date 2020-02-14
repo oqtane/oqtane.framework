@@ -26,11 +26,6 @@ namespace Oqtane.Services
             get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "PageModule"); }
         }
 
-        public async Task<List<PageModule>> GetPageModulesAsync()
-        {
-            return await http.GetJsonAsync<List<PageModule>>(apiurl);
-        }
-
         public async Task<PageModule> GetPageModuleAsync(int PageModuleId)
         {
             return await http.GetJsonAsync<PageModule>(apiurl + "/" + PageModuleId.ToString());

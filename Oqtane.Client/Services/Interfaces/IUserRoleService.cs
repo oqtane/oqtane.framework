@@ -6,7 +6,6 @@ namespace Oqtane.Services
 {
     public interface IUserRoleService
     {
-        Task<List<UserRole>> GetUserRolesAsync();
         Task<List<UserRole>> GetUserRolesAsync(int SiteId);
         Task<UserRole> GetUserRoleAsync(int UserRoleId);
         Task<UserRole> AddUserRoleAsync(UserRole UserRole);

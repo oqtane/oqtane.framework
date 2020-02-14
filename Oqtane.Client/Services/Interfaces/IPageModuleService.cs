@@ -6,7 +6,6 @@ namespace Oqtane.Services
 {
     public interface IPageModuleService
     {
-        Task<List<PageModule>> GetPageModulesAsync();
         Task<PageModule> GetPageModuleAsync(int PageModuleId);
         Task<PageModule> GetPageModuleAsync(int PageId, int ModuleId);
         Task<PageModule> AddPageModuleAsync(PageModule PageModule);

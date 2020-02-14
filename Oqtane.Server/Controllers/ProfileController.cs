@@ -24,14 +24,7 @@ namespace Oqtane.Controllers
         [HttpGet]
         public IEnumerable<Profile> Get(string siteid)
         {
-            if (siteid == "")
-            {
-                return Profiles.GetProfiles();
-            }
-            else
-            {
-                return Profiles.GetProfiles(int.Parse(siteid));
-            }
+            return Profiles.GetProfiles(int.Parse(siteid));
         }
 
         // GET api/<controller>/5
