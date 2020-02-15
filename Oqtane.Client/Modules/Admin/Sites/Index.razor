@@ -20,7 +20,7 @@ else
         </Header>
         <Row>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.AliasId.ToString())" /></td>
-            <td><ActionDialog Header="Delete Site" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Site?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteSite(context))" /></td>
+            <td><ActionDialog Header="Delete Site" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Site?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteSite(context))" Disabled="sites.Count == 1" /></td>
             <td><a href="@(scheme + context.Name)">@context.Name</a></td>
         </Row>
     </Pager>
