@@ -36,7 +36,7 @@
         @if (pageModules.Count == 0)
         {
             <br/>
-            <p>No Deleted Modules</p>
+            <p>No Deleted Modules in Pages</p>
         }
         else
         {
@@ -65,36 +65,36 @@
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 
-    List<Page> pages { get; set; }
-    List<PageModule> pageModules { get; set; }
+    List<Page> pages { get; set; } = new List<Page>();
+    List<PageModule> pageModules { get; set; } = new List<PageModule>();
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            pages = new List<Page>();
-            pageModules = new List<PageModule>();
-            await LoadEntities();
+            foreach (var module in PageState.Modules.Where(item => item.IsDeleted))
+            {
+                var pageModule = await PageModuleService.GetPageModuleAsync(module.PageModuleId);
+                pageModules.Add(pageModule);
+            }
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading Deleted Pages Or Modules {Error}", ex.Message);
-            AddModuleMessage("Error Loading Deleted Pages Or Modules", MessageType.Error);
+            await logger.LogError(ex, "Error Loading Deleted Pages", ex.Message);
+            AddModuleMessage("Error Loading Deleted Pages", MessageType.Error);
         }
     }
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
-        pages = PageState.Pages.Where(item => item.IsDeleted).ToList();
-    }
-
-    private async Task LoadEntities()
-    {
-        pageModules.Clear();
-        foreach (var module in PageState.Modules.Where(item => item.IsDeleted))
+        try
         {
-            var pageModule = await PageModuleService.GetPageModuleAsync(module.PageModuleId);
-            pageModules.Add(pageModule);
+            pages = PageState.Pages.Where(item => item.IsDeleted).ToList();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Pages Deleted Modules {Error}", ex.Message);
+            AddModuleMessage("Error Loading Pages Deleted Modules", MessageType.Error);
         }
     }
 
@@ -140,7 +140,7 @@
         {
             PageModule.IsDeleted = false;
             await PageModuleService.UpdatePageModuleAsync(PageModule);
-            await LoadEntities();
+            pageModules.Remove(PageModule);
             await logger.LogInformation("Page Module Restored {PageModule}", PageModule);
             NavigationManager.NavigateTo(NavigateUrl(Reload.Site));
         }
@@ -161,7 +161,7 @@
                 await ModuleService.DeleteModuleAsync(ModuleId);
             }
             PageState.Modules.RemoveAt(PageState.Modules.FindIndex(item => item.ModuleId == ModuleId));
-            await LoadEntities();
+            pageModules.Remove(pageModules.Single(item => item.PageModuleId == PageModuleId));
             await logger.LogInformation("Page Module Permanently Deleted {PageModuleId}", PageModuleId);
             NavigationManager.NavigateTo(NavigateUrl(Reload.Site));
         }
