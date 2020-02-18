@@ -301,7 +301,7 @@
 
     private async Task AddModule()
     {
-        if (UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions))
+        if (UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions) && !string.IsNullOrWhiteSpace(moduledefinitionname) && moduledefinitionname != "-")
         {
             if (moduletype == "new")
             {
