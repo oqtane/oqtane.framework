@@ -107,7 +107,7 @@ namespace Oqtane.Controllers
         {
             Page page = null;
             Page parent = Pages.GetPage(id);
-            if (parent != null && parent.IsPersonalizable && !string.IsNullOrEmpty(userid))
+            if (parent != null && parent.IsPersonalizable && UserPermissions.GetUser(User).UserId == int.Parse(userid))
             {
                 page = new Page();
                 page.SiteId = parent.SiteId;

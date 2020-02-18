@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using Oqtane.Models;
+using System.Security.Claims;
 
 namespace Oqtane.Security
 {
@@ -6,5 +7,7 @@ namespace Oqtane.Security
     {
         bool IsAuthorized(ClaimsPrincipal User, string EntityName, int EntityId, string PermissionName);
         bool IsAuthorized(ClaimsPrincipal User, string PermissionName, string Permissions);
+        User GetUser(ClaimsPrincipal User);
+        User GetUser();
     }
 }

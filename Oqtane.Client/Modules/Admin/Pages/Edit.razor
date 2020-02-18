@@ -4,164 +4,167 @@
 @inject IPageService PageService
 @inject IThemeService  ThemeService
 
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Name: </label>
-        </td>
-        <td>
-            <input class="form-control" @bind="@name" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Path: </label>
-        </td>
-        <td>
-            <input class="form-control" @bind="@path" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Parent: </label>
-        </td>
-        <td>
-            <select class="form-control" @onchange="(e => ParentChanged(e))">
-                <option value="-1">&lt;Site Root&gt;</option>
-                @foreach (Page page in pages)
-                {
-                    if (page.PageId.ToString() == parentid)
+@if (Themes != null)
+{
+    <table class="table table-borderless">
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Name: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@name" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Path: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@path" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Parent: </label>
+            </td>
+            <td>
+                <select class="form-control" @onchange="(e => ParentChanged(e))">
+                    <option value="-1">&lt;Site Root&gt;</option>
+                    @foreach (Page page in pages)
                     {
-                        <option value="@(page.PageId)" selected>@(new string('-', page.Level * 2))@(page.Name)</option>
-                    }
-                    else
-                    {
-                        <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
-                    }
-                }
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Move: </label>
-        </td>
-        <td>
-            <select class="form-control" @bind="@insert">
-                @if (parentid == currentparentid)
-                {
-                    <option value="=">&lt;Maintain Current Location&gt;</option>
-                }
-                <option value="<<">To Beginning</option>
-                @if (children != null && children.Count > 0)
-                {
-                    <option value="<">Before</option>
-                    <option value=">">After</option>
-                }
-                <option value=">>">To End</option>
-            </select>
-            @if (children != null && children.Count > 0 && (insert == "<" || insert == ">"))
-            {
-                <select class="form-control" @bind="@childid">
-                    <option value="-1">&lt;Select Page&gt;</option>
-                    @foreach (Page page in children)
-                    {
-                        <option value="@(page.PageId)">@(page.Name)</option>
+                        if (page.PageId.ToString() == parentid)
+                        {
+                            <option value="@(page.PageId)" selected>@(new string('-', page.Level * 2))@(page.Name)</option>
+                        }
+                        else
+                        {
+                            <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
+                        }
                     }
                 </select>
-            }
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Navigation? </label>
-        </td>
-        <td>
-            <select class="form-control" @bind="@isnavigation">
-                <option value="True">Yes</option>
-                <option value="False">No</option>
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Personalizable? </label>
-        </td>
-        <td>
-            <select class="form-control" @bind="@ispersonalizable">
-                <option value="True">Yes</option>
-                <option value="False">No</option>
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Default Mode? </label>
-        </td>
-        <td>
-            <select class="form-control" @bind="@mode">
-                <option value="view">View Mode</option>
-                <option value="edit">Edit Mode</option>
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Theme: </label>
-        </td>
-        <td>
-            <select class="form-control" @onchange="(e => ThemeChanged(e))">
-                <option value="">&lt;Select Theme&gt;</option>
-                @foreach (KeyValuePair<string, string> item in themes)
-                {
-                    if (item.Key == themetype)
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Move: </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@insert">
+                    @if (parentid == currentparentid)
                     {
-                        <option value="@item.Key" selected>@item.Value</option>
+                        <option value="=">&lt;Maintain Current Location&gt;</option>
                     }
-                    else
+                    <option value="<<">To Beginning</option>
+                    @if (children != null && children.Count > 0)
                     {
-                        <option value="@item.Key">@item.Value</option>
+                        <option value="<">Before</option>
+                        <option value=">">After</option>
                     }
-                }
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Layout: </label>
-        </td>
-        <td>
-            <select class="form-control" @bind="@layouttype">
-                <option value="">&lt;Select Layout&gt;</option>
-                @foreach (KeyValuePair<string, string> panelayout in panelayouts)
+                    <option value=">>">To End</option>
+                </select>
+                @if (children != null && children.Count > 0 && (insert == "<" || insert == ">"))
                 {
-                    <option value="@panelayout.Key">@panelayout.Value</option>
+                    <select class="form-control" @bind="@childid">
+                        <option value="-1">&lt;Select Page&gt;</option>
+                        @foreach (Page page in children)
+                        {
+                            <option value="@(page.PageId)">@(page.Name)</option>
+                        }
+                    </select>
                 }
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Icon: </label>
-        </td>
-        <td>
-            <input class="form-control" @bind="@icon" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Permissions: </label>
-        </td>
-        <td>
-            <PermissionGrid EntityName="Page" Permissions="@permissions" @ref="permissiongrid" />
-        </td>
-    </tr>
-</table>
-<button type="button" class="btn btn-success" @onclick="SavePage">Save</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
-<br />
-<br />
-<AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Navigation? </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@isnavigation">
+                    <option value="True">Yes</option>
+                    <option value="False">No</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Personalizable? </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@ispersonalizable">
+                    <option value="True">Yes</option>
+                    <option value="False">No</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Default Mode? </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@mode">
+                    <option value="view">View Mode</option>
+                    <option value="edit">Edit Mode</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Theme: </label>
+            </td>
+            <td>
+                <select class="form-control" @onchange="(e => ThemeChanged(e))">
+                    <option value="">&lt;Select Theme&gt;</option>
+                    @foreach (KeyValuePair<string, string> item in themes)
+                    {
+                        if (item.Key == themetype)
+                        {
+                            <option value="@item.Key" selected>@item.Value</option>
+                        }
+                        else
+                        {
+                            <option value="@item.Key">@item.Value</option>
+                        }
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Layout: </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@layouttype">
+                    <option value="">&lt;Select Layout&gt;</option>
+                    @foreach (KeyValuePair<string, string> panelayout in panelayouts)
+                    {
+                        <option value="@panelayout.Key">@panelayout.Value</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Icon: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@icon" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Permissions: </label>
+            </td>
+            <td>
+                <PermissionGrid EntityName="Page" Permissions="@permissions" @ref="permissiongrid" />
+            </td>
+        </tr>
+    </table>
+    <button type="button" class="btn btn-success" @onclick="SavePage">Save</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <br />
+    <br />
+    <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>
+}
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }

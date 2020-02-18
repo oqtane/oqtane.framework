@@ -5,8 +5,8 @@ using System.Text.Json;
 using Oqtane.Repository;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
 using System.Collections.Generic;
+using Oqtane.Security;
 
 namespace Oqtane.Infrastructure
 {
@@ -15,13 +15,15 @@ namespace Oqtane.Infrastructure
         private readonly ILogRepository Logs;
         private readonly ITenantResolver TenantResolver;
         private readonly IConfigurationRoot Config;
+        private readonly IUserPermissions UserPermissions;
         private readonly IHttpContextAccessor Accessor;
 
-        public LogManager(ILogRepository Logs, ITenantResolver TenantResolver, IConfigurationRoot Config, IHttpContextAccessor Accessor)
+        public LogManager(ILogRepository Logs, ITenantResolver TenantResolver, IConfigurationRoot Config, IUserPermissions UserPermissions, IHttpContextAccessor Accessor)
         {
             this.Logs = Logs;
             this.TenantResolver = TenantResolver;
             this.Config = Config;
+            this.UserPermissions = UserPermissions;
             this.Accessor = Accessor;
         }
 
@@ -37,9 +39,11 @@ namespace Oqtane.Infrastructure
             log.SiteId = alias.SiteId;
             log.PageId = null;
             log.ModuleId = null;
-            if (Accessor.HttpContext.User.FindFirst(ClaimTypes.PrimarySid) != null)
+            log.UserId = null;
+            User user = UserPermissions.GetUser();
+            if (user != null)
             {
-                log.UserId = int.Parse(Accessor.HttpContext.User.FindFirst(ClaimTypes.PrimarySid).Value);
+                log.UserId = user.UserId;
             }
             HttpRequest request = Accessor.HttpContext.Request;
             if (request != null)

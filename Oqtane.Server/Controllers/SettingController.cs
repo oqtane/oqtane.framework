@@ -6,7 +6,6 @@ using Oqtane.Shared;
 using Oqtane.Security;
 using Oqtane.Infrastructure;
 using System.Linq;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 
 namespace Oqtane.Controllers
@@ -17,15 +16,13 @@ namespace Oqtane.Controllers
         private readonly ISettingRepository Settings;
         private readonly IPageModuleRepository PageModules;
         private readonly IUserPermissions UserPermissions;
-        private readonly IHttpContextAccessor Accessor;
         private readonly ILogManager logger;
 
-        public SettingController(ISettingRepository Settings, IPageModuleRepository PageModules, IUserPermissions UserPermissions, IHttpContextAccessor Accessor, ILogManager logger)
+        public SettingController(ISettingRepository Settings, IPageModuleRepository PageModules, IUserPermissions UserPermissions, ILogManager logger)
         {
             this.Settings = Settings;
             this.PageModules = PageModules;
             this.UserPermissions = UserPermissions;
-            this.Accessor = Accessor;
             this.logger = logger;
         }
 
@@ -141,7 +138,7 @@ namespace Oqtane.Controllers
                     authorized = true;
                     if (PermissionName == "Edit")
                     {
-                        authorized = User.IsInRole(Constants.AdminRole) || (int.Parse(Accessor.HttpContext.User.FindFirst(ClaimTypes.PrimarySid).Value) == EntityId);
+                        authorized = User.IsInRole(Constants.AdminRole) || (UserPermissions.GetUser(User).UserId == EntityId);
                     }
                     break;
             }
