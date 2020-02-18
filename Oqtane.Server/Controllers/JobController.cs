@@ -27,6 +27,7 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>
         [HttpGet]
+        [Authorize(Roles = Constants.HostRole)]
         public IEnumerable<Job> Get()
         {
             return Jobs.GetJobs();
@@ -34,6 +35,7 @@ namespace Oqtane.Controllers
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
+        [Authorize(Roles = Constants.HostRole)]
         public Job Get(int id)
         {
             return Jobs.GetJob(id);

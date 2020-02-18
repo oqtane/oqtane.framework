@@ -125,6 +125,7 @@ else
     Dictionary<string, string> panelayouts = new Dictionary<string, string>();
     Dictionary<string, string> containers = new Dictionary<string, string>();
 
+    List<Theme> Themes;
     List<Tenant> tenants;
     string tenantid = "-1";
     string name = "";
@@ -139,10 +140,11 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        Themes = await ThemeService.GetThemesAsync();
         tenants = await TenantService.GetTenantsAsync();
         urls = PageState.Alias.Name;
-        themes = ThemeService.GetThemeTypes(PageState.Themes);
-        containers = ThemeService.GetContainerTypes(PageState.Themes);
+        themes = ThemeService.GetThemeTypes(Themes);
+        containers = ThemeService.GetContainerTypes(Themes);
         username = Constants.HostUser;
     }
 
@@ -175,7 +177,7 @@ else
             themetype = (string)e.Value;
             if (themetype != "")
             {
-                panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes, themetype);
+                panelayouts = ThemeService.GetPaneLayoutTypes(Themes, themetype);
             }
             else
             {

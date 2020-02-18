@@ -10,5 +10,7 @@ namespace Oqtane.Repository
         Module UpdateModule(Module Module);
         Module GetModule(int ModuleId);
         void DeleteModule(int ModuleId);
+        string ExportModule(int ModuleId);
+        bool ImportModule(int ModuleId, string Content);
     }
 }

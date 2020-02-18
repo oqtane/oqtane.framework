@@ -5,6 +5,8 @@ using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
 using Oqtane.Infrastructure;
+using System.Linq;
+using System;
 
 namespace Oqtane.Controllers
 {
@@ -22,6 +24,7 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>
         [HttpGet]
+        [Authorize(Roles = Constants.AdminRole)]
         public IEnumerable<Alias> Get()
         {
             return Aliases.GetAliases();
@@ -29,11 +32,32 @@ namespace Oqtane.Controllers
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
+        [Authorize(Roles = Constants.AdminRole)]
         public Alias Get(int id)
         {
             return Aliases.GetAlias(id);
         }
 
+        // GET api/<controller>/name/localhost:12345
+        [HttpGet("name/{name}")]
+        public Alias Get(string name)
+        {
+            List<Alias> aliases = Aliases.GetAliases().ToList();
+            Alias alias = null;
+            alias = aliases.Where(item => item.Name == name).FirstOrDefault();
+            if (alias == null && name.Contains("/"))
+            {
+                // lookup alias without folder name
+                alias = aliases.Where(item => item.Name == name.Substring(name.IndexOf("/") + 1)).FirstOrDefault();
+            }
+            if (alias == null && aliases.Count > 0)
+            {
+                // use first alias if name does not exist
+                alias = aliases.FirstOrDefault();
+            }
+            return alias; 
+        }
+        
         // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = Constants.AdminRole)]

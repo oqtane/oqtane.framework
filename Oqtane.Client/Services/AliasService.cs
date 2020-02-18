@@ -5,6 +5,8 @@ using System.Linq;
 using Microsoft.AspNetCore.Components;
 using System.Collections.Generic;
 using Oqtane.Shared;
+using System.Net;
+using System;
 
 namespace Oqtane.Services
 {
@@ -35,6 +37,21 @@ namespace Oqtane.Services
         public async Task<Alias> GetAliasAsync(int AliasId)
         {
             return await http.GetJsonAsync<Alias>(apiurl + "/" + AliasId.ToString());
+        }
+
+        public async Task<Alias> GetAliasAsync(string Url)
+        {
+            Uri uri = new Uri(Url);
+            string name = uri.Authority;
+            if (uri.Segments.Count() > 1)
+            {
+                name += "/" + uri.Segments[1];
+            }
+            if (name.EndsWith("/")) 
+            { 
+                name = name.Substring(0, name.Length - 1); 
+            }
+            return await http.GetJsonAsync<Alias>(apiurl + "/name/" + WebUtility.UrlEncode(name));
         }
 
         public async Task<Alias> AddAliasAsync(Alias alias)

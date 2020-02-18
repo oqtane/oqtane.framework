@@ -18,14 +18,6 @@ namespace Oqtane.Themes
         [CascadingParameter]
         protected Module ModuleState { get; set; }
 
-        protected ModuleDefinition ModuleDefinition
-        {
-            get
-            {
-                return PageState.ModuleDefinitions.Where(item => item.ModuleDefinitionName == ModuleState.ModuleDefinitionName).FirstOrDefault();
-            }
-        }
-
         public virtual string Name { get; set; }
 
         public string ThemePath()

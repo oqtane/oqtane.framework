@@ -45,7 +45,7 @@
         try
         {
             ModuleDefinitionId = Int32.Parse(PageState.QueryString["id"]);
-            ModuleDefinition moduledefinition = PageState.ModuleDefinitions.Where(item => item.ModuleDefinitionId == ModuleDefinitionId).FirstOrDefault();
+            ModuleDefinition moduledefinition = await ModuleDefinitionService.GetModuleDefinitionAsync(ModuleDefinitionId, ModuleState.SiteId);
             if (moduledefinition != null)
             {
                 name = moduledefinition.Name;
@@ -67,7 +67,7 @@
     {
         try
         {
-            ModuleDefinition moduledefinition = PageState.ModuleDefinitions.Where(item => item.ModuleDefinitionId == ModuleDefinitionId).FirstOrDefault();
+            ModuleDefinition moduledefinition = await ModuleDefinitionService.GetModuleDefinitionAsync(ModuleDefinitionId, ModuleState.SiteId);
             moduledefinition.Permissions = permissiongrid.GetPermissions();
             await ModuleDefinitionService.UpdateModuleDefinitionAsync(moduledefinition);
             await logger.LogInformation("ModuleDefinition Saved {ModuleDefinition}", moduledefinition);

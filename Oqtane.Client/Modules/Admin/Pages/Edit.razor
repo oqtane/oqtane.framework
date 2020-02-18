@@ -169,6 +169,7 @@
     Dictionary<string, string> themes = new Dictionary<string, string>();
     Dictionary<string, string> panelayouts = new Dictionary<string, string>();
 
+    List<Theme> Themes;
     List<Page> pages;
     int PageId;
     string name;
@@ -198,10 +199,11 @@
     {
         try
         {
+            Themes = await ThemeService.GetThemesAsync();
             pages = PageState.Pages;
             children = PageState.Pages.Where(item => item.ParentId == null).ToList();
 
-            themes = ThemeService.GetThemeTypes(PageState.Themes);
+            themes = ThemeService.GetThemeTypes(Themes);
 
             PageId = Int32.Parse(PageState.QueryString["id"]);
             Page page = PageState.Pages.Where(item => item.PageId == PageId).FirstOrDefault();
@@ -226,7 +228,7 @@
                 ispersonalizable = page.IsPersonalizable.ToString();
                 mode = (page.EditMode) ? "edit" : "view";
                 themetype = page.ThemeType;
-                panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes, themetype);
+                panelayouts = ThemeService.GetPaneLayoutTypes(Themes, themetype);
                 layouttype = page.LayoutType;
                 icon = page.Icon;
                 permissions = page.Permissions;
@@ -282,7 +284,7 @@
             themetype = (string)e.Value;
             if (themetype != "")
             {
-                panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes, themetype);
+                panelayouts = ThemeService.GetPaneLayoutTypes(Themes, themetype);
             }
             else
             {

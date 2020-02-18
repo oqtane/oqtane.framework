@@ -49,6 +49,10 @@ namespace Oqtane.Models
         [NotMapped]
         public int PaneModuleCount { get; set; }
 
+        // ModuleDefinition
+        [NotMapped]
+        public ModuleDefinition ModuleDefinition { get; set; }
+
         // IModuleControl properties
         [NotMapped]
         public SecurityAccessLevel SecurityAccessLevel { get; set; }

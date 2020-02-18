@@ -87,6 +87,15 @@ namespace Oqtane.Services
             };
             Folders = Folders.OrderBy(item => item.Order).ToList();
             GetPath(Folders, null);
+
+            // add any non-hierarchical items to the end of the list
+            foreach(Folder folder in Folders)
+            {
+                if (hierarchy.Find(item => item.FolderId == folder.FolderId) == null)
+                {
+                    hierarchy.Add(folder);
+                }
+            }
             return hierarchy;
         }
     }
