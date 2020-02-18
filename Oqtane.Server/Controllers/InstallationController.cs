@@ -269,7 +269,7 @@ namespace Oqtane.Controllers
                 var result = dbUpgrade.PerformUpgrade();
                 if (!result.Successful)
                 {
-                    // TODO: log result.Error.Message;
+                    // TODO: log result.Error.Message - problem is logger is not available here
                 }
             }
         }

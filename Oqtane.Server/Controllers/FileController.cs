@@ -72,7 +72,17 @@ namespace Oqtane.Controllers
         [HttpGet("{id}")]
         public Models.File Get(int id)
         {
-            return Files.GetFile(id);
+            Models.File file = Files.GetFile(id);
+            if (UserPermissions.IsAuthorized(User, "View", file.Folder.Permissions))
+            {
+                return file;
+            }
+            else
+            {
+                logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access File {File}", file);
+                HttpContext.Response.StatusCode = 401;
+                return null;
+            }
         }
 
         // PUT api/<controller>/5
@@ -84,6 +94,12 @@ namespace Oqtane.Controllers
             {
                 File = Files.UpdateFile(File);
                 logger.Log(LogLevel.Information, this, LogFunction.Update, "File Updated {File}", File);
+            }
+            else
+            {
+                logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update File {File}", File);
+                HttpContext.Response.StatusCode = 401;
+                File = null;
             }
             return File;
         }
@@ -104,6 +120,11 @@ namespace Oqtane.Controllers
                     System.IO.File.Delete(filepath);
                 }
                 logger.Log(LogLevel.Information, this, LogFunction.Delete, "File Deleted {File}", File);
+            }
+            else
+            {
+                logger.Log(LogLevel.Error, this, LogFunction.Delete, "User Not Authorized To Delete File {FileId}", id);
+                HttpContext.Response.StatusCode = 401;
             }
         }
 
@@ -129,6 +150,12 @@ namespace Oqtane.Controllers
                 {
                     logger.Log(LogLevel.Error, this, LogFunction.Create, "File Could Not Be Downloaded From Url {Url}", url);
                 }
+            }
+            else
+            {
+                logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Download File {Url} {FolderId}", url, folderid);
+                HttpContext.Response.StatusCode = 401;
+                file = null;
             }
             return file;
         }
@@ -169,6 +196,11 @@ namespace Oqtane.Controllers
                         FileInfo fileinfo = new FileInfo(folderpath + upload);
                         Files.AddFile(new Models.File { Name = upload, FolderId = folderid, Extension = fileinfo.Extension.Replace(".", ""), Size = (int)fileinfo.Length });
                     }
+                }
+                else
+                {
+                    logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Upload File {Folder} {File}", folder, file);
+                    HttpContext.Response.StatusCode = 401;
                 }
             }
         }
@@ -293,7 +325,9 @@ namespace Oqtane.Controllers
             }
             else
             {
-                return NotFound();
+                logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access File {FileId}", id);
+                HttpContext.Response.StatusCode = 401;
+                return null;
             }
         }
 

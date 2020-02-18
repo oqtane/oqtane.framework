@@ -14,12 +14,14 @@ namespace Oqtane.Controllers
     public class PageModuleController : Controller
     {
         private readonly IPageModuleRepository PageModules;
+        private readonly IModuleRepository Modules;
         private readonly IUserPermissions UserPermissions;
         private readonly ILogManager logger;
 
-        public PageModuleController(IPageModuleRepository PageModules, IUserPermissions UserPermissions, ILogManager logger)
+        public PageModuleController(IPageModuleRepository PageModules, IModuleRepository Modules, IUserPermissions UserPermissions, ILogManager logger)
         {
             this.PageModules = PageModules;
+            this.Modules = Modules;
             this.UserPermissions = UserPermissions;
             this.logger = logger;
         }
@@ -28,14 +30,34 @@ namespace Oqtane.Controllers
         [HttpGet("{id}")]
         public PageModule Get(int id)
         {
-            return PageModules.GetPageModule(id);
+            PageModule pagemodule = PageModules.GetPageModule(id);
+            if (UserPermissions.IsAuthorized(User, "View", pagemodule.Module.Permissions))
+            {
+                return pagemodule;
+            }
+            else
+            {
+                logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access PageModule {PageModule}", pagemodule);
+                HttpContext.Response.StatusCode = 401;
+                return null;
+            }
         }
 
         // GET: api/<controller>/pageid/moduleid
         [HttpGet("{pageid}/{moduleid}")]
         public PageModule Get(int pageid, int moduleid)
         {
-            return PageModules.GetPageModule(pageid, moduleid);
+            PageModule pagemodule = PageModules.GetPageModule(pageid, moduleid);
+            if (UserPermissions.IsAuthorized(User, "View", pagemodule.Module.Permissions))
+            {
+                return pagemodule;
+            }
+            else
+            {
+                logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access PageModule {PageModule}", pagemodule);
+                HttpContext.Response.StatusCode = 401;
+                return null;
+            }
         }
 
         // POST api/<controller>
@@ -48,6 +70,12 @@ namespace Oqtane.Controllers
                 PageModule = PageModules.AddPageModule(PageModule);
                 logger.Log(LogLevel.Information, this, LogFunction.Create, "Page Module Added {PageModule}", PageModule);
             }
+            else
+            {
+                logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Add PageModule {PageModule}", PageModule);
+                HttpContext.Response.StatusCode = 401;
+                PageModule = null;
+            }
             return PageModule;
         }
 
@@ -56,10 +84,16 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public PageModule Put(int id, [FromBody] PageModule PageModule)
         {
-            if (ModelState.IsValid && UserPermissions.IsAuthorized(User, "Page", PageModule.PageId, "Edit"))
+            if (ModelState.IsValid && UserPermissions.IsAuthorized(User, "Module", PageModule.ModuleId, "Edit"))
             {
                 PageModule = PageModules.UpdatePageModule(PageModule);
                 logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Module Updated {PageModule}", PageModule);
+            }
+            else
+            {
+                logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update PageModule {PageModule}", PageModule);
+                HttpContext.Response.StatusCode = 401;
+                PageModule = null;
             }
             return PageModule;
         }
@@ -84,6 +118,11 @@ namespace Oqtane.Controllers
                 }
                 logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Module Order Updated {PageId} {Pane}", pageid, pane);
             }
+            else
+            {
+                logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Page Module Order {PageId} {Pane}", pageid, pane);
+                HttpContext.Response.StatusCode = 401;
+            }
         }
 
         // DELETE api/<controller>/5
@@ -96,6 +135,11 @@ namespace Oqtane.Controllers
             {
                 PageModules.DeletePageModule(id);
                 logger.Log(LogLevel.Information, this, LogFunction.Delete, "Page Module Deleted {PageModuleId}", id);
+            }
+            else
+            {
+                logger.Log(LogLevel.Error, this, LogFunction.Delete, "User Not Authorized To Delete PageModule {PageModuleId}", id);
+                HttpContext.Response.StatusCode = 401;
             }
         }
     }

@@ -49,6 +49,11 @@ namespace Oqtane.Services
             return await http.PostJsonAsync<Page>(apiurl, Page);
         }
 
+        public async Task<Page> AddPageAsync(int PageId, int UserId)
+        {
+            return await http.PostJsonAsync<Page>(apiurl + "/" + PageId.ToString() + "?userid=" + UserId.ToString(), null);
+        }
+
         public async Task<Page> UpdatePageAsync(Page Page)
         {
             return await http.PutJsonAsync<Page>(apiurl + "/" + Page.PageId.ToString(), Page);
@@ -92,6 +97,15 @@ namespace Oqtane.Services
             };
             Pages = Pages.OrderBy(item => item.Order).ToList();
             GetPath(Pages, null);
+
+            // add any non-hierarchical items to the end of the list
+            foreach (Page page in Pages)
+            {
+                if (hierarchy.Find(item => item.PageId == page.PageId) == null)
+                {
+                    hierarchy.Add(page);
+                }
+            }
             return hierarchy;
         }
     }

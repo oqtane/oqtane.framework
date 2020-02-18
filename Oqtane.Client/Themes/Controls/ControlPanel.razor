@@ -80,7 +80,7 @@
                                         <option value="-">&lt;Select Module&gt;</option>
                                         @foreach (var moduledefinition in moduledefinitions)
                                         {
-                                            if (moduledefinition.Permissions == "[]" || UserSecurity.IsAuthorized(PageState.User, "Utilize", moduledefinition.Permissions))
+                                            if (UserSecurity.IsAuthorized(PageState.User, "Utilize", moduledefinition.Permissions))
                                             {
                                                 <option value="@moduledefinition.ModuleDefinitionName">@moduledefinition.Name</option>
                                             }
@@ -199,6 +199,7 @@
     bool deleteconfirmation = false;
     string moduletype = "new";
     List<string> categories = new List<string>();
+    List<ModuleDefinition> ModuleDefinitions;
     List<ModuleDefinition> moduledefinitions;
     List<Page> pages = new List<Page>();
     string pageid = "";
@@ -212,7 +213,7 @@
     string display = "display: none;";
     string message = "";
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
         if (string.IsNullOrEmpty(ButtonClass))
         {
@@ -235,7 +236,8 @@
         {
             pages?.Clear();
 
-            foreach (ModuleDefinition moduledefinition in PageState.ModuleDefinitions)
+            ModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
+            foreach (ModuleDefinition moduledefinition in ModuleDefinitions)
             {
                 if (moduledefinition.Categories != "")
                 {
@@ -248,7 +250,7 @@
                     }
                 }
             }
-            moduledefinitions = PageState.ModuleDefinitions.Where(item => item.Categories == "").ToList();
+            moduledefinitions = ModuleDefinitions.Where(item => item.Categories == "").ToList();
             foreach (Page p in PageState.Pages)
             {
                 if (UserSecurity.IsAuthorized(PageState.User, "View", p.Permissions))
@@ -258,7 +260,8 @@
             }
             var panes = PageState.Page.Panes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
             pane = panes.Count() == 1 ? panes.SingleOrDefault() : "";
-            containers = ThemeService.GetContainerTypes(PageState.Themes);
+            List<Theme> themes = await ThemeService.GetThemesAsync();
+            containers = ThemeService.GetContainerTypes(themes);
             containertype = PageState.Site.DefaultContainerType;
         }
     }
@@ -268,11 +271,11 @@
         string category = (string)e.Value;
         if (category == "-")
         {
-            moduledefinitions = PageState.ModuleDefinitions.Where(item => item.Categories == "").ToList();
+            moduledefinitions = ModuleDefinitions.Where(item => item.Categories == "").ToList();
         }
         else
         {
-            moduledefinitions = PageState.ModuleDefinitions.Where(item => item.Categories.Contains(category)).ToList();
+            moduledefinitions = ModuleDefinitions.Where(item => item.Categories.Contains(category)).ToList();
         }
         moduledefinitionname = "-";
         StateHasChanged();
@@ -304,6 +307,7 @@
             {
                 Module module = new Module();
                 module.SiteId = PageState.Site.SiteId;
+                module.PageId = PageState.Page.PageId;
                 module.ModuleDefinitionName = moduledefinitionname;
                 module.Permissions = PageState.Page.Permissions;
                 module = await ModuleService.AddModuleAsync(module);
@@ -367,7 +371,7 @@
         {
             if (PageState.Page.IsPersonalizable && PageState.User != null)
             {
-                await CreatePersonalizedPage();
+                await PageService.AddPageAsync(PageState.Page.PageId, PageState.User.UserId);
                 PageState.EditMode = true;
                 NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "edit=" + ((PageState.EditMode) ? "1" : "0"), Reload.Page));
             }
@@ -456,69 +460,6 @@
         catch (Exception ex)
         {
             await logger.Log(page.PageId, null, PageState.User.UserId, this.GetType().AssemblyQualifiedName, "ControlPanel", LogFunction.Delete, LogLevel.Information, ex, "Page Deleted {Page} {Error}", page, ex.Message);
-        }
-    }
-
-    private async Task CreatePersonalizedPage()
-    {
-        Page page = new Page();
-        page.SiteId = PageState.Page.SiteId;
-        page.Name = PageState.Page.Name;
-        page.Path = PageState.Page.Path;
-        page.ParentId = PageState.Page.ParentId;
-        page.Order = 0;
-        page.IsNavigation = false;
-        page.EditMode = false;
-        page.ThemeType = PageState.Page.ThemeType;
-        if (page.ThemeType == PageState.Site.DefaultThemeType)
-        {
-            page.ThemeType = "";
-        }
-        page.LayoutType = PageState.Page.LayoutType;
-        if (page.LayoutType == PageState.Site.DefaultLayoutType)
-        {
-            page.LayoutType = "";
-        }
-        page.Icon = PageState.Page.Icon;
-        List<PermissionString> permissions = new List<PermissionString>();
-        permissions.Add(new PermissionString { PermissionName = "View", Permissions = "[" + PageState.User.UserId.ToString() + "]" });
-        permissions.Add(new PermissionString { PermissionName = "Edit", Permissions = "[" + PageState.User.UserId.ToString() + "]" });
-        page.Permissions = UserSecurity.SetPermissionStrings(permissions);
-        page.IsPersonalizable = false;
-        page.UserId = PageState.User.UserId;
-        page = await PageService.AddPageAsync(page);
-
-        // copy modules
-        foreach (Module m in PageState.Modules.Where(item => item.PageId == PageState.Page.PageId && !item.IsDeleted))
-        {
-            Module module = new Module();
-            module.SiteId = m.SiteId;
-            module.ModuleDefinitionName = m.ModuleDefinitionName;
-            permissions = new List<PermissionString>();
-            permissions.Add(new PermissionString { PermissionName = "View", Permissions = "[" + PageState.User.UserId.ToString() + "]" });
-            permissions.Add(new PermissionString { PermissionName = "Edit", Permissions = "[" + PageState.User.UserId.ToString() + "]" });
-            module.Permissions = UserSecurity.SetPermissionStrings(permissions);
-            module = await ModuleService.AddModuleAsync(module);
-
-            string content = await ModuleService.ExportModuleAsync(m.ModuleId);
-            if (content != "")
-            {
-                await ModuleService.ImportModuleAsync(module.ModuleId, content);
-            }
-
-            PageModule pagemodule = new PageModule();
-            pagemodule.PageId = page.PageId;
-            pagemodule.ModuleId = module.ModuleId;
-            pagemodule.Title = m.Title;
-            pagemodule.Pane = m.Pane;
-            pagemodule.Order = m.Order;
-            pagemodule.ContainerType = m.ContainerType;
-            if (pagemodule.ContainerType == PageState.Site.DefaultContainerType)
-            {
-                pagemodule.ContainerType = "";
-            }
-
-            await PageModuleService.AddPageModuleAsync(pagemodule);
         }
     }
 }

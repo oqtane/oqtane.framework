@@ -31,7 +31,7 @@
         {
             actions = new List<ActionViewModel>();
             actions.Add(new ActionViewModel { Action = "settings", Name = "Manage Settings" });
-            if (ModuleDefinition.ServerAssemblyName != "")
+            if (ModuleState.ModuleDefinition.ServerAssemblyName != "")
             {
                 actions.Add(new ActionViewModel { Action = "import", Name = "Import Content" });
                 actions.Add(new ActionViewModel { Action = "export", Name = "Export Content" });

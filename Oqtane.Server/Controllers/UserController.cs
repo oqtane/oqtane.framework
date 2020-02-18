@@ -44,6 +44,7 @@ namespace Oqtane.Controllers
 
         // GET api/<controller>/5?siteid=x
         [HttpGet("{id}")]
+        [Authorize]
         public User Get(int id, string siteid)
         {
             User user = Users.GetUser(id);
@@ -172,18 +173,27 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (User.Password != "")
+                if (base.User.IsInRole(Constants.AdminRole) || base.User.Identity.Name == User.Username)
                 {
-                    IdentityUser identityuser = await IdentityUserManager.FindByNameAsync(User.Username);
-                    if (identityuser != null)
+                    if (User.Password != "")
                     {
-                        identityuser.PasswordHash = IdentityUserManager.PasswordHasher.HashPassword(identityuser, User.Password);
-                        await IdentityUserManager.UpdateAsync(identityuser);
+                        IdentityUser identityuser = await IdentityUserManager.FindByNameAsync(User.Username);
+                        if (identityuser != null)
+                        {
+                            identityuser.PasswordHash = IdentityUserManager.PasswordHasher.HashPassword(identityuser, User.Password);
+                            await IdentityUserManager.UpdateAsync(identityuser);
+                        }
                     }
+                    User = Users.UpdateUser(User);
+                    User.Password = ""; // remove sensitive information
+                    logger.Log(LogLevel.Information, this, LogFunction.Update, "User Updated {User}", User);
                 }
-                User = Users.UpdateUser(User);
-                User.Password = ""; // remove sensitive information
-                logger.Log(LogLevel.Information, this, LogFunction.Update, "User Updated {User}", User);
+                else
+                {
+                    logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update User {User}", User);
+                    HttpContext.Response.StatusCode = 401;
+                    User = null;
+                }
             }
             return User;
         }

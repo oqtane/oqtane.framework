@@ -30,6 +30,10 @@ namespace Oqtane.Services
 
         Task UpdateUserSettingsAsync(Dictionary<string, string> UserSettings, int UserId);
 
+        Task<Dictionary<string, string>> GetFolderSettingsAsync(int FolderId);
+
+        Task UpdateFolderSettingsAsync(Dictionary<string, string> FolderSettings, int FolderId);
+
         Task<Dictionary<string, string>> GetSettingsAsync(string EntityName, int EntityId);
 
         Task UpdateSettingsAsync(Dictionary<string, string> Settings, string EntityName, int EntityId);

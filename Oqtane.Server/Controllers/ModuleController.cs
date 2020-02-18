@@ -6,10 +6,6 @@ using Oqtane.Models;
 using Oqtane.Shared;
 using System.Linq;
 using System.Reflection;
-using System;
-using Oqtane.Modules;
-using Microsoft.Extensions.DependencyInjection;
-using System.Text.Json;
 using Oqtane.Infrastructure;
 using Oqtane.Security;
 
@@ -21,16 +17,14 @@ namespace Oqtane.Controllers
         private readonly IModuleRepository Modules;
         private readonly IPageModuleRepository PageModules;
         private readonly IModuleDefinitionRepository ModuleDefinitions;
-        private readonly IServiceProvider ServiceProvider;
         private readonly IUserPermissions UserPermissions;
         private readonly ILogManager logger;
 
-        public ModuleController(IModuleRepository Modules, IPageModuleRepository PageModules, IModuleDefinitionRepository ModuleDefinitions, IServiceProvider ServiceProvider, IUserPermissions UserPermissions, ILogManager logger)
+        public ModuleController(IModuleRepository Modules, IPageModuleRepository PageModules, IModuleDefinitionRepository ModuleDefinitions, IUserPermissions UserPermissions, ILogManager logger)
         {
             this.Modules = Modules;
             this.PageModules = PageModules;
             this.ModuleDefinitions = ModuleDefinitions;
-            this.ServiceProvider = ServiceProvider;
             this.UserPermissions = UserPermissions;
             this.logger = logger;
         }
@@ -39,36 +33,55 @@ namespace Oqtane.Controllers
         [HttpGet]
         public IEnumerable<Models.Module> Get(string siteid)
         {
-            List<Models.Module> modulelist = new List<Models.Module>();
+            List<ModuleDefinition> moduledefinitions = ModuleDefinitions.GetModuleDefinitions(int.Parse(siteid)).ToList();
+            List<Models.Module> modules = new List<Models.Module>();
             foreach (PageModule pagemodule in PageModules.GetPageModules(int.Parse(siteid)))
             {
-                Models.Module module = new Models.Module();
-                module.SiteId = pagemodule.Module.SiteId;
-                module.ModuleDefinitionName = pagemodule.Module.ModuleDefinitionName;
-                module.Permissions = pagemodule.Module.Permissions;
-                module.CreatedBy = pagemodule.Module.CreatedBy;
-                module.CreatedOn = pagemodule.Module.CreatedOn;
-                module.ModifiedBy = pagemodule.Module.ModifiedBy;
-                module.ModifiedOn = pagemodule.Module.ModifiedOn;
-                module.IsDeleted = pagemodule.IsDeleted;
+                if (UserPermissions.IsAuthorized(User, "View", pagemodule.Module.Permissions))
+                {
+                    Models.Module module = new Models.Module();
+                    module.SiteId = pagemodule.Module.SiteId;
+                    module.ModuleDefinitionName = pagemodule.Module.ModuleDefinitionName;
+                    module.Permissions = pagemodule.Module.Permissions;
+                    module.CreatedBy = pagemodule.Module.CreatedBy;
+                    module.CreatedOn = pagemodule.Module.CreatedOn;
+                    module.ModifiedBy = pagemodule.Module.ModifiedBy;
+                    module.ModifiedOn = pagemodule.Module.ModifiedOn;
+                    module.IsDeleted = pagemodule.IsDeleted;
 
-                module.PageModuleId = pagemodule.PageModuleId;
-                module.ModuleId = pagemodule.ModuleId;
-                module.PageId = pagemodule.PageId;
-                module.Title = pagemodule.Title;
-                module.Pane = pagemodule.Pane;
-                module.Order = pagemodule.Order;
-                module.ContainerType = pagemodule.ContainerType;
-                modulelist.Add(module);
+                    module.PageModuleId = pagemodule.PageModuleId;
+                    module.ModuleId = pagemodule.ModuleId;
+                    module.PageId = pagemodule.PageId;
+                    module.Title = pagemodule.Title;
+                    module.Pane = pagemodule.Pane;
+                    module.Order = pagemodule.Order;
+                    module.ContainerType = pagemodule.ContainerType;
+
+                    module.ModuleDefinition = moduledefinitions.Find(item => item.ModuleDefinitionName == module.ModuleDefinitionName);
+
+                    modules.Add(module);
+                }
             }
-            return modulelist;
+            return modules;
         }
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
         public Models.Module Get(int id)
         {
-            return Modules.GetModule(id);
+            Models.Module module = Modules.GetModule(id);
+            if (UserPermissions.IsAuthorized(User, "View", module.Permissions))
+            {
+                List<ModuleDefinition> moduledefinitions = ModuleDefinitions.GetModuleDefinitions(module.SiteId).ToList();
+                module.ModuleDefinition = moduledefinitions.Find(item => item.ModuleDefinitionName == module.ModuleDefinitionName);
+                return module;
+            }
+            else
+            {
+                logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Module {Module}", module);
+                HttpContext.Response.StatusCode = 401;
+                return null;
+            }
         }
 
         // POST api/<controller>
@@ -76,10 +89,16 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public Models.Module Post([FromBody] Models.Module Module)
         {
-            if (ModelState.IsValid && UserPermissions.IsAuthorized(User, "Edit", Module.Permissions))
+            if (ModelState.IsValid && UserPermissions.IsAuthorized(User, "Page", Module.PageId, "Edit"))
             {
                 Module = Modules.AddModule(Module);
                 logger.Log(LogLevel.Information, this, LogFunction.Create, "Module Added {Module}", Module);
+            }
+            else
+            {
+                logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Add Module {Module}", Module);
+                HttpContext.Response.StatusCode = 401;
+                Module = null;
             }
             return Module;
         }
@@ -94,6 +113,12 @@ namespace Oqtane.Controllers
                 Module = Modules.UpdateModule(Module);
                 logger.Log(LogLevel.Information, this, LogFunction.Update, "Module Updated {Module}", Module);
             }
+            else
+            {
+                logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Module {Module}", Module);
+                HttpContext.Response.StatusCode = 401;
+                Module = null;
+            }
             return Module;
         }
 
@@ -107,6 +132,11 @@ namespace Oqtane.Controllers
                 Modules.DeleteModule(id);
                 logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Deleted {ModuleId}", id);
             }
+            else
+            {
+                logger.Log(LogLevel.Error, this, LogFunction.Delete, "User Not Authorized To Delete Module {ModuleId}", id);
+                HttpContext.Response.StatusCode = 401;
+            }
         }
 
         // GET api/<controller>/export?moduleid=x
@@ -115,48 +145,14 @@ namespace Oqtane.Controllers
         public string Export(int moduleid)
         {
             string content = "";
-            if (UserPermissions.IsAuthorized(User, "Module", moduleid, "View"))
+            if (UserPermissions.IsAuthorized(User, "Module", moduleid, "Edit"))
             {
-                try
-                {
-                    Models.Module module = Modules.GetModule(moduleid);
-                    if (module != null)
-                    {
-                        List<ModuleDefinition> moduledefinitions = ModuleDefinitions.GetModuleDefinitions(module.SiteId).ToList();
-                        ModuleDefinition moduledefinition = moduledefinitions.Where(item => item.ModuleDefinitionName == module.ModuleDefinitionName).FirstOrDefault();
-                        if (moduledefinition != null)
-                        {
-                            ModuleContent modulecontent = new ModuleContent();
-                            modulecontent.ModuleDefinitionName = moduledefinition.ModuleDefinitionName;
-                            modulecontent.Version = moduledefinition.Version;
-                            modulecontent.Content = "";
-
-                            if (moduledefinition.ServerAssemblyName != "")
-                            {
-                                Assembly assembly = AppDomain.CurrentDomain.GetAssemblies()
-                                    .Where(item => item.FullName.StartsWith(moduledefinition.ServerAssemblyName)).FirstOrDefault();
-                                if (assembly != null)
-                                {
-                                    Type moduletype = assembly.GetTypes()
-                                        .Where(item => item.Namespace != null)
-                                        .Where(item => item.Namespace.StartsWith(moduledefinition.ModuleDefinitionName.Substring(0, moduledefinition.ModuleDefinitionName.IndexOf(","))))
-                                        .Where(item => item.GetInterfaces().Contains(typeof(IPortable))).FirstOrDefault();
-                                    if (moduletype != null)
-                                    {
-                                        var moduleobject = ActivatorUtilities.CreateInstance(ServiceProvider, moduletype);
-                                        modulecontent.Content = ((IPortable)moduleobject).ExportModule(module);
-                                    }
-                                }
-                            }
-                            content = JsonSerializer.Serialize(modulecontent);
-                            logger.Log(LogLevel.Information, this, LogFunction.Read, "Module Content Exported {ModuleId}", moduleid);
-                        }
-                    }
-                }
-                catch
-                {
-                    // error occurred during export
-                }
+                content = Modules.ExportModule(moduleid);
+            }
+            else
+            {
+                logger.Log(LogLevel.Error, this, LogFunction.Other, "User Not Authorized To Export Module {ModuleId}", moduleid);
+                HttpContext.Response.StatusCode = 401;
             }
             return content;
         }
@@ -169,45 +165,12 @@ namespace Oqtane.Controllers
             bool success = false;
             if (ModelState.IsValid && UserPermissions.IsAuthorized(User, "Module", moduleid, "Edit"))
             {
-                try
-                {
-                    Models.Module module = Modules.GetModule(moduleid);
-                    if (module != null)
-                    {
-                        List<ModuleDefinition> moduledefinitions = ModuleDefinitions.GetModuleDefinitions(module.SiteId).ToList();
-                        ModuleDefinition moduledefinition = moduledefinitions.Where(item => item.ModuleDefinitionName == module.ModuleDefinitionName).FirstOrDefault();
-                        if (moduledefinition != null)
-                        {
-                            ModuleContent modulecontent = JsonSerializer.Deserialize<ModuleContent>(Content);
-                            if (modulecontent.ModuleDefinitionName == moduledefinition.ModuleDefinitionName)
-                            {
-                                if (moduledefinition.ServerAssemblyName != "")
-                                {
-                                    Assembly assembly = AppDomain.CurrentDomain.GetAssemblies()
-                                        .Where(item => item.FullName.StartsWith(moduledefinition.ServerAssemblyName)).FirstOrDefault();
-                                    if (assembly != null)
-                                    {
-                                        Type moduletype = assembly.GetTypes()
-                                            .Where(item => item.Namespace != null)
-                                            .Where(item => item.Namespace.StartsWith(moduledefinition.ModuleDefinitionName.Substring(0, moduledefinition.ModuleDefinitionName.IndexOf(","))))
-                                            .Where(item => item.GetInterfaces().Contains(typeof(IPortable))).FirstOrDefault();
-                                        if (moduletype != null)
-                                        {
-                                            var moduleobject = ActivatorUtilities.CreateInstance(ServiceProvider, moduletype);
-                                            ((IPortable)moduleobject).ImportModule(module, modulecontent.Content, modulecontent.Version);
-                                            success = true;
-                                            logger.Log(LogLevel.Information, this, LogFunction.Update, "Module Content Imported {ModuleId}", moduleid);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                catch
-                {
-                    // error occurred during import
-                }
+                success = Modules.ImportModule(moduleid, Content);
+            }
+            else
+            {
+                logger.Log(LogLevel.Error, this, LogFunction.Other, "User Not Authorized To Import Module {ModuleId}", moduleid);
+                HttpContext.Response.StatusCode = 401;
             }
             return success;
         }

@@ -9,6 +9,7 @@ using System.IO;
 using System.Reflection;
 using System.Linq;
 using Microsoft.AspNetCore.Hosting;
+using Oqtane.Security;
 
 namespace Oqtane.Controllers
 {
@@ -16,13 +17,15 @@ namespace Oqtane.Controllers
     public class ModuleDefinitionController : Controller
     {
         private readonly IModuleDefinitionRepository ModuleDefinitions;
+        private readonly IUserPermissions UserPermissions;
         private readonly IInstallationManager InstallationManager;
         private readonly IWebHostEnvironment environment;
         private readonly ILogManager logger;
 
-        public ModuleDefinitionController(IModuleDefinitionRepository ModuleDefinitions, IInstallationManager InstallationManager, IWebHostEnvironment environment, ILogManager logger)
+        public ModuleDefinitionController(IModuleDefinitionRepository ModuleDefinitions, IUserPermissions UserPermissions, IInstallationManager InstallationManager, IWebHostEnvironment environment, ILogManager logger)
         {
             this.ModuleDefinitions = ModuleDefinitions;
+            this.UserPermissions = UserPermissions;
             this.InstallationManager = InstallationManager;
             this.environment = environment;
             this.logger = logger;
@@ -32,8 +35,34 @@ namespace Oqtane.Controllers
         [HttpGet]
         public IEnumerable<ModuleDefinition> Get(int siteid)
         {
-            return ModuleDefinitions.GetModuleDefinitions(siteid);
+            List<ModuleDefinition> moduledefinitions = new List<ModuleDefinition>();
+            foreach(ModuleDefinition moduledefinition in ModuleDefinitions.GetModuleDefinitions(siteid))
+            {
+                if (UserPermissions.IsAuthorized(User, "Utilize", moduledefinition.Permissions))
+                {
+                    moduledefinitions.Add(moduledefinition);
+                }
+            }
+            return moduledefinitions;
         }
+
+        // GET api/<controller>/5?siteid=x
+        [HttpGet("{id}")]
+        public ModuleDefinition Get(int id, string siteid)
+        {
+            ModuleDefinition moduledefinition = ModuleDefinitions.GetModuleDefinition(id, int.Parse(siteid));
+            if (UserPermissions.IsAuthorized(User, "Utilize", moduledefinition.Permissions))
+            {
+                return moduledefinition;
+            }
+            else
+            {
+                logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access ModuleDefinition {ModuleDefinition}", moduledefinition);
+                HttpContext.Response.StatusCode = 401;
+                return null;
+            }
+        }
+
 
         // GET api/<controller>/filename
         [HttpGet("{filename}")]
@@ -93,5 +122,6 @@ namespace Oqtane.Controllers
                 InstallationManager.RestartApplication();
             }
         }
+
     }
 }

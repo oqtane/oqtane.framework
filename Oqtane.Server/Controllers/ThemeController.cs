@@ -30,6 +30,7 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>
         [HttpGet]
+        [Authorize(Roles = Constants.RegisteredRole)]
         public IEnumerable<Theme> Get()
         {
             return Themes.GetThemes();

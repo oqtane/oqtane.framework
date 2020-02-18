@@ -29,13 +29,6 @@ namespace Oqtane.Modules
         [CascadingParameter] 
         protected ModuleInstance ModuleInstance { get; set; }
 
-        protected ModuleDefinition ModuleDefinition
-        {
-            get
-            {
-                return PageState.ModuleDefinitions.Where(item => item.ModuleDefinitionName == ModuleState.ModuleDefinitionName).FirstOrDefault();
-            }
-        }
 
         // optional interface properties
         public virtual SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.View; } set { } } // default security

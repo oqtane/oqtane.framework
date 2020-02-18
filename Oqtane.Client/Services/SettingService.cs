@@ -86,6 +86,16 @@ namespace Oqtane.Services
             await UpdateSettingsAsync(UserSettings, "User", UserId);
         }
 
+        public async Task<Dictionary<string, string>> GetFolderSettingsAsync(int FolderId)
+        {
+            return await GetSettingsAsync("Folder", FolderId);
+        }
+
+        public async Task UpdateFolderSettingsAsync(Dictionary<string, string> FolderSettings, int FolderId)
+        {
+            await UpdateSettingsAsync(FolderSettings, "Folder", FolderId);
+        }
+
         public async Task<Dictionary<string, string>> GetSettingsAsync(string EntityName, int EntityId)
         {
             Dictionary<string, string> dictionary = new Dictionary<string, string>();

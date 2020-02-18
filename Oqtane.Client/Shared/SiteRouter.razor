@@ -10,7 +10,6 @@
 @inject IUserService UserService
 @inject IModuleService ModuleService
 @inject IModuleDefinitionService ModuleDefinitionService
-@inject IThemeService ThemeService
 @implements IHandleAfterRender
 
 @DynamicComponent
@@ -67,9 +66,6 @@
 
     private async Task Refresh()
     {
-        List<ModuleDefinition> moduledefinitions;
-        List<Models.Theme> themes;
-        List<Alias> aliases;
         Alias alias;
         Site site;
         List<Page> pages;
@@ -107,21 +103,18 @@
 
         if (PageState == null || reload == Reload.Application)
         {
-            themes = await ThemeService.GetThemesAsync();
-            aliases = await AliasService.GetAliasesAsync();
             alias = null;
         }
         else
         {
-            themes = PageState.Themes;
-            aliases = PageState.Aliases;
             alias = PageState.Alias;
         }
 
         // check if site has changed
-        if (alias == null || GetAlias(_absoluteUri, aliases).Name != alias.Name)
+        Alias current = await AliasService.GetAliasAsync(_absoluteUri);
+        if (alias == null || current.Name != alias.Name)
         {
-            alias = GetAlias(_absoluteUri, aliases);
+            alias = current;
             SiteState.Alias = alias; // set state for services
             reload = Reload.Site;
         }
@@ -137,12 +130,13 @@
         {
             if (PageState == null || reload >= Reload.Site)
             {
-                moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(site.SiteId);
+#if WASM
+                ModuleDefinitionService.LoadModuleDefinitionsAsync(site.SiteId); // download assemblies to browser when running client-side
+#endif
                 pages = await PageService.GetPagesAsync(site.SiteId);
             }
             else
             {
-                moduledefinitions = PageState.ModuleDefinitions;
                 pages = PageState.Pages;
             }
 
@@ -192,7 +186,7 @@
             }
 
             // check if page has changed
-            if (page.Path != path)
+            if (page != null && page.Path != path)
             {
                 page = pages.Where(item => item.Path == path).FirstOrDefault();
                 reload = Reload.Page;
@@ -226,9 +220,6 @@
                     page = await ProcessPage(page, site, user);
 
                     pagestate = new PageState();
-                    pagestate.ModuleDefinitions = moduledefinitions;
-                    pagestate.Themes = themes;
-                    pagestate.Aliases = aliases;
                     pagestate.Alias = alias;
                     pagestate.Site = site;
                     pagestate.Pages = pages;
@@ -247,7 +238,7 @@
                     if (PageState == null || reload >= Reload.Page)
                     {
                         modules = await ModuleService.GetModulesAsync(site.SiteId);
-                        modules = ProcessModules(modules, moduledefinitions, page.PageId, pagestate.ModuleId, pagestate.Action, page.Panes, site.DefaultContainerType);
+                        modules = ProcessModules(modules, page.PageId, pagestate.ModuleId, pagestate.Action, page.Panes, site.DefaultContainerType);
                     }
                     else
                     {
@@ -270,7 +261,10 @@
             else
             {
                 // page does not exist
-                NavigationManager.NavigateTo("");
+                if (path != "")
+                {
+                    NavigationManager.NavigateTo("");
+                }
             }
         }
         else
@@ -353,58 +347,52 @@
         return page;
     }
 
-    private List<Module> ProcessModules(List<Module> modules, List<ModuleDefinition> moduledefinitions, int pageid, int moduleid, string control, string panes, string defaultcontainertype)
+    private List<Module> ProcessModules(List<Module> modules, int pageid, int moduleid, string control, string panes, string defaultcontainertype)
     {
-        ModuleDefinition moduledefinition;
         Dictionary<string, int> paneindex = new Dictionary<string, int>();
         foreach (Module module in modules)
         {
-            // set the type based on the template and action
-            moduledefinition = moduledefinitions.Where(item => item.ModuleDefinitionName == module.ModuleDefinitionName).FirstOrDefault();
-            if (moduledefinition != null)
+            string typename = module.ModuleDefinition.ControlTypeTemplate;
+            if (module.ModuleId == moduleid && control != "")
             {
-                string typename = moduledefinition.ControlTypeTemplate;
-                if (module.ModuleId == moduleid && control != "")
+                // check if the module defines custom routes
+                if (module.ModuleDefinition.ControlTypeRoutes != "")
                 {
-                    // check if the module defines custom routes
-                    if (moduledefinition.ControlTypeRoutes != "")
+                    foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
                     {
-                        foreach (string route in moduledefinition.ControlTypeRoutes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                        if (route.StartsWith(control + "="))
                         {
-                            if (route.StartsWith(control + "="))
-                            {
-                                typename = route.Replace(control + "=", "");
-                            }
-                        }
-                    }
-                    module.ModuleType = typename.Replace(Constants.ActionToken, control);
-
-                    // admin controls need to load additional metadata from the IModuleControl interface
-                    if (moduleid == module.ModuleId)
-                    {
-                        typename = module.ModuleType;
-                        // check for core module actions component
-                        if (Constants.DefaultModuleActions.Contains(control))
-                        {
-                            typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, control);
-                        }
-                        Type moduletype = Type.GetType(typename);
-                        if (moduletype != null)
-                        {
-                            var moduleobject = Activator.CreateInstance(moduletype);
-                            module.SecurityAccessLevel = (SecurityAccessLevel)moduletype.GetProperty("SecurityAccessLevel").GetValue(moduleobject, null);
-                            module.ControlTitle = (string)moduletype.GetProperty("Title").GetValue(moduleobject);
-                            module.Actions = (string)moduletype.GetProperty("Actions").GetValue(moduleobject);
-                            module.UseAdminContainer = (bool)moduletype.GetProperty("UseAdminContainer").GetValue(moduleobject);
+                            typename = route.Replace(control + "=", "");
                         }
                     }
                 }
-                else
-                {
-                    module.ModuleType = typename.Replace(Constants.ActionToken, Constants.DefaultAction);
-                }
+                module.ModuleType = typename.Replace(Constants.ActionToken, control);
 
+                // admin controls need to load additional metadata from the IModuleControl interface
+                if (moduleid == module.ModuleId)
+                {
+                    typename = module.ModuleType;
+                    // check for core module actions component
+                    if (Constants.DefaultModuleActions.Contains(control))
+                    {
+                        typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, control);
+                    }
+                    Type moduletype = Type.GetType(typename);
+                    if (moduletype != null)
+                    {
+                        var moduleobject = Activator.CreateInstance(moduletype);
+                        module.SecurityAccessLevel = (SecurityAccessLevel)moduletype.GetProperty("SecurityAccessLevel").GetValue(moduleobject, null);
+                        module.ControlTitle = (string)moduletype.GetProperty("Title").GetValue(moduleobject);
+                        module.Actions = (string)moduletype.GetProperty("Actions").GetValue(moduleobject);
+                        module.UseAdminContainer = (bool)moduletype.GetProperty("UseAdminContainer").GetValue(moduleobject);
+                    }
+                }
             }
+            else
+            {
+                module.ModuleType = typename.Replace(Constants.ActionToken, Constants.DefaultAction);
+            }
+
 
             if (module.PageId == pageid)
             {
@@ -440,33 +428,6 @@
             }
         }
         return modules;
-    }
-
-    private Alias GetAlias(string absoluteUri, List<Alias> aliases)
-    {
-
-        string aliasname;
-        Alias alias = null;
-        Uri uri = new Uri(absoluteUri);
-
-        if (uri.Segments.Count() > 1)
-        {
-            // check if first path segment is an alias ( ie. a subfolder - www.domain.com/subfolder )
-            aliasname = uri.Authority + "/" + uri.Segments[1];
-            if (aliasname.EndsWith("/")) { aliasname = aliasname.Substring(0, aliasname.Length - 1); }
-            alias = aliases.Where(item => item.Name == aliasname).FirstOrDefault();
-        }
-        if (alias == null)
-        {
-            aliasname = uri.Authority;
-            alias = aliases.Where(item => item.Name == aliasname).FirstOrDefault();
-        }
-        if (alias == null && aliases.Count > 0)
-        {
-            // use first alias if Uri does not exist
-            alias = aliases.FirstOrDefault();
-        }
-        return alias;
     }
 
 }

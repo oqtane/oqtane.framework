@@ -157,6 +157,7 @@
     Dictionary<string, string> panelayouts;
     Dictionary<string, string> containers;
 
+    List<Theme> Themes;
     Alias Alias;
     int siteid;
     string name = "";
@@ -186,14 +187,15 @@
     {
         try
         {
-            Alias = PageState.Aliases.Where(item => item.AliasId == Int32.Parse(PageState.QueryString["id"])).FirstOrDefault();
+            Themes = await ThemeService.GetThemesAsync();
+            aliases = await AliasService.GetAliasesAsync();
+            Alias = aliases.Where(item => item.AliasId == int.Parse(PageState.QueryString["id"])).FirstOrDefault();
             siteid = Alias.SiteId;
             Site site = await SiteService.GetSiteAsync(siteid, Alias);
             if (site != null)
             {
                 name = site.Name;
-                aliases = PageState.Aliases.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList();
-                foreach (Alias alias in aliases)
+                foreach (Alias alias in aliases.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
                 {
                     urls += alias.Name + "\n";
                 }
@@ -202,7 +204,7 @@
                     logofileid = site.LogoFileId.Value;
                 }
                 themetype = site.DefaultThemeType;
-                panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes, themetype);
+                panelayouts = ThemeService.GetPaneLayoutTypes(Themes, themetype);
                 layouttype = site.DefaultLayoutType;
                 containertype = site.DefaultContainerType;
 
@@ -222,8 +224,8 @@
                 isdeleted = site.IsDeleted.ToString();
             }
 
-            themes = ThemeService.GetThemeTypes(PageState.Themes);
-            containers = ThemeService.GetContainerTypes(PageState.Themes);
+            themes = ThemeService.GetThemeTypes(Themes);
+            containers = ThemeService.GetContainerTypes(Themes);
         }
         catch (Exception ex)
         {
@@ -239,7 +241,7 @@
             themetype = (string)e.Value;
             if (themetype != "")
             {
-                panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes, themetype);
+                panelayouts = ThemeService.GetPaneLayoutTypes(Themes, themetype);
             }
             else
             {

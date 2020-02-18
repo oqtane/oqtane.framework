@@ -30,8 +30,34 @@ namespace Oqtane.Services
 
         public async Task<List<ModuleDefinition>> GetModuleDefinitionsAsync(int SiteId)
         {
-            // get list of modules from the server
             List<ModuleDefinition> moduledefinitions = await http.GetJsonAsync<List<ModuleDefinition>>(apiurl + "?siteid=" + SiteId.ToString());
+            return moduledefinitions.OrderBy(item => item.Name).ToList();
+        }
+
+        public async Task<ModuleDefinition> GetModuleDefinitionAsync(int ModuleDefinitionId, int SiteId)
+        {
+            return await http.GetJsonAsync<ModuleDefinition>(apiurl + "/" + ModuleDefinitionId.ToString() + "?siteid=" + SiteId.ToString());
+        }
+
+        public async Task UpdateModuleDefinitionAsync(ModuleDefinition ModuleDefinition)
+        {
+            await http.PutJsonAsync(apiurl + "/" + ModuleDefinition.ModuleDefinitionId.ToString(), ModuleDefinition);
+        }
+
+        public async Task InstallModuleDefinitionsAsync()
+        {
+            await http.GetJsonAsync<List<string>>(apiurl + "/install");
+        }
+
+        public async Task DeleteModuleDefinitionAsync(int ModuleDefinitionId, int SiteId)
+        {
+            await http.DeleteAsync(apiurl + "/" + ModuleDefinitionId.ToString() + "?siteid=" + SiteId.ToString());
+        }
+
+        public async Task LoadModuleDefinitionsAsync(int SiteId)
+        {
+            // get list of modules from the server
+            List<ModuleDefinition> moduledefinitions = await GetModuleDefinitionsAsync(SiteId);
 
             // get list of loaded assemblies on the client ( in the client-side hosting module the browser client has its own app domain )
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -60,23 +86,6 @@ namespace Oqtane.Services
                     Assembly.Load(bytes);
                 }
             }
-
-            return moduledefinitions.OrderBy(item => item.Name).ToList();
-        }
-
-        public async Task UpdateModuleDefinitionAsync(ModuleDefinition ModuleDefinition)
-        {
-            await http.PutJsonAsync(apiurl + "/" + ModuleDefinition.ModuleDefinitionId.ToString(), ModuleDefinition);
-        }
-
-        public async Task InstallModuleDefinitionsAsync()
-        {
-            await http.GetJsonAsync<List<string>>(apiurl + "/install");
-        }
-
-        public async Task DeleteModuleDefinitionAsync(int ModuleDefinitionId, int SiteId)
-        {
-            await http.DeleteAsync(apiurl + "/" + ModuleDefinitionId.ToString() + "?siteid=" + SiteId.ToString());
         }
     }
 }

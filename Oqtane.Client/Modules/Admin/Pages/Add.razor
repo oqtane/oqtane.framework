@@ -148,6 +148,7 @@
     Dictionary<string, string> themes = new Dictionary<string, string>();
     Dictionary<string, string> panelayouts = new Dictionary<string, string>();
 
+    List<Theme> Themes;
     List<Page> pages;
     string name;
     string path = "";
@@ -169,13 +170,14 @@
     {
         try
         {
+            Themes = await ThemeService.GetThemesAsync();
             pages = PageState.Pages;
             children = PageState.Pages.Where(item => item.ParentId == null).ToList();
 
-            themes = ThemeService.GetThemeTypes(PageState.Themes);
+            themes = ThemeService.GetThemeTypes(Themes);
             themetype = PageState.Site.DefaultThemeType;
 
-            panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes, themetype);
+            panelayouts = ThemeService.GetPaneLayoutTypes(Themes, themetype);
             layouttype = PageState.Site.DefaultLayoutType;
 
             List<PermissionString> permissionstrings = new List<PermissionString>();
@@ -219,7 +221,7 @@
             themetype = (string)e.Value;
             if (themetype != "")
             {
-                panelayouts = ThemeService.GetPaneLayoutTypes(PageState.Themes, themetype);
+                panelayouts = ThemeService.GetPaneLayoutTypes(Themes, themetype);
             }
             else
             {

@@ -29,6 +29,7 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>
         [HttpGet]
+        [Authorize(Roles = Constants.HostRole)]
         public IEnumerable<Site> Get()
         {
             return Sites.GetSites();
