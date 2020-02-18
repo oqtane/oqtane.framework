@@ -5,8 +5,8 @@ using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
 using Oqtane.Infrastructure;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using Oqtane.Security;
 
 namespace Oqtane.Controllers
 {
@@ -14,13 +14,13 @@ namespace Oqtane.Controllers
     public class NotificationController : Controller
     {
         private readonly INotificationRepository Notifications;
-        private readonly IHttpContextAccessor Accessor;
+        private readonly IUserPermissions UserPermissions;
         private readonly ILogManager logger;
 
-        public NotificationController(INotificationRepository Notifications, IHttpContextAccessor Accessor, ILogManager logger)
+        public NotificationController(INotificationRepository Notifications, IUserPermissions UserPermissions, ILogManager logger)
         {
             this.Notifications = Notifications;
-            this.Accessor = Accessor;
+            this.UserPermissions = UserPermissions;
             this.logger = logger;
         }
 
@@ -101,7 +101,7 @@ namespace Oqtane.Controllers
             bool authorized = true;
             if (userid != null)
             {
-                authorized = (int.Parse(Accessor.HttpContext.User.FindFirst(ClaimTypes.PrimarySid).Value) == userid);
+                authorized = (UserPermissions.GetUser(User).UserId == userid);
             }
             return authorized;
         }

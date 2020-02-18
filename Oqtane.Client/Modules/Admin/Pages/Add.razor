@@ -4,6 +4,8 @@
 @inject IPageService PageService
 @inject IThemeService  ThemeService
 
+@if (Themes != null)
+{
     <table class="table table-borderless">
         <tr>
             <td>
@@ -139,8 +141,9 @@
             </td>
         </tr>
     </table>
-<button type="button" class="btn btn-success" @onclick="SavePage">Save</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <button type="button" class="btn btn-success" @onclick="SavePage">Save</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+}
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
