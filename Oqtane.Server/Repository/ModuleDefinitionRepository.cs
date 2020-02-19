@@ -159,7 +159,7 @@ namespace Oqtane.Repository
                                 ControlTypeTemplate = ModuleType + "." + Constants.ActionToken + ", " + typename[1],
                                 ControlTypeRoutes = "",
                                 AssemblyName = assembly.FullName.Split(",")[0],
-                                Permissions = "[{\"PermissionName\":\"Utilize\",\"Permissions\":\"Administrators\"}]"
+                                Permissions = ""
                             };
                         }
                         else
@@ -181,13 +181,17 @@ namespace Oqtane.Repository
                                 ControlTypeTemplate = ModuleType + "." + Constants.ActionToken + ", " + typename[1],
                                 ControlTypeRoutes = "",
                                 AssemblyName = assembly.FullName.Split(",")[0],
-                                Permissions = "[{\"PermissionName\":\"Utilize\",\"Permissions\":\"" + Constants.AdminRole + "\"}]"
+                                Permissions = ""
                             };
-                            // make non-admin modules available by default to registered users on personalized pages
-                            if (moduledefinition.Categories != "Admin")
-                            {
-                                moduledefinition.Permissions = "[{\"PermissionName\":\"Utilize\",\"Permissions\":\"" + Constants.AdminRole + ";" + Constants.RegisteredRole + "\"}]";
-                            }
+                        }
+                        // permissions
+                        if (moduledefinition.Categories == "Admin")
+                        {
+                            moduledefinition.Permissions = "[{\"PermissionName\":\"Utilize\",\"Permissions\":\"" + Constants.AdminRole + "\"}]";
+                        }
+                        else
+                        {
+                            moduledefinition.Permissions = "[{\"PermissionName\":\"Utilize\",\"Permissions\":\"" + Constants.AdminRole + ";" + Constants.RegisteredRole + "\"}]";
                         }
                         moduledefinitions.Add(moduledefinition);
                         index = moduledefinitions.FindIndex(item => item.ModuleDefinitionName == QualifiedModuleType);
