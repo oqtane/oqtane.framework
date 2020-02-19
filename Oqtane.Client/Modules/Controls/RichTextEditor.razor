@@ -2,6 +2,15 @@
 @inherits ModuleBase
 @inject IJSRuntime JSRuntime
 
+@if (filemanagervisible)
+{
+    <FileManager @ref="filemanager" Filter=".jpg,.jpeg,.jpe,.gif,.png" />
+    @((MarkupString)@message)
+}
+<div class="row justify-content-center">
+    <button type="button" class="btn btn-success" @onclick="InsertImage">Insert Image</button>
+</div>
+<br />
 <div @ref="@ToolBar">
     @ToolbarContent
 </div>
@@ -13,26 +22,24 @@
     public RenderFragment ToolbarContent { get; set; }
 
     [Parameter]
-    public bool ReadOnly { get; set; }
-        = false;
+    public bool ReadOnly { get; set; } = false;
 
     [Parameter]
-    public string Placeholder { get; set; }
-        = "Compose an epic...";
+    public string Placeholder { get; set; } = "Enter Your Content...";
 
     [Parameter]
-    public string Theme { get; set; }
-        = "snow";
+    public string Theme { get; set; } = "snow";
 
     [Parameter]
-    public string DebugLevel { get; set; }
-        = "info";
+    public string DebugLevel { get; set; } = "info";
 
     private ElementReference EditorElement;
     private ElementReference ToolBar;
+    bool filemanagervisible = false;
+    FileManager filemanager;
+    string message = "";
 
-    protected override async Task
-        OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
@@ -82,10 +89,29 @@
             EditorElement, mode);
     }
 
-    public async Task InsertImage(string ImageURL)
+    public async Task InsertImage()
     {
-        await RichTextEditorInterop.InsertImage(
-            JSRuntime,
-            EditorElement, ImageURL);
+        if (filemanagervisible)
+        {
+            int fileid = filemanager.GetFileId();
+            if (fileid != -1)
+            {
+                await RichTextEditorInterop.InsertImage(
+                    JSRuntime,
+                    EditorElement, ContentUrl(fileid));
+                filemanagervisible = false;
+                message = "";
+            }
+            else
+            {
+                message = "<br /><div class=\"alert alert-warning\" role=\"alert\">You Must Select An Image To Insert</div>";
+            }
+        }
+        else
+        {
+            filemanagervisible = true;
+            message = "";
+        }
+        StateHasChanged();
     }
 }
