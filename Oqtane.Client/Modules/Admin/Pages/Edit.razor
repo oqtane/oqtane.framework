@@ -378,7 +378,7 @@
                 page.IsPersonalizable = (ispersonalizable == null ? false : Boolean.Parse(ispersonalizable));
                 page.UserId = null;
 
-                await PageService.UpdatePageAsync(page);
+                page = await PageService.UpdatePageAsync(page);
                 await PageService.UpdatePageOrderAsync(page.SiteId, page.PageId, page.ParentId);
                 if (currentparentid == "")
                 {
