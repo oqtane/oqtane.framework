@@ -36,9 +36,10 @@ namespace Oqtane.Controllers
         public IEnumerable<ModuleDefinition> Get(int siteid)
         {
             List<ModuleDefinition> moduledefinitions = new List<ModuleDefinition>();
+            var isHost = User.IsInRole("Host Users");
             foreach(ModuleDefinition moduledefinition in ModuleDefinitions.GetModuleDefinitions(siteid))
             {
-                if (UserPermissions.IsAuthorized(User, "Utilize", moduledefinition.Permissions))
+                if (isHost || UserPermissions.IsAuthorized(User, "Utilize", moduledefinition.Permissions))
                 {
                     moduledefinitions.Add(moduledefinition);
                 }
@@ -51,7 +52,8 @@ namespace Oqtane.Controllers
         public ModuleDefinition Get(int id, string siteid)
         {
             ModuleDefinition moduledefinition = ModuleDefinitions.GetModuleDefinition(id, int.Parse(siteid));
-            if (UserPermissions.IsAuthorized(User, "Utilize", moduledefinition.Permissions))
+            var isHost = User.IsInRole("Host Users");
+            if (isHost || UserPermissions.IsAuthorized(User, "Utilize", moduledefinition.Permissions))
             {
                 return moduledefinition;
             }

@@ -80,7 +80,8 @@
                                         <option value="-">&lt;Select Module&gt;</option>
                                         @foreach (var moduledefinition in moduledefinitions)
                                         {
-                                            if (UserSecurity.IsAuthorized(PageState.User, "Utilize", moduledefinition.Permissions))
+                                            
+                                            if (isHost || UserSecurity.IsAuthorized(PageState.User, "Utilize", moduledefinition.Permissions))
                                             {
                                                 <option value="@moduledefinition.ModuleDefinitionName">@moduledefinition.Name</option>
                                             }
@@ -212,9 +213,14 @@
     string containertype = "";
     string display = "display: none;";
     string message = "";
+    bool isHost; 
+
+
 
     protected override async Task OnParametersSetAsync()
     {
+        isHost = PageState.User.Roles.Contains("Host Users");
+        
         if (string.IsNullOrEmpty(ButtonClass))
         {
             ButtonClass = "btn-outline-primary";
@@ -250,6 +256,7 @@
                     }
                 }
             }
+
             moduledefinitions = ModuleDefinitions.Where(item => item.Categories == "").ToList();
             foreach (Page p in PageState.Pages)
             {
