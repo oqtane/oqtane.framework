@@ -39,6 +39,7 @@ V.Next
 - Localization
 - Migrate to Code-Behind Pattern ( *.razor.cs )
 - Generic Repository Pattern
+- JwT token authentication
 
 # Background
 Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Initially created as a proof of concept, Oqtane is a native Blazor application written from the ground up using modern .NET Core technology. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly templates (skins), and extensibility via third party modules.
