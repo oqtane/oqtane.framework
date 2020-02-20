@@ -219,7 +219,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        isHost = PageState.User.Roles.Contains("Host Users");
+        isHost = PageState.User?.Roles.Contains("Host Users") ?? false;
         
         if (string.IsNullOrEmpty(ButtonClass))
         {
