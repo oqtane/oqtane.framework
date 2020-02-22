@@ -176,7 +176,7 @@ namespace Oqtane.Repository
             FolderRepository.AddFolder(new Folder { SiteId = site.SiteId, ParentId = folder.FolderId, Name = "Users", Path = "Users\\", Order = 1, IsSystem = true, Permissions = "[{\"PermissionName\":\"Browse\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]" });
             if (site.Name == "Default Site")
             {
-                File file = FileRepository.AddFile(new File { FolderId = folder.FolderId, Name = "logo.png", Extension = "png", Size = 8192 });
+                File file = FileRepository.AddFile(new File { FolderId = folder.FolderId, Name = "logo.png", Extension = "png", Size = 8192, ImageHeight = 80, ImageWidth = 250 });
                 site.LogoFileId = file.FileId;
                 UpdateSite(site);
             }

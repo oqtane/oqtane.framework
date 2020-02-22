@@ -285,6 +285,8 @@ CREATE TABLE [dbo].[File](
 	[Name] [nvarchar](250) NOT NULL,
 	[Extension] [nvarchar](50) NOT NULL,
 	[Size] [int] NOT NULL,
+	[ImageHeight] [int] NOT NULL,
+	[ImageWidth] [int] NOT NULL,
 	[CreatedBy] [nvarchar](256) NOT NULL,
 	[CreatedOn] [datetime] NOT NULL,
 	[ModifiedBy] [nvarchar](256) NOT NULL,

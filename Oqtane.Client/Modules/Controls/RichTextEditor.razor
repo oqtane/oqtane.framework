@@ -4,11 +4,17 @@
 
 @if (filemanagervisible)
 {
-    <FileManager @ref="filemanager" Filter=".jpg,.jpeg,.jpe,.gif,.png" />
+    <FileManager @ref="filemanager" Filter="@Constants.ImageFiles" />
     @((MarkupString)@message)
+    <br />
 }
 <div class="row justify-content-center">
     <button type="button" class="btn btn-success" @onclick="InsertImage">Insert Image</button>
+    @if (filemanagervisible)
+    {
+        @((MarkupString)"&nbsp;&nbsp;")
+        <button type="button" class="btn btn-secondary" @onclick="CloseFileManager">Close</button>
+    }
 </div>
 <br />
 <div @ref="@ToolBar">
@@ -114,4 +120,12 @@
         }
         StateHasChanged();
     }
+
+    public async Task CloseFileManager()
+    {
+        filemanagervisible = false;
+        message = "";
+        StateHasChanged();
+    }
+
 }
