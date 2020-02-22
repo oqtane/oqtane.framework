@@ -7,9 +7,9 @@ Oqtane uses Blazor, a new web framework for .NET Core that lets you build intera
 
 **To get started with Oqtane:**
 
-   1.&nbsp;Oqtane is currently compatible with **[.NET Core 3.1](https://dotnet.microsoft.com/download/dotnet-core/3.1)**.
+   1.&nbsp;Install **[.NET Core 3.1 SDK](https://dotnet.microsoft.com/download/dotnet-core/3.1)**.
    
-   2.&nbsp;Install the latest edition of [Visual Studio 2019](https://visualstudio.com/vs/) (version 16.4 or higher) with the **ASP.NET and web development** workload. Installing the latest edition will also install the latest version of .NET Core 3.1.
+   2.&nbsp;Install the latest edition of [Visual Studio 2019](https://visualstudio.com/vs/) (version 16.4 or higher) with the **ASP.NET and web development** workload. If you do not have a SQL Server installation available already and you wish to use LocalDB for development, you must also install the **.NET desktop development workload**.
 
    3.&nbsp;Download or Clone the Oqtane source code to your local system. Open the **Oqtane.sln** solution file. If you want to develop using **server-side** Blazor (which includes a full debugging experience in Visual Studio) you should choose to Build the solution using the default Debug configuration. If you want to develop using **client-side** Blazor (WebAssembly) you should first choose the "Wasm" configuration option in the Visual Studio toolbar and then Build.
    
