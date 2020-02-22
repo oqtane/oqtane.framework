@@ -87,8 +87,15 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.HostRole)]
         public void Delete(int id)
         {
-            Sites.DeleteSite(id);
-            logger.Log(LogLevel.Information, this, LogFunction.Delete, "Site Deleted {SiteId}", id);
+            if (Sites.GetSites().Count() > 1)
+            {
+                Sites.DeleteSite(id);
+                logger.Log(LogLevel.Information, this, LogFunction.Delete, "Site Deleted {SiteId}", id);
+            }
+            else
+            {
+                logger.Log(LogLevel.Warning, this, LogFunction.Delete, "Unable to delete the root site.");
+            }
         }
     }
 }
