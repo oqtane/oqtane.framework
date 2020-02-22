@@ -31,5 +31,8 @@
         public const string HostRole = "Host Users";
         public const string AdminRole = "Administrators";
         public const string RegisteredRole = "Registered Users";
+
+        public const string ImageFiles = "jpg,jpeg,jpe,gif,bmp,png";
+        public const string UploadableFiles = "jpg,jpeg,jpe,gif,bmp,png,mov,wmv,avi,mp4,mp3,doc,docx,xls,xlsx,ppt,pptx,pdf,txt,zip,nupkg";
     }
 }

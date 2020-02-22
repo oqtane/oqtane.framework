@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Oqtane.Security;
 using System.Linq;
+using System.Drawing;
 
 namespace Oqtane.Controllers
 {
@@ -25,7 +26,6 @@ namespace Oqtane.Controllers
         private readonly IUserPermissions UserPermissions;
         private readonly ITenantResolver Tenants;
         private readonly ILogManager logger;
-        private readonly string WhiteList = "jpg,jpeg,jpe,gif,bmp,png,mov,wmv,avi,mp4,mp3,doc,docx,xls,xlsx,ppt,pptx,pdf,txt,zip,nupkg";
 
         public FileController(IWebHostEnvironment environment, IFileRepository Files, IFolderRepository Folders, IUserPermissions UserPermissions, ITenantResolver Tenants, ILogManager logger)
         {
@@ -139,16 +139,23 @@ namespace Oqtane.Controllers
                 string folderpath = GetFolderPath(folder);
                 CreateDirectory(folderpath);
                 string filename = url.Substring(url.LastIndexOf("/") + 1);
-                try
+                // check for allowable file extensions
+                if (Constants.UploadableFiles.Contains(Path.GetExtension(filename).Replace(".", "")))
                 {
-                    var client = new System.Net.WebClient();
-                    client.DownloadFile(url, folderpath + filename);
-                    FileInfo fileinfo = new FileInfo(folderpath + filename);
-                    file = Files.AddFile(new Models.File { Name = filename, FolderId = folder.FolderId, Extension = fileinfo.Extension.Replace(".",""), Size = (int)fileinfo.Length });
+                    try
+                    {
+                        var client = new System.Net.WebClient();
+                        client.DownloadFile(url, folderpath + filename);
+                        Files.AddFile(CreateFile(filename, folder.FolderId, folderpath + filename));
+                    }
+                    catch
+                    {
+                        logger.Log(LogLevel.Error, this, LogFunction.Create, "File Could Not Be Downloaded From Url {Url}", url);
+                    }
                 }
-                catch
+                else
                 {
-                    logger.Log(LogLevel.Error, this, LogFunction.Create, "File Could Not Be Downloaded From Url {Url}", url);
+                    logger.Log(LogLevel.Error, this, LogFunction.Create, "File Could Not Be Downloaded From Url Due To Its File Extension {Url}", url);
                 }
             }
             else
@@ -193,8 +200,7 @@ namespace Oqtane.Controllers
                     string upload = await MergeFile(folderpath, file.FileName);
                     if (upload != "" && folderid != -1)
                     {
-                        FileInfo fileinfo = new FileInfo(folderpath + upload);
-                        Files.AddFile(new Models.File { Name = upload, FolderId = folderid, Extension = fileinfo.Extension.Replace(".", ""), Size = (int)fileinfo.Length });
+                        Files.AddFile(CreateFile(upload, folderid, folderpath + upload));
                     }
                 }
                 else
@@ -248,7 +254,7 @@ namespace Oqtane.Controllers
                     }
 
                     // check for allowable file extensions
-                    if (!WhiteList.Contains(Path.GetExtension(filename).Replace(".", "")))
+                    if (!Constants.UploadableFiles.Contains(Path.GetExtension(filename).Replace(".", "")))
                     {
                         System.IO.File.Delete(Path.Combine(folder, filename + ".tmp"));
                     }
@@ -356,6 +362,32 @@ namespace Oqtane.Controllers
                     }
                 }
             }
+        }
+
+        private Models.File CreateFile(string filename, int folderid, string filepath)
+        {
+            Models.File file = new Models.File();
+            file.Name = filename;
+            file.FolderId = folderid;
+
+            FileInfo fileinfo = new FileInfo(filepath);
+            file.Extension = fileinfo.Extension.ToLower().Replace(".", "");
+            file.Size = (int)fileinfo.Length;
+            file.ImageHeight = 0;
+            file.ImageWidth = 0;
+
+            if (Constants.ImageFiles.Contains(file.Extension))
+            {
+                FileStream stream = new FileStream(filepath, FileMode.Open, FileAccess.Read);
+                using (var image = Image.FromStream(stream))
+                {
+                    file.ImageHeight = image.Height;
+                    file.ImageWidth = image.Width;
+                }
+                stream.Close();
+            }
+
+            return file;
         }
     }
 }

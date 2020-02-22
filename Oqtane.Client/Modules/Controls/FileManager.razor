@@ -6,60 +6,72 @@
 
 @if (folders != null)
 {
-    <select class="form-control" @onchange="(e => FolderChanged(e))">
-        @if (string.IsNullOrEmpty(Folder))
-        {
-            <option value="-1">&lt;Select Folder&gt;</option>
-        }
-        @foreach (Folder folder in folders)
-        {
-            if (folder.FolderId == folderid)
-            {
-                <option value="@(folder.FolderId)" selected>@(new string('-', folder.Level * 2))@(folder.Name)</option>
-            }
-            else
-            {
-                <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
-            }
-        }
-    </select>
-    @if (showfiles)
-    {
-        <select class="form-control" @onchange="(e => FileChanged(e))">
-            <option value="-1">&lt;Select File&gt;</option>
-            @foreach (File file in files)
-            {
-                if (file.FileId == fileid)
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+                <select class="form-control" @onchange="(e => FolderChanged(e))">
+                    @if (string.IsNullOrEmpty(Folder))
+                    {
+                        <option value="-1">&lt;Select Folder&gt;</option>
+                    }
+                    @foreach (Folder folder in folders)
+                    {
+                        if (folder.FolderId == folderid)
+                        {
+                            <option value="@(folder.FolderId)" selected>@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                        }
+                        else
+                        {
+                            <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                        }
+                    }
+                </select>
+                @if (showfiles)
                 {
-                    <option value="@(file.FileId)" selected>@(file.Name)</option>
+                    <select class="form-control" @onchange="(e => FileChanged(e))">
+                        <option value="-1">&lt;Select File&gt;</option>
+                        @foreach (File file in files)
+                        {
+                            if (file.FileId == fileid)
+                            {
+                                <option value="@(file.FileId)" selected>@(file.Name)</option>
+                            }
+                            else
+                            {
+                                <option value="@(file.FileId)">@(file.Name)</option>
+                            }
+                        }
+                    </select>
                 }
-                else
+                @if (haseditpermission)
                 {
-                    <option value="@(file.FileId)">@(file.Name)</option>
+                    <div>
+                        @if (uploadmultiple)
+                        {
+                            <input type="file" id="@fileinputid" name="file" accept="@filter" multiple />
+                        }
+                        else
+                        {
+                            <input type="file" id="@fileinputid" name="file" accept="@filter" />
+                        }
+                        <span id="@progressinfoid"></span> <progress id="@progressbarid" style="visibility: hidden;"></progress>
+                        @if (showfiles && GetFileId() != -1)
+                        {
+                            <button type="button" class="btn btn-danger float-right" @onclick="DeleteFile">Delete</button>
+                        }
+                        <button type="button" class="btn btn-success float-right" @onclick="UploadFile">Upload</button>
+                    </div>
+                    @((MarkupString)@message)
                 }
-            }
-        </select>
-    }
-    @if (haseditpermission)
-    {
-        <div>
-        @if (uploadmultiple)
-        {
-            <input type="file" id="@fileinputid" name="file" accept="@filter" multiple />
-        }
-        else
-        {
-            <input type="file" id="@fileinputid" name="file" accept="@filter" />
-        }
-        <span id="@progressinfoid"></span> <progress id="@progressbarid" style="visibility: hidden;"></progress>
-        @if (showfiles && GetFileId() != -1)
-        {
-            <button type="button" class="btn btn-danger float-right" @onclick="DeleteFile">Delete</button>
-        }
-        <button type="button" class="btn btn-success float-right" @onclick="UploadFile">Upload</button>
+            </div>
+            <div class="col-auto">
+                @if (@image != "")
+                {
+                    @((MarkupString)@image)
+                }
+            </div>
         </div>
-        @((MarkupString)@message)
-    }
+    </div>
 }
 
 @code {
@@ -76,10 +88,11 @@
     public string FileId { get; set; } // optional - for setting a specific file by default
 
     [Parameter]
-    public string Filter { get; set; } // optional - comma delimited list of file types that can be selected or uploaded ie. ".jpg,.gif"
+    public string Filter { get; set; } // optional - comma delimited list of file types that can be selected or uploaded ie. "jpg,gif"
 
     [Parameter]
     public string UploadMultiple { get; set; } // optional - enable multiple file uploads - default false
+
 
     string id;
     List<Folder> folders;
@@ -94,6 +107,7 @@
     bool uploadmultiple = false;
     bool haseditpermission = false;
     string message = "";
+    string image = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -115,6 +129,7 @@
         if (!string.IsNullOrEmpty(FileId))
         {
             fileid = int.Parse(FileId);
+            await SetImage();
             if (fileid != -1)
             {
                 File file = await FileService.GetFileAsync(int.Parse(FileId));
@@ -131,7 +146,7 @@
 
         if (!string.IsNullOrEmpty(Filter))
         {
-            filter = Filter;
+            filter = "." + Filter.Replace(",",",.");
         }
 
         await GetFiles();
@@ -184,7 +199,7 @@
         }
     }
 
-    private async void FolderChanged(ChangeEventArgs e)
+    private async Task FolderChanged(ChangeEventArgs e)
     {
         message = "";
         try
@@ -192,6 +207,7 @@
             folderid = int.Parse((string)e.Value);
             await GetFiles();
             fileid = -1;
+            image = "";
             StateHasChanged();
         }
         catch (Exception ex)
@@ -201,11 +217,34 @@
         }
     }
 
-    private void FileChanged(ChangeEventArgs e)
+    private async Task FileChanged(ChangeEventArgs e)
     {
         message = "";
         fileid = int.Parse((string)e.Value);
+        await SetImage();
         StateHasChanged();
+    }
+
+    private async Task SetImage()
+    {
+        image = "";
+        if (fileid != -1)
+        {
+            File file = await FileService.GetFileAsync(fileid);
+            if (file.ImageHeight != 0 && file.ImageWidth != 0)
+            {
+                int maxwidth = 200;
+                int maxheight = 200;
+
+                double ratioX = (double)maxwidth / (double)file.ImageWidth;
+                double ratioY = (double)maxheight / (double)file.ImageHeight;
+                double ratio = ratioX < ratioY ? ratioX : ratioY;
+
+                image = "<img src=\"" + ContentUrl(fileid) + "\" alt=\"" + file.Name +
+                    "\" width=\"" + Convert.ToInt32(file.ImageWidth * ratio).ToString() +
+                    "\" height=\"" + Convert.ToInt32(file.ImageHeight * ratio).ToString() + "\" />";
+            }
+        }
     }
 
     private async Task UploadFile()
@@ -236,6 +275,7 @@
                         if (file != null)
                         {
                             fileid = file.FileId;
+                            await SetImage();
                         }
                     }
                     StateHasChanged();
@@ -268,6 +308,7 @@
             message = "<br /><div class=\"alert alert-success\" role=\"alert\">File Deleted</div>";
             await GetFiles();
             fileid = -1;
+            await SetImage();
             StateHasChanged();
         }
         catch (Exception ex)
