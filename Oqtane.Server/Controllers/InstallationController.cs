@@ -183,19 +183,26 @@ namespace Oqtane.Controllers
             string connectionString = Config.GetConnectionString("DefaultConnection");
             connectionString = connectionString.Replace("|DataDirectory|", datadirectory);
 
-            SqlConnection connection = new SqlConnection(connectionString);
-            try
+            if (!string.IsNullOrEmpty(connectionString))
             {
-                using (connection)
+                SqlConnection connection = new SqlConnection(connectionString);
+                try
                 {
-                    connection.Open();
+                    using (connection)
+                    {
+                        connection.Open();
+                    }
+                    response.Success = true;
                 }
-                response.Success = true;
+                catch
+                {
+                    // database does not exist
+                    response.Message = "Database Does Not Exist";
+                }
             }
-            catch
+            else
             {
-                // database does not exist
-                response.Message = "Database Does Not Exist";
+                response.Message = "Connection String Has Not Been Specified In Oqtane.Server\\appsettings.json";
             }
 
             if (response.Success)
@@ -243,7 +250,7 @@ namespace Oqtane.Controllers
                                 var result = dbUpgrade.PerformUpgrade();
                                 if (!result.Successful)
                                 {
-                                    // TODO: log result.Error.Message;
+                                    // TODO: log result.Error.Message - problem is logger is not available here
                                 }
                             }
                             // iterate through Oqtane module assemblies and execute any database scripts

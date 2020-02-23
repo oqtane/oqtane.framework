@@ -14,11 +14,6 @@ namespace Oqtane.Repository
             db = context;
         }
             
-        public IEnumerable<Role> GetRoles()
-        {
-            return db.Role;
-        }
-
         public IEnumerable<Role> GetRoles(int SiteId)
         {
             return db.Role.Where(item => item.SiteId == SiteId);

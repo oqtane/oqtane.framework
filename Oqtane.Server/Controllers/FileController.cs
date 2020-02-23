@@ -145,6 +145,11 @@ namespace Oqtane.Controllers
                     try
                     {
                         var client = new System.Net.WebClient();
+                        // remove file if it already exists
+                        if (System.IO.File.Exists(folderpath + filename))
+                        {
+                            System.IO.File.Delete(folderpath + filename);
+                        }
                         client.DownloadFile(url, folderpath + filename);
                         Files.AddFile(CreateFile(filename, folder.FolderId, folderpath + filename));
                     }
@@ -260,6 +265,11 @@ namespace Oqtane.Controllers
                     }
                     else
                     {
+                        // remove file if it already exists
+                        if (System.IO.File.Exists(Path.Combine(folder, filename)))
+                        {
+                            System.IO.File.Delete(Path.Combine(folder, filename));
+                        }
                         // rename file now that the entire process is completed
                         System.IO.File.Move(Path.Combine(folder, filename + ".tmp"), Path.Combine(folder, filename));
                         logger.Log(LogLevel.Information, this, LogFunction.Create, "File Uploaded {File}", Path.Combine(folder, filename));
@@ -326,8 +336,18 @@ namespace Oqtane.Controllers
             Models.File file = Files.GetFile(id);
             if (file != null && UserPermissions.IsAuthorized(User, "View", file.Folder.Permissions))
             {
-                byte[] filebytes = System.IO.File.ReadAllBytes(GetFolderPath(file.Folder) + file.Name);
-                return File(filebytes, "application/octet-stream", file.Name);
+                string filepath = GetFolderPath(file.Folder) + file.Name;
+                if (System.IO.File.Exists(filepath))
+                {
+                    byte[] filebytes = System.IO.File.ReadAllBytes(filepath);
+                    return File(filebytes, "application/octet-stream", file.Name);
+                }
+                else
+                {
+                    logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {File}", file);
+                    HttpContext.Response.StatusCode = 404;
+                    return null;
+                }
             }
             else
             {

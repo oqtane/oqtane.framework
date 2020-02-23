@@ -5,7 +5,6 @@ namespace Oqtane.Repository
 {
     public interface IProfileRepository
     {
-        IEnumerable<Profile> GetProfiles();
         IEnumerable<Profile> GetProfiles(int SiteId);
         Profile AddProfile(Profile Profile);
         Profile UpdateProfile(Profile Profile);

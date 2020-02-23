@@ -5,7 +5,7 @@ namespace Oqtane.Repository
 {
     public interface IModuleRepository
     {
-        IEnumerable<Module> GetModules();
+        IEnumerable<Module> GetModules(int SiteId);
         Module AddModule(Module Module);
         Module UpdateModule(Module Module);
         Module GetModule(int ModuleId);

@@ -14,10 +14,6 @@ namespace Oqtane.Repository
             db = context;
         }
 
-        public IEnumerable<UserRole> GetUserRoles()
-        {
-            return db.UserRole;
-        }
         public IEnumerable<UserRole> GetUserRoles(int SiteId)
         {
             return db.UserRole

@@ -14,11 +14,6 @@ namespace Oqtane.Repository
             db = context;
         }
             
-        public IEnumerable<Profile> GetProfiles()
-        {
-            return db.Profile;
-        }
-
         public IEnumerable<Profile> GetProfiles(int SiteId)
         {
             return db.Profile.Where(item => item.SiteId == SiteId || item.SiteId == null);
