@@ -190,7 +190,10 @@
             {
                 page = pages.Where(item => item.Path == path).FirstOrDefault();
                 reload = Reload.Page;
-                editmode = page.EditMode;
+                if (page!=null)
+                {
+                    editmode = page.EditMode;
+                }
             }
 
             user = null;

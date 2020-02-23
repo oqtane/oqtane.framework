@@ -28,7 +28,14 @@
 }
 @if (authorized)
 {
-    <button class="@Class" @onclick="DisplayModal">@Text</button>
+    if (Disabled)
+    {
+        <button class="@Class" disabled @onclick="DisplayModal">@Text</button>
+    }
+    else
+    {
+        <button class="@Class" @onclick="DisplayModal">@Text</button>
+    }
 }
 
 @code {
@@ -36,13 +43,13 @@
     public string Header { get; set; } // required
 
     [Parameter]
-    public string Message { get; set; } // required 
+    public string Message { get; set; } // required
 
     [Parameter]
     public string Text { get; set; } // optional - defaults to Action if not specified
 
     [Parameter]
-    public string Action { get; set; } // optional 
+    public string Action { get; set; } // optional
 
     [Parameter]
     public SecurityAccessLevel? Security { get; set; } // optional - can be used to explicitly specify SecurityAccessLevel
@@ -50,6 +57,9 @@
     [Parameter]
     public string Class { get; set; } // optional
 
+	[Parameter]
+	public bool Disabled { get; set; } // optional
+	
     [Parameter]
     public string EditMode { get; set; } // optional - specifies if a user must be in edit mode to see the action - default is true
 
