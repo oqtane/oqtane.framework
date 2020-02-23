@@ -18,11 +18,6 @@ namespace Oqtane.Repository
             this.PageModules = PageModules;
         }
 
-        public IEnumerable<Page> GetPages()
-        {
-            return db.Page.ToList();
-        }
-
         public IEnumerable<Page> GetPages(int SiteId)
         {
             IEnumerable<Permission> permissions = Permissions.GetPermissions(SiteId, "Page").ToList();

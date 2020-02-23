@@ -5,7 +5,6 @@ namespace Oqtane.Repository
 {
     public interface IUserRoleRepository
     {
-        IEnumerable<UserRole> GetUserRoles();
         IEnumerable<UserRole> GetUserRoles(int SiteId);
         IEnumerable<UserRole> GetUserRoles(int UserId, int SiteId);
         UserRole AddUserRole(UserRole UserRole);

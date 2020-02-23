@@ -5,7 +5,6 @@ namespace Oqtane.Repository
 {
     public interface IPageRepository
     {
-        IEnumerable<Page> GetPages();
         IEnumerable<Page> GetPages(int SiteId);
         Page AddPage(Page Page);
         Page UpdatePage(Page Page);

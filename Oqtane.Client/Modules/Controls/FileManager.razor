@@ -8,7 +8,7 @@
 {
     <div class="container-fluid">
         <div class="row">
-            <div class="col">
+            <div class="col pl-0 pr-0">
                 <select class="form-control" @onchange="(e => FolderChanged(e))">
                     @if (string.IsNullOrEmpty(Folder))
                     {
@@ -45,7 +45,7 @@
                 }
                 @if (haseditpermission)
                 {
-                    <div>
+                    <span class="text-nowrap">
                         @if (uploadmultiple)
                         {
                             <input type="file" id="@fileinputid" name="file" accept="@filter" multiple />
@@ -54,22 +54,22 @@
                         {
                             <input type="file" id="@fileinputid" name="file" accept="@filter" />
                         }
-                        <span id="@progressinfoid"></span> <progress id="@progressbarid" style="visibility: hidden;"></progress>
+                        <span id="@progressinfoid"></span><progress id="@progressbarid" style="visibility: hidden;"></progress>
                         @if (showfiles && GetFileId() != -1)
                         {
                             <button type="button" class="btn btn-danger float-right" @onclick="DeleteFile">Delete</button>
                         }
                         <button type="button" class="btn btn-success float-right" @onclick="UploadFile">Upload</button>
-                    </div>
+                    </span>
                     @((MarkupString)@message)
                 }
             </div>
-            <div class="col-auto">
-                @if (@image != "")
-                {
+            @if (@image != "")
+            {
+                <div class="col-auto pr-0">
                     @((MarkupString)@image)
-                }
-            </div>
+                </div>
+            }
         </div>
     </div>
 }

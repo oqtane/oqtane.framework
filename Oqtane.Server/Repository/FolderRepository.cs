@@ -16,11 +16,6 @@ namespace Oqtane.Repository
             this.Permissions = Permissions;
         }
 
-        public IEnumerable<Folder> GetFolders()
-        {
-            return db.Folder.ToList();
-        }
-
         public IEnumerable<Folder> GetFolders(int SiteId)
         {
             IEnumerable<Permission> permissions = Permissions.GetPermissions(SiteId, "Folder").ToList();

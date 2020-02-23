@@ -25,9 +25,9 @@ namespace Oqtane.Repository
             this.ServiceProvider = ServiceProvider;
         }
 
-        public IEnumerable<Models.Module> GetModules()
+        public IEnumerable<Models.Module> GetModules(int SiteId)
         {
-            return db.Module;
+            return db.Module.Where(item => item.SiteId == SiteId).ToList();
         }
 
         public Models.Module AddModule(Models.Module Module)

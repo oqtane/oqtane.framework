@@ -5,7 +5,6 @@ namespace Oqtane.Repository
 {
     public interface IFolderRepository
     {
-        IEnumerable<Folder> GetFolders();
         IEnumerable<Folder> GetFolders(int SiteId);
         Folder AddFolder(Folder Folder);
         Folder UpdateFolder(Folder Folder);
