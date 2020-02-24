@@ -149,7 +149,7 @@ else
     }
 
     private async void TenantChanged(ChangeEventArgs e)
-    {
+    { 
         try
         {
             tenantid = (string)e.Value;
@@ -199,7 +199,7 @@ else
             bool isvalid = true;
 
             if (!isinitialized)
-            {
+            { 
                 User user = new User();
                 user.SiteId = PageState.Site.SiteId;
                 user.Username = username;
@@ -210,18 +210,6 @@ else
 
             if (isvalid)
             {
-                List<Alias> aliases = new List<Alias>();
-                urls = urls.Replace("\n", ",");
-                foreach (string name in urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                {
-                    Alias alias = new Alias();
-                    alias.Name = name;
-                    alias.TenantId = int.Parse(tenantid);
-                    alias.SiteId = -1;
-                    alias = await AliasService.AddAliasAsync(alias);
-                    aliases.Add(alias);
-                }
-
                 Site site = new Site();
                 site.TenantId = int.Parse(tenantid);
                 site.Name = name;
@@ -234,12 +222,19 @@ else
                 site.DefaultThemeType = themetype;
                 site.DefaultLayoutType = (layouttype == null ? "" : layouttype);
                 site.DefaultContainerType = containertype;
-                site = await SiteService.AddSiteAsync(site, aliases[0]);
+                
+                site = await SiteService.AddSiteAsync(site);
 
-                foreach(Alias alias in aliases)
+                List<Alias> aliases = new List<Alias>();
+                urls = urls.Replace("\n", ",");
+                foreach (string name in urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 {
+                    Alias alias = new Alias();
+                    alias.Name = name;
+                    alias.TenantId = int.Parse(tenantid);
                     alias.SiteId = site.SiteId;
-                    await AliasService.UpdateAliasAsync(alias);
+                    alias = await AliasService.AddAliasAsync(alias);
+                    aliases.Add(alias);
                 }
 
                 if (!isinitialized)

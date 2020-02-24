@@ -372,10 +372,6 @@ REFERENCES [dbo].[Site] ([SiteId])
 ON DELETE CASCADE
 GO
 
-ALTER TABLE [dbo].[Log] WITH CHECK ADD CONSTRAINT [FK_Log_Site] FOREIGN KEY([SiteId])
-REFERENCES [dbo].[Site] ([SiteId])
-ON DELETE CASCADE
-GO
 
 ALTER TABLE [dbo].[Notification] WITH CHECK ADD CONSTRAINT [FK_Notification_Site] FOREIGN KEY([SiteId])
 REFERENCES [dbo].[Site] ([SiteId])
