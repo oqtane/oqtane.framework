@@ -56,28 +56,28 @@ Install Wizard:
 
 Default view after installation:
 
-![Home](https://github.com/oqtane/framework/blob/master/screenshot0.png?raw=true "Home")
+![Home](https://github.com/oqtane/framework/blob/master/screenshots/screenshot0.png?raw=true "Home")
 
 A seamless login flow utilizing .NET Core Identity services:
 
-![Login](https://github.com/oqtane/framework/blob/master/screenshot1.png?raw=true "Login")
+![Login](https://github.com/oqtane/framework/blob/master/screenshots/screenshot1.png?raw=true "Login")
 
 Main view for authorized users, allowing full management of modules and content:
 
-![Admin View](https://github.com/oqtane/framework/blob/master/screenshot2.png?raw=true "Admin View")
+![Admin View](https://github.com/oqtane/framework/blob/master/screenshots/screenshot2.png?raw=true "Admin View")
 
 Content editing user experience using modal dialog:
 
-![Edit Content](https://github.com/oqtane/framework/blob/master/screenshot3.png?raw=true "Edit Content")
+![Edit Content](https://github.com/oqtane/framework/blob/master/screenshots/screenshot3.png?raw=true "Edit Content")
 
 Context menu for managing specific module on page:
 
-![Manage Module](https://github.com/oqtane/framework/blob/master/screenshot4.png?raw=true "Manage Module")
+![Manage Module](https://github.com/oqtane/framework/blob/master/screenshots/screenshot4.png?raw=true "Manage Module")
 
 Control panel for adding, editing, and deleting pages as well as adding new modules to a page:
 
-![Manage Page](https://github.com/oqtane/framework/blob/master/screenshot5.png?raw=true "Manage Page")
+![Manage Page](https://github.com/oqtane/framework/blob/master/screenshots/screenshot5.png?raw=true "Manage Page")
 
 Admin dashboard for accessing the variuous administrative features of the framework:
 
-![Admin Dashboard](https://github.com/oqtane/framework/blob/master/screenshot6.png?raw=true "Admin Dashboard")
+![Admin Dashboard](https://github.com/oqtane/framework/blob/master/screenshots/screenshot6.png?raw=true "Admin Dashboard")
