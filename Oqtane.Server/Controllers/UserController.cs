@@ -160,7 +160,7 @@ namespace Oqtane.Controllers
                     }
                 }
                 user.Password = ""; // remove sensitive information
-                logger.Log(LogLevel.Information, this, LogFunction.Create, "User Added {User}", user);
+                logger.Log(User.SiteId, LogLevel.Information, this, LogFunction.Create, "User Added {User}", user);
             }
 
             return user;

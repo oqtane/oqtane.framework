@@ -187,7 +187,7 @@
                 site.DefaultThemeType = Constants.DefaultTheme;
                 site.DefaultLayoutType = Constants.DefaultLayout;
                 site.DefaultContainerType = Constants.DefaultContainer;
-                site = await SiteService.AddSiteAsync(site);
+                site = await SiteService.AddSiteAsync(site, null);
 
                 User user = new User();
                 user.SiteId = site.SiteId;

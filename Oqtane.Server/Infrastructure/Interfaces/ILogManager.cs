@@ -8,6 +8,8 @@ namespace Oqtane.Infrastructure
     {
         void Log(LogLevel Level, object Class, LogFunction Function, string Message, params object[] Args);
         void Log(LogLevel Level, object Class, LogFunction Function, Exception Exception, string Message, params object[] Args);
+        void Log(int SiteId, LogLevel Level, object Class, LogFunction Function, string Message, params object[] Args);
+        void Log(int SiteId, LogLevel Level, object Class, LogFunction Function, Exception Exception, string Message, params object[] Args);
         void Log(Log Log);
     }
 }

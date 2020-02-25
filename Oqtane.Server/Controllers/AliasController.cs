@@ -7,6 +7,7 @@ using Oqtane.Shared;
 using Oqtane.Infrastructure;
 using System.Linq;
 using System;
+using System.Net;
 
 namespace Oqtane.Controllers
 {
@@ -42,6 +43,7 @@ namespace Oqtane.Controllers
         [HttpGet("name/{name}")]
         public Alias Get(string name)
         {
+            name = WebUtility.UrlDecode(name);
             List<Alias> aliases = Aliases.GetAliases().ToList();
             Alias alias = null;
             alias = aliases.Where(item => item.Name == name).FirstOrDefault();

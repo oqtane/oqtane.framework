@@ -19,8 +19,8 @@ else
             <th>Name</th>
         </Header>
         <Row>
-            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.AliasId.ToString())" /></td>
-            <td><ActionDialog Header="Delete Site" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Site?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteSite(context))" Disabled="sites.Count == 1" /></td>
+            <td><NavLink class="btn btn-primary" href="@(scheme + context.Name + "/admin/site")">Edit</NavLink></td>
+            <td><NavLink class="btn btn-danger" href="@(scheme + context.Name + "/admin/site")">Delete</NavLink></td>
             <td><a href="@(scheme + context.Name)">@context.Name</a></td>
         </Row>
     </Pager>
@@ -45,21 +45,6 @@ else
             {
                 sites.Add(alias);
             }
-        }
-    }
-
-    private async Task DeleteSite(Alias Alias)
-    {
-        try
-        {
-            await SiteService.DeleteSiteAsync(Alias.SiteId, Alias);
-            await logger.LogInformation("Sited Deleted {Alias}", Alias);
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Deleting Site {Error}", ex.Message);
-            AddModuleMessage("Error Deleting Site", MessageType.Error);
         }
     }
 }
