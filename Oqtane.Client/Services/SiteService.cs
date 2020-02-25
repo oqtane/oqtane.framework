@@ -36,37 +36,27 @@ namespace Oqtane.Services
         {
             return await http.GetJsonAsync<Site>(apiurl + "/" + SiteId.ToString());
         }
-        public async Task<Site> GetSiteAsync(int SiteId, Alias Alias)
-        {
-            return await http.GetJsonAsync<Site>(CreateApiUrl(Alias, NavigationManager.Uri, "Site") + "/" + SiteId.ToString());
-        }
-
-        public async Task<Site> AddSiteAsync(Site Site)
-        {
-            return await http.PostJsonAsync<Site>(apiurl, Site);
-        }
 
         public async Task<Site> AddSiteAsync(Site Site, Alias Alias)
         {
-            return await http.PostJsonAsync<Site>(CreateApiUrl(Alias, NavigationManager.Uri, "Site"), Site);
+            if (Alias == null)
+            {
+                return await http.PostJsonAsync<Site>(apiurl, Site);
+            }
+            else
+            {
+                return await http.PostJsonAsync<Site>(CreateApiUrl(Alias, NavigationManager.Uri, "Site"), Site);
+            }
         }
 
         public async Task<Site> UpdateSiteAsync(Site Site)
         {
             return await http.PutJsonAsync<Site>(apiurl + "/" + Site.SiteId.ToString(), Site);
         }
-        public async Task<Site> UpdateSiteAsync(Site Site, Alias Alias)
-        {
-            return await http.PutJsonAsync<Site>(CreateApiUrl(Alias, NavigationManager.Uri, "Site") + "/" + Site.SiteId.ToString(), Site);
-        }
 
         public async Task DeleteSiteAsync(int SiteId)
         {
             await http.DeleteAsync(apiurl + "/" + SiteId.ToString());
-        }
-        public async Task DeleteSiteAsync(int SiteId, Alias Alias)
-        {
-            await http.DeleteAsync(CreateApiUrl(Alias, NavigationManager.Uri, "Site") + "/" + SiteId.ToString());
         }
     }
 }

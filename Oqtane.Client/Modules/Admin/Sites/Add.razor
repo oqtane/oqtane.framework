@@ -46,14 +46,6 @@ else
     </tr>
     <tr>
         <td>
-            <label for="Name" class="control-label">Logo: </label>
-        </td>
-        <td>
-            <FileManager @ref="filemanager" />
-        </td>
-    </tr>
-    <tr>
-        <td>
             <label for="Name" class="control-label">Default Theme: </label>
         </td>
         <td>
@@ -130,7 +122,6 @@ else
     string tenantid = "-1";
     string name = "";
     string urls = "";
-    FileManager filemanager;
     string themetype = "";
     string layouttype = "";
     string containertype = "";
@@ -210,6 +201,8 @@ else
 
             if (isvalid)
             {
+                ShowProgressIndicator();
+
                 List<Alias> aliases = new List<Alias>();
                 urls = urls.Replace("\n", ",");
                 foreach (string name in urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
@@ -226,11 +219,6 @@ else
                 site.TenantId = int.Parse(tenantid);
                 site.Name = name;
                 site.LogoFileId = null;
-                int logofileid = filemanager.GetFileId();
-                if (logofileid != -1)
-                {
-                    site.LogoFileId = logofileid;
-                }
                 site.DefaultThemeType = themetype;
                 site.DefaultLayoutType = (layouttype == null ? "" : layouttype);
                 site.DefaultContainerType = containertype;

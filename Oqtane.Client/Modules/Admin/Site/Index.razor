@@ -1,13 +1,14 @@
-﻿@namespace Oqtane.Modules.Admin.Sites
+﻿@namespace Oqtane.Modules.Admin.Site
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject ISiteService SiteService
+@inject ITenantService TenantService
 @inject IAliasService AliasService
 @inject IThemeService  ThemeService
 @inject ISettingService  SettingService
 
 @if (themes != null)
-{ 
+{
     <table class="table table-borderless">
         <tr>
             <td>
@@ -15,6 +16,14 @@
             </td>
             <td>
                 <input class="form-control" @bind="@name" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Tenant: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@tenant" readonly />
             </td>
         </tr>
         <tr>
@@ -96,7 +105,7 @@
     </table>
 
     <a data-toggle="collapse" class="app-link-unstyled" href="#SMTP" aria-expanded="false" aria-controls="SMTP">
-        <h5>SMTP Settings</h5><hr class="app-rule" />
+        <h5><i class="oi oi-chevron-bottom"></i>&nbsp;SMTP Settings</h5><hr class="app-rule" />
     </a>
     <div class="collapse" id="SMTP">
         <table class="table table-borderless">
@@ -142,25 +151,29 @@
             </tr>
         </table>
     </div>
-
+    <br />
     <button type="button" class="btn btn-success" @onclick="SaveSite">Save</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    @if (UserSecurity.IsAuthorized(PageState.User, Constants.HostRole))
+    {
+        <ActionDialog Header="Delete Site" Message="@("Are You Sure You Wish To Delete This Site?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteSite())" />
+    }
     <br />
     <br />
     <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 
     Dictionary<string, string> themes;
     Dictionary<string, string> panelayouts;
     Dictionary<string, string> containers;
 
     List<Theme> Themes;
-    Alias Alias;
-    int siteid;
     string name = "";
+    List<Tenant> tenants;
+    string tenant = "";
     List<Alias> aliases;
     string urls = "";
     int logofileid = -1;
@@ -189,12 +202,12 @@
         {
             Themes = await ThemeService.GetThemesAsync();
             aliases = await AliasService.GetAliasesAsync();
-            Alias = aliases.Where(item => item.AliasId == int.Parse(PageState.QueryString["id"])).FirstOrDefault();
-            siteid = Alias.SiteId;
-            Site site = await SiteService.GetSiteAsync(siteid, Alias);
+            Site site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
             if (site != null)
             {
                 name = site.Name;
+                tenants = await TenantService.GetTenantsAsync();
+                tenant = tenants.Find(item => item.TenantId == site.TenantId).Name;
                 foreach (Alias alias in aliases.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
                 {
                     urls += alias.Name + "\n";
@@ -229,7 +242,7 @@
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading Site {SiteId} {Error}", siteid, ex.Message);
+            await logger.LogError(ex, "Error Loading Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
             AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
@@ -262,7 +275,7 @@
         {
             if (name != "" && urls != "" && !string.IsNullOrEmpty(themetype) && (panelayouts.Count == 0 || !string.IsNullOrEmpty(layouttype)) && !string.IsNullOrEmpty(containertype))
             {
-                Site site = await SiteService.GetSiteAsync(siteid, Alias);
+                Site site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
                 if (site != null)
                 {
                     site.Name = name;
@@ -277,7 +290,7 @@
                     site.DefaultContainerType = containertype;
                     site.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
 
-                    site = await SiteService.UpdateSiteAsync(site, Alias);
+                    site = await SiteService.UpdateSiteAsync(site);
 
                     urls = urls.Replace("\n", ",");
                     string[] names = urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
@@ -320,8 +333,23 @@
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Saving Site {SiteId} {Error}", siteid, ex.Message);
+            await logger.LogError(ex, "Error Saving Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
             AddModuleMessage("Error Saving Site", MessageType.Error);
+        }
+    }
+
+    private async Task DeleteSite()
+    {
+        try
+        {
+            await SiteService.DeleteSiteAsync(PageState.Site.SiteId);
+            await logger.LogInformation("Sited Deleted {SiteId}", PageState.Site.SiteId);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
+            AddModuleMessage("Error Deleting Site", MessageType.Error);
         }
     }
 }

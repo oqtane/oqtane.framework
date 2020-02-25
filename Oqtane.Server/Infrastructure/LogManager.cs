@@ -29,14 +29,35 @@ namespace Oqtane.Infrastructure
 
         public void Log(LogLevel Level, object Class, LogFunction Function, string Message, params object[] Args)
         {
-            Log(Level, Class.GetType().AssemblyQualifiedName, Function, null, Message, Args);
+            Log(-1, Level, Class.GetType().AssemblyQualifiedName, Function, null, Message, Args);
         }
 
         public void Log(LogLevel Level, object Class, LogFunction Function, Exception Exception, string Message, params object[] Args)
         {
-            Alias alias = TenantResolver.GetAlias();
+            Log(-1, Level, Class.GetType().AssemblyQualifiedName, Function, Exception, Message, Args);
+        }
+
+        public void Log(int SiteId, LogLevel Level, object Class, LogFunction Function, string Message, params object[] Args)
+        {
+            Log(SiteId, Level, Class.GetType().AssemblyQualifiedName, Function, null, Message, Args);
+        }
+
+        public void Log(int SiteId, LogLevel Level, object Class, LogFunction Function, Exception Exception, string Message, params object[] Args)
+        {
             Log log = new Log();
-            log.SiteId = alias.SiteId;
+            if (SiteId == -1)
+            {
+                log.SiteId = null;
+                Alias alias = TenantResolver.GetAlias();
+                if (alias != null)
+                {
+                    log.SiteId = alias.SiteId;
+                }
+            }
+            else
+            {
+                log.SiteId = SiteId;
+            }
             log.PageId = null;
             log.ModuleId = null;
             log.UserId = null;
@@ -96,56 +117,70 @@ namespace Oqtane.Infrastructure
                 Log.Server = Environment.MachineName;
                 Log.MessageTemplate = Log.Message;
                 Log = ProcessStructuredLog(Log);
-                Logs.AddLog(Log);
+                try
+                {
+                    Logs.AddLog(Log);
+                }
+                catch
+                {
+                    // an error occurred writing to the database
+                }
             }
         }
 
         private Log ProcessStructuredLog(Log Log)
         {
-            string message = Log.Message;
-            string properties = "";
-            if (!string.IsNullOrEmpty(message) && message.Contains("{") && message.Contains("}") && !string.IsNullOrEmpty(Log.Properties))
+            try
             {
-                // get the named holes in the message and replace values
-                object[] values = JsonSerializer.Deserialize<object[]>(Log.Properties);
-                List<string> names = new List<string>();
-                int index = message.IndexOf("{");
-                while (index != -1)
+                string message = Log.Message;
+                string properties = "";
+                if (!string.IsNullOrEmpty(message) && message.Contains("{") && message.Contains("}") && !string.IsNullOrEmpty(Log.Properties))
                 {
-                    if (message.IndexOf("}", index) != -1)
+                    // get the named holes in the message and replace values
+                    object[] values = JsonSerializer.Deserialize<object[]>(Log.Properties);
+                    List<string> names = new List<string>();
+                    int index = message.IndexOf("{");
+                    while (index != -1)
                     {
-                        names.Add(message.Substring(index + 1, message.IndexOf("}", index) - index - 1));
-                        if (values.Length > (names.Count - 1))
+                        if (message.IndexOf("}", index) != -1)
                         {
-                            if (values[names.Count - 1] == null)
+                            names.Add(message.Substring(index + 1, message.IndexOf("}", index) - index - 1));
+                            if (values.Length > (names.Count - 1))
                             {
-                                message = message.Replace("{" + names[names.Count - 1] + "}", "null");
-                            }
-                            else
-                            {
-                                message = message.Replace("{" + names[names.Count - 1] + "}", values[names.Count - 1].ToString());
+                                if (values[names.Count - 1] == null)
+                                {
+                                    message = message.Replace("{" + names[names.Count - 1] + "}", "null");
+                                }
+                                else
+                                {
+                                    message = message.Replace("{" + names[names.Count - 1] + "}", values[names.Count - 1].ToString());
+                                }
                             }
                         }
+                        index = message.IndexOf("{", index + 1);
                     }
-                    index = message.IndexOf("{", index + 1);
-                }
-                // rebuild properties into dictionary
-                Dictionary<string, object> propertydictionary = new Dictionary<string, object>();
-                for (int i = 0; i < values.Length; i++)
-                {
-                    if (i < names.Count)
+                    // rebuild properties into dictionary
+                    Dictionary<string, object> propertydictionary = new Dictionary<string, object>();
+                    for (int i = 0; i < values.Length; i++)
                     {
-                        propertydictionary.Add(names[i], values[i]);
+                        if (i < names.Count)
+                        {
+                            propertydictionary.Add(names[i], values[i]);
+                        }
+                        else
+                        {
+                            propertydictionary.Add("Property" + i.ToString(), values[i]);
+                        }
                     }
-                    else
-                    {
-                        propertydictionary.Add("Property" + i.ToString(), values[i]);
-                    }
+                    properties = JsonSerializer.Serialize(propertydictionary);
                 }
-                properties = JsonSerializer.Serialize(propertydictionary);
+                Log.Message = message;
+                Log.Properties = properties;
             }
-            Log.Message = message;
-            Log.Properties = properties;
+            catch
+            {
+                Log.Properties = "";
+            }
             return Log;
         }
     }

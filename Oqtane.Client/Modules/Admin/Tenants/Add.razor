@@ -4,32 +4,78 @@
 @inject ITenantService TenantService
 @inject IInstallationService InstallationService
 
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Name: </label>
-        </td>
-        <td>
-            <input class="form-control" @bind="@name" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Connection String: </label>
-        </td>
-        <td>
-            <input class="form-control" @bind="@connectionstring" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Schema: </label>
-        </td>
-        <td>
-            <input class="form-control" @bind="@schema" />
-        </td>
-    </tr>
-</table>
+    <table class="table table-borderless">
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Name: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@name" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Title" class="control-label">Database Type: </label>
+            </td>
+            <td>
+                <select class="custom-select" @bind="@type">
+                    <option value="LocalDB">Local Database</option>
+                    <option value="SQLServer">SQL Server</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Title" class="control-label">Server: </label>
+            </td>
+            <td>
+                <input type="text" class="form-control" @bind="@server" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Title" class="control-label">Database: </label>
+            </td>
+            <td>
+                <input type="text" class="form-control" @bind="@database" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Title" class="control-label">Integrated Security: </label>
+            </td>
+            <td>
+                <select class="custom-select" @onchange="SetIntegratedSecurity">
+                    <option value="true" selected>True</option>
+                    <option value="false">False</option>
+                </select>
+            </td>
+        </tr>
+        <tr style="@integratedsecurity">
+            <td>
+                <label for="Title" class="control-label">Username: </label>
+            </td>
+            <td>
+                <input type="text" class="form-control" @bind="@username" />
+            </td>
+        </tr>
+        <tr style="@integratedsecurity">
+            <td>
+                <label for="Title" class="control-label">Password: </label>
+            </td>
+            <td>
+                <input type="password" class="form-control" @bind="@password" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Name" class="control-label">Schema: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@schema" />
+            </td>
+        </tr>
+    </table>
 <button type="button" class="btn btn-success" @onclick="SaveTenant">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
@@ -37,46 +83,72 @@
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
 
     string name = "";
-    string connectionstring = "";
+    string type = "LocalDB";
+    string server = "(LocalDb)\\MSSQLLocalDB";
+    string database = "Oqtane-" + DateTime.Now.ToString("yyyyMMddHHmm");
+    string username = "";
+    string password = "";
     string schema = "";
+    string integratedsecurity = "display: none;";
 
-    protected override async Task OnInitializedAsync()
+    private void SetIntegratedSecurity(ChangeEventArgs e)
     {
-        try
+        if (Convert.ToBoolean((string)e.Value))
         {
-            List<Tenant> tenants = await TenantService.GetTenantsAsync();
-            connectionstring = tenants.FirstOrDefault().DBConnectionString;
-            schema = tenants.FirstOrDefault().DBSchema;
+            integratedsecurity = "display: none;";
         }
-        catch (Exception ex)
+        else
         {
-            await logger.LogError(ex, "Error Loading Tenants {Error}", ex.Message);
-            AddModuleMessage("Error Loading Tenants", MessageType.Error);
+            integratedsecurity = "";
         }
     }
 
     private async Task SaveTenant()
     {
-        ShowProgressIndicator();
-
-        connectionstring = connectionstring.Replace("\\\\", "\\");
-        GenericResponse response = await InstallationService.Install(connectionstring);
-        if (response.Success)
+        if (!string.IsNullOrEmpty(name))
         {
-            Tenant tenant = new Tenant();
-            tenant.Name = name;
-            tenant.DBConnectionString = connectionstring;
-            tenant.DBSchema = schema;
-            tenant.IsInitialized = false;
-            await TenantService.AddTenantAsync(tenant);
-            await logger.LogInformation("Tenant Created {Tenant}", tenant);
+            ShowProgressIndicator();
 
-            NavigationManager.NavigateTo(NavigateUrl());
+            string connectionstring = "";
+            if (type == "LocalDB")
+            {
+                connectionstring = "Data Source=" + server + ";AttachDbFilename=|DataDirectory|\\" + database + ".mdf;Initial Catalog=" + database + ";Integrated Security=SSPI;";
+            }
+            else
+            {
+                connectionstring = "Data Source=" + server + ";Initial Catalog=" + database + ";";
+                if (integratedsecurity == "display: none;")
+                {
+                    connectionstring += "Integrated Security=SSPI;";
+                }
+                else
+                {
+                    connectionstring += "User ID=" + username + ";Password=" + password;
+
+                }
+            }
+            GenericResponse response = await InstallationService.Install(connectionstring);
+            if (response.Success)
+            {
+                Tenant tenant = new Tenant();
+                tenant.Name = name;
+                tenant.DBConnectionString = connectionstring;
+                tenant.DBSchema = schema;
+                tenant.IsInitialized = false;
+                await TenantService.AddTenantAsync(tenant);
+                await logger.LogInformation("Tenant Created {Tenant}", tenant);
+
+                NavigationManager.NavigateTo(NavigateUrl());
+            }
+            else
+            {
+                await logger.LogError("Error Creating Tenant {Error}", response.Message);
+                AddModuleMessage(response.Message, MessageType.Error);
+            }
         }
         else
         {
-            await logger.LogError("Error Creating Tenant {Error}", response.Message);
-            AddModuleMessage(response.Message, MessageType.Error);
+            AddModuleMessage("You Must Provide A Name For The Tenant", MessageType.Warning);
         }
     }
 }

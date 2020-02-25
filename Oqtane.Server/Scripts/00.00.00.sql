@@ -212,7 +212,7 @@ GO
 CREATE TABLE [dbo].[Log] (
 
    [LogId] [int] IDENTITY(1,1) NOT NULL,
-   [SiteId] [int] NOT NULL,
+   [SiteId] [int] NULL,
    [LogDate] [datetime] NOT NULL,
    [PageId] [int] NULL,
    [ModuleId] [int] NULL,
