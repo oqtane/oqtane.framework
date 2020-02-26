@@ -26,16 +26,24 @@ namespace Oqtane.Repository
             // get alias based on request context
             if (accessor.HttpContext != null)
             {
-                aliasname = accessor.HttpContext.Request.Host.Value;
-                string path = accessor.HttpContext.Request.Path.Value;
-                string[] segments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-                if (segments.Length > 1 && segments[1] == "api" && segments[0] != "~")
+                // check if an alias is passed as a querystring parameter
+                if (accessor.HttpContext.Request.Query.ContainsKey("alias"))
                 {
-                    aliasname += "/" + segments[0];
+                    aliasname = accessor.HttpContext.Request.Query["alias"];
                 }
-                if (aliasname.EndsWith("/"))
+                else // get the alias from the request url
                 {
-                    aliasname = aliasname.Substring(0, aliasname.Length - 1);
+                    aliasname = accessor.HttpContext.Request.Host.Value;
+                    string path = accessor.HttpContext.Request.Path.Value;
+                    string[] segments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (segments.Length > 1 && segments[1] == "api" && segments[0] != "~")
+                    {
+                        aliasname += "/" + segments[0];
+                    }
+                    if (aliasname.EndsWith("/"))
+                    {
+                        aliasname = aliasname.Substring(0, aliasname.Length - 1);
+                    }
                 }
             }
             else  // background processes can pass in an alias using the SiteState service
