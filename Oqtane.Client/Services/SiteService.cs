@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Components;
 using System.Collections.Generic;
 using Oqtane.Shared;
+using System.Net;
 
 namespace Oqtane.Services
 {
@@ -45,7 +46,7 @@ namespace Oqtane.Services
             }
             else
             {
-                return await http.PostJsonAsync<Site>(CreateApiUrl(Alias, NavigationManager.Uri, "Site"), Site);
+                return await http.PostJsonAsync<Site>(apiurl + "?alias=" + WebUtility.UrlEncode(Alias.Name), Site);
             }
         }
 
