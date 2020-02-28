@@ -6,8 +6,9 @@
 @inject ISiteService SiteService
 @inject IThemeService  ThemeService
 @inject IUserService UserService
+@inject IPingService PingService
 
-@if (tenants == null)
+@if (_tenants == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -21,7 +22,7 @@ else
         <td>
             <select class="form-control" @onchange="(e => TenantChanged(e))">
                 <option value="-1">&lt;Select Tenant&gt;</option>
-                @foreach (Tenant tenant in tenants)
+                @foreach (Tenant tenant in _tenants)
                 {
                     <option value="@tenant.TenantId">@tenant.Name</option>
                 }
@@ -33,7 +34,7 @@ else
             <label for="Name" class="control-label">Name: </label>
         </td>
         <td>
-            <input class="form-control" @bind="@name" />
+            <input class="form-control" @bind="@_name" />
         </td>
     </tr>
     <tr>
@@ -41,7 +42,7 @@ else
             <label for="Name" class="control-label">Aliases: </label>
         </td>
         <td>
-            <textarea class="form-control" @bind="@urls" rows="3" />
+            <textarea class="form-control" @bind="@_urls" rows="3" />
         </td>
     </tr>
     <tr>
@@ -63,7 +64,7 @@ else
             <label for="Name" class="control-label">Default Layout: </label>
         </td>
         <td>
-            <select class="form-control" @bind="@layouttype">
+            <select class="form-control" @bind="@_layouttype">
                 <option value="">&lt;Select Layout&gt;</option>
                 @foreach (KeyValuePair<string, string> panelayout in panelayouts)
                 {
@@ -77,7 +78,7 @@ else
             <label for="Name" class="control-label">Default Container: </label>
         </td>
         <td>
-            <select class="form-control" @bind="@containertype">
+            <select class="form-control" @bind="@_containertype">
                 <option value="">&lt;Select Container&gt;</option>
                 @foreach (KeyValuePair<string, string>container in containers)
                 {
@@ -86,14 +87,14 @@ else
             </select>
         </td>
     </tr>
-    @if (!isinitialized)
+    @if (!_isinitialized)
     {
         <tr>
             <td>
                 <label for="Name" class="control-label">Host Username:</label>
             </td>
             <td>
-                <input class="form-control" @bind="@username" readonly />
+                <input class="form-control" @bind="@_username" readonly />
             </td>
         </tr>
         <tr>
@@ -101,7 +102,7 @@ else
                 <label for="Name" class="control-label">Host Password:</label>
             </td>
             <td>
-                <input type="password" class="form-control" @bind="@password" />
+                <input type="password" class="form-control" @bind="@_password" />
             </td>
         </tr>
     }
@@ -117,46 +118,46 @@ else
     Dictionary<string, string> panelayouts = new Dictionary<string, string>();
     Dictionary<string, string> containers = new Dictionary<string, string>();
 
-    List<Theme> Themes;
-    List<Tenant> tenants;
-    string tenantid = "-1";
-    string name = "";
-    string urls = "";
-    string themetype = "";
-    string layouttype = "";
-    string containertype = "";
-    bool isinitialized = true;
-    string username = "";
-    string password = "";
+    List<Theme> _themes;
+    List<Tenant> _tenants;
+    string _tenantid = "-1";
+    string _name = "";
+    string _urls = "";
+    string _themetype = "";
+    string _layouttype = "";
+    string _containertype = "";
+    bool _isinitialized = true;
+    string _username = "";
+    string _password = "";
 
     protected override async Task OnInitializedAsync()
     {
-        Themes = await ThemeService.GetThemesAsync();
-        tenants = await TenantService.GetTenantsAsync();
-        urls = PageState.Alias.Name;
-        themes = ThemeService.GetThemeTypes(Themes);
-        containers = ThemeService.GetContainerTypes(Themes);
-        username = Constants.HostUser;
+        _themes = await ThemeService.GetThemesAsync();
+        _tenants = await TenantService.GetTenantsAsync();
+        _urls = PageState.Alias.Name;
+        themes = ThemeService.GetThemeTypes(_themes);
+        containers = ThemeService.GetContainerTypes(_themes);
+        _username = Constants.HostUser;
     }
 
     private async void TenantChanged(ChangeEventArgs e)
     {
         try
         {
-            tenantid = (string)e.Value;
-            if (tenantid != "-1")
+            _tenantid = (string)e.Value;
+            if (_tenantid != "-1")
             {
-                Tenant tenant = tenants.Where(item => item.TenantId == int.Parse(tenantid)).FirstOrDefault();
+                Tenant tenant = _tenants.Where(item => item.TenantId == int.Parse(_tenantid)).FirstOrDefault();
                 if (tenant != null)
                 {
-                    isinitialized = tenant.IsInitialized;
+                    _isinitialized = tenant.IsInitialized;
                     StateHasChanged();
                 }
             }
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading Tenant {TenantId} {Error}", tenantid, ex.Message);
+            await logger.LogError(ex, "Error Loading Tenant {TenantId} {Error}", _tenantid, ex.Message);
             AddModuleMessage("Error Loading Tenant", MessageType.Error);
         }
     }
@@ -165,10 +166,10 @@ else
     {
         try
         {
-            themetype = (string)e.Value;
-            if (themetype != "")
+            _themetype = (string)e.Value;
+            if (_themetype != "")
             {
-                panelayouts = ThemeService.GetPaneLayoutTypes(Themes, themetype);
+                panelayouts = ThemeService.GetPaneLayoutTypes(_themes, _themetype);
             }
             else
             {
@@ -178,23 +179,40 @@ else
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", themetype, ex.Message);
+            await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", _themetype, ex.Message);
             AddModuleMessage("Error Loading Pane Layouts For Theme", MessageType.Error);
         }
     }
 
+    private async Task<bool> CheckAliasEndpointAsync(string alias)
+    {
+        var url = ServiceBase.CreateApiUrl(new Alias {Name = alias}, NavigationManager.BaseUri, "Ping");
+        return "Pong" == await PingService.Ping(url);
+    }
+
+    private string FixAlias(string alias)
+    {
+        var elements = alias.Split(new char[] {'/'}, StringSplitOptions.RemoveEmptyEntries);
+        if (elements.Length > 1)
+        {
+            if(!elements[1].StartsWith("~")) elements[1] = "~" + elements[1];
+            return elements[0] + "/" + elements[1];
+        }
+        return alias;
+    }
+    
     private async Task SaveSite()
     {
-        if (tenantid != "-1" && name != "" && urls != "" && !string.IsNullOrEmpty(themetype) && (panelayouts.Count == 0 || !string.IsNullOrEmpty(layouttype)) && !string.IsNullOrEmpty(containertype))
+        if (_tenantid != "-1" && _name != "" && _urls != "" && !string.IsNullOrEmpty(_themetype) && (panelayouts.Count == 0 || !string.IsNullOrEmpty(_layouttype)) && !string.IsNullOrEmpty(_containertype))
         {
             bool isvalid = true;
 
-            if (!isinitialized)
+            if (!_isinitialized)
             {
                 User user = new User();
                 user.SiteId = PageState.Site.SiteId;
-                user.Username = username;
-                user.Password = password;
+                user.Username = _username;
+                user.Password = _password;
                 user = await UserService.LoginUserAsync(user, false, false);
                 isvalid = user.IsAuthenticated;
             }
@@ -202,26 +220,35 @@ else
             if (isvalid)
             {
                 ShowProgressIndicator();
-
                 List<Alias> aliases = new List<Alias>();
-                urls = urls.Replace("\n", ",");
-                foreach (string name in urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                _urls = _urls.Replace("\n", ",");
+                foreach (string s in _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    Alias alias = new Alias();
-                    alias.Name = name;
-                    alias.TenantId = int.Parse(tenantid);
-                    alias.SiteId = -1;
-                    alias = await AliasService.AddAliasAsync(alias);
-                    aliases.Add(alias);
+                    var name = FixAlias(s);
+                    if (await CheckAliasEndpointAsync(name))
+                    {
+                        Alias alias = new Alias();
+                        alias.Name = name;
+                        alias.TenantId = int.Parse(_tenantid);
+                        alias.SiteId = -1;
+                        alias = await AliasService.AddAliasAsync(alias);
+                        aliases.Add(alias);
+                    }
+                    else
+                    {
+                        //await logger.LogError("Invalid Alias:{name}", name);
+                        AddModuleMessage("Invalid Alias:{name}", MessageType.Error);
+                        return;
+                    }
                 }
 
                 Site site = new Site();
-                site.TenantId = int.Parse(tenantid);
-                site.Name = name;
+                site.TenantId = int.Parse(_tenantid);
+                site.Name = _name;
                 site.LogoFileId = null;
-                site.DefaultThemeType = themetype;
-                site.DefaultLayoutType = (layouttype == null ? "" : layouttype);
-                site.DefaultContainerType = containertype;
+                site.DefaultThemeType = _themetype;
+                site.DefaultLayoutType = (_layouttype == null ? "" : _layouttype);
+                site.DefaultContainerType = _containertype;
                 site = await SiteService.AddSiteAsync(site, aliases[0]);
 
                 foreach(Alias alias in aliases)
@@ -230,19 +257,19 @@ else
                     await AliasService.UpdateAliasAsync(alias);
                 }
 
-                if (!isinitialized)
+                if (!_isinitialized)
                 {
                     User user = new User();
                     user.SiteId = site.SiteId;
-                    user.Username = username;
-                    user.Password = password;
+                    user.Username = _username;
+                    user.Password = _password;
                     user.Email = PageState.User.Email;
                     user.DisplayName = PageState.User.DisplayName;
                     user = await UserService.AddUserAsync(user, aliases[0]);
 
                     if (user != null)
                     {
-                        Tenant tenant = tenants.Where(item => item.TenantId == int.Parse(tenantid)).FirstOrDefault();
+                        Tenant tenant = _tenants.Where(item => item.TenantId == int.Parse(_tenantid)).FirstOrDefault();
                         tenant.IsInitialized = true;
                         await TenantService.UpdateTenantAsync(tenant);
                     }
@@ -254,7 +281,7 @@ else
             }
             else
             {
-                await logger.LogError("Invalid Password Entered For Host {Username}", username);
+                await logger.LogError("Invalid Password Entered For Host {Username}", _username);
                 AddModuleMessage("Invalid Host Password", MessageType.Error);
             }
         }

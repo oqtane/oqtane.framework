@@ -58,6 +58,7 @@ namespace Oqtane.Client
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IFolderService, FolderService>();
             services.AddScoped<IFileService, FileService>();
+            services.AddScoped<IPingService, PingService>();
 
             // dynamically register module contexts and repository services
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();

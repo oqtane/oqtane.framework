@@ -111,6 +111,7 @@ namespace Oqtane.Server
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IFolderService, FolderService>();
             services.AddScoped<IFileService, FileService>();
+            services.AddScoped<IPingService, PingService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
