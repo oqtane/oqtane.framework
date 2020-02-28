@@ -62,7 +62,7 @@
     public override string Title { get { return "Folder Management"; } }
 
     List<Folder> folders;
-    int folderid;
+    int folderid = -1;
     string name;
     int parentid = -1;
     bool issystem = false;
@@ -86,7 +86,7 @@
                 Folder folder = await FolderService.GetFolderAsync(folderid);
                 if (folder != null)
                 {
-                    parentid = (folder.ParentId == null) ? -1 : folder.ParentId.Value;
+                    parentid = folder.ParentId ?? -1;
                     name = folder.Name;
                     issystem = folder.IsSystem;
                     permissions = folder.Permissions;
