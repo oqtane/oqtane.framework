@@ -19,27 +19,27 @@ Oqtane uses Blazor, a new web framework for .NET Core that lets you build intera
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
 
 V1 (MVP)
-- Multi-Tenant ( Shared Database & Isolated Database ) **done**
-- Modular Architecture / Headless API **done**
-- Dynamic Page Compositing Model / Site & Page Management **done**
-- Authentication / User Management / Profile Management **done**
-- Authorization / Roles Management / Granular Permissions **done**
-- Dynamic Routing **done**
-- Extensibility via Custom Modules **done**
-- Extensibility via Custom Themes **done**
-- Event Logging **done**
-- Folder / File Management **done**
-- Recycle Bin **done**
-- Scheduled Jobs ( Background Processing ) **done**
-- Notifications / Email Delivery **done**
-- Auto-Upgrade Framework **done**
+- [x] Multi-Tenant ( Shared Database & Isolated Database ) 
+- [x] Modular Architecture / Headless API
+- [x] Dynamic Page Compositing Model / Site & Page Management
+- [x] Authentication / User Management / Profile Management
+- [x] Authorization / Roles Management / Granular Permissions
+- [x] Dynamic Routing
+- [x] Extensibility via Custom Modules
+- [x] Extensibility via Custom Themes
+- [x] Event Logging
+- [x] Folder / File Management
+- [x] Recycle Bin
+- [x] Scheduled Jobs ( Background Processing )
+- [x] Notifications / Email Delivery
+- [x] Auto-Upgrade Framework
 
 V.Next
-- Optional Encryption of Settings Values ( ie. via an IsSecure flag )
-- Localization
-- Migrate to Code-Behind Pattern ( *.razor.cs )
-- Generic Repository Pattern
-- JwT token authentication
+- [ ] Optional Encryption of Settings Values ( ie. via an IsSecure flag )
+- [ ] Localization
+- [ ] Migrate to Code-Behind Pattern ( *.razor.cs )
+- [ ] Generic Repository Pattern
+- [ ] JwT token authentication
 
 # Background
 Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Initially created as a proof of concept, Oqtane is a native Blazor application written from the ground up using modern .NET Core technology. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly templates (skins), and extensibility via third party modules.
@@ -56,28 +56,28 @@ Install Wizard:
 
 Default view after installation:
 
-![Home](https://github.com/oqtane/framework/blob/master/screenshot0.png?raw=true "Home")
+![Home](https://github.com/oqtane/framework/blob/master/screenshots/screenshot0.png?raw=true "Home")
 
 A seamless login flow utilizing .NET Core Identity services:
 
-![Login](https://github.com/oqtane/framework/blob/master/screenshot1.png?raw=true "Login")
+![Login](https://github.com/oqtane/framework/blob/master/screenshots/screenshot1.png?raw=true "Login")
 
 Main view for authorized users, allowing full management of modules and content:
 
-![Admin View](https://github.com/oqtane/framework/blob/master/screenshot2.png?raw=true "Admin View")
+![Admin View](https://github.com/oqtane/framework/blob/master/screenshots/screenshot2.png?raw=true "Admin View")
 
 Content editing user experience using modal dialog:
 
-![Edit Content](https://github.com/oqtane/framework/blob/master/screenshot3.png?raw=true "Edit Content")
+![Edit Content](https://github.com/oqtane/framework/blob/master/screenshots/screenshot3.png?raw=true "Edit Content")
 
 Context menu for managing specific module on page:
 
-![Manage Module](https://github.com/oqtane/framework/blob/master/screenshot4.png?raw=true "Manage Module")
+![Manage Module](https://github.com/oqtane/framework/blob/master/screenshots/screenshot4.png?raw=true "Manage Module")
 
 Control panel for adding, editing, and deleting pages as well as adding new modules to a page:
 
-![Manage Page](https://github.com/oqtane/framework/blob/master/screenshot5.png?raw=true "Manage Page")
+![Manage Page](https://github.com/oqtane/framework/blob/master/screenshots/screenshot5.png?raw=true "Manage Page")
 
 Admin dashboard for accessing the variuous administrative features of the framework:
 
-![Admin Dashboard](https://github.com/oqtane/framework/blob/master/screenshot6.png?raw=true "Admin Dashboard")
+![Admin Dashboard](https://github.com/oqtane/framework/blob/master/screenshots/screenshot6.png?raw=true "Admin Dashboard")

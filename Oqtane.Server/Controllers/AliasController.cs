@@ -50,7 +50,7 @@ namespace Oqtane.Controllers
             if (alias == null && name.Contains("/"))
             {
                 // lookup alias without folder name
-                alias = aliases.Where(item => item.Name == name.Substring(name.IndexOf("/") + 1)).FirstOrDefault();
+                alias = aliases.Find(item => item.Name == name.Substring(0, name.IndexOf("/")));
             }
             if (alias == null && aliases.Count > 0)
             {
