@@ -36,15 +36,6 @@ namespace Oqtane.Controllers
             return Themes.GetThemes();
         }
 
-        // GET api/<controller>/filename
-        [HttpGet("{filename}")]
-        public IActionResult Get(string filename)
-        {
-            string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            byte[] file = System.IO.File.ReadAllBytes(Path.Combine(binfolder, filename));
-            return File(file, "application/octet-stream", filename);
-        }
-
         [HttpGet("install")]
         [Authorize(Roles = Constants.HostRole)]
         public void InstallThemes()
@@ -79,6 +70,15 @@ namespace Oqtane.Controllers
 
                 InstallationManager.RestartApplication();
             }
+        }
+
+        // GET api/<controller>/load/filename
+        [HttpGet("load/{filename}")]
+        public IActionResult Load(string filename)
+        {
+            string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            byte[] file = System.IO.File.ReadAllBytes(Path.Combine(binfolder, filename));
+            return File(file, "application/octet-stream", filename);
         }
     }
 }

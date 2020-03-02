@@ -33,10 +33,10 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>?siteid=x
         [HttpGet]
-        public IEnumerable<ModuleDefinition> Get(int siteid)
+        public IEnumerable<ModuleDefinition> Get(string siteid)
         {
             List<ModuleDefinition> moduledefinitions = new List<ModuleDefinition>();
-            foreach(ModuleDefinition moduledefinition in ModuleDefinitions.GetModuleDefinitions(siteid))
+            foreach(ModuleDefinition moduledefinition in ModuleDefinitions.GetModuleDefinitions(int.Parse(siteid)))
             {
                 if (UserPermissions.IsAuthorized(User, "Utilize", moduledefinition.Permissions))
                 {
@@ -61,16 +61,6 @@ namespace Oqtane.Controllers
                 HttpContext.Response.StatusCode = 401;
                 return null;
             }
-        }
-
-
-        // GET api/<controller>/filename
-        [HttpGet("{filename}")]
-        public IActionResult Get(string assemblyname)
-        {
-            string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            byte[] file = System.IO.File.ReadAllBytes(Path.Combine(binfolder, assemblyname));
-            return File(file, "application/octet-stream", assemblyname);
         }
 
         // PUT api/<controller>/5
@@ -121,6 +111,15 @@ namespace Oqtane.Controllers
 
                 InstallationManager.RestartApplication();
             }
+        }
+
+        // GET api/<controller>/load/filename
+        [HttpGet("load/{filename}")]
+        public IActionResult Load(string assemblyname)
+        {
+            string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            byte[] file = System.IO.File.ReadAllBytes(Path.Combine(binfolder, assemblyname));
+            return File(file, "application/octet-stream", assemblyname);
         }
 
     }
