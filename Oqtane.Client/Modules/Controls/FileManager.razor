@@ -6,46 +6,50 @@
 
 @if (folders != null)
 {
-    <div class="container-fluid">
+    <div class="container-fluid px-0">
         <div class="row">
-            <div class="col pl-0 pr-0">
-                <select class="form-control" @onchange="(e => FolderChanged(e))">
-                    @if (string.IsNullOrEmpty(Folder))
-                    {
-                        <option value="-1">&lt;Select Folder&gt;</option>
-                    }
-                    @foreach (Folder folder in folders)
-                    {
-                        if (folder.FolderId == folderid)
+            <div class="col">
+                <div>
+                    <select class="form-control" @onchange="(e => FolderChanged(e))">
+                        @if (string.IsNullOrEmpty(Folder))
                         {
-                            <option value="@(folder.FolderId)" selected>@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                            <option value="-1">&lt;Select Folder&gt;</option>
                         }
-                        else
+                        @foreach (Folder folder in folders)
                         {
-                            <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
-                        }
-                    }
-                </select>
-                @if (showfiles)
-                {
-                    <select class="form-control" @onchange="(e => FileChanged(e))">
-                        <option value="-1">&lt;Select File&gt;</option>
-                        @foreach (File file in files)
-                        {
-                            if (file.FileId == fileid)
+                            if (folder.FolderId == folderid)
                             {
-                                <option value="@(file.FileId)" selected>@(file.Name)</option>
+                                <option value="@(folder.FolderId)" selected>@(new string('-', folder.Level * 2))@(folder.Name)</option>
                             }
                             else
                             {
-                                <option value="@(file.FileId)">@(file.Name)</option>
+                                <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
                             }
                         }
                     </select>
+                </div>
+                @if (showfiles)
+                {
+                    <div>
+                        <select class="form-control" @onchange="(e => FileChanged(e))">
+                            <option value="-1">&lt;Select File&gt;</option>
+                            @foreach (File file in files)
+                            {
+                                if (file.FileId == fileid)
+                                {
+                                    <option value="@(file.FileId)" selected>@(file.Name)</option>
+                                }
+                                else
+                                {
+                                    <option value="@(file.FileId)">@(file.Name)</option>
+                                }
+                            }
+                        </select>
+                    </div>
                 }
                 @if (haseditpermission)
                 {
-                    <span class="text-nowrap">
+                    <div>
                         @if (uploadmultiple)
                         {
                             <input type="file" id="@fileinputid" name="file" accept="@filter" multiple />
@@ -54,19 +58,21 @@
                         {
                             <input type="file" id="@fileinputid" name="file" accept="@filter" />
                         }
-                        <span id="@progressinfoid"></span><progress id="@progressbarid" style="visibility: hidden;"></progress>
+                        <span id="@progressinfoid"></span><progress id="@progressbarid" style="width: 150px; visibility: hidden;"></progress>
+                        <span class="float-right">
+                        <button type="button" class="btn btn-success" @onclick="UploadFile">Upload</button>
                         @if (showfiles && GetFileId() != -1)
                         {
-                            <button type="button" class="btn btn-danger float-right" @onclick="DeleteFile">Delete</button>
+                            <button type="button" class="btn btn-danger" @onclick="DeleteFile">Delete</button>
                         }
-                        <button type="button" class="btn btn-success float-right" @onclick="UploadFile">Upload</button>
-                    </span>
+                        </span>
+                    </div>
                     @((MarkupString)@message)
                 }
             </div>
             @if (@image != "")
             {
-                <div class="col-auto pr-0">
+                <div class="col-auto">
                     @((MarkupString)@image)
                 </div>
             }
