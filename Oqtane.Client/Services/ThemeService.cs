@@ -45,7 +45,7 @@ namespace Oqtane.Services
                         if (assemblies.Where(item => item.FullName.StartsWith(assemblyname + ",")).FirstOrDefault() == null)
                         {
                             // download assembly from server and load
-                            var bytes = await http.GetByteArrayAsync(apiurl + "/" + assemblyname + ".dll");
+                            var bytes = await http.GetByteArrayAsync(apiurl + "/load/" + assemblyname + ".dll");
                             Assembly.Load(bytes);
                         }
                     }
@@ -53,7 +53,7 @@ namespace Oqtane.Services
                 if (assemblies.Where(item => item.FullName.StartsWith(theme.AssemblyName + ",")).FirstOrDefault() == null)
                 {
                     // download assembly from server and load
-                    var bytes = await http.GetByteArrayAsync(apiurl + "/" + theme.AssemblyName + ".dll");
+                    var bytes = await http.GetByteArrayAsync(apiurl + "/load/" + theme.AssemblyName + ".dll");
                     Assembly.Load(bytes);
                 }
             }
