@@ -1,11 +1,10 @@
-﻿@namespace Oqtane.Modules.Admin.Site
+﻿@namespace Oqtane.Modules.Admin.Sites
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject ISiteService SiteService
 @inject ITenantService TenantService
 @inject IAliasService AliasService
 @inject IThemeService  ThemeService
-@inject ISettingService  SettingService
 
 @if (themes != null)
 {
@@ -32,14 +31,6 @@
             </td>
             <td>
                 <textarea class="form-control" @bind="@urls" rows="3" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="Name" class="control-label">Logo: </label>
-            </td>
-            <td>
-                <FileManager FileId="@logofileid.ToString()" @ref="filemanager" />
             </td>
         </tr>
         <tr>
@@ -103,54 +94,6 @@
             </td>
         </tr>
     </table>
-
-    <a data-toggle="collapse" class="app-link-unstyled" href="#SMTP" aria-expanded="false" aria-controls="SMTP">
-        <h5><i class="oi oi-chevron-bottom"></i>&nbsp;SMTP Settings</h5><hr class="app-rule" />
-    </a>
-    <div class="collapse" id="SMTP">
-        <table class="table table-borderless">
-            <tr>
-                <td>
-                    <label for="Name" class="control-label">Host: </label>
-                </td>
-                <td>
-                    <input class="form-control" @bind="@smtphost" />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <label for="Name" class="control-label">Port: </label>
-                </td>
-                <td>
-                    <input class="form-control" @bind="@smtpport" />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <label for="Name" class="control-label">SSL Enabled: </label>
-                </td>
-                <td>
-                    <input class="form-control" @bind="@smtpssl" />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <label for="Name" class="control-label">Username: </label>
-                </td>
-                <td>
-                    <input class="form-control" @bind="@smtpusername" />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <label for="Name" class="control-label">Password: </label>
-                </td>
-                <td>
-                    <input type="password" class="form-control" @bind="@smtppassword" />
-                </td>
-            </tr>
-        </table>
-    </div>
     <br />
     <button type="button" class="btn btn-success" @onclick="SaveSite">Save</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
@@ -160,29 +103,22 @@
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
 
     Dictionary<string, string> themes;
     Dictionary<string, string> panelayouts;
     Dictionary<string, string> containers;
 
+    Alias Alias;
     List<Theme> Themes;
     string name = "";
     List<Tenant> tenants;
     string tenant = "";
     List<Alias> aliases;
     string urls = "";
-    int logofileid = -1;
-    FileManager filemanager;
     string themetype;
     string layouttype;
     string containertype;
-
-    string smtphost = "";
-    string smtpport = "";
-    string smtpssl = "";
-    string smtpusername = "";
-    string smtppassword = "";
 
     string createdby;
     DateTime createdon;
@@ -198,7 +134,9 @@
         {
             Themes = await ThemeService.GetThemesAsync();
             aliases = await AliasService.GetAliasesAsync();
-            Site site = await SiteService.GetSiteAsync(PageState.Site.SiteId, PageState.Alias);
+
+            Alias = aliases.Find(item => item.AliasId == Int32.Parse(PageState.QueryString["id"]));
+            Site site = await SiteService.GetSiteAsync(Alias.SiteId, Alias);
             if (site != null)
             {
                 name = site.Name;
@@ -208,21 +146,10 @@
                 {
                     urls += alias.Name + "\n";
                 }
-                if (site.LogoFileId != null)
-                {
-                    logofileid = site.LogoFileId.Value;
-                }
                 themetype = site.DefaultThemeType;
                 panelayouts = ThemeService.GetPaneLayoutTypes(Themes, themetype);
                 layouttype = site.DefaultLayoutType;
                 containertype = site.DefaultContainerType;
-
-                Dictionary<string, string> settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
-                smtphost = SettingService.GetSetting(settings, "SMTPHost", "");
-                smtpport = SettingService.GetSetting(settings, "SMTPPort", "");
-                smtpssl = SettingService.GetSetting(settings, "SMTPSSL", "");
-                smtpusername = SettingService.GetSetting(settings, "SMTPUsername", "");
-                smtppassword = SettingService.GetSetting(settings, "SMTPPassword", "");
 
                 createdby = site.CreatedBy;
                 createdon = site.CreatedOn;
@@ -238,7 +165,7 @@
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
+            await Log(Alias, LogLevel.Error, "", ex, "Error Loading Site {SiteId} {Error}", Alias.SiteId, ex.Message);
             AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
@@ -274,29 +201,24 @@
                 bool unique = true;
                 foreach (string name in urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    if (aliases.Exists(item => item.Name == name && item.SiteId != PageState.Alias.SiteId && item.TenantId != PageState.Alias.TenantId))
+                    if (aliases.Exists(item => item.Name == name && item.SiteId != Alias.SiteId && item.TenantId != Alias.TenantId))
                     {
                         unique = false;
                     }
                 }
                 if (unique)
                 {
-                    Site site = await SiteService.GetSiteAsync(PageState.Site.SiteId, PageState.Alias);
+                    Site site = await SiteService.GetSiteAsync(Alias.SiteId, Alias);
                     if (site != null)
                     {
                         site.Name = name;
                         site.LogoFileId = null;
-                        int logofileid = filemanager.GetFileId();
-                        if (logofileid != -1)
-                        {
-                            site.LogoFileId = logofileid;
-                        }
                         site.DefaultThemeType = themetype;
                         site.DefaultLayoutType = (layouttype == null ? "" : layouttype);
                         site.DefaultContainerType = containertype;
                         site.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
 
-                        site = await SiteService.UpdateSiteAsync(site, PageState.Alias);
+                        site = await SiteService.UpdateSiteAsync(site, Alias);
 
                         urls = urls.Replace("\n", ",");
                         string[] names = urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
@@ -319,15 +241,7 @@
                             }
                         }
 
-                        Dictionary<string, string> settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
-                        SettingService.SetSetting(settings, "SMTPHost", smtphost);
-                        SettingService.SetSetting(settings, "SMTPPort", smtpport);
-                        SettingService.SetSetting(settings, "SMTPSSL", smtpssl);
-                        SettingService.SetSetting(settings, "SMTPUsername", smtpusername);
-                        SettingService.SetSetting(settings, "SMTPPassword", smtppassword);
-                        await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
-
-                        await logger.LogInformation("Site Saved {Site}", site);
+                        await Log(Alias, LogLevel.Information, "Edit", null, "Site Saved {Site}", site);
 
                         NavigationManager.NavigateTo(NavigateUrl(Reload.Site));
                     }
@@ -344,8 +258,8 @@
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Saving Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
+            await Log(Alias, LogLevel.Error, "", ex, "Error Saving Site {SiteId} {Error}", Alias.SiteId, ex.Message);
             AddModuleMessage("Error Saving Site", MessageType.Error);
         }
     }
-}
+ }

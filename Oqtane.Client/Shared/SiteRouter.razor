@@ -120,7 +120,7 @@
         }
         if (PageState == null || reload <= Reload.Site)
         {
-            site = await SiteService.GetSiteAsync(alias.SiteId);
+            site = await SiteService.GetSiteAsync(alias.SiteId, alias);
         }
         else
         {

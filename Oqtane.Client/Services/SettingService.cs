@@ -124,8 +124,11 @@ namespace Oqtane.Services
                 }
                 else
                 {
-                    setting.SettingValue = kvp.Value;
-                    setting = await UpdateSettingAsync(setting);
+                    if (setting.SettingValue != kvp.Value)
+                    {
+                        setting.SettingValue = kvp.Value;
+                        setting = await UpdateSettingAsync(setting);
+                    }
                 }
             }
         }

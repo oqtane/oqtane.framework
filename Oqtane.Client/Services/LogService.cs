@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -39,8 +40,20 @@ namespace Oqtane.Services
 
         public async Task Log(int? PageId, int? ModuleId, int? UserId, string category, string feature, LogFunction function, LogLevel level, Exception exception, string message, params object[] args)
         {
+            await Log(null, PageId, ModuleId, UserId, category, feature, function, level, exception, message, args);
+        }
+
+        public async Task Log(Alias Alias, int? PageId, int? ModuleId, int? UserId, string category, string feature, LogFunction function, LogLevel level, Exception exception, string message, params object[] args)
+        {
             Log log = new Log();
-            log.SiteId = sitestate.Alias.SiteId;
+            if (Alias == null)
+            {
+                log.SiteId = sitestate.Alias.SiteId;
+            }
+            else
+            {
+                log.SiteId = Alias.SiteId;
+            }
             log.PageId = PageId;
             log.ModuleId = ModuleId;
             log.UserId = UserId;
@@ -56,7 +69,14 @@ namespace Oqtane.Services
             log.Message = message;
             log.MessageTemplate = "";
             log.Properties = JsonSerializer.Serialize(args);
-            await http.PostJsonAsync(apiurl, log);
+            if (Alias == null)
+            {
+                await http.PostJsonAsync(apiurl, log);
+            }
+            else
+            {
+                await http.PostJsonAsync(apiurl + "?alias=" + WebUtility.UrlEncode(Alias.Name), log);
+            }
         }
     }
 }

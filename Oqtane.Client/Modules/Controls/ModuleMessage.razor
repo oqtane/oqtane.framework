@@ -19,8 +19,11 @@
 
     protected override void OnParametersSet()
     {
-        message = Message;
-        classname = GetMessageType(Type);
+        if (!string.IsNullOrEmpty(Message))
+        {
+            message = Message;
+            classname = GetMessageType(Type);
+        }
     }
 
     public void SetModuleMessage(string message, MessageType type)
