@@ -27,37 +27,40 @@ namespace Oqtane.Services
             get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "Site"); }
         }
 
-        public async Task<List<Site>> GetSitesAsync()
+        private string urlsuffix(Alias Alias)
         {
-            List<Site> sites = await http.GetJsonAsync<List<Site>>(apiurl);
+            string querystring = "";
+            if (Alias != null)
+            {
+                querystring = "?alias=" + WebUtility.UrlEncode(Alias.Name);
+            }
+            return querystring;
+        }
+
+        public async Task<List<Site>> GetSitesAsync(Alias Alias)
+        {
+            List<Site> sites = await http.GetJsonAsync<List<Site>>(apiurl + urlsuffix(Alias));
             return sites.OrderBy(item => item.Name).ToList();
         }
 
-        public async Task<Site> GetSiteAsync(int SiteId)
+        public async Task<Site> GetSiteAsync(int SiteId, Alias Alias)
         {
-            return await http.GetJsonAsync<Site>(apiurl + "/" + SiteId.ToString());
+            return await http.GetJsonAsync<Site>(apiurl + "/" + SiteId.ToString() + urlsuffix(Alias));
         }
 
         public async Task<Site> AddSiteAsync(Site Site, Alias Alias)
         {
-            if (Alias == null)
-            {
-                return await http.PostJsonAsync<Site>(apiurl, Site);
-            }
-            else
-            {
-                return await http.PostJsonAsync<Site>(apiurl + "?alias=" + WebUtility.UrlEncode(Alias.Name), Site);
-            }
+            return await http.PostJsonAsync<Site>(apiurl + urlsuffix(Alias), Site);
         }
 
-        public async Task<Site> UpdateSiteAsync(Site Site)
+        public async Task<Site> UpdateSiteAsync(Site Site, Alias Alias)
         {
-            return await http.PutJsonAsync<Site>(apiurl + "/" + Site.SiteId.ToString(), Site);
+            return await http.PutJsonAsync<Site>(apiurl + "/" + Site.SiteId.ToString() + urlsuffix(Alias), Site);
         }
 
-        public async Task DeleteSiteAsync(int SiteId)
+        public async Task DeleteSiteAsync(int SiteId, Alias Alias)
         {
-            await http.DeleteAsync(apiurl + "/" + SiteId.ToString());
+            await http.DeleteAsync(apiurl + "/" + SiteId.ToString() + urlsuffix(Alias));
         }
     }
 }

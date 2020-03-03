@@ -187,75 +187,91 @@ else
     {
         if (tenantid != "-1" && name != "" && urls != "" && !string.IsNullOrEmpty(themetype) && (panelayouts.Count == 0 || !string.IsNullOrEmpty(layouttype)) && !string.IsNullOrEmpty(containertype))
         {
-            bool isvalid = true;
-
-            if (!isinitialized)
+            bool unique = true;
+            List<Alias> aliases = await AliasService.GetAliasesAsync();
+            foreach (string name in urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
             {
-                User user = new User();
-                user.SiteId = PageState.Site.SiteId;
-                user.Username = username;
-                user.Password = password;
-                user = await UserService.LoginUserAsync(user, false, false);
-                isvalid = user.IsAuthenticated;
+                if (aliases.Exists(item => item.Name == name))
+                {
+                    unique = false;
+                }
             }
-
-            if (isvalid)
+            if (unique)
             {
-                ShowProgressIndicator();
-
-                List<Alias> aliases = new List<Alias>();
-                urls = urls.Replace("\n", ",");
-                foreach (string name in urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                {
-                    Alias alias = new Alias();
-                    alias.Name = name;
-                    alias.TenantId = int.Parse(tenantid);
-                    alias.SiteId = -1;
-                    alias = await AliasService.AddAliasAsync(alias);
-                    aliases.Add(alias);
-                }
-
-                Site site = new Site();
-                site.TenantId = int.Parse(tenantid);
-                site.Name = name;
-                site.LogoFileId = null;
-                site.DefaultThemeType = themetype;
-                site.DefaultLayoutType = (layouttype == null ? "" : layouttype);
-                site.DefaultContainerType = containertype;
-                site = await SiteService.AddSiteAsync(site, aliases[0]);
-
-                foreach(Alias alias in aliases)
-                {
-                    alias.SiteId = site.SiteId;
-                    await AliasService.UpdateAliasAsync(alias);
-                }
+                bool isvalid = true;
 
                 if (!isinitialized)
                 {
                     User user = new User();
-                    user.SiteId = site.SiteId;
+                    user.SiteId = PageState.Site.SiteId;
                     user.Username = username;
                     user.Password = password;
-                    user.Email = PageState.User.Email;
-                    user.DisplayName = PageState.User.DisplayName;
-                    user = await UserService.AddUserAsync(user, aliases[0]);
-
-                    if (user != null)
-                    {
-                        Tenant tenant = tenants.Where(item => item.TenantId == int.Parse(tenantid)).FirstOrDefault();
-                        tenant.IsInitialized = true;
-                        await TenantService.UpdateTenantAsync(tenant);
-                    }
+                    user = await UserService.LoginUserAsync(user, false, false);
+                    isvalid = user.IsAuthenticated;
                 }
-                await logger.LogInformation("Site Created {Site}", site);
 
-                Uri uri = new Uri(NavigationManager.Uri);
-                NavigationManager.NavigateTo(uri.Scheme + "://" + aliases[0].Name, true);
+                if (isvalid)
+                {
+                    ShowProgressIndicator();
+
+                    aliases = new List<Alias>();
+                    urls = urls.Replace("\n", ",");
+                    foreach (string name in urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        Alias alias = new Alias();
+                        alias.Name = name;
+                        alias.TenantId = int.Parse(tenantid);
+                        alias.SiteId = -1;
+                        alias = await AliasService.AddAliasAsync(alias);
+                        aliases.Add(alias);
+                    }
+
+                    Site site = new Site();
+                    site.TenantId = int.Parse(tenantid);
+                    site.Name = name;
+                    site.LogoFileId = null;
+                    site.DefaultThemeType = themetype;
+                    site.DefaultLayoutType = (layouttype == null ? "" : layouttype);
+                    site.DefaultContainerType = containertype;
+                    site = await SiteService.AddSiteAsync(site, aliases[0]);
+
+                    foreach (Alias alias in aliases)
+                    {
+                        alias.SiteId = site.SiteId;
+                        await AliasService.UpdateAliasAsync(alias);
+                    }
+
+                    if (!isinitialized)
+                    {
+                        User user = new User();
+                        user.SiteId = site.SiteId;
+                        user.Username = username;
+                        user.Password = password;
+                        user.Email = PageState.User.Email;
+                        user.DisplayName = PageState.User.DisplayName;
+                        user = await UserService.AddUserAsync(user, aliases[0]);
+
+                        if (user != null)
+                        {
+                            Tenant tenant = tenants.Where(item => item.TenantId == int.Parse(tenantid)).FirstOrDefault();
+                            tenant.IsInitialized = true;
+                            await TenantService.UpdateTenantAsync(tenant);
+                        }
+                    }
+                    await Log(aliases[0], LogLevel.Information, "", null, "Site Created {Site}", site);
+
+                    Uri uri = new Uri(NavigationManager.Uri);
+                    NavigationManager.NavigateTo(uri.Scheme + "://" + aliases[0].Name, true);
+                }
+                else
+                {
+                    await logger.LogError("Invalid Password Entered For Host {Username}", username);
+                    AddModuleMessage("Invalid Host Password", MessageType.Error);
+                }
             }
             else
             {
-                await logger.LogError("Invalid Password Entered For Host {Username}", username);
-                AddModuleMessage("Invalid Host Password", MessageType.Error);
+                AddModuleMessage("An Alias Specified Has Already Been Used For Another Site", MessageType.Warning);
             }
         }
         else

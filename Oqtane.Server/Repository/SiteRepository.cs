@@ -152,12 +152,9 @@ namespace Oqtane.Repository
 
         public void DeleteSite(int siteId)
         {       
-            if (db.Site.Count() > 1)
-            {
-                var site = db.Site.Find(siteId);
-                db.Site.Remove(site);
-                db.SaveChanges();
-            }
+            var site = db.Site.Find(siteId);
+            db.Site.Remove(site);
+            db.SaveChanges();
         }
 
         private void CreateSite(Site site)
