@@ -15,7 +15,7 @@ Oqtane uses Blazor, a new web framework for .NET Core that lets you build intera
    
    NOTE: If you have already installed a previous version of Oqtane and you wish to install a newer version, there is currently no upgrade path from one version to the next. The recommended upgrade approach is to get the latest code and build it, and then reset the DefaultConnection value to "" in the appsettings.json file in the Oqtane.server project. This will trigger a re-install when you run the application which will execute the latest database scripts.
    
-   NOTE: If you want to submit pull requests make sure you install the Github Extension For Visual Studio ( https://visualstudio.github.com/ ). It is recommended you ignore any local changes you have made to the appsettings.json file. To automate this, open a command prompt and navigate to the /Oqtane.Server/ folder and enter the command "git update-index --skip-worktree appsettings.json" 
+   NOTE: If you want to submit pull requests make sure you install the [Github Extension For Visual Studio](https://visualstudio.github.com/). It is recommended you ignore any local changes you have made to the appsettings.json file before you submit a pull request. To automate this activity, open a command prompt and navigate to the /Oqtane.Server/ folder and enter the command "git update-index --skip-worktree appsettings.json" 
 
 # Roadmap
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
