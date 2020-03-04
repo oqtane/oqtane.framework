@@ -1,7 +1,5 @@
 ﻿using System;
-using Microsoft.AspNetCore.Components;
 using Oqtane.Models;
-using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
@@ -29,6 +27,16 @@ namespace Oqtane.Services
             }
             apiurl += "api/" + serviceName;
             return apiurl;
+        }
+
+        public static string CreateCrossTenantUrl(string url, Alias alias)
+        {
+            if (alias != null)
+            {
+                url += (url.Contains("?")) ? "&" : "?";
+                url += "aliasid=" + alias.AliasId.ToString();
+            }
+            return url;
         }
     }
 }

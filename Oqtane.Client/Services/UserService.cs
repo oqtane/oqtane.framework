@@ -1,12 +1,8 @@
 ﻿using Oqtane.Shared;
 using Oqtane.Models;
-using System;
-using System.Linq;
 using System.Net.Http;
 using Microsoft.AspNetCore.Components;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Net;
 
 namespace Oqtane.Services
 {
@@ -54,7 +50,7 @@ namespace Oqtane.Services
         {
             try
             {
-                return await http.PostJsonAsync<User>(apiurl + "?alias=" + WebUtility.UrlEncode(Alias.Name), User);
+                return await http.PostJsonAsync<User>(CreateCrossTenantUrl(apiurl, Alias), User);
             }
             catch
             {

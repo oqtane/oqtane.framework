@@ -6,6 +6,7 @@ namespace Oqtane.Repository
     public interface IPageModuleRepository
     {
         IEnumerable<PageModule> GetPageModules(int SiteId);
+        IEnumerable<PageModule> GetPageModules(int PageId, string Pane);
         PageModule AddPageModule(PageModule PageModule);
         PageModule UpdatePageModule(PageModule PageModule);
         PageModule GetPageModule(int PageModuleId);
