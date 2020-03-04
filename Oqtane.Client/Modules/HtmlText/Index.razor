@@ -13,7 +13,7 @@
 <br /><br />
 
 @code {
-    string content;
+    string content = "";
 
     protected override async Task OnParametersSetAsync()
     {
@@ -24,6 +24,7 @@
             if (htmltext != null)
             {
                 content = htmltext.Content;
+                content = content.Replace(Constants.ContentUrl, ((PageState.Alias.Path == "") ? "/~" : PageState.Alias.Path) + Constants.ContentUrl);
             }
         }
         catch (Exception ex)

@@ -104,13 +104,9 @@ namespace Oqtane.Modules
 
         public string ContentUrl(int fileid)
         {
-            string apiurl = PageState.Uri.Scheme + "://" + PageState.Alias.Name + "/";
-            if (PageState.Alias.Path == "")
-            {
-                apiurl += "~/";
-            }
-            apiurl += "api/File/Download/" + fileid.ToString();
-            return apiurl;
+            string url = (PageState.Alias.Path == "") ? "/~" : PageState.Alias.Path;
+            url += Constants.ContentUrl + fileid.ToString();
+            return url;
         }
 
         // user feedback methods

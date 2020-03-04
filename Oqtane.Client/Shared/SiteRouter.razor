@@ -355,50 +355,57 @@
         Dictionary<string, int> paneindex = new Dictionary<string, int>();
         foreach (Module module in modules)
         {
-            string typename = module.ModuleDefinition.ControlTypeTemplate;
-            if (module.ModuleId == moduleid && control != "")
+            if (module.PageId == pageid || module.ModuleId == moduleid)
             {
-                // check if the module defines custom routes
-                if (module.ModuleDefinition.ControlTypeRoutes != "")
+                string typename = "";
+                if (module.ModuleDefinition != null)
                 {
-                    foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                    typename = module.ModuleDefinition.ControlTypeTemplate;
+                }
+                else
+                {
+                    typename = Constants.ErrorModule;
+                }
+                if (module.ModuleId == moduleid && control != "")
+                {
+                    // check if the module defines custom routes
+                    if (module.ModuleDefinition.ControlTypeRoutes != "")
                     {
-                        if (route.StartsWith(control + "="))
+                        foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
                         {
-                            typename = route.Replace(control + "=", "");
+                            if (route.StartsWith(control + "="))
+                            {
+                                typename = route.Replace(control + "=", "");
+                            }
+                        }
+                    }
+                    module.ModuleType = typename.Replace(Constants.ActionToken, control);
+
+                    // admin controls need to load additional metadata from the IModuleControl interface
+                    if (moduleid == module.ModuleId)
+                    {
+                        typename = module.ModuleType;
+                        // check for core module actions component
+                        if (Constants.DefaultModuleActions.Contains(control))
+                        {
+                            typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, control);
+                        }
+                        Type moduletype = Type.GetType(typename);
+                        if (moduletype != null)
+                        {
+                            var moduleobject = Activator.CreateInstance(moduletype);
+                            module.SecurityAccessLevel = (SecurityAccessLevel)moduletype.GetProperty("SecurityAccessLevel").GetValue(moduleobject, null);
+                            module.ControlTitle = (string)moduletype.GetProperty("Title").GetValue(moduleobject);
+                            module.Actions = (string)moduletype.GetProperty("Actions").GetValue(moduleobject);
+                            module.UseAdminContainer = (bool)moduletype.GetProperty("UseAdminContainer").GetValue(moduleobject);
                         }
                     }
                 }
-                module.ModuleType = typename.Replace(Constants.ActionToken, control);
-
-                // admin controls need to load additional metadata from the IModuleControl interface
-                if (moduleid == module.ModuleId)
+                else
                 {
-                    typename = module.ModuleType;
-                    // check for core module actions component
-                    if (Constants.DefaultModuleActions.Contains(control))
-                    {
-                        typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, control);
-                    }
-                    Type moduletype = Type.GetType(typename);
-                    if (moduletype != null)
-                    {
-                        var moduleobject = Activator.CreateInstance(moduletype);
-                        module.SecurityAccessLevel = (SecurityAccessLevel)moduletype.GetProperty("SecurityAccessLevel").GetValue(moduleobject, null);
-                        module.ControlTitle = (string)moduletype.GetProperty("Title").GetValue(moduleobject);
-                        module.Actions = (string)moduletype.GetProperty("Actions").GetValue(moduleobject);
-                        module.UseAdminContainer = (bool)moduletype.GetProperty("UseAdminContainer").GetValue(moduleobject);
-                    }
+                    module.ModuleType = typename.Replace(Constants.ActionToken, Constants.DefaultAction);
                 }
-            }
-            else
-            {
-                module.ModuleType = typename.Replace(Constants.ActionToken, Constants.DefaultAction);
-            }
 
-
-            if (module.PageId == pageid)
-            {
                 // ensure module's pane exists in current page and if not, assign it to the Admin pane
                 if (panes == null || !panes.ToLower().Contains(module.Pane.ToLower()))
                 {
@@ -415,20 +422,17 @@
                     paneindex.Add(module.Pane, 0);
                 }
                 module.PaneModuleIndex = paneindex[module.Pane];
-            }
 
-            if (string.IsNullOrEmpty(module.ContainerType))
-            {
-                module.ContainerType = defaultcontainertype;
+                if (string.IsNullOrEmpty(module.ContainerType))
+                {
+                    module.ContainerType = defaultcontainertype;
+                }
             }
         }
 
-        foreach (Module module in modules)
+        foreach (Module module in modules.Where(item => item.PageId == pageid))
         {
-            if (module.PageId == pageid)
-            {
-                module.PaneModuleCount = paneindex[module.Pane] + 1;
-            }
+            module.PaneModuleCount = paneindex[module.Pane] + 1;
         }
         return modules;
     }

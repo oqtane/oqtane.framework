@@ -23,7 +23,10 @@
 
         public const string AdminDashboardModule = "Oqtane.Modules.Admin.Dashboard, Oqtane.Client";
         public const string PageManagementModule = "Oqtane.Modules.Admin.Pages, Oqtane.Client";
+        public const string ErrorModule = "Oqtane.Modules.Admin.Error.{Action}, Oqtane.Client";
         public const string ModuleMessageComponent = "Oqtane.Modules.Controls.ModuleMessage, Oqtane.Client";
+
+        public const string ContentUrl = "/api/file/download/";
 
         public const string HostUser = "host";
 
