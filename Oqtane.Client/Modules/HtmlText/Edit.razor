@@ -133,6 +133,8 @@ else
             content = await this.RichTextEditorHtml.GetHTML();
         }
 
+        content = content.Replace(((PageState.Alias.Path == "") ? "/~" : PageState.Alias.Path) + Constants.ContentUrl, Constants.ContentUrl);
+
         try
         {
             HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, NavigationManager);
