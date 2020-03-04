@@ -19,13 +19,13 @@ namespace Oqtane.Controllers
     [Route("{site}/api/[controller]")]
     public class InstallationController : Controller
     {
-        private readonly IConfigurationRoot Config;
-        private readonly IInstallationManager InstallationManager;
+        private readonly IConfigurationRoot _config;
+        private readonly IInstallationManager _installationManager;
 
         public InstallationController(IConfigurationRoot Config, IInstallationManager InstallationManager)
         {
-            this.Config = Config;
-            this.InstallationManager = InstallationManager;
+            this._config = Config;
+            this._installationManager = InstallationManager;
         }
 
         // POST api/<controller>
@@ -37,7 +37,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 bool master = false;
-                string defaultconnectionstring = Config.GetConnectionString("DefaultConnection");
+                string defaultconnectionstring = _config.GetConnectionString("DefaultConnection");
                 if (string.IsNullOrEmpty(defaultconnectionstring) || connectionstring == defaultconnectionstring)
                 {
                     master = true;
@@ -158,7 +158,7 @@ namespace Oqtane.Controllers
                                     {
                                         writer.WriteLine(config);
                                     }
-                                    Config.Reload();
+                                    _config.Reload();
                                 }
                                 response.Success = true;
                             }
@@ -180,7 +180,7 @@ namespace Oqtane.Controllers
             var response = new GenericResponse { Success = false, Message = "" };
 
             string datadirectory = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
-            string connectionString = Config.GetConnectionString("DefaultConnection");
+            string connectionString = _config.GetConnectionString("DefaultConnection");
             connectionString = connectionString.Replace("|DataDirectory|", datadirectory);
 
             if (!string.IsNullOrEmpty(connectionString))
@@ -286,7 +286,7 @@ namespace Oqtane.Controllers
         public GenericResponse Upgrade()
         {
             var response = new GenericResponse { Success = true, Message = "" };
-            InstallationManager.UpgradeFramework();
+            _installationManager.UpgradeFramework();
             return response;
         }
     }

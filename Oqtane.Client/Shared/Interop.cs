@@ -7,18 +7,18 @@ namespace Oqtane.Shared
 {
     public class Interop
     {
-        private readonly IJSRuntime jsRuntime;
+        private readonly IJSRuntime _jsRuntime;
 
         public Interop(IJSRuntime jsRuntime)
         {
-            this.jsRuntime = jsRuntime;
+            this._jsRuntime = jsRuntime;
         }
 
         public Task SetCookie(string name, string value, int days)
         {
             try
             {
-                jsRuntime.InvokeAsync<string>(
+                _jsRuntime.InvokeAsync<string>(
                 "interop.setCookie",
                 name, value, days);
                 return Task.CompletedTask;
@@ -33,7 +33,7 @@ namespace Oqtane.Shared
         {
             try
             {
-                return jsRuntime.InvokeAsync<string>(
+                return _jsRuntime.InvokeAsync<string>(
                     "interop.getCookie",
                     name);
             }
@@ -47,7 +47,7 @@ namespace Oqtane.Shared
         {
             try
             {
-                jsRuntime.InvokeAsync<string>(
+                _jsRuntime.InvokeAsync<string>(
                     "interop.includeCSS",
                     id, url);
                 return Task.CompletedTask;
@@ -62,7 +62,7 @@ namespace Oqtane.Shared
         {
             try
             {
-                return jsRuntime.InvokeAsync<string>(
+                return _jsRuntime.InvokeAsync<string>(
                     "interop.getElementByName",
                     name);
             }
@@ -76,7 +76,7 @@ namespace Oqtane.Shared
         {
             try
             {
-                jsRuntime.InvokeAsync<string>(
+                _jsRuntime.InvokeAsync<string>(
                 "interop.submitForm",
                 path, fields);
                 return Task.CompletedTask;
@@ -91,7 +91,7 @@ namespace Oqtane.Shared
         {
             try
             {
-                return jsRuntime.InvokeAsync<string[]>(
+                return _jsRuntime.InvokeAsync<string[]>(
                     "interop.getFiles",
                     id);
             }
@@ -105,7 +105,7 @@ namespace Oqtane.Shared
         {
             try
             {
-                jsRuntime.InvokeAsync<string>(
+                _jsRuntime.InvokeAsync<string>(
                 "interop.uploadFiles",
                 posturl, folder, id);
                 return Task.CompletedTask;

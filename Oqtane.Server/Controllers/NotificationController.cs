@@ -13,15 +13,15 @@ namespace Oqtane.Controllers
     [Route("{site}/api/[controller]")]
     public class NotificationController : Controller
     {
-        private readonly INotificationRepository Notifications;
-        private readonly IUserPermissions UserPermissions;
-        private readonly ILogManager logger;
+        private readonly INotificationRepository _notifications;
+        private readonly IUserPermissions _userPermissions;
+        private readonly ILogManager _logger;
 
         public NotificationController(INotificationRepository Notifications, IUserPermissions UserPermissions, ILogManager logger)
         {
-            this.Notifications = Notifications;
-            this.UserPermissions = UserPermissions;
-            this.logger = logger;
+            this._notifications = Notifications;
+            this._userPermissions = UserPermissions;
+            this._logger = logger;
         }
 
         // GET: api/<controller>?siteid=x&type=y&userid=z
@@ -34,11 +34,11 @@ namespace Oqtane.Controllers
             {
                 if (direction == "to")
                 {
-                    notifications = Notifications.GetNotifications(int.Parse(siteid), -1, int.Parse(userid));
+                    notifications = _notifications.GetNotifications(int.Parse(siteid), -1, int.Parse(userid));
                 }
                 else
                 {
-                    notifications = Notifications.GetNotifications(int.Parse(siteid), int.Parse(userid), -1);
+                    notifications = _notifications.GetNotifications(int.Parse(siteid), int.Parse(userid), -1);
                 }
             }
             return notifications;
@@ -49,7 +49,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public Notification Get(int id)
         {
-            Notification Notification = Notifications.GetNotification(id);
+            Notification Notification = _notifications.GetNotification(id);
             if (!(IsAuthorized(Notification.FromUserId) || IsAuthorized(Notification.ToUserId)))
             {
                 Notification = null;
@@ -64,8 +64,8 @@ namespace Oqtane.Controllers
         {
             if (IsAuthorized(Notification.FromUserId))
             {
-                Notification = Notifications.AddNotification(Notification);
-                logger.Log(LogLevel.Information, this, LogFunction.Create, "Notification Added {Notification}", Notification);
+                Notification = _notifications.AddNotification(Notification);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Notification Added {Notification}", Notification);
             }
             return Notification;
         }
@@ -77,8 +77,8 @@ namespace Oqtane.Controllers
         {
             if (IsAuthorized(Notification.FromUserId))
             {
-                Notification = Notifications.UpdateNotification(Notification);
-                logger.Log(LogLevel.Information, this, LogFunction.Update, "Notification Updated {Folder}", Notification);
+                Notification = _notifications.UpdateNotification(Notification);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Notification Updated {Folder}", Notification);
             }
             return Notification;
         }
@@ -88,11 +88,11 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public void Delete(int id)
         {
-            Notification Notification = Notifications.GetNotification(id);
+            Notification Notification = _notifications.GetNotification(id);
             if (IsAuthorized(Notification.FromUserId) || IsAuthorized(Notification.ToUserId))
             {
-                Notifications.DeleteNotification(id);
-                logger.Log(LogLevel.Information, this, LogFunction.Delete, "Notification Deleted {NotificationId}", id);
+                _notifications.DeleteNotification(id);
+                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Notification Deleted {NotificationId}", id);
             }
         }
 
@@ -101,7 +101,7 @@ namespace Oqtane.Controllers
             bool authorized = true;
             if (userid != null)
             {
-                authorized = (UserPermissions.GetUser(User).UserId == userid);
+                authorized = (_userPermissions.GetUser(User).UserId == userid);
             }
             return authorized;
         }

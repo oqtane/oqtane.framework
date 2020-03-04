@@ -10,18 +10,18 @@ namespace Oqtane.Repository
 {
     public class DBContextBase :  IdentityUserContext<IdentityUser> 
     {
-        private Tenant tenant;
-        private IHttpContextAccessor accessor;
+        private Tenant _tenant;
+        private IHttpContextAccessor _accessor;
 
         public DBContextBase(ITenantResolver TenantResolver, IHttpContextAccessor accessor)
         {
-            tenant = TenantResolver.GetTenant();
-            this.accessor = accessor;
+            _tenant = TenantResolver.GetTenant();
+            this._accessor = accessor;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(tenant.DBConnectionString
+            optionsBuilder.UseSqlServer(_tenant.DBConnectionString
                     .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory").ToString())
             );
             base.OnConfiguring(optionsBuilder);
@@ -31,9 +31,9 @@ namespace Oqtane.Repository
         {
             base.OnModelCreating(modelBuilder);
 
-            if (tenant.DBSchema != "")
+            if (_tenant.DBSchema != "")
             {
-                modelBuilder.HasDefaultSchema(tenant.DBSchema);
+                modelBuilder.HasDefaultSchema(_tenant.DBSchema);
             }
         }
 
@@ -42,9 +42,9 @@ namespace Oqtane.Repository
             ChangeTracker.DetectChanges();
 
             string username = "";
-            if (accessor.HttpContext != null && accessor.HttpContext.User.Identity.Name != null)
+            if (_accessor.HttpContext != null && _accessor.HttpContext.User.Identity.Name != null)
             {
-                username = accessor.HttpContext.User.Identity.Name;
+                username = _accessor.HttpContext.User.Identity.Name;
             }
             DateTime date = DateTime.UtcNow;
 

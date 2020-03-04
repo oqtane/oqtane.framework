@@ -9,8 +9,8 @@ namespace Oqtane.Repository
 {
     public class TenantResolver : ITenantResolver
     {
-        private readonly Alias alias = null;
-        private readonly Tenant tenant = null;
+        private readonly Alias _alias = null;
+        private readonly Tenant _tenant = null;
 
         public TenantResolver(IHttpContextAccessor Accessor, IAliasRepository Aliases, ITenantRepository Tenants, SiteState SiteState)
         {
@@ -56,27 +56,27 @@ namespace Oqtane.Repository
 
                 if (aliasid != -1)
                 {
-                    alias = aliases.Where(item => item.AliasId == aliasid).FirstOrDefault();
+                    _alias = aliases.Where(item => item.AliasId == aliasid).FirstOrDefault();
                 }
                 else
                 {
-                    alias = aliases.Where(item => item.Name == aliasname).FirstOrDefault();
+                    _alias = aliases.Where(item => item.Name == aliasname).FirstOrDefault();
                 }
-                if (alias != null)
+                if (_alias != null)
                 {
-                    tenant = tenants.Where(item => item.TenantId == alias.TenantId).FirstOrDefault();
+                    _tenant = tenants.Where(item => item.TenantId == _alias.TenantId).FirstOrDefault();
                 }
             }
         }
 
         public Alias GetAlias()
         {
-            return alias;
+            return _alias;
         }
 
         public Tenant GetTenant()
         {
-            return tenant;
+            return _tenant;
         }
     }
 }

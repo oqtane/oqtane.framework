@@ -9,12 +9,12 @@ namespace Oqtane.Repository
 {
     public class AliasRepository : IAliasRepository
     {
-        private MasterDBContext db;
+        private MasterDBContext _db;
         private readonly IMemoryCache _cache;
 
         public AliasRepository(MasterDBContext context, IMemoryCache cache)
         {
-            db = context;
+            _db = context;
             _cache = cache;
         }
 
@@ -23,37 +23,37 @@ namespace Oqtane.Repository
             return _cache.GetOrCreate("aliases", entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromMinutes(30);
-                return db.Alias.ToList();
+                return _db.Alias.ToList();
             });
         }
 
         public Alias AddAlias(Alias Alias)
         {
-            db.Alias.Add(Alias);
-            db.SaveChanges();
+            _db.Alias.Add(Alias);
+            _db.SaveChanges();
             _cache.Remove("aliases");
             return Alias;
         }
 
         public Alias UpdateAlias(Alias Alias)
         {
-            db.Entry(Alias).State = EntityState.Modified;
-            db.SaveChanges();
+            _db.Entry(Alias).State = EntityState.Modified;
+            _db.SaveChanges();
             _cache.Remove("aliases");
             return Alias;
         }
 
         public Alias GetAlias(int AliasId)
         {
-            return db.Alias.Find(AliasId);
+            return _db.Alias.Find(AliasId);
         }
 
         public void DeleteAlias(int AliasId)
         {
-            Alias alias = db.Alias.Find(AliasId);
-            db.Alias.Remove(alias);
+            Alias alias = _db.Alias.Find(AliasId);
+            _db.Alias.Remove(alias);
             _cache.Remove("aliases");
-            db.SaveChanges();
+            _db.SaveChanges();
         }
     }
 }

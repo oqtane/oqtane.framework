@@ -6,18 +6,18 @@ namespace Oqtane.Modules.HtmlText.Repository
 {
     public class HtmlTextRepository : IHtmlTextRepository, IService
     {
-        private readonly HtmlTextContext db;
+        private readonly HtmlTextContext _db;
 
         public HtmlTextRepository(HtmlTextContext context)
         {
-            db = context;
+            _db = context;
         }
 
         public HtmlTextInfo GetHtmlText(int ModuleId)
         {
             try
             {
-                return db.HtmlText.Where(item => item.ModuleId == ModuleId).FirstOrDefault();
+                return _db.HtmlText.Where(item => item.ModuleId == ModuleId).FirstOrDefault();
             }
             catch
             {
@@ -30,8 +30,8 @@ namespace Oqtane.Modules.HtmlText.Repository
         {
             try
             {
-                db.HtmlText.Add(HtmlText);
-                db.SaveChanges();
+                _db.HtmlText.Add(HtmlText);
+                _db.SaveChanges();
                 return HtmlText;
             }
             catch
@@ -44,8 +44,8 @@ namespace Oqtane.Modules.HtmlText.Repository
         {
             try
             {
-                db.Entry(HtmlText).State = EntityState.Modified;
-                db.SaveChanges();
+                _db.Entry(HtmlText).State = EntityState.Modified;
+                _db.SaveChanges();
                 return HtmlText;
             }
             catch
@@ -58,9 +58,9 @@ namespace Oqtane.Modules.HtmlText.Repository
         {
             try
             {
-                HtmlTextInfo HtmlText = db.HtmlText.Where(item => item.ModuleId == ModuleId).FirstOrDefault();
-                db.HtmlText.Remove(HtmlText);
-                db.SaveChanges();
+                HtmlTextInfo HtmlText = _db.HtmlText.Where(item => item.ModuleId == ModuleId).FirstOrDefault();
+                _db.HtmlText.Remove(HtmlText);
+                _db.SaveChanges();
             }
             catch
             {

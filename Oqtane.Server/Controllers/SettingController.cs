@@ -13,17 +13,17 @@ namespace Oqtane.Controllers
     [Route("{site}/api/[controller]")]
     public class SettingController : Controller
     {
-        private readonly ISettingRepository Settings;
-        private readonly IPageModuleRepository PageModules;
-        private readonly IUserPermissions UserPermissions;
-        private readonly ILogManager logger;
+        private readonly ISettingRepository _settings;
+        private readonly IPageModuleRepository _pageModules;
+        private readonly IUserPermissions _userPermissions;
+        private readonly ILogManager _logger;
 
         public SettingController(ISettingRepository Settings, IPageModuleRepository PageModules, IUserPermissions UserPermissions, ILogManager logger)
         {
-            this.Settings = Settings;
-            this.PageModules = PageModules;
-            this.UserPermissions = UserPermissions;
-            this.logger = logger;
+            this._settings = Settings;
+            this._pageModules = PageModules;
+            this._userPermissions = UserPermissions;
+            this._logger = logger;
         }
 
         // GET: api/<controller>
@@ -33,11 +33,11 @@ namespace Oqtane.Controllers
             List<Setting> settings = new List<Setting>();
             if (IsAuthorized(entityname, entityid, "View"))
             {
-                settings = Settings.GetSettings(entityname, entityid).ToList();
+                settings = _settings.GetSettings(entityname, entityid).ToList();
             }
             else
             {
-                logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Settings {EntityName} {EntityId}", entityname, entityid);
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Settings {EntityName} {EntityId}", entityname, entityid);
                 HttpContext.Response.StatusCode = 401;
             }
             return settings;
@@ -47,14 +47,14 @@ namespace Oqtane.Controllers
         [HttpGet("{id}")]
         public Setting Get(int id)
         {
-            Setting setting = Settings.GetSetting(id);
+            Setting setting = _settings.GetSetting(id);
             if (IsAuthorized(setting.EntityName, setting.EntityId, "View"))
             {
                 return setting;
             }
             else
             {
-                logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Setting {Setting}", setting);
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Setting {Setting}", setting);
                 HttpContext.Response.StatusCode = 401;
                 return null;
             }
@@ -66,12 +66,12 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid && IsAuthorized(Setting.EntityName, Setting.EntityId, "Edit"))
             {
-                Setting = Settings.AddSetting(Setting);
-                logger.Log(LogLevel.Information, this, LogFunction.Create, "Setting Added {Setting}", Setting);
+                Setting = _settings.AddSetting(Setting);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Setting Added {Setting}", Setting);
             }
             else
             {
-                logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Add Setting {Setting}", Setting);
+                _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Add Setting {Setting}", Setting);
                 HttpContext.Response.StatusCode = 401;
                 Setting = null;
             }
@@ -84,12 +84,12 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid && IsAuthorized(Setting.EntityName, Setting.EntityId, "Edit"))
             {
-                Setting = Settings.UpdateSetting(Setting);
-                logger.Log(LogLevel.Information, this, LogFunction.Update, "Setting Updated {Setting}", Setting);
+                Setting = _settings.UpdateSetting(Setting);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Setting Updated {Setting}", Setting);
             }
             else
             {
-                logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Setting {Setting}", Setting);
+                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Setting {Setting}", Setting);
                 HttpContext.Response.StatusCode = 401;
                 Setting = null;
             }
@@ -100,15 +100,15 @@ namespace Oqtane.Controllers
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-            Setting setting = Settings.GetSetting(id);
+            Setting setting = _settings.GetSetting(id);
             if (IsAuthorized(setting.EntityName, setting.EntityId, "Edit"))
             {
-                Settings.DeleteSetting(id);
-                logger.Log(LogLevel.Information, this, LogFunction.Delete, "Setting Deleted {Setting}", setting);
+                _settings.DeleteSetting(id);
+                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Setting Deleted {Setting}", setting);
             }
             else
             {
-                logger.Log(LogLevel.Error, this, LogFunction.Delete, "User Not Authorized To Delete Setting {Setting}", setting);
+                _logger.Log(LogLevel.Error, this, LogFunction.Delete, "User Not Authorized To Delete Setting {Setting}", setting);
                 HttpContext.Response.StatusCode = 401;
             }
         }
@@ -119,7 +119,7 @@ namespace Oqtane.Controllers
             if (EntityName == "PageModule")
             {
                 EntityName = "Module";
-                EntityId = PageModules.GetPageModule(EntityId).ModuleId;
+                EntityId = _pageModules.GetPageModule(EntityId).ModuleId;
             }
             switch (EntityName)
             {
@@ -132,13 +132,13 @@ namespace Oqtane.Controllers
                 case "Page":
                 case "Module":
                 case "Folder":
-                    authorized = UserPermissions.IsAuthorized(User, EntityName, EntityId, PermissionName);
+                    authorized = _userPermissions.IsAuthorized(User, EntityName, EntityId, PermissionName);
                     break;
                 case "User":
                     authorized = true;
                     if (PermissionName == "Edit")
                     {
-                        authorized = User.IsInRole(Constants.AdminRole) || (UserPermissions.GetUser(User).UserId == EntityId);
+                        authorized = User.IsInRole(Constants.AdminRole) || (_userPermissions.GetUser(User).UserId == EntityId);
                     }
                     break;
             }

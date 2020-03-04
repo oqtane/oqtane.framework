@@ -14,12 +14,12 @@ namespace Oqtane.Infrastructure
     public abstract class HostedServiceBase : IHostedService, IDisposable
     {
         private Task ExecutingTask;
-        private readonly CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
-        private readonly IServiceScopeFactory ServiceScopeFactory;
+        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        private readonly IServiceScopeFactory _serviceScopeFactory;
 
         public HostedServiceBase(IServiceScopeFactory ServiceScopeFactory)
         {
-            this.ServiceScopeFactory = ServiceScopeFactory;
+            this._serviceScopeFactory = ServiceScopeFactory;
         }
 
         // abstract method must be overridden
@@ -31,7 +31,7 @@ namespace Oqtane.Infrastructure
             {
                 while (!stoppingToken.IsCancellationRequested)
                 {
-                    using (var scope = ServiceScopeFactory.CreateScope())
+                    using (var scope = _serviceScopeFactory.CreateScope())
                     {
                         // get name of job
                         string JobType = Utilities.GetFullTypeName(this.GetType().AssemblyQualifiedName);
@@ -144,7 +144,7 @@ namespace Oqtane.Infrastructure
             try
             {
                 // set IsExecuting to false in case this job was forcefully terminated previously 
-                using (var scope = ServiceScopeFactory.CreateScope())
+                using (var scope = _serviceScopeFactory.CreateScope())
                 {
                     string JobType = Utilities.GetFullTypeName(this.GetType().AssemblyQualifiedName);
                     IJobRepository Jobs = scope.ServiceProvider.GetRequiredService<IJobRepository>();
@@ -162,7 +162,7 @@ namespace Oqtane.Infrastructure
                 // can occur during the initial installation as there is no DBContext
             }
 
-            ExecutingTask = ExecuteAsync(CancellationTokenSource.Token);
+            ExecutingTask = ExecuteAsync(_cancellationTokenSource.Token);
 
             if (ExecutingTask.IsCompleted)
             {
@@ -181,7 +181,7 @@ namespace Oqtane.Infrastructure
 
             try
             {
-                CancellationTokenSource.Cancel();
+                _cancellationTokenSource.Cancel();
             }
             finally
             {
@@ -191,7 +191,7 @@ namespace Oqtane.Infrastructure
 
         public void Dispose()
         {
-            CancellationTokenSource.Cancel();
+            _cancellationTokenSource.Cancel();
         }
     }
 }

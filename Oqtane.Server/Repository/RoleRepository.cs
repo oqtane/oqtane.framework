@@ -7,48 +7,48 @@ namespace Oqtane.Repository
 {
     public class RoleRepository : IRoleRepository
     {
-        private TenantDBContext db;
+        private TenantDBContext _db;
 
         public RoleRepository(TenantDBContext context)
         {
-            db = context;
+            _db = context;
         }
             
         public IEnumerable<Role> GetRoles(int SiteId)
         {
-            return db.Role.Where(item => item.SiteId == SiteId);
+            return _db.Role.Where(item => item.SiteId == SiteId);
         }
 
         public IEnumerable<Role> GetRoles(int SiteId, bool IncludeGlobalRoles)
         {
-            return db.Role.Where(item => item.SiteId == SiteId || item.SiteId == null);
+            return _db.Role.Where(item => item.SiteId == SiteId || item.SiteId == null);
         }
 
 
         public Role AddRole(Role Role)
         {
-            db.Role.Add(Role);
-            db.SaveChanges();
+            _db.Role.Add(Role);
+            _db.SaveChanges();
             return Role;
         }
 
         public Role UpdateRole(Role Role)
         {
-            db.Entry(Role).State = EntityState.Modified;
-            db.SaveChanges();
+            _db.Entry(Role).State = EntityState.Modified;
+            _db.SaveChanges();
             return Role;
         }
 
         public Role GetRole(int RoleId)
         {
-            return db.Role.Find(RoleId);
+            return _db.Role.Find(RoleId);
         }
 
         public void DeleteRole(int RoleId)
         {
-            Role Role = db.Role.Find(RoleId);
-            db.Role.Remove(Role);
-            db.SaveChanges();
+            Role Role = _db.Role.Find(RoleId);
+            _db.Role.Remove(Role);
+            _db.SaveChanges();
         }
     }
 }

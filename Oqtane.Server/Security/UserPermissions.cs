@@ -8,18 +8,18 @@ namespace Oqtane.Security
 {
     public class UserPermissions : IUserPermissions
     {
-        private readonly IPermissionRepository Permissions;
-        private readonly IHttpContextAccessor Accessor;
+        private readonly IPermissionRepository _permissions;
+        private readonly IHttpContextAccessor _accessor;
 
         public UserPermissions(IPermissionRepository Permissions, IHttpContextAccessor Accessor)
         {
-            this.Permissions = Permissions;
-            this.Accessor = Accessor;
+            this._permissions = Permissions;
+            this._accessor = Accessor;
         }
 
         public bool IsAuthorized(ClaimsPrincipal User, string EntityName, int EntityId, string PermissionName)
         {
-            return IsAuthorized(User, PermissionName, Permissions.EncodePermissions(EntityId, Permissions.GetPermissions(EntityName, EntityId, PermissionName).ToList()));
+            return IsAuthorized(User, PermissionName, _permissions.EncodePermissions(EntityId, _permissions.GetPermissions(EntityName, EntityId, PermissionName).ToList()));
         }
 
         public bool IsAuthorized(ClaimsPrincipal User, string PermissionName, string Permissions)
@@ -56,7 +56,7 @@ namespace Oqtane.Security
 
         public User GetUser()
         {
-            return GetUser(Accessor.HttpContext.User);
+            return GetUser(_accessor.HttpContext.User);
         }
     }
 }

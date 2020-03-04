@@ -14,13 +14,13 @@ namespace Oqtane.Controllers
     [Route("{site}/api/[controller]")]
     public class AliasController : Controller
     {
-        private readonly IAliasRepository Aliases;
-        private readonly ILogManager logger;
+        private readonly IAliasRepository _aliases;
+        private readonly ILogManager _logger;
 
         public AliasController(IAliasRepository Aliases, ILogManager logger)
         {
-            this.Aliases = Aliases;
-            this.logger = logger;
+            this._aliases = Aliases;
+            this._logger = logger;
         }
 
         // GET: api/<controller>
@@ -28,7 +28,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.AdminRole)]
         public IEnumerable<Alias> Get()
         {
-            return Aliases.GetAliases();
+            return _aliases.GetAliases();
         }
 
         // GET api/<controller>/5
@@ -36,7 +36,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.AdminRole)]
         public Alias Get(int id)
         {
-            return Aliases.GetAlias(id);
+            return _aliases.GetAlias(id);
         }
 
         // GET api/<controller>/name/localhost:12345
@@ -44,7 +44,7 @@ namespace Oqtane.Controllers
         public Alias Get(string name)
         {
             name = WebUtility.UrlDecode(name);
-            List<Alias> aliases = Aliases.GetAliases().ToList();
+            List<Alias> aliases = _aliases.GetAliases().ToList();
             Alias alias = null;
             alias = aliases.Where(item => item.Name == name).FirstOrDefault();
             if (alias == null && name.Contains("/"))
@@ -67,8 +67,8 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                Alias = Aliases.AddAlias(Alias);
-                logger.Log(LogLevel.Information, this, LogFunction.Create, "Alias Added {Alias}", Alias);
+                Alias = _aliases.AddAlias(Alias);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Alias Added {Alias}", Alias);
             }
             return Alias;
         }
@@ -80,8 +80,8 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                Alias = Aliases.UpdateAlias(Alias);
-                logger.Log(LogLevel.Information, this, LogFunction.Update, "Alias Updated {Alias}", Alias);
+                Alias = _aliases.UpdateAlias(Alias);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Alias Updated {Alias}", Alias);
             }
             return Alias;
         }
@@ -91,8 +91,8 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.AdminRole)]
         public void Delete(int id)
         {
-            Aliases.DeleteAlias(id);
-            logger.Log(LogLevel.Information, this, LogFunction.Delete, "Alias Deleted {AliasId}", id);
+            _aliases.DeleteAlias(id);
+            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Alias Deleted {AliasId}", id);
         }
     }
 }

@@ -12,13 +12,13 @@ namespace Oqtane.Infrastructure
 {
     public class InstallationManager : IInstallationManager
     {
-        private readonly IHostApplicationLifetime HostApplicationLifetime;
-        private readonly IWebHostEnvironment environment;
+        private readonly IHostApplicationLifetime _hostApplicationLifetime;
+        private readonly IWebHostEnvironment _environment;
 
         public InstallationManager(IHostApplicationLifetime HostApplicationLifetime, IWebHostEnvironment environment)
         {
-            this.HostApplicationLifetime = HostApplicationLifetime;
-            this.environment = environment;
+            this._hostApplicationLifetime = HostApplicationLifetime;
+            this._environment = environment;
         }
 
         public void InstallPackages(string Folders, bool Restart)
@@ -28,7 +28,7 @@ namespace Oqtane.Infrastructure
 
             foreach (string Folder in Folders.Split(','))
             {
-                string folder = Path.Combine(environment.WebRootPath, Folder);
+                string folder = Path.Combine(_environment.WebRootPath, Folder);
 
                 // create folder if it does not exist
                 if (!Directory.Exists(folder))
@@ -113,7 +113,7 @@ namespace Oqtane.Infrastructure
 
         public void UpgradeFramework()
         {
-            string folder = Path.Combine(environment.WebRootPath, "Framework");
+            string folder = Path.Combine(_environment.WebRootPath, "Framework");
             if (Directory.Exists(folder))
             {
                 // get package with highest version and clean up any others
@@ -189,7 +189,7 @@ namespace Oqtane.Infrastructure
 
         public void RestartApplication()
         {
-            HostApplicationLifetime.StopApplication();
+            _hostApplicationLifetime.StopApplication();
         }
     }
 }

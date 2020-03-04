@@ -12,15 +12,15 @@ namespace Oqtane.Repository
 {
     public class ModuleDefinitionRepository : IModuleDefinitionRepository
     {
-        private MasterDBContext db;
+        private MasterDBContext _db;
         private readonly IMemoryCache _cache;
-        private readonly IPermissionRepository Permissions;
+        private readonly IPermissionRepository _permissions;
 
         public ModuleDefinitionRepository(MasterDBContext context, IMemoryCache cache, IPermissionRepository Permissions)
         {
-            db = context;
+            _db = context;
             _cache = cache;
-            this.Permissions = Permissions;
+            this._permissions = Permissions;
         }
 
         public IEnumerable<ModuleDefinition> GetModuleDefinitions(int SiteId)
@@ -36,16 +36,16 @@ namespace Oqtane.Repository
 
         public void UpdateModuleDefinition(ModuleDefinition ModuleDefinition)
         {
-            Permissions.UpdatePermissions(ModuleDefinition.SiteId, "ModuleDefinition", ModuleDefinition.ModuleDefinitionId, ModuleDefinition.Permissions);
+            _permissions.UpdatePermissions(ModuleDefinition.SiteId, "ModuleDefinition", ModuleDefinition.ModuleDefinitionId, ModuleDefinition.Permissions);
             _cache.Remove("moduledefinitions");
         }
 
         public void DeleteModuleDefinition(int ModuleDefinitionId, int SiteId)
         {
-            ModuleDefinition ModuleDefinition = db.ModuleDefinition.Find(ModuleDefinitionId);
-            Permissions.DeletePermissions(SiteId, "ModuleDefinition", ModuleDefinitionId);
-            db.ModuleDefinition.Remove(ModuleDefinition);
-            db.SaveChanges();
+            ModuleDefinition ModuleDefinition = _db.ModuleDefinition.Find(ModuleDefinitionId);
+            _permissions.DeletePermissions(SiteId, "ModuleDefinition", ModuleDefinitionId);
+            _db.ModuleDefinition.Remove(ModuleDefinition);
+            _db.SaveChanges();
             _cache.Remove("moduledefinitions");
         }
 
@@ -60,20 +60,20 @@ namespace Oqtane.Repository
             });
 
             // sync module definitions with database
-            List<ModuleDefinition> moduledefs = db.ModuleDefinition.ToList();
-            List<Permission> permissions = Permissions.GetPermissions(SiteId, "ModuleDefinition").ToList();
+            List<ModuleDefinition> moduledefs = _db.ModuleDefinition.ToList();
+            List<Permission> permissions = _permissions.GetPermissions(SiteId, "ModuleDefinition").ToList();
             foreach (ModuleDefinition moduledefinition in ModuleDefinitions)
             {
                 ModuleDefinition moduledef = moduledefs.Where(item => item.ModuleDefinitionName == moduledefinition.ModuleDefinitionName).FirstOrDefault();
                 if (moduledef == null)
                 {
                     moduledef = new ModuleDefinition { ModuleDefinitionName = moduledefinition.ModuleDefinitionName };
-                    db.ModuleDefinition.Add(moduledef);
-                    db.SaveChanges();
+                    _db.ModuleDefinition.Add(moduledef);
+                    _db.SaveChanges();
                     if (moduledefinition.Permissions != "")
                     {
-                        Permissions.UpdatePermissions(SiteId, "ModuleDefinition", moduledef.ModuleDefinitionId, moduledefinition.Permissions);
-                        foreach(Permission permission in Permissions.GetPermissions("ModuleDefinition", moduledef.ModuleDefinitionId))
+                        _permissions.UpdatePermissions(SiteId, "ModuleDefinition", moduledef.ModuleDefinitionId, moduledefinition.Permissions);
+                        foreach(Permission permission in _permissions.GetPermissions("ModuleDefinition", moduledef.ModuleDefinitionId))
                         {
                             permissions.Add(permission);
                         }
@@ -85,7 +85,7 @@ namespace Oqtane.Repository
                 }
                 moduledefinition.ModuleDefinitionId = moduledef.ModuleDefinitionId;
                 moduledefinition.SiteId = SiteId;
-                moduledefinition.Permissions = Permissions.EncodePermissions(moduledefinition.ModuleDefinitionId, permissions);
+                moduledefinition.Permissions = _permissions.EncodePermissions(moduledefinition.ModuleDefinitionId, permissions);
                 moduledefinition.CreatedBy = moduledef.CreatedBy;
                 moduledefinition.CreatedOn = moduledef.CreatedOn;
                 moduledefinition.ModifiedBy = moduledef.ModifiedBy;
@@ -95,8 +95,8 @@ namespace Oqtane.Repository
             // any remaining module definitions are orphans
             foreach (ModuleDefinition moduledefinition in moduledefs)
             {
-                Permissions.DeletePermissions(SiteId, "ModuleDefinition", moduledefinition.ModuleDefinitionId);
-                db.ModuleDefinition.Remove(moduledefinition); // delete
+                _permissions.DeletePermissions(SiteId, "ModuleDefinition", moduledefinition.ModuleDefinitionId);
+                _db.ModuleDefinition.Remove(moduledefinition); // delete
             }
 
             return ModuleDefinitions;

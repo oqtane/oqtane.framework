@@ -8,11 +8,11 @@ namespace Oqtane.Repository
 {
     public class MasterDBContext : DbContext
     {
-        private IHttpContextAccessor accessor;
+        private IHttpContextAccessor _accessor;
 
         public MasterDBContext(DbContextOptions<MasterDBContext> options, IHttpContextAccessor accessor) : base(options)
         {
-            this.accessor = accessor;
+            this._accessor = accessor;
         }
 
         public virtual DbSet<Alias> Alias { get; set; }
@@ -26,9 +26,9 @@ namespace Oqtane.Repository
             ChangeTracker.DetectChanges();
 
             string username = "";
-            if (accessor.HttpContext != null && accessor.HttpContext.User.Identity.Name != null)
+            if (_accessor.HttpContext != null && _accessor.HttpContext.User.Identity.Name != null)
             {
-                username = accessor.HttpContext.User.Identity.Name;
+                username = _accessor.HttpContext.User.Identity.Name;
             }
             DateTime date = DateTime.Now;
 

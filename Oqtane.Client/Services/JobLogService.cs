@@ -11,19 +11,19 @@ namespace Oqtane.Services
     public class JobLogService : ServiceBase, IJobLogService
     {
         private readonly HttpClient http;
-        private readonly SiteState sitestate;
-        private readonly NavigationManager NavigationManager;
+        private readonly SiteState _siteState;
+        private readonly NavigationManager _navigationManager;
 
         public JobLogService(HttpClient http, SiteState sitestate, NavigationManager NavigationManager)
         {
             this.http = http;
-            this.sitestate = sitestate;
-            this.NavigationManager = NavigationManager;
+            this._siteState = sitestate;
+            this._navigationManager = NavigationManager;
         }
 
         private string apiurl
         {
-            get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "JobLog"); }
+            get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "JobLog"); }
         }
 
         public async Task<List<JobLog>> GetJobLogsAsync()

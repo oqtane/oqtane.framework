@@ -7,16 +7,16 @@ namespace Oqtane.Repository
 {
     public class UserRoleRepository : IUserRoleRepository
     {
-        private TenantDBContext db;
+        private TenantDBContext _db;
 
         public UserRoleRepository(TenantDBContext context)
         {
-            db = context;
+            _db = context;
         }
 
         public IEnumerable<UserRole> GetUserRoles(int SiteId)
         {
-            return db.UserRole
+            return _db.UserRole
                 .Include(item => item.Role) // eager load roles
                 .Include(item => item.User) // eager load users
                 .Where(item => item.Role.SiteId == SiteId || item.Role.SiteId == null);
@@ -24,7 +24,7 @@ namespace Oqtane.Repository
 
         public IEnumerable<UserRole> GetUserRoles(int UserId, int SiteId)
         {
-            return db.UserRole.Where(item => item.UserId == UserId)
+            return _db.UserRole.Where(item => item.UserId == UserId)
                 .Include(item => item.Role) // eager load roles
                 .Include(item => item.User) // eager load users
                 .Where(item => item.Role.SiteId == SiteId || item.Role.SiteId == null);
@@ -32,21 +32,21 @@ namespace Oqtane.Repository
 
         public UserRole AddUserRole(UserRole UserRole)
         {
-            db.UserRole.Add(UserRole);
-            db.SaveChanges();
+            _db.UserRole.Add(UserRole);
+            _db.SaveChanges();
             return UserRole;
         }
 
         public UserRole UpdateUserRole(UserRole UserRole)
         {
-            db.Entry(UserRole).State = EntityState.Modified;
-            db.SaveChanges();
+            _db.Entry(UserRole).State = EntityState.Modified;
+            _db.SaveChanges();
             return UserRole;
         }
 
         public UserRole GetUserRole(int UserRoleId)
         {
-            return db.UserRole
+            return _db.UserRole
                 .Include(item => item.Role) // eager load roles
                 .Include(item => item.User) // eager load users
                 .SingleOrDefault(item => item.UserRoleId == UserRoleId);
@@ -54,9 +54,9 @@ namespace Oqtane.Repository
 
         public void DeleteUserRole(int UserRoleId)
         {
-            UserRole UserRole = db.UserRole.Find(UserRoleId);
-            db.UserRole.Remove(UserRole);
-            db.SaveChanges();
+            UserRole UserRole = _db.UserRole.Find(UserRoleId);
+            _db.UserRole.Remove(UserRole);
+            _db.SaveChanges();
         }
     }
 }

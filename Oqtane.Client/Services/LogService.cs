@@ -11,30 +11,30 @@ namespace Oqtane.Services
 {
     public class LogService : ServiceBase, ILogService
     {
-        private readonly HttpClient http;
-        private readonly SiteState sitestate;
-        private readonly NavigationManager NavigationManager;
+        private readonly HttpClient _http;
+        private readonly SiteState _siteState;
+        private readonly NavigationManager _navigationManager;
 
         public LogService(HttpClient http, SiteState sitestate, NavigationManager NavigationManager)
         {
-            this.http = http;
-            this.sitestate = sitestate;
-            this.NavigationManager = NavigationManager;
+            this._http = http;
+            this._siteState = sitestate;
+            this._navigationManager = NavigationManager;
         }
 
         private string apiurl
         {
-            get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "Log"); }
+            get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Log"); }
         }
 
         public async Task<List<Log>> GetLogsAsync(int SiteId, string Level, string Function, int Rows)
         {
-            return await http.GetJsonAsync<List<Log>>(apiurl + "?siteid=" + SiteId.ToString() + "&level=" + Level + "&function=" + Function + "&rows=" + Rows.ToString());
+            return await _http.GetJsonAsync<List<Log>>(apiurl + "?siteid=" + SiteId.ToString() + "&level=" + Level + "&function=" + Function + "&rows=" + Rows.ToString());
         }
 
         public async Task<Log> GetLogAsync(int LogId)
         {
-            return await http.GetJsonAsync<Log>(apiurl + "/" + LogId.ToString());
+            return await _http.GetJsonAsync<Log>(apiurl + "/" + LogId.ToString());
         }
 
         public async Task Log(int? PageId, int? ModuleId, int? UserId, string category, string feature, LogFunction function, LogLevel level, Exception exception, string message, params object[] args)
@@ -47,7 +47,7 @@ namespace Oqtane.Services
             Log log = new Log();
             if (Alias == null)
             {
-                log.SiteId = sitestate.Alias.SiteId;
+                log.SiteId = _siteState.Alias.SiteId;
             }
             else
             {
@@ -56,7 +56,7 @@ namespace Oqtane.Services
             log.PageId = PageId;
             log.ModuleId = ModuleId;
             log.UserId = UserId;
-            log.Url = NavigationManager.Uri;
+            log.Url = _navigationManager.Uri;
             log.Category = category;
             log.Feature = feature;
             log.Function = Enum.GetName(typeof(LogFunction), function);
@@ -68,7 +68,7 @@ namespace Oqtane.Services
             log.Message = message;
             log.MessageTemplate = "";
             log.Properties = JsonSerializer.Serialize(args);
-            await http.PostJsonAsync(CreateCrossTenantUrl(apiurl, Alias), log);
+            await _http.PostJsonAsync(CreateCrossTenantUrl(apiurl, Alias), log);
         }
     }
 }

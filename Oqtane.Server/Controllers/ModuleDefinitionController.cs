@@ -16,19 +16,19 @@ namespace Oqtane.Controllers
     [Route("{site}/api/[controller]")]
     public class ModuleDefinitionController : Controller
     {
-        private readonly IModuleDefinitionRepository ModuleDefinitions;
-        private readonly IUserPermissions UserPermissions;
-        private readonly IInstallationManager InstallationManager;
-        private readonly IWebHostEnvironment environment;
-        private readonly ILogManager logger;
+        private readonly IModuleDefinitionRepository _moduleDefinitions;
+        private readonly IUserPermissions _userPermissions;
+        private readonly IInstallationManager _installationManager;
+        private readonly IWebHostEnvironment _environment;
+        private readonly ILogManager _logger;
 
         public ModuleDefinitionController(IModuleDefinitionRepository ModuleDefinitions, IUserPermissions UserPermissions, IInstallationManager InstallationManager, IWebHostEnvironment environment, ILogManager logger)
         {
-            this.ModuleDefinitions = ModuleDefinitions;
-            this.UserPermissions = UserPermissions;
-            this.InstallationManager = InstallationManager;
-            this.environment = environment;
-            this.logger = logger;
+            this._moduleDefinitions = ModuleDefinitions;
+            this._userPermissions = UserPermissions;
+            this._installationManager = InstallationManager;
+            this._environment = environment;
+            this._logger = logger;
         }
 
         // GET: api/<controller>?siteid=x
@@ -36,9 +36,9 @@ namespace Oqtane.Controllers
         public IEnumerable<ModuleDefinition> Get(string siteid)
         {
             List<ModuleDefinition> moduledefinitions = new List<ModuleDefinition>();
-            foreach(ModuleDefinition moduledefinition in ModuleDefinitions.GetModuleDefinitions(int.Parse(siteid)))
+            foreach(ModuleDefinition moduledefinition in _moduleDefinitions.GetModuleDefinitions(int.Parse(siteid)))
             {
-                if (UserPermissions.IsAuthorized(User, "Utilize", moduledefinition.Permissions))
+                if (_userPermissions.IsAuthorized(User, "Utilize", moduledefinition.Permissions))
                 {
                     moduledefinitions.Add(moduledefinition);
                 }
@@ -50,14 +50,14 @@ namespace Oqtane.Controllers
         [HttpGet("{id}")]
         public ModuleDefinition Get(int id, string siteid)
         {
-            ModuleDefinition moduledefinition = ModuleDefinitions.GetModuleDefinition(id, int.Parse(siteid));
-            if (UserPermissions.IsAuthorized(User, "Utilize", moduledefinition.Permissions))
+            ModuleDefinition moduledefinition = _moduleDefinitions.GetModuleDefinition(id, int.Parse(siteid));
+            if (_userPermissions.IsAuthorized(User, "Utilize", moduledefinition.Permissions))
             {
                 return moduledefinition;
             }
             else
             {
-                logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access ModuleDefinition {ModuleDefinition}", moduledefinition);
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access ModuleDefinition {ModuleDefinition}", moduledefinition);
                 HttpContext.Response.StatusCode = 401;
                 return null;
             }
@@ -70,8 +70,8 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                ModuleDefinitions.UpdateModuleDefinition(ModuleDefinition);
-                logger.Log(LogLevel.Information, this, LogFunction.Update, "Module Definition Updated {ModuleDefinition}", ModuleDefinition);
+                _moduleDefinitions.UpdateModuleDefinition(ModuleDefinition);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Module Definition Updated {ModuleDefinition}", ModuleDefinition);
             }
         }
 
@@ -79,8 +79,8 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.HostRole)]
         public void InstallModules()
         {
-            InstallationManager.InstallPackages("Modules", true);
-            logger.Log(LogLevel.Information, this, LogFunction.Create, "Modules Installed");
+            _installationManager.InstallPackages("Modules", true);
+            _logger.Log(LogLevel.Information, this, LogFunction.Create, "Modules Installed");
         }
 
         // DELETE api/<controller>/5?siteid=x
@@ -88,13 +88,13 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.HostRole)]
         public void Delete(int id, int siteid)
         {
-            List<ModuleDefinition> moduledefinitions = ModuleDefinitions.GetModuleDefinitions(siteid).ToList();
+            List<ModuleDefinition> moduledefinitions = _moduleDefinitions.GetModuleDefinitions(siteid).ToList();
             ModuleDefinition moduledefinition = moduledefinitions.Where(item => item.ModuleDefinitionId == id).FirstOrDefault();
             if (moduledefinition != null)
             {
                 string moduledefinitionname = moduledefinition.ModuleDefinitionName.Substring(0, moduledefinition.ModuleDefinitionName.IndexOf(","));
 
-                string folder = Path.Combine(environment.WebRootPath, "Modules\\" + moduledefinitionname);
+                string folder = Path.Combine(_environment.WebRootPath, "Modules\\" + moduledefinitionname);
                 if (Directory.Exists(folder))
                 {
                     Directory.Delete(folder, true);
@@ -106,10 +106,10 @@ namespace Oqtane.Controllers
                     System.IO.File.Delete(file);
                 }
 
-                ModuleDefinitions.DeleteModuleDefinition(id, siteid);
-                logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Deleted {ModuleDefinitionId}", id);
+                _moduleDefinitions.DeleteModuleDefinition(id, siteid);
+                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Deleted {ModuleDefinitionId}", id);
 
-                InstallationManager.RestartApplication();
+                _installationManager.RestartApplication();
             }
         }
 

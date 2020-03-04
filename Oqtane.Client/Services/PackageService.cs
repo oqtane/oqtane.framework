@@ -10,31 +10,31 @@ namespace Oqtane.Services
 {
     public class PackageService : ServiceBase, IPackageService
     {
-        private readonly HttpClient http;
-        private readonly SiteState sitestate;
-        private readonly NavigationManager NavigationManager;
+        private readonly HttpClient _http;
+        private readonly SiteState _siteState;
+        private readonly NavigationManager _navigationManager;
 
         public PackageService(HttpClient http, SiteState sitestate, NavigationManager NavigationManager)
         {
-            this.http = http;
-            this.sitestate = sitestate;
-            this.NavigationManager = NavigationManager;
+            this._http = http;
+            this._siteState = sitestate;
+            this._navigationManager = NavigationManager;
         }
 
         private string apiurl
         {
-            get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "Package"); }
+            get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Package"); }
         }
 
         public async Task<List<Package>> GetPackagesAsync(string Tag)
         {
-            List<Package> packages = await http.GetJsonAsync<List<Package>>(apiurl + "?tag=" + Tag);
+            List<Package> packages = await _http.GetJsonAsync<List<Package>>(apiurl + "?tag=" + Tag);
             return packages.OrderByDescending(item => item.Downloads).ToList();
         }
 
         public async Task DownloadPackageAsync(string PackageId, string Version, string Folder)
         {
-            await http.PostJsonAsync(apiurl + "?packageid=" + PackageId + "&version=" + Version + "&folder=" + Folder, null);
+            await _http.PostJsonAsync(apiurl + "?packageid=" + PackageId + "&version=" + Version + "&folder=" + Folder, null);
         }
     }
 }

@@ -17,11 +17,11 @@ namespace Oqtane.Controllers
     [Route("{site}/api/[controller]")]
     public class PackageController : Controller
     {
-        private readonly IWebHostEnvironment environment;
+        private readonly IWebHostEnvironment _environment;
 
         public PackageController(IWebHostEnvironment environment)
         {
-            this.environment = environment;
+            this._environment = environment;
         }
 
         // GET: api/<controller>?tag=x
@@ -61,7 +61,7 @@ namespace Oqtane.Controllers
             using (var httpClient = new HttpClient())
             {
                 CancellationToken token;
-                folder = Path.Combine(environment.WebRootPath, folder);
+                folder = Path.Combine(_environment.WebRootPath, folder);
                 var response = await httpClient.GetAsync("https://www.nuget.org/api/v2/package/" + packageid.ToLower() + "/" + version, token).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
                 string filename = packageid + "." + version + ".nupkg";

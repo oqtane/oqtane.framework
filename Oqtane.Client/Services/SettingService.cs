@@ -10,20 +10,20 @@ namespace Oqtane.Services
 {
     public class SettingService : ServiceBase, ISettingService
     {
-        private readonly HttpClient http;
-        private readonly SiteState sitestate;
-        private readonly NavigationManager NavigationManager;
+        private readonly HttpClient _http;
+        private readonly SiteState _siteState;
+        private readonly NavigationManager _navigationManager;
 
         public SettingService(HttpClient http, SiteState sitestate, NavigationManager NavigationManager)
         {
-            this.http = http;
-            this.sitestate = sitestate;
-            this.NavigationManager = NavigationManager;
+            this._http = http;
+            this._siteState = sitestate;
+            this._navigationManager = NavigationManager;
         }
 
         private string apiurl
         {
-            get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "Setting"); }
+            get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Setting"); }
         }
 
         public async Task<Dictionary<string, string>> GetHostSettingsAsync()
@@ -99,7 +99,7 @@ namespace Oqtane.Services
         public async Task<Dictionary<string, string>> GetSettingsAsync(string EntityName, int EntityId)
         {
             Dictionary<string, string> dictionary = new Dictionary<string, string>();
-            List<Setting> Settings = await http.GetJsonAsync<List<Setting>>(apiurl + "?entityname=" + EntityName + "&entityid=" + EntityId.ToString());
+            List<Setting> Settings = await _http.GetJsonAsync<List<Setting>>(apiurl + "?entityname=" + EntityName + "&entityid=" + EntityId.ToString());
             foreach(Setting setting in Settings.OrderBy(item => item.SettingName).ToList())
             {
                 dictionary.Add(setting.SettingName, setting.SettingValue);
@@ -109,7 +109,7 @@ namespace Oqtane.Services
 
         public async Task UpdateSettingsAsync(Dictionary<string, string> Settings, string EntityName, int EntityId)
         {
-            List<Setting> settings = await http.GetJsonAsync<List<Setting>>(apiurl + "?entityname=" + EntityName + "&entityid=" + EntityId.ToString());
+            List<Setting> settings = await _http.GetJsonAsync<List<Setting>>(apiurl + "?entityname=" + EntityName + "&entityid=" + EntityId.ToString());
             foreach (KeyValuePair<string, string> kvp in Settings)
             {
                 Setting setting = settings.Where(item => item.SettingName == kvp.Key).FirstOrDefault();
@@ -136,22 +136,22 @@ namespace Oqtane.Services
 
         public async Task<Setting> GetSettingAsync(int SettingId)
         {
-            return await http.GetJsonAsync<Setting>(apiurl + "/" + SettingId.ToString());
+            return await _http.GetJsonAsync<Setting>(apiurl + "/" + SettingId.ToString());
         }
 
         public async Task<Setting> AddSettingAsync(Setting Setting)
         {
-            return await http.PostJsonAsync<Setting>(apiurl, Setting);
+            return await _http.PostJsonAsync<Setting>(apiurl, Setting);
         }
 
         public async Task<Setting> UpdateSettingAsync(Setting Setting)
         {
-            return await http.PutJsonAsync<Setting>(apiurl + "/" + Setting.SettingId.ToString(), Setting);
+            return await _http.PutJsonAsync<Setting>(apiurl + "/" + Setting.SettingId.ToString(), Setting);
         }
 
         public async Task DeleteSettingAsync(int SettingId)
         {
-            await http.DeleteAsync(apiurl + "/" + SettingId.ToString());
+            await _http.DeleteAsync(apiurl + "/" + SettingId.ToString());
         }
 
 

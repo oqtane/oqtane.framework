@@ -12,46 +12,46 @@ namespace Oqtane.Services
 {
     public class ModuleDefinitionService : ServiceBase, IModuleDefinitionService
     {
-        private readonly HttpClient http;
-        private readonly SiteState sitestate;
-        private readonly NavigationManager NavigationManager;
+        private readonly HttpClient _http;
+        private readonly SiteState _siteState;
+        private readonly NavigationManager _navigationManager;
 
         public ModuleDefinitionService(HttpClient http, SiteState sitestate, NavigationManager NavigationManager)
         {
-            this.http = http;
-            this.sitestate = sitestate;
-            this.NavigationManager = NavigationManager;
+            this._http = http;
+            this._siteState = sitestate;
+            this._navigationManager = NavigationManager;
         }
 
         private string apiurl
         {
-            get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "ModuleDefinition"); }
+            get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "ModuleDefinition"); }
         }
 
         public async Task<List<ModuleDefinition>> GetModuleDefinitionsAsync(int SiteId)
         {
-            List<ModuleDefinition> moduledefinitions = await http.GetJsonAsync<List<ModuleDefinition>>(apiurl + "?siteid=" + SiteId.ToString());
+            List<ModuleDefinition> moduledefinitions = await _http.GetJsonAsync<List<ModuleDefinition>>(apiurl + "?siteid=" + SiteId.ToString());
             return moduledefinitions.OrderBy(item => item.Name).ToList();
         }
 
         public async Task<ModuleDefinition> GetModuleDefinitionAsync(int ModuleDefinitionId, int SiteId)
         {
-            return await http.GetJsonAsync<ModuleDefinition>(apiurl + "/" + ModuleDefinitionId.ToString() + "?siteid=" + SiteId.ToString());
+            return await _http.GetJsonAsync<ModuleDefinition>(apiurl + "/" + ModuleDefinitionId.ToString() + "?siteid=" + SiteId.ToString());
         }
 
         public async Task UpdateModuleDefinitionAsync(ModuleDefinition ModuleDefinition)
         {
-            await http.PutJsonAsync(apiurl + "/" + ModuleDefinition.ModuleDefinitionId.ToString(), ModuleDefinition);
+            await _http.PutJsonAsync(apiurl + "/" + ModuleDefinition.ModuleDefinitionId.ToString(), ModuleDefinition);
         }
 
         public async Task InstallModuleDefinitionsAsync()
         {
-            await http.GetJsonAsync<List<string>>(apiurl + "/install");
+            await _http.GetJsonAsync<List<string>>(apiurl + "/install");
         }
 
         public async Task DeleteModuleDefinitionAsync(int ModuleDefinitionId, int SiteId)
         {
-            await http.DeleteAsync(apiurl + "/" + ModuleDefinitionId.ToString() + "?siteid=" + SiteId.ToString());
+            await _http.DeleteAsync(apiurl + "/" + ModuleDefinitionId.ToString() + "?siteid=" + SiteId.ToString());
         }
 
         public async Task LoadModuleDefinitionsAsync(int SiteId)
@@ -73,7 +73,7 @@ namespace Oqtane.Services
                         if (assemblies.Where(item => item.FullName.StartsWith(assemblyname + ",")).FirstOrDefault() == null)
                         {
                             // download assembly from server and load
-                            var bytes = await http.GetByteArrayAsync(apiurl + "/load/" + assemblyname + ".dll");
+                            var bytes = await _http.GetByteArrayAsync(apiurl + "/load/" + assemblyname + ".dll");
                             Assembly.Load(bytes);
                         }
                     }
@@ -82,7 +82,7 @@ namespace Oqtane.Services
                 if (assemblies.Where(item => item.FullName.StartsWith(moduledefinition.AssemblyName + ",")).FirstOrDefault() == null)
                 {
                     // download assembly from server and load
-                    var bytes = await http.GetByteArrayAsync(apiurl + "/load/" + moduledefinition.AssemblyName + ".dll");
+                    var bytes = await _http.GetByteArrayAsync(apiurl + "/load/" + moduledefinition.AssemblyName + ".dll");
                     Assembly.Load(bytes);
                 }
             }
