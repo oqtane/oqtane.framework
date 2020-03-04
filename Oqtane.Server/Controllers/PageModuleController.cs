@@ -106,8 +106,8 @@ namespace Oqtane.Controllers
             if (UserPermissions.IsAuthorized(User, "Page", pageid, "Edit"))
             {
                 int order = 1;
-                List<PageModule> pagemodules = PageModules.GetPageModules(pageid).ToList();
-                foreach (PageModule pagemodule in pagemodules.Where(item => item.Pane == pane).OrderBy(item => item.Order))
+                List<PageModule> pagemodules = PageModules.GetPageModules(pageid, pane).OrderBy(item => item.Order).ToList();
+                foreach (PageModule pagemodule in pagemodules)
                 {
                     if (pagemodule.Order != order)
                     {

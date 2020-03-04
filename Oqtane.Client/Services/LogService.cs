@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -69,14 +68,7 @@ namespace Oqtane.Services
             log.Message = message;
             log.MessageTemplate = "";
             log.Properties = JsonSerializer.Serialize(args);
-            if (Alias == null)
-            {
-                await http.PostJsonAsync(apiurl, log);
-            }
-            else
-            {
-                await http.PostJsonAsync(apiurl + "?alias=" + WebUtility.UrlEncode(Alias.Name), log);
-            }
+            await http.PostJsonAsync(CreateCrossTenantUrl(apiurl, Alias), log);
         }
     }
 }
