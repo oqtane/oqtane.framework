@@ -22,11 +22,11 @@ namespace Oqtane.Controllers
         private readonly IWebHostEnvironment _environment;
         private readonly ILogManager _logger;
 
-        public ModuleDefinitionController(IModuleDefinitionRepository ModuleDefinitions, IUserPermissions UserPermissions, IInstallationManager InstallationManager, IWebHostEnvironment environment, ILogManager logger)
+        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, ILogManager logger)
         {
-            _moduleDefinitions = ModuleDefinitions;
-            _userPermissions = UserPermissions;
-            _installationManager = InstallationManager;
+            _moduleDefinitions = moduleDefinitions;
+            _userPermissions = userPermissions;
+            _installationManager = installationManager;
             _environment = environment;
             _logger = logger;
         }

@@ -14,9 +14,9 @@ namespace Oqtane.Controllers
         private readonly IJobLogRepository _jobLogs;
         private readonly ILogManager _logger;
 
-        public JobLogController(IJobLogRepository JobLogs, ILogManager logger)
+        public JobLogController(IJobLogRepository jobLogs, ILogManager logger)
         {
-            _jobLogs = JobLogs;
+            _jobLogs = jobLogs;
             _logger = logger;
         }
 

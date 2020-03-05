@@ -10,10 +10,10 @@ namespace Oqtane.Repository
         private TenantDBContext _db;
         private readonly IPermissionRepository _permissions;
 
-        public FolderRepository(TenantDBContext context, IPermissionRepository Permissions)
+        public FolderRepository(TenantDBContext context, IPermissionRepository permissions)
         {
             _db = context;
-            _permissions = Permissions;
+            _permissions = permissions;
         }
 
         public IEnumerable<Folder> GetFolders(int SiteId)

@@ -15,9 +15,9 @@ namespace Oqtane.Infrastructure
         private readonly IHostApplicationLifetime _hostApplicationLifetime;
         private readonly IWebHostEnvironment _environment;
 
-        public InstallationManager(IHostApplicationLifetime HostApplicationLifetime, IWebHostEnvironment environment)
+        public InstallationManager(IHostApplicationLifetime hostApplicationLifetime, IWebHostEnvironment environment)
         {
-            _hostApplicationLifetime = HostApplicationLifetime;
+            _hostApplicationLifetime = hostApplicationLifetime;
             _environment = environment;
         }
 

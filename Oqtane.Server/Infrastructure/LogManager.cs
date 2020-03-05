@@ -18,13 +18,13 @@ namespace Oqtane.Infrastructure
         private readonly IUserPermissions _userPermissions;
         private readonly IHttpContextAccessor _accessor;
 
-        public LogManager(ILogRepository Logs, ITenantResolver TenantResolver, IConfigurationRoot Config, IUserPermissions UserPermissions, IHttpContextAccessor Accessor)
+        public LogManager(ILogRepository logs, ITenantResolver tenantResolver, IConfigurationRoot config, IUserPermissions userPermissions, IHttpContextAccessor accessor)
         {
-            _logs = Logs;
-            _tenantResolver = TenantResolver;
-            _config = Config;
-            _userPermissions = UserPermissions;
-            _accessor = Accessor;
+            _logs = logs;
+            _tenantResolver = tenantResolver;
+            _config = config;
+            _userPermissions = userPermissions;
+            _accessor = accessor;
         }
 
         public void Log(LogLevel Level, object Class, LogFunction Function, string Message, params object[] Args)

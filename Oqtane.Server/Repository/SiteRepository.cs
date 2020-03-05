@@ -24,18 +24,18 @@ namespace Oqtane.Repository
         private readonly IServiceProvider _serviceProvider;
         private readonly List<PageTemplate> _siteTemplate;
 
-        public SiteRepository(TenantDBContext context, IRoleRepository RoleRepository, IProfileRepository ProfileRepository, IFolderRepository FolderRepository, IFileRepository FileRepository, IPageRepository PageRepository, IModuleRepository ModuleRepository, IPageModuleRepository PageModuleRepository, IModuleDefinitionRepository ModuleDefinitionRepository, IServiceProvider ServiceProvider)
+        public SiteRepository(TenantDBContext context, IRoleRepository roleRepository, IProfileRepository profileRepository, IFolderRepository folderRepository, IFileRepository fileRepository, IPageRepository pageRepository, IModuleRepository moduleRepository, IPageModuleRepository pageModuleRepository, IModuleDefinitionRepository moduleDefinitionRepository, IServiceProvider serviceProvider)
         {
             _db = context;
-            _roleRepository = RoleRepository;
-            _profileRepository = ProfileRepository;
-            _folderRepository = FolderRepository;
-            _fileRepository = FileRepository;
-            _pageRepository = PageRepository;
-            _moduleRepository = ModuleRepository;
-            _pageModuleRepository = PageModuleRepository;
-            _moduleDefinitionRepository = ModuleDefinitionRepository;
-            _serviceProvider = ServiceProvider;
+            _roleRepository = roleRepository;
+            _profileRepository = profileRepository;
+            _folderRepository = folderRepository;
+            _fileRepository = fileRepository;
+            _pageRepository = pageRepository;
+            _moduleRepository = moduleRepository;
+            _pageModuleRepository = pageModuleRepository;
+            _moduleDefinitionRepository = moduleDefinitionRepository;
+            _serviceProvider = serviceProvider;
 
             // define the default site template
             _siteTemplate = new List<PageTemplate>();

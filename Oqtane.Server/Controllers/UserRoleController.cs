@@ -14,9 +14,9 @@ namespace Oqtane.Controllers
         private readonly IUserRoleRepository _userRoles;
         private readonly ILogManager _logger;
 
-        public UserRoleController(IUserRoleRepository UserRoles, ILogManager logger)
+        public UserRoleController(IUserRoleRepository userRoles, ILogManager logger)
         {
-            _userRoles = UserRoles;
+            _userRoles = userRoles;
             _logger = logger;
         }
 

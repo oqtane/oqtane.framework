@@ -22,10 +22,10 @@ namespace Oqtane.Controllers
         private readonly IConfigurationRoot _config;
         private readonly IInstallationManager _installationManager;
 
-        public InstallationController(IConfigurationRoot Config, IInstallationManager InstallationManager)
+        public InstallationController(IConfigurationRoot config, IInstallationManager installationManager)
         {
-            _config = Config;
-            _installationManager = InstallationManager;
+            _config = config;
+            _installationManager = installationManager;
         }
 
         // POST api/<controller>

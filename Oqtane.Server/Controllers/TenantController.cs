@@ -14,9 +14,9 @@ namespace Oqtane.Controllers
         private readonly ITenantRepository _tenants;
         private readonly ILogManager _logger;
 
-        public TenantController(ITenantRepository Tenants, ILogManager logger)
+        public TenantController(ITenantRepository tenants, ILogManager logger)
         {
-            _tenants = Tenants;
+            _tenants = tenants;
             _logger = logger;
         }
 

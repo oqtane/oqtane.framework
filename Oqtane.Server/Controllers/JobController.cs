@@ -18,11 +18,11 @@ namespace Oqtane.Controllers
         private readonly ILogManager _logger;
         private readonly IServiceProvider _serviceProvider;
 
-        public JobController(IJobRepository Jobs, ILogManager logger, IServiceProvider ServiceProvider)
+        public JobController(IJobRepository jobs, ILogManager logger, IServiceProvider serviceProvider)
         {
-            _jobs = Jobs;
+            _jobs = jobs;
             _logger = logger;
-            _serviceProvider = ServiceProvider;
+            _serviceProvider = serviceProvider;
         }
 
         // GET: api/<controller>

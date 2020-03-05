@@ -29,16 +29,16 @@ namespace Oqtane.Controllers
         private readonly IFolderRepository _folders;
         private readonly ILogManager _logger;
 
-        public UserController(IUserRepository Users, IRoleRepository Roles, IUserRoleRepository UserRoles, UserManager<IdentityUser> IdentityUserManager, SignInManager<IdentityUser> IdentitySignInManager, ITenantResolver Tenants, INotificationRepository Notifications, IFolderRepository Folders, ILogManager logger)
+        public UserController(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantResolver tenants, INotificationRepository notifications, IFolderRepository folders, ILogManager logger)
         {
-            _users = Users;
-            _roles = Roles;
-            _userRoles = UserRoles;
-            _identityUserManager = IdentityUserManager;
-            _identitySignInManager = IdentitySignInManager;
-            _tenants = Tenants;
-            _folders = Folders;
-            _notifications = Notifications;
+            _users = users;
+            _roles = roles;
+            _userRoles = userRoles;
+            _identityUserManager = identityUserManager;
+            _identitySignInManager = identitySignInManager;
+            _tenants = tenants;
+            _folders = folders;
+            _notifications = notifications;
             _logger = logger;
         }
 

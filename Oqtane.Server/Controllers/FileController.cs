@@ -27,13 +27,13 @@ namespace Oqtane.Controllers
         private readonly ITenantResolver _tenants;
         private readonly ILogManager _logger;
 
-        public FileController(IWebHostEnvironment environment, IFileRepository Files, IFolderRepository Folders, IUserPermissions UserPermissions, ITenantResolver Tenants, ILogManager logger)
+        public FileController(IWebHostEnvironment environment, IFileRepository files, IFolderRepository folders, IUserPermissions userPermissions, ITenantResolver tenants, ILogManager logger)
         {
             _environment = environment;
-            _files = Files;
-            _folders = Folders;
-            _userPermissions = UserPermissions;
-            _tenants = Tenants;
+            _files = files;
+            _folders = folders;
+            _userPermissions = userPermissions;
+            _tenants = tenants;
             _logger = logger;
         }
 

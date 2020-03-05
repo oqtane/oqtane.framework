@@ -17,10 +17,10 @@ namespace Oqtane.Controllers
         private readonly IUserPermissions _userPermissions;
         private readonly ILogManager _logger;
 
-        public NotificationController(INotificationRepository Notifications, IUserPermissions UserPermissions, ILogManager logger)
+        public NotificationController(INotificationRepository notifications, IUserPermissions userPermissions, ILogManager logger)
         {
-            _notifications = Notifications;
-            _userPermissions = UserPermissions;
+            _notifications = notifications;
+            _userPermissions = userPermissions;
             _logger = logger;
         }
 

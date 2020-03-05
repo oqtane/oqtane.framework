@@ -13,9 +13,9 @@ namespace Oqtane.Repository
         private Tenant _tenant;
         private IHttpContextAccessor _accessor;
 
-        public DBContextBase(ITenantResolver TenantResolver, IHttpContextAccessor accessor)
+        public DBContextBase(ITenantResolver tenantResolver, IHttpContextAccessor accessor)
         {
-            _tenant = TenantResolver.GetTenant();
+            _tenant = tenantResolver.GetTenant();
             _accessor = accessor;
         }
 

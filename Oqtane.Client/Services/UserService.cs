@@ -12,11 +12,11 @@ namespace Oqtane.Services
         private readonly SiteState _siteState;
         private readonly NavigationManager _navigationManager;
 
-        public UserService(HttpClient http, SiteState sitestate, NavigationManager NavigationManager)
+        public UserService(HttpClient http, SiteState siteState, NavigationManager navigationManager)
         {
             _http = http;
-            _siteState = sitestate;
-            _navigationManager = NavigationManager;
+            _siteState = siteState;
+            _navigationManager = navigationManager;
         }
 
         private string apiurl

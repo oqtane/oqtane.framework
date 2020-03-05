@@ -17,11 +17,11 @@ namespace Oqtane.Services
         private readonly NavigationManager _navigationManager;
         private readonly IJSRuntime _jsRuntime;
 
-        public FileService(HttpClient http, SiteState sitestate, NavigationManager NavigationManager, IJSRuntime jsRuntime)
+        public FileService(HttpClient http, SiteState siteState, NavigationManager navigationManager, IJSRuntime jsRuntime)
         {
             _http = http;
-            _siteState = sitestate;
-            _navigationManager = NavigationManager;
+            _siteState = siteState;
+            _navigationManager = navigationManager;
             _jsRuntime = jsRuntime;
         }
 

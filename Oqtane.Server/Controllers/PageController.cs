@@ -19,12 +19,12 @@ namespace Oqtane.Controllers
         private readonly IUserPermissions _userPermissions;
         private readonly ILogManager _logger;
 
-        public PageController(IPageRepository Pages, IModuleRepository Modules, IPageModuleRepository PageModules, IUserPermissions UserPermissions, ILogManager logger)
+        public PageController(IPageRepository pages, IModuleRepository modules, IPageModuleRepository pageModules, IUserPermissions userPermissions, ILogManager logger)
         {
-            _pages = Pages;
-            _modules = Modules;
-            _pageModules = PageModules;
-            _userPermissions = UserPermissions;
+            _pages = pages;
+            _modules = modules;
+            _pageModules = pageModules;
+            _userPermissions = userPermissions;
             _logger = logger;
         }
 

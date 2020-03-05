@@ -16,11 +16,11 @@ namespace Oqtane.Repository
         private readonly IMemoryCache _cache;
         private readonly IPermissionRepository _permissions;
 
-        public ModuleDefinitionRepository(MasterDBContext context, IMemoryCache cache, IPermissionRepository Permissions)
+        public ModuleDefinitionRepository(MasterDBContext context, IMemoryCache cache, IPermissionRepository permissions)
         {
             _db = context;
             _cache = cache;
-            _permissions = Permissions;
+            _permissions = permissions;
         }
 
         public IEnumerable<ModuleDefinition> GetModuleDefinitions(int SiteId)

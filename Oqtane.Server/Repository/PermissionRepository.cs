@@ -14,10 +14,10 @@ namespace Oqtane.Repository
         private TenantDBContext _db;
         private readonly IRoleRepository _roles;
 
-        public PermissionRepository(TenantDBContext context, IRoleRepository Roles)
+        public PermissionRepository(TenantDBContext context, IRoleRepository roles)
         {
             _db = context;
-            _roles = Roles;
+            _roles = roles;
         }
 
         public IEnumerable<Permission> GetPermissions(int SiteId, string EntityName)

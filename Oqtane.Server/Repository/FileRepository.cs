@@ -10,10 +10,10 @@ namespace Oqtane.Repository
         private TenantDBContext _db;
         private readonly IPermissionRepository _permissions;
 
-        public FileRepository(TenantDBContext context, IPermissionRepository Permissions)
+        public FileRepository(TenantDBContext context, IPermissionRepository permissions)
         {
             _db = context;
-            _permissions = Permissions;
+            _permissions = permissions;
         }
 
         public IEnumerable<File> GetFiles(int FolderId)

@@ -17,11 +17,11 @@ namespace Oqtane.Providers
         private readonly SiteState _siteState;
         private readonly IServiceProvider _serviceProvider;
 
-        public IdentityAuthenticationStateProvider(NavigationManager NavigationManager, SiteState sitestate, IServiceProvider provider)
+        public IdentityAuthenticationStateProvider(NavigationManager navigationManager, SiteState siteState, IServiceProvider serviceProvider)
         {
-            _navigationManager = NavigationManager;
-            _siteState = sitestate;
-            _serviceProvider = provider;
+            _navigationManager = navigationManager;
+            _siteState = siteState;
+            _serviceProvider = serviceProvider;
         }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()

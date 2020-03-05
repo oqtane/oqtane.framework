@@ -17,9 +17,9 @@ namespace Oqtane.Infrastructure
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        public HostedServiceBase(IServiceScopeFactory ServiceScopeFactory)
+        public HostedServiceBase(IServiceScopeFactory serviceScopeFactory)
         {
-            _serviceScopeFactory = ServiceScopeFactory;
+            _serviceScopeFactory = serviceScopeFactory;
         }
 
         // abstract method must be overridden

@@ -17,9 +17,9 @@ namespace Oqtane.Controllers
         private readonly IAliasRepository _aliases;
         private readonly ILogManager _logger;
 
-        public AliasController(IAliasRepository Aliases, ILogManager logger)
+        public AliasController(IAliasRepository aliases, ILogManager logger)
         {
-            _aliases = Aliases;
+            _aliases = aliases;
             _logger = logger;
         }
 

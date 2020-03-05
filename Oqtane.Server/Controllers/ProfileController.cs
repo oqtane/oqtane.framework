@@ -14,9 +14,9 @@ namespace Oqtane.Controllers
         private readonly IProfileRepository _profiles;
         private readonly ILogManager _logger;
 
-        public ProfileController(IProfileRepository Profiles, ILogManager logger)
+        public ProfileController(IProfileRepository profiles, ILogManager logger)
         {
-            _profiles = Profiles;
+            _profiles = profiles;
             _logger = logger;
         }
 

@@ -12,13 +12,13 @@ namespace Oqtane.Controllers
     [Route("{site}/api/[controller]")]
     public class LogController : Controller
     {
-        private readonly ILogManager _ogger;
+        private readonly ILogManager _logger;
         private readonly ILogRepository _logs;
 
-        public LogController(ILogManager Logger, ILogRepository Logs)
+        public LogController(ILogManager logger, ILogRepository logs)
         {
-            _ogger = Logger;
-            _logs = Logs;
+            _logger = logger;
+            _logs = logs;
         }
 
         // GET: api/<controller>?siteid=x&level=y&function=z&rows=50
@@ -43,7 +43,7 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                _ogger.Log(Log);
+                _logger.Log(Log);
             }
         }
     }

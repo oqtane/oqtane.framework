@@ -20,10 +20,10 @@ namespace Oqtane.Controllers
         private readonly IWebHostEnvironment _environment;
         private readonly ILogManager _logger;
 
-        public ThemeController(IThemeRepository Themes, IInstallationManager InstallationManager, IWebHostEnvironment environment, ILogManager logger)
+        public ThemeController(IThemeRepository themes, IInstallationManager installationManager, IWebHostEnvironment environment, ILogManager logger)
         {
-            _themes = Themes;
-            _installationManager = InstallationManager;
+            _themes = themes;
+            _installationManager = installationManager;
             _environment = environment;
             _logger = logger;
         }

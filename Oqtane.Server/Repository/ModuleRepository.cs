@@ -17,12 +17,12 @@ namespace Oqtane.Repository
         private readonly IModuleDefinitionRepository _moduleDefinitions;
         private readonly IServiceProvider _serviceProvider;
 
-        public ModuleRepository(TenantDBContext context, IPermissionRepository Permissions, IModuleDefinitionRepository ModuleDefinitions, IServiceProvider ServiceProvider)
+        public ModuleRepository(TenantDBContext context, IPermissionRepository permissions, IModuleDefinitionRepository moduleDefinitions, IServiceProvider serviceProvider)
         {
             _db = context;
-            _permissions = Permissions;
-            _moduleDefinitions = ModuleDefinitions;
-            _serviceProvider = ServiceProvider;
+            _permissions = permissions;
+            _moduleDefinitions = moduleDefinitions;
+            _serviceProvider = serviceProvider;
         }
 
         public IEnumerable<Models.Module> GetModules(int SiteId)

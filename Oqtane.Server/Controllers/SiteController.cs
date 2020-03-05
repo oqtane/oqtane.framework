@@ -19,10 +19,10 @@ namespace Oqtane.Controllers
         private readonly IWebHostEnvironment _environment;
         private readonly ILogManager _logger;
 
-        public SiteController(ISiteRepository Sites, ITenantResolver Tenants, IWebHostEnvironment environment, ILogManager logger)
+        public SiteController(ISiteRepository sites, ITenantResolver tenants, IWebHostEnvironment environment, ILogManager logger)
         {
-            _sites = Sites;
-            _tenants = Tenants;
+            _sites = sites;
+            _tenants = tenants;
             _environment = environment;
             _logger = logger;
         }

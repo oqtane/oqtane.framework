@@ -12,10 +12,10 @@ namespace Oqtane.Security
         private readonly IUserPermissions _userPermissions;
         private readonly ILogManager _logger;
 
-        public PermissionHandler(IHttpContextAccessor HttpContextAccessor, IUserPermissions UserPermissions, ILogManager logger)
+        public PermissionHandler(IHttpContextAccessor httpContextAccessor, IUserPermissions userPermissions, ILogManager logger)
         {
-            _httpContextAccessor = HttpContextAccessor;
-            _userPermissions = UserPermissions;
+            _httpContextAccessor = httpContextAccessor;
+            _userPermissions = userPermissions;
             _logger = logger;
         }
 

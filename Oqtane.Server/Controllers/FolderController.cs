@@ -17,10 +17,10 @@ namespace Oqtane.Controllers
         private readonly IUserPermissions _userPermissions;
         private readonly ILogManager _logger;
 
-        public FolderController(IFolderRepository Folders, IUserPermissions UserPermissions, ILogManager logger)
+        public FolderController(IFolderRepository folders, IUserPermissions userPermissions, ILogManager logger)
         {
-            _folders = Folders;
-            _userPermissions = UserPermissions;
+            _folders = folders;
+            _userPermissions = userPermissions;
             _logger = logger;
         }
 

@@ -16,13 +16,13 @@ namespace Oqtane.Modules.HtmlText.Controllers
         private readonly ILogManager _logger;
         private int _entityId = -1; // passed as a querystring parameter for authorization and used for validation
 
-        public HtmlTextController(IHtmlTextRepository HtmlText, ILogManager logger, IHttpContextAccessor HttpContextAccessor)
+        public HtmlTextController(IHtmlTextRepository htmlText, ILogManager logger, IHttpContextAccessor httpContextAccessor)
         {
-            _htmlText = HtmlText;
+            _htmlText = htmlText;
             _logger = logger;
-            if (HttpContextAccessor.HttpContext.Request.Query.ContainsKey("entityid"))
+            if (httpContextAccessor.HttpContext.Request.Query.ContainsKey("entityid"))
             {
-                _entityId = int.Parse(HttpContextAccessor.HttpContext.Request.Query["entityid"]);
+                _entityId = int.Parse(httpContextAccessor.HttpContext.Request.Query["entityid"]);
             }
         }
 

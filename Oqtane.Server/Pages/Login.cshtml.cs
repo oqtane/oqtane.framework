@@ -10,22 +10,22 @@ namespace Oqtane.Pages
     public class LoginModel : PageModel
     {
 
-        private readonly UserManager<IdentityUser> IdentityUserManager;
-        private readonly SignInManager<IdentityUser> IdentitySignInManager;
+        private readonly UserManager<IdentityUser> _identityUserManager;
+        private readonly SignInManager<IdentityUser> _identitySignInManager;
 
-        public LoginModel(UserManager<IdentityUser> IdentityUserManager, SignInManager<IdentityUser> IdentitySignInManager)
+        public LoginModel(UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager)
         {
-            IdentityUserManager = IdentityUserManager;
-            IdentitySignInManager = IdentitySignInManager;
+            _identityUserManager = identityUserManager;
+            _identitySignInManager = identitySignInManager;
         }
 
         public async Task<IActionResult> OnPostAsync(string username, string password, bool remember, string returnurl)
         {
             bool validuser = false;
-            IdentityUser identityuser = await IdentityUserManager.FindByNameAsync(username);
+            IdentityUser identityuser = await _identityUserManager.FindByNameAsync(username);
             if (identityuser != null)
             {
-                var result = await IdentitySignInManager.CheckPasswordSignInAsync(identityuser, password, false);
+                var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, password, false);
                 if (result.Succeeded)
                 {
                     validuser = true;
@@ -34,7 +34,7 @@ namespace Oqtane.Pages
 
             if (validuser)
             {
-                await IdentitySignInManager.SignInAsync(identityuser, remember);
+                await _identitySignInManager.SignInAsync(identityuser, remember);
             }
 
             if (returnurl == null)
