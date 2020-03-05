@@ -70,8 +70,8 @@ else
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Edit; } }
     public override string Title { get { return "Edit Html/Text"; } }
 
-    RichTextEditor RichTextEditorHtml;
     bool RichTextEditorMode = true;
+    RichTextEditor RichTextEditorHtml;
     string content;
     string createdby;
     DateTime createdon;
@@ -117,13 +117,20 @@ else
     private async Task RichTextEditor()
     {
         RichTextEditorMode = true;
-        await LoadText();
+        //TODO: maybe exists better solution than delay. Without this editor becomes corrupted.
+        await Task.Delay(100);
+        await RichTextEditorHtml.LoadContent(content);
+        StateHasChanged();
     }
 
     private async Task RawHTMLEditor()
     {
+        if (RichTextEditorMode)
+        {
+            content = await this.RichTextEditorHtml.GetHTML();
+        }
         RichTextEditorMode = false;
-        await LoadText();
+        // await LoadText();
     }
 
     private async Task SaveContent()

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Oqtane.Infrastructure;
 using Oqtane.Shared;
 using System;
+using System.Collections.Generic;
 
 namespace Oqtane.Modules.HtmlText.Controllers
 {
@@ -29,22 +30,24 @@ namespace Oqtane.Modules.HtmlText.Controllers
         // GET api/<controller>/5
         [HttpGet("{id}")]
         [Authorize(Policy = "ViewModule")]
-        public HtmlTextInfo Get(int id)
+        public List<HtmlTextInfo> Get(int id)
         {
+            var list = new List<HtmlTextInfo>();
             try
             {
                 HtmlTextInfo HtmlText = null;
                 if (EntityId == id)
                 {
                     HtmlText = htmltext.GetHtmlText(id);
+                    list.Add(HtmlText);
                 }
-                return HtmlText;
             }
             catch (Exception ex)
             {
                 logger.Log(LogLevel.Error, this, LogFunction.Read, ex, "Get Error {Error}", ex.Message);
                 throw;
             }
+            return list;
         }
 
         // POST api/<controller>

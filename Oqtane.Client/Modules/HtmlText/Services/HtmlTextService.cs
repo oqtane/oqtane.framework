@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Net.Http;
 using Microsoft.AspNetCore.Components;
@@ -32,7 +34,8 @@ namespace Oqtane.Modules.HtmlText.Services
             try
             {
                 // exception handling is required because GetJsonAsync() returns an error if no content exists for the ModuleId ( https://github.com/aspnet/AspNetCore/issues/14041 )
-                htmltext = await http.GetJsonAsync<HtmlTextInfo>(apiurl + "/" + ModuleId.ToString() + "?entityid=" + ModuleId.ToString());
+                var htmltextList = await http.GetJsonAsync<List<HtmlTextInfo>>(apiurl + "/" + ModuleId.ToString() + "?entityid=" + ModuleId.ToString());
+                htmltext = htmltextList.FirstOrDefault();
             }
             catch
             {
