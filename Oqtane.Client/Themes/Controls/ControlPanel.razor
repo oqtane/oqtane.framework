@@ -317,7 +317,7 @@
                 }
 
                 PageModule pagemodule = new PageModule();
-                pagemodule.PageId = (pageid != "-") ? PageState.Page.PageId : int.Parse(pageid);
+                pagemodule.PageId = (pageid == "-") ? PageState.Page.PageId : int.Parse(pageid);
                 pagemodule.ModuleId = int.Parse(moduleid);
                 pagemodule.Title = title;
                 if (pagemodule.Title == "")
