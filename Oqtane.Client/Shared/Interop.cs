@@ -11,7 +11,7 @@ namespace Oqtane.Shared
 
         public Interop(IJSRuntime jsRuntime)
         {
-            this._jsRuntime = jsRuntime;
+            _jsRuntime = jsRuntime;
         }
 
         public Task SetCookie(string name, string value, int days)

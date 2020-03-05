@@ -17,8 +17,8 @@ namespace Oqtane.Infrastructure
 
         public InstallationManager(IHostApplicationLifetime HostApplicationLifetime, IWebHostEnvironment environment)
         {
-            this._hostApplicationLifetime = HostApplicationLifetime;
-            this._environment = environment;
+            _hostApplicationLifetime = HostApplicationLifetime;
+            _environment = environment;
         }
 
         public void InstallPackages(string Folders, bool Restart)

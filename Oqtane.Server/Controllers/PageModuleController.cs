@@ -20,10 +20,10 @@ namespace Oqtane.Controllers
 
         public PageModuleController(IPageModuleRepository PageModules, IModuleRepository Modules, IUserPermissions UserPermissions, ILogManager logger)
         {
-            this._pageModules = PageModules;
-            this._modules = Modules;
-            this._userPermissions = UserPermissions;
-            this._logger = logger;
+            _pageModules = PageModules;
+            _modules = Modules;
+            _userPermissions = UserPermissions;
+            _logger = logger;
         }
 
         // GET api/<controller>/5

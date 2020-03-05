@@ -21,11 +21,11 @@ namespace Oqtane.Controllers
 
         public PageController(IPageRepository Pages, IModuleRepository Modules, IPageModuleRepository PageModules, IUserPermissions UserPermissions, ILogManager logger)
         {
-            this._pages = Pages;
-            this._modules = Modules;
-            this._pageModules = PageModules;
-            this._userPermissions = UserPermissions;
-            this._logger = logger;
+            _pages = Pages;
+            _modules = Modules;
+            _pageModules = PageModules;
+            _userPermissions = UserPermissions;
+            _logger = logger;
         }
 
         // GET: api/<controller>?siteid=x

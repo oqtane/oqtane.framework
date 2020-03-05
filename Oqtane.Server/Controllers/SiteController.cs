@@ -21,10 +21,10 @@ namespace Oqtane.Controllers
 
         public SiteController(ISiteRepository Sites, ITenantResolver Tenants, IWebHostEnvironment environment, ILogManager logger)
         {
-            this._sites = Sites;
-            this._tenants = Tenants;
-            this._environment = environment;
-            this._logger = logger;
+            _sites = Sites;
+            _tenants = Tenants;
+            _environment = environment;
+            _logger = logger;
         }
 
         // GET: api/<controller>

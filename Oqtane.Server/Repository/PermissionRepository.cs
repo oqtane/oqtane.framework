@@ -17,7 +17,7 @@ namespace Oqtane.Repository
         public PermissionRepository(TenantDBContext context, IRoleRepository Roles)
         {
             _db = context;
-            this._roles = Roles;
+            _roles = Roles;
         }
 
         public IEnumerable<Permission> GetPermissions(int SiteId, string EntityName)

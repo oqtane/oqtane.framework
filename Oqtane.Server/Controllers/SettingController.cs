@@ -20,10 +20,10 @@ namespace Oqtane.Controllers
 
         public SettingController(ISettingRepository Settings, IPageModuleRepository PageModules, IUserPermissions UserPermissions, ILogManager logger)
         {
-            this._settings = Settings;
-            this._pageModules = PageModules;
-            this._userPermissions = UserPermissions;
-            this._logger = logger;
+            _settings = Settings;
+            _pageModules = PageModules;
+            _userPermissions = UserPermissions;
+            _logger = logger;
         }
 
         // GET: api/<controller>

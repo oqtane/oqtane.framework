@@ -11,7 +11,7 @@ namespace Oqtane.Modules.HtmlText.Manager
 
         public HtmlTextManager(IHtmlTextRepository htmltexts)
         {
-            this._htmlTexts = htmltexts;
+            _htmlTexts = htmltexts;
         }
 
         public string ExportModule(Module Module)

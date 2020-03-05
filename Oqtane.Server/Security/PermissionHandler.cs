@@ -14,9 +14,9 @@ namespace Oqtane.Security
 
         public PermissionHandler(IHttpContextAccessor HttpContextAccessor, IUserPermissions UserPermissions, ILogManager logger)
         {
-            this._httpContextAccessor = HttpContextAccessor;
-            this._userPermissions = UserPermissions;
-            this._logger = logger;
+            _httpContextAccessor = HttpContextAccessor;
+            _userPermissions = UserPermissions;
+            _logger = logger;
         }
 
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)

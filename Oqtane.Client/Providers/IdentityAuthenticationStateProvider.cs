@@ -19,9 +19,9 @@ namespace Oqtane.Providers
 
         public IdentityAuthenticationStateProvider(NavigationManager NavigationManager, SiteState sitestate, IServiceProvider provider)
         {
-            this._navigationManager = NavigationManager;
-            this._siteState = sitestate;
-            this._serviceProvider = provider;
+            _navigationManager = NavigationManager;
+            _siteState = sitestate;
+            _serviceProvider = provider;
         }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()

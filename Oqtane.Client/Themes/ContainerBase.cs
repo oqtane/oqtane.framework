@@ -22,7 +22,7 @@ namespace Oqtane.Themes
 
         public string ThemePath()
         {
-            return "Themes/" + this.GetType().Namespace + "/";
+            return "Themes/" + GetType().Namespace + "/";
         }
 
         public string NavigateUrl()

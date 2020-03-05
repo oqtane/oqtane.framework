@@ -24,11 +24,11 @@ namespace Oqtane.Controllers
 
         public ModuleDefinitionController(IModuleDefinitionRepository ModuleDefinitions, IUserPermissions UserPermissions, IInstallationManager InstallationManager, IWebHostEnvironment environment, ILogManager logger)
         {
-            this._moduleDefinitions = ModuleDefinitions;
-            this._userPermissions = UserPermissions;
-            this._installationManager = InstallationManager;
-            this._environment = environment;
-            this._logger = logger;
+            _moduleDefinitions = ModuleDefinitions;
+            _userPermissions = UserPermissions;
+            _installationManager = InstallationManager;
+            _environment = environment;
+            _logger = logger;
         }
 
         // GET: api/<controller>?siteid=x

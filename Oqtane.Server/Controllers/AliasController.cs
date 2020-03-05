@@ -19,8 +19,8 @@ namespace Oqtane.Controllers
 
         public AliasController(IAliasRepository Aliases, ILogManager logger)
         {
-            this._aliases = Aliases;
-            this._logger = logger;
+            _aliases = Aliases;
+            _logger = logger;
         }
 
         // GET: api/<controller>

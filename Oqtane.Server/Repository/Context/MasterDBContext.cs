@@ -12,7 +12,7 @@ namespace Oqtane.Repository
 
         public MasterDBContext(DbContextOptions<MasterDBContext> options, IHttpContextAccessor accessor) : base(options)
         {
-            this._accessor = accessor;
+            _accessor = accessor;
         }
 
         public virtual DbSet<Alias> Alias { get; set; }

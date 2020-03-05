@@ -17,9 +17,9 @@ namespace Oqtane.Services
 
         public PageService(HttpClient http, SiteState sitestate, NavigationManager NavigationManager)
         {
-            this._http = http;
-            this._siteState = sitestate;
-            this._navigationManager = NavigationManager;
+            _http = http;
+            _siteState = sitestate;
+            _navigationManager = NavigationManager;
         }
 
         private string apiurl

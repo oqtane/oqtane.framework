@@ -17,8 +17,8 @@ namespace Oqtane.Controllers
 
         public LogController(ILogManager Logger, ILogRepository Logs)
         {
-            this._ogger = Logger;
-            this._logs = Logs;
+            _ogger = Logger;
+            _logs = Logs;
         }
 
         // GET: api/<controller>?siteid=x&level=y&function=z&rows=50

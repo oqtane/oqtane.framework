@@ -31,15 +31,15 @@ namespace Oqtane.Controllers
 
         public UserController(IUserRepository Users, IRoleRepository Roles, IUserRoleRepository UserRoles, UserManager<IdentityUser> IdentityUserManager, SignInManager<IdentityUser> IdentitySignInManager, ITenantResolver Tenants, INotificationRepository Notifications, IFolderRepository Folders, ILogManager logger)
         {
-            this._users = Users;
-            this._roles = Roles;
-            this._userRoles = UserRoles;
-            this._identityUserManager = IdentityUserManager;
-            this._identitySignInManager = IdentitySignInManager;
-            this._tenants = Tenants;
-            this._folders = Folders;
-            this._notifications = Notifications;
-            this._logger = logger;
+            _users = Users;
+            _roles = Roles;
+            _userRoles = UserRoles;
+            _identityUserManager = IdentityUserManager;
+            _identitySignInManager = IdentitySignInManager;
+            _tenants = Tenants;
+            _folders = Folders;
+            _notifications = Notifications;
+            _logger = logger;
         }
 
         // GET api/<controller>/5?siteid=x

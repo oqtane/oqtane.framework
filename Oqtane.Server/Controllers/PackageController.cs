@@ -21,7 +21,7 @@ namespace Oqtane.Controllers
 
         public PackageController(IWebHostEnvironment environment)
         {
-            this._environment = environment;
+            _environment = environment;
         }
 
         // GET: api/<controller>?tag=x

@@ -16,8 +16,8 @@ namespace Oqtane.Controllers
 
         public UserRoleController(IUserRoleRepository UserRoles, ILogManager logger)
         {
-            this._userRoles = UserRoles;
-            this._logger = logger;
+            _userRoles = UserRoles;
+            _logger = logger;
         }
 
         // GET: api/<controller>?userid=x

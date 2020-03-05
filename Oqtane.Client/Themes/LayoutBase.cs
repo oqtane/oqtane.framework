@@ -11,7 +11,7 @@ namespace Oqtane.Themes
 
         public string LayoutPath()
         {
-            return "Themes/" + this.GetType().Namespace + "/";
+            return "Themes/" + GetType().Namespace + "/";
         }
 
     }

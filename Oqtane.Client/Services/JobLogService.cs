@@ -16,9 +16,9 @@ namespace Oqtane.Services
 
         public JobLogService(HttpClient http, SiteState sitestate, NavigationManager NavigationManager)
         {
-            this.http = http;
-            this._siteState = sitestate;
-            this._navigationManager = NavigationManager;
+            http = http;
+            _siteState = sitestate;
+            _navigationManager = NavigationManager;
         }
 
         private string apiurl

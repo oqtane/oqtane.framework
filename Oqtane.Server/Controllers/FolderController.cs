@@ -19,9 +19,9 @@ namespace Oqtane.Controllers
 
         public FolderController(IFolderRepository Folders, IUserPermissions UserPermissions, ILogManager logger)
         {
-            this._folders = Folders;
-            this._userPermissions = UserPermissions;
-            this._logger = logger;
+            _folders = Folders;
+            _userPermissions = UserPermissions;
+            _logger = logger;
         }
 
         // GET: api/<controller>?siteid=x

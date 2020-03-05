@@ -20,9 +20,9 @@ namespace Oqtane.Controllers
 
         public JobController(IJobRepository Jobs, ILogManager logger, IServiceProvider ServiceProvider)
         {
-            this._jobs = Jobs;
-            this._logger = logger;
-            this._serviceProvider = ServiceProvider;
+            _jobs = Jobs;
+            _logger = logger;
+            _serviceProvider = ServiceProvider;
         }
 
         // GET: api/<controller>

@@ -16,8 +16,8 @@ namespace Oqtane.Controllers
 
         public TenantController(ITenantRepository Tenants, ILogManager logger)
         {
-            this._tenants = Tenants;
-            this._logger = logger;
+            _tenants = Tenants;
+            _logger = logger;
         }
 
         // GET: api/<controller>

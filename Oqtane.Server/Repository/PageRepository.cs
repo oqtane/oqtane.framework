@@ -14,8 +14,8 @@ namespace Oqtane.Repository
         public PageRepository(TenantDBContext context, IPermissionRepository Permissions, IPageModuleRepository PageModules)
         {
             _db = context;
-            this._permissions = Permissions;
-            this._pageModules = PageModules;
+            _permissions = Permissions;
+            _pageModules = PageModules;
         }
 
         public IEnumerable<Page> GetPages(int SiteId)

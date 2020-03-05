@@ -19,9 +19,9 @@ namespace Oqtane.Controllers
 
         public NotificationController(INotificationRepository Notifications, IUserPermissions UserPermissions, ILogManager logger)
         {
-            this._notifications = Notifications;
-            this._userPermissions = UserPermissions;
-            this._logger = logger;
+            _notifications = Notifications;
+            _userPermissions = UserPermissions;
+            _logger = logger;
         }
 
         // GET: api/<controller>?siteid=x&type=y&userid=z

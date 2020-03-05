@@ -24,8 +24,8 @@ namespace Oqtane.Controllers
 
         public InstallationController(IConfigurationRoot Config, IInstallationManager InstallationManager)
         {
-            this._config = Config;
-            this._installationManager = InstallationManager;
+            _config = Config;
+            _installationManager = InstallationManager;
         }
 
         // POST api/<controller>

@@ -19,7 +19,7 @@ namespace Oqtane.Infrastructure
 
         public HostedServiceBase(IServiceScopeFactory ServiceScopeFactory)
         {
-            this._serviceScopeFactory = ServiceScopeFactory;
+            _serviceScopeFactory = ServiceScopeFactory;
         }
 
         // abstract method must be overridden
@@ -34,7 +34,7 @@ namespace Oqtane.Infrastructure
                     using (var scope = _serviceScopeFactory.CreateScope())
                     {
                         // get name of job
-                        string JobType = Utilities.GetFullTypeName(this.GetType().AssemblyQualifiedName);
+                        string JobType = Utilities.GetFullTypeName(GetType().AssemblyQualifiedName);
 
                         // load jobs and find current job
                         IJobRepository Jobs = scope.ServiceProvider.GetRequiredService<IJobRepository>();
@@ -146,7 +146,7 @@ namespace Oqtane.Infrastructure
                 // set IsExecuting to false in case this job was forcefully terminated previously 
                 using (var scope = _serviceScopeFactory.CreateScope())
                 {
-                    string JobType = Utilities.GetFullTypeName(this.GetType().AssemblyQualifiedName);
+                    string JobType = Utilities.GetFullTypeName(GetType().AssemblyQualifiedName);
                     IJobRepository Jobs = scope.ServiceProvider.GetRequiredService<IJobRepository>();
                     Job Job = Jobs.GetJobs().Where(item => item.JobType == JobType).FirstOrDefault();
                     if (Job != null)

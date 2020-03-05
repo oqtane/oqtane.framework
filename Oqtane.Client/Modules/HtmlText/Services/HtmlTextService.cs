@@ -16,9 +16,9 @@ namespace Oqtane.Modules.HtmlText.Services
 
         public HtmlTextService(HttpClient http, SiteState sitestate, NavigationManager NavigationManager)
         {
-            this.http = http;
-            this.sitestate = sitestate;
-            this.NavigationManager = NavigationManager;
+            http = http;
+            sitestate = sitestate;
+            NavigationManager = NavigationManager;
         }
 
         private string apiurl

@@ -16,8 +16,8 @@ namespace Oqtane.Controllers
 
         public ProfileController(IProfileRepository Profiles, ILogManager logger)
         {
-            this._profiles = Profiles;
-            this._logger = logger;
+            _profiles = Profiles;
+            _logger = logger;
         }
 
         // GET: api/<controller>?siteid=x

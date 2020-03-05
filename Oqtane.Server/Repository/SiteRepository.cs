@@ -27,15 +27,15 @@ namespace Oqtane.Repository
         public SiteRepository(TenantDBContext context, IRoleRepository RoleRepository, IProfileRepository ProfileRepository, IFolderRepository FolderRepository, IFileRepository FileRepository, IPageRepository PageRepository, IModuleRepository ModuleRepository, IPageModuleRepository PageModuleRepository, IModuleDefinitionRepository ModuleDefinitionRepository, IServiceProvider ServiceProvider)
         {
             _db = context;
-            this._roleRepository = RoleRepository;
-            this._profileRepository = ProfileRepository;
-            this._folderRepository = FolderRepository;
-            this._fileRepository = FileRepository;
-            this._pageRepository = PageRepository;
-            this._moduleRepository = ModuleRepository;
-            this._pageModuleRepository = PageModuleRepository;
-            this._moduleDefinitionRepository = ModuleDefinitionRepository;
-            this._serviceProvider = ServiceProvider;
+            _roleRepository = RoleRepository;
+            _profileRepository = ProfileRepository;
+            _folderRepository = FolderRepository;
+            _fileRepository = FileRepository;
+            _pageRepository = PageRepository;
+            _moduleRepository = ModuleRepository;
+            _pageModuleRepository = PageModuleRepository;
+            _moduleDefinitionRepository = ModuleDefinitionRepository;
+            _serviceProvider = ServiceProvider;
 
             // define the default site template
             _siteTemplate = new List<PageTemplate>();

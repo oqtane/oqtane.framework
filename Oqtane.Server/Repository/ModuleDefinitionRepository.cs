@@ -20,7 +20,7 @@ namespace Oqtane.Repository
         {
             _db = context;
             _cache = cache;
-            this._permissions = Permissions;
+            _permissions = Permissions;
         }
 
         public IEnumerable<ModuleDefinition> GetModuleDefinitions(int SiteId)

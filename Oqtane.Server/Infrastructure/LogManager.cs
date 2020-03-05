@@ -20,11 +20,11 @@ namespace Oqtane.Infrastructure
 
         public LogManager(ILogRepository Logs, ITenantResolver TenantResolver, IConfigurationRoot Config, IUserPermissions UserPermissions, IHttpContextAccessor Accessor)
         {
-            this._logs = Logs;
-            this._tenantResolver = TenantResolver;
-            this._config = Config;
-            this._userPermissions = UserPermissions;
-            this._accessor = Accessor;
+            _logs = Logs;
+            _tenantResolver = TenantResolver;
+            _config = Config;
+            _userPermissions = UserPermissions;
+            _accessor = Accessor;
         }
 
         public void Log(LogLevel Level, object Class, LogFunction Function, string Message, params object[] Args)

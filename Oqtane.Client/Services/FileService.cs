@@ -19,10 +19,10 @@ namespace Oqtane.Services
 
         public FileService(HttpClient http, SiteState sitestate, NavigationManager NavigationManager, IJSRuntime jsRuntime)
         {
-            this._http = http;
-            this._siteState = sitestate;
-            this._navigationManager = NavigationManager;
-            this._jsRuntime = jsRuntime;
+            _http = http;
+            _siteState = sitestate;
+            _navigationManager = NavigationManager;
+            _jsRuntime = jsRuntime;
         }
 
         private string apiurl

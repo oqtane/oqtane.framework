@@ -13,7 +13,7 @@ namespace Oqtane.Repository
         public FolderRepository(TenantDBContext context, IPermissionRepository Permissions)
         {
             _db = context;
-            this._permissions = Permissions;
+            _permissions = Permissions;
         }
 
         public IEnumerable<Folder> GetFolders(int SiteId)

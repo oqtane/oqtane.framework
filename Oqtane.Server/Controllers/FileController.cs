@@ -29,12 +29,12 @@ namespace Oqtane.Controllers
 
         public FileController(IWebHostEnvironment environment, IFileRepository Files, IFolderRepository Folders, IUserPermissions UserPermissions, ITenantResolver Tenants, ILogManager logger)
         {
-            this._environment = environment;
-            this._files = Files;
-            this._folders = Folders;
-            this._userPermissions = UserPermissions;
-            this._tenants = Tenants;
-            this._logger = logger;
+            _environment = environment;
+            _files = Files;
+            _folders = Folders;
+            _userPermissions = UserPermissions;
+            _tenants = Tenants;
+            _logger = logger;
         }
 
         // GET: api/<controller>?folder=x

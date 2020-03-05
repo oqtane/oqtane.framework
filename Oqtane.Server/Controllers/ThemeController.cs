@@ -22,10 +22,10 @@ namespace Oqtane.Controllers
 
         public ThemeController(IThemeRepository Themes, IInstallationManager InstallationManager, IWebHostEnvironment environment, ILogManager logger)
         {
-            this._themes = Themes;
-            this._installationManager = InstallationManager;
-            this._environment = environment;
-            this._logger = logger;
+            _themes = Themes;
+            _installationManager = InstallationManager;
+            _environment = environment;
+            _logger = logger;
         }
 
         // GET: api/<controller>

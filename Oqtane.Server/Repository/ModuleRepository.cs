@@ -20,9 +20,9 @@ namespace Oqtane.Repository
         public ModuleRepository(TenantDBContext context, IPermissionRepository Permissions, IModuleDefinitionRepository ModuleDefinitions, IServiceProvider ServiceProvider)
         {
             _db = context;
-            this._permissions = Permissions;
-            this._moduleDefinitions = ModuleDefinitions;
-            this._serviceProvider = ServiceProvider;
+            _permissions = Permissions;
+            _moduleDefinitions = ModuleDefinitions;
+            _serviceProvider = ServiceProvider;
         }
 
         public IEnumerable<Models.Module> GetModules(int SiteId)

@@ -16,8 +16,8 @@ namespace Oqtane.Controllers
 
         public JobLogController(IJobLogRepository JobLogs, ILogManager logger)
         {
-            this._jobLogs = JobLogs;
-            this._logger = logger;
+            _jobLogs = JobLogs;
+            _logger = logger;
         }
 
         // GET: api/<controller>

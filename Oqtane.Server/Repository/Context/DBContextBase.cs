@@ -16,7 +16,7 @@ namespace Oqtane.Repository
         public DBContextBase(ITenantResolver TenantResolver, IHttpContextAccessor accessor)
         {
             _tenant = TenantResolver.GetTenant();
-            this._accessor = accessor;
+            _accessor = accessor;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

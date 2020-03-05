@@ -15,8 +15,8 @@ namespace Oqtane.Pages
 
         public LoginModel(UserManager<IdentityUser> IdentityUserManager, SignInManager<IdentityUser> IdentitySignInManager)
         {
-            this.IdentityUserManager = IdentityUserManager;
-            this.IdentitySignInManager = IdentitySignInManager;
+            IdentityUserManager = IdentityUserManager;
+            IdentitySignInManager = IdentitySignInManager;
         }
 
         public async Task<IActionResult> OnPostAsync(string username, string password, bool remember, string returnurl)

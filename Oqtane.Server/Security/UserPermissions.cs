@@ -13,8 +13,8 @@ namespace Oqtane.Security
 
         public UserPermissions(IPermissionRepository Permissions, IHttpContextAccessor Accessor)
         {
-            this._permissions = Permissions;
-            this._accessor = Accessor;
+            _permissions = Permissions;
+            _accessor = Accessor;
         }
 
         public bool IsAuthorized(ClaimsPrincipal User, string EntityName, int EntityId, string PermissionName)

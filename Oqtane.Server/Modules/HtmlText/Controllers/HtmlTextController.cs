@@ -19,7 +19,7 @@ namespace Oqtane.Modules.HtmlText.Controllers
         public HtmlTextController(IHtmlTextRepository HtmlText, ILogManager logger, IHttpContextAccessor HttpContextAccessor)
         {
             _htmlText = HtmlText;
-            this._logger = logger;
+            _logger = logger;
             if (HttpContextAccessor.HttpContext.Request.Query.ContainsKey("entityid"))
             {
                 _entityId = int.Parse(HttpContextAccessor.HttpContext.Request.Query["entityid"]);
