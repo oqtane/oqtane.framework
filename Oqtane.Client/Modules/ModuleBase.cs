@@ -13,11 +13,7 @@ namespace Oqtane.Modules
         private Logger _logger;
 
         protected Logger logger => _logger ?? (_logger = new Logger(this));
-
-        public ModuleBase()
-        {
-        }
-
+ 
         [Inject]
         protected ILogService LoggingService { get; set; }
 
