@@ -10,25 +10,25 @@ namespace Oqtane.Services
 {
     public class ModuleService : ServiceBase, IModuleService
     {
-        private readonly HttpClient http;
-        private readonly SiteState sitestate;
-        private readonly NavigationManager NavigationManager;
+        private readonly HttpClient _http;
+        private readonly SiteState _siteState;
+        private readonly NavigationManager _navigationManager;
 
-        public ModuleService(HttpClient http, SiteState sitestate, NavigationManager NavigationManager)
+        public ModuleService(HttpClient http, SiteState siteState, NavigationManager navigationManager)
         {
-            this.http = http;
-            this.sitestate = sitestate;
-            this.NavigationManager = NavigationManager;
+            _http = http;
+            _siteState = siteState;
+            _navigationManager = navigationManager;
         }
 
         private string apiurl
         {
-            get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "Module"); }
+            get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Module"); }
         }
 
         public async Task<List<Module>> GetModulesAsync(int SiteId)
         {
-            List<Module> modules = await http.GetJsonAsync<List<Module>>(apiurl + "?siteid=" + SiteId.ToString());
+            List<Module> modules = await _http.GetJsonAsync<List<Module>>(apiurl + "?siteid=" + SiteId.ToString());
             modules = modules
                 .OrderBy(item => item.Order)
                 .ToList();
@@ -37,32 +37,32 @@ namespace Oqtane.Services
 
         public async Task<Module> GetModuleAsync(int ModuleId)
         {
-            return await http.GetJsonAsync<Module>(apiurl + "/" + ModuleId.ToString());
+            return await _http.GetJsonAsync<Module>(apiurl + "/" + ModuleId.ToString());
         }
 
         public async Task<Module> AddModuleAsync(Module Module)
         {
-            return await http.PostJsonAsync<Module>(apiurl, Module);
+            return await _http.PostJsonAsync<Module>(apiurl, Module);
         }
 
         public async Task<Module> UpdateModuleAsync(Module Module)
         {
-            return await http.PutJsonAsync<Module>(apiurl + "/" + Module.ModuleId.ToString(), Module);
+            return await _http.PutJsonAsync<Module>(apiurl + "/" + Module.ModuleId.ToString(), Module);
         }
 
         public async Task DeleteModuleAsync(int ModuleId)
         {
-            await http.DeleteAsync(apiurl + "/" + ModuleId.ToString());
+            await _http.DeleteAsync(apiurl + "/" + ModuleId.ToString());
         }
 
         public async Task<bool> ImportModuleAsync(int ModuleId, string Content)
         {
-            return await http.PostJsonAsync<bool>(apiurl + "/import?moduleid=" + ModuleId, Content);
+            return await _http.PostJsonAsync<bool>(apiurl + "/import?moduleid=" + ModuleId, Content);
         }
 
         public async Task<string> ExportModuleAsync(int ModuleId)
         {
-            return await http.GetStringAsync(apiurl + "/export?moduleid=" + ModuleId.ToString());
+            return await _http.GetStringAsync(apiurl + "/export?moduleid=" + ModuleId.ToString());
         }
     }
 }

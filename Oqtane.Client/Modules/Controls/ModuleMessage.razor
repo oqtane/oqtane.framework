@@ -28,7 +28,7 @@
 
     public void SetModuleMessage(string message, MessageType type)
     {
-        this.message = message;
+        message = message;
         classname = GetMessageType(type);
         StateHasChanged();
     }

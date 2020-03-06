@@ -13,22 +13,22 @@ namespace Oqtane.Providers
 {
     public class IdentityAuthenticationStateProvider : AuthenticationStateProvider
     {
-        private readonly NavigationManager NavigationManager;
-        private readonly SiteState sitestate;
-        private readonly IServiceProvider provider;
+        private readonly NavigationManager _navigationManager;
+        private readonly SiteState _siteState;
+        private readonly IServiceProvider _serviceProvider;
 
-        public IdentityAuthenticationStateProvider(NavigationManager NavigationManager, SiteState sitestate, IServiceProvider provider)
+        public IdentityAuthenticationStateProvider(NavigationManager navigationManager, SiteState siteState, IServiceProvider serviceProvider)
         {
-            this.NavigationManager = NavigationManager;
-            this.sitestate = sitestate;
-            this.provider = provider;
+            _navigationManager = navigationManager;
+            _siteState = siteState;
+            _serviceProvider = serviceProvider;
         }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             // get HttpClient lazily from IServiceProvider as you cannot use standard dependency injection due to the AuthenticationStateProvider being initialized prior to NavigationManager ( https://github.com/aspnet/AspNetCore/issues/11867 )
-            var http = provider.GetRequiredService<HttpClient>();
-            string apiurl = ServiceBase.CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "User") + "/authenticate";
+            var http = _serviceProvider.GetRequiredService<HttpClient>();
+            string apiurl = ServiceBase.CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "User") + "/authenticate";
             User user = await http.GetJsonAsync<User>(apiurl);
 
             ClaimsIdentity identity = new ClaimsIdentity();

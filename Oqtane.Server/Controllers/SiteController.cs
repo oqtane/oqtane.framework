@@ -14,17 +14,17 @@ namespace Oqtane.Controllers
     [Route("{site}/api/[controller]")]
     public class SiteController : Controller
     {
-        private readonly ISiteRepository Sites;
-        private readonly ITenantResolver Tenants;
-        private readonly IWebHostEnvironment environment;
-        private readonly ILogManager logger;
+        private readonly ISiteRepository _sites;
+        private readonly ITenantResolver _tenants;
+        private readonly IWebHostEnvironment _environment;
+        private readonly ILogManager _logger;
 
-        public SiteController(ISiteRepository Sites, ITenantResolver Tenants, IWebHostEnvironment environment, ILogManager logger)
+        public SiteController(ISiteRepository sites, ITenantResolver tenants, IWebHostEnvironment environment, ILogManager logger)
         {
-            this.Sites = Sites;
-            this.Tenants = Tenants;
-            this.environment = environment;
-            this.logger = logger;
+            _sites = sites;
+            _tenants = tenants;
+            _environment = environment;
+            _logger = logger;
         }
 
         // GET: api/<controller>
@@ -32,14 +32,14 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.HostRole)]
         public IEnumerable<Site> Get()
         {
-            return Sites.GetSites();
+            return _sites.GetSites();
         }
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
         public Site Get(int id)
         {
-            return Sites.GetSite(id);
+            return _sites.GetSite(id);
         }
 
         // POST api/<controller>
@@ -49,11 +49,11 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 bool authorized;
-                if (!Sites.GetSites().Any())
+                if (!_sites.GetSites().Any())
                 {
                     // provision initial site during installation
                     authorized = true; 
-                    Tenant tenant = Tenants.GetTenant();
+                    Tenant tenant = _tenants.GetTenant();
                     Site.TenantId = tenant.TenantId;
                 }
                 else
@@ -62,8 +62,8 @@ namespace Oqtane.Controllers
                 }
                 if (authorized)
                 {
-                    Site = Sites.AddSite(Site);
-                    logger.Log(Site.SiteId, LogLevel.Information, this, LogFunction.Create, "Site Added {Site}", Site);
+                    Site = _sites.AddSite(Site);
+                    _logger.Log(Site.SiteId, LogLevel.Information, this, LogFunction.Create, "Site Added {Site}", Site);
                 }
             }
             return Site;
@@ -76,8 +76,8 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                Site = Sites.UpdateSite(Site);
-                logger.Log(Site.SiteId, LogLevel.Information, this, LogFunction.Update, "Site Updated {Site}", Site);
+                Site = _sites.UpdateSite(Site);
+                _logger.Log(Site.SiteId, LogLevel.Information, this, LogFunction.Update, "Site Updated {Site}", Site);
             }
             return Site;
         }
@@ -87,8 +87,8 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.HostRole)]
         public void Delete(int id)
         {
-            Sites.DeleteSite(id);
-            logger.Log(id, LogLevel.Information, this, LogFunction.Delete, "Site Deleted {SiteId}", id);
+            _sites.DeleteSite(id);
+            _logger.Log(id, LogLevel.Information, this, LogFunction.Delete, "Site Deleted {SiteId}", id);
         }
     }
 }

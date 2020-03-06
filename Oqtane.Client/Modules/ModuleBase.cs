@@ -14,7 +14,7 @@ namespace Oqtane.Modules
 
         public ModuleBase()
         {
-            this.logger = new Logger(this);
+            logger = new Logger(this);
         }
 
         [Inject]
@@ -43,7 +43,7 @@ namespace Oqtane.Modules
 
         public string ModulePath()
         {
-            return "Modules/" + this.GetType().Namespace + "/";
+            return "Modules/" + GetType().Namespace + "/";
         }
 
         // url methods
@@ -135,7 +135,7 @@ namespace Oqtane.Modules
             {
                 UserId = PageState.User.UserId;
             }
-            string category = this.GetType().AssemblyQualifiedName;
+            string category = GetType().AssemblyQualifiedName;
             string feature = Utilities.GetTypeNameLastSegment(category, 1);
             LogFunction logfunction;
             if (string.IsNullOrEmpty(function))
@@ -170,7 +170,7 @@ namespace Oqtane.Modules
 
             public Logger(ModuleBase modulebase)
             {
-                this.modulebase = modulebase;
+                modulebase = modulebase;
             }
 
             public async Task LogTrace(string message, params object[] args)

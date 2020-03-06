@@ -11,13 +11,13 @@ namespace Oqtane.Controllers
     [Route("{site}/api/[controller]")]
     public class TenantController : Controller
     {
-        private readonly ITenantRepository Tenants;
-        private readonly ILogManager logger;
+        private readonly ITenantRepository _tenants;
+        private readonly ILogManager _logger;
 
-        public TenantController(ITenantRepository Tenants, ILogManager logger)
+        public TenantController(ITenantRepository tenants, ILogManager logger)
         {
-            this.Tenants = Tenants;
-            this.logger = logger;
+            _tenants = tenants;
+            _logger = logger;
         }
 
         // GET: api/<controller>
@@ -25,7 +25,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.HostRole)]
         public IEnumerable<Tenant> Get()
         {
-            return Tenants.GetTenants();
+            return _tenants.GetTenants();
         }
 
         // GET api/<controller>/5
@@ -33,7 +33,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.HostRole)]
         public Tenant Get(int id)
         {
-            return Tenants.GetTenant(id);
+            return _tenants.GetTenant(id);
         }
 
         // POST api/<controller>
@@ -43,8 +43,8 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                Tenant = Tenants.AddTenant(Tenant);
-                logger.Log(LogLevel.Information, this, LogFunction.Create, "Tenant Added {TenantId}", Tenant.TenantId);
+                Tenant = _tenants.AddTenant(Tenant);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Tenant Added {TenantId}", Tenant.TenantId);
             }
             return Tenant;
         }
@@ -56,8 +56,8 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                Tenant = Tenants.UpdateTenant(Tenant);
-                logger.Log(LogLevel.Information, this, LogFunction.Update, "Tenant Updated {TenantId}", Tenant.TenantId);
+                Tenant = _tenants.UpdateTenant(Tenant);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Tenant Updated {TenantId}", Tenant.TenantId);
             }
             return Tenant;
         }
@@ -67,8 +67,8 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.HostRole)]
         public void Delete(int id)
         {
-            Tenants.DeleteTenant(id);
-            logger.Log(LogLevel.Information, this, LogFunction.Delete, "Tenant Deleted {TenantId}", id);
+            _tenants.DeleteTenant(id);
+            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Tenant Deleted {TenantId}", id);
         }
     }
 }

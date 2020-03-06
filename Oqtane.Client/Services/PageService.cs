@@ -11,62 +11,62 @@ namespace Oqtane.Services
 {
     public class PageService : ServiceBase, IPageService
     {
-        private readonly HttpClient http;
-        private readonly SiteState sitestate;
-        private readonly NavigationManager NavigationManager;
+        private readonly HttpClient _http;
+        private readonly SiteState _siteState;
+        private readonly NavigationManager _navigationManager;
 
-        public PageService(HttpClient http, SiteState sitestate, NavigationManager NavigationManager)
+        public PageService(HttpClient http, SiteState siteState, NavigationManager navigationManager)
         {
-            this.http = http;
-            this.sitestate = sitestate;
-            this.NavigationManager = NavigationManager;
+            _http = http;
+            _siteState = siteState;
+            _navigationManager = navigationManager;
         }
 
         private string apiurl
         {
-            get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "Page"); }
+            get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Page"); }
         }
 
         public async Task<List<Page>> GetPagesAsync(int SiteId)
         {
-            List<Page> pages = await http.GetJsonAsync<List<Page>>(apiurl + "?siteid=" + SiteId.ToString());
+            List<Page> pages = await _http.GetJsonAsync<List<Page>>(apiurl + "?siteid=" + SiteId.ToString());
             pages = GetPagesHierarchy(pages);
             return pages;
         }
 
         public async Task<Page> GetPageAsync(int PageId)
         {
-            return await http.GetJsonAsync<Page>(apiurl + "/" + PageId.ToString());
+            return await _http.GetJsonAsync<Page>(apiurl + "/" + PageId.ToString());
         }
 
         public async Task<Page> GetPageAsync(int PageId, int UserId)
         {
-            return await http.GetJsonAsync<Page>(apiurl + "/" + PageId.ToString() + "?userid=" + UserId.ToString());
+            return await _http.GetJsonAsync<Page>(apiurl + "/" + PageId.ToString() + "?userid=" + UserId.ToString());
         }
 
         public async Task<Page> AddPageAsync(Page Page)
         {
-            return await http.PostJsonAsync<Page>(apiurl, Page);
+            return await _http.PostJsonAsync<Page>(apiurl, Page);
         }
 
         public async Task<Page> AddPageAsync(int PageId, int UserId)
         {
-            return await http.PostJsonAsync<Page>(apiurl + "/" + PageId.ToString() + "?userid=" + UserId.ToString(), null);
+            return await _http.PostJsonAsync<Page>(apiurl + "/" + PageId.ToString() + "?userid=" + UserId.ToString(), null);
         }
 
         public async Task<Page> UpdatePageAsync(Page Page)
         {
-            return await http.PutJsonAsync<Page>(apiurl + "/" + Page.PageId.ToString(), Page);
+            return await _http.PutJsonAsync<Page>(apiurl + "/" + Page.PageId.ToString(), Page);
         }
 
         public async Task UpdatePageOrderAsync(int SiteId, int PageId, int? ParentId)
         {
-            await http.PutJsonAsync(apiurl + "/?siteid=" + SiteId.ToString() + "&pageid=" + PageId.ToString() + "&parentid=" + ((ParentId == null) ? "" : ParentId.ToString()), null);
+            await _http.PutJsonAsync(apiurl + "/?siteid=" + SiteId.ToString() + "&pageid=" + PageId.ToString() + "&parentid=" + ((ParentId == null) ? "" : ParentId.ToString()), null);
         }
 
         public async Task DeletePageAsync(int PageId)
         {
-            await http.DeleteAsync(apiurl + "/" + PageId.ToString());
+            await _http.DeleteAsync(apiurl + "/" + PageId.ToString());
         }
 
         private static List<Page> GetPagesHierarchy(List<Page> Pages)

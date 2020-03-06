@@ -7,11 +7,11 @@ namespace Oqtane.Repository
 {
     public class LogRepository : ILogRepository
     {
-        private TenantDBContext db;
+        private TenantDBContext _db;
 
         public LogRepository(TenantDBContext context)
         {
-            db = context;
+            _db = context;
         }
 
         public IEnumerable<Log> GetLogs(int SiteId, string Level, string Function, int Rows)
@@ -20,12 +20,12 @@ namespace Oqtane.Repository
             {
                 if (Function == null)
                 {
-                    return db.Log.Where(item => item.SiteId == SiteId).
+                    return _db.Log.Where(item => item.SiteId == SiteId).
                         OrderByDescending(item => item.LogDate).Take(Rows);
                 }
                 else
                 {
-                    return db.Log.Where(item => item.SiteId == SiteId && item.Function == Function).
+                    return _db.Log.Where(item => item.SiteId == SiteId && item.Function == Function).
                         OrderByDescending(item => item.LogDate).Take(Rows);
                 }
             }
@@ -33,12 +33,12 @@ namespace Oqtane.Repository
             {
                 if (Function == null)
                 {
-                    return db.Log.Where(item => item.SiteId == SiteId && item.Level == Level)
+                    return _db.Log.Where(item => item.SiteId == SiteId && item.Level == Level)
                         .OrderByDescending(item => item.LogDate).Take(Rows);
                 }
                 else
                 {
-                    return db.Log.Where(item => item.SiteId == SiteId && item.Level == Level && item.Function == Function)
+                    return _db.Log.Where(item => item.SiteId == SiteId && item.Level == Level && item.Function == Function)
                         .OrderByDescending(item => item.LogDate).Take(Rows);
                 }
             }
@@ -46,13 +46,13 @@ namespace Oqtane.Repository
 
         public Log GetLog(int LogId)
         {
-            return db.Log.Find(LogId);
+            return _db.Log.Find(LogId);
         }
 
         public void AddLog(Log Log)
         {
-            db.Log.Add(Log);
-            db.SaveChanges();
+            _db.Log.Add(Log);
+            _db.SaveChanges();
         }
     }
 }

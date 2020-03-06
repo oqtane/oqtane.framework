@@ -10,12 +10,12 @@ namespace Oqtane.Repository
 {
     public class TenantRepository : ITenantRepository
     {
-        private MasterDBContext db;
+        private MasterDBContext _db;
         private readonly IMemoryCache _cache;
 
         public TenantRepository(MasterDBContext context, IMemoryCache cache)
         {
-            db = context;
+            _db = context;
             _cache = cache;
         }
 
@@ -24,36 +24,36 @@ namespace Oqtane.Repository
             return _cache.GetOrCreate("tenants", entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromMinutes(30);
-                return db.Tenant.ToList();
+                return _db.Tenant.ToList();
             });
         }
 
         public Tenant AddTenant(Tenant Tenant)
         {
-            db.Tenant.Add(Tenant);
-            db.SaveChanges();
+            _db.Tenant.Add(Tenant);
+            _db.SaveChanges();
             _cache.Remove("tenants");
             return Tenant;
         }
 
         public Tenant UpdateTenant(Tenant Tenant)
         {
-            db.Entry(Tenant).State = EntityState.Modified;
-            db.SaveChanges();
+            _db.Entry(Tenant).State = EntityState.Modified;
+            _db.SaveChanges();
             _cache.Remove("tenants");
             return Tenant;
         }
 
         public Tenant GetTenant(int TenantId)
         {
-            return db.Tenant.Find(TenantId);
+            return _db.Tenant.Find(TenantId);
         }
 
         public void DeleteTenant(int TenantId)
         { 
-            Tenant tenant = db.Tenant.Find(TenantId);
-            db.Tenant.Remove(tenant);
-            db.SaveChanges();
+            Tenant tenant = _db.Tenant.Find(TenantId);
+            _db.Tenant.Remove(tenant);
+            _db.SaveChanges();
             _cache.Remove("tenants");
         }
     }

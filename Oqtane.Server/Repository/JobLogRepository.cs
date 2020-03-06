@@ -7,45 +7,45 @@ namespace Oqtane.Repository
 {
     public class JobLogRepository : IJobLogRepository
     {
-        private MasterDBContext db;
+        private MasterDBContext _db;
 
         public JobLogRepository(MasterDBContext context)
         {
-            db = context;
+            _db = context;
         }
 
         public IEnumerable<JobLog> GetJobLogs()
         {
-            return db.JobLog
+            return _db.JobLog
                 .Include(item => item.Job) // eager load jobs
                 .ToList();
         }
 
         public JobLog AddJobLog(JobLog JobLog)
         {
-            db.JobLog.Add(JobLog);
-            db.SaveChanges();
+            _db.JobLog.Add(JobLog);
+            _db.SaveChanges();
             return JobLog;
         }
 
         public JobLog UpdateJobLog(JobLog JobLog)
         {
-            db.Entry(JobLog).State = EntityState.Modified;
-            db.SaveChanges();
+            _db.Entry(JobLog).State = EntityState.Modified;
+            _db.SaveChanges();
             return JobLog;
         }
 
         public JobLog GetJobLog(int JobLogId)
         {
-            return db.JobLog.Include(item => item.Job) // eager load job
+            return _db.JobLog.Include(item => item.Job) // eager load job
                 .SingleOrDefault(item => item.JobLogId == JobLogId); 
         }
 
         public void DeleteJobLog(int JobLogId)
         {
-            JobLog Joblog = db.JobLog.Find(JobLogId);
-            db.JobLog.Remove(Joblog);
-            db.SaveChanges();
+            JobLog Joblog = _db.JobLog.Find(JobLogId);
+            _db.JobLog.Remove(Joblog);
+            _db.SaveChanges();
         }
     }
 }

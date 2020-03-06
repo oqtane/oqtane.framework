@@ -7,17 +7,17 @@ namespace Oqtane.Modules.HtmlText.Manager
 {
     public class HtmlTextManager : IPortable
     {
-        private IHtmlTextRepository htmltexts;
+        private IHtmlTextRepository _htmlTexts;
 
         public HtmlTextManager(IHtmlTextRepository htmltexts)
         {
-            this.htmltexts = htmltexts;
+            _htmlTexts = htmltexts;
         }
 
         public string ExportModule(Module Module)
         {
             string content = "";
-            HtmlTextInfo htmltext = htmltexts.GetHtmlText(Module.ModuleId);
+            HtmlTextInfo htmltext = _htmlTexts.GetHtmlText(Module.ModuleId);
             if (htmltext != null)
             {
                 content = WebUtility.HtmlEncode(htmltext.Content);
@@ -28,18 +28,18 @@ namespace Oqtane.Modules.HtmlText.Manager
         public void ImportModule(Module Module, string Content, string Version)
         {
             Content = WebUtility.HtmlDecode(Content);
-            HtmlTextInfo htmltext = htmltexts.GetHtmlText(Module.ModuleId);
+            HtmlTextInfo htmltext = _htmlTexts.GetHtmlText(Module.ModuleId);
             if (htmltext != null)
             {
                 htmltext.Content = Content;
-                htmltexts.UpdateHtmlText(htmltext);
+                _htmlTexts.UpdateHtmlText(htmltext);
             }
             else
             {
                 htmltext = new HtmlTextInfo();
                 htmltext.ModuleId = Module.ModuleId;
                 htmltext.Content = Content;
-                htmltexts.AddHtmlText(htmltext);
+                _htmlTexts.AddHtmlText(htmltext);
             }
         }
     }
