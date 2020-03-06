@@ -58,19 +58,28 @@
 }
 else
 {
-    <button type="button" class="btn btn-secondary" @onclick="RawHTMLEditor">Raw HTML Editor</button>
+    <button type="button" class="btn btn-secondary" @onclick="RawHtmlEditor">Raw HTML Editor</button>
 }
 <button type="button" class="btn btn-success" @onclick="SaveContent">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
-<br />
-<br />
+<br/>
+<br/>
 <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Edit; } }
-    public override string Title { get { return "Edit Html/Text"; } }
+
+    public override SecurityAccessLevel SecurityAccessLevel
+    {
+        get { return SecurityAccessLevel.Edit; }
+    }
+
+    public override string Title
+    {
+        get { return "Edit Html/Text"; }
+    }
 
     bool RichTextEditorMode = true;
+    bool _richTextEditorLoading = false;
     RichTextEditor RichTextEditorHtml;
     string content;
     string createdby;
@@ -80,17 +89,28 @@ else
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        try
         {
-            try
+            if (firstRender)
             {
-                await LoadText();
+                if (content == null)
+                {
+                    await LoadText();
+                }
             }
-            catch (Exception ex)
+            else
             {
-                await logger.LogError(ex, "An Error Occurred Loading Html/Text Content. " + ex.Message);
-                AddModuleMessage(ex.Message, MessageType.Error);
+                if (_richTextEditorLoading)
+                {
+                    await RichTextEditorHtml.LoadContent(content);
+                    _richTextEditorLoading = false;
+                }
             }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "An Error Occurred Loading Html/Text Content. " + ex.Message);
+            AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
 
@@ -117,20 +137,18 @@ else
     private async Task RichTextEditor()
     {
         RichTextEditorMode = true;
-        //TODO: maybe exists better solution than delay. Without this editor becomes corrupted.
-        await Task.Delay(100);
-        await RichTextEditorHtml.LoadContent(content);
+        _richTextEditorLoading = true;
         StateHasChanged();
     }
 
-    private async Task RawHTMLEditor()
+    private async Task RawHtmlEditor()
     {
         if (RichTextEditorMode)
         {
             content = await this.RichTextEditorHtml.GetHTML();
         }
         RichTextEditorMode = false;
-        // await LoadText();
+    // await LoadText();
     }
 
     private async Task SaveContent()
@@ -167,4 +185,5 @@ else
             AddModuleMessage("Error Saving Content", MessageType.Error);
         }
     }
+
 }
