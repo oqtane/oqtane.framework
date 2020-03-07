@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -40,14 +40,14 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>?folder=x
         [HttpGet]
-        public IEnumerable<Models.File> Get(string folder)
+        public IEnumerable<Models.File> Get(string path)
         {
             List<Models.File> files = new List<Models.File>();
             int folderid;
-            if (int.TryParse(folder, out folderid))
+            if (int.TryParse(path, out folderid))
             {
-                Folder Folder = _folders.GetFolder(folderid);
-                if (Folder != null && _userPermissions.IsAuthorized(User, "Browse", Folder.Permissions))
+                Folder folder = _folders.GetFolder(folderid);
+                if (folder != null && _userPermissions.IsAuthorized(User, "Browse", folder.Permissions))
                 {
                     files = _files.GetFiles(folderid).ToList();
                 }
@@ -56,10 +56,10 @@ namespace Oqtane.Controllers
             {
                 if (User.IsInRole(Constants.HostRole))
                 {
-                    folder = GetFolderPath(folder);
-                    if (Directory.Exists(folder))
+                    path = GetFolderPath(path);
+                    if (Directory.Exists(path))
                     {
-                        foreach (string file in Directory.GetFiles(folder))
+                        foreach (string file in Directory.GetFiles(path))
                         {
                             files.Add(new Models.File { Name = Path.GetFileName(file), Extension = Path.GetExtension(file).Replace(".","") });
                         }
@@ -139,17 +139,17 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public void Delete(int id)
         {
-            Models.File File = _files.GetFile(id);
-            if (_userPermissions.IsAuthorized(User, "Folder", File.Folder.FolderId, "Edit"))
+            Models.File file = _files.GetFile(id);
+            if (_userPermissions.IsAuthorized(User, "Folder", file.Folder.FolderId, "Edit"))
             {
                 _files.DeleteFile(id);
 
-                string filepath = Path.Combine(GetFolderPath(File.Folder) + File.Name);
+                string filepath = Path.Combine(GetFolderPath(file.Folder) + file.Name);
                 if (System.IO.File.Exists(filepath))
                 {
                     System.IO.File.Delete(filepath);
                 }
-                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "File Deleted {File}", File);
+                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "File Deleted {File}", file);
             }
             else
             {
