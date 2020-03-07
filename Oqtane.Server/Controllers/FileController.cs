@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Oqtane.Security;
 using System.Linq;
 using System.Drawing;
+using System.Net;
 
 namespace Oqtane.Controllers
 {
@@ -64,6 +65,35 @@ namespace Oqtane.Controllers
                         }
                     }
                 }
+            }
+            return files;
+        }
+        
+        // GET: api/<controller>/siteId/folderPath
+        [HttpGet("{siteId}/{path}")]
+        public IEnumerable<Models.File> Get(int siteId, string path)
+        {
+            var folderPath = WebUtility.UrlDecode(path);
+            Folder folder = _folders.GetFolder(siteId, folderPath);
+            List<Models.File> files;
+            if (folder != null)
+                if (_userPermissions.IsAuthorized(User, "Browse", folder.Permissions))
+                {
+                    files = _files.GetFiles(folder.FolderId).ToList();
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Folder {folder}",
+                        folder);
+                    HttpContext.Response.StatusCode = 401;
+                    return null;
+                }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, "Folder not found {path}",
+                    path);
+                HttpContext.Response.StatusCode = 401;
+                return null;
             }
             return files;
         }

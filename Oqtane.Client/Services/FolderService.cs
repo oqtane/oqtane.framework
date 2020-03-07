@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Components;
 using System.Collections.Generic;
 using Oqtane.Shared;
 using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Net;
+using Microsoft.Extensions.Logging;
 
 namespace Oqtane.Services
 {
@@ -14,12 +17,14 @@ namespace Oqtane.Services
         private readonly HttpClient _http;
         private readonly SiteState _siteState;
         private readonly NavigationManager _navigationManager;
-
-        public FolderService(HttpClient http, SiteState siteState, NavigationManager navigationManager)
+        private readonly ILogger<FolderService> _logger;
+        
+        public FolderService(HttpClient http, SiteState siteState, NavigationManager navigationManager, ILogger<FolderService> logger)
         {
             _http = http;
             _siteState = siteState;
             _navigationManager = navigationManager;
+            _logger = logger;
         }
 
         private string apiurl
@@ -37,6 +42,21 @@ namespace Oqtane.Services
         public async Task<Folder> GetFolderAsync(int FolderId)
         {
             return await _http.GetJsonAsync<Folder>(apiurl + "/" + FolderId.ToString());
+        }
+        
+        public async Task<Folder> GetFolderAsync(int siteId, [NotNull]string folderPath)
+        {
+            try
+            {
+                if (!folderPath.EndsWith("\\")) folderPath += "\\";
+                var path = WebUtility.UrlEncode(folderPath);
+                return await _http.GetJsonAsync<Folder>($"{apiurl}/{siteId}/{path}");
+            }
+            catch (Exception e)
+            {
+                _logger.LogDebug(e,"Folder not found: {path}");
+            }
+            return null;
         }
 
         public async Task<Folder> AddFolderAsync(Folder Folder)
