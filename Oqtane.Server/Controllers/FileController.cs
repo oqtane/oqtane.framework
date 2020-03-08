@@ -40,14 +40,14 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>?folder=x
         [HttpGet]
-        public IEnumerable<Models.File> Get(string path)
+        public IEnumerable<Models.File> Get(string folder)
         {
             List<Models.File> files = new List<Models.File>();
             int folderid;
-            if (int.TryParse(path, out folderid))
+            if (int.TryParse(folder, out folderid))
             {
-                Folder folder = _folders.GetFolder(folderid);
-                if (folder != null && _userPermissions.IsAuthorized(User, "Browse", folder.Permissions))
+                Folder f = _folders.GetFolder(folderid);
+                if (f != null && _userPermissions.IsAuthorized(User, "Browse", f.Permissions))
                 {
                     files = _files.GetFiles(folderid).ToList();
                 }
@@ -56,10 +56,10 @@ namespace Oqtane.Controllers
             {
                 if (User.IsInRole(Constants.HostRole))
                 {
-                    path = GetFolderPath(path);
-                    if (Directory.Exists(path))
+                    folder = GetFolderPath(folder);
+                    if (Directory.Exists(folder))
                     {
-                        foreach (string file in Directory.GetFiles(path))
+                        foreach (string file in Directory.GetFiles(folder))
                         {
                             files.Add(new Models.File { Name = Path.GetFileName(file), Extension = Path.GetExtension(file).Replace(".","") });
                         }
