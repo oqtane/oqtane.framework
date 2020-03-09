@@ -11,7 +11,8 @@
 
 @if (UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions))
 {
-    <div class="app-controlpanel" style="@display">
+    <div class="app-controlpanel" style="@_display">
+
         <div class="@CardClass">
             <div class="@HeaderClass">
                 Control Panel
@@ -20,132 +21,137 @@
                 </button>
             </div>
             <div class="@BodyClass">
-                <ul class="nav flex-column">
-                    @if (UserSecurity.IsAuthorized(PageState.User, Constants.AdminRole))
-                    {
-                        <li class="nav-item px-3"><button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Navigate("Admin"))>Admin Dashboard</button></li>
-                        <li class="nav-item px-3">&nbsp;</li>
-                        <li class="nav-item px-3"><button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Navigate("Add"))>Add Page</button></li>
-                        <li class="nav-item px-3"><button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Navigate("Edit"))>Edit Page</button></li>
-                    }
-                    <li class="nav-item px-3">
-                        <button class="btn btn-primary btn-block mx-auto" @onclick="ConfirmDelete">Delete Page</button>
-                        @if (deleteconfirmation)
-                        {
-                            <div class="app-admin-modal">
-                                <div class="modal" tabindex="-1" role="dialog">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Delete Page</h5>
-                                                <button type="button" class="close" @onclick="ConfirmDelete" aria-label="Close">&times;</button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <p>Are You Sure You Want To Delete This Page?</p>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-danger" @onclick="DeletePage">Delete</button>
-                                                <button type="button" class="btn btn-secondary" @onclick="ConfirmDelete">Cancel</button>
-                                            </div>
-                                        </div>
+
+                @if (UserSecurity.IsAuthorized(PageState.User, Constants.AdminRole))
+                {
+                    <div class="row">
+                        <div class="col">
+                            <button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Navigate("Admin"))>Admin Dashboard</button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label class="control-label">Page: </label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Navigate("Add"))>Add</button>
+                        </div>
+                        <div class="col">
+                            <button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Navigate("Edit"))>Edit</button>
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-danger btn-block mx-auto" @onclick="ConfirmDelete">Delete</button>
+                        </div>
+                    </div>
+                }
+
+                @if (_deleteConfirmation)
+                {
+                    <div class="app-admin-modal">
+                        <div class="modal" tabindex="-1" role="dialog">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Delete Page</h5>
+                                        <button type="button" class="close" @onclick="ConfirmDelete" aria-label="Close">&times;</button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Are You Sure You Want To Delete This Page?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-danger" @onclick="DeletePage">Delete</button>
+                                        <button type="button" class="btn btn-secondary" @onclick="ConfirmDelete">Cancel</button>
                                     </div>
                                 </div>
                             </div>
-                        }
-                    </li>
-                </ul>
-                <hr class="app-rule" />
-                <table class="table table-borderless">
-                    <tr>
-                        <td>
-                            <label for="Module" class="control-label">Module: </label>
-                        </td>
-                        <td>
-                            <select class="form-control" @bind="@moduletype">
-                                <option value="new">Add New Module</option>
-                                <option value="existing">Add Existing Module</option>
-                            </select>
-                            @if (moduletype == "new")
-                            {
-                                @if (moduledefinitions != null)
-                                {
-                                    <select class="form-control" @onchange="(e => CategoryChanged(e))">
-                                        <option value="-">&lt;Common Modules&gt;</option>
-                                        @foreach (var category in categories)
-                                        {
-                                            <option value="@category">@category</option>
-                                        }
-                                    </select>
-                                    <select class="form-control" @bind="@moduledefinitionname">
-                                        <option value="-">&lt;Select Module&gt;</option>
-                                        @foreach (var moduledefinition in moduledefinitions)
-                                        {
-                                            if (UserSecurity.IsAuthorized(PageState.User, "Utilize", moduledefinition.Permissions))
-                                            {
-                                                <option value="@moduledefinition.ModuleDefinitionName">@moduledefinition.Name</option>
-                                            }
-                                        }
-                                    </select>
-                                }
-                            }
-                            else
-                            {
-                                <select class="form-control" @onchange="(e => PageChanged(e))">
-                                    <option value="-">&lt;Select Page&gt;</option>
-                                    @foreach (Page p in pages)
-                                    {
-                                        <option value="@p.PageId">@p.Name</option>
-                                    }
-                                </select>
-                                <select class="form-control" @bind="@moduleid">
-                                    <option value="-">&lt;Select Module&gt;</option>
-                                    @foreach (Module module in modules)
-                                    {
-                                        <option value="@module.ModuleId">@module.Title</option>
-                                    }
-                                </select>
+                        </div>
+                    </div>
+                }
+                <hr class="app-rule"/>
 
+                <div class="row">
+                    <div class="col">
+                        <label for="Module" class="control-label">Module: </label>
+                        <select class="form-control" @bind="@_moduleType">
+                            <option value="new">Add New Module</option>
+                            <option value="existing">Add Existing Module</option>
+                        </select>
+                        @if (_moduleType == "new")
+                        {
+                            @if (_moduleDefinitions != null)
+                            {
+                                <select class="form-control" @onchange="(e => CategoryChanged(e))">
+                                    <option value="-">&lt;Common Modules&gt;</option>
+                                    @foreach (var category in _categories)
+                                    {
+                                        <option value="@category">@category</option>
+                                    }
+                                </select>
+                                <select class="form-control" @bind="@_moduleDefinitionName">
+                                    <option value="-">&lt;Select Module&gt;</option>
+                                    @foreach (var moduledefinition in _moduleDefinitions)
+                                    {
+                                        if (UserSecurity.IsAuthorized(PageState.User, "Utilize", moduledefinition.Permissions))
+                                        {
+                                            <option value="@moduledefinition.ModuleDefinitionName">@moduledefinition.Name</option>
+                                        }
+                                    }
+                                </select>
                             }
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label for="Title" class="control-label">Title: </label>
-                        </td>
-                        <td>
-                            <input type="text" name="Title" class="form-control" @bind="@title" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label for="Pane" class="control-label">Pane: </label>
-                        </td>
-                        <td>
-                            <select class="form-control" @bind="@pane">
-                                <option value="">&lt;Select Pane&gt;</option>
-                                @foreach (string pane in PageState.Page.Panes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                        }
+                        else
+                        {
+                            <select class="form-control" @onchange="(e => PageChanged(e))">
+                                <option value="-">&lt;Select Page&gt;</option>
+                                @foreach (Page p in _pages)
                                 {
-                                    <option value="@pane">@pane Pane</option>
+                                    <option value="@p.PageId">@p.Name</option>
                                 }
                             </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label for="Container" class="control-label">Container: </label>
-                        </td>
-                        <td>
-                            <select class="form-control" @bind="@containertype">
-                                @foreach (KeyValuePair<string, string> container in containers)
+                            <select class="form-control" @bind="@_moduleId">
+                                <option value="-">&lt;Select Module&gt;</option>
+                                @foreach (Module module in _modules)
                                 {
-                                    <option value="@container.Key">@container.Value</option>
+                                    <option value="@module.ModuleId">@module.Title</option>
                                 }
                             </select>
-                        </td>
-                    </tr>
-                </table>
+                        }
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label for="Title" class="control-label">Title: </label>
+                        <input type="text" name="Title" class="form-control" @bind="@_title"/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label for="Pane" class="control-label">Pane: </label>
+                        <select class="form-control" @bind="@_pane">
+                            <option value="">&lt;Select Pane&gt;</option>
+                            @foreach (string pane in PageState.Page.Panes.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries))
+                            {
+                                <option value="@pane">@pane Pane</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label for="Container" class="control-label">Container: </label>
+                        <select class="form-control" @bind="@_containerType">
+                            @foreach (KeyValuePair<string, string> container in _containers)
+                            {
+                                <option value="@container.Key">@container.Value</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
                 <button type="button" class="btn btn-primary btn-block mx-auto" @onclick="@AddModule">Add Module To Page</button>
-                @((MarkupString)@message)
+                @((MarkupString) _message)
             </div>
         </div>
     </div>
@@ -184,6 +190,7 @@
 }
 
 @code {
+
     [Parameter]
     public string ButtonClass { get; set; }
 
@@ -196,22 +203,22 @@
     [Parameter]
     public string BodyClass { get; set; }
 
-    bool deleteconfirmation = false;
-    string moduletype = "new";
-    List<string> categories = new List<string>();
-    List<ModuleDefinition> ModuleDefinitions;
-    List<ModuleDefinition> moduledefinitions;
-    List<Page> pages = new List<Page>();
-    string pageid = "-";
-    string moduleid = "-";
-    List<Module> modules = new List<Module>();
-    Dictionary<string, string> containers = new Dictionary<string, string>();
-    string moduledefinitionname = "-";
-    string pane = "";
-    string title = "";
-    string containertype = "";
-    string display = "display: none;";
-    string message = "";
+    bool _deleteConfirmation = false;
+    string _moduleType = "new";
+    List<string> _categories = new List<string>();
+    List<ModuleDefinition> _allModuleDefinitions;
+    List<ModuleDefinition> _moduleDefinitions;
+    List<Page> _pages = new List<Page>();
+    string _pageId = "-";
+    string _moduleId = "-";
+    List<Module> _modules = new List<Module>();
+    Dictionary<string, string> _containers = new Dictionary<string, string>();
+    string _moduleDefinitionName = "-";
+    string _pane = "";
+    string _title = "";
+    string _containerType = "";
+    string _display = "display: none;";
+    string _message = "";
 
     protected override async Task OnParametersSetAsync()
     {
@@ -234,68 +241,68 @@
 
         if (UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions))
         {
-            pages?.Clear();
+            _pages?.Clear();
 
-            ModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
-            foreach (ModuleDefinition moduledefinition in ModuleDefinitions)
+            _allModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
+            foreach (ModuleDefinition moduledefinition in _allModuleDefinitions)
             {
                 if (moduledefinition.Categories != "")
                 {
                     foreach (string category in moduledefinition.Categories.Split(','))
                     {
-                        if (!categories.Contains(category))
+                        if (!_categories.Contains(category))
                         {
-                            categories.Add(category);
+                            _categories.Add(category);
                         }
                     }
                 }
             }
-            moduledefinitions = ModuleDefinitions.Where(item => item.Categories == "").ToList();
+            _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories == "").ToList();
             foreach (Page p in PageState.Pages)
             {
                 if (UserSecurity.IsAuthorized(PageState.User, "View", p.Permissions))
                 {
-                    pages.Add(p);
+                    _pages.Add(p);
                 }
             }
-            var panes = PageState.Page.Panes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-            pane = panes.Count() == 1 ? panes.SingleOrDefault() : "";
+            var panes = PageState.Page.Panes.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
+            _pane = panes.Count() == 1 ? panes.SingleOrDefault() : "";
             List<Theme> themes = await ThemeService.GetThemesAsync();
-            containers = ThemeService.GetContainerTypes(themes);
-            containertype = PageState.Site.DefaultContainerType;
+            _containers = ThemeService.GetContainerTypes(themes);
+            _containerType = PageState.Site.DefaultContainerType;
         }
     }
 
     private void CategoryChanged(ChangeEventArgs e)
     {
-        string category = (string)e.Value;
+        string category = (string) e.Value;
         if (category == "-")
         {
-            moduledefinitions = ModuleDefinitions.Where(item => item.Categories == "").ToList();
+            _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories == "").ToList();
         }
         else
         {
-            moduledefinitions = ModuleDefinitions.Where(item => item.Categories.Contains(category)).ToList();
+            _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(category)).ToList();
         }
-        moduledefinitionname = "-";
+        _moduleDefinitionName = "-";
         StateHasChanged();
     }
 
     private void PageChanged(ChangeEventArgs e)
     {
-        pageid = (string)e.Value;
-        modules?.Clear();
-        if (pageid != "-")
+        _pageId = (string) e.Value;
+        _modules?.Clear();
+        if (_pageId != "-")
         {
-            foreach (Module module in PageState.Modules.Where(item => item.PageId == int.Parse(pageid) && !item.IsDeleted))
+            foreach (Module module in PageState.Modules.Where(item => item.PageId == int.Parse(_pageId) && !item.IsDeleted))
             {
                 if (UserSecurity.IsAuthorized(PageState.User, "View", module.Permissions))
                 {
-                    modules.Add(module);
+                    _modules.Add(module);
                 }
             }
         }
-        moduleid = "-";
+        _moduleId = "-";
         StateHasChanged();
     }
 
@@ -303,65 +310,67 @@
     {
         if (UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions))
         {
-            if ((moduletype == "new" && moduledefinitionname != "-") || (moduletype != "new" && moduleid != "-"))
+            if ((_moduleType == "new" && _moduleDefinitionName != "-") || (_moduleType != "new" && _moduleId != "-"))
             {
-                if (moduletype == "new")
+                if (_moduleType == "new")
                 {
                     Module module = new Module();
                     module.SiteId = PageState.Site.SiteId;
                     module.PageId = PageState.Page.PageId;
-                    module.ModuleDefinitionName = moduledefinitionname;
+                    module.ModuleDefinitionName = _moduleDefinitionName;
                     module.Permissions = PageState.Page.Permissions;
                     module = await ModuleService.AddModuleAsync(module);
-                    moduleid = module.ModuleId.ToString();
+                    _moduleId = module.ModuleId.ToString();
                 }
 
-                PageModule pagemodule = new PageModule();
-                pagemodule.PageId = (pageid != "-") ? PageState.Page.PageId : int.Parse(pageid);
-                pagemodule.ModuleId = int.Parse(moduleid);
-                pagemodule.Title = title;
-                if (pagemodule.Title == "")
+                var pageModule = new PageModule
                 {
-                    if (moduletype == "new")
+                    PageId = (_pageId == "-") ? PageState.Page.PageId : int.Parse(_pageId),
+                    ModuleId = int.Parse(_moduleId),
+                    Title = _title
+                };
+                if (pageModule.Title == "")
+                {
+                    if (_moduleType == "new")
                     {
-                        pagemodule.Title = moduledefinitions.Where(item => item.ModuleDefinitionName == moduledefinitionname).FirstOrDefault().Name;
+                        pageModule.Title = _moduleDefinitions.FirstOrDefault(item => item.ModuleDefinitionName == _moduleDefinitionName)?.Name;
                     }
                     else
                     {
-                        pagemodule.Title = modules.Where(item => item.ModuleId == int.Parse(moduleid)).FirstOrDefault().Title;
+                        pageModule.Title = _modules.FirstOrDefault(item => item.ModuleId == int.Parse(_moduleId))?.Title;
                     }
                 }
-                pagemodule.Pane = pane;
-                pagemodule.Order = int.MaxValue;
-                pagemodule.ContainerType = containertype;
+                pageModule.Pane = _pane;
+                pageModule.Order = int.MaxValue;
+                pageModule.ContainerType = _containerType;
 
-                if (pagemodule.ContainerType == PageState.Site.DefaultContainerType)
+                if (pageModule.ContainerType == PageState.Site.DefaultContainerType)
                 {
-                    pagemodule.ContainerType = "";
+                    pageModule.ContainerType = "";
                 }
 
-                await PageModuleService.AddPageModuleAsync(pagemodule);
-                await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
+                await PageModuleService.AddPageModuleAsync(pageModule);
+                await PageModuleService.UpdatePageModuleOrderAsync(pageModule.PageId, pageModule.Pane);
 
-                message = "<br /><div class=\"alert alert-success\" role=\"alert\">Module Added To Page</div>";
+                _message = "<br /><div class=\"alert alert-success\" role=\"alert\">Module Added To Page</div>";
 
-                moduledefinitionname = "-";
-                pane = "";
-                title = "";
-                containertype = "";
-                pageid = "-";
-                moduleid = "-";
+                _moduleDefinitionName = "-";
+                _pane = "";
+                _title = "";
+                _containerType = "";
+                _pageId = "-";
+                _moduleId = "-";
 
                 NavigationManager.NavigateTo(NavigateUrl(Reload.Page));
             }
             else
             {
-                message = "<br /><div class=\"alert alert-warning\" role=\"alert\">You Must Select A Module</div>";
+                _message = "<br /><div class=\"alert alert-warning\" role=\"alert\">You Must Select A Module</div>";
             }
         }
         else
         {
-            message = "<br /><div class=\"alert alert-error\" role=\"alert\">Not Authorized</div>";
+            _message = "<br /><div class=\"alert alert-error\" role=\"alert\">Not Authorized</div>";
         }
     }
 
@@ -392,15 +401,15 @@
 
     private void ShowControlPanel()
     {
-        message = "";
-        display = "width: 25%;";
+        _message = "";
+        _display = "width: 25%; minwidth:300px";
         StateHasChanged();
     }
 
     private void HideControlPanel()
     {
-        message = "";
-        display = "width: 0%;";
+        _message = "";
+        _display = "width: 0%;";
         StateHasChanged();
     }
 
@@ -411,8 +420,8 @@
         switch (location)
         {
             case "Admin":
-                // get admin dashboard moduleid
-                module = PageState.Modules.Where(item => item.ModuleDefinitionName == Constants.AdminDashboardModule).FirstOrDefault();
+    // get admin dashboard moduleid
+                module = PageState.Modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.AdminDashboardModule);
                 if (module != null)
                 {
                     NavigationManager.NavigateTo(EditUrl(PageState.Page.Path, module.ModuleId, "Index", ""));
@@ -421,8 +430,8 @@
             case "Add":
             case "Edit":
                 string url = "";
-                // get page management moduleid
-                module = PageState.Modules.Where(item => item.ModuleDefinitionName == Constants.PageManagementModule).FirstOrDefault();
+    // get page management moduleid
+                module = PageState.Modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.PageManagementModule);
                 if (module != null)
                 {
                     switch (location)
@@ -445,7 +454,7 @@
 
     private void ConfirmDelete()
     {
-        deleteconfirmation = !deleteconfirmation;
+        _deleteConfirmation = !_deleteConfirmation;
         StateHasChanged();
     }
 
@@ -459,19 +468,20 @@
             {
                 page.IsDeleted = true;
                 await PageService.UpdatePageAsync(page);
-                await logger.Log(page.PageId, null, PageState.User.UserId, this.GetType().AssemblyQualifiedName, "ControlPanel", LogFunction.Delete, LogLevel.Information, null, "Page Deleted {Page}", page);
+                await logger.Log(page.PageId, null, PageState.User.UserId, GetType().AssemblyQualifiedName, "ControlPanel", LogFunction.Delete, LogLevel.Information, null, "Page Deleted {Page}", page);
                 NavigationManager.NavigateTo(NavigateUrl("", Reload.Site));
             }
             else // personalized page
             {
                 await PageService.DeletePageAsync(page.PageId);
-                await logger.Log(page.PageId, null, PageState.User.UserId, this.GetType().AssemblyQualifiedName, "ControlPanel", LogFunction.Delete, LogLevel.Information, null, "Page Deleted {Page}", page);
+                await logger.Log(page.PageId, null, PageState.User.UserId, GetType().AssemblyQualifiedName, "ControlPanel", LogFunction.Delete, LogLevel.Information, null, "Page Deleted {Page}", page);
                 NavigationManager.NavigateTo(NavigateUrl(Reload.Page));
             }
         }
         catch (Exception ex)
         {
-            await logger.Log(page.PageId, null, PageState.User.UserId, this.GetType().AssemblyQualifiedName, "ControlPanel", LogFunction.Delete, LogLevel.Information, ex, "Page Deleted {Page} {Error}", page, ex.Message);
+            await logger.Log(page.PageId, null, PageState.User.UserId, GetType().AssemblyQualifiedName, "ControlPanel", LogFunction.Delete, LogLevel.Information, ex, "Page Deleted {Page} {Error}", page, ex.Message);
         }
     }
+
 }

@@ -12,57 +12,57 @@ namespace Oqtane.Repository
 {
     public class ModuleRepository : IModuleRepository
     {
-        private TenantDBContext db;
-        private readonly IPermissionRepository Permissions;
-        private readonly IModuleDefinitionRepository ModuleDefinitions;
-        private readonly IServiceProvider ServiceProvider;
+        private TenantDBContext _db;
+        private readonly IPermissionRepository _permissions;
+        private readonly IModuleDefinitionRepository _moduleDefinitions;
+        private readonly IServiceProvider _serviceProvider;
 
-        public ModuleRepository(TenantDBContext context, IPermissionRepository Permissions, IModuleDefinitionRepository ModuleDefinitions, IServiceProvider ServiceProvider)
+        public ModuleRepository(TenantDBContext context, IPermissionRepository permissions, IModuleDefinitionRepository moduleDefinitions, IServiceProvider serviceProvider)
         {
-            db = context;
-            this.Permissions = Permissions;
-            this.ModuleDefinitions = ModuleDefinitions;
-            this.ServiceProvider = ServiceProvider;
+            _db = context;
+            _permissions = permissions;
+            _moduleDefinitions = moduleDefinitions;
+            _serviceProvider = serviceProvider;
         }
 
         public IEnumerable<Models.Module> GetModules(int SiteId)
         {
-            return db.Module.Where(item => item.SiteId == SiteId).ToList();
+            return _db.Module.Where(item => item.SiteId == SiteId).ToList();
         }
 
         public Models.Module AddModule(Models.Module Module)
         {
-            db.Module.Add(Module);
-            db.SaveChanges();
-            Permissions.UpdatePermissions(Module.SiteId, "Module", Module.ModuleId, Module.Permissions);
+            _db.Module.Add(Module);
+            _db.SaveChanges();
+            _permissions.UpdatePermissions(Module.SiteId, "Module", Module.ModuleId, Module.Permissions);
             return Module;
         }
 
         public Models.Module UpdateModule(Models.Module Module)
         {
-            db.Entry(Module).State = EntityState.Modified;
-            db.SaveChanges();
-            Permissions.UpdatePermissions(Module.SiteId, "Module", Module.ModuleId, Module.Permissions);
+            _db.Entry(Module).State = EntityState.Modified;
+            _db.SaveChanges();
+            _permissions.UpdatePermissions(Module.SiteId, "Module", Module.ModuleId, Module.Permissions);
             return Module;
         }
 
         public Models.Module GetModule(int ModuleId)
         {
-            Models.Module module = db.Module.Find(ModuleId);
+            Models.Module module = _db.Module.Find(ModuleId);
             if (module != null)
             {
-                List<Permission> permissions = Permissions.GetPermissions("Module", module.ModuleId).ToList();
-                module.Permissions = Permissions.EncodePermissions(module.ModuleId, permissions);
+                List<Permission> permissions = _permissions.GetPermissions("Module", module.ModuleId).ToList();
+                module.Permissions = _permissions.EncodePermissions(module.ModuleId, permissions);
             }
             return module;
         }
 
         public void DeleteModule(int ModuleId)
         {
-            Models.Module Module = db.Module.Find(ModuleId);
-            Permissions.DeletePermissions(Module.SiteId, "Module", ModuleId);
-            db.Module.Remove(Module);
-            db.SaveChanges();
+            Models.Module Module = _db.Module.Find(ModuleId);
+            _permissions.DeletePermissions(Module.SiteId, "Module", ModuleId);
+            _db.Module.Remove(Module);
+            _db.SaveChanges();
         }
 
         public string ExportModule(int ModuleId)
@@ -73,7 +73,7 @@ namespace Oqtane.Repository
                 Models.Module module = GetModule(ModuleId);
                 if (module != null)
                 {
-                    List<ModuleDefinition> moduledefinitions = ModuleDefinitions.GetModuleDefinitions(module.SiteId).ToList();
+                    List<ModuleDefinition> moduledefinitions = _moduleDefinitions.GetModuleDefinitions(module.SiteId).ToList();
                     ModuleDefinition moduledefinition = moduledefinitions.Where(item => item.ModuleDefinitionName == module.ModuleDefinitionName).FirstOrDefault();
                     if (moduledefinition != null)
                     {
@@ -94,7 +94,7 @@ namespace Oqtane.Repository
                                     .Where(item => item.GetInterfaces().Contains(typeof(IPortable))).FirstOrDefault();
                                 if (moduletype != null)
                                 {
-                                    var moduleobject = ActivatorUtilities.CreateInstance(ServiceProvider, moduletype);
+                                    var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
                                     modulecontent.Content = ((IPortable)moduleobject).ExportModule(module);
                                 }
                             }
@@ -118,7 +118,7 @@ namespace Oqtane.Repository
                 Models.Module module = GetModule(ModuleId);
                 if (module != null)
                 {
-                    List<ModuleDefinition> moduledefinitions = ModuleDefinitions.GetModuleDefinitions(module.SiteId).ToList();
+                    List<ModuleDefinition> moduledefinitions = _moduleDefinitions.GetModuleDefinitions(module.SiteId).ToList();
                     ModuleDefinition moduledefinition = moduledefinitions.Where(item => item.ModuleDefinitionName == module.ModuleDefinitionName).FirstOrDefault();
                     if (moduledefinition != null)
                     {
@@ -137,7 +137,7 @@ namespace Oqtane.Repository
                                         .Where(item => item.GetInterfaces().Contains(typeof(IPortable))).FirstOrDefault();
                                     if (moduletype != null)
                                     {
-                                        var moduleobject = ActivatorUtilities.CreateInstance(ServiceProvider, moduletype);
+                                        var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
                                         ((IPortable)moduleobject).ImportModule(module, modulecontent.Content, modulecontent.Version);
                                         success = true;
                                     }

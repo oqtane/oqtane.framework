@@ -11,52 +11,52 @@ namespace Oqtane.Services
 {
     public class FolderService : ServiceBase, IFolderService
     {
-        private readonly HttpClient http;
-        private readonly SiteState sitestate;
-        private readonly NavigationManager NavigationManager;
+        private readonly HttpClient _http;
+        private readonly SiteState _siteState;
+        private readonly NavigationManager _navigationManager;
 
-        public FolderService(HttpClient http, SiteState sitestate, NavigationManager NavigationManager)
+        public FolderService(HttpClient http, SiteState siteState, NavigationManager navigationManager)
         {
-            this.http = http;
-            this.sitestate = sitestate;
-            this.NavigationManager = NavigationManager;
+            _http = http;
+            _siteState = siteState;
+            _navigationManager = navigationManager;
         }
 
         private string apiurl
         {
-            get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "Folder"); }
+            get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Folder"); }
         }
 
         public async Task<List<Folder>> GetFoldersAsync(int SiteId)
         {
-            List<Folder> folders = await http.GetJsonAsync<List<Folder>>(apiurl + "?siteid=" + SiteId.ToString());
+            List<Folder> folders = await _http.GetJsonAsync<List<Folder>>(apiurl + "?siteid=" + SiteId.ToString());
             folders = GetFoldersHierarchy(folders);
             return folders;
         }
 
         public async Task<Folder> GetFolderAsync(int FolderId)
         {
-            return await http.GetJsonAsync<Folder>(apiurl + "/" + FolderId.ToString());
+            return await _http.GetJsonAsync<Folder>(apiurl + "/" + FolderId.ToString());
         }
 
         public async Task<Folder> AddFolderAsync(Folder Folder)
         {
-            return await http.PostJsonAsync<Folder>(apiurl, Folder);
+            return await _http.PostJsonAsync<Folder>(apiurl, Folder);
         }
 
         public async Task<Folder> UpdateFolderAsync(Folder Folder)
         {
-            return await http.PutJsonAsync<Folder>(apiurl + "/" + Folder.FolderId.ToString(), Folder);
+            return await _http.PutJsonAsync<Folder>(apiurl + "/" + Folder.FolderId.ToString(), Folder);
         }
 
         public async Task UpdateFolderOrderAsync(int SiteId, int FolderId, int? ParentId)
         {
-            await http.PutJsonAsync(apiurl + "/?siteid=" + SiteId.ToString() + "&folderid=" + FolderId.ToString() + "&parentid=" + ((ParentId == null) ? "" : ParentId.ToString()), null);
+            await _http.PutJsonAsync(apiurl + "/?siteid=" + SiteId.ToString() + "&folderid=" + FolderId.ToString() + "&parentid=" + ((ParentId == null) ? "" : ParentId.ToString()), null);
         }
 
         public async Task DeleteFolderAsync(int FolderId)
         {
-            await http.DeleteAsync(apiurl + "/" + FolderId.ToString());
+            await _http.DeleteAsync(apiurl + "/" + FolderId.ToString());
         }
 
         private static List<Folder> GetFoldersHierarchy(List<Folder> Folders)

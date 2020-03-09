@@ -10,35 +10,35 @@ namespace Oqtane.Services
 {
     public class InstallationService : ServiceBase, IInstallationService
     {
-        private readonly HttpClient http;
-        private readonly SiteState sitestate;
-        private readonly NavigationManager NavigationManager;
+        private readonly HttpClient _http;
+        private readonly SiteState _siteState;
+        private readonly NavigationManager _navigationManager;
 
-        public InstallationService(HttpClient http, SiteState sitestate, NavigationManager NavigationManager)
+        public InstallationService(HttpClient http, SiteState siteState, NavigationManager navigationManager)
         {
-            this.http = http;
-            this.sitestate = sitestate;
-            this.NavigationManager = NavigationManager;
+            _http = http;
+            _siteState = siteState;
+            _navigationManager = navigationManager;
         }
 
         private string apiurl
         {
-            get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "Installation"); }
+            get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Installation"); }
         }
 
         public async Task<GenericResponse> IsInstalled()
         {
-            return await http.GetJsonAsync<GenericResponse>(apiurl + "/installed");
+            return await _http.GetJsonAsync<GenericResponse>(apiurl + "/installed");
         }
 
         public async Task<GenericResponse> Install(string connectionstring)
         {
-            return await http.PostJsonAsync<GenericResponse>(apiurl, connectionstring);
+            return await _http.PostJsonAsync<GenericResponse>(apiurl, connectionstring);
         }
 
         public async Task<GenericResponse> Upgrade()
         {
-            return await http.GetJsonAsync<GenericResponse>(apiurl + "/upgrade");
+            return await _http.GetJsonAsync<GenericResponse>(apiurl + "/upgrade");
         }
     }
 }

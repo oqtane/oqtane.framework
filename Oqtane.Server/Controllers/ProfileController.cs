@@ -11,27 +11,27 @@ namespace Oqtane.Controllers
     [Route("{site}/api/[controller]")]
     public class ProfileController : Controller
     {
-        private readonly IProfileRepository Profiles;
-        private readonly ILogManager logger;
+        private readonly IProfileRepository _profiles;
+        private readonly ILogManager _logger;
 
-        public ProfileController(IProfileRepository Profiles, ILogManager logger)
+        public ProfileController(IProfileRepository profiles, ILogManager logger)
         {
-            this.Profiles = Profiles;
-            this.logger = logger;
+            _profiles = profiles;
+            _logger = logger;
         }
 
         // GET: api/<controller>?siteid=x
         [HttpGet]
         public IEnumerable<Profile> Get(string siteid)
         {
-            return Profiles.GetProfiles(int.Parse(siteid));
+            return _profiles.GetProfiles(int.Parse(siteid));
         }
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
         public Profile Get(int id)
         {
-            return Profiles.GetProfile(id);
+            return _profiles.GetProfile(id);
         }
 
         // POST api/<controller>
@@ -41,8 +41,8 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                Profile = Profiles.AddProfile(Profile);
-                logger.Log(LogLevel.Information, this, LogFunction.Create, "Profile Added {Profile}", Profile);
+                Profile = _profiles.AddProfile(Profile);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Profile Added {Profile}", Profile);
             }
             return Profile;
         }
@@ -54,8 +54,8 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                Profile = Profiles.UpdateProfile(Profile);
-                logger.Log(LogLevel.Information, this, LogFunction.Update, "Profile Updated {Profile}", Profile);
+                Profile = _profiles.UpdateProfile(Profile);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Profile Updated {Profile}", Profile);
             }
             return Profile;
         }
@@ -65,8 +65,8 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.AdminRole)]
         public void Delete(int id)
         {
-            Profiles.DeleteProfile(id);
-            logger.Log(LogLevel.Information, this, LogFunction.Delete, "Profile Deleted {ProfileId}", id);
+            _profiles.DeleteProfile(id);
+            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Profile Deleted {ProfileId}", id);
         }
     }
 }

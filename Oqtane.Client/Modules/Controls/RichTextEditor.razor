@@ -16,11 +16,14 @@
         <button type="button" class="btn btn-secondary" @onclick="CloseFileManager">Close</button>
     }
 </div>
-<br />
-<div @ref="@ToolBar">
-    @ToolbarContent
-</div>
-<div @ref="@EditorElement">
+<div class="row">
+    <div class ="col">
+        <div @ref="@ToolBar">
+            @ToolbarContent
+        </div>
+        <div @ref="@EditorElement">
+        </div>
+    </div>
 </div>
 
 @code {

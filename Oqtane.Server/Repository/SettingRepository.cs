@@ -7,43 +7,43 @@ namespace Oqtane.Repository
 {
     public class SettingRepository : ISettingRepository
     {
-        private TenantDBContext db;
+        private TenantDBContext _db;
 
         public SettingRepository(TenantDBContext context)
         {
-            db = context;
+            _db = context;
         }
 
         public IEnumerable<Setting> GetSettings(string EntityName, int EntityId)
         {
-            return db.Setting.Where(item => item.EntityName == EntityName)
+            return _db.Setting.Where(item => item.EntityName == EntityName)
                 .Where(item => item.EntityId == EntityId);
         }
 
         public Setting AddSetting(Setting Setting)
         {
-            db.Setting.Add(Setting);
-            db.SaveChanges();
+            _db.Setting.Add(Setting);
+            _db.SaveChanges();
             return Setting;
         }
 
         public Setting UpdateSetting(Setting Setting)
         {
-            db.Entry(Setting).State = EntityState.Modified;
-            db.SaveChanges();
+            _db.Entry(Setting).State = EntityState.Modified;
+            _db.SaveChanges();
             return Setting;
         }
 
         public Setting GetSetting(int SettingId)
         {
-            return db.Setting.Find(SettingId);
+            return _db.Setting.Find(SettingId);
         }
 
         public void DeleteSetting(int SettingId)
         {
-            Setting Setting = db.Setting.Find(SettingId);
-            db.Setting.Remove(Setting);
-            db.SaveChanges();
+            Setting Setting = _db.Setting.Find(SettingId);
+            _db.Setting.Remove(Setting);
+            _db.SaveChanges();
         }
     }
 }

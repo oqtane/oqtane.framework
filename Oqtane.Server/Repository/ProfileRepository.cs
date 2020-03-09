@@ -7,42 +7,42 @@ namespace Oqtane.Repository
 {
     public class ProfileRepository : IProfileRepository
     {
-        private TenantDBContext db;
+        private TenantDBContext _db;
 
         public ProfileRepository(TenantDBContext context)
         {
-            db = context;
+            _db = context;
         }
             
         public IEnumerable<Profile> GetProfiles(int SiteId)
         {
-            return db.Profile.Where(item => item.SiteId == SiteId || item.SiteId == null);
+            return _db.Profile.Where(item => item.SiteId == SiteId || item.SiteId == null);
         }
 
         public Profile AddProfile(Profile Profile)
         {
-            db.Profile.Add(Profile);
-            db.SaveChanges();
+            _db.Profile.Add(Profile);
+            _db.SaveChanges();
             return Profile;
         }
 
         public Profile UpdateProfile(Profile Profile)
         {
-            db.Entry(Profile).State = EntityState.Modified;
-            db.SaveChanges();
+            _db.Entry(Profile).State = EntityState.Modified;
+            _db.SaveChanges();
             return Profile;
         }
 
         public Profile GetProfile(int ProfileId)
         {
-            return db.Profile.Find(ProfileId);
+            return _db.Profile.Find(ProfileId);
         }
 
         public void DeleteProfile(int ProfileId)
         {
-            Profile Profile = db.Profile.Find(ProfileId);
-            db.Profile.Remove(Profile);
-            db.SaveChanges();
+            Profile Profile = _db.Profile.Find(ProfileId);
+            _db.Profile.Remove(Profile);
+            _db.SaveChanges();
         }
     }
 }

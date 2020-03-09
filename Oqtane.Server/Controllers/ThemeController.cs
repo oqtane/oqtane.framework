@@ -15,17 +15,17 @@ namespace Oqtane.Controllers
     [Route("{site}/api/[controller]")]
     public class ThemeController : Controller
     {
-        private readonly IThemeRepository Themes;
-        private readonly IInstallationManager InstallationManager;
-        private readonly IWebHostEnvironment environment;
-        private readonly ILogManager logger;
+        private readonly IThemeRepository _themes;
+        private readonly IInstallationManager _installationManager;
+        private readonly IWebHostEnvironment _environment;
+        private readonly ILogManager _logger;
 
-        public ThemeController(IThemeRepository Themes, IInstallationManager InstallationManager, IWebHostEnvironment environment, ILogManager logger)
+        public ThemeController(IThemeRepository themes, IInstallationManager installationManager, IWebHostEnvironment environment, ILogManager logger)
         {
-            this.Themes = Themes;
-            this.InstallationManager = InstallationManager;
-            this.environment = environment;
-            this.logger = logger;
+            _themes = themes;
+            _installationManager = installationManager;
+            _environment = environment;
+            _logger = logger;
         }
 
         // GET: api/<controller>
@@ -33,15 +33,15 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public IEnumerable<Theme> Get()
         {
-            return Themes.GetThemes();
+            return _themes.GetThemes();
         }
 
         [HttpGet("install")]
         [Authorize(Roles = Constants.HostRole)]
         public void InstallThemes()
         {
-            InstallationManager.InstallPackages("Themes", true);
-            logger.Log(LogLevel.Information, this, LogFunction.Create, "Themes Installed");
+            _installationManager.InstallPackages("Themes", true);
+            _logger.Log(LogLevel.Information, this, LogFunction.Create, "Themes Installed");
         }
 
         // DELETE api/<controller>/xxx
@@ -49,13 +49,13 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.HostRole)]
         public void Delete(string themename)
         {
-            List<Theme> themes = Themes.GetThemes().ToList();
+            List<Theme> themes = _themes.GetThemes().ToList();
             Theme theme = themes.Where(item => item.ThemeName == themename).FirstOrDefault();
             if (theme != null)
             {
                 themename = theme.ThemeName.Substring(0, theme.ThemeName.IndexOf(","));
 
-                string folder = Path.Combine(environment.WebRootPath, "Themes\\" + themename);
+                string folder = Path.Combine(_environment.WebRootPath, "Themes\\" + themename);
                 if (Directory.Exists(folder))
                 {
                     Directory.Delete(folder, true);
@@ -66,9 +66,9 @@ namespace Oqtane.Controllers
                 {
                     System.IO.File.Delete(file);
                 }
-                logger.Log(LogLevel.Information, this, LogFunction.Delete, "Theme Deleted {ThemeName}", themename);
+                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Theme Deleted {ThemeName}", themename);
 
-                InstallationManager.RestartApplication();
+                _installationManager.RestartApplication();
             }
         }
 

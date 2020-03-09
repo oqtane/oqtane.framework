@@ -7,71 +7,102 @@
 @inject HttpClient http
 @inject SiteState sitestate
 
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Content: </label>
-        </td>
-        <td>
-            @if (!RichTextEditorMode)
+<div class="row" style="margin-bottom: 50px;">
+    <div class="col @_visibleText">
+        <textarea class="form-control" @bind="@content" rows="10"></textarea>
+    </div>
+
+    <div class="col @_visibleRich">
+        <RichTextEditor @ref="@RichTextEditorHtml">
+            <ToolbarContent>
+                <select class="ql-header">
+                    <option selected=""></option>
+                    <option value="1"></option>
+                    <option value="2"></option>
+                    <option value="3"></option>
+                    <option value="4"></option>
+                    <option value="5"></option>
+                </select>
+                <span class="ql-formats">
+                    <button class="ql-bold"></button>
+                    <button class="ql-italic"></button>
+                    <button class="ql-underline"></button>
+                    <button class="ql-strike"></button>
+                </span>
+                <span class="ql-formats">
+                    <select class="ql-color"></select>
+                    <select class="ql-background"></select>
+                </span>
+                <span class="ql-formats">
+                    <button class="ql-list" value="ordered"></button>
+                    <button class="ql-list" value="bullet"></button>
+                </span>
+                <span class="ql-formats">
+                    <button class="ql-link"></button>
+                </span>
+            </ToolbarContent>
+        </RichTextEditor>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        @if (!RichTextEditorMode)
+        {
+            <button type="button" class="btn btn-secondary" @onclick="RichTextEditor">Rich Text Editor</button>
+        }
+        else
+        {
+            <button type="button" class="btn btn-secondary" @onclick="RawHtmlEditor">Raw HTML Editor</button>
+        }
+        <button type="button" class="btn btn-success" @onclick="SaveContent">Save</button>        
+        <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
+    </div>
+</div>
+
+@code {
+
+    public override SecurityAccessLevel SecurityAccessLevel
+    {
+        get { return SecurityAccessLevel.Edit; }
+    }
+
+    public override string Title
+    {
+        get { return "Edit Html/Text"; }
+    }
+
+    public bool RichTextEditorMode
+    {
+        get => _richTextEditorMode;
+        set
+        {
+            _richTextEditorMode = value;
+            
+            if (_richTextEditorMode)
             {
-                <textarea class="form-control" @bind="@content" rows="5" />
+                _visibleText = "d-none";
+                _visibleRich = "";
             }
             else
             {
-                <RichTextEditor @ref="@RichTextEditorHtml">
-                    <ToolbarContent>
-                        <select class="ql-header">
-                            <option selected=""></option>
-                            <option value="1"></option>
-                            <option value="2"></option>
-                            <option value="3"></option>
-                            <option value="4"></option>
-                            <option value="5"></option>
-                        </select>
-                        <span class="ql-formats">
-                            <button class="ql-bold"></button>
-                            <button class="ql-italic"></button>
-                            <button class="ql-underline"></button>
-                            <button class="ql-strike"></button>
-                        </span>
-                        <span class="ql-formats">
-                            <select class="ql-color"></select>
-                            <select class="ql-background"></select>
-                        </span>
-                        <span class="ql-formats">
-                            <button class="ql-list" value="ordered"></button>
-                            <button class="ql-list" value="bullet"></button>
-                        </span>
-                        <span class="ql-formats">
-                            <button class="ql-link"></button>
-                        </span>
-                    </ToolbarContent>
-                </RichTextEditor>
+                _visibleText = "";
+                _visibleRich = "d-none";
             }
-        </td>
-    </tr>
-</table>
-@if (!RichTextEditorMode)
-{
-    <button type="button" class="btn btn-secondary" @onclick="RichTextEditor">Rich Text Editor</button>
-}
-else
-{
-    <button type="button" class="btn btn-secondary" @onclick="RawHTMLEditor">Raw HTML Editor</button>
-}
-<button type="button" class="btn btn-success" @onclick="SaveContent">Save</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
-<br />
-<br />
-<AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
+        }
+    }
 
-@code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Edit; } }
-    public override string Title { get { return "Edit Html/Text"; } }
+    string _visibleText;
+    string _visibleRich;
+    bool _richTextEditorMode;
 
     RichTextEditor RichTextEditorHtml;
-    bool RichTextEditorMode = true;
     string content;
     string createdby;
     DateTime createdon;
@@ -80,17 +111,21 @@ else
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        try
         {
-            try
+            if (firstRender)
             {
-                await LoadText();
+                if (content == null)
+                {
+                    RichTextEditorMode = true;
+                    await LoadText();
+                }
             }
-            catch (Exception ex)
-            {
-                await logger.LogError(ex, "An Error Occurred Loading Html/Text Content. " + ex.Message);
-                AddModuleMessage(ex.Message, MessageType.Error);
-            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "An Error Occurred Loading Html/Text Content. " + ex.Message);
+            AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
 
@@ -117,20 +152,22 @@ else
     private async Task RichTextEditor()
     {
         RichTextEditorMode = true;
-        await LoadText();
+        await RichTextEditorHtml.LoadContent(content);
+        StateHasChanged();
     }
 
-    private async Task RawHTMLEditor()
+    private async Task RawHtmlEditor()
     {
+        content = await this.RichTextEditorHtml.GetHTML();
         RichTextEditorMode = false;
-        await LoadText();
+        StateHasChanged();
     }
 
     private async Task SaveContent()
     {
         if (RichTextEditorMode)
         {
-            content = await this.RichTextEditorHtml.GetHTML();
+            content = await RichTextEditorHtml.GetHTML();
         }
 
         content = content.Replace(((PageState.Alias.Path == "") ? "/~" : PageState.Alias.Path) + Constants.ContentUrl, Constants.ContentUrl);
@@ -160,4 +197,5 @@ else
             AddModuleMessage("Error Saving Content", MessageType.Error);
         }
     }
+
 }

@@ -11,13 +11,13 @@ namespace Oqtane.Controllers
     [Route("{site}/api/[controller]")]
     public class JobLogController : Controller
     {
-        private readonly IJobLogRepository JobLogs;
-        private readonly ILogManager logger;
+        private readonly IJobLogRepository _jobLogs;
+        private readonly ILogManager _logger;
 
-        public JobLogController(IJobLogRepository JobLogs, ILogManager logger)
+        public JobLogController(IJobLogRepository jobLogs, ILogManager logger)
         {
-            this.JobLogs = JobLogs;
-            this.logger = logger;
+            _jobLogs = jobLogs;
+            _logger = logger;
         }
 
         // GET: api/<controller>
@@ -25,7 +25,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.HostRole)]
         public IEnumerable<JobLog> Get()
         {
-            return JobLogs.GetJobLogs();
+            return _jobLogs.GetJobLogs();
         }
 
         // GET api/<controller>/5
@@ -33,7 +33,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.HostRole)]
         public JobLog Get(int id)
         {
-            return JobLogs.GetJobLog(id);
+            return _jobLogs.GetJobLog(id);
         }
 
         // POST api/<controller>
@@ -43,8 +43,8 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                JobLog = JobLogs.AddJobLog(JobLog);
-                logger.Log(LogLevel.Information, this, LogFunction.Create, "Job Log Added {JobLog}", JobLog);
+                JobLog = _jobLogs.AddJobLog(JobLog);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Job Log Added {JobLog}", JobLog);
             }
             return JobLog;
         }
@@ -56,8 +56,8 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                JobLog = JobLogs.UpdateJobLog(JobLog);
-                logger.Log(LogLevel.Information, this, LogFunction.Update, "Job Log Updated {JobLog}", JobLog);
+                JobLog = _jobLogs.UpdateJobLog(JobLog);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Job Log Updated {JobLog}", JobLog);
             }
             return JobLog;
         }
@@ -67,8 +67,8 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.HostRole)]
         public void Delete(int id)
         {
-            JobLogs.DeleteJobLog(id);
-            logger.Log(LogLevel.Information, this, LogFunction.Delete, "Job Log Deleted {JobLogId}", id);
+            _jobLogs.DeleteJobLog(id);
+            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Job Log Deleted {JobLogId}", id);
         }
     }
 }

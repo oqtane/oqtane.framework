@@ -9,12 +9,12 @@ namespace Oqtane.Repository
 {
     public class JobRepository : IJobRepository
     {
-        private MasterDBContext db;
+        private MasterDBContext _db;
         private readonly IMemoryCache _cache;
 
         public JobRepository(MasterDBContext context, IMemoryCache cache)
         {
-            db = context;
+            _db = context;
             _cache = cache;
         }
 
@@ -23,34 +23,34 @@ namespace Oqtane.Repository
             return _cache.GetOrCreate("jobs", entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromMinutes(30);
-                return db.Job.ToList();
+                return _db.Job.ToList();
             });
         }
 
         public Job AddJob(Job Job)
         {
-            db.Job.Add(Job);
-            db.SaveChanges();
+            _db.Job.Add(Job);
+            _db.SaveChanges();
             return Job;
         }
 
         public Job UpdateJob(Job Job)
         {
-            db.Entry(Job).State = EntityState.Modified;
-            db.SaveChanges();
+            _db.Entry(Job).State = EntityState.Modified;
+            _db.SaveChanges();
             return Job;
         }
 
         public Job GetJob(int JobId)
         {
-            return db.Job.Find(JobId);
+            return _db.Job.Find(JobId);
         }
 
         public void DeleteJob(int JobId)
         {
-            Job Job = db.Job.Find(JobId);
-            db.Job.Remove(Job);
-            db.SaveChanges();
+            Job Job = _db.Job.Find(JobId);
+            _db.Job.Remove(Job);
+            _db.SaveChanges();
         }
     }
 }

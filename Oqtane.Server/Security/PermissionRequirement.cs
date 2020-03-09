@@ -8,10 +8,10 @@ namespace Oqtane.Security
 
         public string PermissionName { get; }
 
-        public PermissionRequirement(string EntityName, string PermissionName)
+        public PermissionRequirement(string entityName, string permissionName)
         {
-            this.EntityName = EntityName;
-            this.PermissionName = PermissionName;
+            EntityName = entityName;
+            PermissionName = permissionName;
         }
     }
 }

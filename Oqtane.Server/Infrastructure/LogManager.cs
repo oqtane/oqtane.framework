@@ -12,19 +12,19 @@ namespace Oqtane.Infrastructure
 {
     public class LogManager : ILogManager
     {
-        private readonly ILogRepository Logs;
-        private readonly ITenantResolver TenantResolver;
-        private readonly IConfigurationRoot Config;
-        private readonly IUserPermissions UserPermissions;
-        private readonly IHttpContextAccessor Accessor;
+        private readonly ILogRepository _logs;
+        private readonly ITenantResolver _tenantResolver;
+        private readonly IConfigurationRoot _config;
+        private readonly IUserPermissions _userPermissions;
+        private readonly IHttpContextAccessor _accessor;
 
-        public LogManager(ILogRepository Logs, ITenantResolver TenantResolver, IConfigurationRoot Config, IUserPermissions UserPermissions, IHttpContextAccessor Accessor)
+        public LogManager(ILogRepository logs, ITenantResolver tenantResolver, IConfigurationRoot config, IUserPermissions userPermissions, IHttpContextAccessor accessor)
         {
-            this.Logs = Logs;
-            this.TenantResolver = TenantResolver;
-            this.Config = Config;
-            this.UserPermissions = UserPermissions;
-            this.Accessor = Accessor;
+            _logs = logs;
+            _tenantResolver = tenantResolver;
+            _config = config;
+            _userPermissions = userPermissions;
+            _accessor = accessor;
         }
 
         public void Log(LogLevel Level, object Class, LogFunction Function, string Message, params object[] Args)
@@ -48,7 +48,7 @@ namespace Oqtane.Infrastructure
             if (SiteId == -1)
             {
                 log.SiteId = null;
-                Alias alias = TenantResolver.GetAlias();
+                Alias alias = _tenantResolver.GetAlias();
                 if (alias != null)
                 {
                     log.SiteId = alias.SiteId;
@@ -61,12 +61,12 @@ namespace Oqtane.Infrastructure
             log.PageId = null;
             log.ModuleId = null;
             log.UserId = null;
-            User user = UserPermissions.GetUser();
+            User user = _userPermissions.GetUser();
             if (user != null)
             {
                 log.UserId = user.UserId;
             }
-            HttpRequest request = Accessor.HttpContext.Request;
+            HttpRequest request = _accessor.HttpContext.Request;
             if (request != null)
             {
                 log.Url = request.Scheme.ToString() + "://" + request.Host.ToString() + request.Path.ToString() + request.QueryString.ToString();
@@ -105,10 +105,10 @@ namespace Oqtane.Infrastructure
         public void Log(Log Log)
         {
             LogLevel minlevel = LogLevel.Information;
-            var section = Config.GetSection("Logging:LogLevel:Default");
+            var section = _config.GetSection("Logging:LogLevel:Default");
             if (section.Exists())
             {
-                minlevel = Enum.Parse<LogLevel>(Config.GetSection("Logging:LogLevel:Default").ToString());
+                minlevel = Enum.Parse<LogLevel>(_config.GetSection("Logging:LogLevel:Default").ToString());
             }
 
             if (Enum.Parse<LogLevel>(Log.Level) >= minlevel)
@@ -119,7 +119,7 @@ namespace Oqtane.Infrastructure
                 Log = ProcessStructuredLog(Log);
                 try
                 {
-                    Logs.AddLog(Log);
+                    _logs.AddLog(Log);
                 }
                 catch
                 {
