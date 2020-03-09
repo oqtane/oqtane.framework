@@ -39,7 +39,7 @@ namespace Oqtane.Services
             return await _http.GetJsonAsync<Alias>(apiurl + "/" + AliasId.ToString());
         }
 
-        public async Task<Alias> GetAliasAsync(string Url)
+        public async Task<Alias> GetAliasAsync(string Url, DateTime LastSyncDate)
         {
             Uri uri = new Uri(Url);
             string name = uri.Authority;
@@ -51,7 +51,7 @@ namespace Oqtane.Services
             { 
                 name = name.Substring(0, name.Length - 1); 
             }
-            return await _http.GetJsonAsync<Alias>(apiurl + "/name/" + WebUtility.UrlEncode(name));
+            return await _http.GetJsonAsync<Alias>(apiurl + "/name/" + WebUtility.UrlEncode(name) + "?lastsyncdate=" + LastSyncDate.ToString("yyyyMMddHHmmssfff"));
         }
 
         public async Task<Alias> AddAliasAsync(Alias alias)

@@ -1,4 +1,5 @@
 ﻿using Oqtane.Models;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -10,7 +11,7 @@ namespace Oqtane.Services
 
         Task<Alias> GetAliasAsync(int AliasId);
 
-        Task<Alias> GetAliasAsync(string Url);
+        Task<Alias> GetAliasAsync(string Url, DateTime LastSyncDate);
 
         Task<Alias> AddAliasAsync(Alias Alias);
 

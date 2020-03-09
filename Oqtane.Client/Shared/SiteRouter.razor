@@ -66,16 +66,17 @@
 
     private async Task Refresh()
     {
-        Alias alias;
+        Alias alias = null;
         Site site;
         List<Page> pages;
         Page page;
-        User user;
+        User user = null;
         List<Module> modules;
         int moduleid = -1;
         string action = "";
         bool editmode = false;
         Reload reload = Reload.None;
+        DateTime lastsyncdate = DateTime.Now;
 
         // get Url path and querystring ( and remove anchors )
         string path = new Uri(_absoluteUri).PathAndQuery.Substring(1);
@@ -99,26 +100,15 @@
         if (PageState != null)
         {
             editmode = PageState.EditMode;
+            lastsyncdate = PageState.LastSyncDate;
+            user = PageState.User;
         }
 
-        if (PageState == null || reload == Reload.Application)
-        {
-            alias = null;
-        }
-        else
-        {
-            alias = PageState.Alias;
-        }
+        alias = await AliasService.GetAliasAsync(_absoluteUri, lastsyncdate);
+        SiteState.Alias = alias; // set state for services
+        lastsyncdate = alias.SyncDate;
 
-        // check if site has changed
-        Alias current = await AliasService.GetAliasAsync(_absoluteUri);
-        if (alias == null || current.Name != alias.Name)
-        {
-            alias = current;
-            SiteState.Alias = alias; // set state for services
-            reload = Reload.Site;
-        }
-        if (PageState == null || reload <= Reload.Site)
+        if (PageState == null || alias.SiteId != PageState.Alias.SiteId)
         {
             site = await SiteService.GetSiteAsync(alias.SiteId, alias);
         }
@@ -128,11 +118,34 @@
         }
         if (site != null)
         {
+            // process sync events
+            if (alias.SyncEvents.Any())
+            {
+                if (PageState != null && alias.SyncEvents.Exists(item => item.EntityName == "Page" && item.EntityId == PageState.Page.PageId))
+                {
+                    reload = Reload.Page;
+                }
+                if (alias.SyncEvents.Exists(item => item.EntityName == "Site" && item.EntityId == alias.SiteId))
+                {
+                    reload = Reload.Site;
+                }
+                if (user != null && alias.SyncEvents.Exists(item => item.EntityName == "User" && item.EntityId == user.UserId))
+                {
+                    reload = Reload.Site;
+                }
+            }
+
             if (PageState == null || reload >= Reload.Site)
             {
 #if WASM
                 ModuleDefinitionService.LoadModuleDefinitionsAsync(site.SiteId); // download assemblies to browser when running client-side
 #endif
+
+                var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+                if (authState.User.Identity.IsAuthenticated)
+                {
+                    user = await UserService.GetUserAsync(authState.User.Identity.Name, site.SiteId);
+                }
                 pages = await PageService.GetPagesAsync(site.SiteId);
             }
             else
@@ -249,6 +262,7 @@
                     }
                     pagestate.Modules = modules;
                     pagestate.EditMode = editmode;
+                    pagestate.LastSyncDate = lastsyncdate;
 
                     OnStateChange?.Invoke(pagestate);
                 }
