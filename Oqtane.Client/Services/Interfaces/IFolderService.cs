@@ -1,5 +1,6 @@
 ﻿using Oqtane.Models;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace Oqtane.Services
@@ -12,5 +13,6 @@ namespace Oqtane.Services
         Task<Folder> UpdateFolderAsync(Folder Folder);
         Task UpdateFolderOrderAsync(int SiteId, int FolderId, int? ParentId);
         Task DeleteFolderAsync(int FolderId);
+        Task<Folder> GetFolderAsync(int siteId, [NotNull]string folderPath);
     }
 }

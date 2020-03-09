@@ -5,6 +5,7 @@ using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
 using System.Linq;
+using System.Net;
 using Oqtane.Infrastructure;
 using Oqtane.Security;
 
@@ -56,6 +57,32 @@ namespace Oqtane.Controllers
             }
         }
 
+        [HttpGet("{siteId}/{path}")]
+        public Folder GetByPath(int siteId, string path)
+        {
+            var folderPath = WebUtility.UrlDecode(path);
+            Folder folder = _folders.GetFolder(siteId, folderPath);
+            if (folder != null)
+                if (_userPermissions.IsAuthorized(User, "Browse", folder.Permissions))
+                {
+                    return folder;
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Folder {Folder}",
+                        folder);
+                    HttpContext.Response.StatusCode = 401;
+                    return null;
+                }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, "Folder not found {path}",
+                    path);
+                HttpContext.Response.StatusCode = 401;
+                return null;
+            }
+        }
+        
         // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = Constants.RegisteredRole)]

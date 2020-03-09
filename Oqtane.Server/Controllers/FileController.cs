@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Oqtane.Security;
 using System.Linq;
 using System.Drawing;
+using System.Net;
 
 namespace Oqtane.Controllers
 {
@@ -45,8 +46,8 @@ namespace Oqtane.Controllers
             int folderid;
             if (int.TryParse(folder, out folderid))
             {
-                Folder Folder = _folders.GetFolder(folderid);
-                if (Folder != null && _userPermissions.IsAuthorized(User, "Browse", Folder.Permissions))
+                Folder f = _folders.GetFolder(folderid);
+                if (f != null && _userPermissions.IsAuthorized(User, "Browse", f.Permissions))
                 {
                     files = _files.GetFiles(folderid).ToList();
                 }
@@ -64,6 +65,35 @@ namespace Oqtane.Controllers
                         }
                     }
                 }
+            }
+            return files;
+        }
+        
+        // GET: api/<controller>/siteId/folderPath
+        [HttpGet("{siteId}/{path}")]
+        public IEnumerable<Models.File> Get(int siteId, string path)
+        {
+            var folderPath = WebUtility.UrlDecode(path);
+            Folder folder = _folders.GetFolder(siteId, folderPath);
+            List<Models.File> files;
+            if (folder != null)
+                if (_userPermissions.IsAuthorized(User, "Browse", folder.Permissions))
+                {
+                    files = _files.GetFiles(folder.FolderId).ToList();
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Folder {folder}",
+                        folder);
+                    HttpContext.Response.StatusCode = 401;
+                    return null;
+                }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, "Folder not found {path}",
+                    path);
+                HttpContext.Response.StatusCode = 401;
+                return null;
             }
             return files;
         }
@@ -109,17 +139,17 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public void Delete(int id)
         {
-            Models.File File = _files.GetFile(id);
-            if (_userPermissions.IsAuthorized(User, "Folder", File.Folder.FolderId, "Edit"))
+            Models.File file = _files.GetFile(id);
+            if (_userPermissions.IsAuthorized(User, "Folder", file.Folder.FolderId, "Edit"))
             {
                 _files.DeleteFile(id);
 
-                string filepath = Path.Combine(GetFolderPath(File.Folder) + File.Name);
+                string filepath = Path.Combine(GetFolderPath(file.Folder) + file.Name);
                 if (System.IO.File.Exists(filepath))
                 {
                     System.IO.File.Delete(filepath);
                 }
-                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "File Deleted {File}", File);
+                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "File Deleted {File}", file);
             }
             else
             {

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -17,7 +18,8 @@ namespace Oqtane.Services
         private readonly NavigationManager _navigationManager;
         private readonly IJSRuntime _jsRuntime;
 
-        public FileService(HttpClient http, SiteState siteState, NavigationManager navigationManager, IJSRuntime jsRuntime)
+        public FileService(HttpClient http, SiteState siteState, NavigationManager navigationManager,
+            IJSRuntime jsRuntime)
         {
             _http = http;
             _siteState = siteState;
@@ -38,6 +40,13 @@ namespace Oqtane.Services
         public async Task<List<File>> GetFilesAsync(string Folder)
         {
             return await _http.GetJsonAsync<List<File>>(apiurl + "?folder=" + Folder);
+        }
+
+        public async Task<List<File>> GetFilesAsync(int siteId, string folderPath)
+        {
+            if (!folderPath.EndsWith("\\")) folderPath += "\\";
+            var path = WebUtility.UrlEncode(folderPath);
+            return await _http.GetJsonAsync<List<File>>($"{apiurl}/{siteId}/{path}");
         }
 
         public async Task<File> GetFileAsync(int FileId)
@@ -62,7 +71,8 @@ namespace Oqtane.Services
 
         public async Task<File> UploadFileAsync(string Url, int FolderId)
         {
-            return await _http.GetJsonAsync<File>(apiurl + "/upload?url=" + WebUtility.UrlEncode(Url) + "&folderid=" + FolderId.ToString());
+            return await _http.GetJsonAsync<File>(apiurl + "/upload?url=" + WebUtility.UrlEncode(Url) + "&folderid=" +
+                                                  FolderId.ToString());
         }
 
         public async Task<string> UploadFilesAsync(int FolderId, string[] Files, string Id)
@@ -98,8 +108,10 @@ namespace Oqtane.Services
                         }
                     }
                 }
+
                 attempts += 1;
             }
+
             if (!success)
             {
                 result = result.Substring(0, result.Length - 1);
