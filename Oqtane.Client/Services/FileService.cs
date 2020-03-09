@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using Oqtane.Models;
 using Oqtane.Shared;
@@ -14,14 +13,13 @@ namespace Oqtane.Services
 {
     public class FileService : ServiceBase, IFileService
     {
-
-        private readonly ILogger<FileService> _logger;
         private readonly HttpClient _http;
         private readonly SiteState _siteState;
         private readonly NavigationManager _navigationManager;
         private readonly IJSRuntime _jsRuntime;
 
-        public FileService(HttpClient http, SiteState siteState, NavigationManager navigationManager, IJSRuntime jsRuntime, ILogger<FileService> Logger)
+        public FileService(HttpClient http, SiteState siteState, NavigationManager navigationManager,
+            IJSRuntime jsRuntime)
         {
             _http = http;
             _siteState = siteState;
@@ -46,19 +44,11 @@ namespace Oqtane.Services
 
         public async Task<List<File>> GetFilesAsync(int siteId, string folderPath)
         {
-            try
-            {
-                if (!folderPath.EndsWith("\\")) folderPath += "\\";
-                var path = WebUtility.UrlEncode(folderPath);
-                return await _http.GetJsonAsync<List<File>>($"{apiurl}/{siteId}/{path}");
-            }
-            catch (Exception e)
-            {
-                _logger.LogDebug(e,"Folder not found: {path}");
-            }
-            return null;
+            if (!folderPath.EndsWith("\\")) folderPath += "\\";
+            var path = WebUtility.UrlEncode(folderPath);
+            return await _http.GetJsonAsync<List<File>>($"{apiurl}/{siteId}/{path}");
         }
-       
+
         public async Task<File> GetFileAsync(int FileId)
         {
             return await _http.GetJsonAsync<File>(apiurl + "/" + FileId.ToString());
@@ -81,7 +71,8 @@ namespace Oqtane.Services
 
         public async Task<File> UploadFileAsync(string Url, int FolderId)
         {
-            return await _http.GetJsonAsync<File>(apiurl + "/upload?url=" + WebUtility.UrlEncode(Url) + "&folderid=" + FolderId.ToString());
+            return await _http.GetJsonAsync<File>(apiurl + "/upload?url=" + WebUtility.UrlEncode(Url) + "&folderid=" +
+                                                  FolderId.ToString());
         }
 
         public async Task<string> UploadFilesAsync(int FolderId, string[] Files, string Id)
@@ -117,8 +108,10 @@ namespace Oqtane.Services
                         }
                     }
                 }
+
                 attempts += 1;
             }
+
             if (!success)
             {
                 result = result.Substring(0, result.Length - 1);
