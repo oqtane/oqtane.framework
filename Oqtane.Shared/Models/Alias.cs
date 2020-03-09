@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Models
@@ -14,6 +15,11 @@ namespace Oqtane.Models
         public DateTime CreatedOn { get; set; }
         public string ModifiedBy { get; set; }
         public DateTime ModifiedOn { get; set; }
+
+        [NotMapped]
+        public DateTime SyncDate { get; set; }
+        [NotMapped]
+        public List<SyncEvent> SyncEvents { get; set; }
 
         [NotMapped]
         public string Path

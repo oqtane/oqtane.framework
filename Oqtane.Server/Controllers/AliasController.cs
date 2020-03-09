@@ -8,6 +8,7 @@ using Oqtane.Infrastructure;
 using System.Linq;
 using System;
 using System.Net;
+using System.Globalization;
 
 namespace Oqtane.Controllers
 {
@@ -15,11 +16,13 @@ namespace Oqtane.Controllers
     public class AliasController : Controller
     {
         private readonly IAliasRepository _aliases;
+        private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
 
-        public AliasController(IAliasRepository aliases, ILogManager logger)
+        public AliasController(IAliasRepository aliases, ISyncManager syncManager, ILogManager logger)
         {
             _aliases = aliases;
+            _syncManager = syncManager;
             _logger = logger;
         }
 
@@ -39,9 +42,9 @@ namespace Oqtane.Controllers
             return _aliases.GetAlias(id);
         }
 
-        // GET api/<controller>/name/localhost:12345
+        // GET api/<controller>/name/localhost:12345?lastsyncdate=yyyyMMddHHmmssfff
         [HttpGet("name/{name}")]
-        public Alias Get(string name)
+        public Alias Get(string name, string lastsyncdate)
         {
             name = WebUtility.UrlDecode(name);
             List<Alias> aliases = _aliases.GetAliases().ToList();
@@ -57,6 +60,11 @@ namespace Oqtane.Controllers
                 // use first alias if name does not exist
                 alias = aliases.FirstOrDefault();
             }
+
+            // get sync events
+            alias.SyncDate = DateTime.Now;
+            alias.SyncEvents = _syncManager.GetSyncEvents(DateTime.ParseExact(lastsyncdate, "yyyyMMddHHmmssfff", CultureInfo.InvariantCulture));
+
             return alias; 
         }
         

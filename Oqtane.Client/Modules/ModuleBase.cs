@@ -125,7 +125,7 @@ namespace Oqtane.Modules
         // logging methods
         public async Task Log(Alias alias, LogLevel level, string function, Exception exception, string message, params object[] args)
         {
-            int pageId = PageState.Page.PageId;
+            int pageId = ModuleState.PageId;
             int moduleId = ModuleState.ModuleId;
             int? userId = null;
             if (PageState.User != null)

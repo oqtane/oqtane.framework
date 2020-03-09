@@ -17,14 +17,16 @@ namespace Oqtane.Controllers
         private readonly IModuleRepository _modules;
         private readonly IPageModuleRepository _pageModules;
         private readonly IUserPermissions _userPermissions;
+        private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
 
-        public PageController(IPageRepository pages, IModuleRepository modules, IPageModuleRepository pageModules, IUserPermissions userPermissions, ILogManager logger)
+        public PageController(IPageRepository pages, IModuleRepository modules, IPageModuleRepository pageModules, IUserPermissions userPermissions, ISyncManager syncManager, ILogManager logger)
         {
             _pages = pages;
             _modules = modules;
             _pageModules = pageModules;
             _userPermissions = userPermissions;
+            _syncManager = syncManager;
             _logger = logger;
         }
 
@@ -88,6 +90,7 @@ namespace Oqtane.Controllers
                 if (_userPermissions.IsAuthorized(User, "Edit", permissions))
                 {
                     Page = _pages.AddPage(Page);
+                    _syncManager.AddSyncEvent("Site", Page.SiteId);
                     _logger.Log(LogLevel.Information, this, LogFunction.Create, "Page Added {Page}", Page);
                 }
                 else
