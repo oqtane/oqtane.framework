@@ -17,5 +17,6 @@ namespace Oqtane.Services
         Task<string> UploadFilesAsync(string Folder, string[] Files, string FileUploadName);
         Task<byte[]> DownloadFileAsync(int FileId);
 
+        Task<List<File>> GetFilesAsync(int siteId, string folderPath);
     }
 }
