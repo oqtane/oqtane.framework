@@ -117,7 +117,7 @@
             await logger.LogInformation("Page Restored {Page}", Page);
             await Load();
             StateHasChanged();
-            NavigationManager.NavigateTo(NavigateUrl(Reload.Site));
+            NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {
@@ -134,7 +134,7 @@
             await logger.LogInformation("Page Permanently Deleted {Page}", Page);
             await Load();
             StateHasChanged();
-            NavigationManager.NavigateTo(NavigateUrl(Reload.Site));
+            NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {

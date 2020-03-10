@@ -400,7 +400,7 @@
                 }
 
                 await logger.LogInformation("Page Saved {Page}", page);
-                NavigationManager.NavigateTo(NavigateUrl(page.Path, Reload.Site));
+                NavigationManager.NavigateTo(NavigateUrl(page.Path));
             }
             else
             {

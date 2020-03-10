@@ -17,13 +17,15 @@ namespace Oqtane.Controllers
         private readonly ISiteRepository _sites;
         private readonly ITenantResolver _tenants;
         private readonly IWebHostEnvironment _environment;
+        private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
 
-        public SiteController(ISiteRepository sites, ITenantResolver tenants, IWebHostEnvironment environment, ILogManager logger)
+        public SiteController(ISiteRepository sites, ITenantResolver tenants, IWebHostEnvironment environment, ISyncManager syncManager, ILogManager logger)
         {
             _sites = sites;
             _tenants = tenants;
             _environment = environment;
+            _syncManager = syncManager;
             _logger = logger;
         }
 
@@ -77,6 +79,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 Site = _sites.UpdateSite(Site);
+                _syncManager.AddSyncEvent("Site", Site.SiteId);
                 _logger.Log(Site.SiteId, LogLevel.Information, this, LogFunction.Update, "Site Updated {Site}", Site);
             }
             return Site;

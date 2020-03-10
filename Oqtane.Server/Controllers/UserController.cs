@@ -27,9 +27,10 @@ namespace Oqtane.Controllers
         private readonly ITenantResolver _tenants;
         private readonly INotificationRepository _notifications;
         private readonly IFolderRepository _folders;
+        private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
 
-        public UserController(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantResolver tenants, INotificationRepository notifications, IFolderRepository folders, ILogManager logger)
+        public UserController(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantResolver tenants, INotificationRepository notifications, IFolderRepository folders, ISyncManager syncManager, ILogManager logger)
         {
             _users = users;
             _roles = roles;
@@ -39,6 +40,7 @@ namespace Oqtane.Controllers
             _tenants = tenants;
             _folders = folders;
             _notifications = notifications;
+            _syncManager = syncManager;
             _logger = logger;
         }
 
@@ -185,6 +187,7 @@ namespace Oqtane.Controllers
                         }
                     }
                     User = _users.UpdateUser(User);
+                    _syncManager.AddSyncEvent("User", User.UserId);
                     User.Password = ""; // remove sensitive information
                     _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Updated {User}", User);
                 }
@@ -240,6 +243,7 @@ namespace Oqtane.Controllers
                                 user.LastLoginOn = DateTime.Now;
                                 user.LastIPAddress = HttpContext.Connection.RemoteIpAddress.ToString();
                                 _users.UpdateUser(user);
+                                _syncManager.AddSyncEvent("User", User.UserId);
                                 _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful {Username}", User.Username);
                                 if (SetCookie)
                                 {
@@ -268,6 +272,7 @@ namespace Oqtane.Controllers
         public async Task Logout([FromBody] User User)
         {
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+            _syncManager.AddSyncEvent("User", User.UserId);
             _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Logout {Username}", User.Username);
         }
 

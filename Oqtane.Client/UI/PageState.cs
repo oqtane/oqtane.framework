@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Oqtane.Models;
 
-namespace Oqtane.Shared
+namespace Oqtane.UI
 {
     public class PageState
     {

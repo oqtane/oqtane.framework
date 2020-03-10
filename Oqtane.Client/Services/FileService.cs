@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Oqtane.Models;
 using Oqtane.Shared;
+using Oqtane.UI;
 
 namespace Oqtane.Services
 {

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Oqtane.Shared;
+using Oqtane.UI;
 
 namespace Oqtane.Themes
 {

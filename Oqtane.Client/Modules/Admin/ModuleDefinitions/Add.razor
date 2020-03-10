@@ -72,7 +72,7 @@
         try
         {
             await ModuleDefinitionService.InstallModuleDefinitionsAsync();
-            NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
+            NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {

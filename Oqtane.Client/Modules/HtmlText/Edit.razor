@@ -189,7 +189,7 @@
                 await htmltextservice.AddHtmlTextAsync(htmltext);
             }
             await logger.LogInformation("Html/Text Content Saved {HtmlText}", htmltext);
-            NavigationManager.NavigateTo(NavigateUrl(Reload.Page));
+            NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {

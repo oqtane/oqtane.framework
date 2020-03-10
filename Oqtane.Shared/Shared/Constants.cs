@@ -5,8 +5,8 @@
         public const string PackageId = "Oqtane.Framework";
         public const string Version = "0.0.1";
 
-        public const string PageComponent = "Oqtane.Shared.ThemeBuilder, Oqtane.Client";
-        public const string ContainerComponent = "Oqtane.Shared.ContainerBuilder, Oqtane.Client";
+        public const string PageComponent = "Oqtane.UI.ThemeBuilder, Oqtane.Client";
+        public const string ContainerComponent = "Oqtane.UI.ContainerBuilder, Oqtane.Client";
 
         public const string DefaultTheme = "Oqtane.Themes.BlazorTheme.Default, Oqtane.Client";
         public const string DefaultLayout = "";

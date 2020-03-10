@@ -130,6 +130,7 @@ namespace Oqtane.Controllers
                 page.IsPersonalizable = false;
                 page.UserId = int.Parse(userid);
                 page = _pages.AddPage(page);
+                _syncManager.AddSyncEvent("Site", page.SiteId);
 
                 // copy modules
                 List<PageModule> pagemodules = _pageModules.GetPageModules(page.SiteId).ToList();
@@ -173,6 +174,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && _userPermissions.IsAuthorized(User, "Page", Page.PageId, "Edit"))
             {
                 Page = _pages.UpdatePage(Page);
+                _syncManager.AddSyncEvent("Site", Page.SiteId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Updated {Page}", Page);
             }
             else
@@ -202,6 +204,7 @@ namespace Oqtane.Controllers
                     }
                     order += 2;
                 }
+                _syncManager.AddSyncEvent("Site", siteid);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Order Updated {SiteId} {PageId} {ParentId}", siteid, pageid, parentid);
             }
             else
@@ -216,14 +219,16 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public void Delete(int id)
         {
-            if (_userPermissions.IsAuthorized(User, "Page", id, "Edit"))
+            Page page = _pages.GetPage(id);
+            if (_userPermissions.IsAuthorized(User, "Page", page.PageId, "Edit"))
             {
-                _pages.DeletePage(id);
-                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Page Deleted {PageId}", id);
+                _pages.DeletePage(page.PageId);
+                _syncManager.AddSyncEvent("Site", page.SiteId);
+                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Page Deleted {PageId}", page.PageId);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Delete, "User Not Authorized To Delete Page {PageId}", id);
+                _logger.Log(LogLevel.Error, this, LogFunction.Delete, "User Not Authorized To Delete Page {PageId}", page.PageId);
                 HttpContext.Response.StatusCode = 401;
             }
         }

@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Shared
+﻿@namespace Oqtane.UI
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject SiteState SiteState
 @inject NavigationManager NavigationManager
@@ -91,10 +91,6 @@
         {
             querystring = ParseQueryString(path);
             path = path.Substring(0, path.IndexOf("?"));
-        }
-        if (querystring.ContainsKey("reload"))
-        {
-            reload = (Reload)int.Parse(querystring["reload"]);
         }
 
         if (PageState != null)

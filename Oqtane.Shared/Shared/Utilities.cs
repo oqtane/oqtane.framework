@@ -5,7 +5,7 @@ namespace Oqtane.Shared
 {
     public class Utilities
     {
-        public static string NavigateUrl(string alias, string path, string parameters, Reload reload)
+        public static string NavigateUrl(string alias, string path, string parameters)
         {
             string url = "";
             if (alias != "")
@@ -24,10 +24,6 @@ namespace Oqtane.Shared
             {
                 url += "?" + parameters;
             }
-            if (reload != Reload.None)
-            {
-                url += ((string.IsNullOrEmpty(parameters)) ? "?" : "&") + "reload=" + ((int)reload).ToString();
-            }
             if (!url.StartsWith("/"))
             {
                 url = "/" + url;
@@ -37,7 +33,7 @@ namespace Oqtane.Shared
 
         public static string EditUrl(string alias, string path, int moduleid, string action, string parameters)
         {
-            string url = NavigateUrl(alias, path, "", Reload.None);
+            string url = NavigateUrl(alias, path, "");
             if (url == "/") url = "";
             if (moduleid != -1)
             {
