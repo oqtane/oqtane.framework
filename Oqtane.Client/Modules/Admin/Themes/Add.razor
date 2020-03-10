@@ -61,7 +61,7 @@
     private async Task InstallThemes()
     {
         await ThemeService.InstallThemesAsync();
-        NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
+        NavigationManager.NavigateTo(NavigateUrl());
     }
 
     private async Task DownloadTheme(string packageid, string version)

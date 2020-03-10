@@ -2,7 +2,7 @@
 using Microsoft.JSInterop;
 using System.Threading.Tasks;
 
-namespace Oqtane.Modules.Controls
+namespace Oqtane.UI
 {
     public static class RichTextEditorInterop
     {

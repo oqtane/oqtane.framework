@@ -16,13 +16,15 @@ namespace Oqtane.Controllers
         private readonly IPageModuleRepository _pageModules;
         private readonly IModuleRepository _modules;
         private readonly IUserPermissions _userPermissions;
+        private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
 
-        public PageModuleController(IPageModuleRepository pageModules, IModuleRepository modules, IUserPermissions userPermissions, ILogManager logger)
+        public PageModuleController(IPageModuleRepository pageModules, IModuleRepository modules, IUserPermissions userPermissions, ISyncManager syncManager, ILogManager logger)
         {
             _pageModules = pageModules;
             _modules = modules;
             _userPermissions = userPermissions;
+            _syncManager = syncManager;
             _logger = logger;
         }
 
@@ -68,6 +70,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && _userPermissions.IsAuthorized(User, "Page", PageModule.PageId, "Edit"))
             {
                 PageModule = _pageModules.AddPageModule(PageModule);
+                _syncManager.AddSyncEvent("Page", PageModule.PageId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Page Module Added {PageModule}", PageModule);
             }
             else
@@ -87,6 +90,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && _userPermissions.IsAuthorized(User, "Module", PageModule.ModuleId, "Edit"))
             {
                 PageModule = _pageModules.UpdatePageModule(PageModule);
+                _syncManager.AddSyncEvent("Page", PageModule.PageId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Module Updated {PageModule}", PageModule);
             }
             else
@@ -116,6 +120,7 @@ namespace Oqtane.Controllers
                     }
                     order += 2;
                 }
+                _syncManager.AddSyncEvent("Page", pageid);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Module Order Updated {PageId} {Pane}", pageid, pane);
             }
             else
@@ -134,6 +139,7 @@ namespace Oqtane.Controllers
             if (_userPermissions.IsAuthorized(User, "Page", pagemodule.PageId, "Edit"))
             {
                 _pageModules.DeletePageModule(id);
+                _syncManager.AddSyncEvent("Page", pagemodule.PageId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Page Module Deleted {PageModuleId}", id);
             }
             else

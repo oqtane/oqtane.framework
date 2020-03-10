@@ -33,7 +33,8 @@
             try
             {
                 await ModuleService.ImportModuleAsync(ModuleState.ModuleId, content);
-                NavigationManager.NavigateTo(NavigateUrl(Reload.Page));
+                StateHasChanged();
+                NavigationManager.NavigateTo(NavigateUrl());
             }
             catch (Exception ex)
             {

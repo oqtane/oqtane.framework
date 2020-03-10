@@ -29,9 +29,12 @@
                             <button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Navigate("Admin"))>Admin Dashboard</button>
                         </div>
                     </div>
+
+                    <hr class="app-rule" />
+
                     <div class="row">
-                        <div class="col">
-                            <label class="control-label">Page: </label>
+                        <div class="col text-center">
+                            <label class="control-label">Page Management: </label>
                         </div>
                     </div>
                     <div class="row">
@@ -69,10 +72,10 @@
                         </div>
                     </div>
                 }
-                <hr class="app-rule"/>
+                <hr class="app-rule" />
 
                 <div class="row">
-                    <div class="col">
+                    <div class="col text-center">
                         <label for="Module" class="control-label">Module: </label>
                         <select class="form-control" @bind="@_moduleType">
                             <option value="new">Add New Module</option>
@@ -121,17 +124,17 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col">
+                    <div class="col text-center">
                         <label for="Title" class="control-label">Title: </label>
-                        <input type="text" name="Title" class="form-control" @bind="@_title"/>
+                        <input type="text" name="Title" class="form-control" @bind="@_title" />
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col">
+                    <div class="col text-center">
                         <label for="Pane" class="control-label">Pane: </label>
                         <select class="form-control" @bind="@_pane">
                             <option value="">&lt;Select Pane&gt;</option>
-                            @foreach (string pane in PageState.Page.Panes.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries))
+                            @foreach (string pane in PageState.Page.Panes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
                             {
                                 <option value="@pane">@pane Pane</option>
                             }
@@ -139,7 +142,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col">
+                    <div class="col text-center">
                         <label for="Container" class="control-label">Container: </label>
                         <select class="form-control" @bind="@_containerType">
                             @foreach (KeyValuePair<string, string> container in _containers)
@@ -149,6 +152,8 @@
                         </select>
                     </div>
                 </div>
+
+                <br />
 
                 <button type="button" class="btn btn-primary btn-block mx-auto" @onclick="@AddModule">Add Module To Page</button>
                 @((MarkupString) _message)
@@ -325,7 +330,7 @@
 
                 var pageModule = new PageModule
                 {
-                    PageId = (_pageId == "-") ? PageState.Page.PageId : int.Parse(_pageId),
+                    PageId = PageState.Page.PageId,
                     ModuleId = int.Parse(_moduleId),
                     Title = _title
                 };
@@ -361,7 +366,7 @@
                 _pageId = "-";
                 _moduleId = "-";
 
-                NavigationManager.NavigateTo(NavigateUrl(Reload.Page));
+                NavigationManager.NavigateTo(NavigateUrl());
             }
             else
             {
@@ -386,7 +391,7 @@
             {
                 PageState.EditMode = true;
             }
-            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "edit=" + ((PageState.EditMode) ? "1" : "0"), Reload.Page));
+            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "edit=" + ((PageState.EditMode) ? "1" : "0")));
         }
         else
         {
@@ -394,7 +399,7 @@
             {
                 await PageService.AddPageAsync(PageState.Page.PageId, PageState.User.UserId);
                 PageState.EditMode = true;
-                NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "edit=" + ((PageState.EditMode) ? "1" : "0"), Reload.Page));
+                NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "edit=" + ((PageState.EditMode) ? "1" : "0")));
             }
         }
     }
@@ -469,13 +474,13 @@
                 page.IsDeleted = true;
                 await PageService.UpdatePageAsync(page);
                 await logger.Log(page.PageId, null, PageState.User.UserId, GetType().AssemblyQualifiedName, "ControlPanel", LogFunction.Delete, LogLevel.Information, null, "Page Deleted {Page}", page);
-                NavigationManager.NavigateTo(NavigateUrl("", Reload.Site));
+                NavigationManager.NavigateTo(NavigateUrl(""));
             }
             else // personalized page
             {
                 await PageService.DeletePageAsync(page.PageId);
                 await logger.Log(page.PageId, null, PageState.User.UserId, GetType().AssemblyQualifiedName, "ControlPanel", LogFunction.Delete, LogLevel.Information, null, "Page Deleted {Page}", page);
-                NavigationManager.NavigateTo(NavigateUrl(Reload.Page));
+                NavigationManager.NavigateTo(NavigateUrl());
             }
         }
         catch (Exception ex)

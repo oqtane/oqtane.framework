@@ -70,7 +70,7 @@
         {
             PageModule pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
 
-            string url = NavigateUrl(Reload.Page);
+            string url = NavigateUrl();
             switch (action)
             {
                 case "<<":

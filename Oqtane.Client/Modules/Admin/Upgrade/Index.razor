@@ -47,13 +47,13 @@
     private async Task Upgrade()
     {
         await InstallationService.Upgrade();
-        NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
+        NavigationManager.NavigateTo(NavigateUrl());
     }
 
     private async Task Download(string packageid, string version)
     {
         await PackageService.DownloadPackageAsync(packageid, version, "Framework");
         await InstallationService.Upgrade();
-        NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
+        NavigationManager.NavigateTo(NavigateUrl());
     }
 }

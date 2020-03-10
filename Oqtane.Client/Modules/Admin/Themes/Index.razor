@@ -66,13 +66,13 @@ else
         await PackageService.DownloadPackageAsync(themename, version, "Themes");
         await logger.LogInformation("Theme Downloaded {ThemeName} {Version}", themename, version);
         await ThemeService.InstallThemesAsync();
-        NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
+        NavigationManager.NavigateTo(NavigateUrl());
     }
 
     private async Task DeleteTheme(Theme Theme)
     {
         await ThemeService.DeleteThemeAsync(Theme.ThemeName);
         await logger.LogInformation("Theme Deleted {Theme}", Theme);
-        NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
+        NavigationManager.NavigateTo(NavigateUrl());
     }
 }

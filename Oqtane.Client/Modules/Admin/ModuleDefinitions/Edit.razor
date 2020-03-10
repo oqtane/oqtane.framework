@@ -71,7 +71,7 @@
             moduledefinition.Permissions = permissiongrid.GetPermissions();
             await ModuleDefinitionService.UpdateModuleDefinitionAsync(moduledefinition);
             await logger.LogInformation("ModuleDefinition Saved {ModuleDefinition}", moduledefinition);
-            NavigationManager.NavigateTo(NavigateUrl(Reload.Site));
+            NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {

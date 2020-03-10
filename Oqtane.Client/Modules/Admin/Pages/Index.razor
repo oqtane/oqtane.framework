@@ -31,7 +31,7 @@
             Page.IsDeleted = true;
             await PageService.UpdatePageAsync(Page);
             await logger.LogInformation("Page Deleted {Page}", Page);
-            NavigationManager.NavigateTo(NavigateUrl("admin/pages", Reload.Site));
+            NavigationManager.NavigateTo(NavigateUrl("admin/pages"));
         }
         catch (Exception ex)
         {

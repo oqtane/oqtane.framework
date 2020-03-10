@@ -61,7 +61,7 @@ else
                 {
                     await AliasService.DeleteAliasAsync(alias.AliasId);
                 }
-                NavigationManager.NavigateTo(NavigateUrl(Reload.Site));
+                NavigationManager.NavigateTo(NavigateUrl());
             }
             else
             {

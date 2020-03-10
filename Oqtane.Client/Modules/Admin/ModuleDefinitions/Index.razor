@@ -78,7 +78,7 @@ else
             await PackageService.DownloadPackageAsync(moduledefinitionname, version, "Modules");
             await ModuleDefinitionService.InstallModuleDefinitionsAsync();
             await logger.LogInformation("Module Downloaded {ModuleDefinitionName} {Version}", moduledefinitionname, version);
-            NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
+            NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {
@@ -93,7 +93,7 @@ else
         {
             await ModuleDefinitionService.DeleteModuleDefinitionAsync(ModuleDefinition.ModuleDefinitionId, ModuleDefinition.SiteId);
             await logger.LogInformation("Module Deleted {ModuleDefinition}", ModuleDefinition);
-            NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
+            NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {
