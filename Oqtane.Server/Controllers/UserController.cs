@@ -243,7 +243,7 @@ namespace Oqtane.Controllers
                                 user.LastLoginOn = DateTime.Now;
                                 user.LastIPAddress = HttpContext.Connection.RemoteIpAddress.ToString();
                                 _users.UpdateUser(user);
-                                _syncManager.AddSyncEvent("User", User.UserId);
+                                _syncManager.AddSyncEvent("User", user.UserId);
                                 _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful {Username}", User.Username);
                                 if (SetCookie)
                                 {

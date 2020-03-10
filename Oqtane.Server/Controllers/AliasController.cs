@@ -62,7 +62,7 @@ namespace Oqtane.Controllers
             }
 
             // get sync events
-            alias.SyncDate = DateTime.Now;
+            alias.SyncDate = DateTime.UtcNow;
             alias.SyncEvents = _syncManager.GetSyncEvents(DateTime.ParseExact(lastsyncdate, "yyyyMMddHHmmssfff", CultureInfo.InvariantCulture));
 
             return alias; 

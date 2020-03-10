@@ -313,6 +313,7 @@ namespace Oqtane.Server
             // register singleton scoped core services
             services.AddSingleton<IConfigurationRoot>(Configuration);
             services.AddSingleton<IInstallationManager, InstallationManager>();
+            services.AddSingleton<ISyncManager, SyncManager>();
 
             // register transient scoped core services
             services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
