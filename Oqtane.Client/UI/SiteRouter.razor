@@ -75,8 +75,9 @@
         int moduleid = -1;
         string action = "";
         bool editmode = false;
+        int userid = -1;
         Reload reload = Reload.None;
-        DateTime lastsyncdate = DateTime.Now;
+        DateTime lastsyncdate = DateTime.UtcNow;
 
         // get Url path and querystring ( and remove anchors )
         string path = new Uri(_absoluteUri).PathAndQuery.Substring(1);
@@ -97,7 +98,10 @@
         {
             editmode = PageState.EditMode;
             lastsyncdate = PageState.LastSyncDate;
-            user = PageState.User;
+            if (PageState.User != null)
+            {
+                userid = PageState.User.UserId;
+            }
         }
 
         alias = await AliasService.GetAliasAsync(_absoluteUri, lastsyncdate);
@@ -114,6 +118,17 @@
         }
         if (site != null)
         {
+            // get user
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            if (authState.User.Identity.IsAuthenticated)
+            {
+                user = await UserService.GetUserAsync(authState.User.Identity.Name, site.SiteId);
+                if (user != null)
+                {
+                    userid = user.UserId;
+                }
+            }
+
             // process sync events
             if (alias.SyncEvents.Any())
             {
@@ -125,7 +140,7 @@
                 {
                     reload = Reload.Site;
                 }
-                if (user != null && alias.SyncEvents.Exists(item => item.EntityName == "User" && item.EntityId == user.UserId))
+                if (alias.SyncEvents.Exists(item => item.EntityName == "User" && item.EntityId == userid))
                 {
                     reload = Reload.Site;
                 }
@@ -133,15 +148,7 @@
 
             if (PageState == null || reload >= Reload.Site)
             {
-#if WASM
-                ModuleDefinitionService.LoadModuleDefinitionsAsync(site.SiteId); // download assemblies to browser when running client-side
-#endif
-
-                var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-                if (authState.User.Identity.IsAuthenticated)
-                {
-                    user = await UserService.GetUserAsync(authState.User.Identity.Name, site.SiteId);
-                }
+                await ModuleDefinitionService.LoadModuleDefinitionsAsync(site.SiteId); 
                 pages = await PageService.GetPagesAsync(site.SiteId);
             }
             else
@@ -203,20 +210,6 @@
                 {
                     editmode = page.EditMode;
                 }
-            }
-
-            user = null;
-            if (PageState == null || reload >= Reload.Page)
-            {
-                var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-                if (authState.User.Identity.IsAuthenticated)
-                {
-                    user = await UserService.GetUserAsync(authState.User.Identity.Name, site.SiteId);
-                }
-            }
-            else
-            {
-                user = PageState.User;
             }
 
             if (page != null)

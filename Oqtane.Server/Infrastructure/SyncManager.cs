@@ -36,9 +36,9 @@ namespace Oqtane.Infrastructure
 
         public void AddSyncEvent(string EntityName, int EntityId)
         {
-            SyncEvents.Add(new SyncEvent { TenantId = TenantId, EntityName = EntityName, EntityId = EntityId, ModifiedOn = DateTime.Now });
+            SyncEvents.Add(new SyncEvent { TenantId = TenantId, EntityName = EntityName, EntityId = EntityId, ModifiedOn = DateTime.UtcNow });
             // trim sync events 
-            SyncEvents.RemoveAll(item => item.ModifiedOn < DateTime.Now.AddHours(-1));
+            SyncEvents.RemoveAll(item => item.ModifiedOn < DateTime.UtcNow.AddHours(-1));
         }
     }
 }
