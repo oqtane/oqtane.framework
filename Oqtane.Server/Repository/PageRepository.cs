@@ -75,6 +75,17 @@ namespace Oqtane.Repository
             return page;
         }
 
+        public Page GetPage(string Path, int SiteId)
+        {
+            Page page = _db.Page.Where(item => item.Path == Path && item.SiteId == SiteId).FirstOrDefault();
+            if (page != null)
+            {
+                IEnumerable<Permission> permissions = _permissions.GetPermissions("Page", page.PageId).ToList();
+                page.Permissions = _permissions.EncodePermissions(page.PageId, permissions);
+            }
+            return page;
+        }
+
         public void DeletePage(int PageId)
         {
             Page Page = _db.Page.Find(PageId);

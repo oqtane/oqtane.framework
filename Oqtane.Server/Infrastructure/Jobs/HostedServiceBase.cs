@@ -50,19 +50,19 @@ namespace Oqtane.Infrastructure
                                 }
                                 else
                                 {
-                                    Job.NextExecution = DateTime.Now;
+                                    Job.NextExecution = DateTime.UtcNow;
                                 }
                             }
 
                             // determine if the job should be run
-                            if (Job.NextExecution <= DateTime.Now && (Job.EndDate == null || Job.EndDate >= DateTime.Now))
+                            if (Job.NextExecution <= DateTime.UtcNow && (Job.EndDate == null || Job.EndDate >= DateTime.UtcNow))
                             {
                                 IJobLogRepository JobLogs = scope.ServiceProvider.GetRequiredService<IJobLogRepository>();
 
                                 // create a job log entry
                                 JobLog log = new JobLog();
                                 log.JobId = Job.JobId;
-                                log.StartDate = DateTime.Now;
+                                log.StartDate = DateTime.UtcNow;
                                 log.FinishDate = null;
                                 log.Succeeded = false;
                                 log.Notes = "";
@@ -85,7 +85,7 @@ namespace Oqtane.Infrastructure
                                 }
 
                                 // update the job log
-                                log.FinishDate = DateTime.Now;
+                                log.FinishDate = DateTime.UtcNow;
                                 JobLogs.UpdateJobLog(log);
 
                                 // update the job
@@ -132,9 +132,9 @@ namespace Oqtane.Infrastructure
                     NextExecution = NextExecution.AddMonths(Interval);
                     break;
             }
-            if (NextExecution < DateTime.Now)
+            if (NextExecution < DateTime.UtcNow)
             {
-                NextExecution = DateTime.Now;
+                NextExecution = DateTime.UtcNow;
             }
             return NextExecution;
         }

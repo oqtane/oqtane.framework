@@ -140,7 +140,7 @@
         notification.Subject = subject;
         notification.Body = body;
         notification.ParentId = notificationid;
-        notification.CreatedOn = DateTime.Now;
+        notification.CreatedOn = DateTime.UtcNow;
         notification.IsDelivered = false;
         notification.DeliveredOn = null;
 

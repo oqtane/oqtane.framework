@@ -7,6 +7,7 @@ using Oqtane.Shared;
 using System.Linq;
 using Oqtane.Infrastructure;
 using Oqtane.Security;
+using System.Net;
 
 namespace Oqtane.Controllers
 {
@@ -70,6 +71,31 @@ namespace Oqtane.Controllers
             }
         }
 
+        // GET api/<controller>/path/x?path=y
+        [HttpGet("path/{siteid}")]
+        public Page Get(string path, int siteid)
+        {
+            Page page = _pages.GetPage(WebUtility.UrlDecode(path), siteid);
+            if (page != null)
+            {
+                if (_userPermissions.IsAuthorized(User, "View", page.Permissions))
+                {
+                    return page;
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Page {Page}", page);
+                    HttpContext.Response.StatusCode = 401;
+                    return null;
+                }
+            }
+            else
+            {
+                HttpContext.Response.StatusCode = 404;
+                return null;
+            }
+        }
+        
         // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = Constants.RegisteredRole)]

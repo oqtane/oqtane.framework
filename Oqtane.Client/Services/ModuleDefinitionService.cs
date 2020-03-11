@@ -59,13 +59,13 @@ namespace Oqtane.Services
 
         public async Task LoadModuleDefinitionsAsync(int SiteId)
         {
+            // get list of modules from the server
+            List<ModuleDefinition> moduledefinitions = await GetModuleDefinitionsAsync(SiteId);
+
             // download assemblies to browser when running client-side Blazor
             var authstateprovider = (IdentityAuthenticationStateProvider)_serviceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
             if (authstateprovider != null)
             {
-                // get list of modules from the server
-                List<ModuleDefinition> moduledefinitions = await GetModuleDefinitionsAsync(SiteId);
-
                 // get list of loaded assemblies on the client ( in the client-side hosting module the browser client has its own app domain )
                 Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
 

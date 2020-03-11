@@ -312,8 +312,8 @@ namespace Oqtane.Controllers
             fileparts = Directory.GetFiles(folder, "*" + token + "*");
             foreach (string filepart in fileparts)
             {
-                DateTime createddate = System.IO.File.GetCreationTime(filepart);
-                if (createddate < DateTime.Now.AddHours(-2))
+                DateTime createddate = System.IO.File.GetCreationTime(filepart).ToUniversalTime();
+                if (createddate < DateTime.UtcNow.AddHours(-2))
                 {
                     System.IO.File.Delete(filepart);
                 }

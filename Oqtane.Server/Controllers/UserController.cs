@@ -111,7 +111,7 @@ namespace Oqtane.Controllers
                             string url = HttpContext.Request.Scheme + "://" + _tenants.GetAlias().Name + "/login?name=" + User.Username + "&token=" + WebUtility.UrlEncode(token);
                             notification.Body = "Dear " + User.DisplayName + ",\n\nIn Order To Complete The Registration Of Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
                             notification.ParentId = null;
-                            notification.CreatedOn = DateTime.Now;
+                            notification.CreatedOn = DateTime.UtcNow;
                             notification.IsDelivered = false;
                             notification.DeliveredOn = null;
                             _notifications.AddNotification(notification);
@@ -240,10 +240,9 @@ namespace Oqtane.Controllers
                             if (identityuser.EmailConfirmed)
                             {
                                 user.IsAuthenticated = true;
-                                user.LastLoginOn = DateTime.Now;
+                                user.LastLoginOn = DateTime.UtcNow;
                                 user.LastIPAddress = HttpContext.Connection.RemoteIpAddress.ToString();
                                 _users.UpdateUser(user);
-                                _syncManager.AddSyncEvent("User", user.UserId);
                                 _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful {Username}", User.Username);
                                 if (SetCookie)
                                 {
@@ -272,7 +271,6 @@ namespace Oqtane.Controllers
         public async Task Logout([FromBody] User User)
         {
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
-            _syncManager.AddSyncEvent("User", User.UserId);
             _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Logout {Username}", User.Username);
         }
 
@@ -324,7 +322,7 @@ namespace Oqtane.Controllers
                     string url = HttpContext.Request.Scheme + "://" + _tenants.GetAlias().Name + "/reset?name=" + User.Username + "&token=" + WebUtility.UrlEncode(token);
                     notification.Body = "Dear " + User.DisplayName + ",\n\nPlease Click The Link Displayed Below To Reset Your Password:\n\n" + url + "\n\nThank You!";
                     notification.ParentId = null;
-                    notification.CreatedOn = DateTime.Now;
+                    notification.CreatedOn = DateTime.UtcNow;
                     notification.IsDelivered = false;
                     notification.DeliveredOn = null;
                     _notifications.AddNotification(notification);

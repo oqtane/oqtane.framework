@@ -46,7 +46,7 @@
         {
             // client-side Blazor
             authstateprovider.NotifyAuthenticationChanged();
-            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path));
+            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "reload"));
         }
     }
 }

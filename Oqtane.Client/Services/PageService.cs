@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components;
 using System.Collections.Generic;
 using Oqtane.Shared;
 using System;
+using System.Net;
 
 namespace Oqtane.Services
 {
@@ -42,6 +43,18 @@ namespace Oqtane.Services
         public async Task<Page> GetPageAsync(int PageId, int UserId)
         {
             return await _http.GetJsonAsync<Page>(apiurl + "/" + PageId.ToString() + "?userid=" + UserId.ToString());
+        }
+
+        public async Task<Page> GetPageAsync(string Path, int SiteId)
+        {
+            try
+            {
+                return await _http.GetJsonAsync<Page>(apiurl + "/path/" + SiteId.ToString() + "?path=" + WebUtility.UrlEncode(Path));
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public async Task<Page> AddPageAsync(Page Page)

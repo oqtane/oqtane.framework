@@ -11,10 +11,10 @@
         </div>
     </div>
     <hr class="app-rule" />
-    <h2 class="text-center">Database Configuration</h2>
-    <div class="row">
-        <div class="mx-auto text-center">
-            <table class="form-group" cellpadding="4" cellspacing="4">
+    <div class="row justify-content-center">
+        <div class="col text-center">
+            <h2>Database Configuration</h2><br />
+            <table class="form-group" cellpadding="4" cellspacing="4" style="margin: auto;">
                 <tbody>
                     <tr>
                         <td>
@@ -73,12 +73,9 @@
                 </tbody>
             </table>
         </div>
-    </div>
-    <hr class="app-rule" />
-    <h2 class="text-center">Application Administrator</h2>
-    <div class="row">
-        <div class="mx-auto text-center">
-            <table class="form-group" cellpadding="4" cellspacing="4">
+        <div class="col text-center">
+            <h2>Application Administrator</h2><br />
+            <table class="form-group" cellpadding="4" cellspacing="4" style="margin: auto;">
                 <tbody>
                     <tr>
                         <td>
@@ -116,6 +113,7 @@
             </table>
         </div>
     </div>
+    <hr class="app-rule" />
     <div class="row">
         <div class="mx-auto text-center">
             <button type="button" class="btn btn-success" @onclick="Install">Install Now</button><br /><br />
@@ -128,7 +126,7 @@
 @code {
     private string DatabaseType = "LocalDB";
     private string ServerName = "(LocalDb)\\MSSQLLocalDB";
-    private string DatabaseName = "Oqtane-" + DateTime.Now.ToString("yyyyMMddHHmm");
+    private string DatabaseName = "Oqtane-" + DateTime.UtcNow.ToString("yyyyMMddHHmm");
     private string Username = "";
     private string Password = "";
     private string HostUsername = Constants.HostUser;

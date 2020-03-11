@@ -95,7 +95,7 @@ namespace Oqtane.Infrastructure
                                 client.Send(mailMessage);
                                 sent = sent++;
                                 notification.IsDelivered = true;
-                                notification.DeliveredOn = DateTime.Now;
+                                notification.DeliveredOn = DateTime.UtcNow;
                                 Notifications.UpdateNotification(notification);
                             }
                             catch (Exception ex)
