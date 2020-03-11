@@ -37,6 +37,6 @@ else
     protected override async Task OnInitializedAsync()
     {
         WeatherForecastService forecastservice = new WeatherForecastService();
-        forecasts = await forecastservice.GetForecastAsync(DateTime.Now);
+        forecasts = await forecastservice.GetForecastAsync(DateTime.UtcNow);
     }
 }

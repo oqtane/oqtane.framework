@@ -9,6 +9,7 @@ namespace Oqtane.Services
         Task<List<Page>> GetPagesAsync(int SiteId);
         Task<Page> GetPageAsync(int PageId);
         Task<Page> GetPageAsync(int PageId, int UserId);
+        Task<Page> GetPageAsync(string Path, int SiteId);
         Task<Page> AddPageAsync(Page Page);
         Task<Page> AddPageAsync(int PageId, int UserId);
         Task<Page> UpdatePageAsync(Page Page);

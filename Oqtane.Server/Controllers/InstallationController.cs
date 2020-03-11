@@ -224,7 +224,7 @@ namespace Oqtane.Controllers
                         {
                             version = new ApplicationVersion();
                             version.Version = Constants.Version;
-                            version.CreatedOn = DateTime.Now;
+                            version.CreatedOn = DateTime.UtcNow;
                             db.ApplicationVersion.Add(version);
                             db.SaveChanges();
                         }

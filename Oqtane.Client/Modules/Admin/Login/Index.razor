@@ -117,7 +117,7 @@
             {
                 await logger.LogInformation("Login Successful For Username {Username}", Username);
                 authstateprovider.NotifyAuthenticationChanged();
-                NavigationManager.NavigateTo(NavigateUrl(ReturnUrl));
+                NavigationManager.NavigateTo(NavigateUrl(ReturnUrl, "reload"));
             }
             else
             {

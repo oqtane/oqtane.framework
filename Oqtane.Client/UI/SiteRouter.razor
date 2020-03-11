@@ -10,6 +10,7 @@
 @inject IUserService UserService
 @inject IModuleService ModuleService
 @inject IModuleDefinitionService ModuleDefinitionService
+@inject ILogService LogService
 @implements IHandleAfterRender
 
 @DynamicComponent
@@ -75,7 +76,6 @@
         int moduleid = -1;
         string action = "";
         bool editmode = false;
-        int userid = -1;
         Reload reload = Reload.None;
         DateTime lastsyncdate = DateTime.UtcNow;
 
@@ -94,23 +94,39 @@
             path = path.Substring(0, path.IndexOf("?"));
         }
 
+        // the reload parameter is used during user login/logout
+        if (querystring.ContainsKey("reload"))
+        {
+            reload = Reload.Site;
+        }
+
         if (PageState != null)
         {
             editmode = PageState.EditMode;
             lastsyncdate = PageState.LastSyncDate;
-            if (PageState.User != null)
-            {
-                userid = PageState.User.UserId;
-            }
         }
 
         alias = await AliasService.GetAliasAsync(_absoluteUri, lastsyncdate);
         SiteState.Alias = alias; // set state for services
         lastsyncdate = alias.SyncDate;
 
-        if (PageState == null || alias.SiteId != PageState.Alias.SiteId)
+        // process any sync events for site or page
+        if (reload != Reload.Site && alias.SyncEvents.Any())
+        {
+            if (PageState != null && alias.SyncEvents.Exists(item => item.EntityName == "Page" && item.EntityId == PageState.Page.PageId))
+            {
+                reload = Reload.Page;
+            }
+            if (alias.SyncEvents.Exists(item => item.EntityName == "Site" && item.EntityId == alias.SiteId))
+            {
+                reload = Reload.Site;
+            }
+        }
+
+        if (reload == Reload.Site || PageState == null || alias.SiteId != PageState.Alias.SiteId)
         {
             site = await SiteService.GetSiteAsync(alias.SiteId, alias);
+            reload = Reload.Site;
         }
         else
         {
@@ -118,29 +134,24 @@
         }
         if (site != null)
         {
-            // get user
-            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            if (authState.User.Identity.IsAuthenticated)
+            if (PageState == null || reload == Reload.Site)
             {
-                user = await UserService.GetUserAsync(authState.User.Identity.Name, site.SiteId);
-                if (user != null)
+                // get user
+                var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+                if (authState.User.Identity.IsAuthenticated)
                 {
-                    userid = user.UserId;
+                    user = await UserService.GetUserAsync(authState.User.Identity.Name, site.SiteId);
                 }
             }
-
-            // process sync events
-            if (alias.SyncEvents.Any())
+            else
             {
-                if (PageState != null && alias.SyncEvents.Exists(item => item.EntityName == "Page" && item.EntityId == PageState.Page.PageId))
-                {
-                    reload = Reload.Page;
-                }
-                if (alias.SyncEvents.Exists(item => item.EntityName == "Site" && item.EntityId == alias.SiteId))
-                {
-                    reload = Reload.Site;
-                }
-                if (alias.SyncEvents.Exists(item => item.EntityName == "User" && item.EntityId == userid))
+                user = PageState.User;
+            }
+
+            // process any sync events for user
+            if (reload != Reload.Site && user != null && alias.SyncEvents.Any())
+            {
+                if (alias.SyncEvents.Exists(item => item.EntityName == "User" && item.EntityId == user.UserId))
                 {
                     reload = Reload.Site;
                 }
@@ -148,7 +159,7 @@
 
             if (PageState == null || reload >= Reload.Site)
             {
-                await ModuleDefinitionService.LoadModuleDefinitionsAsync(site.SiteId); 
+                await ModuleDefinitionService.LoadModuleDefinitionsAsync(site.SiteId);
                 pages = await PageService.GetPagesAsync(site.SiteId);
             }
             else
@@ -206,7 +217,7 @@
             {
                 page = pages.Where(item => item.Path == path).FirstOrDefault();
                 reload = Reload.Page;
-                if (page!=null)
+                if (page != null)
                 {
                     editmode = page.EditMode;
                 }
@@ -255,21 +266,23 @@
 
                     OnStateChange?.Invoke(pagestate);
                 }
-                else
-                {
-                    // user is not authorized to view page
-                    if (path != "")
-                    {
-                        NavigationManager.NavigateTo("");
-                    }
-                }
             }
             else
             {
-                // page does not exist
-                if (path != "")
+                if (user == null)
                 {
-                    NavigationManager.NavigateTo("");
+                    await LogService.Log(null, null, null, GetType().AssemblyQualifiedName, Utilities.GetTypeNameLastSegment(GetType().AssemblyQualifiedName, 1), LogFunction.Security, LogLevel.Error, null, "Page Does Not Exist Or User Is Not Authorized To View Page {Path}", path);
+                    // redirect to login page
+                    NavigationManager.NavigateTo(Utilities.NavigateUrl(alias.Path, "login", "returnurl=" + path));
+                }
+                else
+                {
+                    await LogService.Log(null, null, user.UserId, GetType().AssemblyQualifiedName, Utilities.GetTypeNameLastSegment(GetType().AssemblyQualifiedName, 1), LogFunction.Security, LogLevel.Error, null, "Page Does Not Exist Or User Is Not Authorized To View Page {Path}", path);
+                    if (path != "")
+                    {
+                        // redirect to home page
+                        NavigationManager.NavigateTo(Utilities.NavigateUrl(alias.Path, "", ""));
+                    }
                 }
             }
         }

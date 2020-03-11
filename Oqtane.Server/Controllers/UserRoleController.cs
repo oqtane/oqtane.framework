@@ -12,11 +12,13 @@ namespace Oqtane.Controllers
     public class UserRoleController : Controller
     {
         private readonly IUserRoleRepository _userRoles;
+        private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
 
-        public UserRoleController(IUserRoleRepository userRoles, ILogManager logger)
+        public UserRoleController(IUserRoleRepository userRoles, ISyncManager syncManager, ILogManager logger)
         {
             _userRoles = userRoles;
+            _syncManager = syncManager;
             _logger = logger;
         }
 
@@ -44,6 +46,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 UserRole = _userRoles.AddUserRole(UserRole);
+                _syncManager.AddSyncEvent("User", UserRole.UserId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "User Role Added {UserRole}", UserRole);
             }
             return UserRole;
@@ -57,6 +60,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 UserRole = _userRoles.UpdateUserRole(UserRole);
+                _syncManager.AddSyncEvent("User", UserRole.UserId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Role Updated {UserRole}", UserRole);
             }
             return UserRole;
@@ -67,8 +71,10 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.AdminRole)]
         public void Delete(int id)
         {
+            UserRole userRole = _userRoles.GetUserRole(id);
             _userRoles.DeleteUserRole(id);
-            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Role Deleted {UserRoleId}", id);
+            _syncManager.AddSyncEvent("User", userRole.UserId);
+            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Role Deleted {UserRole}", userRole);
         }
     }
 }
