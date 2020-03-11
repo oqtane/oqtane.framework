@@ -33,31 +33,35 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>?siteid=x
         [HttpGet]
-        public IEnumerable<ModuleDefinition> Get(string siteid)
+        public IEnumerable<ModuleDefinition> Get(string siteId)
         {
-            List<ModuleDefinition> moduledefinitions = new List<ModuleDefinition>();
-            foreach(ModuleDefinition moduledefinition in _moduleDefinitions.GetModuleDefinitions(int.Parse(siteid)))
+            var user = _userPermissions.GetUser(User);
+            var isHost = User.IsInRole(Constants.HostRole);
+            if (int.TryParse(siteId, out int id))
             {
-                if (_userPermissions.IsAuthorized(User, "Utilize", moduledefinition.Permissions))
-                {
-                    moduledefinitions.Add(moduledefinition);
-                }
+                var moduleDefinitions = _moduleDefinitions.GetModuleDefinitions(id)
+                    .Where(m => isHost || UserSecurity.IsAuthorized(user, "Utilize", m.Permissions))
+                    .ToList();
+                return moduleDefinitions;
             }
-            return moduledefinitions;
+
+            return new List<ModuleDefinition>();
         }
 
         // GET api/<controller>/5?siteid=x
         [HttpGet("{id}")]
-        public ModuleDefinition Get(int id, string siteid)
+        public ModuleDefinition Get(int id, string siteId)
         {
-            ModuleDefinition moduledefinition = _moduleDefinitions.GetModuleDefinition(id, int.Parse(siteid));
-            if (_userPermissions.IsAuthorized(User, "Utilize", moduledefinition.Permissions))
+            var isHost = User.IsInRole(Constants.HostRole);
+            ModuleDefinition moduleDefinition = _moduleDefinitions.GetModuleDefinition(id, int.Parse(siteId));
+            if (isHost || _userPermissions.IsAuthorized(User, "Utilize", moduleDefinition.Permissions))
             {
-                return moduledefinition;
+                return moduleDefinition;
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access ModuleDefinition {ModuleDefinition}", moduledefinition);
+                _logger.Log(LogLevel.Error, this, LogFunction.Read,
+                    "User Not Authorized To Access ModuleDefinition {ModuleDefinition}", moduleDefinition);
                 HttpContext.Response.StatusCode = 401;
                 return null;
             }
@@ -86,27 +90,27 @@ namespace Oqtane.Controllers
         // DELETE api/<controller>/5?siteid=x
         [HttpDelete("{id}")]
         [Authorize(Roles = Constants.HostRole)]
-        public void Delete(int id, int siteid)
+        public void Delete(int id, int siteId)
         {
-            List<ModuleDefinition> moduledefinitions = _moduleDefinitions.GetModuleDefinitions(siteid).ToList();
-            ModuleDefinition moduledefinition = moduledefinitions.Where(item => item.ModuleDefinitionId == id).FirstOrDefault();
-            if (moduledefinition != null)
+            List<ModuleDefinition> moduleDefinitions = _moduleDefinitions.GetModuleDefinitions(siteId).ToList();
+            ModuleDefinition moduleDefinition = moduleDefinitions.FirstOrDefault(item => item.ModuleDefinitionId == id);
+            if (moduleDefinition != null)
             {
-                string moduledefinitionname = moduledefinition.ModuleDefinitionName.Substring(0, moduledefinition.ModuleDefinitionName.IndexOf(","));
+                string moduleDefinitionName = moduleDefinition.ModuleDefinitionName.Substring(0,moduleDefinition.ModuleDefinitionName.IndexOf(","));
 
-                string folder = Path.Combine(_environment.WebRootPath, "Modules\\" + moduledefinitionname);
+                string folder = Path.Combine(_environment.WebRootPath, "Modules\\" + moduleDefinitionName);
                 if (Directory.Exists(folder))
                 {
                     Directory.Delete(folder, true);
                 }
 
-                string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-                foreach (string file in Directory.EnumerateFiles(binfolder, moduledefinitionname + "*.dll"))
+                string binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                foreach (string file in Directory.EnumerateFiles(binFolder, moduleDefinitionName + "*.dll"))
                 {
                     System.IO.File.Delete(file);
                 }
 
-                _moduleDefinitions.DeleteModuleDefinition(id, siteid);
+                _moduleDefinitions.DeleteModuleDefinition(id, siteId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Deleted {ModuleDefinitionId}", id);
 
                 _installationManager.RestartApplication();
@@ -115,12 +119,11 @@ namespace Oqtane.Controllers
 
         // GET api/<controller>/load/filename
         [HttpGet("load/{filename}")]
-        public IActionResult Load(string assemblyname)
+        public IActionResult Load(string assemblyName)
         {
-            string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            byte[] file = System.IO.File.ReadAllBytes(Path.Combine(binfolder, assemblyname));
-            return File(file, "application/octet-stream", assemblyname);
+            string binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            byte[] file = System.IO.File.ReadAllBytes(Path.Combine(binFolder, assemblyName));
+            return File(file, "application/octet-stream", assemblyName);
         }
-
     }
 }

@@ -7,7 +7,7 @@ using Oqtane.Shared;
 
 namespace Oqtane.Security
 {
-    public class UserSecurity
+    public static class UserSecurity
     {
         public static List<PermissionString> GetPermissionStrings(string PermissionStrings)
         {
@@ -21,12 +21,12 @@ namespace Oqtane.Security
 
         public static string GetPermissions(string PermissionName, string PermissionStrings)
         {
-            string permissions = "";
-            List<PermissionString> permissionstrings = JsonSerializer.Deserialize<List<PermissionString>>(PermissionStrings);
-            PermissionString permissionstring = permissionstrings.Where(item => item.PermissionName == PermissionName).FirstOrDefault();
-            if (permissionstring != null)
+            var permissions = "";
+            var permissionStrings = JsonSerializer.Deserialize<List<PermissionString>>(PermissionStrings);
+            var permissionString = permissionStrings.FirstOrDefault(item => item.PermissionName == PermissionName);
+            if (permissionString != null)
             {
-                permissions = permissionstring.Permissions;
+                permissions = permissionString.Permissions;
             }
             return permissions;
         }
@@ -39,7 +39,7 @@ namespace Oqtane.Security
         // permissions are stored in the format "!rolename1;![userid1];rolename2;rolename3;[userid2];[userid3]" where "!" designates Deny permissions
         public static bool IsAuthorized(User User, string Permissions)
         {
-            bool authorized = false;
+            var authorized = false;
             if (Permissions != "")
             {
                 if (User == null)
@@ -57,22 +57,22 @@ namespace Oqtane.Security
 
         private static bool IsAuthorized(int UserId, string Roles, string Permissions)
         {
-            bool IsAuthorized = false;
+            var isAuthorized = false;
 
             if (Permissions != null)
             {
-                foreach (string permission in Permissions.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (var permission in Permissions.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    bool? allowed = VerifyPermission(UserId, Roles, permission);
+                    var allowed = VerifyPermission(UserId, Roles, permission);
                     if (allowed.HasValue)
                     {
-                        IsAuthorized = allowed.Value;
+                        isAuthorized = allowed.Value;
                         break;
                     }
                 }
             }
 
-            return IsAuthorized;
+            return isAuthorized;
         }
 
         private static bool? VerifyPermission(int UserId, string Roles, string Permission)
@@ -84,7 +84,7 @@ namespace Oqtane.Security
                 // deny permission
                 if (Permission.StartsWith("!"))
                 {
-                    string denyRole = Permission.Replace("!", "");
+                    var denyRole = Permission.Replace("!", "");
                     if (denyRole == Constants.AllUsersRole || IsAllowed(UserId, Roles, denyRole))
                     {
                         allowed = false;
@@ -110,7 +110,7 @@ namespace Oqtane.Security
 
             if (Roles != null)
             {
-                return Roles.IndexOf(";" + Permission + ";") != -1;
+                return Roles.Contains(";" + Permission + ";");
             }
             return false;
         }
