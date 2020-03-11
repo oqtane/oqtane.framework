@@ -3,7 +3,7 @@
 @inject IRoleService RoleService
 @inject IUserService UserService
 
-@if (roles != null)
+@if (permissions != null)
 {
     <br />
     <table class="table">
@@ -52,7 +52,7 @@
                         {
                             var p = permission;
                             <td style="text-align: center;">
-                                <TriStateCheckBox Value=@GetPermissionValue(p.Permissions, userid) Disabled=@GetPermissionDisabled(userid) OnChange="@(e => PermissionChanged(e, p.PermissionName, userid))" />
+                                <TriStateCheckBox Value=@GetPermissionValue(p.Permissions, userid) Disabled=false OnChange="@(e => PermissionChanged(e, p.PermissionName, userid))" />
                             </td>
                         }
                     </tr>
@@ -85,7 +85,7 @@
 
     string permissionnames = "";
     List<Role> roles;
-    List<PermissionString> permissions = new List<PermissionString>();
+    List<PermissionString> permissions;
     List<User> users = new List<User>();
     string username = "";
     string message = "";
@@ -103,12 +103,13 @@
         roles = await RoleService.GetRolesAsync(ModuleState.SiteId);
         roles.Insert(0, new Role { Name = Constants.AllUsersRole });
 
-        foreach (string permissionname in permissionnames.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+        if (!string.IsNullOrEmpty(Permissions))
         {
-            permissions.Add(new PermissionString { PermissionName = permissionname, Permissions = "" });
-        }
-        if (Permissions != "")
-        {
+            permissions = new List<PermissionString>();
+            foreach (string permissionname in permissionnames.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                permissions.Add(new PermissionString { PermissionName = permissionname, Permissions = "" });
+            }
             foreach (PermissionString permissionstring in UserSecurity.GetPermissionStrings(Permissions))
             {
                 if (permissions.Find(item => item.PermissionName == permissionstring.PermissionName) != null)
@@ -212,6 +213,21 @@
 
     public string GetPermissions()
     {
+        ValidatePermissions();
         return UserSecurity.SetPermissionStrings(permissions);
+    }
+
+    private void ValidatePermissions()
+    {
+        PermissionString permission;
+        for (int i = 0; i < permissions.Count; i++)
+        {
+            permission = permissions[i];
+            List<string> ids = permission.Permissions.Split(';').ToList();
+            ids.Remove("!" + Constants.AllUsersRole); // remove deny all users
+            ids.Remove("!" + Constants.RegisteredRole); // remove deny registered users
+            permission.Permissions = string.Join(";", ids.ToArray());
+            permissions[i] = permission;
+        }
     }
 }
