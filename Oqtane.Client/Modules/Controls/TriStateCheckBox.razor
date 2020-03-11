@@ -1,6 +1,6 @@
 ﻿@namespace Oqtane.Modules.Controls
 
-<img src="@src" title="@title" disabled=@Disabled @onclick="SetValue" />
+<img src="@src" title="@title" @onclick="SetValue" />
 
 @code {
     [Parameter]
@@ -24,20 +24,23 @@
 
     private void SetValue()
     {
-        switch (value)
+        if (!Disabled)
         {
-            case true:
-                value = false;
-                break;
-            case false:
-                value = null;
-                break;
-            case null:
-                value = true;
-                break;
+            switch (value)
+            {
+                case true:
+                    value = false;
+                    break;
+                case false:
+                    value = null;
+                    break;
+                case null:
+                    value = true;
+                    break;
+            }
+            SetImage();
+            OnChange(value);
         }
-        SetImage();
-        OnChange(value);
     }
 
     private void SetImage()
