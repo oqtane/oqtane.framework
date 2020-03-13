@@ -31,6 +31,11 @@ namespace Oqtane.Security
             return permissions;
         }
 
+        public static bool IsAuthorized(User User, Permissions permission, string PermissionStrings)
+        {
+            return IsAuthorized(User, permission.ToString(), PermissionStrings);
+        }
+
         public static bool IsAuthorized(User User, string PermissionName, string PermissionStrings)
         {
             return IsAuthorized(User, GetPermissions(PermissionName, PermissionStrings));

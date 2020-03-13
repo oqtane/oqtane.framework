@@ -3,6 +3,7 @@ using Oqtane.Models;
 using Oqtane.Repository;
 using System.Linq;
 using System.Security.Claims;
+using Oqtane.Shared;
 
 namespace Oqtane.Security
 {
@@ -17,9 +18,19 @@ namespace Oqtane.Security
             _accessor = accessor;
         }
 
+        public bool IsAuthorized(ClaimsPrincipal User, string EntityName, int EntityId, Permissions permission)
+        {
+            return IsAuthorized(User, EntityName, EntityId, permission.ToString());
+        }
+
         public bool IsAuthorized(ClaimsPrincipal User, string EntityName, int EntityId, string PermissionName)
         {
             return IsAuthorized(User, PermissionName, _permissions.EncodePermissions(EntityId, _permissions.GetPermissions(EntityName, EntityId, PermissionName).ToList()));
+        }
+
+        public bool IsAuthorized(ClaimsPrincipal User, Permissions permission, string Permissions)
+        {
+            return IsAuthorized(User, permission.ToString(), Permissions);
         }
 
         public bool IsAuthorized(ClaimsPrincipal User, string PermissionName, string Permissions)
