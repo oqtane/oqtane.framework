@@ -8,9 +8,11 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components" Version="3.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="3.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
     <PackageReference Include="bunit" Version="1.0.0-beta-6" />
     <PackageReference Include="Moq" Version="4.13.1" />
+    <PackageReference Include="Moq.EntityFrameworkCore" Version="3.1.2.1" />
     <PackageReference Include="xunit.core" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
       <PrivateAssets>all</PrivateAssets>
@@ -19,7 +21,29 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Oqtane.Client\Oqtane.Client.csproj" />
+    <ProjectReference Include="..\Oqtane.Server\Oqtane.Server.csproj" />
     <ProjectReference Include="..\Oqtane.Shared\Oqtane.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Repository\**" />
+    <Compile Remove="Security\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="Repository\**" />
+    <EmbeddedResource Remove="Security\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Repository\**" />
+    <None Remove="Security\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Repository\**" />
+    <Content Remove="Security\**" />
   </ItemGroup>
 
 </Project>
