@@ -21,6 +21,7 @@
     <RepositoryUrl>https://github.com/oqtane</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageReleaseNotes>Not for production use.</PackageReleaseNotes>
+    <RootNamespace>Oqtane</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Wasm|AnyCPU'">
