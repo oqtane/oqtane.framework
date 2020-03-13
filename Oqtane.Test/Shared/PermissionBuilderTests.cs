@@ -1,18 +1,16 @@
 using Moq;
 using Oqtane.Shared;
 using System;
+using System.Text.Json;
+using Oqtane.Models;
 using Xunit;
 
 namespace Oqtane.Test.Shared
 {
     public class PermissionBuilderTests
     {
-        private MockRepository mockRepository;
-
-
         public PermissionBuilderTests()
         {
-            this.mockRepository = new MockRepository(MockBehavior.Strict);
         }
 
         private PermissionBuilder CreatePermissionBuilder()
@@ -59,6 +57,47 @@ namespace Oqtane.Test.Shared
             var permissionBuilder = PermissionBuilder.Parse(ps);
             var result = permissionBuilder.ToString();
             Assert.Equal(ps, result);
+
+            ps = null;
+            permissionBuilder = PermissionBuilder.Parse(ps);
+            result = permissionBuilder.ToString();
+            Assert.Equal("[]", result);
+
+            ps = "";
+            permissionBuilder = PermissionBuilder.Parse(ps);
+            result = permissionBuilder.ToString();
+            Assert.Equal("[]", result);
+
+            
+            
+            ps = "garbage sdfjhahriruireh;bfehgrehgiepru";
+            result = permissionBuilder.ToString();
+            Assert.Throws<JsonException>(() => permissionBuilder = PermissionBuilder.Parse(ps));
+        }
+
+        [Fact]
+        public void IsAuthorised_StateUnderTest_ExpectedBehavior()
+        {
+            var permissionBuilder = this.CreatePermissionBuilder();
+            var user1 = new User {UserId = 1, Roles = "Administrators;Registered Users"};
+
+            Assert.False(permissionBuilder.IsAuthorized(user1, Permissions.Edit));
+
+            permissionBuilder.Permit(Permissions.Edit).GrantTo(Constants.AdminRole);
+
+            Assert.True(permissionBuilder.IsAuthorized(user1, Permissions.Edit));
+
+            permissionBuilder.Permit(Permissions.Edit).DenyTo(Constants.AdminRole);
+
+            Assert.False(permissionBuilder.IsAuthorized(user1, Permissions.Edit));
+
+            Assert.False(permissionBuilder.IsAuthorized(null, Permissions.Edit));
+
+            permissionBuilder.Permit(Permissions.Edit).GrantTo(Constants.AllUsersRole);
+
+            Assert.True(permissionBuilder.IsAuthorized(null, Permissions.Edit));
+
+            Assert.False(permissionBuilder.IsAuthorized(null, Permissions.View));
         }
     }
 }

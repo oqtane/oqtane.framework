@@ -11,31 +11,41 @@ namespace Oqtane.Shared
     {
         private readonly Dictionary<Permissions, PermissionModel> _model = new Dictionary<Permissions, PermissionModel>();
 
-
         public static PermissionBuilder Parse(string permissionString)
         {
             var pb = new PermissionBuilder();
-            var ps = JsonSerializer.Deserialize<List<PermissionString>>(permissionString);
-            foreach (var s in ps)
+            if (!string.IsNullOrEmpty(permissionString))
             {
-                if (Enum.TryParse(s.PermissionName, out Permissions permission))
+                var ps = JsonSerializer.Deserialize<List<PermissionString>>(permissionString);
+                foreach (var s in ps)
                 {
-                    var subjects = s.Permissions.Split(";", StringSplitOptions.RemoveEmptyEntries);
-                    foreach (var subject in subjects)
+                    if (Enum.TryParse(s.PermissionName, out Permissions permission))
                     {
-                        var pm = pb.Permit(permission);
-                        if (subject.StartsWith("!"))
+                        var subjects = s.Permissions.Split(";", StringSplitOptions.RemoveEmptyEntries);
+                        foreach (var subject in subjects)
                         {
-                            pm.DenyTo(subject);
-                        }
-                        else
-                        {
-                            pm.GrantTo(subject);
+                            var pm = pb.Permit(permission);
+                            if (subject.StartsWith("!"))
+                            {
+                                pm.DenyTo(subject);
+                            }
+                            else
+                            {
+                                pm.GrantTo(subject);
+                            }
                         }
                     }
                 }
             }
+
             return pb;
+        }
+
+        public bool IsAuthorized(User user, Permissions permission)
+        {
+            if (!_model.TryGetValue(permission, out PermissionModel model)) return false;
+            var roles = user != null ? $"[{user.UserId}];{user.Roles}".Split(";", StringSplitOptions.RemoveEmptyEntries) : new[] {Constants.AllUsersRole};
+            return model.IsAuthorized(roles);
         }
 
         public PermissionModel Permit(Permissions permission)
@@ -76,6 +86,15 @@ namespace Oqtane.Shared
                 return Parent.Permit(permission);
             }
 
+            internal bool IsAuthorized(string[] roles)
+            {
+                var result = Subjects
+                    .Where(x => roles.Contains(x.Name))
+                    .Select(x => !x.Deny).ToList();
+                return result.Any() && result.Aggregate((x, y) => x && y);
+            }
+
+
             public PermissionModel GrantTo(string role)
             {
                 Set(role, false);
@@ -102,18 +121,14 @@ namespace Oqtane.Shared
 
             public override string ToString()
             {
-                if (Subjects.Any())
-                {
-                    var subjects = string.Join(";", Subjects);
-                    return $"{{\"PermissionName\":\"{Permission}\",\"Permissions\":\"{subjects}\"}}";
-                }
-                return null;
+                if (!Subjects.Any()) return null;
+                var subjects = string.Join(";", Subjects);
+                return $"{{\"PermissionName\":\"{Permission}\",\"Permissions\":\"{subjects}\"}}";
             }
         }
 
         private class Subject
         {
-            private PermissionModel Parent { get; set; }
             public string Name { get; set; }
             public bool Deny { get; set; }
 
