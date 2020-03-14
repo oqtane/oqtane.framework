@@ -31,7 +31,7 @@ namespace Oqtane.Controllers
         public IEnumerable<Setting> Get(string entityname, int entityid)
         {
             List<Setting> settings = new List<Setting>();
-            if (IsAuthorized(entityname, entityid, "View"))
+            if (IsAuthorized(entityname, entityid, PermissionNames.View))
             {
                 settings = _settings.GetSettings(entityname, entityid).ToList();
             }
@@ -48,7 +48,7 @@ namespace Oqtane.Controllers
         public Setting Get(int id)
         {
             Setting setting = _settings.GetSetting(id);
-            if (IsAuthorized(setting.EntityName, setting.EntityId, "View"))
+            if (IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.View))
             {
                 return setting;
             }
@@ -64,7 +64,7 @@ namespace Oqtane.Controllers
         [HttpPost]
         public Setting Post([FromBody] Setting Setting)
         {
-            if (ModelState.IsValid && IsAuthorized(Setting.EntityName, Setting.EntityId, "Edit"))
+            if (ModelState.IsValid && IsAuthorized(Setting.EntityName, Setting.EntityId, PermissionNames.Edit))
             {
                 Setting = _settings.AddSetting(Setting);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Setting Added {Setting}", Setting);
@@ -82,7 +82,7 @@ namespace Oqtane.Controllers
         [HttpPut("{id}")]
         public Setting Put(int id, [FromBody] Setting Setting)
         {
-            if (ModelState.IsValid && IsAuthorized(Setting.EntityName, Setting.EntityId, "Edit"))
+            if (ModelState.IsValid && IsAuthorized(Setting.EntityName, Setting.EntityId, PermissionNames.Edit))
             {
                 Setting = _settings.UpdateSetting(Setting);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Setting Updated {Setting}", Setting);
@@ -101,7 +101,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             Setting setting = _settings.GetSetting(id);
-            if (IsAuthorized(setting.EntityName, setting.EntityId, "Edit"))
+            if (IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit))
             {
                 _settings.DeleteSetting(id);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Setting Deleted {Setting}", setting);
@@ -136,7 +136,7 @@ namespace Oqtane.Controllers
                     break;
                 case "User":
                     authorized = true;
-                    if (PermissionName == "Edit")
+                    if (PermissionName == PermissionNames.Edit)
                     {
                         authorized = User.IsInRole(Constants.AdminRole) || (_userPermissions.GetUser(User).UserId == EntityId);
                     }
