@@ -110,7 +110,7 @@ namespace Oqtane.Controllers
                 }
                 else
                 {
-                    permissions = UserSecurity.SetPermissionStrings(new List<PermissionString> { new PermissionString { PermissionName = "Edit", Permissions = Constants.AdminRole } });
+                    permissions = UserSecurity.SetPermissionStrings(new List<PermissionString> { new PermissionString { PermissionName = PermissionNames.Edit, Permissions = Constants.AdminRole } });
                 }
             
                 if (_userPermissions.IsAuthorized(User,PermissionNames.Edit, permissions))
@@ -150,8 +150,8 @@ namespace Oqtane.Controllers
                 page.LayoutType = parent.LayoutType;
                 page.Icon = parent.Icon;
                 List<PermissionString> permissions = new List<PermissionString>();
-                permissions.Add(new PermissionString { PermissionName = "View", Permissions = "[" + userid + "]" });
-                permissions.Add(new PermissionString { PermissionName = "Edit", Permissions = "[" + userid + "]" });
+                permissions.Add(new PermissionString { PermissionName = PermissionNames.View, Permissions = "[" + userid + "]" });
+                permissions.Add(new PermissionString { PermissionName = PermissionNames.Edit, Permissions = "[" + userid + "]" });
                 page.Permissions = UserSecurity.SetPermissionStrings(permissions);
                 page.IsPersonalizable = false;
                 page.UserId = int.Parse(userid);
@@ -167,8 +167,8 @@ namespace Oqtane.Controllers
                     module.PageId = page.PageId;
                     module.ModuleDefinitionName = pm.Module.ModuleDefinitionName;
                     permissions = new List<PermissionString>();
-                    permissions.Add(new PermissionString { PermissionName = "View", Permissions = "[" + userid + "]" });
-                    permissions.Add(new PermissionString { PermissionName = "Edit", Permissions = "[" + userid + "]" });
+                    permissions.Add(new PermissionString { PermissionName = PermissionNames.View, Permissions = "[" + userid + "]" });
+                    permissions.Add(new PermissionString { PermissionName = PermissionNames.Edit, Permissions = "[" + userid + "]" });
                     module.Permissions = UserSecurity.SetPermissionStrings(permissions);
                     module = _modules.AddModule(module);
 
@@ -197,7 +197,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public Page Put(int id, [FromBody] Page Page)
         {
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, "Page", Page.PageId, "Edit"))
+            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, "Page", Page.PageId, PermissionNames.Edit))
             {
                 Page = _pages.UpdatePage(Page);
                 _syncManager.AddSyncEvent("Site", Page.SiteId);
@@ -217,7 +217,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public void Put(int siteid, int pageid, int? parentid)
         {
-            if (_userPermissions.IsAuthorized(User, "Page", pageid, "Edit"))
+            if (_userPermissions.IsAuthorized(User, "Page", pageid, PermissionNames.Edit))
             {
                 int order = 1;
                 List<Page> pages = _pages.GetPages(siteid).ToList();
@@ -246,7 +246,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             Page page = _pages.GetPage(id);
-            if (_userPermissions.IsAuthorized(User, "Page", page.PageId, "Edit"))
+            if (_userPermissions.IsAuthorized(User, "Page", page.PageId, PermissionNames.Edit))
             {
                 _pages.DeletePage(page.PageId);
                 _syncManager.AddSyncEvent("Site", page.SiteId);

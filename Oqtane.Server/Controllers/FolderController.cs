@@ -32,7 +32,7 @@ namespace Oqtane.Controllers
             List<Folder> folders = new List<Folder>();
             foreach(Folder folder in _folders.GetFolders(int.Parse(siteid)))
             {
-                if (_userPermissions.IsAuthorized(User, "Browse", folder.Permissions))
+                if (_userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.Permissions))
                 {
                     folders.Add(folder);
                 }
@@ -45,7 +45,7 @@ namespace Oqtane.Controllers
         public Folder Get(int id)
         {
             Folder folder = _folders.GetFolder(id);
-            if (_userPermissions.IsAuthorized(User, "Browse", folder.Permissions))
+            if (_userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.Permissions))
             {
                 return folder;
             }
@@ -63,7 +63,7 @@ namespace Oqtane.Controllers
             var folderPath = WebUtility.UrlDecode(path);
             Folder folder = _folders.GetFolder(siteId, folderPath);
             if (folder != null)
-                if (_userPermissions.IsAuthorized(User, "Browse", folder.Permissions))
+                if (_userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.Permissions))
                 {
                     return folder;
                 }
@@ -97,7 +97,7 @@ namespace Oqtane.Controllers
                 }
                 else
                 {
-                    permissions = UserSecurity.SetPermissionStrings(new List<PermissionString> { new PermissionString { PermissionName = "Edit", Permissions = Constants.AdminRole } });
+                    permissions = UserSecurity.SetPermissionStrings(new List<PermissionString> { new PermissionString { PermissionName = PermissionNames.Edit, Permissions = Constants.AdminRole } });
                 }
                 if (_userPermissions.IsAuthorized(User,PermissionNames.Edit, permissions))
                 {
@@ -124,7 +124,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public Folder Put(int id, [FromBody] Folder Folder)
         {
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, "Folder", Folder.FolderId, "Edit"))
+            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, "Folder", Folder.FolderId, PermissionNames.Edit))
             {
                 if (string.IsNullOrEmpty(Folder.Path) && Folder.ParentId != null)
                 {
@@ -148,7 +148,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public void Put(int siteid, int folderid, int? parentid)
         {
-            if (_userPermissions.IsAuthorized(User, "Folder", folderid, "Edit"))
+            if (_userPermissions.IsAuthorized(User, "Folder", folderid, PermissionNames.Edit))
             {
                 int order = 1;
                 List<Folder> folders = _folders.GetFolders(siteid).ToList();
@@ -175,7 +175,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public void Delete(int id)
         {
-            if (_userPermissions.IsAuthorized(User, "Folder", id, "Edit"))
+            if (_userPermissions.IsAuthorized(User, "Folder", id, PermissionNames.Edit))
             {
                 _folders.DeleteFolder(id);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Folder Deleted {FolderId}", id);

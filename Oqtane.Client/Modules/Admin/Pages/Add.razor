@@ -184,8 +184,8 @@
             layouttype = PageState.Site.DefaultLayoutType;
 
             List<PermissionString> permissionstrings = new List<PermissionString>();
-            permissionstrings.Add(new PermissionString { PermissionName = "View", Permissions = Constants.AdminRole });
-            permissionstrings.Add(new PermissionString { PermissionName = "Edit", Permissions = Constants.AdminRole });
+            permissionstrings.Add(new PermissionString { PermissionName = PermissionNames.View, Permissions = Constants.AdminRole });
+            permissionstrings.Add(new PermissionString { PermissionName = PermissionNames.Edit, Permissions = Constants.AdminRole });
             permissions = UserSecurity.SetPermissionStrings(permissionstrings);
         }
         catch (Exception ex)

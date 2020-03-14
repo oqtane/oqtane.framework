@@ -89,7 +89,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public Models.Module Post([FromBody] Models.Module Module)
         {
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, "Page", Module.PageId, "Edit"))
+            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, "Page", Module.PageId, PermissionNames.Edit))
             {
                 Module = _modules.AddModule(Module);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Module Added {Module}", Module);
@@ -108,7 +108,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public Models.Module Put(int id, [FromBody] Models.Module Module)
         {
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, "Module", Module.ModuleId, "Edit"))
+            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, "Module", Module.ModuleId, PermissionNames.Edit))
             {
                 Module = _modules.UpdateModule(Module);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Module Updated {Module}", Module);
@@ -127,7 +127,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public void Delete(int id)
         {
-            if (_userPermissions.IsAuthorized(User, "Module", id, "Edit"))
+            if (_userPermissions.IsAuthorized(User, "Module", id, PermissionNames.Edit))
             {
                 _modules.DeleteModule(id);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Deleted {ModuleId}", id);
@@ -145,7 +145,7 @@ namespace Oqtane.Controllers
         public string Export(int moduleid)
         {
             string content = "";
-            if (_userPermissions.IsAuthorized(User, "Module", moduleid, "Edit"))
+            if (_userPermissions.IsAuthorized(User, "Module", moduleid, PermissionNames.Edit))
             {
                 content = _modules.ExportModule(moduleid);
             }
@@ -163,7 +163,7 @@ namespace Oqtane.Controllers
         public bool Import(int moduleid, [FromBody] string Content)
         {
             bool success = false;
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, "Module", moduleid, "Edit"))
+            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, "Module", moduleid, PermissionNames.Edit))
             {
                 success = _modules.ImportModule(moduleid, Content);
             }

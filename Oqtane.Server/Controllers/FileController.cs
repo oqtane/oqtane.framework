@@ -47,7 +47,7 @@ namespace Oqtane.Controllers
             if (int.TryParse(folder, out folderid))
             {
                 Folder f = _folders.GetFolder(folderid);
-                if (f != null && _userPermissions.IsAuthorized(User, "Browse", f.Permissions))
+                if (f != null && _userPermissions.IsAuthorized(User, PermissionNames.Browse, f.Permissions))
                 {
                     files = _files.GetFiles(folderid).ToList();
                 }
@@ -77,7 +77,7 @@ namespace Oqtane.Controllers
             Folder folder = _folders.GetFolder(siteId, folderPath);
             List<Models.File> files;
             if (folder != null)
-                if (_userPermissions.IsAuthorized(User, "Browse", folder.Permissions))
+                if (_userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.Permissions))
                 {
                     files = _files.GetFiles(folder.FolderId).ToList();
                 }
@@ -120,7 +120,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public Models.File Put(int id, [FromBody] Models.File File)
         {
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, "Folder", File.Folder.FolderId, "Edit"))
+            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, "Folder", File.Folder.FolderId, PermissionNames.Edit))
             {
                 File = _files.UpdateFile(File);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "File Updated {File}", File);
@@ -140,7 +140,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             Models.File file = _files.GetFile(id);
-            if (_userPermissions.IsAuthorized(User, "Folder", file.Folder.FolderId, "Edit"))
+            if (_userPermissions.IsAuthorized(User, "Folder", file.Folder.FolderId, PermissionNames.Edit))
             {
                 _files.DeleteFile(id);
 

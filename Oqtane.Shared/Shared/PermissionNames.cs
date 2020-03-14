@@ -2,6 +2,7 @@
 {
     public class PermissionNames
     {
+        public const string Browse = "Browse";
         public const string View = "View";
         public const string Edit = "Edit";
         public const string Delete = "Delete";
