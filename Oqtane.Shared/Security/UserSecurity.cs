@@ -23,7 +23,7 @@ namespace Oqtane.Security
         {
             string permissions = "";
             List<PermissionString> permissionstrings = JsonSerializer.Deserialize<List<PermissionString>>(PermissionStrings);
-            PermissionString permissionstring = permissionstrings.Where(item => item.PermissionName == PermissionName).FirstOrDefault();
+            PermissionString permissionstring = permissionstrings.FirstOrDefault(item => item.PermissionName == PermissionName);
             if (permissionstring != null)
             {
                 permissions = permissionstring.Permissions;

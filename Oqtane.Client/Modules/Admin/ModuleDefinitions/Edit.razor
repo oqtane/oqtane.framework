@@ -6,15 +6,15 @@
 <table class="table table-borderless">
     <tr>
         <td>
-            <label for="Name" class="control-label">Name: </label>
+            <label  class="control-label">Name: </label>
         </td>
         <td>
-            <input class="form-control" @bind="@name" />
+            <input class="form-control" @bind="@_name" />
         </td>
     </tr>
     <tr>
         <td>
-            <label for="Name" class="control-label">Permissions: </label>
+            <label  class="control-label">Permissions: </label>
         </td>
         <td>
             <PermissionGrid EntityName="ModuleDefinition" PermissionNames=PermissionNames.Utilize Permissions="@permissions" @ref="permissiongrid" />
@@ -25,40 +25,42 @@
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 <br />
 <br />
-<AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
+<AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon"></AuditInfo>
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 
-    int ModuleDefinitionId;
-    string name;
-    string permissions;
-    string createdby;
-    DateTime createdon;
-    string modifiedby;
-    DateTime modifiedon;
+    int _moduleDefinitionId;
+    string _name;
+    string _permissions;
+    string _createdby;
+    DateTime _createdon;
+    string _modifiedby;
+    DateTime _modifiedon;
 
-    PermissionGrid permissiongrid;
+#pragma warning disable 649
+    PermissionGrid _permissionGrid;
+#pragma warning restore 649
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            ModuleDefinitionId = Int32.Parse(PageState.QueryString["id"]);
-            ModuleDefinition moduledefinition = await ModuleDefinitionService.GetModuleDefinitionAsync(ModuleDefinitionId, ModuleState.SiteId);
-            if (moduledefinition != null)
+            _moduleDefinitionId = Int32.Parse(PageState.QueryString["id"]);
+            ModuleDefinition moduleDefinition = await ModuleDefinitionService.GetModuleDefinitionAsync(_moduleDefinitionId, ModuleState.SiteId);
+            if (moduleDefinition != null)
             {
-                name = moduledefinition.Name;
-                permissions = moduledefinition.Permissions;
-                createdby = moduledefinition.CreatedBy;
-                createdon = moduledefinition.CreatedOn;
-                modifiedby = moduledefinition.ModifiedBy;
-                modifiedon = moduledefinition.ModifiedOn;
+                _name = moduleDefinition.Name;
+                _permissions = moduleDefinition.Permissions;
+                _createdby = moduleDefinition.CreatedBy;
+                _createdon = moduleDefinition.CreatedOn;
+                _modifiedby = moduleDefinition.ModifiedBy;
+                _modifiedon = moduleDefinition.ModifiedOn;
             }
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading ModuleDefinition {ModuleDefinitionId} {Error}", ModuleDefinitionId, ex.Message);
+            await logger.LogError(ex, "Error Loading ModuleDefinition {ModuleDefinitionId} {Error}", _moduleDefinitionId, ex.Message);
             AddModuleMessage("Error Loading Module", MessageType.Error);
         }
     }
@@ -67,15 +69,15 @@
     {
         try
         {
-            ModuleDefinition moduledefinition = await ModuleDefinitionService.GetModuleDefinitionAsync(ModuleDefinitionId, ModuleState.SiteId);
-            moduledefinition.Permissions = permissiongrid.GetPermissions();
+            ModuleDefinition moduledefinition = await ModuleDefinitionService.GetModuleDefinitionAsync(_moduleDefinitionId, ModuleState.SiteId);
+            moduledefinition.Permissions = _permissionGrid.GetPermissions();
             await ModuleDefinitionService.UpdateModuleDefinitionAsync(moduledefinition);
             await logger.LogInformation("ModuleDefinition Saved {ModuleDefinition}", moduledefinition);
             NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Saving ModuleDefinition {ModuleDefinitionId} {Error}", ModuleDefinitionId, ex.Message);
+            await logger.LogError(ex, "Error Saving ModuleDefinition {ModuleDefinitionId} {Error}", _moduleDefinitionId, ex.Message);
             AddModuleMessage("Error Saving Module", MessageType.Error);
         }
     }

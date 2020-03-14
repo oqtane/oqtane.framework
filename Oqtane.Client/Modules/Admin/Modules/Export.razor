@@ -7,10 +7,10 @@
     <tbody>
         <tr>
             <td>
-                <label for="Title" class="control-label">Content: </label>
+                <label class="control-label">Content: </label>
             </td>
             <td>
-                <textarea class="form-control" @bind="@content" rows="5" />
+                <textarea class="form-control" @bind="@_content" rows="5"></textarea>
             </td>
         </tr>
     </tbody>
@@ -23,10 +23,10 @@
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
     public override string Title { get { return "Export Module"; } }
 
-    string content = "";
+    string _content = "";
 
     private async Task ExportModule()
     {
-        content = await ModuleService.ExportModuleAsync(ModuleState.ModuleId);
+        _content = await ModuleService.ExportModuleAsync(ModuleState.ModuleId);
     }
 }

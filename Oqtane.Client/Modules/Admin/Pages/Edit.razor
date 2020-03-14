@@ -209,7 +209,7 @@
             themes = ThemeService.GetThemeTypes(Themes);
 
             PageId = Int32.Parse(PageState.QueryString["id"]);
-            Page page = PageState.Pages.Where(item => item.PageId == PageId).FirstOrDefault();
+            Page page = PageState.Pages.FirstOrDefault(item => item.PageId == PageId);
             if (page != null)
             {
                 name = page.Name;
@@ -310,7 +310,7 @@
             if (name != "" && !string.IsNullOrEmpty(themetype) && (panelayouts.Count == 0 || !string.IsNullOrEmpty(layouttype)))
             {
                 page = PageState.Pages.Where(item => item.PageId == PageId).FirstOrDefault();
-                string currentpath = page.Path;
+                string currentPath = page.Path;
 
                 page.Name = name;
                 if (path == "" && name.ToLower() != "home")
@@ -329,7 +329,7 @@
                 else
                 {
                     page.ParentId = Int32.Parse(parentid);
-                    Page parent = PageState.Pages.Where(item => item.PageId == page.ParentId).FirstOrDefault();
+                    Page parent = PageState.Pages.FirstOrDefault(item => item.PageId == page.ParentId);
                     if (parent.Path == "")
                     {
                         page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(path);
@@ -348,12 +348,12 @@
                             page.Order = 0;
                             break;
                         case "<":
-                            child = PageState.Pages.Where(item => item.PageId == childid).FirstOrDefault();
-                            page.Order = child.Order - 1;
+                            child = PageState.Pages.FirstOrDefault(item => item.PageId == childid);
+                            if (child != null) page.Order = child.Order - 1;
                             break;
                         case ">":
-                            child = PageState.Pages.Where(item => item.PageId == childid).FirstOrDefault();
-                            page.Order = child.Order + 1;
+                            child = PageState.Pages.FirstOrDefault(item => item.PageId == childid);
+                            if (child != null) page.Order = child.Order + 1;
                             break;
                         case ">>":
                             page.Order = int.MaxValue;
@@ -363,8 +363,8 @@
                 page.IsNavigation = (isnavigation == null ? true : Boolean.Parse(isnavigation));
                 page.EditMode = (mode == "edit" ? true : false);
                 page.ThemeType = themetype;
-                page.LayoutType = (layouttype == null ? "" : layouttype);
-                page.Icon = (icon == null ? "" : icon);
+                page.LayoutType = layouttype ?? "";
+                page.Icon = icon ?? "";
                 page.Permissions = permissiongrid.GetPermissions();
 
                 if (page.ThemeType == PageState.Site.DefaultThemeType)
@@ -375,7 +375,7 @@
                 {
                     page.LayoutType = "";
                 }
-                page.IsPersonalizable = (ispersonalizable == null ? false : Boolean.Parse(ispersonalizable));
+                page.IsPersonalizable = (ispersonalizable != null && Boolean.Parse(ispersonalizable));
                 page.UserId = null;
 
                 page = await PageService.UpdatePageAsync(page);
@@ -392,9 +392,9 @@
                 // update child paths
                 if (parentid != currentparentid)
                 {
-                    foreach (Page p in PageState.Pages.Where(item => item.Path.StartsWith(currentpath)))
+                    foreach (Page p in PageState.Pages.Where(item => item.Path.StartsWith(currentPath)))
                     {
-                        p.Path = p.Path.Replace(currentpath, page.Path);
+                        p.Path = p.Path.Replace(currentPath, page.Path);
                         await PageService.UpdatePageAsync(p);
                     }
                 }

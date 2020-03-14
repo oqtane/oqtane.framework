@@ -16,7 +16,7 @@ else
 <table class="table table-borderless">
     <tr>
         <td>
-            <label for="Name" class="control-label">Tenant: </label>
+            <label  class="control-label">Tenant: </label>
         </td>
         <td>
             <select class="form-control" @onchange="(e => TenantChanged(e))">
@@ -30,7 +30,7 @@ else
     </tr>
     <tr>
         <td>
-            <label for="Name" class="control-label">Name: </label>
+            <label  class="control-label">Name: </label>
         </td>
         <td>
             <input class="form-control" @bind="@name" />
@@ -38,7 +38,7 @@ else
     </tr>
     <tr>
         <td>
-            <label for="Name" class="control-label">Aliases: </label>
+            <label  class="control-label">Aliases: </label>
         </td>
         <td>
             <textarea class="form-control" @bind="@urls" rows="3" />
@@ -46,7 +46,7 @@ else
     </tr>
     <tr>
         <td>
-            <label for="Name" class="control-label">Default Theme: </label>
+            <label  class="control-label">Default Theme: </label>
         </td>
         <td>
             <select class="form-control" @onchange="(e => ThemeChanged(e))">
@@ -60,7 +60,7 @@ else
     </tr>
     <tr>
         <td>
-            <label for="Name" class="control-label">Default Layout: </label>
+            <label  class="control-label">Default Layout: </label>
         </td>
         <td>
             <select class="form-control" @bind="@layouttype">
@@ -74,7 +74,7 @@ else
     </tr>
     <tr>
         <td>
-            <label for="Name" class="control-label">Default Container: </label>
+            <label  class="control-label">Default Container: </label>
         </td>
         <td>
             <select class="form-control" @bind="@containertype">
@@ -90,7 +90,7 @@ else
     {
         <tr>
             <td>
-                <label for="Name" class="control-label">Host Username:</label>
+                <label  class="control-label">Host Username:</label>
             </td>
             <td>
                 <input class="form-control" @bind="@username" readonly />
@@ -98,7 +98,7 @@ else
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Host Password:</label>
+                <label  class="control-label">Host Password:</label>
             </td>
             <td>
                 <input type="password" class="form-control" @bind="@password" />
