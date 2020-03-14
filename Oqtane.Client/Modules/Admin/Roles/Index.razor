@@ -2,7 +2,7 @@
 @inherits ModuleBase
 @inject IRoleService RoleService
 
-@if (Roles == null)
+@if (_roles == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -10,7 +10,7 @@ else
 {
     <ActionLink Action="Add" Text="Add Role" />
 
-    <Pager Items="@Roles">
+    <Pager Items="@_roles">
         <Header>
             <th>&nbsp;</th>
             <th>&nbsp;</th>
@@ -27,24 +27,24 @@ else
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 
-    List<Role> Roles;
+    List<Role> _roles;
 
     protected override async Task OnParametersSetAsync()
     {
-        Roles = await RoleService.GetRolesAsync(PageState.Site.SiteId);
+        _roles = await RoleService.GetRolesAsync(PageState.Site.SiteId);
     }
 
-    private async Task DeleteRole(Role Role)
+    private async Task DeleteRole(Role role)
     {
         try
         {
-            await RoleService.DeleteRoleAsync(Role.RoleId);
-            await logger.LogInformation("Role Deleted {Role}", Role);
+            await RoleService.DeleteRoleAsync(role.RoleId);
+            await logger.LogInformation("Role Deleted {Role}", role);
             StateHasChanged();
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Deleting Role {Role} {Error}", Role, ex.Message);
+            await logger.LogError(ex, "Error Deleting Role {Role} {Error}", role, ex.Message);
             AddModuleMessage("Error Deleting Role", MessageType.Error);
         }
     }

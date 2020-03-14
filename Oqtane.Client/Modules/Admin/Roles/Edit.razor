@@ -9,7 +9,7 @@
             <label  class="control-label">Name: </label>
         </td>
         <td>
-            <input class="form-control" @bind="@name" />
+            <input class="form-control" @bind="@_name" />
         </td>
     </tr>
     <tr>
@@ -17,7 +17,7 @@
             <label  class="control-label">Description: </label>
         </td>
         <td>
-            <textarea class="form-control" @bind="@description" rows="5" />
+            <textarea class="form-control" @bind="@_description" rows="5"></textarea>
         </td>
     </tr>
     <tr>
@@ -25,7 +25,7 @@
             <label  class="control-label">Auto Assigned? </label>
         </td>
         <td>
-            <select class="form-control" @bind="@isautoassigned">
+            <select class="form-control" @bind="@_isautoassigned">
                 <option value="True">Yes</option>
                 <option value="False">No</option>
             </select>
@@ -36,7 +36,7 @@
             <label  class="control-label">System Role? </label>
         </td>
         <td>
-            <select class="form-control" @bind="@issystem">
+            <select class="form-control" @bind="@_issystem">
                 <option value="True">Yes</option>
                 <option value="False">No</option>
             </select>
@@ -49,40 +49,40 @@
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 
-    int roleid;
-    string name = "";
-    string description = "";
-    string isautoassigned = "False";
-    string issystem = "False";
+    int _roleid;
+    string _name = "";
+    string _description = "";
+    string _isautoassigned = "False";
+    string _issystem = "False";
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            roleid = Int32.Parse(PageState.QueryString["id"]);
-            Role role = await RoleService.GetRoleAsync(roleid);
+            _roleid = Int32.Parse(PageState.QueryString["id"]);
+            Role role = await RoleService.GetRoleAsync(_roleid);
             if (role != null)
             {
-                name = role.Name;
-                description = role.Description;
-                isautoassigned = role.IsAutoAssigned.ToString();
-                issystem = role.IsSystem.ToString();
+                _name = role.Name;
+                _description = role.Description;
+                _isautoassigned = role.IsAutoAssigned.ToString();
+                _issystem = role.IsSystem.ToString();
             }
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading Role {RoleId} {Error}", roleid, ex.Message);
+            await logger.LogError(ex, "Error Loading Role {RoleId} {Error}", _roleid, ex.Message);
             AddModuleMessage("Error Loading Role", MessageType.Error);
         }
     }
 
     private async Task SaveRole()
     {
-        Role role = await RoleService.GetRoleAsync(roleid);
-        role.Name = name;
-        role.Description = description;
-        role.IsAutoAssigned = (isautoassigned == null ? false : Boolean.Parse(isautoassigned));
-        role.IsSystem = (issystem == null ? false : Boolean.Parse(issystem));
+        Role role = await RoleService.GetRoleAsync(_roleid);
+        role.Name = _name;
+        role.Description = _description;
+        role.IsAutoAssigned = (_isautoassigned != null && Boolean.Parse(_isautoassigned));
+        role.IsSystem = (_issystem != null && Boolean.Parse(_issystem));
 
         try
         {

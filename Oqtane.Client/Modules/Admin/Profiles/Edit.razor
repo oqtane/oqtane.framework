@@ -9,7 +9,7 @@
                 <label  class="control-label">Name: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@name" />
+                <input class="form-control" @bind="@_name" />
             </td>
         </tr>
         <tr>
@@ -17,7 +17,7 @@
                 <label  class="control-label">Title: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@title" />
+                <input class="form-control" @bind="@_title" />
             </td>
         </tr>
         <tr>
@@ -25,7 +25,7 @@
                 <label  class="control-label">Description: </label>
             </td>
             <td>
-                <textarea class="form-control" @bind="@description" rows="5" />
+                <textarea class="form-control" @bind="@_description" rows="5"></textarea>
             </td>
         </tr>
         <tr>
@@ -33,7 +33,7 @@
                 <label  class="control-label">Category: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@category" />
+                <input class="form-control" @bind="@_category" />
             </td>
         </tr>
         <tr>
@@ -41,7 +41,7 @@
                 <label  class="control-label">Order: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@vieworder" />
+                <input class="form-control" @bind="@_vieworder" />
             </td>
         </tr>
         <tr>
@@ -49,7 +49,7 @@
                 <label  class="control-label">Length: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@maxlength" />
+                <input class="form-control" @bind="@_maxlength" />
             </td>
         </tr>
         <tr>
@@ -57,7 +57,7 @@
                 <label  class="control-label">Default Value: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@defaultvalue" />
+                <input class="form-control" @bind="@_defaultvalue" />
             </td>
         </tr>
         <tr>
@@ -65,7 +65,7 @@
                 <label  class="control-label">Required? </label>
             </td>
             <td>
-                <select class="form-control" @bind="@isrequired">
+                <select class="form-control" @bind="@_isrequired">
                     <option value="True">Yes</option>
                     <option value="False">No</option>
                 </select>
@@ -76,7 +76,7 @@
                 <label  class="control-label">Private? </label>
             </td>
             <td>
-                <select class="form-control" @bind="@isprivate">
+                <select class="form-control" @bind="@_isprivate">
                     <option value="True">Yes</option>
                     <option value="False">No</option>
                 </select>
@@ -90,16 +90,16 @@
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
     public override string Actions { get { return "Add,Edit"; } }
 
-    int profileid = -1;
-    string name = "";
-    string title = "";
-    string description = "";
-    string category = "";
-    string vieworder = "0";
-    string maxlength = "0";
-    string defaultvalue = "";
-    string isrequired = "False";
-    string isprivate = "False";
+    int _profileid = -1;
+    string _name = "";
+    string _title = "";
+    string _description = "";
+    string _category = "";
+    string _vieworder = "0";
+    string _maxlength = "0";
+    string _defaultvalue = "";
+    string _isrequired = "False";
+    string _isprivate = "False";
 
     protected override async Task OnInitializedAsync()
     {
@@ -107,25 +107,25 @@
         {
             if (PageState.QueryString.ContainsKey("id"))
             {
-                profileid = Int32.Parse(PageState.QueryString["id"]);
-                Profile profile = await ProfileService.GetProfileAsync(profileid);
+                _profileid = Int32.Parse(PageState.QueryString["id"]);
+                Profile profile = await ProfileService.GetProfileAsync(_profileid);
                 if (profile != null)
                 {
-                    name = profile.Name;
-                    title = profile.Title;
-                    description = profile.Description;
-                    category = profile.Category;
-                    vieworder = profile.ViewOrder.ToString();
-                    maxlength = profile.MaxLength.ToString();
-                    defaultvalue = profile.DefaultValue;
-                    isrequired = profile.IsRequired.ToString();
-                    isprivate = profile.IsPrivate.ToString();
+                    _name = profile.Name;
+                    _title = profile.Title;
+                    _description = profile.Description;
+                    _category = profile.Category;
+                    _vieworder = profile.ViewOrder.ToString();
+                    _maxlength = profile.MaxLength.ToString();
+                    _defaultvalue = profile.DefaultValue;
+                    _isrequired = profile.IsRequired.ToString();
+                    _isprivate = profile.IsPrivate.ToString();
                 }
             }
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading Profile {ProfileId} {Error}", profileid, ex.Message);
+            await logger.LogError(ex, "Error Loading Profile {ProfileId} {Error}", _profileid, ex.Message);
             AddModuleMessage("Error Loading Profile", MessageType.Error);
         }
     }
@@ -135,30 +135,30 @@
         try
         {
             Profile profile;
-            if (profileid != -1)
+            if (_profileid != -1)
             {
-                profile = await ProfileService.GetProfileAsync(profileid);
+                profile = await ProfileService.GetProfileAsync(_profileid);
             }
             else
             {
                 profile = new Profile();
             }
-            profile.Name = name;
-            profile.Title = title;
-            profile.Description = description;
-            profile.Category = category;
-            profile.ViewOrder = int.Parse(vieworder);
-            profile.MaxLength = int.Parse(maxlength);
-            profile.DefaultValue = defaultvalue;
-            profile.IsRequired = (isrequired == null ? false : Boolean.Parse(isrequired));
-            profile.IsPrivate = (isprivate == null ? false : Boolean.Parse(isprivate));
+            profile.Name = _name;
+            profile.Title = _title;
+            profile.Description = _description;
+            profile.Category = _category;
+            profile.ViewOrder = int.Parse(_vieworder);
+            profile.MaxLength = int.Parse(_maxlength);
+            profile.DefaultValue = _defaultvalue;
+            profile.IsRequired = (_isrequired == null ? false : Boolean.Parse(_isrequired));
+            profile.IsPrivate = (_isprivate == null ? false : Boolean.Parse(_isprivate));
             profile = await ProfileService.UpdateProfileAsync(profile);
             await logger.LogInformation("Profile Saved {Profile}", profile);
             NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Saving Profile {ProfleId} {Error}", profileid, ex.Message);
+            await logger.LogError(ex, "Error Saving Profile {ProfleId} {Error}", _profileid, ex.Message);
             AddModuleMessage("Error Saving Profile", MessageType.Error);
         }
     }
