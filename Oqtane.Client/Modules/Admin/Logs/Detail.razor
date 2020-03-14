@@ -1,4 +1,5 @@
 ﻿@namespace Oqtane.Modules.Admin.Logs
+@using System.Globalization
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject ILogService LogService
@@ -12,7 +13,7 @@
                 <label class="control-label">Date/Time: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@logdate" disabled />
+                <input class="form-control" @bind="@_logDate" disabled />
             </td>
         </tr>
         <tr>
@@ -20,7 +21,7 @@
                 <label class="control-label">Level: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@level" disabled />
+                <input class="form-control" @bind="@_level" disabled />
             </td>
         </tr>
         <tr>
@@ -28,7 +29,7 @@
                 <label class="control-label">Feature: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@feature" disabled />
+                <input class="form-control" @bind="@_feature" disabled />
             </td>
         </tr>
         <tr>
@@ -36,7 +37,7 @@
                 <label class="control-label">Function: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@function" disabled />
+                <input class="form-control" @bind="@_function" disabled />
             </td>
         </tr>
         <tr>
@@ -44,39 +45,39 @@
                 <label class="control-label">Category: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@category" disabled />
+                <input class="form-control" @bind="@_category" disabled />
             </td>
         </tr>
-        @if (pagename != "")
+        @if (_pageName != "")
         {
             <tr>
                 <td>
                     <label class="control-label">Page: </label>
                 </td>
                 <td>
-                    <input class="form-control" @bind="@pagename" disabled />
+                    <input class="form-control" @bind="@_pageName" disabled />
                 </td>
             </tr>
         }
-        @if (moduletitle != "")
+        @if (_moduleTitle != "")
         {
             <tr>
                 <td>
                     <label class="control-label">Module: </label>
                 </td>
                 <td>
-                    <input class="form-control" @bind="@moduletitle" disabled />
+                    <input class="form-control" @bind="@_moduleTitle" disabled />
                 </td>
             </tr>
         }
-        @if (username != "")
+        @if (_username != "")
         {
             <tr>
                 <td>
                     <label class="control-label">User: </label>
                 </td>
                 <td>
-                    <input class="form-control" @bind="@username" disabled />
+                    <input class="form-control" @bind="@_username" disabled />
                 </td>
             </tr>
         }
@@ -85,7 +86,7 @@
                 <label class="control-label">Url: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@url" disabled />
+                <input class="form-control" @bind="@_url" disabled />
             </td>
         </tr>
         <tr>
@@ -93,7 +94,7 @@
                 <label class="control-label">Template: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@template" disabled />
+                <input class="form-control" @bind="@_template" disabled />
             </td>
         </tr>
         <tr>
@@ -101,17 +102,17 @@
                 <label class="control-label">Message: </label>
             </td>
             <td>
-                <textarea class="form-control" @bind="@message" rows="5" disabled />
+                <textarea class="form-control" @bind="@_message" rows="5" disabled></textarea>
             </td>
         </tr>
-        @if (!string.IsNullOrEmpty(exception))
+        @if (!string.IsNullOrEmpty(_exception))
         {
             <tr>
                 <td>
                     <label class="control-label">Exception: </label>
                 </td>
                 <td>
-                    <textarea class="form-control" @bind="@exception" rows="5" disabled />
+                    <textarea class="form-control" @bind="@_exception" rows="5" disabled></textarea>
                 </td>
             </tr>
         }
@@ -120,7 +121,7 @@
                 <label class="control-label">Properties: </label>
             </td>
             <td>
-                <textarea class="form-control" @bind="@properties" rows="5" disabled />
+                <textarea class="form-control" @bind="@_properties" rows="5" disabled></textarea>
             </td>
         </tr>
         <tr>
@@ -128,7 +129,7 @@
                 <label class="control-label">Server: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@server" disabled />
+                <input class="form-control" @bind="@_server" disabled />
             </td>
         </tr>
     </table>
@@ -137,41 +138,41 @@
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 
-    int logid;
-    string logdate = "";
-    string level = "";
-    string feature = "";
-    string function = "";
-    string category = "";
-    string pagename = "";
-    string moduletitle = "";
-    string username = "";
-    string url = "";
-    string template = "";
-    string message = "";
-    string exception = "";
-    string properties = "";
-    string server = "";
+    int _logId;
+    string _logDate = "";
+    string _level = "";
+    string _feature = "";
+    string _function = "";
+    string _category = "";
+    string _pageName = "";
+    string _moduleTitle = "";
+    string _username = "";
+    string _url = "";
+    string _template = "";
+    string _message = "";
+    string _exception = "";
+    string _properties = "";
+    string _server = "";
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            logid = Int32.Parse(PageState.QueryString["id"]);
-            Log log = await LogService.GetLogAsync(logid);
+            _logId = Int32.Parse(PageState.QueryString["id"]);
+            Log log = await LogService.GetLogAsync(_logId);
             if (log != null)
             {
-                logdate = log.LogDate.ToString();
-                level = log.Level;
-                feature = log.Feature;
-                function = log.Function;
-                category = log.Category;
+                _logDate = log.LogDate.ToString(CultureInfo.CurrentCulture);
+                _level = log.Level;
+                _feature = log.Feature;
+                _function = log.Function;
+                _category = log.Category;
                 if (log.PageId != null)
                 {
                     Page page = await PageService.GetPageAsync(log.PageId.Value);
                     if (page != null)
                     {
-                        pagename = page.Name;
+                        _pageName = page.Name;
                     }
                 }
                 if (log.PageId != null && log.ModuleId != null)
@@ -179,7 +180,7 @@
                     PageModule pagemodule = await PageModuleService.GetPageModuleAsync(log.PageId.Value, log.ModuleId.Value);
                     if (pagemodule != null)
                     {
-                        moduletitle = pagemodule.Title;
+                        _moduleTitle = pagemodule.Title;
                     }
                 }
                 if (log.UserId != null)
@@ -187,20 +188,20 @@
                     User user = await UserService.GetUserAsync(log.UserId.Value, PageState.Site.SiteId);
                     if (user != null)
                     {
-                        username = user.Username;
+                        _username = user.Username;
                     }
                 }
-                url = log.Url;
-                template = log.MessageTemplate;
-                message = log.Message;
-                exception = log.Exception;
-                properties = log.Properties;
-                server = log.Server;
+                _url = log.Url;
+                _template = log.MessageTemplate;
+                _message = log.Message;
+                _exception = log.Exception;
+                _properties = log.Properties;
+                _server = log.Server;
             }
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading Log {LogId} {Error}", logid, ex.Message);
+            await logger.LogError(ex, "Error Loading Log {LogId} {Error}", _logId, ex.Message);
             AddModuleMessage("Error Loading Log", MessageType.Error);
         }
     }

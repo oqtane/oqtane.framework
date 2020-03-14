@@ -12,7 +12,7 @@
                 <label for="Title" class="control-label">Title: </label>
             </td>
             <td>
-                <input type="text" name="Title" class="form-control" @bind="@title" />
+                <input type="text" name="Title" class="form-control" @bind="@_title" />
             </td>
         </tr>
         <tr>
@@ -20,9 +20,9 @@
                 <label for="Container" class="control-label">Container: </label>
             </td>
             <td>
-                <select class="form-control" @bind="@containertype">
+                <select class="form-control" @bind="@_containerType">
                     <option value="">&lt;Select Container&gt;</option>
-                    @foreach (KeyValuePair<string, string> container in containers)
+                    @foreach (KeyValuePair<string, string> container in _containers)
                     {
                         <option value="@container.Key">@container.Value</option>
                     }
@@ -34,7 +34,7 @@
                 <label for="Name" class="control-label">Permissions: </label>
             </td>
             <td>
-                <PermissionGrid EntityName="Module" PermissionNames="@permissionnames" Permissions="@permissions" @ref="permissiongrid" />
+                <PermissionGrid EntityName="Module" PermissionNames="@_permissionNames" Permissions="@_permissions" @ref="permissiongrid" />
             </td>
         </tr>
         <tr>
@@ -42,7 +42,7 @@
                 <label for="Page" class="control-label">Page: </label>
             </td>
             <td>
-                <select class="form-control" @bind="@pageid">
+                <select class="form-control" @bind="@_pageId">
                     @foreach (Page p in PageState.Pages)
                     {
                         <option value="@p.PageId">@p.Name</option>
@@ -63,26 +63,26 @@
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Edit; } }
     public override string Title { get { return "Module Settings"; } }
 
-    Dictionary<string, string> containers = new Dictionary<string, string>();
-    string title;
-    string containertype;
-    string permissionnames = "";
-    string permissions;
-    string pageid;
+    Dictionary<string, string> _containers = new Dictionary<string, string>();
+    string _title;
+    string _containerType;
+    string _permissionNames = "";
+    string _permissions;
+    string _pageId;
 
-    PermissionGrid permissiongrid;
+    PermissionGrid _permissiongrid;
 
     RenderFragment DynamicComponent { get; set; }
-    object settings;
+    object _settings;
 
     protected override async Task OnInitializedAsync()
     {
-        title = ModuleState.Title;
-        containers = ThemeService.GetContainerTypes(await ThemeService.GetThemesAsync());
-        containertype = ModuleState.ContainerType;
-        permissions = ModuleState.Permissions;
-        permissionnames = ModuleState.ModuleDefinition.PermissionNames;
-        pageid = ModuleState.PageId.ToString();
+        _title = ModuleState.Title;
+        _containers = ThemeService.GetContainerTypes(await ThemeService.GetThemesAsync());
+        _containerType = ModuleState.ContainerType;
+        _permissions = ModuleState.Permissions;
+        _permissionNames = ModuleState.ModuleDefinition.PermissionNames;
+        _pageId = ModuleState.PageId.ToString();
 
         DynamicComponent = builder =>
         {
@@ -90,7 +90,7 @@
             if (moduleType != null)
             {
                 builder.OpenComponent(0, moduleType);
-                builder.AddComponentReferenceCapture(1, inst => { settings = Convert.ChangeType(inst, moduleType); });
+                builder.AddComponentReferenceCapture(1, inst => { _settings = Convert.ChangeType(inst, moduleType); });
                 builder.CloseComponent();
             }
         };
@@ -99,20 +99,20 @@
     private async Task SaveModule()
     {
         Module module = ModuleState;
-        module.Permissions = permissiongrid.GetPermissions();
+        module.Permissions = _permissiongrid.GetPermissions();
         await ModuleService.UpdateModuleAsync(module);
 
         PageModule pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
-        pagemodule.PageId = int.Parse(pageid);
-        pagemodule.Title = title;
-        pagemodule.ContainerType = containertype;
+        pagemodule.PageId = int.Parse(_pageId);
+        pagemodule.Title = _title;
+        pagemodule.ContainerType = _containerType;
         await PageModuleService.UpdatePageModuleAsync(pagemodule);
         await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
 
         Type moduleType = Type.GetType(ModuleState.ModuleType);
         if (moduleType != null)
         {
-            moduleType.GetMethod("UpdateSettings").Invoke(settings, null); // method must be public in settings component
+            moduleType.GetMethod("UpdateSettings").Invoke(_settings, null); // method must be public in settings component
         }
 
         NavigationManager.NavigateTo(NavigateUrl());

@@ -12,7 +12,7 @@
     <table class="table table-borderless">
         <tr>
             <td>
-                <label for="Name" class="control-label">Name: </label>
+                <label  class="control-label">Name: </label>
             </td>
             <td>
                 <input class="form-control" @bind="@name" />
@@ -20,7 +20,7 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Tenant: </label>
+                <label  class="control-label">Tenant: </label>
             </td>
             <td>
                 <input class="form-control" @bind="@tenant" readonly />
@@ -28,7 +28,7 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Aliases: </label>
+                <label  class="control-label">Aliases: </label>
             </td>
             <td>
                 <textarea class="form-control" @bind="@urls" rows="3" />
@@ -36,7 +36,7 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Logo: </label>
+                <label  class="control-label">Logo: </label>
             </td>
             <td>
                 <FileManager FileId="@logofileid.ToString()" @ref="filemanager" />
@@ -44,7 +44,7 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Default Theme: </label>
+                <label  class="control-label">Default Theme: </label>
             </td>
             <td>
                 <select class="form-control" @onchange="(e => ThemeChanged(e))">
@@ -65,7 +65,7 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Default Layout: </label>
+                <label  class="control-label">Default Layout: </label>
             </td>
             <td>
                 <select class="form-control" @bind="@layouttype">
@@ -79,7 +79,7 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Default Container: </label>
+                <label  class="control-label">Default Container: </label>
             </td>
             <td>
                 <select class="form-control" @bind="@containertype">
@@ -93,7 +93,7 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Is Deleted? </label>
+                <label  class="control-label">Is Deleted? </label>
             </td>
             <td>
                 <select class="form-control" @bind="@isdeleted">
@@ -111,7 +111,7 @@
         <table class="table table-borderless">
             <tr>
                 <td>
-                    <label for="Name" class="control-label">Host: </label>
+                    <label  class="control-label">Host: </label>
                 </td>
                 <td>
                     <input class="form-control" @bind="@smtphost" />
@@ -119,7 +119,7 @@
             </tr>
             <tr>
                 <td>
-                    <label for="Name" class="control-label">Port: </label>
+                    <label  class="control-label">Port: </label>
                 </td>
                 <td>
                     <input class="form-control" @bind="@smtpport" />
@@ -127,7 +127,7 @@
             </tr>
             <tr>
                 <td>
-                    <label for="Name" class="control-label">SSL Enabled: </label>
+                    <label  class="control-label">SSL Enabled: </label>
                 </td>
                 <td>
                     <input class="form-control" @bind="@smtpssl" />
@@ -135,7 +135,7 @@
             </tr>
             <tr>
                 <td>
-                    <label for="Name" class="control-label">Username: </label>
+                    <label  class="control-label">Username: </label>
                 </td>
                 <td>
                     <input class="form-control" @bind="@smtpusername" />
@@ -143,7 +143,7 @@
             </tr>
             <tr>
                 <td>
-                    <label for="Name" class="control-label">Password: </label>
+                    <label  class="control-label">Password: </label>
                 </td>
                 <td>
                     <input type="password" class="form-control" @bind="@smtppassword" />
