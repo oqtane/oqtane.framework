@@ -78,12 +78,12 @@ namespace Oqtane.Server
             // register authorization services
             services.AddAuthorizationCore(options =>
             {
-                options.AddPolicy("ViewPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", "View")));
-                options.AddPolicy("EditPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", "Edit")));
-                options.AddPolicy("ViewModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", "View")));
-                options.AddPolicy("EditModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", "Edit")));
-                options.AddPolicy("ViewFolder", policy => policy.Requirements.Add(new PermissionRequirement("Folder", "View")));
-                options.AddPolicy("EditFolder", policy => policy.Requirements.Add(new PermissionRequirement("Folder", "Edit")));
+                options.AddPolicy("ViewPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", PermissionNames.View)));
+                options.AddPolicy("EditPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", PermissionNames.Edit)));
+                options.AddPolicy("ViewModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", PermissionNames.View)));
+                options.AddPolicy("EditModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", PermissionNames.Edit)));
+                options.AddPolicy("ViewFolder", policy => policy.Requirements.Add(new PermissionRequirement("Folder", PermissionNames.View)));
+                options.AddPolicy("EditFolder", policy => policy.Requirements.Add(new PermissionRequirement("Folder", PermissionNames.Edit)));
                 options.AddPolicy("ListFolder", policy => policy.Requirements.Add(new PermissionRequirement("Folder", "List")));
             });
 
@@ -253,10 +253,10 @@ namespace Oqtane.Server
             // register authorization services
             services.AddAuthorizationCore(options =>
             {
-                options.AddPolicy("ViewPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", "View")));
-                options.AddPolicy("EditPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", "Edit")));
-                options.AddPolicy("ViewModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", "View")));
-                options.AddPolicy("EditModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", "Edit")));
+                options.AddPolicy("ViewPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", PermissionNames.View)));
+                options.AddPolicy("EditPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", PermissionNames.Edit)));
+                options.AddPolicy("ViewModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", PermissionNames.View)));
+                options.AddPolicy("EditModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", PermissionNames.Edit)));
             });
 
             // register scoped core services

@@ -33,7 +33,7 @@ namespace Oqtane.Controllers
         public PageModule Get(int id)
         {
             PageModule pagemodule = _pageModules.GetPageModule(id);
-            if (_userPermissions.IsAuthorized(User, "View", pagemodule.Module.Permissions))
+            if (_userPermissions.IsAuthorized(User,PermissionNames.View, pagemodule.Module.Permissions))
             {
                 return pagemodule;
             }
@@ -50,7 +50,7 @@ namespace Oqtane.Controllers
         public PageModule Get(int pageid, int moduleid)
         {
             PageModule pagemodule = _pageModules.GetPageModule(pageid, moduleid);
-            if (_userPermissions.IsAuthorized(User, "View", pagemodule.Module.Permissions))
+            if (_userPermissions.IsAuthorized(User,PermissionNames.View, pagemodule.Module.Permissions))
             {
                 return pagemodule;
             }
@@ -67,10 +67,10 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public PageModule Post([FromBody] PageModule PageModule)
         {
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, "Page", PageModule.PageId, "Edit"))
+            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Page, PageModule.PageId, PermissionNames.Edit))
             {
                 PageModule = _pageModules.AddPageModule(PageModule);
-                _syncManager.AddSyncEvent("Page", PageModule.PageId);
+                _syncManager.AddSyncEvent(EntityNames.Page, PageModule.PageId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Page Module Added {PageModule}", PageModule);
             }
             else
@@ -87,10 +87,10 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public PageModule Put(int id, [FromBody] PageModule PageModule)
         {
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, "Module", PageModule.ModuleId, "Edit"))
+            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Module, PageModule.ModuleId, PermissionNames.Edit))
             {
                 PageModule = _pageModules.UpdatePageModule(PageModule);
-                _syncManager.AddSyncEvent("Page", PageModule.PageId);
+                _syncManager.AddSyncEvent(EntityNames.Page, PageModule.PageId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Module Updated {PageModule}", PageModule);
             }
             else
@@ -107,7 +107,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public void Put(int pageid, string pane)
         {
-            if (_userPermissions.IsAuthorized(User, "Page", pageid, "Edit"))
+            if (_userPermissions.IsAuthorized(User, EntityNames.Page, pageid, PermissionNames.Edit))
             {
                 int order = 1;
                 List<PageModule> pagemodules = _pageModules.GetPageModules(pageid, pane).OrderBy(item => item.Order).ToList();
@@ -120,7 +120,7 @@ namespace Oqtane.Controllers
                     }
                     order += 2;
                 }
-                _syncManager.AddSyncEvent("Page", pageid);
+                _syncManager.AddSyncEvent(EntityNames.Page, pageid);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Module Order Updated {PageId} {Pane}", pageid, pane);
             }
             else
@@ -136,10 +136,10 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             PageModule pagemodule = _pageModules.GetPageModule(id);
-            if (_userPermissions.IsAuthorized(User, "Page", pagemodule.PageId, "Edit"))
+            if (_userPermissions.IsAuthorized(User, EntityNames.Page, pagemodule.PageId, PermissionNames.Edit))
             {
                 _pageModules.DeletePageModule(id);
-                _syncManager.AddSyncEvent("Page", pagemodule.PageId);
+                _syncManager.AddSyncEvent(EntityNames.Page, pagemodule.PageId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Page Module Deleted {PageModuleId}", id);
             }
             else

@@ -11,7 +11,7 @@
     <table class="table table-borderless">
         <tr>
             <td>
-                <label for="Name" class="control-label">Name: </label>
+                <label  class="control-label">Name: </label>
             </td>
             <td>
                 <input class="form-control" @bind="@name" />
@@ -19,7 +19,7 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Tenant: </label>
+                <label  class="control-label">Tenant: </label>
             </td>
             <td>
                 <input class="form-control" @bind="@tenant" readonly />
@@ -27,7 +27,7 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Aliases: </label>
+                <label  class="control-label">Aliases: </label>
             </td>
             <td>
                 <textarea class="form-control" @bind="@urls" rows="3" />
@@ -35,7 +35,7 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Default Theme: </label>
+                <label  class="control-label">Default Theme: </label>
             </td>
             <td>
                 <select class="form-control" @onchange="(e => ThemeChanged(e))">
@@ -56,7 +56,7 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Default Layout: </label>
+                <label  class="control-label">Default Layout: </label>
             </td>
             <td>
                 <select class="form-control" @bind="@layouttype">
@@ -70,7 +70,7 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Default Container: </label>
+                <label  class="control-label">Default Container: </label>
             </td>
             <td>
                 <select class="form-control" @bind="@containertype">
@@ -84,7 +84,7 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Is Deleted? </label>
+                <label  class="control-label">Is Deleted? </label>
             </td>
             <td>
                 <select class="form-control" @bind="@isdeleted">
@@ -241,7 +241,7 @@
                             }
                         }
 
-                        await Log(Alias, LogLevel.Information, "Edit", null, "Site Saved {Site}", site);
+                        await Log(Alias, LogLevel.Information,PermissionNames.Edit, null, "Site Saved {Site}", site);
 
                         NavigationManager.NavigateTo(NavigateUrl());
                     }

@@ -2,7 +2,7 @@
 @inherits ModuleBase
 @inject ILogService LogService
 
-@if (Logs == null)
+@if (_logs == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -45,9 +45,9 @@ else
         </tr>
     </table>
 
-    @if (Logs.Any())
+    @if (_logs.Any())
     {
-        <Pager Items="@Logs">
+        <Pager Items="@_logs">
             <Header>
                 <th>&nbsp;</th>
                 <th>Date</th>
@@ -73,10 +73,10 @@ else
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 
-    string level = "-";
-    string function = "-";
-    string rows = "10";
-    List<Log> Logs;
+    string _level = "-";
+    string _function = "-";
+    string _rows = "10";
+    List<Log> _logs;
 
     protected override async Task OnInitializedAsync()
     {
@@ -95,7 +95,7 @@ else
     {
         try
         {
-            level = (string)e.Value;
+            _level = (string)e.Value;
             await GetLogs();
             StateHasChanged();
         }
@@ -110,7 +110,7 @@ else
     {
         try
         {
-            function = (string)e.Value;
+            _function = (string)e.Value;
             await GetLogs();
             StateHasChanged();
         }
@@ -126,7 +126,7 @@ else
     {
         try
         {
-            rows = (string)e.Value;
+            _rows = (string)e.Value;
             await GetLogs();
             StateHasChanged();
         }
@@ -139,7 +139,7 @@ else
 
     private async Task GetLogs()
     {
-        Logs = await LogService.GetLogsAsync(PageState.Site.SiteId, ((level == "-") ? "" : level), ((function == "-") ? "" : function), int.Parse(rows));
+        _logs = await LogService.GetLogsAsync(PageState.Site.SiteId, ((_level == "-") ? "" : _level), ((_function == "-") ? "" : _function), int.Parse(_rows));
     }
 
     private string GetClass(string function)

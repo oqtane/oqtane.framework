@@ -18,7 +18,7 @@
     <table class="table table-borderless">
         <tr>
             <td>
-                <label for="Name" class="control-label">Username: </label>
+                <label  class="control-label">Username: </label>
             </td>
             <td>
                 <input class="form-control" @bind="@username" readonly />
@@ -26,7 +26,7 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Password: </label>
+                <label  class="control-label">Password: </label>
             </td>
             <td>
                 <input type="password" class="form-control" @bind="@password" />
@@ -34,7 +34,7 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Confirm Password: </label>
+                <label  class="control-label">Confirm Password: </label>
             </td>
             <td>
                 <input type="password" class="form-control" @bind="@confirm" />
@@ -42,7 +42,7 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Email: </label>
+                <label  class="control-label">Email: </label>
             </td>
             <td>
                 <input class="form-control" @bind="@email" />
@@ -50,7 +50,7 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Full Name: </label>
+                <label  class="control-label">Full Name: </label>
             </td>
             <td>
                 <input class="form-control" @bind="@displayname" />
@@ -58,7 +58,7 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Photo: </label>
+                <label  class="control-label">Photo: </label>
             </td>
             <td>
                 <FileManager FileId="@photofileid.ToString()" @ref="filemanager" />
@@ -82,13 +82,13 @@
                     <label for="@p.Name" class="control-label">@p.Title: </label>
                 </td>
                 <td>
-                    <input class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" placeholder="@p.Description" @onchange="(e => ProfileChanged(e, p.Name))" />
+                    <input class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" placeholder="@p.Description" @onchange="@(e => ProfileChanged(e, p.Name))" />
                 </td>
             </tr>
         }
         <tr>
             <td>
-                <label for="Name" class="control-label">Is Deleted? </label>
+                <label  class="control-label">Is Deleted? </label>
             </td>
             <td>
                 <select class="form-control" @bind="@isdeleted">

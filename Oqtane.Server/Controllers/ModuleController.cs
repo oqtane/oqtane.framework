@@ -37,7 +37,7 @@ namespace Oqtane.Controllers
             List<Models.Module> modules = new List<Models.Module>();
             foreach (PageModule pagemodule in _pageModules.GetPageModules(int.Parse(siteid)))
             {
-                if (_userPermissions.IsAuthorized(User, "View", pagemodule.Module.Permissions))
+                if (_userPermissions.IsAuthorized(User,PermissionNames.View, pagemodule.Module.Permissions))
                 {
                     Models.Module module = new Models.Module();
                     module.SiteId = pagemodule.Module.SiteId;
@@ -70,7 +70,7 @@ namespace Oqtane.Controllers
         public Models.Module Get(int id)
         {
             Models.Module module = _modules.GetModule(id);
-            if (_userPermissions.IsAuthorized(User, "View", module.Permissions))
+            if (_userPermissions.IsAuthorized(User,PermissionNames.View, module.Permissions))
             {
                 List<ModuleDefinition> moduledefinitions = _moduleDefinitions.GetModuleDefinitions(module.SiteId).ToList();
                 module.ModuleDefinition = moduledefinitions.Find(item => item.ModuleDefinitionName == module.ModuleDefinitionName);
@@ -89,7 +89,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public Models.Module Post([FromBody] Models.Module Module)
         {
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, "Page", Module.PageId, "Edit"))
+            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Page, Module.PageId, PermissionNames.Edit))
             {
                 Module = _modules.AddModule(Module);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Module Added {Module}", Module);
@@ -108,7 +108,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public Models.Module Put(int id, [FromBody] Models.Module Module)
         {
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, "Module", Module.ModuleId, "Edit"))
+            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Module, Module.ModuleId, PermissionNames.Edit))
             {
                 Module = _modules.UpdateModule(Module);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Module Updated {Module}", Module);
@@ -127,7 +127,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public void Delete(int id)
         {
-            if (_userPermissions.IsAuthorized(User, "Module", id, "Edit"))
+            if (_userPermissions.IsAuthorized(User, EntityNames.Module, id, PermissionNames.Edit))
             {
                 _modules.DeleteModule(id);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Deleted {ModuleId}", id);
@@ -145,7 +145,7 @@ namespace Oqtane.Controllers
         public string Export(int moduleid)
         {
             string content = "";
-            if (_userPermissions.IsAuthorized(User, "Module", moduleid, "Edit"))
+            if (_userPermissions.IsAuthorized(User, EntityNames.Module, moduleid, PermissionNames.Edit))
             {
                 content = _modules.ExportModule(moduleid);
             }
@@ -163,7 +163,7 @@ namespace Oqtane.Controllers
         public bool Import(int moduleid, [FromBody] string Content)
         {
             bool success = false;
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, "Module", moduleid, "Edit"))
+            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Module, moduleid, PermissionNames.Edit))
             {
                 success = _modules.ImportModule(moduleid, Content);
             }
