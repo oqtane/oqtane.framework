@@ -9,7 +9,7 @@
 @inject IPageModuleService PageModuleService
 @inject ILogService logger
 
-@if (UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions))
+@if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, PageState.Page.Permissions))
 {
     <div class="app-controlpanel" style="@_display">
 
@@ -96,7 +96,7 @@
                                     <option value="-">&lt;Select Module&gt;</option>
                                     @foreach (var moduledefinition in _moduleDefinitions)
                                     {
-                                        if (UserSecurity.IsAuthorized(PageState.User, "Utilize", moduledefinition.Permissions))
+                                        if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.Utilize, moduledefinition.Permissions))
                                         {
                                             <option value="@moduledefinition.ModuleDefinitionName">@moduledefinition.Name</option>
                                         }
@@ -162,7 +162,7 @@
     </div>
 }
 
-@if (UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions) || (PageState.Page.IsPersonalizable && PageState.User != null))
+@if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, PageState.Page.Permissions) || (PageState.Page.IsPersonalizable && PageState.User != null))
 {
     @if (PageState.Page.EditMode)
     {
@@ -187,7 +187,7 @@
     }
 }
 
-@if (UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions))
+@if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, PageState.Page.Permissions))
 {
     <button type="button" class="btn @ButtonClass" @onclick="ShowControlPanel">
         <span class="oi oi-menu"></span>
@@ -244,7 +244,7 @@
             BodyClass = "card-body";
         }
 
-        if (UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions))
+        if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, PageState.Page.Permissions))
         {
             _pages?.Clear();
 
@@ -265,7 +265,7 @@
             _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories == "").ToList();
             foreach (Page p in PageState.Pages)
             {
-                if (UserSecurity.IsAuthorized(PageState.User, "View", p.Permissions))
+                if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.View, p.Permissions))
                 {
                     _pages.Add(p);
                 }
@@ -301,7 +301,7 @@
         {
             foreach (Module module in PageState.Modules.Where(item => item.PageId == int.Parse(_pageId) && !item.IsDeleted))
             {
-                if (UserSecurity.IsAuthorized(PageState.User, "View", module.Permissions))
+                if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.View, module.Permissions))
                 {
                     _modules.Add(module);
                 }
@@ -313,7 +313,7 @@
 
     private async Task AddModule()
     {
-        if (UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions))
+        if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, PageState.Page.Permissions))
         {
             if ((_moduleType == "new" && _moduleDefinitionName != "-") || (_moduleType != "new" && _moduleId != "-"))
             {
@@ -381,7 +381,7 @@
 
     private async Task ToggleEditMode(bool EditMode)
     {
-        if (UserSecurity.IsAuthorized(PageState.User, "Edit", PageState.Page.Permissions))
+        if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, PageState.Page.Permissions))
         {
             if (EditMode)
             {

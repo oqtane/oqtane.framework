@@ -22,4 +22,24 @@
     <ProjectReference Include="..\Oqtane.Shared\Oqtane.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Repository\**" />
+    <Compile Remove="Security\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="Repository\**" />
+    <EmbeddedResource Remove="Security\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Repository\**" />
+    <None Remove="Security\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Repository\**" />
+    <Content Remove="Security\**" />
+  </ItemGroup>
+
 </Project>

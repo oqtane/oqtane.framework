@@ -241,7 +241,7 @@
                             }
                         }
 
-                        await Log(Alias, LogLevel.Information, "Edit", null, "Site Saved {Site}", site);
+                        await Log(Alias, LogLevel.Information,PermissionNames.Edit, null, "Site Saved {Site}", site);
 
                         NavigationManager.NavigateTo(NavigateUrl());
                     }

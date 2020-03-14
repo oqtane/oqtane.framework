@@ -181,7 +181,7 @@
             Folder folder = folders.Where(item => item.FolderId == folderid).FirstOrDefault();
             if (folder != null)
             {
-                haseditpermission = UserSecurity.IsAuthorized(PageState.User, "Edit", folder.Permissions);
+                haseditpermission = UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, folder.Permissions);
                 files = await FileService.GetFilesAsync(folderid);
             }
             else

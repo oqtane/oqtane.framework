@@ -36,7 +36,7 @@
 
         foreach (Page p in PageState.Pages.Where(item => item.IsNavigation && !item.IsDeleted))
         {
-            if (UserSecurity.IsAuthorized(PageState.User, "View", p.Permissions) && p.Level <= securitylevel)
+            if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.View, p.Permissions) && p.Level <= securitylevel)
             {
                 securitylevel = int.MaxValue;
 
@@ -74,7 +74,7 @@
         menu += "<ul class=\"navbar-nav mr-auto\">";
         foreach (Page p in PageState.Pages.Where(item => item.IsNavigation && !item.IsDeleted))
         {
-            if (UserSecurity.IsAuthorized(PageState.User, "View", p.Permissions) && p.ParentId == PageState.Page.ParentId && p.Level == PageState.Page.Level)
+            if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.View, p.Permissions) && p.ParentId == PageState.Page.ParentId && p.Level == PageState.Page.Level)
             {
                 if (p.PageId == PageState.Page.PageId)
                 {

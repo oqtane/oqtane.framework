@@ -4,7 +4,7 @@
 @inject IUserService UserService
 @inject IPageModuleService PageModuleService
 
-@if (PageState.EditMode && !PageState.Page.EditMode && UserSecurity.IsAuthorized(PageState.User, "Edit", ModuleState.Permissions))
+@if (PageState.EditMode && !PageState.Page.EditMode && UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, ModuleState.Permissions))
 {
     <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"></a>
     <div class="dropdown-menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 37px, 0px);">
@@ -27,7 +27,7 @@
 
     protected override void OnParametersSet()
     {
-        if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, "Edit", ModuleState.Permissions))
+        if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, ModuleState.Permissions))
         {
             actions = new List<ActionViewModel>();
             actions.Add(new ActionViewModel { Action = "settings", Name = "Manage Settings" });
@@ -66,7 +66,7 @@
 
     protected async Task ModuleAction(string action)
     {
-        if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, "Edit", ModuleState.Permissions))
+        if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, ModuleState.Permissions))
         {
             PageModule pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
 
