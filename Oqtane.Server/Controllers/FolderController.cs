@@ -124,7 +124,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public Folder Put(int id, [FromBody] Folder Folder)
         {
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, "Folder", Folder.FolderId, PermissionNames.Edit))
+            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Folder, Folder.FolderId, PermissionNames.Edit))
             {
                 if (string.IsNullOrEmpty(Folder.Path) && Folder.ParentId != null)
                 {
@@ -148,7 +148,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public void Put(int siteid, int folderid, int? parentid)
         {
-            if (_userPermissions.IsAuthorized(User, "Folder", folderid, PermissionNames.Edit))
+            if (_userPermissions.IsAuthorized(User, EntityNames.Folder, folderid, PermissionNames.Edit))
             {
                 int order = 1;
                 List<Folder> folders = _folders.GetFolders(siteid).ToList();
@@ -175,7 +175,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public void Delete(int id)
         {
-            if (_userPermissions.IsAuthorized(User, "Folder", id, PermissionNames.Edit))
+            if (_userPermissions.IsAuthorized(User, EntityNames.Folder, id, PermissionNames.Edit))
             {
                 _folders.DeleteFolder(id);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Folder Deleted {FolderId}", id);

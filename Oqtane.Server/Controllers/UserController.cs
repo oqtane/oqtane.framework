@@ -187,7 +187,7 @@ namespace Oqtane.Controllers
                         }
                     }
                     User = _users.UpdateUser(User);
-                    _syncManager.AddSyncEvent("User", User.UserId);
+                    _syncManager.AddSyncEvent(EntityNames.User, User.UserId);
                     User.Password = ""; // remove sensitive information
                     _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Updated {User}", User);
                 }
