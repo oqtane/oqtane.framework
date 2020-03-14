@@ -231,7 +231,7 @@
                 }
 
                 // check if user is authorized to view page
-                if (UserSecurity.IsAuthorized(user, "View", page.Permissions))
+                if (UserSecurity.IsAuthorized(user,PermissionNames.View, page.Permissions))
                 {
                     page = await ProcessPage(page, site, user);
 
