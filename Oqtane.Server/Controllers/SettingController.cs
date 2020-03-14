@@ -116,25 +116,25 @@ namespace Oqtane.Controllers
         private bool IsAuthorized(string EntityName, int EntityId, string PermissionName)
         {
             bool authorized = false;
-            if (EntityName == "PageModule")
+            if (EntityName == EntityNames.PageModule)
             {
-                EntityName = "Module";
+                EntityName = EntityNames.Module;
                 EntityId = _pageModules.GetPageModule(EntityId).ModuleId;
             }
             switch (EntityName)
             {
-                case "Host":
+                case EntityNames.Host:
                     authorized = User.IsInRole(Constants.HostRole);
                     break;
-                case "Site":
+                case EntityNames.Site:
                     authorized = User.IsInRole(Constants.AdminRole);
                     break;
-                case "Page":
-                case "Module":
-                case "Folder":
+                case EntityNames.Page:
+                case EntityNames.Module:
+                case EntityNames.Folder:
                     authorized = _userPermissions.IsAuthorized(User, EntityName, EntityId, PermissionName);
                     break;
-                case "User":
+                case EntityNames.User:
                     authorized = true;
                     if (PermissionName == PermissionNames.Edit)
                     {

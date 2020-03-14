@@ -116,7 +116,7 @@ namespace Oqtane.Controllers
                 if (_userPermissions.IsAuthorized(User,PermissionNames.Edit, permissions))
                 {
                     Page = _pages.AddPage(Page);
-                    _syncManager.AddSyncEvent("Site", Page.SiteId);
+                    _syncManager.AddSyncEvent(EntityNames.Site, Page.SiteId);
                     _logger.Log(LogLevel.Information, this, LogFunction.Create, "Page Added {Page}", Page);
                 }
                 else
@@ -156,7 +156,7 @@ namespace Oqtane.Controllers
                 page.IsPersonalizable = false;
                 page.UserId = int.Parse(userid);
                 page = _pages.AddPage(page);
-                _syncManager.AddSyncEvent("Site", page.SiteId);
+                _syncManager.AddSyncEvent(EntityNames.Site, page.SiteId);
 
                 // copy modules
                 List<PageModule> pagemodules = _pageModules.GetPageModules(page.SiteId).ToList();
@@ -197,10 +197,10 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public Page Put(int id, [FromBody] Page Page)
         {
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, "Page", Page.PageId, PermissionNames.Edit))
+            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Page, Page.PageId, PermissionNames.Edit))
             {
                 Page = _pages.UpdatePage(Page);
-                _syncManager.AddSyncEvent("Site", Page.SiteId);
+                _syncManager.AddSyncEvent(EntityNames.Site, Page.SiteId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Updated {Page}", Page);
             }
             else
@@ -217,7 +217,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public void Put(int siteid, int pageid, int? parentid)
         {
-            if (_userPermissions.IsAuthorized(User, "Page", pageid, PermissionNames.Edit))
+            if (_userPermissions.IsAuthorized(User, EntityNames.Page, pageid, PermissionNames.Edit))
             {
                 int order = 1;
                 List<Page> pages = _pages.GetPages(siteid).ToList();
@@ -230,7 +230,7 @@ namespace Oqtane.Controllers
                     }
                     order += 2;
                 }
-                _syncManager.AddSyncEvent("Site", siteid);
+                _syncManager.AddSyncEvent(EntityNames.Site, siteid);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Order Updated {SiteId} {PageId} {ParentId}", siteid, pageid, parentid);
             }
             else
@@ -246,10 +246,10 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             Page page = _pages.GetPage(id);
-            if (_userPermissions.IsAuthorized(User, "Page", page.PageId, PermissionNames.Edit))
+            if (_userPermissions.IsAuthorized(User, EntityNames.Page, page.PageId, PermissionNames.Edit))
             {
                 _pages.DeletePage(page.PageId);
-                _syncManager.AddSyncEvent("Site", page.SiteId);
+                _syncManager.AddSyncEvent(EntityNames.Site, page.SiteId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Page Deleted {PageId}", page.PageId);
             }
             else
