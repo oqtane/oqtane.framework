@@ -36,7 +36,7 @@
                 <label  class="control-label">Permissions: </label>
             </td>
             <td>
-                <PermissionGrid EntityName="Folder" PermissionNames="Browse,View,Edit" Permissions="@_permissions" @ref="permissiongrid" />
+                <PermissionGrid EntityName="Folder" PermissionNames="Browse,View,Edit" Permissions="@_permissions" @ref="_permissionGrid" />
             </td>
         </tr>
     </table>
@@ -65,14 +65,16 @@
     int _folderId = -1;
     string _name;
     int _parentId = -1;
-    bool _isSystem = false;
+    bool _isSystem;
     string _permissions = "";
     string _createdBy;
     DateTime _createdOn;
     string _modifiedBy;
     DateTime _modifiedOn;
 
+#pragma warning disable 649
     PermissionGrid _permissionGrid;
+#pragma warning restore 649
 
     protected override async Task OnInitializedAsync()
     {

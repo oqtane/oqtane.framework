@@ -34,7 +34,7 @@
                 <label for="Name" class="control-label">Permissions: </label>
             </td>
             <td>
-                <PermissionGrid EntityName="Module" PermissionNames="@_permissionNames" Permissions="@_permissions" @ref="permissiongrid" />
+                <PermissionGrid EntityName="Module" PermissionNames="@_permissionNames" Permissions="@_permissions" @ref="_permissionGrid" />
             </td>
         </tr>
         <tr>
@@ -70,7 +70,7 @@
     string _permissions;
     string _pageId;
 
-    PermissionGrid _permissiongrid;
+    PermissionGrid _permissionGrid;
 
     RenderFragment DynamicComponent { get; set; }
     object _settings;
@@ -99,7 +99,7 @@
     private async Task SaveModule()
     {
         Module module = ModuleState;
-        module.Permissions = _permissiongrid.GetPermissions();
+        module.Permissions = _permissionGrid.GetPermissions();
         await ModuleService.UpdateModuleAsync(module);
 
         PageModule pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
@@ -112,7 +112,7 @@
         Type moduleType = Type.GetType(ModuleState.ModuleType);
         if (moduleType != null)
         {
-            moduleType.GetMethod("UpdateSettings").Invoke(_settings, null); // method must be public in settings component
+            moduleType.GetMethod("UpdateSettings")?.Invoke(_settings, null); // method must be public in settings component
         }
 
         NavigationManager.NavigateTo(NavigateUrl());

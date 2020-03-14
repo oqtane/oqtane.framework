@@ -17,7 +17,7 @@
             <label  class="control-label">Permissions: </label>
         </td>
         <td>
-            <PermissionGrid EntityName="ModuleDefinition" PermissionNames="Utilize" Permissions="@_permissions" @ref="_permissiongrid" />
+            <PermissionGrid EntityName="ModuleDefinition" PermissionNames="Utilize" Permissions="@_permissions" @ref="_permissionGrid" />
         </td>
     </tr>
 </table>
@@ -38,7 +38,9 @@
     string _modifiedby;
     DateTime _modifiedon;
 
-    PermissionGrid _permissiongrid;
+#pragma warning disable 649
+    PermissionGrid _permissionGrid;
+#pragma warning restore 649
 
     protected override async Task OnInitializedAsync()
     {
@@ -68,7 +70,7 @@
         try
         {
             ModuleDefinition moduledefinition = await ModuleDefinitionService.GetModuleDefinitionAsync(_moduleDefinitionId, ModuleState.SiteId);
-            moduledefinition.Permissions = _permissiongrid.GetPermissions();
+            moduledefinition.Permissions = _permissionGrid.GetPermissions();
             await ModuleDefinitionService.UpdateModuleDefinitionAsync(moduledefinition);
             await logger.LogInformation("ModuleDefinition Saved {ModuleDefinition}", moduledefinition);
             NavigationManager.NavigateTo(NavigateUrl());
