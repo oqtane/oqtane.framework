@@ -33,7 +33,7 @@ namespace Oqtane.Controllers
         public PageModule Get(int id)
         {
             PageModule pagemodule = _pageModules.GetPageModule(id);
-            if (_userPermissions.IsAuthorized(User, "View", pagemodule.Module.Permissions))
+            if (_userPermissions.IsAuthorized(User,PermissionNames.View, pagemodule.Module.Permissions))
             {
                 return pagemodule;
             }
@@ -50,7 +50,7 @@ namespace Oqtane.Controllers
         public PageModule Get(int pageid, int moduleid)
         {
             PageModule pagemodule = _pageModules.GetPageModule(pageid, moduleid);
-            if (_userPermissions.IsAuthorized(User, "View", pagemodule.Module.Permissions))
+            if (_userPermissions.IsAuthorized(User,PermissionNames.View, pagemodule.Module.Permissions))
             {
                 return pagemodule;
             }

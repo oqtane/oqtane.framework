@@ -38,7 +38,7 @@ namespace Oqtane.Controllers
             List<Page> pages = new List<Page>();
             foreach (Page page in _pages.GetPages(int.Parse(siteid)))
             {
-                if (_userPermissions.IsAuthorized(User, "View", page.Permissions))
+                if (_userPermissions.IsAuthorized(User,PermissionNames.View, page.Permissions))
                 {
                     pages.Add(page);
                 }
@@ -59,7 +59,7 @@ namespace Oqtane.Controllers
             {
                 page = _pages.GetPage(id, int.Parse(userid));
             }
-            if (_userPermissions.IsAuthorized(User, "View", page.Permissions))
+            if (_userPermissions.IsAuthorized(User,PermissionNames.View, page.Permissions))
             {
                 return page;
             }
@@ -78,7 +78,7 @@ namespace Oqtane.Controllers
             Page page = _pages.GetPage(WebUtility.UrlDecode(path), siteid);
             if (page != null)
             {
-                if (_userPermissions.IsAuthorized(User, "View", page.Permissions))
+                if (_userPermissions.IsAuthorized(User,PermissionNames.View, page.Permissions))
                 {
                     return page;
                 }
@@ -113,7 +113,7 @@ namespace Oqtane.Controllers
                     permissions = UserSecurity.SetPermissionStrings(new List<PermissionString> { new PermissionString { PermissionName = "Edit", Permissions = Constants.AdminRole } });
                 }
             
-                if (_userPermissions.IsAuthorized(User, "Edit", permissions))
+                if (_userPermissions.IsAuthorized(User,PermissionNames.Edit, permissions))
                 {
                     Page = _pages.AddPage(Page);
                     _syncManager.AddSyncEvent("Site", Page.SiteId);

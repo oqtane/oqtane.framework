@@ -37,7 +37,7 @@ namespace Oqtane.Controllers
             List<Models.Module> modules = new List<Models.Module>();
             foreach (PageModule pagemodule in _pageModules.GetPageModules(int.Parse(siteid)))
             {
-                if (_userPermissions.IsAuthorized(User, "View", pagemodule.Module.Permissions))
+                if (_userPermissions.IsAuthorized(User,PermissionNames.View, pagemodule.Module.Permissions))
                 {
                     Models.Module module = new Models.Module();
                     module.SiteId = pagemodule.Module.SiteId;
@@ -70,7 +70,7 @@ namespace Oqtane.Controllers
         public Models.Module Get(int id)
         {
             Models.Module module = _modules.GetModule(id);
-            if (_userPermissions.IsAuthorized(User, "View", module.Permissions))
+            if (_userPermissions.IsAuthorized(User,PermissionNames.View, module.Permissions))
             {
                 List<ModuleDefinition> moduledefinitions = _moduleDefinitions.GetModuleDefinitions(module.SiteId).ToList();
                 module.ModuleDefinition = moduledefinitions.Find(item => item.ModuleDefinitionName == module.ModuleDefinitionName);

@@ -103,7 +103,7 @@ namespace Oqtane.Controllers
         public Models.File Get(int id)
         {
             Models.File file = _files.GetFile(id);
-            if (_userPermissions.IsAuthorized(User, "View", file.Folder.Permissions))
+            if (_userPermissions.IsAuthorized(User,PermissionNames.View, file.Folder.Permissions))
             {
                 return file;
             }
@@ -164,7 +164,7 @@ namespace Oqtane.Controllers
         {
             Models.File file = null;
             Folder folder = _folders.GetFolder(int.Parse(folderid));
-            if (folder != null && _userPermissions.IsAuthorized(User, "Edit", folder.Permissions))
+            if (folder != null && _userPermissions.IsAuthorized(User,PermissionNames.Edit, folder.Permissions))
             {
                 string folderpath = GetFolderPath(folder);
                 CreateDirectory(folderpath);
@@ -213,7 +213,7 @@ namespace Oqtane.Controllers
                 if (int.TryParse(folder, out folderid))
                 {
                     Folder Folder = _folders.GetFolder(folderid);
-                    if (Folder != null && _userPermissions.IsAuthorized(User, "Edit", Folder.Permissions))
+                    if (Folder != null && _userPermissions.IsAuthorized(User,PermissionNames.Edit, Folder.Permissions))
                     {
                         folderpath = GetFolderPath(Folder); 
                     }
@@ -364,7 +364,7 @@ namespace Oqtane.Controllers
         public IActionResult Download(int id)
         {
             Models.File file = _files.GetFile(id);
-            if (file != null && _userPermissions.IsAuthorized(User, "View", file.Folder.Permissions))
+            if (file != null && _userPermissions.IsAuthorized(User,PermissionNames.View, file.Folder.Permissions))
             {
                 string filepath = GetFolderPath(file.Folder) + file.Name;
                 if (System.IO.File.Exists(filepath))

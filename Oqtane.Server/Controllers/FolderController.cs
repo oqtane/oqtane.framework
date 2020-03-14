@@ -99,7 +99,7 @@ namespace Oqtane.Controllers
                 {
                     permissions = UserSecurity.SetPermissionStrings(new List<PermissionString> { new PermissionString { PermissionName = "Edit", Permissions = Constants.AdminRole } });
                 }
-                if (_userPermissions.IsAuthorized(User, "Edit", permissions))
+                if (_userPermissions.IsAuthorized(User,PermissionNames.Edit, permissions))
                 {
                     if (string.IsNullOrEmpty(Folder.Path) && Folder.ParentId != null)
                     {
