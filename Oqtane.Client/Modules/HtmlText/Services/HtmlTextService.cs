@@ -1,20 +1,19 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
-using Oqtane.Services;
 using Oqtane.Modules.HtmlText.Models;
+using Oqtane.Services;
 using Oqtane.Shared;
-using Oqtane.Models;
 
 namespace Oqtane.Modules.HtmlText.Services
 {
     public class HtmlTextService : ServiceBase, IHtmlTextService
     {
         private readonly HttpClient _http;
-        private readonly SiteState _siteState;
         private readonly NavigationManager _navigationManager;
+        private readonly SiteState _siteState;
 
         public HtmlTextService(HttpClient http, SiteState siteState, NavigationManager navigationManager)
         {
@@ -23,42 +22,39 @@ namespace Oqtane.Modules.HtmlText.Services
             _navigationManager = navigationManager;
         }
 
-        private string apiurl
-        {
-            get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "HtmlText"); }
-        }
+        private string ApiUrl => CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "HtmlText");
 
-        public async Task<HtmlTextInfo> GetHtmlTextAsync(int ModuleId)
+        public async Task<HtmlTextInfo> GetHtmlTextAsync(int moduleId)
         {
-            HtmlTextInfo htmltext;
+            HtmlTextInfo htmlText;
             try
             {
                 //because GetJsonAsync() returns an error if no content exists for the ModuleId ( https://github.com/aspnet/AspNetCore/issues/14041 )
                 //null value is transfered as empty list
-                var htmltextList = await _http.GetJsonAsync<List<HtmlTextInfo>>(apiurl + "/" + ModuleId.ToString() + "?entityid=" + ModuleId.ToString());
-                htmltext = htmltextList.FirstOrDefault();
+                var htmlTextList = await _http.GetJsonAsync<List<HtmlTextInfo>>(ApiUrl + "/" + moduleId + "?entityid=" + moduleId);
+                htmlText = htmlTextList.FirstOrDefault();
             }
             catch
             {
-                htmltext = null;
+                htmlText = null;
             }
-            return htmltext;
+
+            return htmlText;
         }
 
-        public async Task AddHtmlTextAsync(HtmlTextInfo htmltext)
+        public async Task AddHtmlTextAsync(HtmlTextInfo htmlText)
         {
-            await _http.PostJsonAsync(apiurl + "?entityid=" + htmltext.ModuleId.ToString(), htmltext);
+            await _http.PostJsonAsync(ApiUrl + "?entityid=" + htmlText.ModuleId, htmlText);
         }
 
-        public async Task UpdateHtmlTextAsync(HtmlTextInfo htmltext)
+        public async Task UpdateHtmlTextAsync(HtmlTextInfo htmlText)
         {
-            await _http.PutJsonAsync(apiurl + "/" + htmltext.HtmlTextId.ToString() + "?entityid=" + htmltext.ModuleId.ToString(), htmltext);
+            await _http.PutJsonAsync(ApiUrl + "/" + htmlText.HtmlTextId + "?entityid=" + htmlText.ModuleId, htmlText);
         }
 
-        public async Task DeleteHtmlTextAsync(int ModuleId)
+        public async Task DeleteHtmlTextAsync(int moduleId)
         {
-            await _http.DeleteAsync(apiurl + "/" + ModuleId.ToString() + "?entityid=" + ModuleId.ToString());
+            await _http.DeleteAsync(ApiUrl + "/" + moduleId + "?entityid=" + moduleId);
         }
-
     }
 }

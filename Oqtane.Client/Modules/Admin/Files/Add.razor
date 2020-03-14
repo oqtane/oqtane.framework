@@ -4,7 +4,7 @@
 @inject IFileService FileService
 @inject IFolderService FolderService
 
-@if (folders != null)
+@if (_folders != null)
 {
     <div class="container-fluid">
         <div class="form-group">
@@ -27,10 +27,10 @@
                     <table class="table table-borderless">
                         <tr>
                             <td>
-                                <label for="Name" class="control-label">Upload: </label>
+                                <label  class="control-label">Upload: </label>
                             </td>
                             <td>
-                                <FileManager UploadMultiple="true" ShowFiles="false" FolderId="@folderid.ToString()" />
+                                <FileManager UploadMultiple="true" ShowFiles="false" FolderId="@_folderId.ToString()" />
                             </td>
                         </tr>
                     </table>
@@ -39,7 +39,7 @@
                     <table class="table table-borderless">
                         <tr>
                             <td>
-                                <label for="Name" class="control-label">Url: </label>
+                                <label  class="control-label">Url: </label>
                             </td>
                             <td>
                                 <input class="form-control" @bind="@url" />
@@ -47,12 +47,12 @@
                         </tr>
                         <tr>
                             <td>
-                                <label for="Name" class="control-label">Folder: </label>
+                                <label  class="control-label">Folder: </label>
                             </td>
                             <td>
-                                <select class="form-control" @bind="@folderid">
+                                <select class="form-control" @bind="@_folderId">
                                     <option value="-1">&lt;Select Folder&gt;</option>
-                                    @foreach (Folder folder in folders)
+                                    @foreach (Folder folder in _folders)
                                     {
                                         <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
                                     }
@@ -73,16 +73,16 @@
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 
     string url = "";
-    List<Folder> folders;
-    int folderid = -1;
+    List<Folder> _folders;
+    int _folderId = -1;
 
     protected override async Task OnInitializedAsync()
     {
-        folders = await FolderService.GetFoldersAsync(ModuleState.SiteId);
+        _folders = await FolderService.GetFoldersAsync(ModuleState.SiteId);
 
         if (PageState.QueryString.ContainsKey("id"))
         {
-            folderid = int.Parse(PageState.QueryString["id"]);
+            _folderId = int.Parse(PageState.QueryString["id"]);
         }
     }
 
@@ -90,9 +90,9 @@
     {
         try
         {
-            if (url != "" && folderid != -1)
+            if (url != "" && _folderId != -1)
             {
-                await FileService.UploadFileAsync(url, folderid);
+                await FileService.UploadFileAsync(url, _folderId);
                 await logger.LogInformation("File Downloaded Successfully From Url {Url}", url);
                 AddModuleMessage("File Downloaded Successfully From Url", MessageType.Success);
             }

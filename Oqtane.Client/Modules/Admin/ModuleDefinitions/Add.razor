@@ -8,7 +8,7 @@
 <table class="table table-borderless">
     <tr>
         <td>
-            <label for="Name" class="control-label">Module: </label>
+            <label  class="control-label">Module: </label>
         </td>
         <td>
             <FileManager Filter="nupkg" ShowFiles="false" Folder="Modules" />
@@ -16,12 +16,12 @@
     </tr>
 </table>
 
-@if (packages != null)
+@if (_packages != null)
 {
     <hr class="app-rule" />
     <div class="mx-auto text-center"><h2>Available Modules</h2></div>
 
-    <Pager Items="@packages">
+    <Pager Items="@_packages">
         <Header>
             <th>Name</th>
             <th>Version</th>
@@ -44,19 +44,19 @@
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
 
-    List<Package> packages;
+    List<Package> _packages;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             List<ModuleDefinition> moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
-            packages = await PackageService.GetPackagesAsync("module");
-            foreach(Package package in packages.ToArray())
+            _packages = await PackageService.GetPackagesAsync("module");
+            foreach(Package package in _packages.ToArray())
             {
                 if (moduledefinitions.Exists(item => Utilities.GetTypeName(item.ModuleDefinitionName) == package.PackageId))
                 {
-                    packages.Remove(package);
+                    _packages.Remove(package);
                 }
             }
         }
