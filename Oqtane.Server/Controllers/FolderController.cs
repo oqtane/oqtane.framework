@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
 using System.Linq;
 using System.Net;
-using Oqtane.Infrastructure;
+using Oqtane.Enums;
+using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Repository;
 using Oqtane.Security;
 
 namespace Oqtane.Controllers
@@ -86,14 +87,14 @@ namespace Oqtane.Controllers
         // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = Constants.RegisteredRole)]
-        public Folder Post([FromBody] Folder Folder)
+        public Folder Post([FromBody] Folder folder)
         {
             if (ModelState.IsValid)
             {
                 string permissions;
-                if (Folder.ParentId != null)
+                if (folder.ParentId != null)
                 {
-                    permissions = _folders.GetFolder(Folder.ParentId.Value).Permissions;
+                    permissions = _folders.GetFolder(folder.ParentId.Value).Permissions;
                 }
                 else
                 {
@@ -101,46 +102,46 @@ namespace Oqtane.Controllers
                 }
                 if (_userPermissions.IsAuthorized(User,PermissionNames.Edit, permissions))
                 {
-                    if (string.IsNullOrEmpty(Folder.Path) && Folder.ParentId != null)
+                    if (string.IsNullOrEmpty(folder.Path) && folder.ParentId != null)
                     {
-                        Folder parent = _folders.GetFolder(Folder.ParentId.Value);
-                        Folder.Path = parent.Path + Folder.Name + "\\";
+                        Folder parent = _folders.GetFolder(folder.ParentId.Value);
+                        folder.Path = parent.Path + folder.Name + "\\";
                     }
-                    Folder = _folders.AddFolder(Folder);
-                    _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Added {Folder}", Folder);
+                    folder = _folders.AddFolder(folder);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Added {Folder}", folder);
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Add Folder {Folder}", Folder);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Add Folder {Folder}", folder);
                     HttpContext.Response.StatusCode = 401;
-                    Folder = null;
+                    folder = null;
                 }
             }
-            return Folder;
+            return folder;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Roles = Constants.RegisteredRole)]
-        public Folder Put(int id, [FromBody] Folder Folder)
+        public Folder Put(int id, [FromBody] Folder folder)
         {
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Folder, Folder.FolderId, PermissionNames.Edit))
+            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Folder, folder.FolderId, PermissionNames.Edit))
             {
-                if (string.IsNullOrEmpty(Folder.Path) && Folder.ParentId != null)
+                if (string.IsNullOrEmpty(folder.Path) && folder.ParentId != null)
                 {
-                    Folder parent = _folders.GetFolder(Folder.ParentId.Value);
-                    Folder.Path = parent.Path + Folder.Name + "\\";
+                    Folder parent = _folders.GetFolder(folder.ParentId.Value);
+                    folder.Path = parent.Path + folder.Name + "\\";
                 }
-                Folder = _folders.UpdateFolder(Folder);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Folder Updated {Folder}", Folder);
+                folder = _folders.UpdateFolder(folder);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Folder Updated {Folder}", folder);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Folder {Folder}", Folder);
+                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Folder {Folder}", folder);
                 HttpContext.Response.StatusCode = 401;
-                Folder = null;
+                folder = null;
             }
-            return Folder;
+            return folder;
         }
 
         // PUT api/<controller>/?siteid=x&folderid=y&parentid=z

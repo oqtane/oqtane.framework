@@ -1,34 +1,27 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.ResponseCompression; // needed for WASM
-using Microsoft.Extensions.DependencyInjection;
-using System.Linq;
-using Microsoft.Extensions.Configuration;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
 using System;
-using System.Reflection;
-using Microsoft.Extensions.Hosting;
-using Oqtane.Modules;
-using Oqtane.Repository;
 using System.IO;
-using System.Runtime.Loader;
-using Oqtane.Services;
+using System.Linq;
 using System.Net.Http;
-using Microsoft.AspNetCore.Components;
-using Oqtane.Shared;
-using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.OpenApi.Models;
-using Oqtane.Security;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
-using System.Net;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 using Oqtane.Infrastructure;
+using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Repository;
+using Oqtane.Security;
+using Oqtane.Services;
+using Oqtane.Shared; // needed for WASM
 
-namespace Oqtane.Server
+namespace Oqtane
 {
     public class Startup
     {
@@ -59,10 +52,10 @@ namespace Oqtane.Server
             // setup HttpClient for server side in a client side compatible fashion ( with auth cookie )
             if (!services.Any(x => x.ServiceType == typeof(HttpClient)))
             {
-                services.AddScoped<HttpClient>(s =>
+                services.AddScoped(s =>
                 {
                     // creating the URI helper needs to wait until the JS Runtime is initialized, so defer it.
-                    var NavigationManager = s.GetRequiredService<NavigationManager>();
+                    var navigationManager = s.GetRequiredService<NavigationManager>();
                     var httpContextAccessor = s.GetRequiredService<IHttpContextAccessor>();
                     var authToken = httpContextAccessor.HttpContext.Request.Cookies[".AspNetCore.Identity.Application"];
                     var client = new HttpClient(new HttpClientHandler { UseCookies = false });
@@ -70,7 +63,7 @@ namespace Oqtane.Server
                     {
                         client.DefaultRequestHeaders.Add("Cookie", ".AspNetCore.Identity.Application=" + authToken);
                     }
-                    client.BaseAddress = new Uri(NavigationManager.Uri);
+                    client.BaseAddress = new Uri(navigationManager.Uri);
                     return client;
                 });
             }
@@ -78,13 +71,13 @@ namespace Oqtane.Server
             // register authorization services
             services.AddAuthorizationCore(options =>
             {
-                options.AddPolicy("ViewPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", PermissionNames.View)));
-                options.AddPolicy("EditPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", PermissionNames.Edit)));
-                options.AddPolicy("ViewModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", PermissionNames.View)));
-                options.AddPolicy("EditModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", PermissionNames.Edit)));
-                options.AddPolicy("ViewFolder", policy => policy.Requirements.Add(new PermissionRequirement("Folder", PermissionNames.View)));
-                options.AddPolicy("EditFolder", policy => policy.Requirements.Add(new PermissionRequirement("Folder", PermissionNames.Edit)));
-                options.AddPolicy("ListFolder", policy => policy.Requirements.Add(new PermissionRequirement("Folder", "List")));
+                options.AddPolicy("ViewPage", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Page, PermissionNames.View)));
+                options.AddPolicy("EditPage", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Page, PermissionNames.Edit)));
+                options.AddPolicy("ViewModule", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Module, PermissionNames.View)));
+                options.AddPolicy("EditModule", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Module, PermissionNames.Edit)));
+                options.AddPolicy("ViewFolder", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Folder, PermissionNames.View)));
+                options.AddPolicy("EditFolder", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Folder, PermissionNames.Edit)));
+                options.AddPolicy("ListFolder", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Folder, PermissionNames.Browse)));
             });
 
             // register scoped core services
@@ -160,7 +153,7 @@ namespace Oqtane.Server
             services.AddTransient<IUserClaimsPrincipalFactory<IdentityUser>, ClaimsPrincipalFactory<IdentityUser>>();
 
             // register singleton scoped core services
-            services.AddSingleton<IConfigurationRoot>(Configuration);
+            services.AddSingleton(Configuration);
             services.AddSingleton<IInstallationManager, InstallationManager>();
             services.AddSingleton<ISyncManager, SyncManager>();
 
@@ -206,7 +199,7 @@ namespace Oqtane.Server
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IInstallationManager InstallationManager)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IInstallationManager installationManager)
         {
             if (env.IsDevelopment())
             {
@@ -219,7 +212,7 @@ namespace Oqtane.Server
             }
 
             // install any modules or themes
-            InstallationManager.InstallPackages("Modules,Themes", false);
+            installationManager.InstallPackages("Modules,Themes", false);
 
             app.UseHttpsRedirection();
 

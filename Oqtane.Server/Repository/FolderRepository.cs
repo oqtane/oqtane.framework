@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
@@ -16,10 +16,10 @@ namespace Oqtane.Repository
             _permissions = permissions;
         }
 
-        public IEnumerable<Folder> GetFolders(int SiteId)
+        public IEnumerable<Folder> GetFolders(int siteId)
         {
-            IEnumerable<Permission> permissions = _permissions.GetPermissions(SiteId, "Folder").ToList();
-            IEnumerable<Folder> folders = _db.Folder.Where(item => item.SiteId == SiteId);
+            IEnumerable<Permission> permissions = _permissions.GetPermissions(siteId, "Folder").ToList();
+            IEnumerable<Folder> folders = _db.Folder.Where(item => item.SiteId == siteId);
             foreach(Folder folder in folders)
             {
                 folder.Permissions = _permissions.EncodePermissions(folder.FolderId, permissions);
@@ -27,25 +27,25 @@ namespace Oqtane.Repository
             return folders;
         }
 
-        public Folder AddFolder(Folder Folder)
+        public Folder AddFolder(Folder folder)
         {
-            _db.Folder.Add(Folder);
+            _db.Folder.Add(folder);
             _db.SaveChanges();
-            _permissions.UpdatePermissions(Folder.SiteId, "Folder", Folder.FolderId, Folder.Permissions);
-            return Folder;
+            _permissions.UpdatePermissions(folder.SiteId, "Folder", folder.FolderId, folder.Permissions);
+            return folder;
         }
 
-        public Folder UpdateFolder(Folder Folder)
+        public Folder UpdateFolder(Folder folder)
         {
-            _db.Entry(Folder).State = EntityState.Modified;
+            _db.Entry(folder).State = EntityState.Modified;
             _db.SaveChanges();
-            _permissions.UpdatePermissions(Folder.SiteId, "Folder", Folder.FolderId, Folder.Permissions);
-            return Folder;
+            _permissions.UpdatePermissions(folder.SiteId, "Folder", folder.FolderId, folder.Permissions);
+            return folder;
         }
 
-        public Folder GetFolder(int FolderId)
+        public Folder GetFolder(int folderId)
         {
-            Folder folder = _db.Folder.Find(FolderId);
+            Folder folder = _db.Folder.Find(folderId);
             if (folder != null)
             {
                 IEnumerable<Permission> permissions = _permissions.GetPermissions("Folder", folder.FolderId).ToList();
@@ -54,9 +54,9 @@ namespace Oqtane.Repository
             return folder;
         }
 
-        public Folder GetFolder(int SiteId, string Path)
+        public Folder GetFolder(int siteId, string path)
         {
-            Folder folder = _db.Folder.Where(item => item.SiteId == SiteId && item.Path == Path).FirstOrDefault();
+            Folder folder = _db.Folder.Where(item => item.SiteId == siteId && item.Path == path).FirstOrDefault();
             if (folder != null)
             {
                 IEnumerable<Permission> permissions = _permissions.GetPermissions("Folder", folder.FolderId).ToList();
@@ -65,11 +65,11 @@ namespace Oqtane.Repository
             return folder;
         }
 
-        public void DeleteFolder(int FolderId)
+        public void DeleteFolder(int folderId)
         {
-            Folder Folder = _db.Folder.Find(FolderId);
-            _permissions.DeletePermissions(Folder.SiteId, "Folder", FolderId);
-            _db.Folder.Remove(Folder);
+            Folder folder = _db.Folder.Find(folderId);
+            _permissions.DeletePermissions(folder.SiteId, "Folder", folderId);
+            _db.Folder.Remove(folder);
             _db.SaveChanges();
         }
     }

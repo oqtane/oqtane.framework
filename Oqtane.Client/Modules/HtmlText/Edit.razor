@@ -158,7 +158,7 @@
 
     private async Task RawHtmlEditor()
     {
-        content = await this.RichTextEditorHtml.GetHTML();
+        content = await this.RichTextEditorHtml.GetHtml();
         RichTextEditorMode = false;
         StateHasChanged();
     }
@@ -167,7 +167,7 @@
     {
         if (RichTextEditorMode)
         {
-            content = await RichTextEditorHtml.GetHTML();
+            content = await RichTextEditorHtml.GetHtml();
         }
 
         content = content.Replace(((PageState.Alias.Path == "") ? "/~" : PageState.Alias.Path) + Constants.ContentUrl, Constants.ContentUrl);

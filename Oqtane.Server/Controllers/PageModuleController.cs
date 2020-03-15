@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
 using System.Linq;
-using Oqtane.Infrastructure;
+using Oqtane.Enums;
+using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Repository;
 using Oqtane.Security;
 
 namespace Oqtane.Controllers
@@ -14,15 +15,13 @@ namespace Oqtane.Controllers
     public class PageModuleController : Controller
     {
         private readonly IPageModuleRepository _pageModules;
-        private readonly IModuleRepository _modules;
         private readonly IUserPermissions _userPermissions;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
 
-        public PageModuleController(IPageModuleRepository pageModules, IModuleRepository modules, IUserPermissions userPermissions, ISyncManager syncManager, ILogManager logger)
+        public PageModuleController(IPageModuleRepository pageModules, IUserPermissions userPermissions, ISyncManager syncManager, ILogManager logger)
         {
             _pageModules = pageModules;
-            _modules = modules;
             _userPermissions = userPermissions;
             _syncManager = syncManager;
             _logger = logger;
@@ -65,41 +64,41 @@ namespace Oqtane.Controllers
         // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = Constants.RegisteredRole)]
-        public PageModule Post([FromBody] PageModule PageModule)
+        public PageModule Post([FromBody] PageModule pageModule)
         {
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Page, PageModule.PageId, PermissionNames.Edit))
+            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Page, pageModule.PageId, PermissionNames.Edit))
             {
-                PageModule = _pageModules.AddPageModule(PageModule);
-                _syncManager.AddSyncEvent(EntityNames.Page, PageModule.PageId);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Page Module Added {PageModule}", PageModule);
+                pageModule = _pageModules.AddPageModule(pageModule);
+                _syncManager.AddSyncEvent(EntityNames.Page, pageModule.PageId);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Page Module Added {PageModule}", pageModule);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Add PageModule {PageModule}", PageModule);
+                _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Add PageModule {PageModule}", pageModule);
                 HttpContext.Response.StatusCode = 401;
-                PageModule = null;
+                pageModule = null;
             }
-            return PageModule;
+            return pageModule;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Roles = Constants.RegisteredRole)]
-        public PageModule Put(int id, [FromBody] PageModule PageModule)
+        public PageModule Put(int id, [FromBody] PageModule pageModule)
         {
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Module, PageModule.ModuleId, PermissionNames.Edit))
+            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Module, pageModule.ModuleId, PermissionNames.Edit))
             {
-                PageModule = _pageModules.UpdatePageModule(PageModule);
-                _syncManager.AddSyncEvent(EntityNames.Page, PageModule.PageId);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Module Updated {PageModule}", PageModule);
+                pageModule = _pageModules.UpdatePageModule(pageModule);
+                _syncManager.AddSyncEvent(EntityNames.Page, pageModule.PageId);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Module Updated {PageModule}", pageModule);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update PageModule {PageModule}", PageModule);
+                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update PageModule {PageModule}", pageModule);
                 HttpContext.Response.StatusCode = 401;
-                PageModule = null;
+                pageModule = null;
             }
-            return PageModule;
+            return pageModule;
         }
 
         // PUT api/<controller>/?pageid=x&pane=y

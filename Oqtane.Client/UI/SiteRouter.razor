@@ -11,6 +11,8 @@
 @inject IModuleService ModuleService
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject ILogService LogService
+@using System.Diagnostics.CodeAnalysis
+@using Oqtane.Enums
 @implements IHandleAfterRender
 
 @DynamicComponent
@@ -23,7 +25,7 @@
     [Parameter]
     public Action<PageState> OnStateChange { get; set; }
 
-    PageState pagestate;
+    PageState _pagestate;
     RenderFragment DynamicComponent { get; set; }
 
     string _absoluteUri;
@@ -65,6 +67,7 @@
         }
     }
 
+    [SuppressMessage("ReSharper", "StringIndexOfIsCultureSpecific.1")]
     private async Task Refresh()
     {
         Alias alias = null;
@@ -235,18 +238,20 @@
                 {
                     page = await ProcessPage(page, site, user);
 
-                    pagestate = new PageState();
-                    pagestate.Alias = alias;
-                    pagestate.Site = site;
-                    pagestate.Pages = pages;
-                    pagestate.Page = page;
-                    pagestate.User = user;
-                    pagestate.Uri = new Uri(_absoluteUri, UriKind.Absolute);
-                    pagestate.QueryString = querystring;
-                    pagestate.ModuleId = moduleid;
-                    pagestate.Action = action;
+                    _pagestate = new PageState
+                    {
+                        Alias = alias,
+                        Site = site,
+                        Pages = pages,
+                        Page = page,
+                        User = user,
+                        Uri = new Uri(_absoluteUri, UriKind.Absolute),
+                        QueryString = querystring,
+                        ModuleId = moduleid,
+                        Action = action
+                    };
 
-                    if (PageState != null && (PageState.ModuleId != pagestate.ModuleId || PageState.Action != pagestate.Action))
+                    if (PageState != null && (PageState.ModuleId != _pagestate.ModuleId || PageState.Action != _pagestate.Action))
                     {
                         reload = Reload.Page;
                     }
@@ -254,17 +259,17 @@
                     if (PageState == null || reload >= Reload.Page)
                     {
                         modules = await ModuleService.GetModulesAsync(site.SiteId);
-                        modules = ProcessModules(modules, page.PageId, pagestate.ModuleId, pagestate.Action, page.Panes, site.DefaultContainerType);
+                        modules = ProcessModules(modules, page.PageId, _pagestate.ModuleId, _pagestate.Action, page.Panes, site.DefaultContainerType);
                     }
                     else
                     {
                         modules = PageState.Modules;
                     }
-                    pagestate.Modules = modules;
-                    pagestate.EditMode = editmode;
-                    pagestate.LastSyncDate = lastsyncdate;
+                    _pagestate.Modules = modules;
+                    _pagestate.EditMode = editmode;
+                    _pagestate.LastSyncDate = lastsyncdate;
 
-                    OnStateChange?.Invoke(pagestate);
+                    OnStateChange?.Invoke(_pagestate);
                 }
             }
             else

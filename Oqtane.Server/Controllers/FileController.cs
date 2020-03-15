@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Oqtane.Infrastructure;
-using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
 using System;
@@ -15,6 +13,11 @@ using Oqtane.Security;
 using System.Linq;
 using System.Drawing;
 using System.Net;
+using Oqtane.Enums;
+using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Repository;
+
+// ReSharper disable StringIndexOfIsCultureSpecific.1
 
 namespace Oqtane.Controllers
 {
@@ -61,14 +64,15 @@ namespace Oqtane.Controllers
                     {
                         foreach (string file in Directory.GetFiles(folder))
                         {
-                            files.Add(new Models.File { Name = Path.GetFileName(file), Extension = Path.GetExtension(file).Replace(".","") });
+                            files.Add(new Models.File {Name = Path.GetFileName(file), Extension = Path.GetExtension(file)?.Replace(".", "")});
                         }
                     }
                 }
             }
+
             return files;
         }
-        
+
         // GET: api/<controller>/siteId/folderPath
         [HttpGet("{siteId}/{path}")]
         public IEnumerable<Models.File> Get(int siteId, string path)
@@ -95,6 +99,7 @@ namespace Oqtane.Controllers
                 HttpContext.Response.StatusCode = 401;
                 return null;
             }
+
             return files;
         }
 
@@ -103,7 +108,7 @@ namespace Oqtane.Controllers
         public Models.File Get(int id)
         {
             Models.File file = _files.GetFile(id);
-            if (_userPermissions.IsAuthorized(User,PermissionNames.View, file.Folder.Permissions))
+            if (_userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.Permissions))
             {
                 return file;
             }
@@ -118,20 +123,21 @@ namespace Oqtane.Controllers
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Roles = Constants.RegisteredRole)]
-        public Models.File Put(int id, [FromBody] Models.File File)
+        public Models.File Put(int id, [FromBody] Models.File file)
         {
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Folder, File.Folder.FolderId, PermissionNames.Edit))
+            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Folder, file.Folder.FolderId, PermissionNames.Edit))
             {
-                File = _files.UpdateFile(File);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "File Updated {File}", File);
+                file = _files.UpdateFile(file);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "File Updated {File}", file);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update File {File}", File);
+                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update File {File}", file);
                 HttpContext.Response.StatusCode = 401;
-                File = null;
+                file = null;
             }
-            return File;
+
+            return file;
         }
 
         // DELETE api/<controller>/5
@@ -149,6 +155,7 @@ namespace Oqtane.Controllers
                 {
                     System.IO.File.Delete(filepath);
                 }
+
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "File Deleted {File}", file);
             }
             else
@@ -164,24 +171,25 @@ namespace Oqtane.Controllers
         {
             Models.File file = null;
             Folder folder = _folders.GetFolder(int.Parse(folderid));
-            if (folder != null && _userPermissions.IsAuthorized(User,PermissionNames.Edit, folder.Permissions))
+            if (folder != null && _userPermissions.IsAuthorized(User, PermissionNames.Edit, folder.Permissions))
             {
-                string folderpath = GetFolderPath(folder);
-                CreateDirectory(folderpath);
-                string filename = url.Substring(url.LastIndexOf("/") + 1);
+                string folderPath = GetFolderPath(folder);
+                CreateDirectory(folderPath);
+                string filename = url.Substring(url.LastIndexOf("/", StringComparison.Ordinal) + 1);
                 // check for allowable file extensions
                 if (Constants.UploadableFiles.Contains(Path.GetExtension(filename).Replace(".", "")))
                 {
                     try
                     {
-                        var client = new System.Net.WebClient();
+                        var client = new WebClient();
                         // remove file if it already exists
-                        if (System.IO.File.Exists(folderpath + filename))
+                        if (System.IO.File.Exists(folderPath + filename))
                         {
-                            System.IO.File.Delete(folderpath + filename);
+                            System.IO.File.Delete(folderPath + filename);
                         }
-                        client.DownloadFile(url, folderpath + filename);
-                        _files.AddFile(CreateFile(filename, folder.FolderId, folderpath + filename));
+
+                        client.DownloadFile(url, folderPath + filename);
+                        _files.AddFile(CreateFile(filename, folder.FolderId, folderPath + filename));
                     }
                     catch
                     {
@@ -197,45 +205,47 @@ namespace Oqtane.Controllers
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Download File {Url} {FolderId}", url, folderid);
                 HttpContext.Response.StatusCode = 401;
-                file = null;
             }
+
             return file;
         }
-        
+
         // POST api/<controller>/upload
         [HttpPost("upload")]
         public async Task UploadFile(string folder, IFormFile file)
         {
             if (file.Length > 0)
             {
-                string folderpath = "";
-                int folderid = -1;
-                if (int.TryParse(folder, out folderid))
+                string folderPath = "";
+
+                if (int.TryParse(folder, out int folderId))
                 {
-                    Folder Folder = _folders.GetFolder(folderid);
-                    if (Folder != null && _userPermissions.IsAuthorized(User,PermissionNames.Edit, Folder.Permissions))
+                    Folder virtualFolder = _folders.GetFolder(folderId);
+                    if (virtualFolder != null && _userPermissions.IsAuthorized(User, PermissionNames.Edit, virtualFolder.Permissions))
                     {
-                        folderpath = GetFolderPath(Folder); 
+                        folderPath = GetFolderPath(virtualFolder);
                     }
                 }
                 else
                 {
                     if (User.IsInRole(Constants.HostRole))
                     {
-                        folderpath = GetFolderPath(folder);
+                        folderPath = GetFolderPath(folder);
                     }
                 }
-                if (folderpath != "")
+
+                if (folderPath != "")
                 {
-                    CreateDirectory(folderpath);
-                    using (var stream = new FileStream(Path.Combine(folderpath, file.FileName), FileMode.Create))
+                    CreateDirectory(folderPath);
+                    using (var stream = new FileStream(Path.Combine(folderPath, file.FileName), FileMode.Create))
                     {
                         await file.CopyToAsync(stream);
                     }
-                    string upload = await MergeFile(folderpath, file.FileName);
-                    if (upload != "" && folderid != -1)
+
+                    string upload = await MergeFile(folderPath, file.FileName);
+                    if (upload != "" && folderId != -1)
                     {
-                        _files.AddFile(CreateFile(upload, folderid, folderpath + upload));
+                        _files.AddFile(CreateFile(upload, folderId, folderPath + upload));
                     }
                 }
                 else
@@ -252,19 +262,19 @@ namespace Oqtane.Controllers
 
             // parse the filename which is in the format of filename.ext.part_x_y 
             string token = ".part_";
-            string parts = Path.GetExtension(filename).Replace(token, ""); // returns "x_y"
-            int totalparts = int.Parse(parts.Substring(parts.IndexOf("_") + 1));
-            filename = filename.Substring(0, filename.IndexOf(token)); // base filename
-            string[] fileparts = Directory.GetFiles(folder, filename + token + "*"); // list of all file parts
+            string parts = Path.GetExtension(filename)?.Replace(token, ""); // returns "x_y"    
+            int totalparts = int.Parse(parts?.Substring(parts.IndexOf("_") + 1));
+            filename = filename?.Substring(0, filename.IndexOf(token)); // base filename
+            string[] fileParts = Directory.GetFiles(folder, filename + token + "*"); // list of all file parts
 
             // if all of the file parts exist ( note that file parts can arrive out of order )
-            if (fileparts.Length == totalparts && CanAccessFiles(fileparts))
+            if (fileParts.Length == totalparts && CanAccessFiles(fileParts))
             {
                 // merge file parts
                 bool success = true;
                 using (var stream = new FileStream(Path.Combine(folder, filename + ".tmp"), FileMode.Create))
                 {
-                    foreach (string filepart in fileparts)
+                    foreach (string filepart in fileParts)
                     {
                         try
                         {
@@ -283,13 +293,13 @@ namespace Oqtane.Controllers
                 // delete file parts and rename file
                 if (success)
                 {
-                    foreach (string filepart in fileparts)
+                    foreach (string filepart in fileParts)
                     {
                         System.IO.File.Delete(filepart);
                     }
 
                     // check for allowable file extensions
-                    if (!Constants.UploadableFiles.Contains(Path.GetExtension(filename).Replace(".", "")))
+                    if (!Constants.UploadableFiles.Contains(Path.GetExtension(filename)?.Replace(".", "")))
                     {
                         System.IO.File.Delete(Path.Combine(folder, filename + ".tmp"));
                     }
@@ -300,17 +310,19 @@ namespace Oqtane.Controllers
                         {
                             System.IO.File.Delete(Path.Combine(folder, filename));
                         }
+
                         // rename file now that the entire process is completed
                         System.IO.File.Move(Path.Combine(folder, filename + ".tmp"), Path.Combine(folder, filename));
                         _logger.Log(LogLevel.Information, this, LogFunction.Create, "File Uploaded {File}", Path.Combine(folder, filename));
                     }
+
                     merged = filename;
                 }
             }
 
             // clean up file parts which are more than 2 hours old ( which can happen if a prior file upload failed )
-            fileparts = Directory.GetFiles(folder, "*" + token + "*");
-            foreach (string filepart in fileparts)
+            fileParts = Directory.GetFiles(folder, "*" + token + "*");
+            foreach (string filepart in fileParts)
             {
                 DateTime createddate = System.IO.File.GetCreationTime(filepart).ToUniversalTime();
                 if (createddate < DateTime.UtcNow.AddHours(-2))
@@ -331,7 +343,7 @@ namespace Oqtane.Controllers
             {
                 int attempts = 0;
                 bool locked = true;
-                while (attempts < 5 && locked == true)
+                while (attempts < 5 && locked)
                 {
                     try
                     {
@@ -339,7 +351,7 @@ namespace Oqtane.Controllers
                         locked = false;
                     }
                     catch // file is locked by another process
-                    {                    
+                    {
                         Thread.Sleep(1000); // wait 1 second
                     }
                     finally
@@ -349,13 +361,16 @@ namespace Oqtane.Controllers
                             stream.Close();
                         }
                     }
+
                     attempts += 1;
                 }
+
                 if (locked && canaccess)
                 {
                     canaccess = false;
                 }
             }
+
             return canaccess;
         }
 
@@ -364,7 +379,7 @@ namespace Oqtane.Controllers
         public IActionResult Download(int id)
         {
             Models.File file = _files.GetFile(id);
-            if (file != null && _userPermissions.IsAuthorized(User,PermissionNames.View, file.Folder.Permissions))
+            if (file != null && _userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.Permissions))
             {
                 string filepath = GetFolderPath(file.Folder) + file.Name;
                 if (System.IO.File.Exists(filepath))
@@ -402,7 +417,7 @@ namespace Oqtane.Controllers
             if (!Directory.Exists(folderpath))
             {
                 string path = "";
-                string[] folders = folderpath.Split(new char[] { '\\' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] folders = folderpath.Split(new[] {'\\'}, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string folder in folders)
                 {
                     path += folder + "\\";
@@ -422,7 +437,7 @@ namespace Oqtane.Controllers
 
             FileInfo fileinfo = new FileInfo(filepath);
             file.Extension = fileinfo.Extension.ToLower().Replace(".", "");
-            file.Size = (int)fileinfo.Length;
+            file.Size = (int) fileinfo.Length;
             file.ImageHeight = 0;
             file.ImageWidth = 0;
 
@@ -434,6 +449,7 @@ namespace Oqtane.Controllers
                     file.ImageHeight = image.Height;
                     file.ImageWidth = image.Width;
                 }
+
                 stream.Close();
             }
 

@@ -3,7 +3,7 @@
 
 <CascadingValue Value="this">
     <div>
-        @foreach (TabPanel tabPanel in TabPanels)
+        @foreach (TabPanel tabPanel in _tabPanels)
         {
             <button type="button"
                     class="btn @GetButtonClass(tabPanel)"
@@ -21,12 +21,12 @@
     public RenderFragment ChildContent { get; set; }
 
     public TabPanel ActiveTabPanel { get; set; }
-    List<TabPanel> TabPanels = new List<TabPanel>();
+    List<TabPanel> _tabPanels = new List<TabPanel>();
 
     internal void AddTabPanel(TabPanel tabPanel)
     {
-        TabPanels.Add(tabPanel);
-        if (TabPanels.Count == 1)
+        _tabPanels.Add(tabPanel);
+        if (_tabPanels.Count == 1)
             ActiveTabPanel = tabPanel;
         StateHasChanged();
     }

@@ -70,7 +70,9 @@
     string _permissions;
     string _pageId;
 
+#pragma warning disable 649
     PermissionGrid _permissionGrid;
+#pragma warning restore 649
 
     RenderFragment DynamicComponent { get; set; }
     object _settings;

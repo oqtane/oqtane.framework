@@ -54,7 +54,6 @@
     List<Folder> _folders;
     int _folderId = -1;
     List<File> _files;
-    Uri _uri;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -66,7 +65,6 @@
                 _folderId = _folders[0].FolderId;
                 await GetFiles();
             }
-            _uri = new Uri(NavigationManager.Uri);
         }
         catch (Exception ex)
         {

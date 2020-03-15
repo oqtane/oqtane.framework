@@ -8,48 +8,48 @@ namespace Oqtane.Services
     {
         Task<Dictionary<string, string>> GetHostSettingsAsync();
 
-        Task UpdateHostSettingsAsync(Dictionary<string, string> HostSettings);
+        Task UpdateHostSettingsAsync(Dictionary<string, string> hostSettings);
 
-        Task<Dictionary<string, string>> GetSiteSettingsAsync(int SiteId);
+        Task<Dictionary<string, string>> GetSiteSettingsAsync(int siteId);
 
-        Task UpdateSiteSettingsAsync(Dictionary<string, string> SiteSettings, int SiteId);
+        Task UpdateSiteSettingsAsync(Dictionary<string, string> siteSettings, int siteId);
 
-        Task<Dictionary<string, string>> GetPageSettingsAsync(int PageId);
+        Task<Dictionary<string, string>> GetPageSettingsAsync(int pageId);
 
-        Task UpdatePageSettingsAsync(Dictionary<string, string> PageSettings, int PageId);
+        Task UpdatePageSettingsAsync(Dictionary<string, string> pageSettings, int pageId);
 
-        Task<Dictionary<string, string>> GetPageModuleSettingsAsync(int PageModuleId);
+        Task<Dictionary<string, string>> GetPageModuleSettingsAsync(int pageModuleId);
 
-        Task UpdatePageModuleSettingsAsync(Dictionary<string, string> PageModuleSettings, int PageModuleId);
+        Task UpdatePageModuleSettingsAsync(Dictionary<string, string> pageModuleSettings, int pageModuleId);
 
-        Task<Dictionary<string, string>> GetModuleSettingsAsync(int ModuleId);
+        Task<Dictionary<string, string>> GetModuleSettingsAsync(int moduleId);
 
-        Task UpdateModuleSettingsAsync(Dictionary<string, string> ModuleSettings, int ModuleId);
+        Task UpdateModuleSettingsAsync(Dictionary<string, string> moduleSettings, int moduleId);
 
-        Task<Dictionary<string, string>> GetUserSettingsAsync(int UserId);
+        Task<Dictionary<string, string>> GetUserSettingsAsync(int userId);
 
-        Task UpdateUserSettingsAsync(Dictionary<string, string> UserSettings, int UserId);
+        Task UpdateUserSettingsAsync(Dictionary<string, string> userSettings, int userId);
 
-        Task<Dictionary<string, string>> GetFolderSettingsAsync(int FolderId);
+        Task<Dictionary<string, string>> GetFolderSettingsAsync(int folderId);
 
-        Task UpdateFolderSettingsAsync(Dictionary<string, string> FolderSettings, int FolderId);
+        Task UpdateFolderSettingsAsync(Dictionary<string, string> folderSettings, int folderId);
 
-        Task<Dictionary<string, string>> GetSettingsAsync(string EntityName, int EntityId);
+        Task<Dictionary<string, string>> GetSettingsAsync(string entityName, int entityId);
 
-        Task UpdateSettingsAsync(Dictionary<string, string> Settings, string EntityName, int EntityId);
-
-
-        Task<Setting> GetSettingAsync(int SettingId);
-
-        Task<Setting> AddSettingAsync(Setting Setting);
-
-        Task<Setting> UpdateSettingAsync(Setting Setting);
-
-        Task DeleteSettingAsync(int SettingId);
+        Task UpdateSettingsAsync(Dictionary<string, string> settings, string entityName, int entityId);
 
 
-        string GetSetting(Dictionary<string, string> Settings, string SettingName, string DefaultValue);
+        Task<Setting> GetSettingAsync(int settingId);
 
-        Dictionary<string, string> SetSetting(Dictionary<string, string> Settings, string SettingName, string SettingValue);
+        Task<Setting> AddSettingAsync(Setting setting);
+
+        Task<Setting> UpdateSettingAsync(Setting setting);
+
+        Task DeleteSettingAsync(int settingId);
+
+
+        string GetSetting(Dictionary<string, string> settings, string settingName, string defaultValue);
+
+        Dictionary<string, string> SetSetting(Dictionary<string, string> settings, string settingName, string settingValue);
      }
 }

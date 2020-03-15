@@ -7,7 +7,7 @@
 @inject IThemeService  ThemeService
 @inject ISettingService  SettingService
 
-@if (themes != null)
+@if (_themes != null)
 {
     <table class="table table-borderless">
         <tr>
@@ -15,7 +15,7 @@
                 <label  class="control-label">Name: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@name" />
+                <input class="form-control" @bind="@_name" />
             </td>
         </tr>
         <tr>
@@ -23,7 +23,7 @@
                 <label  class="control-label">Tenant: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@tenant" readonly />
+                <input class="form-control" @bind="@_tenant" readonly />
             </td>
         </tr>
         <tr>
@@ -31,7 +31,7 @@
                 <label  class="control-label">Aliases: </label>
             </td>
             <td>
-                <textarea class="form-control" @bind="@urls" rows="3" />
+                <textarea class="form-control" @bind="@_urls" rows="3"></textarea>
             </td>
         </tr>
         <tr>
@@ -39,7 +39,7 @@
                 <label  class="control-label">Logo: </label>
             </td>
             <td>
-                <FileManager FileId="@logofileid.ToString()" @ref="filemanager" />
+                <FileManager FileId="@_logofileid.ToString()" @ref="_filemanager" />
             </td>
         </tr>
         <tr>
@@ -49,9 +49,9 @@
             <td>
                 <select class="form-control" @onchange="(e => ThemeChanged(e))">
                     <option value="">&lt;Select Theme&gt;</option>
-                    @foreach (KeyValuePair<string, string> item in themes)
+                    @foreach (KeyValuePair<string, string> item in _themes)
                     {
-                        if (item.Key == themetype)
+                        if (item.Key == _themetype)
                         {
                             <option value="@item.Key" selected>@item.Value</option>
                         }
@@ -68,9 +68,9 @@
                 <label  class="control-label">Default Layout: </label>
             </td>
             <td>
-                <select class="form-control" @bind="@layouttype">
+                <select class="form-control" @bind="@_layouttype">
                     <option value="">&lt;Select Layout&gt;</option>
-                    @foreach (KeyValuePair<string, string> panelayout in panelayouts)
+                    @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
                     {
                         <option value="@panelayout.Key">@panelayout.Value</option>
                     }
@@ -82,9 +82,9 @@
                 <label  class="control-label">Default Container: </label>
             </td>
             <td>
-                <select class="form-control" @bind="@containertype">
+                <select class="form-control" @bind="@_containertype">
                     <option value="">&lt;Select Container&gt;</option>
-                    @foreach (KeyValuePair<string, string> container in containers)
+                    @foreach (KeyValuePair<string, string> container in _containers)
                     {
                         <option value="@container.Key">@container.Value</option>
                     }
@@ -96,7 +96,7 @@
                 <label  class="control-label">Is Deleted? </label>
             </td>
             <td>
-                <select class="form-control" @bind="@isdeleted">
+                <select class="form-control" @bind="@_isdeleted">
                     <option value="True">Yes</option>
                     <option value="False">No</option>
                 </select>
@@ -114,7 +114,7 @@
                     <label  class="control-label">Host: </label>
                 </td>
                 <td>
-                    <input class="form-control" @bind="@smtphost" />
+                    <input class="form-control" @bind="@_smtphost" />
                 </td>
             </tr>
             <tr>
@@ -122,7 +122,7 @@
                     <label  class="control-label">Port: </label>
                 </td>
                 <td>
-                    <input class="form-control" @bind="@smtpport" />
+                    <input class="form-control" @bind="@_smtpport" />
                 </td>
             </tr>
             <tr>
@@ -130,7 +130,7 @@
                     <label  class="control-label">SSL Enabled: </label>
                 </td>
                 <td>
-                    <input class="form-control" @bind="@smtpssl" />
+                    <input class="form-control" @bind="@_smtpssl" />
                 </td>
             </tr>
             <tr>
@@ -138,7 +138,7 @@
                     <label  class="control-label">Username: </label>
                 </td>
                 <td>
-                    <input class="form-control" @bind="@smtpusername" />
+                    <input class="form-control" @bind="@_smtpusername" />
                 </td>
             </tr>
             <tr>
@@ -146,7 +146,7 @@
                     <label  class="control-label">Password: </label>
                 </td>
                 <td>
-                    <input type="password" class="form-control" @bind="@smtppassword" />
+                    <input type="password" class="form-control" @bind="@_smtppassword" />
                 </td>
             </tr>
         </table>
@@ -156,85 +156,85 @@
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
     <br />
     <br />
-    <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>
+    <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
 }
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 
-    Dictionary<string, string> themes;
-    Dictionary<string, string> panelayouts;
-    Dictionary<string, string> containers;
+    Dictionary<string, string> _themes;
+    Dictionary<string, string> _panelayouts;
+    Dictionary<string, string> _containers;
 
-    List<Theme> Themes;
-    string name = "";
-    List<Tenant> tenants;
-    string tenant = "";
-    List<Alias> aliases;
-    string urls = "";
-    int logofileid = -1;
-    FileManager filemanager;
-    string themetype;
-    string layouttype;
-    string containertype;
+    List<Theme> _themeList;
+    string _name = "";
+    List<Tenant> _tenantList;
+    string _tenant = "";
+    List<Alias> _aliasList;
+    string _urls = "";
+    int _logofileid = -1;
+    FileManager _filemanager;
+    string _themetype;
+    string _layouttype;
+    string _containertype;
 
-    string smtphost = "";
-    string smtpport = "";
-    string smtpssl = "";
-    string smtpusername = "";
-    string smtppassword = "";
+    string _smtphost = "";
+    string _smtpport = "";
+    string _smtpssl = "";
+    string _smtpusername = "";
+    string _smtppassword = "";
 
-    string createdby;
-    DateTime createdon;
-    string modifiedby;
-    DateTime modifiedon;
-    string deletedby;
-    DateTime? deletedon;
-    string isdeleted;
+    string _createdby;
+    DateTime _createdon;
+    string _modifiedby;
+    DateTime _modifiedon;
+    string _deletedby;
+    DateTime? _deletedon;
+    string _isdeleted;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            Themes = await ThemeService.GetThemesAsync();
-            aliases = await AliasService.GetAliasesAsync();
+            _themeList = await ThemeService.GetThemesAsync();
+            _aliasList = await AliasService.GetAliasesAsync();
             Site site = await SiteService.GetSiteAsync(PageState.Site.SiteId, PageState.Alias);
             if (site != null)
             {
-                name = site.Name;
-                tenants = await TenantService.GetTenantsAsync();
-                tenant = tenants.Find(item => item.TenantId == site.TenantId).Name;
-                foreach (Alias alias in aliases.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
+                _name = site.Name;
+                _tenantList = await TenantService.GetTenantsAsync();
+                _tenant = _tenantList.Find(item => item.TenantId == site.TenantId).Name;
+                foreach (Alias alias in _aliasList.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
                 {
-                    urls += alias.Name + "\n";
+                    _urls += alias.Name + "\n";
                 }
                 if (site.LogoFileId != null)
                 {
-                    logofileid = site.LogoFileId.Value;
+                    _logofileid = site.LogoFileId.Value;
                 }
-                themetype = site.DefaultThemeType;
-                panelayouts = ThemeService.GetPaneLayoutTypes(Themes, themetype);
-                layouttype = site.DefaultLayoutType;
-                containertype = site.DefaultContainerType;
+                _themetype = site.DefaultThemeType;
+                _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
+                _layouttype = site.DefaultLayoutType;
+                _containertype = site.DefaultContainerType;
 
                 Dictionary<string, string> settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
-                smtphost = SettingService.GetSetting(settings, "SMTPHost", "");
-                smtpport = SettingService.GetSetting(settings, "SMTPPort", "");
-                smtpssl = SettingService.GetSetting(settings, "SMTPSSL", "");
-                smtpusername = SettingService.GetSetting(settings, "SMTPUsername", "");
-                smtppassword = SettingService.GetSetting(settings, "SMTPPassword", "");
+                _smtphost = SettingService.GetSetting(settings, "SMTPHost", "");
+                _smtpport = SettingService.GetSetting(settings, "SMTPPort", "");
+                _smtpssl = SettingService.GetSetting(settings, "SMTPSSL", "");
+                _smtpusername = SettingService.GetSetting(settings, "SMTPUsername", "");
+                _smtppassword = SettingService.GetSetting(settings, "SMTPPassword", "");
 
-                createdby = site.CreatedBy;
-                createdon = site.CreatedOn;
-                modifiedby = site.ModifiedBy;
-                modifiedon = site.ModifiedOn;
-                deletedby = site.DeletedBy;
-                deletedon = site.DeletedOn;
-                isdeleted = site.IsDeleted.ToString();
+                _createdby = site.CreatedBy;
+                _createdon = site.CreatedOn;
+                _modifiedby = site.ModifiedBy;
+                _modifiedon = site.ModifiedOn;
+                _deletedby = site.DeletedBy;
+                _deletedon = site.DeletedOn;
+                _isdeleted = site.IsDeleted.ToString();
             }
 
-            themes = ThemeService.GetThemeTypes(Themes);
-            containers = ThemeService.GetContainerTypes(Themes);
+            _themes = ThemeService.GetThemeTypes(_themeList);
+            _containers = ThemeService.GetContainerTypes(_themeList);
         }
         catch (Exception ex)
         {
@@ -247,20 +247,20 @@
     {
         try
         {
-            themetype = (string)e.Value;
-            if (themetype != "")
+            _themetype = (string)e.Value;
+            if (_themetype != "")
             {
-                panelayouts = ThemeService.GetPaneLayoutTypes(Themes, themetype);
+                _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
             }
             else
             {
-                panelayouts = new Dictionary<string, string>();
+                _panelayouts = new Dictionary<string, string>();
             }
             StateHasChanged();
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", themetype, ex.Message);
+            await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", _themetype, ex.Message);
             AddModuleMessage("Error Loading Pane Layouts For Theme", MessageType.Error);
         }
     }
@@ -269,12 +269,12 @@
     {
         try
         {
-            if (name != "" && urls != "" && !string.IsNullOrEmpty(themetype) && (panelayouts.Count == 0 || !string.IsNullOrEmpty(layouttype)) && !string.IsNullOrEmpty(containertype))
+            if (_name != "" && _urls != "" && !string.IsNullOrEmpty(_themetype) && (_panelayouts.Count == 0 || !string.IsNullOrEmpty(_layouttype)) && !string.IsNullOrEmpty(_containertype))
             {
                 bool unique = true;
-                foreach (string name in urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (string name in _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    if (aliases.Exists(item => item.Name == name && item.SiteId != PageState.Alias.SiteId && item.TenantId != PageState.Alias.TenantId))
+                    if (_aliasList.Exists(item => item.Name == name && item.SiteId != PageState.Alias.SiteId && item.TenantId != PageState.Alias.TenantId))
                     {
                         unique = false;
                     }
@@ -284,23 +284,23 @@
                     Site site = await SiteService.GetSiteAsync(PageState.Site.SiteId, PageState.Alias);
                     if (site != null)
                     {
-                        site.Name = name;
+                        site.Name = _name;
                         site.LogoFileId = null;
-                        int logofileid = filemanager.GetFileId();
+                        int logofileid = _filemanager.GetFileId();
                         if (logofileid != -1)
                         {
                             site.LogoFileId = logofileid;
                         }
-                        site.DefaultThemeType = themetype;
-                        site.DefaultLayoutType = (layouttype == null ? "" : layouttype);
-                        site.DefaultContainerType = containertype;
-                        site.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
+                        site.DefaultThemeType = _themetype;
+                        site.DefaultLayoutType = (_layouttype == null ? "" : _layouttype);
+                        site.DefaultContainerType = _containertype;
+                        site.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));
 
                         site = await SiteService.UpdateSiteAsync(site, PageState.Alias);
 
-                        urls = urls.Replace("\n", ",");
-                        string[] names = urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                        foreach (Alias alias in aliases.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
+                        _urls = _urls.Replace("\n", ",");
+                        string[] names = _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        foreach (Alias alias in _aliasList.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
                         {
                             if (!names.Contains(alias.Name))
                             {
@@ -309,7 +309,7 @@
                         }
                         foreach (string name in names)
                         {
-                            if (!aliases.Exists(item => item.Name == name))
+                            if (!_aliasList.Exists(item => item.Name == name))
                             {
                                 Alias alias = new Alias();
                                 alias.Name = name;
@@ -320,11 +320,11 @@
                         }
 
                         Dictionary<string, string> settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
-                        SettingService.SetSetting(settings, "SMTPHost", smtphost);
-                        SettingService.SetSetting(settings, "SMTPPort", smtpport);
-                        SettingService.SetSetting(settings, "SMTPSSL", smtpssl);
-                        SettingService.SetSetting(settings, "SMTPUsername", smtpusername);
-                        SettingService.SetSetting(settings, "SMTPPassword", smtppassword);
+                        SettingService.SetSetting(settings, "SMTPHost", _smtphost);
+                        SettingService.SetSetting(settings, "SMTPPort", _smtpport);
+                        SettingService.SetSetting(settings, "SMTPSSL", _smtpssl);
+                        SettingService.SetSetting(settings, "SMTPUsername", _smtpusername);
+                        SettingService.SetSetting(settings, "SMTPPassword", _smtppassword);
                         await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
 
                         await logger.LogInformation("Site Saved {Site}", site);

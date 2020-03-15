@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
 using System.Linq;
-using Oqtane.Infrastructure;
 using Oqtane.Security;
 using System.Net;
+using Oqtane.Enums;
+using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
@@ -99,14 +100,14 @@ namespace Oqtane.Controllers
         // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = Constants.RegisteredRole)]
-        public Page Post([FromBody] Page Page)
+        public Page Post([FromBody] Page page)
         {
             if (ModelState.IsValid)
             {
                 string permissions;
-                if (Page.ParentId != null)
+                if (page.ParentId != null)
                 {
-                    permissions = _pages.GetPage(Page.ParentId.Value).Permissions;
+                    permissions = _pages.GetPage(page.ParentId.Value).Permissions;
                 }
                 else
                 {
@@ -115,18 +116,18 @@ namespace Oqtane.Controllers
             
                 if (_userPermissions.IsAuthorized(User,PermissionNames.Edit, permissions))
                 {
-                    Page = _pages.AddPage(Page);
-                    _syncManager.AddSyncEvent(EntityNames.Site, Page.SiteId);
-                    _logger.Log(LogLevel.Information, this, LogFunction.Create, "Page Added {Page}", Page);
+                    page = _pages.AddPage(page);
+                    _syncManager.AddSyncEvent(EntityNames.Site, page.SiteId);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Create, "Page Added {Page}", page);
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Add Page {Page}", Page);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Add Page {Page}", page);
                     HttpContext.Response.StatusCode = 401;
-                    Page = null;
+                    page = null;
                 }
             }
-            return Page;
+            return page;
         }
 
         // POST api/<controller>/5?userid=x
@@ -195,21 +196,21 @@ namespace Oqtane.Controllers
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Roles = Constants.RegisteredRole)]
-        public Page Put(int id, [FromBody] Page Page)
+        public Page Put(int id, [FromBody] Page page)
         {
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Page, Page.PageId, PermissionNames.Edit))
+            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Page, page.PageId, PermissionNames.Edit))
             {
-                Page = _pages.UpdatePage(Page);
-                _syncManager.AddSyncEvent(EntityNames.Site, Page.SiteId);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Updated {Page}", Page);
+                page = _pages.UpdatePage(page);
+                _syncManager.AddSyncEvent(EntityNames.Site, page.SiteId);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Updated {Page}", page);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Page {Page}", Page);
+                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Page {Page}", page);
                 HttpContext.Response.StatusCode = 401;
-                Page = null;
+                page = null;
             }
-            return Page;
+            return page;
         }
 
         // PUT api/<controller>/?siteid=x&pageid=y&parentid=z

@@ -1,6 +1,4 @@
 ﻿using Oqtane.Models;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
@@ -21,39 +19,39 @@ namespace Oqtane.Services
             _navigationManager = navigationManager;
         }
 
-        private string apiurl
+        private string Apiurl
         {
             get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "PageModule"); }
         }
 
-        public async Task<PageModule> GetPageModuleAsync(int PageModuleId)
+        public async Task<PageModule> GetPageModuleAsync(int pageModuleId)
         {
-            return await _http.GetJsonAsync<PageModule>(apiurl + "/" + PageModuleId.ToString());
+            return await _http.GetJsonAsync<PageModule>(Apiurl + "/" + pageModuleId.ToString());
         }
 
-        public async Task<PageModule> GetPageModuleAsync(int PageId, int ModuleId)
+        public async Task<PageModule> GetPageModuleAsync(int pageId, int moduleId)
         {
-            return await _http.GetJsonAsync<PageModule>(apiurl + "/" + PageId.ToString() + "/" + ModuleId.ToString());
+            return await _http.GetJsonAsync<PageModule>(Apiurl + "/" + pageId.ToString() + "/" + moduleId.ToString());
         }
 
-        public async Task<PageModule> AddPageModuleAsync(PageModule PageModule)
+        public async Task<PageModule> AddPageModuleAsync(PageModule pageModule)
         {
-            return await _http.PostJsonAsync<PageModule>(apiurl, PageModule);
+            return await _http.PostJsonAsync<PageModule>(Apiurl, pageModule);
         }
 
-        public async Task<PageModule> UpdatePageModuleAsync(PageModule PageModule)
+        public async Task<PageModule> UpdatePageModuleAsync(PageModule pageModule)
         {
-            return await _http.PutJsonAsync<PageModule>(apiurl + "/" + PageModule.PageModuleId.ToString(), PageModule);
+            return await _http.PutJsonAsync<PageModule>(Apiurl + "/" + pageModule.PageModuleId.ToString(), pageModule);
         }
 
-        public async Task UpdatePageModuleOrderAsync(int PageId, string Pane)
+        public async Task UpdatePageModuleOrderAsync(int pageId, string pane)
         {
-            await _http.PutJsonAsync(apiurl + "/?pageid=" + PageId.ToString() + "&pane=" + Pane, null);
+            await _http.PutJsonAsync(Apiurl + "/?pageid=" + pageId.ToString() + "&pane=" + pane, null);
         }
 
-        public async Task DeletePageModuleAsync(int PageModuleId)
+        public async Task DeletePageModuleAsync(int pageModuleId)
         {
-            await _http.DeleteAsync(apiurl + "/" + PageModuleId.ToString());
+            await _http.DeleteAsync(Apiurl + "/" + pageModuleId.ToString());
         }
     }
 }

@@ -3,10 +3,10 @@
 @inject IModuleService ModuleService
 @inject IModuleDefinitionService ModuleDefinitionService
 
-<div class="@paneadminborder">
-    @if (panetitle != "")
+<div class="@_paneadminborder">
+    @if (_panetitle != "")
     {
-        @((MarkupString)panetitle)
+        @((MarkupString)_panetitle)
     }
     @DynamicComponent
 </div>
@@ -20,20 +20,20 @@
 
     RenderFragment DynamicComponent { get; set; }
 
-    string paneadminborder = "";
-    string panetitle = "";
+    string _paneadminborder = "";
+    string _panetitle = "";
 
     protected override void OnParametersSet()
     {
         if (PageState.EditMode && !PageState.Page.EditMode && UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, PageState.Page.Permissions) && Name != Constants.AdminPane)
         {
-            paneadminborder = "app-pane-admin-border";
-            panetitle = "<div class=\"app-pane-admin-title\">" + Name + " Pane</div>";
+            _paneadminborder = "app-pane-admin-border";
+            _panetitle = "<div class=\"app-pane-admin-title\">" + Name + " Pane</div>";
         }
         else
         {
-            paneadminborder = "";
-            panetitle = "";
+            _paneadminborder = "";
+            _panetitle = "";
         }
 
         DynamicComponent = builder =>
@@ -42,12 +42,12 @@
             {
                 if (Name.ToLower() == Constants.AdminPane.ToLower())
                 {
-                    Module module = PageState.Modules.Where(item => item.ModuleId == PageState.ModuleId).FirstOrDefault();
+                    Module module = PageState.Modules.FirstOrDefault(item => item.ModuleId == PageState.ModuleId);
                     if (module != null)
                     {
                         string typename = module.ModuleType;
-                        // check for core module actions component
-                        if (Constants.DefaultModuleActions.Contains(PageState.Action)) 
+    // check for core module actions component
+                        if (Constants.DefaultModuleActions.Contains(PageState.Action))
                         {
                             typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, PageState.Action);
                         }
@@ -57,21 +57,21 @@
                             bool authorized = false;
                             if (Constants.DefaultModuleActions.Contains(PageState.Action))
                             {
-                                authorized = UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, PageState.Page.Permissions);
+                                authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions);
                             }
                             else
                             {
-                            // verify security access level for this module control
-                            switch (module.SecurityAccessLevel)
+    // verify security access level for this module control
+                                switch (module.SecurityAccessLevel)
                                 {
                                     case SecurityAccessLevel.Anonymous:
                                         authorized = true;
                                         break;
                                     case SecurityAccessLevel.View:
-                                        authorized = UserSecurity.IsAuthorized(PageState.User,PermissionNames.View, module.Permissions);
+                                        authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.Permissions);
                                         break;
                                     case SecurityAccessLevel.Edit:
-                                        authorized = UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, module.Permissions);
+                                        authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, module.Permissions);
                                         break;
                                     case SecurityAccessLevel.Admin:
                                         authorized = UserSecurity.IsAuthorized(PageState.User, Constants.AdminRole);
@@ -94,7 +94,7 @@
                         }
                         else
                         {
-                            // module control does not exist with name specified
+    // module control does not exist with name specified
                         }
                     }
                 }
@@ -103,11 +103,11 @@
             {
                 if (PageState.ModuleId != -1)
                 {
-                    Module module = PageState.Modules.Where(item => item.ModuleId == PageState.ModuleId).FirstOrDefault();
+                    Module module = PageState.Modules.FirstOrDefault(item => item.ModuleId == PageState.ModuleId);
                     if (module != null && module.Pane.ToLower() == Name.ToLower())
                     {
-                        // check if user is authorized to view module
-                        if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.View, module.Permissions))
+    // check if user is authorized to view module
+                        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.Permissions))
                         {
                             builder.OpenComponent(0, Type.GetType(Constants.ContainerComponent));
                             builder.AddAttribute(1, "Module", module);
@@ -119,8 +119,8 @@
                 {
                     foreach (Module module in PageState.Modules.Where(item => item.PageId == PageState.Page.PageId && item.Pane.ToLower() == Name.ToLower() && !item.IsDeleted).OrderBy(x => x.Order).ToArray())
                     {
-                        // check if user is authorized to view module
-                        if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.View, module.Permissions))
+    // check if user is authorized to view module
+                        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.Permissions))
                         {
                             builder.OpenComponent(0, Type.GetType(Constants.ContainerComponent));
                             builder.AddAttribute(1, "Module", module);
@@ -129,7 +129,7 @@
                         }
                     }
                 }
-            };
+            }
         };
     }
 }

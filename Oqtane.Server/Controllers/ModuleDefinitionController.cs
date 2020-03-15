@@ -1,15 +1,17 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
 using Microsoft.AspNetCore.Authorization;
-using Oqtane.Infrastructure;
 using System.IO;
 using System.Reflection;
 using System.Linq;
 using Microsoft.AspNetCore.Hosting;
+using Oqtane.Enums;
+using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Repository;
 using Oqtane.Security;
+// ReSharper disable StringIndexOfIsCultureSpecific.1
 
 namespace Oqtane.Controllers
 {
@@ -66,12 +68,12 @@ namespace Oqtane.Controllers
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Roles = Constants.AdminRole)]
-        public void Put(int id, [FromBody] ModuleDefinition ModuleDefinition)
+        public void Put(int id, [FromBody] ModuleDefinition moduleDefinition)
         {
             if (ModelState.IsValid)
             {
-                _moduleDefinitions.UpdateModuleDefinition(ModuleDefinition);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Module Definition Updated {ModuleDefinition}", ModuleDefinition);
+                _moduleDefinitions.UpdateModuleDefinition(moduleDefinition);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Module Definition Updated {ModuleDefinition}", moduleDefinition);
             }
         }
 

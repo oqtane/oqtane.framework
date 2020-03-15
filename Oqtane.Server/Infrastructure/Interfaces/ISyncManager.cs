@@ -1,13 +1,12 @@
-﻿using Oqtane.Models;
-using Oqtane.Shared;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Oqtane.Models;
 
-namespace Oqtane.Infrastructure
+namespace Oqtane.Infrastructure.Interfaces
 {
     public interface ISyncManager
     {
-        List<SyncEvent> GetSyncEvents(DateTime LastSyncDate);
-        void AddSyncEvent(string EntityName, int EntityId);
+        List<SyncEvent> GetSyncEvents(DateTime lastSyncDate);
+        void AddSyncEvent(string entityName, int entityId);
     }
 }

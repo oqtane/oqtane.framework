@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
@@ -14,35 +14,35 @@ namespace Oqtane.Repository
             _db = context;
         }
 
-        public IEnumerable<Setting> GetSettings(string EntityName, int EntityId)
+        public IEnumerable<Setting> GetSettings(string entityName, int entityId)
         {
-            return _db.Setting.Where(item => item.EntityName == EntityName)
-                .Where(item => item.EntityId == EntityId);
+            return _db.Setting.Where(item => item.EntityName == entityName)
+                .Where(item => item.EntityId == entityId);
         }
 
-        public Setting AddSetting(Setting Setting)
+        public Setting AddSetting(Setting setting)
         {
-            _db.Setting.Add(Setting);
+            _db.Setting.Add(setting);
             _db.SaveChanges();
-            return Setting;
+            return setting;
         }
 
-        public Setting UpdateSetting(Setting Setting)
+        public Setting UpdateSetting(Setting setting)
         {
-            _db.Entry(Setting).State = EntityState.Modified;
+            _db.Entry(setting).State = EntityState.Modified;
             _db.SaveChanges();
-            return Setting;
+            return setting;
         }
 
-        public Setting GetSetting(int SettingId)
+        public Setting GetSetting(int settingId)
         {
-            return _db.Setting.Find(SettingId);
+            return _db.Setting.Find(settingId);
         }
 
-        public void DeleteSetting(int SettingId)
+        public void DeleteSetting(int settingId)
         {
-            Setting Setting = _db.Setting.Find(SettingId);
-            _db.Setting.Remove(Setting);
+            Setting setting = _db.Setting.Find(settingId);
+            _db.Setting.Remove(setting);
             _db.SaveChanges();
         }
     }

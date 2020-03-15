@@ -21,34 +21,34 @@ namespace Oqtane.Services
             _navigationManager = navigationManager;
         }
 
-        private string apiurl
+        private string Apiurl
         {
             get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "JobLog"); }
         }
 
         public async Task<List<JobLog>> GetJobLogsAsync()
         {
-            List<JobLog> Joblogs = await _http.GetJsonAsync<List<JobLog>>(apiurl);
-            return Joblogs.OrderBy(item => item.StartDate).ToList();
+            List<JobLog> joblogs = await _http.GetJsonAsync<List<JobLog>>(Apiurl);
+            return joblogs.OrderBy(item => item.StartDate).ToList();
         }
 
-        public async Task<JobLog> GetJobLogAsync(int JobLogId)
+        public async Task<JobLog> GetJobLogAsync(int jobLogId)
         {
-            return await _http.GetJsonAsync<JobLog>(apiurl + "/" + JobLogId.ToString());
+            return await _http.GetJsonAsync<JobLog>(Apiurl + "/" + jobLogId.ToString());
         }
 
-        public async Task<JobLog> AddJobLogAsync(JobLog Joblog)
+        public async Task<JobLog> AddJobLogAsync(JobLog joblog)
         {
-            return await _http.PostJsonAsync<JobLog>(apiurl, Joblog);
+            return await _http.PostJsonAsync<JobLog>(Apiurl, joblog);
         }
 
-        public async Task<JobLog> UpdateJobLogAsync(JobLog Joblog)
+        public async Task<JobLog> UpdateJobLogAsync(JobLog joblog)
         {
-            return await _http.PutJsonAsync<JobLog>(apiurl + "/" + Joblog.JobLogId.ToString(), Joblog);
+            return await _http.PutJsonAsync<JobLog>(Apiurl + "/" + joblog.JobLogId.ToString(), joblog);
         }
-        public async Task DeleteJobLogAsync(int JobLogId)
+        public async Task DeleteJobLogAsync(int jobLogId)
         {
-            await _http.DeleteAsync(apiurl + "/" + JobLogId.ToString());
+            await _http.DeleteAsync(Apiurl + "/" + jobLogId.ToString());
         }
     }
 }

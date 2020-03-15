@@ -6,14 +6,14 @@ namespace Oqtane.Services
 {
     public interface IRoleService
     {
-        Task<List<Role>> GetRolesAsync(int SiteId);
+        Task<List<Role>> GetRolesAsync(int siteId);
 
-        Task<Role> GetRoleAsync(int RoleId);
+        Task<Role> GetRoleAsync(int roleId);
 
-        Task<Role> AddRoleAsync(Role Role);
+        Task<Role> AddRoleAsync(Role role);
 
-        Task<Role> UpdateRoleAsync(Role Role);
+        Task<Role> UpdateRoleAsync(Role role);
 
-        Task DeleteRoleAsync(int RoleId);
+        Task DeleteRoleAsync(int roleId);
     }
 }

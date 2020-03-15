@@ -1,70 +1,70 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using Oqtane.Models;
 using Microsoft.AspNetCore.Http;
-using System;
+using Oqtane.Models;
 using Oqtane.Shared;
 
 namespace Oqtane.Repository
 {
     public class TenantResolver : ITenantResolver
     {
-        private readonly Alias _alias = null;
-        private readonly Tenant _tenant = null;
+        private readonly Alias _alias;
+        private readonly Tenant _tenant;
 
-        public TenantResolver(IHttpContextAccessor Accessor, IAliasRepository Aliases, ITenantRepository Tenants, SiteState SiteState)
+        public TenantResolver(IHttpContextAccessor accessor, IAliasRepository aliasRepository, ITenantRepository tenantRepository, SiteState siteState)
         {
-            int aliasid = -1;
-            string aliasname = "";
+            int aliasId = -1;
+            string aliasName = "";
 
             // get alias identifier based on request context
-            if (Accessor.HttpContext != null)
+            if (accessor.HttpContext != null)
             {
                 // check if an alias is passed as a querystring parameter ( for cross tenant access )
-                if (Accessor.HttpContext.Request.Query.ContainsKey("aliasid"))
+                if (accessor.HttpContext.Request.Query.ContainsKey("aliasid"))
                 {
-                    aliasid = int.Parse(Accessor.HttpContext.Request.Query["aliasid"]);
+                    aliasId = int.Parse(accessor.HttpContext.Request.Query["aliasid"]);
                 }
                 else // get the alias from the request url
                 {
-                    aliasname = Accessor.HttpContext.Request.Host.Value;
-                    string path = Accessor.HttpContext.Request.Path.Value;
+                    aliasName = accessor.HttpContext.Request.Host.Value;
+                    string path = accessor.HttpContext.Request.Path.Value;
                     string[] segments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
                     if (segments.Length > 1 && segments[1] == "api" && segments[0] != "~")
                     {
-                        aliasname += "/" + segments[0];
+                        aliasName += "/" + segments[0];
                     }
-                    if (aliasname.EndsWith("/"))
+                    if (aliasName.EndsWith("/"))
                     {
-                        aliasname = aliasname.Substring(0, aliasname.Length - 1);
+                        aliasName = aliasName.Substring(0, aliasName.Length - 1);
                     }
                 }
             }
             else  // background processes can pass in an alias using the SiteState service
             {
-                if (SiteState != null)
+                if (siteState != null)
                 {
-                    aliasid = SiteState.Alias.AliasId;
+                    aliasId = siteState.Alias.AliasId;
                 }
             }
 
             // get the alias and tenant
-            if (aliasid != -1 || aliasname != "")
+            if (aliasId != -1 || aliasName != "")
             {
-                IEnumerable<Alias> aliases = Aliases.GetAliases(); // cached
-                IEnumerable<Tenant> tenants = Tenants.GetTenants(); // cached
+                IEnumerable<Alias> aliases = aliasRepository.GetAliases(); // cached
+                IEnumerable<Tenant> tenants = tenantRepository.GetTenants(); // cached
 
-                if (aliasid != -1)
+                if (aliasId != -1)
                 {
-                    _alias = aliases.Where(item => item.AliasId == aliasid).FirstOrDefault();
+                    _alias = aliases.FirstOrDefault(item => item.AliasId == aliasId);
                 }
                 else
                 {
-                    _alias = aliases.Where(item => item.Name == aliasname).FirstOrDefault();
+                    _alias = aliases.FirstOrDefault(item => item.Name == aliasName);
                 }
                 if (_alias != null)
                 {
-                    _tenant = tenants.Where(item => item.TenantId == _alias.TenantId).FirstOrDefault();
+                    _tenant = tenants.FirstOrDefault(item => item.TenantId == _alias.TenantId);
                 }
             }
         }

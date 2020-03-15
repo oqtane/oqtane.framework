@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
-using Oqtane.Infrastructure;
 using System.Linq;
 using System;
 using System.Net;
 using System.Globalization;
+using Oqtane.Enums;
+using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
@@ -49,11 +50,11 @@ namespace Oqtane.Controllers
             name = WebUtility.UrlDecode(name);
             List<Alias> aliases = _aliases.GetAliases().ToList();
             Alias alias = null;
-            alias = aliases.Where(item => item.Name == name).FirstOrDefault();
-            if (alias == null && name.Contains("/"))
+            alias = aliases.FirstOrDefault(item => item.Name == name);
+            if (name != null && (alias == null && name.Contains("/")))
             {
                 // lookup alias without folder name
-                alias = aliases.Find(item => item.Name == name.Substring(0, name.IndexOf("/")));
+                alias = aliases.Find(item => item.Name == name.Substring(0, name.IndexOf("/", StringComparison.Ordinal)));
             }
             if (alias == null && aliases.Count > 0)
             {
@@ -71,27 +72,27 @@ namespace Oqtane.Controllers
         // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = Constants.AdminRole)]
-        public Alias Post([FromBody] Alias Alias)
+        public Alias Post([FromBody] Alias alias)
         {
             if (ModelState.IsValid)
             {
-                Alias = _aliases.AddAlias(Alias);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Alias Added {Alias}", Alias);
+                alias = _aliases.AddAlias(alias);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Alias Added {Alias}", alias);
             }
-            return Alias;
+            return alias;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Roles = Constants.AdminRole)]
-        public Alias Put(int id, [FromBody] Alias Alias)
+        public Alias Put(int id, [FromBody] Alias alias)
         {
             if (ModelState.IsValid)
             {
-                Alias = _aliases.UpdateAlias(Alias);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Alias Updated {Alias}", Alias);
+                alias = _aliases.UpdateAlias(alias);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Alias Updated {Alias}", alias);
             }
-            return Alias;
+            return alias;
         }
 
         // DELETE api/<controller>/5
