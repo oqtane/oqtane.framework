@@ -37,7 +37,7 @@ namespace Oqtane.Providers
                 identity = new ClaimsIdentity("Identity.Application");
                 identity.AddClaim(new Claim(ClaimTypes.Name, user.Username));
                 identity.AddClaim(new Claim(ClaimTypes.PrimarySid, user.UserId.ToString()));
-                foreach (string role in user.Roles.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (string role in user.Roles.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
                 {
                     identity.AddClaim(new Claim(ClaimTypes.Role, role));
                 }

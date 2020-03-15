@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Blazor.Hosting;
-
-namespace Oqtane.Client
+﻿namespace Oqtane
 {
     public class Program
     {

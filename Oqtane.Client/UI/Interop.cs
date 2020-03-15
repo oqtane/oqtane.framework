@@ -43,7 +43,7 @@ namespace Oqtane.UI
             }
         }
 
-        public Task IncludeCSS(string id, string url)
+        public Task IncludeCss(string id, string url)
         {
             try
             {

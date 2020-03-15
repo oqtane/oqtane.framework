@@ -4,7 +4,7 @@
 @inject IPageService PageService
 @inject IThemeService  ThemeService
 
-@if (Themes != null)
+@if (_themeList != null)
 {
     <table class="table table-borderless">
         <tr>
@@ -12,7 +12,7 @@
                 <label for="Name" class="control-label">Name: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@name" />
+                <input class="form-control" @bind="@_name" />
             </td>
         </tr>
         <tr>
@@ -20,7 +20,7 @@
                 <label for="Name" class="control-label">Path: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@path" />
+                <input class="form-control" @bind="@_path" />
             </td>
         </tr>
         <tr>
@@ -30,9 +30,9 @@
             <td>
                 <select class="form-control" @onchange="(e => ParentChanged(e))">
                     <option value="-1">&lt;Site Root&gt;</option>
-                    @foreach (Page page in pages)
+                    @foreach (Page page in _pageList)
                     {
-                        if (page.PageId.ToString() == parentid)
+                        if (page.PageId.ToString() == _parentid)
                         {
                             <option value="@(page.PageId)" selected>@(new string('-', page.Level * 2))@(page.Name)</option>
                         }
@@ -49,24 +49,24 @@
                 <label for="Name" class="control-label">Move: </label>
             </td>
             <td>
-                <select class="form-control" @bind="@insert">
-                    @if (parentid == currentparentid)
+                <select class="form-control" @bind="@_insert">
+                    @if (_parentid == _currentparentid)
                     {
                         <option value="=">&lt;Maintain Current Location&gt;</option>
                     }
                     <option value="<<">To Beginning</option>
-                    @if (children != null && children.Count > 0)
+                    @if (_children != null && _children.Count > 0)
                     {
                         <option value="<">Before</option>
                         <option value=">">After</option>
                     }
                     <option value=">>">To End</option>
                 </select>
-                @if (children != null && children.Count > 0 && (insert == "<" || insert == ">"))
+                @if (_children != null && _children.Count > 0 && (_insert == "<" || _insert == ">"))
                 {
-                    <select class="form-control" @bind="@childid">
+                    <select class="form-control" @bind="@_childid">
                         <option value="-1">&lt;Select Page&gt;</option>
-                        @foreach (Page page in children)
+                        @foreach (Page page in _children)
                         {
                             <option value="@(page.PageId)">@(page.Name)</option>
                         }
@@ -79,7 +79,7 @@
                 <label for="Name" class="control-label">Navigation? </label>
             </td>
             <td>
-                <select class="form-control" @bind="@isnavigation">
+                <select class="form-control" @bind="@_isnavigation">
                     <option value="True">Yes</option>
                     <option value="False">No</option>
                 </select>
@@ -90,7 +90,7 @@
                 <label for="Name" class="control-label">Personalizable? </label>
             </td>
             <td>
-                <select class="form-control" @bind="@ispersonalizable">
+                <select class="form-control" @bind="@_ispersonalizable">
                     <option value="True">Yes</option>
                     <option value="False">No</option>
                 </select>
@@ -101,7 +101,7 @@
                 <label for="Name" class="control-label">Default Mode? </label>
             </td>
             <td>
-                <select class="form-control" @bind="@mode">
+                <select class="form-control" @bind="@_mode">
                     <option value="view">View Mode</option>
                     <option value="edit">Edit Mode</option>
                 </select>
@@ -114,9 +114,9 @@
             <td>
                 <select class="form-control" @onchange="(e => ThemeChanged(e))">
                     <option value="">&lt;Select Theme&gt;</option>
-                    @foreach (KeyValuePair<string, string> item in themes)
+                    @foreach (KeyValuePair<string, string> item in _themes)
                     {
-                        if (item.Key == themetype)
+                        if (item.Key == _themetype)
                         {
                             <option value="@item.Key" selected>@item.Value</option>
                         }
@@ -133,9 +133,9 @@
                 <label for="Name" class="control-label">Layout: </label>
             </td>
             <td>
-                <select class="form-control" @bind="@layouttype">
+                <select class="form-control" @bind="@_layouttype">
                     <option value="">&lt;Select Layout&gt;</option>
-                    @foreach (KeyValuePair<string, string> panelayout in panelayouts)
+                    @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
                     {
                         <option value="@panelayout.Key">@panelayout.Value</option>
                     }
@@ -147,7 +147,7 @@
                 <label for="Name" class="control-label">Icon: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@icon" />
+                <input class="form-control" @bind="@_icon" />
             </td>
         </tr>
         <tr>
@@ -155,7 +155,7 @@
                 <label for="Name" class="control-label">Permissions: </label>
             </td>
             <td>
-                <PermissionGrid EntityName="Page" Permissions="@permissions" @ref="permissiongrid" />
+                <PermissionGrid EntityName="Page" Permissions="@_permissions" @ref="_permissionGrid" />
             </td>
         </tr>
     </table>
@@ -163,89 +163,91 @@
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
     <br />
     <br />
-    <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>
+    <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
 }
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 
-    Dictionary<string, string> themes = new Dictionary<string, string>();
-    Dictionary<string, string> panelayouts = new Dictionary<string, string>();
+    Dictionary<string, string> _themes = new Dictionary<string, string>();
+    Dictionary<string, string> _panelayouts = new Dictionary<string, string>();
 
-    List<Theme> Themes;
-    List<Page> pages;
-    int PageId;
-    string name;
-    string path;
-    string currentparentid;
-    string parentid;
-    string insert = "=";
-    List<Page> children;
-    int childid = -1;
-    string isnavigation;
-    string ispersonalizable;
-    string mode;
-    string themetype;
-    string layouttype;
-    string icon;
-    string permissions;
-    string createdby;
-    DateTime createdon;
-    string modifiedby;
-    DateTime modifiedon;
-    string deletedby;
-    DateTime? deletedon;
+    List<Theme> _themeList;
+    List<Page> _pageList;
+    int _pageId;
+    string _name;
+    string _path;
+    string _currentparentid;
+    string _parentid;
+    string _insert = "=";
+    List<Page> _children;
+    int _childid = -1;
+    string _isnavigation;
+    string _ispersonalizable;
+    string _mode;
+    string _themetype;
+    string _layouttype;
+    string _icon;
+    string _permissions;
+    string _createdby;
+    DateTime _createdon;
+    string _modifiedby;
+    DateTime _modifiedon;
+    string _deletedby;
+    DateTime? _deletedon;
 
-    PermissionGrid permissiongrid;
+#pragma warning disable 649
+    PermissionGrid _permissionGrid;
+#pragma warning restore 649
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            Themes = await ThemeService.GetThemesAsync();
-            pages = PageState.Pages;
-            children = PageState.Pages.Where(item => item.ParentId == null).ToList();
+            _themeList = await ThemeService.GetThemesAsync();
+            _pageList = PageState.Pages;
+            _children = PageState.Pages.Where(item => item.ParentId == null).ToList();
 
-            themes = ThemeService.GetThemeTypes(Themes);
+            _themes = ThemeService.GetThemeTypes(_themeList);
 
-            PageId = Int32.Parse(PageState.QueryString["id"]);
-            Page page = PageState.Pages.FirstOrDefault(item => item.PageId == PageId);
+            _pageId = Int32.Parse(PageState.QueryString["id"]);
+            Page page = PageState.Pages.FirstOrDefault(item => item.PageId == _pageId);
             if (page != null)
             {
-                name = page.Name;
-                path = page.Path;
-                if (path.Contains("/"))
+                _name = page.Name;
+                _path = page.Path;
+                if (_path.Contains("/"))
                 {
-                    path = path.Substring(path.LastIndexOf("/") + 1);
+                    _path = _path.Substring(_path.LastIndexOf("/") + 1);
                 }
                 if (page.ParentId == null)
                 {
-                    parentid = "";
+                    _parentid = "";
                 }
                 else
                 {
-                    parentid = page.ParentId.ToString();
+                    _parentid = page.ParentId.ToString();
                 }
-                currentparentid = parentid;
-                isnavigation = page.IsNavigation.ToString();
-                ispersonalizable = page.IsPersonalizable.ToString();
-                mode = (page.EditMode) ? "edit" : "view";
-                themetype = page.ThemeType;
-                panelayouts = ThemeService.GetPaneLayoutTypes(Themes, themetype);
-                layouttype = page.LayoutType;
-                icon = page.Icon;
-                permissions = page.Permissions;
-                createdby = page.CreatedBy;
-                createdon = page.CreatedOn;
-                modifiedby = page.ModifiedBy;
-                modifiedon = page.ModifiedOn;
-                deletedby = page.DeletedBy;
-                deletedon = page.DeletedOn;
+                _currentparentid = _parentid;
+                _isnavigation = page.IsNavigation.ToString();
+                _ispersonalizable = page.IsPersonalizable.ToString();
+                _mode = (page.EditMode) ? "edit" : "view";
+                _themetype = page.ThemeType;
+                _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
+                _layouttype = page.LayoutType;
+                _icon = page.Icon;
+                _permissions = page.Permissions;
+                _createdby = page.CreatedBy;
+                _createdon = page.CreatedOn;
+                _modifiedby = page.ModifiedBy;
+                _modifiedon = page.ModifiedOn;
+                _deletedby = page.DeletedBy;
+                _deletedon = page.DeletedOn;
             }
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading Page {PageId} {Error}", PageId, ex.Message);
+            await logger.LogError(ex, "Error Loading Page {PageId} {Error}", _pageId, ex.Message);
             AddModuleMessage("Error Loading Page", MessageType.Error);
         }
     }
@@ -254,28 +256,28 @@
     {
         try
         {
-            parentid = (string)e.Value;
-            if (parentid == "-1")
+            _parentid = (string)e.Value;
+            if (_parentid == "-1")
             {
-                children = PageState.Pages.Where(item => item.ParentId == null).ToList();
+                _children = PageState.Pages.Where(item => item.ParentId == null).ToList();
             }
             else
             {
-                children = PageState.Pages.Where(item => item.ParentId == int.Parse(parentid)).ToList();
+                _children = PageState.Pages.Where(item => item.ParentId == int.Parse(_parentid)).ToList();
             }
-            if (parentid == currentparentid)
+            if (_parentid == _currentparentid)
             {
-                insert = "=";
+                _insert = "=";
             }
             else
             {
-                insert = ">>";
+                _insert = ">>";
             }
             StateHasChanged();
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading Child Pages For Parent {PageId} {Error}", parentid, ex.Message);
+            await logger.LogError(ex, "Error Loading Child Pages For Parent {PageId} {Error}", _parentid, ex.Message);
             AddModuleMessage("Error Loading Child Pages For Parent", MessageType.Error);
         }
     }
@@ -284,20 +286,20 @@
     {
         try
         {
-            themetype = (string)e.Value;
-            if (themetype != "")
+            _themetype = (string)e.Value;
+            if (_themetype != "")
             {
-                panelayouts = ThemeService.GetPaneLayoutTypes(Themes, themetype);
+                _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
             }
             else
             {
-                panelayouts = new Dictionary<string, string>();
+                _panelayouts = new Dictionary<string, string>();
             }
             StateHasChanged();
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", themetype, ex.Message);
+            await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", _themetype, ex.Message);
             AddModuleMessage("Error Loading Pane Layouts For Theme", MessageType.Error);
         }
     }
@@ -307,52 +309,52 @@
         Page page = null;
         try
         {
-            if (name != "" && !string.IsNullOrEmpty(themetype) && (panelayouts.Count == 0 || !string.IsNullOrEmpty(layouttype)))
+            if (_name != "" && !string.IsNullOrEmpty(_themetype) && (_panelayouts.Count == 0 || !string.IsNullOrEmpty(_layouttype)))
             {
-                page = PageState.Pages.Where(item => item.PageId == PageId).FirstOrDefault();
+                page = PageState.Pages.FirstOrDefault(item => item.PageId == _pageId);
                 string currentPath = page.Path;
 
-                page.Name = name;
-                if (path == "" && name.ToLower() != "home")
+                page.Name = _name;
+                if (_path == "" && _name.ToLower() != "home")
                 {
-                    path = name;
+                    _path = _name;
                 }
-                if (path.Contains("/"))
+                if (_path.Contains("/"))
                 {
-                    path = path.Substring(path.LastIndexOf("/") + 1);
+                    _path = _path.Substring(_path.LastIndexOf("/") + 1);
                 }
-                if (string.IsNullOrEmpty(parentid))
+                if (string.IsNullOrEmpty(_parentid))
                 {
                     page.ParentId = null;
-                    page.Path = Utilities.GetFriendlyUrl(path);
+                    page.Path = Utilities.GetFriendlyUrl(_path);
                 }
                 else
                 {
-                    page.ParentId = Int32.Parse(parentid);
+                    page.ParentId = Int32.Parse(_parentid);
                     Page parent = PageState.Pages.FirstOrDefault(item => item.PageId == page.ParentId);
                     if (parent.Path == "")
                     {
-                        page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(path);
+                        page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(_path);
                     }
                     else
                     {
-                        page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(path);
+                        page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(_path);
                     }
                 }
-                if (insert != "=")
+                if (_insert != "=")
                 {
                     Page child;
-                    switch (insert)
+                    switch (_insert)
                     {
                         case "<<":
                             page.Order = 0;
                             break;
                         case "<":
-                            child = PageState.Pages.FirstOrDefault(item => item.PageId == childid);
+                            child = PageState.Pages.FirstOrDefault(item => item.PageId == _childid);
                             if (child != null) page.Order = child.Order - 1;
                             break;
                         case ">":
-                            child = PageState.Pages.FirstOrDefault(item => item.PageId == childid);
+                            child = PageState.Pages.FirstOrDefault(item => item.PageId == _childid);
                             if (child != null) page.Order = child.Order + 1;
                             break;
                         case ">>":
@@ -360,12 +362,12 @@
                             break;
                     }
                 }
-                page.IsNavigation = (isnavigation == null ? true : Boolean.Parse(isnavigation));
-                page.EditMode = (mode == "edit" ? true : false);
-                page.ThemeType = themetype;
-                page.LayoutType = layouttype ?? "";
-                page.Icon = icon ?? "";
-                page.Permissions = permissiongrid.GetPermissions();
+                page.IsNavigation = (_isnavigation == null || Boolean.Parse(_isnavigation));
+                page.EditMode = (_mode == "edit");
+                page.ThemeType = _themetype;
+                page.LayoutType = _layouttype ?? "";
+                page.Icon = _icon ?? "";
+                page.Permissions = _permissionGrid.GetPermissions();
 
                 if (page.ThemeType == PageState.Site.DefaultThemeType)
                 {
@@ -375,22 +377,22 @@
                 {
                     page.LayoutType = "";
                 }
-                page.IsPersonalizable = (ispersonalizable != null && Boolean.Parse(ispersonalizable));
+                page.IsPersonalizable = (_ispersonalizable != null && Boolean.Parse(_ispersonalizable));
                 page.UserId = null;
 
                 page = await PageService.UpdatePageAsync(page);
                 await PageService.UpdatePageOrderAsync(page.SiteId, page.PageId, page.ParentId);
-                if (currentparentid == "")
+                if (_currentparentid == "")
                 {
                     await PageService.UpdatePageOrderAsync(page.SiteId, page.PageId, null);
                 }
                 else
                 {
-                    await PageService.UpdatePageOrderAsync(page.SiteId, page.PageId, int.Parse(currentparentid));
+                    await PageService.UpdatePageOrderAsync(page.SiteId, page.PageId, int.Parse(_currentparentid));
                 }
 
                 // update child paths
-                if (parentid != currentparentid)
+                if (_parentid != _currentparentid)
                 {
                     foreach (Page p in PageState.Pages.Where(item => item.Path.StartsWith(currentPath)))
                     {

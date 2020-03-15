@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Oqtane.Models;
 using Oqtane.Shared;
 using System.Linq;
+using Oqtane.Enums;
 using Oqtane.Infrastructure.Interfaces;
 using Oqtane.Repository;
 using Oqtane.Security;

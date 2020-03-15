@@ -1,7 +1,7 @@
 ﻿@namespace Oqtane.Modules.Controls
 @inherits ModuleBase
 
-@if (visible)
+@if (_visible)
 {
     <div class="app-admin-modal">
         <div class="modal" tabindex="-1" role="dialog">
@@ -26,7 +26,7 @@
         </div>
     </div>
 }
-@if (authorized)
+@if (_authorized)
 {
     if (Disabled)
     {
@@ -66,9 +66,9 @@
     [Parameter]
     public Action OnClick { get; set; } // required if an Action is specified - executes a method in the calling component
 
-    bool visible = false;
-    bool editmode = true;
-    bool authorized = false;
+    bool _visible = false;
+    bool _editmode = true;
+    bool _authorized = false;
 
     protected override void OnParametersSet()
     {
@@ -82,15 +82,15 @@
         }
         if (!string.IsNullOrEmpty(EditMode))
         {
-            editmode = bool.Parse(EditMode);
+            _editmode = bool.Parse(EditMode);
         }
-        authorized = IsAuthorized();
+        _authorized = IsAuthorized();
     }
 
     private bool IsAuthorized()
     {
         bool authorized = false;
-        if (PageState.EditMode || !editmode)
+        if (PageState.EditMode || !_editmode)
         {
             SecurityAccessLevel security = SecurityAccessLevel.Host;
             if (Security == null)
@@ -135,7 +135,7 @@
 
     private void DisplayModal()
     {
-        visible = !visible;
+        _visible = !_visible;
         StateHasChanged();
     }
 

@@ -1,11 +1,11 @@
 ﻿@namespace Oqtane.UI
 
-<ModuleMessage Message="@message" Type="MessageType.Error" />
+<ModuleMessage Message="@_message" Type="MessageType.Error" />
 <CascadingValue Value="this">
-    <ModuleMessage @ref="modulemessage" />
+    <ModuleMessage @ref="ModuleMessage" />
     @DynamicComponent
 </CascadingValue>
-@if (progressindicator)
+@if (_progressindicator)
 {
     <div class="app-progress-indicator"></div>
 }
@@ -17,12 +17,12 @@
     [CascadingParameter]
     private Module ModuleState { get; set; }
 
-    private ModuleMessage modulemessage { get; set; }
-    string message;
+    private ModuleMessage ModuleMessage { get; set; }
+    string _message;
 
     RenderFragment DynamicComponent { get; set; }
 
-    bool progressindicator = false;
+    bool _progressindicator = false;
 
     protected override void OnParametersSet()
     {
@@ -48,12 +48,12 @@
                 else
                 {
                     // module does not exist with typename specified
-                    message = "Module Does Not Have A Component Named " + Utilities.GetTypeNameLastSegment(typename, 0) + ".razor";
+                    _message = "Module Does Not Have A Component Named " + Utilities.GetTypeNameLastSegment(typename, 0) + ".razor";
                 }
             }
             else
             {
-                message = "Something is wrong with moduletype";
+                _message = "Something is wrong with moduletype";
             }
 
         };
@@ -61,20 +61,20 @@
 
     public void AddModuleMessage(string message, MessageType type)
     {
-        progressindicator = false;
+        _progressindicator = false;
         StateHasChanged();
-        modulemessage.SetModuleMessage(message, type);
+        ModuleMessage.SetModuleMessage(message, type);
     }
 
     public void ShowProgressIndicator()
     {
-        progressindicator = true;
+        _progressindicator = true;
         StateHasChanged();
     }
 
     public void HideProgressIndicator()
     {
-        progressindicator = false;
+        _progressindicator = false;
         StateHasChanged();
     }
 }

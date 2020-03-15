@@ -6,14 +6,14 @@ namespace Oqtane.Services
 {
     public interface INotificationService
     {
-        Task<List<Notification>> GetNotificationsAsync(int SiteId, string Direction, int UserId);
+        Task<List<Notification>> GetNotificationsAsync(int siteId, string direction, int userId);
 
-        Task<Notification> GetNotificationAsync(int NotificationId);
+        Task<Notification> GetNotificationAsync(int notificationId);
 
-        Task<Notification> AddNotificationAsync(Notification Notification);
+        Task<Notification> AddNotificationAsync(Notification notification);
 
-        Task<Notification> UpdateNotificationAsync(Notification Notification);
+        Task<Notification> UpdateNotificationAsync(Notification notification);
 
-        Task DeleteNotificationAsync(int NotificationId);
+        Task DeleteNotificationAsync(int notificationId);
     }
 }

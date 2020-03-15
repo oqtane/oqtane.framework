@@ -6,6 +6,7 @@ using Oqtane.Shared;
 using System;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Oqtane.Enums;
 using Oqtane.Infrastructure.Interfaces;
 using Oqtane.Repository;
 

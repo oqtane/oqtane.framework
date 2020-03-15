@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Oqtane.Shared;
 using System;
 using System.Collections.Generic;
+using Oqtane.Enums;
 using Oqtane.Infrastructure.Interfaces;
 
 namespace Oqtane.Modules.HtmlText.Controllers

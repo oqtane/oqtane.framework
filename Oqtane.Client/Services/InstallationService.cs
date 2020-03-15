@@ -1,9 +1,7 @@
 ﻿using Oqtane.Models;
 using System.Threading.Tasks;
 using System.Net.Http;
-using System.Linq;
 using Microsoft.AspNetCore.Components;
-using System.Collections.Generic;
 using Oqtane.Shared;
 
 namespace Oqtane.Services
@@ -21,24 +19,24 @@ namespace Oqtane.Services
             _navigationManager = navigationManager;
         }
 
-        private string apiurl
+        private string Apiurl
         {
             get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Installation"); }
         }
 
         public async Task<GenericResponse> IsInstalled()
         {
-            return await _http.GetJsonAsync<GenericResponse>(apiurl + "/installed");
+            return await _http.GetJsonAsync<GenericResponse>(Apiurl + "/installed");
         }
 
         public async Task<GenericResponse> Install(string connectionstring)
         {
-            return await _http.PostJsonAsync<GenericResponse>(apiurl, connectionstring);
+            return await _http.PostJsonAsync<GenericResponse>(Apiurl, connectionstring);
         }
 
         public async Task<GenericResponse> Upgrade()
         {
-            return await _http.GetJsonAsync<GenericResponse>(apiurl + "/upgrade");
+            return await _http.GetJsonAsync<GenericResponse>(Apiurl + "/upgrade");
         }
     }
 }

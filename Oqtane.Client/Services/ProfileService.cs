@@ -21,34 +21,34 @@ namespace Oqtane.Services
             _navigationManager = navigationManager;
         }
 
-        private string apiurl
+        private string Apiurl
         {
             get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Profile"); }
         }
 
-        public async Task<List<Profile>> GetProfilesAsync(int SiteId)
+        public async Task<List<Profile>> GetProfilesAsync(int siteId)
         {
-            List<Profile> Profiles = await _http.GetJsonAsync<List<Profile>>(apiurl + "?siteid=" + SiteId.ToString());
-            return Profiles.OrderBy(item => item.ViewOrder).ToList();
+            List<Profile> profiles = await _http.GetJsonAsync<List<Profile>>(Apiurl + "?siteid=" + siteId.ToString());
+            return profiles.OrderBy(item => item.ViewOrder).ToList();
         }
 
-        public async Task<Profile> GetProfileAsync(int ProfileId)
+        public async Task<Profile> GetProfileAsync(int profileId)
         {
-            return await _http.GetJsonAsync<Profile>(apiurl + "/" + ProfileId.ToString());
+            return await _http.GetJsonAsync<Profile>(Apiurl + "/" + profileId.ToString());
         }
 
-        public async Task<Profile> AddProfileAsync(Profile Profile)
+        public async Task<Profile> AddProfileAsync(Profile profile)
         {
-            return await _http.PostJsonAsync<Profile>(apiurl, Profile);
+            return await _http.PostJsonAsync<Profile>(Apiurl, profile);
         }
 
-        public async Task<Profile> UpdateProfileAsync(Profile Profile)
+        public async Task<Profile> UpdateProfileAsync(Profile profile)
         {
-            return await _http.PutJsonAsync<Profile>(apiurl + "/" + Profile.SiteId.ToString(), Profile);
+            return await _http.PutJsonAsync<Profile>(Apiurl + "/" + profile.SiteId.ToString(), profile);
         }
-        public async Task DeleteProfileAsync(int ProfileId)
+        public async Task DeleteProfileAsync(int profileId)
         {
-            await _http.DeleteAsync(apiurl + "/" + ProfileId.ToString());
+            await _http.DeleteAsync(Apiurl + "/" + profileId.ToString());
         }
     }
 }

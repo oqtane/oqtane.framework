@@ -5,6 +5,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
+using Oqtane.Enums;
 using Oqtane.Infrastructure.Interfaces;
 using Oqtane.Repository;
 using Oqtane.Security;

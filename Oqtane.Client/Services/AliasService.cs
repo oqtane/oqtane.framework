@@ -23,25 +23,25 @@ namespace Oqtane.Services
             _navigationManager = navigationManager;
         }
 
-        private string apiurl
+        private string Apiurl
         {
             get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Alias"); }
         }
 
         public async Task<List<Alias>> GetAliasesAsync()
         {
-            List<Alias> aliases = await _http.GetJsonAsync<List<Alias>>(apiurl);
+            List<Alias> aliases = await _http.GetJsonAsync<List<Alias>>(Apiurl);
             return aliases.OrderBy(item => item.Name).ToList();
         }
 
-        public async Task<Alias> GetAliasAsync(int AliasId)
+        public async Task<Alias> GetAliasAsync(int aliasId)
         {
-            return await _http.GetJsonAsync<Alias>(apiurl + "/" + AliasId.ToString());
+            return await _http.GetJsonAsync<Alias>(Apiurl + "/" + aliasId.ToString());
         }
 
-        public async Task<Alias> GetAliasAsync(string Url, DateTime LastSyncDate)
+        public async Task<Alias> GetAliasAsync(string url, DateTime lastSyncDate)
         {
-            Uri uri = new Uri(Url);
+            Uri uri = new Uri(url);
             string name = uri.Authority;
             if (uri.Segments.Count() > 1)
             {
@@ -51,21 +51,21 @@ namespace Oqtane.Services
             { 
                 name = name.Substring(0, name.Length - 1); 
             }
-            return await _http.GetJsonAsync<Alias>(apiurl + "/name/" + WebUtility.UrlEncode(name) + "?lastsyncdate=" + LastSyncDate.ToString("yyyyMMddHHmmssfff"));
+            return await _http.GetJsonAsync<Alias>(Apiurl + "/name/" + WebUtility.UrlEncode(name) + "?lastsyncdate=" + lastSyncDate.ToString("yyyyMMddHHmmssfff"));
         }
 
         public async Task<Alias> AddAliasAsync(Alias alias)
         {
-            return await _http.PostJsonAsync<Alias>(apiurl, alias);
+            return await _http.PostJsonAsync<Alias>(Apiurl, alias);
         }
 
         public async Task<Alias> UpdateAliasAsync(Alias alias)
         {
-            return await _http.PutJsonAsync<Alias>(apiurl + "/" + alias.AliasId.ToString(), alias);
+            return await _http.PutJsonAsync<Alias>(Apiurl + "/" + alias.AliasId.ToString(), alias);
         }
-        public async Task DeleteAliasAsync(int AliasId)
+        public async Task DeleteAliasAsync(int aliasId)
         {
-            await _http.DeleteAsync(apiurl + "/" + AliasId.ToString());
+            await _http.DeleteAsync(Apiurl + "/" + aliasId.ToString());
         }
     }
 }

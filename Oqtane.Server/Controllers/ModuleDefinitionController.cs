@@ -7,6 +7,7 @@ using System.IO;
 using System.Reflection;
 using System.Linq;
 using Microsoft.AspNetCore.Hosting;
+using Oqtane.Enums;
 using Oqtane.Infrastructure.Interfaces;
 using Oqtane.Repository;
 using Oqtane.Security;

@@ -30,7 +30,7 @@ namespace Oqtane.UI
                 quillElement);
         }
 
-        internal static ValueTask<string> GetHTML(
+        internal static ValueTask<string> GetHtml(
             IJSRuntime jsRuntime,
             ElementReference quillElement)
         {
@@ -51,11 +51,11 @@ namespace Oqtane.UI
         internal static ValueTask<object> LoadEditorContent(
             IJSRuntime jsRuntime,
             ElementReference quillElement,
-            string Content)
+            string content)
         {
             return jsRuntime.InvokeAsync<object>(
                 "interop.loadQuillContent",
-                quillElement, Content);
+                quillElement, content);
         }
 
         internal static ValueTask<object> EnableEditor(
@@ -70,11 +70,11 @@ namespace Oqtane.UI
         internal static ValueTask<object> InsertImage(
             IJSRuntime jsRuntime,
             ElementReference quillElement,
-            string ImageURL)
+            string imageUrl)
         {
             return jsRuntime.InvokeAsync<object>(
                 "interop.insertQuillImage",
-                quillElement, ImageURL);
+                quillElement, imageUrl);
         }
     }
 }

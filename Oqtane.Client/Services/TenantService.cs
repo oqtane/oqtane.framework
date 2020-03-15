@@ -21,35 +21,35 @@ namespace Oqtane.Services
             _navigationManager = navigationManager;
         }
 
-        private string apiurl
+        private string Apiurl
         {
             get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Tenant"); }
         }
 
         public async Task<List<Tenant>> GetTenantsAsync()
         {
-            List<Tenant> tenants = await _http.GetJsonAsync<List<Tenant>>(apiurl);
+            List<Tenant> tenants = await _http.GetJsonAsync<List<Tenant>>(Apiurl);
             return tenants.OrderBy(item => item.Name).ToList();
         }
 
-        public async Task<Tenant> GetTenantAsync(int TenantId)
+        public async Task<Tenant> GetTenantAsync(int tenantId)
         {
-            return await _http.GetJsonAsync<Tenant>(apiurl + "/" + TenantId.ToString());
+            return await _http.GetJsonAsync<Tenant>(Apiurl + "/" + tenantId.ToString());
         }
 
-        public async Task<Tenant> AddTenantAsync(Tenant Tenant)
+        public async Task<Tenant> AddTenantAsync(Tenant tenant)
         {
-            return await _http.PostJsonAsync<Tenant>(apiurl, Tenant);
+            return await _http.PostJsonAsync<Tenant>(Apiurl, tenant);
         }
 
-        public async Task<Tenant> UpdateTenantAsync(Tenant Tenant)
+        public async Task<Tenant> UpdateTenantAsync(Tenant tenant)
         {
-            return await _http.PutJsonAsync<Tenant>(apiurl + "/" + Tenant.TenantId.ToString(), Tenant);
+            return await _http.PutJsonAsync<Tenant>(Apiurl + "/" + tenant.TenantId.ToString(), tenant);
         }
 
-        public async Task DeleteTenantAsync(int TenantId)
+        public async Task DeleteTenantAsync(int tenantId)
         {
-            await _http.DeleteAsync(apiurl + "/" + TenantId.ToString());
+            await _http.DeleteAsync(Apiurl + "/" + tenantId.ToString());
         }
     }
 }

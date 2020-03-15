@@ -21,35 +21,35 @@ namespace Oqtane.Services
             _navigationManager = navigationManager;
         }
 
-        private string apiurl
+        private string Apiurl
         {
             get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Notification"); }
         }
 
-        public async Task<List<Notification>> GetNotificationsAsync(int SiteId, string Direction, int UserId)
+        public async Task<List<Notification>> GetNotificationsAsync(int siteId, string direction, int userId)
         {
-            string querystring = "?siteid=" + SiteId.ToString() + "&direction=" + Direction.ToLower() + "&userid=" + UserId.ToString();
-            List<Notification> Notifications = await _http.GetJsonAsync<List<Notification>>(apiurl + querystring);
-            return Notifications.OrderByDescending(item => item.CreatedOn).ToList();
+            string querystring = "?siteid=" + siteId.ToString() + "&direction=" + direction.ToLower() + "&userid=" + userId.ToString();
+            List<Notification> notifications = await _http.GetJsonAsync<List<Notification>>(Apiurl + querystring);
+            return notifications.OrderByDescending(item => item.CreatedOn).ToList();
         }
 
-        public async Task<Notification> GetNotificationAsync(int NotificationId)
+        public async Task<Notification> GetNotificationAsync(int notificationId)
         {
-            return await _http.GetJsonAsync<Notification>(apiurl + "/" + NotificationId.ToString());
+            return await _http.GetJsonAsync<Notification>(Apiurl + "/" + notificationId.ToString());
         }
 
-        public async Task<Notification> AddNotificationAsync(Notification Notification)
+        public async Task<Notification> AddNotificationAsync(Notification notification)
         {
-            return await _http.PostJsonAsync<Notification>(apiurl, Notification);
+            return await _http.PostJsonAsync<Notification>(Apiurl, notification);
         }
 
-        public async Task<Notification> UpdateNotificationAsync(Notification Notification)
+        public async Task<Notification> UpdateNotificationAsync(Notification notification)
         {
-            return await _http.PutJsonAsync<Notification>(apiurl + "/" + Notification.NotificationId.ToString(), Notification);
+            return await _http.PutJsonAsync<Notification>(Apiurl + "/" + notification.NotificationId.ToString(), notification);
         }
-        public async Task DeleteNotificationAsync(int NotificationId)
+        public async Task DeleteNotificationAsync(int notificationId)
         {
-            await _http.DeleteAsync(apiurl + "/" + NotificationId.ToString());
+            await _http.DeleteAsync(Apiurl + "/" + notificationId.ToString());
         }
     }
 }

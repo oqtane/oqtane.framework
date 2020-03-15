@@ -1,4 +1,5 @@
 ﻿using System;
+using Oqtane.Enums;
 using Oqtane.Models;
 using Oqtane.Shared;
 

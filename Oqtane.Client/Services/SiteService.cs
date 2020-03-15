@@ -21,35 +21,35 @@ namespace Oqtane.Services
             _navigationManager = navigationManager;
         }
 
-        private string apiurl
+        private string Apiurl
         {
             get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Site"); }
         }
 
-        public async Task<List<Site>> GetSitesAsync(Alias Alias)
+        public async Task<List<Site>> GetSitesAsync(Alias alias)
         {
-            List<Site> sites = await _http.GetJsonAsync<List<Site>>(CreateCrossTenantUrl(apiurl, Alias));
+            List<Site> sites = await _http.GetJsonAsync<List<Site>>(CreateCrossTenantUrl(Apiurl, alias));
             return sites.OrderBy(item => item.Name).ToList();
         }
 
-        public async Task<Site> GetSiteAsync(int SiteId, Alias Alias)
+        public async Task<Site> GetSiteAsync(int siteId, Alias alias)
         {
-            return await _http.GetJsonAsync<Site>(CreateCrossTenantUrl(apiurl + "/" + SiteId.ToString(), Alias));
+            return await _http.GetJsonAsync<Site>(CreateCrossTenantUrl(Apiurl + "/" + siteId.ToString(), alias));
         }
 
-        public async Task<Site> AddSiteAsync(Site Site, Alias Alias)
+        public async Task<Site> AddSiteAsync(Site site, Alias alias)
         {
-            return await _http.PostJsonAsync<Site>(CreateCrossTenantUrl(apiurl, Alias), Site);
+            return await _http.PostJsonAsync<Site>(CreateCrossTenantUrl(Apiurl, alias), site);
         }
 
-        public async Task<Site> UpdateSiteAsync(Site Site, Alias Alias)
+        public async Task<Site> UpdateSiteAsync(Site site, Alias alias)
         {
-            return await _http.PutJsonAsync<Site>(CreateCrossTenantUrl(apiurl + "/" + Site.SiteId.ToString(), Alias), Site);
+            return await _http.PutJsonAsync<Site>(CreateCrossTenantUrl(Apiurl + "/" + site.SiteId.ToString(), alias), site);
         }
 
-        public async Task DeleteSiteAsync(int SiteId, Alias Alias)
+        public async Task DeleteSiteAsync(int siteId, Alias alias)
         {
-            await _http.DeleteAsync(CreateCrossTenantUrl(apiurl + "/" + SiteId.ToString(), Alias));
+            await _http.DeleteAsync(CreateCrossTenantUrl(Apiurl + "/" + siteId.ToString(), alias));
         }
     }
 }
