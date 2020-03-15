@@ -23,14 +23,14 @@
 
         <div class="tab-content">
             <div id="Pages" class="tab-pane fade show active" role="tabpanel">
-                @if (pages == null)
+                @if (_pages == null)
                 {
                     <br />
                     <p>No Deleted Pages</p>
                 }
                 else
                 {
-                    <Pager Items="@pages">
+                    <Pager Items="@_pages">
                         <Header>
                             <th>&nbsp;</th>
                             <th>&nbsp;</th>
@@ -49,14 +49,14 @@
                 }
             </div>
             <div id="Modules" class="tab-pane fade" role="tabpanel">
-                @if (modules == null)
+                @if (_modules == null)
                 {
                     <br />
                     <p>No Deleted Modules</p>
                 }
                 else
                 {
-                    <Pager Items="@modules">
+                    <Pager Items="@_modules">
                         <Header>
                             <th>&nbsp;</th>
                             <th>&nbsp;</th>
@@ -83,8 +83,8 @@
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 
-    List<Page> pages;
-    List<Module> modules;
+    List<Page> _pages;
+    List<Module> _modules;
 
     protected override async Task OnInitializedAsync()
     {
@@ -101,84 +101,84 @@
 
     private async Task Load()
     {
-        pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
-        pages = pages.Where(item => item.IsDeleted).ToList();
+        _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
+        _pages = _pages.Where(item => item.IsDeleted).ToList();
 
-        modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId);
-        modules = modules.Where(item => item.IsDeleted).ToList();
+        _modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId);
+        _modules = _modules.Where(item => item.IsDeleted).ToList();
     }
 
-    private async Task RestorePage(Page Page)
+    private async Task RestorePage(Page page)
     {
         try
         {
-            Page.IsDeleted = false;
-            await PageService.UpdatePageAsync(Page);
-            await logger.LogInformation("Page Restored {Page}", Page);
+            page.IsDeleted = false;
+            await PageService.UpdatePageAsync(page);
+            await logger.LogInformation("Page Restored {Page}", page);
             await Load();
             StateHasChanged();
             NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Restoring Deleted Page {Page} {Error}", Page, ex.Message);
+            await logger.LogError(ex, "Error Restoring Deleted Page {Page} {Error}", page, ex.Message);
             AddModuleMessage("Error Restoring Deleted Page", MessageType.Error);
         }
     }
 
-    private async Task DeletePage(Page Page)
+    private async Task DeletePage(Page page)
     {
         try
         {
-            await PageService.DeletePageAsync(Page.PageId);
-            await logger.LogInformation("Page Permanently Deleted {Page}", Page);
+            await PageService.DeletePageAsync(page.PageId);
+            await logger.LogInformation("Page Permanently Deleted {Page}", page);
             await Load();
             StateHasChanged();
             NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Permanently Deleting Page {Page} {Error}", Page, ex.Message);
+            await logger.LogError(ex, "Error Permanently Deleting Page {Page} {Error}", page, ex.Message);
             AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
 
-    private async Task RestoreModule(Module Module)
+    private async Task RestoreModule(Module module)
     {
         try
         {
-            PageModule pagemodule = await PageModuleService.GetPageModuleAsync(Module.PageModuleId);
+            PageModule pagemodule = await PageModuleService.GetPageModuleAsync(module.PageModuleId);
             pagemodule.IsDeleted = false;
             await PageModuleService.UpdatePageModuleAsync(pagemodule);
-            await logger.LogInformation("Module Restored {Module}", Module);
+            await logger.LogInformation("Module Restored {Module}", module);
             await Load();
             StateHasChanged();
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Restoring Deleted Module {Module} {Error}", Module, ex.Message);
+            await logger.LogError(ex, "Error Restoring Deleted Module {Module} {Error}", module, ex.Message);
             AddModuleMessage("Error Restoring Deleted Module", MessageType.Error);
         }
     }
 
-    private async Task DeleteModule(Module Module)
+    private async Task DeleteModule(Module module)
     {
         try
         {
-            await PageModuleService.DeletePageModuleAsync(Module.PageModuleId);
+            await PageModuleService.DeletePageModuleAsync(module.PageModuleId);
             // check if there are any remaining module instances in the site
-            modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId);
-            if (!modules.Exists(item => item.ModuleId == Module.ModuleId))
+            _modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId);
+            if (!_modules.Exists(item => item.ModuleId == module.ModuleId))
             {
-                await ModuleService.DeleteModuleAsync(Module.ModuleId);
+                await ModuleService.DeleteModuleAsync(module.ModuleId);
             }
-            await logger.LogInformation("Module Permanently Deleted {Module}", Module);
+            await logger.LogInformation("Module Permanently Deleted {Module}", module);
             await Load();
             StateHasChanged();
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Permanently Deleting Module {Module} {Error}", Module, ex.Message);
+            await logger.LogError(ex, "Error Permanently Deleting Module {Module} {Error}", module, ex.Message);
             AddModuleMessage("Error Permanently Deleting Module", MessageType.Error);
         }
     }
