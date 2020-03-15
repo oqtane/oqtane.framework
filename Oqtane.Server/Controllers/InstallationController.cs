@@ -1,10 +1,8 @@
 ﻿using DbUp;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
 using System;
@@ -13,6 +11,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using Oqtane.Infrastructure.Interfaces;
+
+// ReSharper disable StringIndexOfIsCultureSpecific.1
 
 namespace Oqtane.Controllers
 {
@@ -30,7 +31,7 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        public GenericResponse Post([FromBody] string connectionstring)
+        public GenericResponse Post([FromBody] string connectionString)
         {
             var response = new GenericResponse { Success = false, Message = "" };
 
@@ -38,7 +39,7 @@ namespace Oqtane.Controllers
             {
                 bool master = false;
                 string defaultconnectionstring = _config.GetConnectionString("DefaultConnection");
-                if (string.IsNullOrEmpty(defaultconnectionstring) || connectionstring == defaultconnectionstring)
+                if (string.IsNullOrEmpty(defaultconnectionstring) || connectionString == defaultconnectionstring)
                 {
                     master = true;
                 }
@@ -52,9 +53,9 @@ namespace Oqtane.Controllers
                 if (!exists)
                 {
                     string datadirectory = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
-                    connectionstring = connectionstring.Replace("|DataDirectory|", datadirectory);
+                    connectionString = connectionString.Replace("|DataDirectory|", datadirectory);
 
-                    SqlConnection connection = new SqlConnection(connectionstring);
+                    SqlConnection connection = new SqlConnection(connectionString);
                     try
                     {
                         using (connection)
@@ -73,7 +74,7 @@ namespace Oqtane.Controllers
                     {
                         string masterConnectionString = "";
                         string databaseName = "";
-                        string[] fragments = connectionstring.Split(';', StringSplitOptions.RemoveEmptyEntries);
+                        string[] fragments = connectionString.Split(';', StringSplitOptions.RemoveEmptyEntries);
                         foreach (string fragment in fragments)
                         {
                             if (fragment.ToLower().Contains("initial catalog=") || fragment.ToLower().Contains("database="))
@@ -95,7 +96,7 @@ namespace Oqtane.Controllers
                             {
                                 connection.Open();
                                 SqlCommand command;
-                                if (connectionstring.ToLower().Contains("attachdbfilename=")) // LocalDB
+                                if (connectionString.ToLower().Contains("attachdbfilename=")) // LocalDB
                                 {
                                     command = new SqlCommand("CREATE DATABASE [" + databaseName + "] ON ( NAME = '" + databaseName + "', FILENAME = '" + datadirectory + "\\" + databaseName + ".mdf')", connection);
                                 }
@@ -126,11 +127,11 @@ namespace Oqtane.Controllers
                             {
                                 initializationScript = reader.ReadToEnd();
                             }
-                            initializationScript = initializationScript.Replace("{ConnectionString}", connectionstring.Replace(datadirectory, "|DataDirectory|"));
+                            initializationScript = initializationScript.Replace("{ConnectionString}", connectionString.Replace(datadirectory, "|DataDirectory|"));
                             initializationScript = initializationScript.Replace("{Alias}", HttpContext.Request.Host.Value);
                         }
 
-                        var dbUpgradeConfig = DeployChanges.To.SqlDatabase(connectionstring)
+                        var dbUpgradeConfig = DeployChanges.To.SqlDatabase(connectionString)
                             .WithScript(new DbUp.Engine.SqlScript("Master.sql", initializationScript))
                             .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly()); // tenant scripts should be added to /Scripts folder as Embedded Resources
                         var dbUpgrade = dbUpgradeConfig.Build();
@@ -151,9 +152,9 @@ namespace Oqtane.Controllers
                                     {
                                         config = reader.ReadToEnd();
                                     }
-                                    connectionstring = connectionstring.Replace(datadirectory, "|DataDirectory|");
-                                    connectionstring = connectionstring.Replace(@"\", @"\\");
-                                    config = config.Replace("DefaultConnection\": \"", "DefaultConnection\": \"" + connectionstring);
+                                    connectionString = connectionString.Replace(datadirectory, "|DataDirectory|");
+                                    connectionString = connectionString.Replace(@"\", @"\\");
+                                    config = config.Replace("DefaultConnection\": \"", "DefaultConnection\": \"" + connectionString);
                                     using (StreamWriter writer = new StreamWriter(Directory.GetCurrentDirectory() + "\\appsettings.json"))
                                     {
                                         writer.WriteLine(config);

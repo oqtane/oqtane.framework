@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
 using Oqtane.Security;
-using Oqtane.Infrastructure;
 using System.Linq;
-using Microsoft.AspNetCore.Http;
+using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
@@ -62,38 +61,38 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        public Setting Post([FromBody] Setting Setting)
+        public Setting Post([FromBody] Setting setting)
         {
-            if (ModelState.IsValid && IsAuthorized(Setting.EntityName, Setting.EntityId, PermissionNames.Edit))
+            if (ModelState.IsValid && IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit))
             {
-                Setting = _settings.AddSetting(Setting);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Setting Added {Setting}", Setting);
+                setting = _settings.AddSetting(setting);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Setting Added {Setting}", setting);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Add Setting {Setting}", Setting);
+                _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Add Setting {Setting}", setting);
                 HttpContext.Response.StatusCode = 401;
-                Setting = null;
+                setting = null;
             }
-            return Setting;
+            return setting;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        public Setting Put(int id, [FromBody] Setting Setting)
+        public Setting Put(int id, [FromBody] Setting setting)
         {
-            if (ModelState.IsValid && IsAuthorized(Setting.EntityName, Setting.EntityId, PermissionNames.Edit))
+            if (ModelState.IsValid && IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit))
             {
-                Setting = _settings.UpdateSetting(Setting);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Setting Updated {Setting}", Setting);
+                setting = _settings.UpdateSetting(setting);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Setting Updated {Setting}", setting);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Setting {Setting}", Setting);
+                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Setting {Setting}", setting);
                 HttpContext.Response.StatusCode = 401;
-                Setting = null;
+                setting = null;
             }
-            return Setting;
+            return setting;
         }
 
         // DELETE api/<controller>/5
@@ -113,15 +112,15 @@ namespace Oqtane.Controllers
             }
         }
 
-        private bool IsAuthorized(string EntityName, int EntityId, string PermissionName)
+        private bool IsAuthorized(string entityName, int entityId, string permissionName)
         {
             bool authorized = false;
-            if (EntityName == EntityNames.PageModule)
+            if (entityName == EntityNames.PageModule)
             {
-                EntityName = EntityNames.Module;
-                EntityId = _pageModules.GetPageModule(EntityId).ModuleId;
+                entityName = EntityNames.Module;
+                entityId = _pageModules.GetPageModule(entityId).ModuleId;
             }
-            switch (EntityName)
+            switch (entityName)
             {
                 case EntityNames.Host:
                     authorized = User.IsInRole(Constants.HostRole);
@@ -132,13 +131,13 @@ namespace Oqtane.Controllers
                 case EntityNames.Page:
                 case EntityNames.Module:
                 case EntityNames.Folder:
-                    authorized = _userPermissions.IsAuthorized(User, EntityName, EntityId, PermissionName);
+                    authorized = _userPermissions.IsAuthorized(User, entityName, entityId, permissionName);
                     break;
                 case EntityNames.User:
                     authorized = true;
-                    if (PermissionName == PermissionNames.Edit)
+                    if (permissionName == PermissionNames.Edit)
                     {
-                        authorized = User.IsInRole(Constants.AdminRole) || (_userPermissions.GetUser(User).UserId == EntityId);
+                        authorized = User.IsInRole(Constants.AdminRole) || (_userPermissions.GetUser(User).UserId == entityId);
                     }
                     break;
             }

@@ -5,10 +5,10 @@ namespace Oqtane.Repository
 {
     public interface INotificationRepository
     {
-        IEnumerable<Notification> GetNotifications(int SiteId, int FromUserId, int ToUserId);
-        Notification AddNotification(Notification Notification);
-        Notification UpdateNotification(Notification Notification);
-        Notification GetNotification(int NotificationId);
-        void DeleteNotification(int NotificationId);
+        IEnumerable<Notification> GetNotifications(int siteId, int fromUserId, int toUserId);
+        Notification AddNotification(Notification notification);
+        Notification UpdateNotification(Notification notification);
+        Notification GetNotification(int notificationId);
+        void DeleteNotification(int notificationId);
     }
 }

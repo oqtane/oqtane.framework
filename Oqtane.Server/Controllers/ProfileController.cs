@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
-using Oqtane.Infrastructure;
+using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
@@ -37,27 +37,27 @@ namespace Oqtane.Controllers
         // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = Constants.AdminRole)]
-        public Profile Post([FromBody] Profile Profile)
+        public Profile Post([FromBody] Profile profile)
         {
             if (ModelState.IsValid)
             {
-                Profile = _profiles.AddProfile(Profile);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Profile Added {Profile}", Profile);
+                profile = _profiles.AddProfile(profile);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Profile Added {Profile}", profile);
             }
-            return Profile;
+            return profile;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Roles = Constants.AdminRole)]
-        public Profile Put(int id, [FromBody] Profile Profile)
+        public Profile Put(int id, [FromBody] Profile profile)
         {
             if (ModelState.IsValid)
             {
-                Profile = _profiles.UpdateProfile(Profile);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Profile Updated {Profile}", Profile);
+                profile = _profiles.UpdateProfile(profile);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Profile Updated {Profile}", profile);
             }
-            return Profile;
+            return profile;
         }
 
         // DELETE api/<controller>/5

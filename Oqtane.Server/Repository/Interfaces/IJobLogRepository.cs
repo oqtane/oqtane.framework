@@ -6,9 +6,9 @@ namespace Oqtane.Repository
     public interface IJobLogRepository
     {
         IEnumerable<JobLog> GetJobLogs();
-        JobLog AddJobLog(JobLog JobLog);
-        JobLog UpdateJobLog(JobLog JobLog);
-        JobLog GetJobLog(int JobLogId);
-        void DeleteJobLog(int JobLogId);
+        JobLog AddJobLog(JobLog jobLog);
+        JobLog UpdateJobLog(JobLog jobLog);
+        JobLog GetJobLog(int jobLogId);
+        void DeleteJobLog(int jobLogId);
     }
 }

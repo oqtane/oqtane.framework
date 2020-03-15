@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Oqtane.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Oqtane.Models;
 
 namespace Oqtane.Repository
 {
@@ -28,30 +27,30 @@ namespace Oqtane.Repository
             });
         }
 
-        public Tenant AddTenant(Tenant Tenant)
+        public Tenant AddTenant(Tenant tenant)
         {
-            _db.Tenant.Add(Tenant);
+            _db.Tenant.Add(tenant);
             _db.SaveChanges();
             _cache.Remove("tenants");
-            return Tenant;
+            return tenant;
         }
 
-        public Tenant UpdateTenant(Tenant Tenant)
+        public Tenant UpdateTenant(Tenant tenant)
         {
-            _db.Entry(Tenant).State = EntityState.Modified;
+            _db.Entry(tenant).State = EntityState.Modified;
             _db.SaveChanges();
             _cache.Remove("tenants");
-            return Tenant;
+            return tenant;
         }
 
-        public Tenant GetTenant(int TenantId)
+        public Tenant GetTenant(int tenantId)
         {
-            return _db.Tenant.Find(TenantId);
+            return _db.Tenant.Find(tenantId);
         }
 
-        public void DeleteTenant(int TenantId)
+        public void DeleteTenant(int tenantId)
         { 
-            Tenant tenant = _db.Tenant.Find(TenantId);
+            Tenant tenant = _db.Tenant.Find(tenantId);
             _db.Tenant.Remove(tenant);
             _db.SaveChanges();
             _cache.Remove("tenants");

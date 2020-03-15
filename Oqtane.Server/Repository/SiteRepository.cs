@@ -1,12 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Oqtane.Models;
-using Oqtane.Shared;
-using System;
 using System.Reflection;
-using Oqtane.Modules;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Oqtane.Models;
+using Oqtane.Modules;
+using Oqtane.Shared;
+using Module = Oqtane.Models.Module;
 
 namespace Oqtane.Repository
 {
@@ -130,19 +131,19 @@ namespace Oqtane.Repository
             return _db.Site;
         }
 
-        public Site AddSite(Site Site)
+        public Site AddSite(Site site)
         {
-            _db.Site.Add(Site);
+            _db.Site.Add(site);
             _db.SaveChanges();
-            CreateSite(Site);
-            return Site;
+            CreateSite(site);
+            return site;
         }
 
-        public Site UpdateSite(Site Site)
+        public Site UpdateSite(Site site)
         {
-            _db.Entry(Site).State = EntityState.Modified;
+            _db.Entry(site).State = EntityState.Modified;
             _db.SaveChanges();
-            return Site;
+            return site;
         }
 
         public Site GetSite(int siteId)
@@ -226,7 +227,7 @@ namespace Oqtane.Repository
                         ModuleDefinition moduledefinition = moduledefinitions.Where(item => item.ModuleDefinitionName == pagetemplatemodule.ModuleDefinitionName).FirstOrDefault();
                         if (moduledefinition != null)
                         {
-                            Models.Module module = new Models.Module
+                            Module module = new Module
                             {
                                 SiteId = site.SiteId,
                                 ModuleDefinitionName = pagetemplatemodule.ModuleDefinitionName,

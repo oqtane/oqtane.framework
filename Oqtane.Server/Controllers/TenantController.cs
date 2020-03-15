@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Oqtane.Repository;
 using Oqtane.Models;
 using System.Collections.Generic;
 using Oqtane.Shared;
-using Oqtane.Infrastructure;
+using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
@@ -39,27 +39,27 @@ namespace Oqtane.Controllers
         // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = Constants.HostRole)]
-        public Tenant Post([FromBody] Tenant Tenant)
+        public Tenant Post([FromBody] Tenant tenant)
         {
             if (ModelState.IsValid)
             {
-                Tenant = _tenants.AddTenant(Tenant);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Tenant Added {TenantId}", Tenant.TenantId);
+                tenant = _tenants.AddTenant(tenant);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Tenant Added {TenantId}", tenant.TenantId);
             }
-            return Tenant;
+            return tenant;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Roles = Constants.HostRole)]
-        public Tenant Put(int id, [FromBody] Tenant Tenant)
+        public Tenant Put(int id, [FromBody] Tenant tenant)
         {
             if (ModelState.IsValid)
             {
-                Tenant = _tenants.UpdateTenant(Tenant);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Tenant Updated {TenantId}", Tenant.TenantId);
+                tenant = _tenants.UpdateTenant(tenant);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Tenant Updated {TenantId}", tenant.TenantId);
             }
-            return Tenant;
+            return tenant;
         }
 
         // DELETE api/<controller>/5

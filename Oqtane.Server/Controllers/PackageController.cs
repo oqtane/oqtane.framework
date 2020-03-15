@@ -11,6 +11,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Authorization;
 using Oqtane.Shared;
+// ReSharper disable PartialTypeWithSinglePart
 
 namespace Oqtane.Controllers
 {

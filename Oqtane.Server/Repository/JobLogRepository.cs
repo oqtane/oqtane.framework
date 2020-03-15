@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Oqtane.Models;
 using Microsoft.EntityFrameworkCore;
+using Oqtane.Models;
 
 namespace Oqtane.Repository
 {
@@ -21,30 +21,30 @@ namespace Oqtane.Repository
                 .ToList();
         }
 
-        public JobLog AddJobLog(JobLog JobLog)
+        public JobLog AddJobLog(JobLog jobLog)
         {
-            _db.JobLog.Add(JobLog);
+            _db.JobLog.Add(jobLog);
             _db.SaveChanges();
-            return JobLog;
+            return jobLog;
         }
 
-        public JobLog UpdateJobLog(JobLog JobLog)
+        public JobLog UpdateJobLog(JobLog jobLog)
         {
-            _db.Entry(JobLog).State = EntityState.Modified;
+            _db.Entry(jobLog).State = EntityState.Modified;
             _db.SaveChanges();
-            return JobLog;
+            return jobLog;
         }
 
-        public JobLog GetJobLog(int JobLogId)
+        public JobLog GetJobLog(int jobLogId)
         {
             return _db.JobLog.Include(item => item.Job) // eager load job
-                .SingleOrDefault(item => item.JobLogId == JobLogId); 
+                .SingleOrDefault(item => item.JobLogId == jobLogId); 
         }
 
-        public void DeleteJobLog(int JobLogId)
+        public void DeleteJobLog(int jobLogId)
         {
-            JobLog Joblog = _db.JobLog.Find(JobLogId);
-            _db.JobLog.Remove(Joblog);
+            JobLog joblog = _db.JobLog.Find(jobLogId);
+            _db.JobLog.Remove(joblog);
             _db.SaveChanges();
         }
     }

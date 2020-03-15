@@ -14,34 +14,34 @@ namespace Oqtane.Infrastructure
     {
         // JobType = "Oqtane.Infrastructure.NotificationJob, Oqtane.Server"
 
-        public NotificationJob(IServiceScopeFactory ServiceScopeFactory) : base(ServiceScopeFactory) {}
+        public NotificationJob(IServiceScopeFactory serviceScopeFactory) : base(serviceScopeFactory) {}
 
         public override string ExecuteJob(IServiceProvider provider)
         {
             string log = "";
 
             // iterate through aliases in this installation
-            var Aliases = provider.GetRequiredService<IAliasRepository>();
-            List<Alias> aliases = Aliases.GetAliases().ToList();
+            var aliasRepository = provider.GetRequiredService<IAliasRepository>();
+            List<Alias> aliases = aliasRepository.GetAliases().ToList();
             foreach (Alias alias in aliases)
             {
                 // use the SiteState to set the Alias explicitly so the tenant can be resolved
-                var sitestate = provider.GetRequiredService<SiteState>();
-                sitestate.Alias = alias;
+                var siteState = provider.GetRequiredService<SiteState>();
+                siteState.Alias = alias;
 
                 // get services which require tenant resolution
-                var Sites = provider.GetRequiredService<ISiteRepository>();
-                var Settings = provider.GetRequiredService<ISettingRepository>();
-                var Notifications = provider.GetRequiredService<INotificationRepository>();
+                var siteRepository = provider.GetRequiredService<ISiteRepository>();
+                var settingRepository = provider.GetRequiredService<ISettingRepository>();
+                var notificationRepository = provider.GetRequiredService<INotificationRepository>();
 
                 // iterate through sites 
-                List<Site> sites = Sites.GetSites().ToList();
+                List<Site> sites = siteRepository.GetSites().ToList();
                 foreach (Site site in sites)
                 {
                     log += "Processing Notifications For Site: " + site.Name + "\n\n";
 
                     // get site settings
-                    List<Setting> sitesettings = Settings.GetSettings("Site", site.SiteId).ToList();
+                    List<Setting> sitesettings = settingRepository.GetSettings("Site", site.SiteId).ToList();
                     Dictionary<string, string> settings = GetSettings(sitesettings);
                     if (settings.ContainsKey("SMTPHost") && settings["SMTPHost"] != "")
                     {
@@ -61,7 +61,7 @@ namespace Oqtane.Infrastructure
 
                         // iterate through notifications
                         int sent = 0;
-                        List<Notification> notifications = Notifications.GetNotifications(site.SiteId, -1, -1).ToList();
+                        List<Notification> notifications = notificationRepository.GetNotifications(site.SiteId, -1, -1).ToList();
                         foreach (Notification notification in notifications)
                         {
                             MailMessage mailMessage = new MailMessage();
@@ -75,7 +75,7 @@ namespace Oqtane.Infrastructure
                             {
                                 mailMessage.Body = "From: " + site.Name + "\n";
                             }
-                            mailMessage.Body += "Sent: " + notification.CreatedOn.ToString() + "\n";
+                            mailMessage.Body += "Sent: " + notification.CreatedOn + "\n";
                             if (notification.ToUserId != null)
                             {
                                 mailMessage.To.Add(new MailAddress(notification.ToUser.Email, notification.ToUser.DisplayName));
@@ -96,15 +96,15 @@ namespace Oqtane.Infrastructure
                                 sent = sent++;
                                 notification.IsDelivered = true;
                                 notification.DeliveredOn = DateTime.UtcNow;
-                                Notifications.UpdateNotification(notification);
+                                notificationRepository.UpdateNotification(notification);
                             }
                             catch (Exception ex)
                             {
                                 // error
-                                log += ex.Message.ToString() + "\n\n";
+                                log += ex.Message + "\n\n";
                             }
                         }
-                        log += "Notifications Delivered: " + sent.ToString() + "\n\n";
+                        log += "Notifications Delivered: " + sent + "\n\n";
                     }
                     else
                     {
@@ -117,10 +117,10 @@ namespace Oqtane.Infrastructure
         }
 
 
-        private Dictionary<string, string> GetSettings(List<Setting> Settings)
+        private Dictionary<string, string> GetSettings(List<Setting> settings)
         {
             Dictionary<string, string> dictionary = new Dictionary<string, string>();
-            foreach (Setting setting in Settings.OrderBy(item => item.SettingName).ToList())
+            foreach (Setting setting in settings.OrderBy(item => item.SettingName).ToList())
             {
                 dictionary.Add(setting.SettingName, setting.SettingValue);
             }

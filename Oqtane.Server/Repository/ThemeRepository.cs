@@ -1,9 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Oqtane.Models;
 using System.Reflection;
-using System;
+using Oqtane.Models;
 using Oqtane.Themes;
 
 namespace Oqtane.Repository
@@ -12,17 +11,17 @@ namespace Oqtane.Repository
     {
         private List<Theme> LoadThemes()
         {
-            List<Theme> Themes = new List<Theme>();
+            List<Theme> themes = new List<Theme>();
 
             // iterate through Oqtane theme assemblies
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies()
                 .Where(item => item.FullName.StartsWith("Oqtane.") || item.FullName.Contains(".Theme.")).ToArray();
             foreach (Assembly assembly in assemblies)
             {
-                Themes = LoadThemesFromAssembly(Themes, assembly);
+                themes = LoadThemesFromAssembly(themes, assembly);
             }
 
-            return Themes;
+            return themes;
         }
 
         private List<Theme> LoadThemesFromAssembly(List<Theme> themes, Assembly assembly)
@@ -36,15 +35,15 @@ namespace Oqtane.Repository
                     string[] typename = themeControlType.AssemblyQualifiedName.Split(',').Select(item => item.Trim()).ToList().ToArray();
                     string[] segments = typename[0].Split('.');
                     Array.Resize(ref segments, segments.Length - 1);
-                    string Namespace = string.Join(".", segments);
+                    string @namespace = string.Join(".", segments);
 
-                    int index = themes.FindIndex(item => item.ThemeName == Namespace);
+                    int index = themes.FindIndex(item => item.ThemeName == @namespace);
                     if (index == -1)
                     {
-                        /// determine if this theme implements ITheme
+                        // determine if this theme implements ITheme
                         Type themetype = assembly.GetTypes()
                             .Where(item => item.Namespace != null)
-                            .Where(item => item.Namespace.StartsWith(Namespace))
+                            .Where(item => item.Namespace.StartsWith(@namespace))
                             .Where(item => item.GetInterfaces().Contains(typeof(ITheme))).FirstOrDefault();
                         if (themetype != null)
                         {
@@ -52,7 +51,7 @@ namespace Oqtane.Repository
                             Dictionary<string, string> properties = (Dictionary<string, string>)themetype.GetProperty("Properties").GetValue(themeobject);
                             theme = new Theme
                             {
-                                ThemeName = Namespace,
+                                ThemeName = @namespace,
                                 Name = GetProperty(properties, "Name"),
                                 Version = GetProperty(properties, "Version"),
                                 Owner = GetProperty(properties, "Owner"),
@@ -70,7 +69,7 @@ namespace Oqtane.Repository
                         {
                             theme = new Theme
                             {
-                                ThemeName = Namespace,
+                                ThemeName = @namespace,
                                 Name = themeControlType.Name,
                                 Version = new Version(1, 0, 0).ToString(),
                                 Owner = "",
@@ -85,7 +84,7 @@ namespace Oqtane.Repository
                             };
                         }
                         themes.Add(theme);
-                        index = themes.FindIndex(item => item.ThemeName == Namespace);
+                        index = themes.FindIndex(item => item.ThemeName == @namespace);
                     }
                     theme = themes[index];
                     theme.ThemeControls += (themeControlType.FullName + ", " + typename[1] + ";");
@@ -93,7 +92,7 @@ namespace Oqtane.Repository
                     // layouts
                     Type[] layouttypes = assembly.GetTypes()
                         .Where(item => item.Namespace != null)
-                        .Where(item => item.Namespace.StartsWith(Namespace))
+                        .Where(item => item.Namespace.StartsWith(@namespace))
                         .Where(item => item.GetInterfaces().Contains(typeof(ILayoutControl))).ToArray();
                     foreach (Type layouttype in layouttypes)
                     {
@@ -107,7 +106,7 @@ namespace Oqtane.Repository
                     // containers
                     Type[] containertypes = assembly.GetTypes()
                         .Where(item => item.Namespace != null)
-                        .Where(item => item.Namespace.StartsWith(Namespace))
+                        .Where(item => item.Namespace.StartsWith(@namespace))
                         .Where(item => item.GetInterfaces().Contains(typeof(IContainerControl))).ToArray();
                     foreach (Type containertype in containertypes)
                     {
@@ -124,14 +123,14 @@ namespace Oqtane.Repository
             return themes;
         }
 
-        private string GetProperty(Dictionary<string, string> Properties, string Key)
+        private string GetProperty(Dictionary<string, string> properties, string key)
         {
-            string Value = "";
-            if (Properties.ContainsKey(Key))
+            string value = "";
+            if (properties.ContainsKey(key))
             {
-                Value = Properties[Key];
+                value = properties[key];
             }
-            return Value;
+            return value;
         }
 
         public IEnumerable<Theme> GetThemes()

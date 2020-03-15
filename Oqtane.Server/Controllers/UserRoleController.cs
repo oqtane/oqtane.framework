@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
-using Oqtane.Infrastructure;
+using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
@@ -41,29 +41,29 @@ namespace Oqtane.Controllers
         // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = Constants.AdminRole)]
-        public UserRole Post([FromBody] UserRole UserRole)
+        public UserRole Post([FromBody] UserRole userRole)
         {
             if (ModelState.IsValid)
             {
-                UserRole = _userRoles.AddUserRole(UserRole);
-                _syncManager.AddSyncEvent(EntityNames.User, UserRole.UserId);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "User Role Added {UserRole}", UserRole);
+                userRole = _userRoles.AddUserRole(userRole);
+                _syncManager.AddSyncEvent(EntityNames.User, userRole.UserId);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "User Role Added {UserRole}", userRole);
             }
-            return UserRole;
+            return userRole;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Roles = Constants.AdminRole)]
-        public UserRole Put(int id, [FromBody] UserRole UserRole)
+        public UserRole Put(int id, [FromBody] UserRole userRole)
         {
             if (ModelState.IsValid)
             {
-                UserRole = _userRoles.UpdateUserRole(UserRole);
-                _syncManager.AddSyncEvent(EntityNames.User, UserRole.UserId);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Role Updated {UserRole}", UserRole);
+                userRole = _userRoles.UpdateUserRole(userRole);
+                _syncManager.AddSyncEvent(EntityNames.User, userRole.UserId);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Role Updated {UserRole}", userRole);
             }
-            return UserRole;
+            return userRole;
         }
 
         // DELETE api/<controller>/5
