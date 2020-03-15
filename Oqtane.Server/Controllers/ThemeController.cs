@@ -1,14 +1,17 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using Oqtane.Repository;
 using Oqtane.Models;
 using Microsoft.AspNetCore.Authorization;
 using Oqtane.Shared;
-using Oqtane.Infrastructure;
 using System.IO;
 using System.Reflection;
 using System.Linq;
 using Microsoft.AspNetCore.Hosting;
+using Oqtane.Enums;
+using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Repository;
+
+// ReSharper disable StringIndexOfIsCultureSpecific.1
 
 namespace Oqtane.Controllers
 {

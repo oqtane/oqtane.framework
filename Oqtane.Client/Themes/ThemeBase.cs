@@ -27,7 +27,7 @@ namespace Oqtane.Themes
                 Url = ThemePath() + Url;
             }
             var interop = new Interop(JSRuntime);
-            await interop.IncludeCSS("Theme", Url);
+            await interop.IncludeCss("Theme", Url);
         }
 
         public string NavigateUrl()

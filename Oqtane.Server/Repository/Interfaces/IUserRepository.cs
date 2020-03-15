@@ -6,10 +6,10 @@ namespace Oqtane.Repository
     public interface IUserRepository
     {
         IEnumerable<User> GetUsers();
-        User AddUser(User User);
-        User UpdateUser(User User);
-        User GetUser(int UserId);
-        User GetUser(string Username);
-        void DeleteUser(int UserId);
+        User AddUser(User user);
+        User UpdateUser(User user);
+        User GetUser(int userId);
+        User GetUser(string username);
+        void DeleteUser(int userId);
     }
 }

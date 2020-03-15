@@ -2,11 +2,15 @@
 using System;
 using Oqtane.Models;
 using System.Text.Json;
-using Oqtane.Repository;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
+using Oqtane.Enums;
+using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Repository;
 using Oqtane.Security;
+// ReSharper disable StringIndexOfIsCultureSpecific.2
+// ReSharper disable StringIndexOfIsCultureSpecific.1
 
 namespace Oqtane.Infrastructure
 {
@@ -27,25 +31,25 @@ namespace Oqtane.Infrastructure
             _accessor = accessor;
         }
 
-        public void Log(LogLevel Level, object Class, LogFunction Function, string Message, params object[] Args)
+        public void Log(LogLevel level, object @class, LogFunction function, string message, params object[] args)
         {
-            Log(-1, Level, Class.GetType().AssemblyQualifiedName, Function, null, Message, Args);
+            Log(-1, level, @class.GetType().AssemblyQualifiedName, function, null, message, args);
         }
 
-        public void Log(LogLevel Level, object Class, LogFunction Function, Exception Exception, string Message, params object[] Args)
+        public void Log(LogLevel level, object @class, LogFunction function, Exception exception, string message, params object[] args)
         {
-            Log(-1, Level, Class.GetType().AssemblyQualifiedName, Function, Exception, Message, Args);
+            Log(-1, level, @class.GetType().AssemblyQualifiedName, function, exception, message, args);
         }
 
-        public void Log(int SiteId, LogLevel Level, object Class, LogFunction Function, string Message, params object[] Args)
+        public void Log(int siteId, LogLevel level, object @class, LogFunction function, string message, params object[] args)
         {
-            Log(SiteId, Level, Class.GetType().AssemblyQualifiedName, Function, null, Message, Args);
+            Log(siteId, level, @class.GetType().AssemblyQualifiedName, function, null, message, args);
         }
 
-        public void Log(int SiteId, LogLevel Level, object Class, LogFunction Function, Exception Exception, string Message, params object[] Args)
+        public void Log(int siteId, LogLevel level, object @class, LogFunction function, Exception exception, string message, params object[] args)
         {
             Log log = new Log();
-            if (SiteId == -1)
+            if (siteId == -1)
             {
                 log.SiteId = null;
                 Alias alias = _tenantResolver.GetAlias();
@@ -56,7 +60,7 @@ namespace Oqtane.Infrastructure
             }
             else
             {
-                log.SiteId = SiteId;
+                log.SiteId = siteId;
             }
             log.PageId = null;
             log.ModuleId = null;
@@ -69,10 +73,10 @@ namespace Oqtane.Infrastructure
             HttpRequest request = _accessor.HttpContext.Request;
             if (request != null)
             {
-                log.Url = request.Scheme.ToString() + "://" + request.Host.ToString() + request.Path.ToString() + request.QueryString.ToString();
+                log.Url = $"{request.Scheme}://{request.Host}{request.Path}{request.QueryString}";
             }
 
-            Type type = Type.GetType(Class.ToString());
+            Type type = @class.GetType();
             if (type != null)
             {
                 log.Category = type.AssemblyQualifiedName;
@@ -80,20 +84,20 @@ namespace Oqtane.Infrastructure
             }
             else
             {
-                log.Category = Class.ToString();
+                log.Category = @class.ToString();
                 log.Feature = log.Category;
             }
-            log.Function = Enum.GetName(typeof(LogFunction), Function);
-            log.Level = Enum.GetName(typeof(LogLevel), Level);
-            if (Exception != null)
+            log.Function = Enum.GetName(typeof(LogFunction), function);
+            log.Level = Enum.GetName(typeof(LogLevel), level);
+            if (exception != null)
             {
-                log.Exception = Exception.ToString();
+                log.Exception = exception.ToString();
             }
-            log.Message = Message;
+            log.Message = message;
             log.MessageTemplate = "";
             try
             {
-                log.Properties = JsonSerializer.Serialize(Args);
+                log.Properties = JsonSerializer.Serialize(args);
             }
             catch // serialization error occurred
             {
@@ -102,7 +106,7 @@ namespace Oqtane.Infrastructure
             Log(log);
         }
 
-        public void Log(Log Log)
+        public void Log(Log log)
         {
             LogLevel minlevel = LogLevel.Information;
             var section = _config.GetSection("Logging:LogLevel:Default");
@@ -111,15 +115,15 @@ namespace Oqtane.Infrastructure
                 minlevel = Enum.Parse<LogLevel>(_config.GetSection("Logging:LogLevel:Default").ToString());
             }
 
-            if (Enum.Parse<LogLevel>(Log.Level) >= minlevel)
+            if (Enum.Parse<LogLevel>(log.Level) >= minlevel)
             {
-                Log.LogDate = DateTime.UtcNow;
-                Log.Server = Environment.MachineName;
-                Log.MessageTemplate = Log.Message;
-                Log = ProcessStructuredLog(Log);
+                log.LogDate = DateTime.UtcNow;
+                log.Server = Environment.MachineName;
+                log.MessageTemplate = log.Message;
+                log = ProcessStructuredLog(log);
                 try
                 {
-                    _logs.AddLog(Log);
+                    _logs.AddLog(log);
                 }
                 catch
                 {
@@ -128,16 +132,16 @@ namespace Oqtane.Infrastructure
             }
         }
 
-        private Log ProcessStructuredLog(Log Log)
+        private Log ProcessStructuredLog(Log log)
         {
             try
             {
-                string message = Log.Message;
+                string message = log.Message;
                 string properties = "";
-                if (!string.IsNullOrEmpty(message) && message.Contains("{") && message.Contains("}") && !string.IsNullOrEmpty(Log.Properties))
+                if (!string.IsNullOrEmpty(message) && message.Contains("{") && message.Contains("}") && !string.IsNullOrEmpty(log.Properties))
                 {
                     // get the named holes in the message and replace values
-                    object[] values = JsonSerializer.Deserialize<object[]>(Log.Properties);
+                    object[] values = JsonSerializer.Deserialize<object[]>(log.Properties);
                     List<string> names = new List<string>();
                     int index = message.IndexOf("{");
                     while (index != -1)
@@ -160,28 +164,28 @@ namespace Oqtane.Infrastructure
                         index = message.IndexOf("{", index + 1);
                     }
                     // rebuild properties into dictionary
-                    Dictionary<string, object> propertydictionary = new Dictionary<string, object>();
+                    Dictionary<string, object> propertyDictionary = new Dictionary<string, object>();
                     for (int i = 0; i < values.Length; i++)
                     {
                         if (i < names.Count)
                         {
-                            propertydictionary.Add(names[i], values[i]);
+                            propertyDictionary.Add(names[i], values[i]);
                         }
                         else
                         {
-                            propertydictionary.Add("Property" + i.ToString(), values[i]);
+                            propertyDictionary.Add("Property" + i.ToString(), values[i]);
                         }
                     }
-                    properties = JsonSerializer.Serialize(propertydictionary);
+                    properties = JsonSerializer.Serialize(propertyDictionary);
                 }
-                Log.Message = message;
-                Log.Properties = properties;
+                log.Message = message;
+                log.Properties = properties;
             }
             catch
             {
-                Log.Properties = "";
+                log.Properties = "";
             }
-            return Log;
+            return log;
         }
     }
 }

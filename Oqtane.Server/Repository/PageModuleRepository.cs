@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
@@ -16,11 +16,11 @@ namespace Oqtane.Repository
             _permissions = permissions;
         }
 
-        public IEnumerable<PageModule> GetPageModules(int SiteId)
+        public IEnumerable<PageModule> GetPageModules(int siteId)
         {
             IEnumerable<PageModule> pagemodules = _db.PageModule
                 .Include(item => item.Module) // eager load modules
-                .Where(item => item.Module.SiteId == SiteId);
+                .Where(item => item.Module.SiteId == siteId);
             if (pagemodules != null && pagemodules.Any())
             {
                 IEnumerable<Permission> permissions = _permissions.GetPermissions(pagemodules.FirstOrDefault().Module.SiteId, "Module").ToList();
@@ -32,14 +32,14 @@ namespace Oqtane.Repository
             return pagemodules;
         }
 
-        public IEnumerable<PageModule> GetPageModules(int PageId, string Pane)
+        public IEnumerable<PageModule> GetPageModules(int pageId, string pane)
         {
             IEnumerable<PageModule> pagemodules = _db.PageModule
                 .Include(item => item.Module) // eager load modules
-                .Where(item => item.PageId == PageId);
-            if (Pane != "" && pagemodules != null && pagemodules.Any())
+                .Where(item => item.PageId == pageId);
+            if (pane != "" && pagemodules != null && pagemodules.Any())
             {
-                pagemodules = pagemodules.Where(item => item.Pane == Pane);
+                pagemodules = pagemodules.Where(item => item.Pane == pane);
             }
             if (pagemodules != null && pagemodules.Any())
             {
@@ -52,24 +52,24 @@ namespace Oqtane.Repository
             return pagemodules;
         }
 
-        public PageModule AddPageModule(PageModule PageModule)
+        public PageModule AddPageModule(PageModule pageModule)
         {
-            _db.PageModule.Add(PageModule);
+            _db.PageModule.Add(pageModule);
             _db.SaveChanges();
-            return PageModule;
+            return pageModule;
         }
 
-        public PageModule UpdatePageModule(PageModule PageModule)
+        public PageModule UpdatePageModule(PageModule pageModule)
         {
-            _db.Entry(PageModule).State = EntityState.Modified;
+            _db.Entry(pageModule).State = EntityState.Modified;
             _db.SaveChanges();
-            return PageModule;
+            return pageModule;
         }
 
-        public PageModule GetPageModule(int PageModuleId)
+        public PageModule GetPageModule(int pageModuleId)
         {
             PageModule pagemodule = _db.PageModule.Include(item => item.Module) // eager load modules
-                .SingleOrDefault(item => item.PageModuleId == PageModuleId);
+                .SingleOrDefault(item => item.PageModuleId == pageModuleId);
             if (pagemodule != null)
             {
                 IEnumerable<Permission> permissions = _permissions.GetPermissions("Module", pagemodule.ModuleId).ToList();
@@ -78,10 +78,10 @@ namespace Oqtane.Repository
             return pagemodule;
         }
 
-        public PageModule GetPageModule(int PageId, int ModuleId)
+        public PageModule GetPageModule(int pageId, int moduleId)
         {
             PageModule pagemodule = _db.PageModule.Include(item => item.Module) // eager load modules
-                .SingleOrDefault(item => item.PageId == PageId && item.ModuleId == ModuleId);
+                .SingleOrDefault(item => item.PageId == pageId && item.ModuleId == moduleId);
             if (pagemodule != null)
             {
                 IEnumerable<Permission> permissions = _permissions.GetPermissions("Module", pagemodule.ModuleId).ToList();
@@ -90,10 +90,10 @@ namespace Oqtane.Repository
             return pagemodule;
         }
 
-        public void DeletePageModule(int PageModuleId)
+        public void DeletePageModule(int pageModuleId)
         {
-            PageModule PageModule = _db.PageModule.Find(PageModuleId);
-            _db.PageModule.Remove(PageModule);
+            PageModule pageModule = _db.PageModule.Find(pageModuleId);
+            _db.PageModule.Remove(pageModule);
             _db.SaveChanges();
         }
     }

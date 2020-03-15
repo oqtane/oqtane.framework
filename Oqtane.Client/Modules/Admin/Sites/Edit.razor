@@ -6,7 +6,7 @@
 @inject IAliasService AliasService
 @inject IThemeService  ThemeService
 
-@if (themes != null)
+@if (_themes != null)
 {
     <table class="table table-borderless">
         <tr>
@@ -14,7 +14,7 @@
                 <label  class="control-label">Name: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@name" />
+                <input class="form-control" @bind="@_name" />
             </td>
         </tr>
         <tr>
@@ -22,7 +22,7 @@
                 <label  class="control-label">Tenant: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@tenant" readonly />
+                <input class="form-control" @bind="@_tenant" readonly />
             </td>
         </tr>
         <tr>
@@ -30,7 +30,7 @@
                 <label  class="control-label">Aliases: </label>
             </td>
             <td>
-                <textarea class="form-control" @bind="@urls" rows="3" />
+                <textarea class="form-control" @bind="@_urls" rows="3" />
             </td>
         </tr>
         <tr>
@@ -40,9 +40,9 @@
             <td>
                 <select class="form-control" @onchange="(e => ThemeChanged(e))">
                     <option value="">&lt;Select Theme&gt;</option>
-                    @foreach (KeyValuePair<string, string> item in themes)
+                    @foreach (KeyValuePair<string, string> item in _themes)
                     {
-                        if (item.Key == themetype)
+                        if (item.Key == _themetype)
                         {
                             <option value="@item.Key" selected>@item.Value</option>
                         }
@@ -59,9 +59,9 @@
                 <label  class="control-label">Default Layout: </label>
             </td>
             <td>
-                <select class="form-control" @bind="@layouttype">
+                <select class="form-control" @bind="@_layouttype">
                     <option value="">&lt;Select Layout&gt;</option>
-                    @foreach (KeyValuePair<string, string> panelayout in panelayouts)
+                    @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
                     {
                         <option value="@panelayout.Key">@panelayout.Value</option>
                     }
@@ -73,9 +73,9 @@
                 <label  class="control-label">Default Container: </label>
             </td>
             <td>
-                <select class="form-control" @bind="@containertype">
+                <select class="form-control" @bind="@_containertype">
                     <option value="">&lt;Select Container&gt;</option>
-                    @foreach (KeyValuePair<string, string> container in containers)
+                    @foreach (KeyValuePair<string, string> container in _containers)
                     {
                         <option value="@container.Key">@container.Value</option>
                     }
@@ -87,7 +87,7 @@
                 <label  class="control-label">Is Deleted? </label>
             </td>
             <td>
-                <select class="form-control" @bind="@isdeleted">
+                <select class="form-control" @bind="@_isdeleted">
                     <option value="True">Yes</option>
                     <option value="False">No</option>
                 </select>
@@ -99,73 +99,73 @@
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
     <br />
     <br />
-    <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>
+    <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
 }
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
 
-    Dictionary<string, string> themes;
-    Dictionary<string, string> panelayouts;
-    Dictionary<string, string> containers;
+    Dictionary<string, string> _themes;
+    Dictionary<string, string> _panelayouts;
+    Dictionary<string, string> _containers;
 
-    Alias Alias;
-    List<Theme> Themes;
-    string name = "";
-    List<Tenant> tenants;
-    string tenant = "";
-    List<Alias> aliases;
-    string urls = "";
-    string themetype;
-    string layouttype;
-    string containertype;
+    Alias _alias;
+    List<Theme> _themeList;
+    string _name = "";
+    List<Tenant> _tenantList;
+    string _tenant = "";
+    List<Alias> _aliasList;
+    string _urls = "";
+    string _themetype;
+    string _layouttype;
+    string _containertype;
 
-    string createdby;
-    DateTime createdon;
-    string modifiedby;
-    DateTime modifiedon;
-    string deletedby;
-    DateTime? deletedon;
-    string isdeleted;
+    string _createdby;
+    DateTime _createdon;
+    string _modifiedby;
+    DateTime _modifiedon;
+    string _deletedby;
+    DateTime? _deletedon;
+    string _isdeleted;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            Themes = await ThemeService.GetThemesAsync();
-            aliases = await AliasService.GetAliasesAsync();
+            _themeList = await ThemeService.GetThemesAsync();
+            _aliasList = await AliasService.GetAliasesAsync();
 
-            Alias = aliases.Find(item => item.AliasId == Int32.Parse(PageState.QueryString["id"]));
-            Site site = await SiteService.GetSiteAsync(Alias.SiteId, Alias);
+            _alias = _aliasList.Find(item => item.AliasId == Int32.Parse(PageState.QueryString["id"]));
+            Site site = await SiteService.GetSiteAsync(_alias.SiteId, _alias);
             if (site != null)
             {
-                name = site.Name;
-                tenants = await TenantService.GetTenantsAsync();
-                tenant = tenants.Find(item => item.TenantId == site.TenantId).Name;
-                foreach (Alias alias in aliases.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
+                _name = site.Name;
+                _tenantList = await TenantService.GetTenantsAsync();
+                _tenant = _tenantList.Find(item => item.TenantId == site.TenantId).Name;
+                foreach (Alias alias in _aliasList.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
                 {
-                    urls += alias.Name + "\n";
+                    _urls += alias.Name + "\n";
                 }
-                themetype = site.DefaultThemeType;
-                panelayouts = ThemeService.GetPaneLayoutTypes(Themes, themetype);
-                layouttype = site.DefaultLayoutType;
-                containertype = site.DefaultContainerType;
+                _themetype = site.DefaultThemeType;
+                _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
+                _layouttype = site.DefaultLayoutType;
+                _containertype = site.DefaultContainerType;
 
-                createdby = site.CreatedBy;
-                createdon = site.CreatedOn;
-                modifiedby = site.ModifiedBy;
-                modifiedon = site.ModifiedOn;
-                deletedby = site.DeletedBy;
-                deletedon = site.DeletedOn;
-                isdeleted = site.IsDeleted.ToString();
+                _createdby = site.CreatedBy;
+                _createdon = site.CreatedOn;
+                _modifiedby = site.ModifiedBy;
+                _modifiedon = site.ModifiedOn;
+                _deletedby = site.DeletedBy;
+                _deletedon = site.DeletedOn;
+                _isdeleted = site.IsDeleted.ToString();
             }
 
-            themes = ThemeService.GetThemeTypes(Themes);
-            containers = ThemeService.GetContainerTypes(Themes);
+            _themes = ThemeService.GetThemeTypes(_themeList);
+            _containers = ThemeService.GetContainerTypes(_themeList);
         }
         catch (Exception ex)
         {
-            await Log(Alias, LogLevel.Error, "", ex, "Error Loading Site {SiteId} {Error}", Alias.SiteId, ex.Message);
+            await Log(_alias, LogLevel.Error, "", ex, "Error Loading Site {SiteId} {Error}", _alias.SiteId, ex.Message);
             AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
@@ -174,20 +174,20 @@
     {
         try
         {
-            themetype = (string)e.Value;
-            if (themetype != "")
+            _themetype = (string)e.Value;
+            if (_themetype != "")
             {
-                panelayouts = ThemeService.GetPaneLayoutTypes(Themes, themetype);
+                _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
             }
             else
             {
-                panelayouts = new Dictionary<string, string>();
+                _panelayouts = new Dictionary<string, string>();
             }
             StateHasChanged();
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", themetype, ex.Message);
+            await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", _themetype, ex.Message);
             AddModuleMessage("Error Loading Pane Layouts For Theme", MessageType.Error);
         }
     }
@@ -196,33 +196,33 @@
     {
         try
         {
-            if (name != "" && urls != "" && !string.IsNullOrEmpty(themetype) && (panelayouts.Count == 0 || !string.IsNullOrEmpty(layouttype)) && !string.IsNullOrEmpty(containertype))
+            if (_name != "" && _urls != "" && !string.IsNullOrEmpty(_themetype) && (_panelayouts.Count == 0 || !string.IsNullOrEmpty(_layouttype)) && !string.IsNullOrEmpty(_containertype))
             {
                 bool unique = true;
-                foreach (string name in urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (string name in _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    if (aliases.Exists(item => item.Name == name && item.SiteId != Alias.SiteId && item.TenantId != Alias.TenantId))
+                    if (_aliasList.Exists(item => item.Name == name && item.SiteId != _alias.SiteId && item.TenantId != _alias.TenantId))
                     {
                         unique = false;
                     }
                 }
                 if (unique)
                 {
-                    Site site = await SiteService.GetSiteAsync(Alias.SiteId, Alias);
+                    Site site = await SiteService.GetSiteAsync(_alias.SiteId, _alias);
                     if (site != null)
                     {
-                        site.Name = name;
+                        site.Name = _name;
                         site.LogoFileId = null;
-                        site.DefaultThemeType = themetype;
-                        site.DefaultLayoutType = (layouttype == null ? "" : layouttype);
-                        site.DefaultContainerType = containertype;
-                        site.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
+                        site.DefaultThemeType = _themetype;
+                        site.DefaultLayoutType = _layouttype ?? "";
+                        site.DefaultContainerType = _containertype;
+                        site.IsDeleted = (_isdeleted == null || Boolean.Parse(_isdeleted));
 
-                        site = await SiteService.UpdateSiteAsync(site, Alias);
+                        site = await SiteService.UpdateSiteAsync(site, _alias);
 
-                        urls = urls.Replace("\n", ",");
-                        string[] names = urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                        foreach (Alias alias in aliases.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
+                        _urls = _urls.Replace("\n", ",");
+                        string[] names = _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        foreach (Alias alias in _aliasList.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
                         {
                             if (!names.Contains(alias.Name))
                             {
@@ -231,17 +231,19 @@
                         }
                         foreach (string name in names)
                         {
-                            if (!aliases.Exists(item => item.Name == name))
+                            if (!_aliasList.Exists(item => item.Name == name))
                             {
-                                Alias alias = new Alias();
-                                alias.Name = name;
-                                alias.TenantId = site.TenantId;
-                                alias.SiteId = site.SiteId;
+                                Alias alias = new Alias
+                                {
+                                    Name = name,
+                                    TenantId = site.TenantId,
+                                    SiteId = site.SiteId
+                                };
                                 await AliasService.AddAliasAsync(alias);
                             }
                         }
 
-                        await Log(Alias, LogLevel.Information,PermissionNames.Edit, null, "Site Saved {Site}", site);
+                        await Log(_alias, LogLevel.Information,PermissionNames.Edit, null, "Site Saved {Site}", site);
 
                         NavigationManager.NavigateTo(NavigateUrl());
                     }
@@ -258,7 +260,7 @@
         }
         catch (Exception ex)
         {
-            await Log(Alias, LogLevel.Error, "", ex, "Error Saving Site {SiteId} {Error}", Alias.SiteId, ex.Message);
+            await Log(_alias, LogLevel.Error, "", ex, "Error Saving Site {SiteId} {Error}", _alias.SiteId, ex.Message);
             AddModuleMessage("Error Saving Site", MessageType.Error);
         }
     }

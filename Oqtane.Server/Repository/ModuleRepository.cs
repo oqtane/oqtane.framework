@@ -1,12 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Oqtane.Models;
 using System.Reflection;
-using System;
-using Oqtane.Modules;
-using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Oqtane.Models;
+using Oqtane.Modules;
+using Module = Oqtane.Models.Module;
 
 namespace Oqtane.Repository
 {
@@ -25,30 +26,30 @@ namespace Oqtane.Repository
             _serviceProvider = serviceProvider;
         }
 
-        public IEnumerable<Models.Module> GetModules(int SiteId)
+        public IEnumerable<Module> GetModules(int siteId)
         {
-            return _db.Module.Where(item => item.SiteId == SiteId).ToList();
+            return _db.Module.Where(item => item.SiteId == siteId).ToList();
         }
 
-        public Models.Module AddModule(Models.Module Module)
+        public Module AddModule(Module module)
         {
-            _db.Module.Add(Module);
+            _db.Module.Add(module);
             _db.SaveChanges();
-            _permissions.UpdatePermissions(Module.SiteId, "Module", Module.ModuleId, Module.Permissions);
-            return Module;
+            _permissions.UpdatePermissions(module.SiteId, "Module", module.ModuleId, module.Permissions);
+            return module;
         }
 
-        public Models.Module UpdateModule(Models.Module Module)
+        public Module UpdateModule(Module module)
         {
-            _db.Entry(Module).State = EntityState.Modified;
+            _db.Entry(module).State = EntityState.Modified;
             _db.SaveChanges();
-            _permissions.UpdatePermissions(Module.SiteId, "Module", Module.ModuleId, Module.Permissions);
-            return Module;
+            _permissions.UpdatePermissions(module.SiteId, "Module", module.ModuleId, module.Permissions);
+            return module;
         }
 
-        public Models.Module GetModule(int ModuleId)
+        public Module GetModule(int moduleId)
         {
-            Models.Module module = _db.Module.Find(ModuleId);
+            Module module = _db.Module.Find(moduleId);
             if (module != null)
             {
                 List<Permission> permissions = _permissions.GetPermissions("Module", module.ModuleId).ToList();
@@ -57,20 +58,20 @@ namespace Oqtane.Repository
             return module;
         }
 
-        public void DeleteModule(int ModuleId)
+        public void DeleteModule(int moduleId)
         {
-            Models.Module Module = _db.Module.Find(ModuleId);
-            _permissions.DeletePermissions(Module.SiteId, "Module", ModuleId);
-            _db.Module.Remove(Module);
+            Module module = _db.Module.Find(moduleId);
+            _permissions.DeletePermissions(module.SiteId, "Module", moduleId);
+            _db.Module.Remove(module);
             _db.SaveChanges();
         }
 
-        public string ExportModule(int ModuleId)
+        public string ExportModule(int moduleId)
         {
             string content = "";
             try
             {
-                Models.Module module = GetModule(ModuleId);
+                Module module = GetModule(moduleId);
                 if (module != null)
                 {
                     List<ModuleDefinition> moduledefinitions = _moduleDefinitions.GetModuleDefinitions(module.SiteId).ToList();
@@ -110,19 +111,19 @@ namespace Oqtane.Repository
             return content;
         }
 
-        public bool ImportModule(int ModuleId, string Content)
+        public bool ImportModule(int moduleId, string content)
         {
             bool success = false;
             try
             {
-                Models.Module module = GetModule(ModuleId);
+                Module module = GetModule(moduleId);
                 if (module != null)
                 {
                     List<ModuleDefinition> moduledefinitions = _moduleDefinitions.GetModuleDefinitions(module.SiteId).ToList();
                     ModuleDefinition moduledefinition = moduledefinitions.Where(item => item.ModuleDefinitionName == module.ModuleDefinitionName).FirstOrDefault();
                     if (moduledefinition != null)
                     {
-                        ModuleContent modulecontent = JsonSerializer.Deserialize<ModuleContent>(Content);
+                        ModuleContent modulecontent = JsonSerializer.Deserialize<ModuleContent>(content);
                         if (modulecontent.ModuleDefinitionName == moduledefinition.ModuleDefinitionName)
                         {
                             if (moduledefinition.ServerAssemblyName != "")

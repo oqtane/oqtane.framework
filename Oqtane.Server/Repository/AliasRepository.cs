@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using Oqtane.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using System;
+using Oqtane.Models;
 
 namespace Oqtane.Repository
 {
@@ -27,30 +27,30 @@ namespace Oqtane.Repository
             });
         }
 
-        public Alias AddAlias(Alias Alias)
+        public Alias AddAlias(Alias alias)
         {
-            _db.Alias.Add(Alias);
+            _db.Alias.Add(alias);
             _db.SaveChanges();
             _cache.Remove("aliases");
-            return Alias;
+            return alias;
         }
 
-        public Alias UpdateAlias(Alias Alias)
+        public Alias UpdateAlias(Alias alias)
         {
-            _db.Entry(Alias).State = EntityState.Modified;
+            _db.Entry(alias).State = EntityState.Modified;
             _db.SaveChanges();
             _cache.Remove("aliases");
-            return Alias;
+            return alias;
         }
 
-        public Alias GetAlias(int AliasId)
+        public Alias GetAlias(int aliasId)
         {
-            return _db.Alias.Find(AliasId);
+            return _db.Alias.Find(aliasId);
         }
 
-        public void DeleteAlias(int AliasId)
+        public void DeleteAlias(int aliasId)
         {
-            Alias alias = _db.Alias.Find(AliasId);
+            Alias alias = _db.Alias.Find(aliasId);
             _db.Alias.Remove(alias);
             _cache.Remove("aliases");
             _db.SaveChanges();

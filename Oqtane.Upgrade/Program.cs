@@ -125,27 +125,25 @@ namespace Oqtane.Upgrade
                     }
                 }
             }
- 
-            return;
         }
 
         private static bool CanAccessFiles(List<string> files, string folder)
         {
             // ensure files are not locked by another process - the shutdownTimeLimit defines the duration for app shutdown
-            bool canaccess = true;
+            bool canAccess = true;
             FileStream stream = null;
             int i = 0;
-            while (i < (files.Count - 1) && canaccess)
+            while (i < (files.Count - 1) && canAccess)
             {
                 string filepath = Path.Combine(folder, Path.GetFileName(files[i]));
                 int attempts = 0;
                 bool locked = true;
                 // try up to 30 times
-                while (attempts < 30 && locked == true)
+                while (attempts < 30 && locked)
                 {
                     try
                     {
-                        stream = System.IO.File.Open(filepath, FileMode.Open, FileAccess.Read, FileShare.None);
+                        stream = File.Open(filepath, FileMode.Open, FileAccess.Read, FileShare.None);
                         locked = false;
                     }
                     catch // file is locked by another process
@@ -154,20 +152,17 @@ namespace Oqtane.Upgrade
                     }
                     finally
                     {
-                        if (stream != null)
-                        {
-                            stream.Close();
-                        }
+                        stream?.Close();
                     }
                     attempts += 1;
                 }
-                if (locked && canaccess)
+                if (locked)
                 {
-                    canaccess = false;
+                    canAccess = false;
                 }
                 i += 1;
             }
-            return canaccess;
+            return canAccess;
         }
     }
 }

@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Oqtane.Infrastructure;
-using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
 using System;
@@ -15,6 +13,11 @@ using Oqtane.Security;
 using System.Linq;
 using System.Drawing;
 using System.Net;
+using Oqtane.Enums;
+using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Repository;
+
+// ReSharper disable StringIndexOfIsCultureSpecific.1
 
 namespace Oqtane.Controllers
 {
@@ -170,23 +173,23 @@ namespace Oqtane.Controllers
             Folder folder = _folders.GetFolder(int.Parse(folderid));
             if (folder != null && _userPermissions.IsAuthorized(User, PermissionNames.Edit, folder.Permissions))
             {
-                string folderpath = GetFolderPath(folder);
-                CreateDirectory(folderpath);
+                string folderPath = GetFolderPath(folder);
+                CreateDirectory(folderPath);
                 string filename = url.Substring(url.LastIndexOf("/", StringComparison.Ordinal) + 1);
                 // check for allowable file extensions
                 if (Constants.UploadableFiles.Contains(Path.GetExtension(filename).Replace(".", "")))
                 {
                     try
                     {
-                        var client = new System.Net.WebClient();
+                        var client = new WebClient();
                         // remove file if it already exists
-                        if (System.IO.File.Exists(folderpath + filename))
+                        if (System.IO.File.Exists(folderPath + filename))
                         {
-                            System.IO.File.Delete(folderpath + filename);
+                            System.IO.File.Delete(folderPath + filename);
                         }
 
-                        client.DownloadFile(url, folderpath + filename);
-                        _files.AddFile(CreateFile(filename, folder.FolderId, folderpath + filename));
+                        client.DownloadFile(url, folderPath + filename);
+                        _files.AddFile(CreateFile(filename, folder.FolderId, folderPath + filename));
                     }
                     catch
                     {
@@ -202,7 +205,6 @@ namespace Oqtane.Controllers
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Download File {Url} {FolderId}", url, folderid);
                 HttpContext.Response.StatusCode = 401;
-                file = null;
             }
 
             return file;
@@ -214,36 +216,36 @@ namespace Oqtane.Controllers
         {
             if (file.Length > 0)
             {
-                string folderpath = "";
-                int folderid = -1;
-                if (int.TryParse(folder, out folderid))
+                string folderPath = "";
+
+                if (int.TryParse(folder, out int folderId))
                 {
-                    Folder Folder = _folders.GetFolder(folderid);
-                    if (Folder != null && _userPermissions.IsAuthorized(User, PermissionNames.Edit, Folder.Permissions))
+                    Folder virtualFolder = _folders.GetFolder(folderId);
+                    if (virtualFolder != null && _userPermissions.IsAuthorized(User, PermissionNames.Edit, virtualFolder.Permissions))
                     {
-                        folderpath = GetFolderPath(Folder);
+                        folderPath = GetFolderPath(virtualFolder);
                     }
                 }
                 else
                 {
                     if (User.IsInRole(Constants.HostRole))
                     {
-                        folderpath = GetFolderPath(folder);
+                        folderPath = GetFolderPath(folder);
                     }
                 }
 
-                if (folderpath != "")
+                if (folderPath != "")
                 {
-                    CreateDirectory(folderpath);
-                    using (var stream = new FileStream(Path.Combine(folderpath, file.FileName), FileMode.Create))
+                    CreateDirectory(folderPath);
+                    using (var stream = new FileStream(Path.Combine(folderPath, file.FileName), FileMode.Create))
                     {
                         await file.CopyToAsync(stream);
                     }
 
-                    string upload = await MergeFile(folderpath, file.FileName);
-                    if (upload != "" && folderid != -1)
+                    string upload = await MergeFile(folderPath, file.FileName);
+                    if (upload != "" && folderId != -1)
                     {
-                        _files.AddFile(CreateFile(upload, folderid, folderpath + upload));
+                        _files.AddFile(CreateFile(upload, folderId, folderPath + upload));
                     }
                 }
                 else
@@ -341,7 +343,7 @@ namespace Oqtane.Controllers
             {
                 int attempts = 0;
                 bool locked = true;
-                while (attempts < 5 && locked == true)
+                while (attempts < 5 && locked)
                 {
                     try
                     {
@@ -415,7 +417,7 @@ namespace Oqtane.Controllers
             if (!Directory.Exists(folderpath))
             {
                 string path = "";
-                string[] folders = folderpath.Split(new char[] {'\\'}, StringSplitOptions.RemoveEmptyEntries);
+                string[] folders = folderpath.Split(new[] {'\\'}, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string folder in folders)
                 {
                     path += folder + "\\";

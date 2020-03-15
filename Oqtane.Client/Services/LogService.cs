@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Oqtane.Enums;
 using Oqtane.Models;
 using Oqtane.Shared;
 
@@ -22,40 +23,40 @@ namespace Oqtane.Services
             _navigationManager = navigationManager;
         }
 
-        private string apiurl
+        private string Apiurl
         {
             get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Log"); }
         }
 
-        public async Task<List<Log>> GetLogsAsync(int SiteId, string Level, string Function, int Rows)
+        public async Task<List<Log>> GetLogsAsync(int siteId, string level, string function, int rows)
         {
-            return await _http.GetJsonAsync<List<Log>>(apiurl + "?siteid=" + SiteId.ToString() + "&level=" + Level + "&function=" + Function + "&rows=" + Rows.ToString());
+            return await _http.GetJsonAsync<List<Log>>(Apiurl + "?siteid=" + siteId.ToString() + "&level=" + level + "&function=" + function + "&rows=" + rows.ToString());
         }
 
-        public async Task<Log> GetLogAsync(int LogId)
+        public async Task<Log> GetLogAsync(int logId)
         {
-            return await _http.GetJsonAsync<Log>(apiurl + "/" + LogId.ToString());
+            return await _http.GetJsonAsync<Log>(Apiurl + "/" + logId.ToString());
         }
 
-        public async Task Log(int? PageId, int? ModuleId, int? UserId, string category, string feature, LogFunction function, LogLevel level, Exception exception, string message, params object[] args)
+        public async Task Log(int? pageId, int? moduleId, int? userId, string category, string feature, LogFunction function, LogLevel level, Exception exception, string message, params object[] args)
         {
-            await Log(null, PageId, ModuleId, UserId, category, feature, function, level, exception, message, args);
+            await Log(null, pageId, moduleId, userId, category, feature, function, level, exception, message, args);
         }
 
-        public async Task Log(Alias Alias, int? PageId, int? ModuleId, int? UserId, string category, string feature, LogFunction function, LogLevel level, Exception exception, string message, params object[] args)
+        public async Task Log(Alias alias, int? pageId, int? moduleId, int? userId, string category, string feature, LogFunction function, LogLevel level, Exception exception, string message, params object[] args)
         {
             Log log = new Log();
-            if (Alias == null)
+            if (alias == null)
             {
                 log.SiteId = _siteState.Alias.SiteId;
             }
             else
             {
-                log.SiteId = Alias.SiteId;
+                log.SiteId = alias.SiteId;
             }
-            log.PageId = PageId;
-            log.ModuleId = ModuleId;
-            log.UserId = UserId;
+            log.PageId = pageId;
+            log.ModuleId = moduleId;
+            log.UserId = userId;
             log.Url = _navigationManager.Uri;
             log.Category = category;
             log.Feature = feature;
@@ -68,7 +69,7 @@ namespace Oqtane.Services
             log.Message = message;
             log.MessageTemplate = "";
             log.Properties = JsonSerializer.Serialize(args);
-            await _http.PostJsonAsync(CreateCrossTenantUrl(apiurl, Alias), log);
+            await _http.PostJsonAsync(CreateCrossTenantUrl(Apiurl, alias), log);
         }
     }
 }

@@ -21,20 +21,20 @@ namespace Oqtane.Services
             _navigationManager = navigationManager;
         }
 
-        private string apiurl
+        private string Apiurl
         {
             get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Package"); }
         }
 
-        public async Task<List<Package>> GetPackagesAsync(string Tag)
+        public async Task<List<Package>> GetPackagesAsync(string tag)
         {
-            List<Package> packages = await _http.GetJsonAsync<List<Package>>(apiurl + "?tag=" + Tag);
+            List<Package> packages = await _http.GetJsonAsync<List<Package>>(Apiurl + "?tag=" + tag);
             return packages.OrderByDescending(item => item.Downloads).ToList();
         }
 
-        public async Task DownloadPackageAsync(string PackageId, string Version, string Folder)
+        public async Task DownloadPackageAsync(string packageId, string version, string folder)
         {
-            await _http.PostJsonAsync(apiurl + "?packageid=" + PackageId + "&version=" + Version + "&folder=" + Folder, null);
+            await _http.PostJsonAsync(Apiurl + "?packageid=" + packageId + "&version=" + version + "&folder=" + folder, null);
         }
     }
 }

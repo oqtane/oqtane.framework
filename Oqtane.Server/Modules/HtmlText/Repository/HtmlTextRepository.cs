@@ -13,59 +13,31 @@ namespace Oqtane.Modules.HtmlText.Repository
             _db = context;
         }
 
-        public HtmlTextInfo GetHtmlText(int ModuleId)
+        public HtmlTextInfo GetHtmlText(int moduleId)
         {
-            try
-            {
-                return _db.HtmlText.Where(item => item.ModuleId == ModuleId).FirstOrDefault();
-            }
-            catch
-            {
-                throw;
-            }
+            return _db.HtmlText.FirstOrDefault(item => item.ModuleId == moduleId);
         }
 
 
-        public HtmlTextInfo AddHtmlText(HtmlTextInfo HtmlText)
+        public HtmlTextInfo AddHtmlText(HtmlTextInfo htmlText)
         {
-            try
-            {
-                _db.HtmlText.Add(HtmlText);
-                _db.SaveChanges();
-                return HtmlText;
-            }
-            catch
-            {
-                throw;
-            }
+            _db.HtmlText.Add(htmlText);
+            _db.SaveChanges();
+            return htmlText;
         }
 
-        public HtmlTextInfo UpdateHtmlText(HtmlTextInfo HtmlText)
+        public HtmlTextInfo UpdateHtmlText(HtmlTextInfo htmlText)
         {
-            try
-            {
-                _db.Entry(HtmlText).State = EntityState.Modified;
-                _db.SaveChanges();
-                return HtmlText;
-            }
-            catch
-            {
-                throw;
-            }
+            _db.Entry(htmlText).State = EntityState.Modified;
+            _db.SaveChanges();
+            return htmlText;
         }
 
-        public void DeleteHtmlText(int ModuleId)
+        public void DeleteHtmlText(int moduleId)
         {
-            try
-            {
-                HtmlTextInfo HtmlText = _db.HtmlText.Where(item => item.ModuleId == ModuleId).FirstOrDefault();
-                _db.HtmlText.Remove(HtmlText);
-                _db.SaveChanges();
-            }
-            catch
-            {
-                throw;
-            }
+            HtmlTextInfo htmlText = _db.HtmlText.FirstOrDefault(item => item.ModuleId == moduleId);
+            if (htmlText != null) _db.HtmlText.Remove(htmlText);
+            _db.SaveChanges();
         }
     }
 }

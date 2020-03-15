@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
 using System.Linq;
-using System.Reflection;
-using Oqtane.Infrastructure;
+using Oqtane.Enums;
+using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Repository;
 using Oqtane.Security;
 
 namespace Oqtane.Controllers
@@ -31,15 +31,15 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>?siteid=x
         [HttpGet]
-        public IEnumerable<Models.Module> Get(string siteid)
+        public IEnumerable<Module> Get(string siteid)
         {
             List<ModuleDefinition> moduledefinitions = _moduleDefinitions.GetModuleDefinitions(int.Parse(siteid)).ToList();
-            List<Models.Module> modules = new List<Models.Module>();
+            List<Module> modules = new List<Module>();
             foreach (PageModule pagemodule in _pageModules.GetPageModules(int.Parse(siteid)))
             {
                 if (_userPermissions.IsAuthorized(User,PermissionNames.View, pagemodule.Module.Permissions))
                 {
-                    Models.Module module = new Models.Module();
+                    Module module = new Module();
                     module.SiteId = pagemodule.Module.SiteId;
                     module.ModuleDefinitionName = pagemodule.Module.ModuleDefinitionName;
                     module.Permissions = pagemodule.Module.Permissions;
@@ -67,9 +67,9 @@ namespace Oqtane.Controllers
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
-        public Models.Module Get(int id)
+        public Module Get(int id)
         {
-            Models.Module module = _modules.GetModule(id);
+            Module module = _modules.GetModule(id);
             if (_userPermissions.IsAuthorized(User,PermissionNames.View, module.Permissions))
             {
                 List<ModuleDefinition> moduledefinitions = _moduleDefinitions.GetModuleDefinitions(module.SiteId).ToList();
@@ -87,39 +87,39 @@ namespace Oqtane.Controllers
         // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = Constants.RegisteredRole)]
-        public Models.Module Post([FromBody] Models.Module Module)
+        public Module Post([FromBody] Module module)
         {
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Page, Module.PageId, PermissionNames.Edit))
+            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Page, module.PageId, PermissionNames.Edit))
             {
-                Module = _modules.AddModule(Module);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Module Added {Module}", Module);
+                module = _modules.AddModule(module);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Module Added {Module}", module);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Add Module {Module}", Module);
+                _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Add Module {Module}", module);
                 HttpContext.Response.StatusCode = 401;
-                Module = null;
+                module = null;
             }
-            return Module;
+            return module;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Roles = Constants.RegisteredRole)]
-        public Models.Module Put(int id, [FromBody] Models.Module Module)
+        public Module Put(int id, [FromBody] Module module)
         {
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Module, Module.ModuleId, PermissionNames.Edit))
+            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Module, module.ModuleId, PermissionNames.Edit))
             {
-                Module = _modules.UpdateModule(Module);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Module Updated {Module}", Module);
+                module = _modules.UpdateModule(module);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Module Updated {Module}", module);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Module {Module}", Module);
+                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Module {Module}", module);
                 HttpContext.Response.StatusCode = 401;
-                Module = null;
+                module = null;
             }
-            return Module;
+            return module;
         }
 
         // DELETE api/<controller>/5
@@ -160,12 +160,12 @@ namespace Oqtane.Controllers
         // POST api/<controller>/import?moduleid=x
         [HttpPost("import")]
         [Authorize(Roles = Constants.RegisteredRole)]
-        public bool Import(int moduleid, [FromBody] string Content)
+        public bool Import(int moduleid, [FromBody] string content)
         {
             bool success = false;
             if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Module, moduleid, PermissionNames.Edit))
             {
-                success = _modules.ImportModule(moduleid, Content);
+                success = _modules.ImportModule(moduleid, content);
             }
             else
             {

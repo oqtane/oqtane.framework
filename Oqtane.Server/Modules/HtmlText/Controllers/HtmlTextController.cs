@@ -3,10 +3,11 @@ using Microsoft.AspNetCore.Authorization;
 using Oqtane.Modules.HtmlText.Models;
 using Oqtane.Modules.HtmlText.Repository;
 using Microsoft.AspNetCore.Http;
-using Oqtane.Infrastructure;
 using Oqtane.Shared;
 using System;
 using System.Collections.Generic;
+using Oqtane.Enums;
+using Oqtane.Infrastructure.Interfaces;
 
 namespace Oqtane.Modules.HtmlText.Controllers
 {
@@ -35,11 +36,11 @@ namespace Oqtane.Modules.HtmlText.Controllers
             var list = new List<HtmlTextInfo>();
             try
             {
-                HtmlTextInfo HtmlText = null;
+                HtmlTextInfo htmlText = null;
                 if (_entityId == id)
                 {
-                    HtmlText = _htmlText.GetHtmlText(id);
-                    list.Add(HtmlText);
+                    htmlText = _htmlText.GetHtmlText(id);
+                    list.Add(htmlText);
                 }
             }
             catch (Exception ex)
@@ -53,16 +54,16 @@ namespace Oqtane.Modules.HtmlText.Controllers
         // POST api/<controller>
         [HttpPost]
         [Authorize(Policy = "EditModule")]
-        public HtmlTextInfo Post([FromBody] HtmlTextInfo HtmlText)
+        public HtmlTextInfo Post([FromBody] HtmlTextInfo htmlText)
         {
             try
             {
-                if (ModelState.IsValid && HtmlText.ModuleId == _entityId)
+                if (ModelState.IsValid && htmlText.ModuleId == _entityId)
                 {
-                    HtmlText = _htmlText.AddHtmlText(HtmlText);
-                    _logger.Log(LogLevel.Information, this, LogFunction.Create, "Html/Text Added {HtmlText}", HtmlText);
+                    htmlText = _htmlText.AddHtmlText(htmlText);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Create, "Html/Text Added {HtmlText}", htmlText);
                 }
-                return HtmlText;
+                return htmlText;
             }
             catch (Exception ex)
             {
@@ -74,16 +75,16 @@ namespace Oqtane.Modules.HtmlText.Controllers
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Policy = "EditModule")]
-        public HtmlTextInfo Put(int id, [FromBody] HtmlTextInfo HtmlText)
+        public HtmlTextInfo Put(int id, [FromBody] HtmlTextInfo htmlText)
         {
             try
             {
-                if (ModelState.IsValid && HtmlText.ModuleId == _entityId)
+                if (ModelState.IsValid && htmlText.ModuleId == _entityId)
                 {
-                    HtmlText = _htmlText.UpdateHtmlText(HtmlText);
-                    _logger.Log(LogLevel.Information, this, LogFunction.Update, "Html/Text Updated {HtmlText}", HtmlText);
+                    htmlText = _htmlText.UpdateHtmlText(htmlText);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Update, "Html/Text Updated {HtmlText}", htmlText);
                 }
-                return HtmlText;
+                return htmlText;
             }
             catch (Exception ex)
             {

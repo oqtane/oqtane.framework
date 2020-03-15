@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
@@ -16,34 +16,34 @@ namespace Oqtane.Repository
             _permissions = permissions;
         }
 
-        public IEnumerable<File> GetFiles(int FolderId)
+        public IEnumerable<File> GetFiles(int folderId)
         {
-            IEnumerable<Permission> permissions = _permissions.GetPermissions("Folder", FolderId).ToList();
-            IEnumerable<File> files = _db.File.Where(item => item.FolderId == FolderId).Include(item => item.Folder);
+            IEnumerable<Permission> permissions = _permissions.GetPermissions("Folder", folderId).ToList();
+            IEnumerable<File> files = _db.File.Where(item => item.FolderId == folderId).Include(item => item.Folder);
             foreach (File file in files)
             {
-                file.Folder.Permissions = _permissions.EncodePermissions(FolderId, permissions);
+                file.Folder.Permissions = _permissions.EncodePermissions(folderId, permissions);
             }
             return files;
         }
 
-        public File AddFile(File File)
+        public File AddFile(File file)
         {
-            _db.File.Add(File);
+            _db.File.Add(file);
             _db.SaveChanges();
-            return File;
+            return file;
         }
 
-        public File UpdateFile(File File)
+        public File UpdateFile(File file)
         {
-            _db.Entry(File).State = EntityState.Modified;
+            _db.Entry(file).State = EntityState.Modified;
             _db.SaveChanges();
-            return File;
+            return file;
         }
 
-        public File GetFile(int FileId)
+        public File GetFile(int fileId)
         {
-            File file = _db.File.Where(item => item.FileId == FileId).Include(item => item.Folder).FirstOrDefault();
+            File file = _db.File.Where(item => item.FileId == fileId).Include(item => item.Folder).FirstOrDefault();
             if (file != null)
             {
                 IEnumerable<Permission> permissions = _permissions.GetPermissions("Folder", file.FolderId).ToList();
@@ -52,10 +52,10 @@ namespace Oqtane.Repository
             return file;
         }
 
-        public void DeleteFile(int FileId)
+        public void DeleteFile(int fileId)
         {
-            File File = _db.File.Find(FileId);
-            _db.File.Remove(File);
+            File file = _db.File.Find(fileId);
+            _db.File.Remove(file);
             _db.SaveChanges();
         }
     }

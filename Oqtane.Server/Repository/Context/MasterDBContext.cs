@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System;
+using System.Linq;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
-using System;
-using System.Linq;
 
 namespace Oqtane.Repository
 {
@@ -37,7 +37,7 @@ namespace Oqtane.Repository
 
             foreach (var item in created)
             {
-                if (item.Entity is IAuditable entity)
+                if (item.Entity is IAuditable)
                 {
                     item.CurrentValues[nameof(IAuditable.CreatedBy)] = username;
                     item.CurrentValues[nameof(IAuditable.CreatedOn)] = date;
@@ -49,7 +49,7 @@ namespace Oqtane.Repository
 
             foreach (var item in modified)
             {
-                if (item.Entity is IAuditable entity)
+                if (item.Entity is IAuditable)
                 {
                     item.CurrentValues[nameof(IAuditable.ModifiedBy)] = username;
                     item.CurrentValues[nameof(IAuditable.ModifiedOn)] = date;

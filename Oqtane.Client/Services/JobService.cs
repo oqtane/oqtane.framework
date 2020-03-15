@@ -21,44 +21,44 @@ namespace Oqtane.Services
             _navigationManager = navigationManager;
         }
 
-        private string apiurl
+        private string Apiurl
         {
             get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Job"); }
         }
 
         public async Task<List<Job>> GetJobsAsync()
         {
-            List<Job> Jobs = await _http.GetJsonAsync<List<Job>>(apiurl);
-            return Jobs.OrderBy(item => item.Name).ToList();
+            List<Job> jobs = await _http.GetJsonAsync<List<Job>>(Apiurl);
+            return jobs.OrderBy(item => item.Name).ToList();
         }
 
-        public async Task<Job> GetJobAsync(int JobId)
+        public async Task<Job> GetJobAsync(int jobId)
         {
-            return await _http.GetJsonAsync<Job>(apiurl + "/" + JobId.ToString());
+            return await _http.GetJsonAsync<Job>(Apiurl + "/" + jobId.ToString());
         }
 
-        public async Task<Job> AddJobAsync(Job Job)
+        public async Task<Job> AddJobAsync(Job job)
         {
-            return await _http.PostJsonAsync<Job>(apiurl, Job);
+            return await _http.PostJsonAsync<Job>(Apiurl, job);
         }
 
-        public async Task<Job> UpdateJobAsync(Job Job)
+        public async Task<Job> UpdateJobAsync(Job job)
         {
-            return await _http.PutJsonAsync<Job>(apiurl + "/" + Job.JobId.ToString(), Job);
+            return await _http.PutJsonAsync<Job>(Apiurl + "/" + job.JobId.ToString(), job);
         }
-        public async Task DeleteJobAsync(int JobId)
+        public async Task DeleteJobAsync(int jobId)
         {
-            await _http.DeleteAsync(apiurl + "/" + JobId.ToString());
-        }
-
-        public async Task StartJobAsync(int JobId)
-        {
-            await _http.GetAsync(apiurl + "/start/" + JobId.ToString());
+            await _http.DeleteAsync(Apiurl + "/" + jobId.ToString());
         }
 
-        public async Task StopJobAsync(int JobId)
+        public async Task StartJobAsync(int jobId)
         {
-            await _http.GetAsync(apiurl + "/stop/" + JobId.ToString());
+            await _http.GetAsync(Apiurl + "/start/" + jobId.ToString());
+        }
+
+        public async Task StopJobAsync(int jobId)
+        {
+            await _http.GetAsync(Apiurl + "/stop/" + jobId.ToString());
         }
     }
 }

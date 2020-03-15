@@ -4,6 +4,7 @@ using Oqtane.Models;
 using System.Threading.Tasks;
 using Oqtane.Services;
 using System;
+using Oqtane.Enums;
 using Oqtane.UI;
 
 namespace Oqtane.Modules

@@ -26,41 +26,41 @@ namespace Oqtane.Services
             _serviceProvider = serviceProvider;
         }
 
-        private string apiurl
+        private string Apiurl
         {
             get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "ModuleDefinition"); }
         }
 
-        public async Task<List<ModuleDefinition>> GetModuleDefinitionsAsync(int SiteId)
+        public async Task<List<ModuleDefinition>> GetModuleDefinitionsAsync(int siteId)
         {
-            List<ModuleDefinition> moduledefinitions = await _http.GetJsonAsync<List<ModuleDefinition>>(apiurl + "?siteid=" + SiteId.ToString());
+            List<ModuleDefinition> moduledefinitions = await _http.GetJsonAsync<List<ModuleDefinition>>(Apiurl + "?siteid=" + siteId.ToString());
             return moduledefinitions.OrderBy(item => item.Name).ToList();
         }
 
-        public async Task<ModuleDefinition> GetModuleDefinitionAsync(int ModuleDefinitionId, int SiteId)
+        public async Task<ModuleDefinition> GetModuleDefinitionAsync(int moduleDefinitionId, int siteId)
         {
-            return await _http.GetJsonAsync<ModuleDefinition>(apiurl + "/" + ModuleDefinitionId.ToString() + "?siteid=" + SiteId.ToString());
+            return await _http.GetJsonAsync<ModuleDefinition>(Apiurl + "/" + moduleDefinitionId.ToString() + "?siteid=" + siteId.ToString());
         }
 
-        public async Task UpdateModuleDefinitionAsync(ModuleDefinition ModuleDefinition)
+        public async Task UpdateModuleDefinitionAsync(ModuleDefinition moduleDefinition)
         {
-            await _http.PutJsonAsync(apiurl + "/" + ModuleDefinition.ModuleDefinitionId.ToString(), ModuleDefinition);
+            await _http.PutJsonAsync(Apiurl + "/" + moduleDefinition.ModuleDefinitionId.ToString(), moduleDefinition);
         }
 
         public async Task InstallModuleDefinitionsAsync()
         {
-            await _http.GetJsonAsync<List<string>>(apiurl + "/install");
+            await _http.GetJsonAsync<List<string>>(Apiurl + "/install");
         }
 
-        public async Task DeleteModuleDefinitionAsync(int ModuleDefinitionId, int SiteId)
+        public async Task DeleteModuleDefinitionAsync(int moduleDefinitionId, int siteId)
         {
-            await _http.DeleteAsync(apiurl + "/" + ModuleDefinitionId.ToString() + "?siteid=" + SiteId.ToString());
+            await _http.DeleteAsync(Apiurl + "/" + moduleDefinitionId.ToString() + "?siteid=" + siteId.ToString());
         }
 
-        public async Task LoadModuleDefinitionsAsync(int SiteId)
+        public async Task LoadModuleDefinitionsAsync(int siteId)
         {
             // get list of modules from the server
-            List<ModuleDefinition> moduledefinitions = await GetModuleDefinitionsAsync(SiteId);
+            List<ModuleDefinition> moduledefinitions = await GetModuleDefinitionsAsync(siteId);
 
             // download assemblies to browser when running client-side Blazor
             var authstateprovider = (IdentityAuthenticationStateProvider)_serviceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
@@ -80,7 +80,7 @@ namespace Oqtane.Services
                             if (assemblies.Where(item => item.FullName.StartsWith(assemblyname + ",")).FirstOrDefault() == null)
                             {
                                 // download assembly from server and load
-                                var bytes = await _http.GetByteArrayAsync(apiurl + "/load/" + assemblyname + ".dll");
+                                var bytes = await _http.GetByteArrayAsync(Apiurl + "/load/" + assemblyname + ".dll");
                                 Assembly.Load(bytes);
                             }
                         }
@@ -89,7 +89,7 @@ namespace Oqtane.Services
                     if (assemblies.Where(item => item.FullName.StartsWith(moduledefinition.AssemblyName + ",")).FirstOrDefault() == null)
                     {
                         // download assembly from server and load
-                        var bytes = await _http.GetByteArrayAsync(apiurl + "/load/" + moduledefinition.AssemblyName + ".dll");
+                        var bytes = await _http.GetByteArrayAsync(Apiurl + "/load/" + moduledefinition.AssemblyName + ".dll");
                         Assembly.Load(bytes);
                     }
                 }

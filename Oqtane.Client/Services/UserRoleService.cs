@@ -1,6 +1,5 @@
 ﻿using Oqtane.Models;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
@@ -21,34 +20,34 @@ namespace Oqtane.Services
             _navigationManager = navigationManager;
         }
 
-        private string apiurl
+        private string Apiurl
         {
             get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "UserRole"); }
         }
 
-        public async Task<List<UserRole>> GetUserRolesAsync(int SiteId)
+        public async Task<List<UserRole>> GetUserRolesAsync(int siteId)
         {
-            return await _http.GetJsonAsync<List<UserRole>>(apiurl + "?siteid=" + SiteId.ToString());
+            return await _http.GetJsonAsync<List<UserRole>>(Apiurl + "?siteid=" + siteId.ToString());
         }
 
-        public async Task<UserRole> GetUserRoleAsync(int UserRoleId)
+        public async Task<UserRole> GetUserRoleAsync(int userRoleId)
         {
-            return await _http.GetJsonAsync<UserRole>(apiurl + "/" + UserRoleId.ToString());
+            return await _http.GetJsonAsync<UserRole>(Apiurl + "/" + userRoleId.ToString());
         }
 
-        public async Task<UserRole> AddUserRoleAsync(UserRole UserRole)
+        public async Task<UserRole> AddUserRoleAsync(UserRole userRole)
         {
-            return await _http.PostJsonAsync<UserRole>(apiurl, UserRole);
+            return await _http.PostJsonAsync<UserRole>(Apiurl, userRole);
         }
 
-        public async Task<UserRole> UpdateUserRoleAsync(UserRole UserRole)
+        public async Task<UserRole> UpdateUserRoleAsync(UserRole userRole)
         {
-            return await _http.PutJsonAsync<UserRole>(apiurl + "/" + UserRole.UserRoleId.ToString(), UserRole);
+            return await _http.PutJsonAsync<UserRole>(Apiurl + "/" + userRole.UserRoleId.ToString(), userRole);
         }
 
-        public async Task DeleteUserRoleAsync(int UserRoleId)
+        public async Task DeleteUserRoleAsync(int userRoleId)
         {
-            await _http.DeleteAsync(apiurl + "/" + UserRoleId.ToString());
+            await _http.DeleteAsync(Apiurl + "/" + userRoleId.ToString());
         }
     }
 }

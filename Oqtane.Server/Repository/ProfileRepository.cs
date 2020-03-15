@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
@@ -14,34 +14,34 @@ namespace Oqtane.Repository
             _db = context;
         }
             
-        public IEnumerable<Profile> GetProfiles(int SiteId)
+        public IEnumerable<Profile> GetProfiles(int siteId)
         {
-            return _db.Profile.Where(item => item.SiteId == SiteId || item.SiteId == null);
+            return _db.Profile.Where(item => item.SiteId == siteId || item.SiteId == null);
         }
 
-        public Profile AddProfile(Profile Profile)
+        public Profile AddProfile(Profile profile)
         {
-            _db.Profile.Add(Profile);
+            _db.Profile.Add(profile);
             _db.SaveChanges();
-            return Profile;
+            return profile;
         }
 
-        public Profile UpdateProfile(Profile Profile)
+        public Profile UpdateProfile(Profile profile)
         {
-            _db.Entry(Profile).State = EntityState.Modified;
+            _db.Entry(profile).State = EntityState.Modified;
             _db.SaveChanges();
-            return Profile;
+            return profile;
         }
 
-        public Profile GetProfile(int ProfileId)
+        public Profile GetProfile(int profileId)
         {
-            return _db.Profile.Find(ProfileId);
+            return _db.Profile.Find(profileId);
         }
 
-        public void DeleteProfile(int ProfileId)
+        public void DeleteProfile(int profileId)
         {
-            Profile Profile = _db.Profile.Find(ProfileId);
-            _db.Profile.Remove(Profile);
+            Profile profile = _db.Profile.Find(profileId);
+            _db.Profile.Remove(profile);
             _db.SaveChanges();
         }
     }

@@ -7,6 +7,7 @@ using System.Xml;
 using Oqtane.Shared;
 using System;
 using System.Diagnostics;
+using Oqtane.Infrastructure.Interfaces;
 
 namespace Oqtane.Infrastructure
 {
@@ -21,27 +22,27 @@ namespace Oqtane.Infrastructure
             _environment = environment;
         }
 
-        public void InstallPackages(string Folders, bool Restart)
+        public void InstallPackages(string folders, bool restart)
         {
             bool install = false;
-            string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            string binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
 
-            foreach (string Folder in Folders.Split(','))
+            foreach (string folder in folders.Split(','))
             {
-                string folder = Path.Combine(_environment.WebRootPath, Folder);
+                string sourceFolder = Path.Combine(_environment.WebRootPath, folder);
 
                 // create folder if it does not exist
-                if (!Directory.Exists(folder))
+                if (!Directory.Exists(sourceFolder))
                 {
-                    Directory.CreateDirectory(folder);
+                    Directory.CreateDirectory(sourceFolder);
                 }
 
                 // iterate through packages
-                foreach (string packagename in Directory.GetFiles(folder, "*.nupkg"))
+                foreach (string packagename in Directory.GetFiles(sourceFolder, "*.nupkg"))
                 {
                     string name = Path.GetFileNameWithoutExtension(packagename);
-                    string[] segments = name.Split('.');
-                    name = string.Join('.', segments, 0, segments.Length - 3);
+                    string[] segments = name?.Split('.');
+                    if (segments != null) name = string.Join('.', segments, 0, segments.Length - 3);
 
                     // iterate through files
                     using (ZipArchive archive = ZipFile.OpenRead(packagename))
@@ -78,7 +79,7 @@ namespace Oqtane.Infrastructure
                                 {
                                     case ".pdb":
                                     case ".dll":
-                                        entry.ExtractToFile(Path.Combine(binfolder, filename), true);
+                                        if (binFolder != null) entry.ExtractToFile(Path.Combine(binFolder, filename), true);
                                         break;
                                     case ".png":
                                     case ".jpg":
@@ -87,7 +88,7 @@ namespace Oqtane.Infrastructure
                                     case ".svg":
                                     case ".js":
                                     case ".css":
-                                        filename = folder + "\\" + entry.FullName.Replace("wwwroot", name).Replace("/", "\\");
+                                        filename = sourceFolder + "\\" + entry.FullName.Replace("wwwroot", name).Replace("/", "\\");
                                         if (!Directory.Exists(Path.GetDirectoryName(filename)))
                                         {
                                             Directory.CreateDirectory(Path.GetDirectoryName(filename));
@@ -104,7 +105,7 @@ namespace Oqtane.Infrastructure
                 }
             }
 
-            if (install && Restart)
+            if (install && restart)
             {
                 // restart application
                 RestartApplication();
@@ -165,26 +166,29 @@ namespace Oqtane.Infrastructure
 
         private void FinishUpgrade()
         {
-            string folder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            string folder = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
 
             // check if upgrade application exists
-            if (File.Exists(Path.Combine(folder, "Oqtane.Upgrade.exe")))
+            if (folder == null || !File.Exists(Path.Combine(folder, "Oqtane.Upgrade.exe"))) return;
+            // run upgrade application
+            var process = new Process
             {
-                // run upgrade application
-                var process = new Process();
-                process.StartInfo.FileName = Path.Combine(folder, "Oqtane.Upgrade.exe");
-                process.StartInfo.Arguments = "";
-                process.StartInfo.ErrorDialog = false;
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.CreateNoWindow = true;
-                process.StartInfo.RedirectStandardOutput = false;
-                process.StartInfo.RedirectStandardError = false;
-                process.Start();
-                process.Dispose();
+                StartInfo =
+                {
+                    FileName = Path.Combine(folder, "Oqtane.Upgrade.exe"),
+                    Arguments = "",
+                    ErrorDialog = false,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = false,
+                    RedirectStandardError = false
+                }
+            };
+            process.Start();
+            process.Dispose();
 
-                // stop application so upgrade application can proceed
-                RestartApplication();
-            }
+            // stop application so upgrade application can proceed
+            RestartApplication();
         }
 
         public void RestartApplication()
