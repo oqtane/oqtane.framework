@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Components.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using Oqtane.Services;
@@ -22,10 +21,7 @@ namespace Oqtane.Client
 
         }
 
-        public void Configure(IComponentsApplicationBuilder app)
-        {
 
-        }
 #endif
 #if WASM
         public void ConfigureServices(IServiceCollection services)
