@@ -28,72 +28,72 @@ namespace Oqtane.Services
 
         public async Task<Dictionary<string, string>> GetHostSettingsAsync()
         {
-            return await GetSettingsAsync("Host", -1);
+            return await GetSettingsAsync(EntityNames.Host, -1);
         }
 
         public async Task UpdateHostSettingsAsync(Dictionary<string, string> hostSettings)
         {
-            await UpdateSettingsAsync(hostSettings, "Host", -1); 
+            await UpdateSettingsAsync(hostSettings, EntityNames.Host, -1);
         }
 
         public async Task<Dictionary<string, string>> GetSiteSettingsAsync(int siteId)
         {
-            return await GetSettingsAsync("Site", siteId);
+            return await GetSettingsAsync(EntityNames.Site, siteId);
         }
 
         public async Task UpdateSiteSettingsAsync(Dictionary<string, string> siteSettings, int siteId)
         {
-            await UpdateSettingsAsync(siteSettings, "Site", siteId);
+            await UpdateSettingsAsync(siteSettings, EntityNames.Site, siteId);
         }
 
         public async Task<Dictionary<string, string>> GetPageSettingsAsync(int pageId)
         {
-            return await GetSettingsAsync("Page", pageId);
+            return await GetSettingsAsync(EntityNames.Page, pageId);
         }
 
         public async Task UpdatePageSettingsAsync(Dictionary<string, string> pageSettings, int pageId)
         {
-            await UpdateSettingsAsync(pageSettings, "Page", pageId);
+            await UpdateSettingsAsync(pageSettings, EntityNames.Page, pageId);
         }
 
         public async Task<Dictionary<string, string>> GetPageModuleSettingsAsync(int pageModuleId)
         {
-            return await GetSettingsAsync("PageModule", pageModuleId);
+            return await GetSettingsAsync(EntityNames.PageModule, pageModuleId);
         }
 
         public async Task UpdatePageModuleSettingsAsync(Dictionary<string, string> pageModuleSettings, int pageModuleId)
         {
-            await UpdateSettingsAsync(pageModuleSettings, "PageModule", pageModuleId);
+            await UpdateSettingsAsync(pageModuleSettings, EntityNames.PageModule, pageModuleId);
         }
 
         public async Task<Dictionary<string, string>> GetModuleSettingsAsync(int moduleId)
         {
-            return await GetSettingsAsync("Module", moduleId);
+            return await GetSettingsAsync(EntityNames.Module, moduleId);
         }
 
         public async Task UpdateModuleSettingsAsync(Dictionary<string, string> moduleSettings, int moduleId)
         {
-            await UpdateSettingsAsync(moduleSettings, "Module", moduleId);
+            await UpdateSettingsAsync(moduleSettings, EntityNames.Module, moduleId);
         }
 
         public async Task<Dictionary<string, string>> GetUserSettingsAsync(int userId)
         {
-            return await GetSettingsAsync("User", userId);
+            return await GetSettingsAsync(EntityNames.User, userId);
         }
 
         public async Task UpdateUserSettingsAsync(Dictionary<string, string> userSettings, int userId)
         {
-            await UpdateSettingsAsync(userSettings, "User", userId);
+            await UpdateSettingsAsync(userSettings, EntityNames.User, userId);
         }
 
         public async Task<Dictionary<string, string>> GetFolderSettingsAsync(int folderId)
         {
-            return await GetSettingsAsync("Folder", folderId);
+            return await GetSettingsAsync( EntityNames.Folder, folderId);
         }
 
         public async Task UpdateFolderSettingsAsync(Dictionary<string, string> folderSettings, int folderId)
         {
-            await UpdateSettingsAsync(folderSettings, "Folder", folderId);
+            await UpdateSettingsAsync(folderSettings, EntityNames.Folder, folderId);
         }
 
         public async Task<Dictionary<string, string>> GetSettingsAsync(string entityName, int entityId)
