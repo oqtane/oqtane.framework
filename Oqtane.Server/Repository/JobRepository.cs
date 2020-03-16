@@ -31,6 +31,7 @@ namespace Oqtane.Repository
         {
             _db.Job.Add(job);
             _db.SaveChanges();
+            _cache.Remove("jobs");
             return job;
         }
 
@@ -38,6 +39,7 @@ namespace Oqtane.Repository
         {
             _db.Entry(job).State = EntityState.Modified;
             _db.SaveChanges();
+            _cache.Remove("jobs");
             return job;
         }
 
@@ -51,6 +53,7 @@ namespace Oqtane.Repository
             Job job = _db.Job.Find(jobId);
             _db.Job.Remove(job);
             _db.SaveChanges();
+            _cache.Remove("jobs");
         }
     }
 }
