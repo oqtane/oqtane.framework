@@ -6,26 +6,26 @@
 <table class="table table-borderless">
     <tr>
         <td>
-            <label  class="control-label">Name: </label>
+            <Label For="_name" Class="control-label" HelpText="Name Of The Role">Name: </Label>
         </td>
         <td>
-            <input class="form-control" @bind="@_name" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label  class="control-label">Description: </label>
-        </td>
-        <td>
-            <textarea class="form-control" @bind="@_description" rows="5"></textarea>
+            <input id="_name" class="form-control" @bind="@_name" />
         </td>
     </tr>
     <tr>
         <td>
-            <label  class="control-label">Auto Assigned? </label>
+            <Label For="_description" Class="control-label" HelpText="A Short Description Of The Role Which Describes Its Purpose">Description: </Label>
         </td>
         <td>
-            <select class="form-control" @bind="@_isautoassigned">
+            <textarea id="_description" class="form-control" @bind="@_description" rows="5"></textarea>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="_isautoassigned" Class="control-label" HelpText="Indicates Whether Or Not New Users Are Automatically Assigned To This Role">Auto Assigned? </Label>
+        </td>
+        <td>
+            <select id="_isautoassigned" class="form-control" @bind="@_isautoassigned">
                 <option value="True">Yes</option>
                 <option value="False">No</option>
             </select>
@@ -33,10 +33,10 @@
     </tr>
     <tr>
         <td>
-            <label  class="control-label">System Role? </label>
+            <Label For="_issystem" Class="control-label" HelpText="Indicates Whether Or Not This Is A System Role. System Roles Are Protected And Cannot Be Deleted.">System Role? </Label>
         </td>
         <td>
-            <select class="form-control" @bind="@_issystem">
+            <select id="_issystem" class="form-control" @bind="@_issystem">
                 <option value="True">Yes</option>
                 <option value="False">No</option>
             </select>

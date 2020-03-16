@@ -8,6 +8,7 @@ using Oqtane.Shared;
 using System;
 using System.Diagnostics;
 using Oqtane.Infrastructure.Interfaces;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Oqtane.Infrastructure
 {
@@ -15,11 +16,13 @@ namespace Oqtane.Infrastructure
     {
         private readonly IHostApplicationLifetime _hostApplicationLifetime;
         private readonly IWebHostEnvironment _environment;
+        private readonly IMemoryCache _cache;
 
-        public InstallationManager(IHostApplicationLifetime hostApplicationLifetime, IWebHostEnvironment environment)
+        public InstallationManager(IHostApplicationLifetime hostApplicationLifetime, IWebHostEnvironment environment, IMemoryCache cache)
         {
             _hostApplicationLifetime = hostApplicationLifetime;
             _environment = environment;
+            _cache = cache;
         }
 
         public void InstallPackages(string folders, bool restart)
@@ -107,8 +110,15 @@ namespace Oqtane.Infrastructure
 
             if (install && restart)
             {
-                // restart application
-                RestartApplication();
+                if (restart)
+                {
+                    RestartApplication();
+                }
+                else
+                {
+                    _cache.Remove("moduledefinitions");
+                    _cache.Remove("jobs");
+                }
             }
         }
 
