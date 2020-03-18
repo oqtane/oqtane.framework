@@ -3,7 +3,7 @@
     public class Constants
     {
         public const string PackageId = "Oqtane.Framework";
-        public const string Version = "0.0.1";
+        public const string Version = "0.0.9";
 
         public const string PageComponent = "Oqtane.UI.ThemeBuilder, Oqtane.Client";
         public const string ContainerComponent = "Oqtane.UI.ContainerBuilder, Oqtane.Client";
