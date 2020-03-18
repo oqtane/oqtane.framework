@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>Oqtane.Framework</id>
-    <version>0.0.1</version>
+    <version>0.0.9</version>
     <authors>Shaun Walker</authors>
     <owners>.NET Foundation</owners>
     <title>Oqtane Framework</title>
@@ -17,8 +17,9 @@
     <summary>A modular application framework for Blazor</summary>
   </metadata>
   <files>
-    <file src="Oqtane.Client\bin\Release\netstandard2.0\Oqtane.Client.dll" target="lib" /> 
-    <file src="Oqtane.Server\bin\Release\netcoreapp3.0\Oqtane.Server.dll" target="lib" /> 
-    <file src="Oqtane.Shared\bin\Release\netstandard2.0\Oqtane.Shared.dll" target="lib" /> 
+    <file src="Oqtane.Client\bin\Release\netstandard2.1\Oqtane.Client.dll" target="lib" /> 
+    <file src="Oqtane.Server\bin\Release\netcoreapp3.1\Oqtane.Server.dll" target="lib" /> 
+    <file src="Oqtane.Shared\bin\Release\netstandard2.1\Oqtane.Shared.dll" target="lib" /> 
+    <file src="Oqtane.Server\bin\Release\netcoreapp3.1\Oqtane.Upgrade.dll" target="lib" /> 
   </files>
 </package>
