@@ -28,7 +28,7 @@ namespace Oqtane.Services
 
         private string Apiurl
         {
-            get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "ModuleDefinition"); }
+            get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, EntityNames.ModuleDefinition); }
         }
 
         public async Task<List<ModuleDefinition>> GetModuleDefinitionsAsync(int siteId)
