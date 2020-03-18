@@ -24,7 +24,7 @@ namespace Oqtane.Services
             _navigationManager = navigationManager;
         }
 
-        private string ApiUrl => CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Folder");
+        private string ApiUrl => CreateApiUrl(_siteState.Alias, _navigationManager.Uri, EntityNames.Folder);
 
         public async Task<List<Folder>> GetFoldersAsync(int siteId)
         {

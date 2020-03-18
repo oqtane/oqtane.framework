@@ -116,11 +116,11 @@
         // process any sync events for site or page
         if (reload != Reload.Site && alias.SyncEvents.Any())
         {
-            if (PageState != null && alias.SyncEvents.Exists(item => item.EntityName == "Page" && item.EntityId == PageState.Page.PageId))
+            if (PageState != null && alias.SyncEvents.Exists(item => item.EntityName == EntityNames.Page && item.EntityId == PageState.Page.PageId))
             {
                 reload = Reload.Page;
             }
-            if (alias.SyncEvents.Exists(item => item.EntityName == "Site" && item.EntityId == alias.SiteId))
+            if (alias.SyncEvents.Exists(item => item.EntityName == EntityNames.Site && item.EntityId == alias.SiteId))
             {
                 reload = Reload.Site;
             }
@@ -154,7 +154,7 @@
             // process any sync events for user
             if (reload != Reload.Site && user != null && alias.SyncEvents.Any())
             {
-                if (alias.SyncEvents.Exists(item => item.EntityName == "User" && item.EntityId == user.UserId))
+                if (alias.SyncEvents.Exists(item => item.EntityName == EntityNames.User && item.EntityId == user.UserId))
                 {
                     reload = Reload.Site;
                 }
