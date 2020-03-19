@@ -41,7 +41,7 @@ namespace Oqtane.Infrastructure
                     log += "Processing Notifications For Site: " + site.Name + "\n\n";
 
                     // get site settings
-                    List<Setting> sitesettings = settingRepository.GetSettings("Site", site.SiteId).ToList();
+                    List<Setting> sitesettings = settingRepository.GetSettings(EntityNames.Site, site.SiteId).ToList();
                     Dictionary<string, string> settings = GetSettings(sitesettings);
                     if (settings.ContainsKey("SMTPHost") && settings["SMTPHost"] != "")
                     {

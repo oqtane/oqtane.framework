@@ -249,10 +249,10 @@ namespace Oqtane
             // register authorization services
             services.AddAuthorizationCore(options =>
             {
-                options.AddPolicy("ViewPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", PermissionNames.View)));
-                options.AddPolicy("EditPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", PermissionNames.Edit)));
-                options.AddPolicy("ViewModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", PermissionNames.View)));
-                options.AddPolicy("EditModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", PermissionNames.Edit)));
+                options.AddPolicy("ViewPage", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Page, PermissionNames.View)));
+                options.AddPolicy("EditPage", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Page, PermissionNames.Edit)));
+                options.AddPolicy("ViewModule", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Module, PermissionNames.View)));
+                options.AddPolicy("EditModule", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Module, PermissionNames.Edit)));
             });
 
             // register scoped core services
