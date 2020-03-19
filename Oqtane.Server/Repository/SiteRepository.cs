@@ -243,12 +243,14 @@ namespace Oqtane.Repository
             _pageTemplates.Add(new PageTemplate { Name = "Login", Parent = "", Path = "login", Icon = "lock-locked", IsNavigation = false, IsPersonalizable = false, EditMode = false,
                 PagePermissions = _permissionRepository.EncodePermissions(new List<Permission> {
                     new Permission(PermissionNames.View, Constants.AdminRole, true),
+                    new Permission(PermissionNames.View, Constants.AllUsersRole, true),
                     new Permission(PermissionNames.Edit, Constants.AdminRole, true)
                 }),
                 PageTemplateModules = new List<PageTemplateModule> {
                 new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.Login, Oqtane.Client", Title = "User Login", Pane = "Content",
                     ModulePermissions = _permissionRepository.EncodePermissions( new List<Permission> {
                         new Permission(PermissionNames.View, Constants.AdminRole, true),
+                        new Permission(PermissionNames.View, Constants.AllUsersRole, true),
                         new Permission(PermissionNames.Edit, Constants.AdminRole, true)
                     }), Content = "" }
             }
@@ -256,12 +258,14 @@ namespace Oqtane.Repository
             _pageTemplates.Add(new PageTemplate { Name = "Register", Parent = "", Path = "register", Icon = "person", IsNavigation = false, IsPersonalizable = false, EditMode = false,
                 PagePermissions = _permissionRepository.EncodePermissions(new List<Permission> {
                     new Permission(PermissionNames.View, Constants.AdminRole, true),
+                    new Permission(PermissionNames.View, Constants.AllUsersRole, true),
                     new Permission(PermissionNames.Edit, Constants.AdminRole, true)
                 }),
                 PageTemplateModules = new List<PageTemplateModule> {
                 new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.Register, Oqtane.Client", Title = "User Registration", Pane = "Content",
                     ModulePermissions = _permissionRepository.EncodePermissions( new List<Permission> {
                         new Permission(PermissionNames.View, Constants.AdminRole, true),
+                        new Permission(PermissionNames.View, Constants.AllUsersRole, true),
                         new Permission(PermissionNames.Edit, Constants.AdminRole, true)
                     }), Content = "" }
             }
@@ -270,12 +274,14 @@ namespace Oqtane.Repository
             _pageTemplates.Add(new PageTemplate { Name = "Reset", Parent = "", Path = "reset", Icon = "person", IsNavigation = false, IsPersonalizable = false, EditMode = false,
                 PagePermissions = _permissionRepository.EncodePermissions(new List<Permission> {
                     new Permission(PermissionNames.View, Constants.AdminRole, true),
+                    new Permission(PermissionNames.View, Constants.AllUsersRole, true),
                     new Permission(PermissionNames.Edit, Constants.AdminRole, true)
                 }),
                 PageTemplateModules = new List<PageTemplateModule> {
                 new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.Reset, Oqtane.Client", Title = "Password Reset", Pane = "Content",
                     ModulePermissions = _permissionRepository.EncodePermissions( new List<Permission> {
                         new Permission(PermissionNames.View, Constants.AdminRole, true),
+                        new Permission(PermissionNames.View, Constants.AllUsersRole, true),
                         new Permission(PermissionNames.Edit, Constants.AdminRole, true)
                     }), Content = "" }
             }
@@ -283,12 +289,14 @@ namespace Oqtane.Repository
             _pageTemplates.Add(new PageTemplate { Name = "Profile", Parent = "", Path = "profile", Icon = "person", IsNavigation = false, IsPersonalizable = false, EditMode = false,
                 PagePermissions = _permissionRepository.EncodePermissions(new List<Permission> {
                     new Permission(PermissionNames.View, Constants.AdminRole, true),
+                    new Permission(PermissionNames.View, Constants.RegisteredRole, true),
                     new Permission(PermissionNames.Edit, Constants.AdminRole, true)
                 }),
                 PageTemplateModules = new List<PageTemplateModule> {
                 new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.UserProfile, Oqtane.Client", Title = "User Profile", Pane = "Content",
                     ModulePermissions = _permissionRepository.EncodePermissions( new List<Permission> {
                         new Permission(PermissionNames.View, Constants.AdminRole, true),
+                        new Permission(PermissionNames.View, Constants.RegisteredRole, true),
                         new Permission(PermissionNames.Edit, Constants.AdminRole, true)
                     }), Content = "" }
             }

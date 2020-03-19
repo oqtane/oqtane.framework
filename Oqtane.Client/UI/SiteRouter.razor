@@ -13,6 +13,7 @@
 @inject ILogService LogService
 @using System.Diagnostics.CodeAnalysis
 @using Oqtane.Enums
+@using System.Runtime.InteropServices 
 @implements IHandleAfterRender
 
 @DynamicComponent
@@ -81,6 +82,7 @@
         bool editmode = false;
         Reload reload = Reload.None;
         DateTime lastsyncdate = DateTime.UtcNow;
+        Runtime runtime = GetRuntime();
 
         // get Url path and querystring ( and remove anchors )
         string path = new Uri(_absoluteUri).PathAndQuery.Substring(1);
@@ -162,7 +164,7 @@
 
             if (PageState == null || reload >= Reload.Site)
             {
-                await ModuleDefinitionService.LoadModuleDefinitionsAsync(site.SiteId);
+                await ModuleDefinitionService.LoadModuleDefinitionsAsync(site.SiteId, runtime);
                 pages = await PageService.GetPagesAsync(site.SiteId);
             }
             else
@@ -248,7 +250,8 @@
                         Uri = new Uri(_absoluteUri, UriKind.Absolute),
                         QueryString = querystring,
                         ModuleId = moduleid,
-                        Action = action
+                        Action = action,
+                        Runtime = runtime
                     };
 
                     if (PageState != null && (PageState.ModuleId != _pagestate.ModuleId || PageState.Action != _pagestate.Action))
@@ -458,4 +461,15 @@
         return modules;
     }
 
+    private Runtime GetRuntime()
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Create("WEBASSEMBLY")))
+        {
+            return Runtime.WebAssembly;
+        }
+        else
+        {
+            return Runtime.Server;
+        }
+    }
 }

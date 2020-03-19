@@ -33,8 +33,7 @@
     {
         await UserService.LogoutUserAsync(PageState.User);
 
-        var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
-        if (authstateprovider == null)
+        if (PageState.Runtime == Runtime.Server)
         {
             // server-side Blazor
             var interop = new Interop(jsRuntime);
@@ -45,6 +44,7 @@
         else
         {
             // client-side Blazor
+            var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
             authstateprovider.NotifyAuthenticationChanged();
             NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "reload"));
         }

@@ -81,8 +81,7 @@
 
     private async Task Login()
     {
-        var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
-        if (authstateprovider == null)
+        if (PageState.Runtime == Runtime.Server)
         {
             // server-side Blazor
             User user = new User();
@@ -116,6 +115,7 @@
             if (user.IsAuthenticated)
             {
                 await logger.LogInformation("Login Successful For Username {Username}", _username);
+                var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
                 authstateprovider.NotifyAuthenticationChanged();
                 NavigationManager.NavigateTo(NavigateUrl(_returnUrl, "reload"));
             }

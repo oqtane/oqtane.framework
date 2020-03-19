@@ -18,5 +18,6 @@ namespace Oqtane.UI
         public string Action { get; set; }
         public bool EditMode { get; set; }
         public DateTime LastSyncDate { get; set; }
+        public Runtime Runtime { get; set; }
     }
 }
