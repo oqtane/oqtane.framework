@@ -26,7 +26,7 @@ namespace Oqtane.Repository
                 IEnumerable<Permission> permissions = _permissions.GetPermissions(pagemodules.FirstOrDefault().Module.SiteId, "Module").ToList();
                 foreach (PageModule pagemodule in pagemodules)
                 {
-                    pagemodule.Module.Permissions = _permissions.EncodePermissions(pagemodule.ModuleId, permissions);
+                    pagemodule.Module.Permissions = _permissions.EncodePermissions(permissions.Where(item => item.EntityId == pagemodule.ModuleId));
                 }
             }
             return pagemodules;
@@ -46,7 +46,7 @@ namespace Oqtane.Repository
                 IEnumerable<Permission> permissions = _permissions.GetPermissions(pagemodules.FirstOrDefault().Module.SiteId, "Module").ToList();
                 foreach (PageModule pagemodule in pagemodules)
                 {
-                    pagemodule.Module.Permissions = _permissions.EncodePermissions(pagemodule.ModuleId, permissions);
+                    pagemodule.Module.Permissions = _permissions.EncodePermissions(permissions.Where(item => item.EntityId == pagemodule.ModuleId));
                 }
             }
             return pagemodules;
@@ -73,7 +73,7 @@ namespace Oqtane.Repository
             if (pagemodule != null)
             {
                 IEnumerable<Permission> permissions = _permissions.GetPermissions("Module", pagemodule.ModuleId).ToList();
-                pagemodule.Module.Permissions = _permissions.EncodePermissions(pagemodule.ModuleId, permissions);
+                pagemodule.Module.Permissions = _permissions.EncodePermissions(permissions);
             }
             return pagemodule;
         }
@@ -85,7 +85,7 @@ namespace Oqtane.Repository
             if (pagemodule != null)
             {
                 IEnumerable<Permission> permissions = _permissions.GetPermissions("Module", pagemodule.ModuleId).ToList();
-                pagemodule.Module.Permissions = _permissions.EncodePermissions(pagemodule.ModuleId, permissions);
+                pagemodule.Module.Permissions = _permissions.EncodePermissions(permissions);
             }
             return pagemodule;
         }

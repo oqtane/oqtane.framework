@@ -101,11 +101,7 @@
             else
             {
                 _parentId = _folders[0].FolderId;
-                List<PermissionString> permissionstrings = new List<PermissionString>();
-                permissionstrings.Add(new PermissionString { PermissionName = PermissionNames.Browse, Permissions = Constants.AdminRole });
-                permissionstrings.Add(new PermissionString { PermissionName = PermissionNames.View, Permissions = Constants.AdminRole });
-                permissionstrings.Add(new PermissionString { PermissionName = PermissionNames.Edit, Permissions = Constants.AdminRole });
-                _permissions = UserSecurity.SetPermissionStrings(permissionstrings);
+                _permissions = "";
             }
         }
         catch (Exception ex)

@@ -43,6 +43,18 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
+        public static IServiceCollection AddOqtaneSiteTemplates(this IServiceCollection services)
+        {
+            if (services is null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
+            LoadAssemblies("SiteTemplate");
+
+            return services;
+        }
+
         public static IServiceCollection AddOqtaneServices(this IServiceCollection services)
         {
             if (services is null)
@@ -99,7 +111,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             var assembliesFolder = new DirectoryInfo(assemblyPath);
 
-            // iterate through Oqtane theme assemblies in /bin ( filter is narrow to optimize loading process )
+            // iterate through Oqtane assemblies in /bin ( filter is narrow to optimize loading process )
             foreach (var file in assembliesFolder.EnumerateFiles($"*.{pattern}.*.dll"))
             {
                 // check if assembly is already loaded

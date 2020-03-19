@@ -31,9 +31,9 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        public GenericResponse Post([FromBody] string connectionString)
+        public Installation Post([FromBody] string connectionString)
         {
-            var response = new GenericResponse { Success = false, Message = "" };
+            var installation = new Installation { Success = false, Message = "" };
 
             if (ModelState.IsValid)
             {
@@ -110,7 +110,7 @@ namespace Oqtane.Controllers
                         }
                         catch (Exception ex)
                         {
-                            response.Message = "Can Not Create Database - " + ex.Message;
+                            installation.Message = "Can Not Create Database - " + ex.Message;
                         }
 
                         // sleep to allow SQL server to attach new database
@@ -140,7 +140,7 @@ namespace Oqtane.Controllers
                             var result = dbUpgrade.PerformUpgrade();
                             if (!result.Successful)
                             {
-                                response.Message = result.Error.Message;
+                                installation.Message = result.Error.Message;
                             }
                             else
                             {
@@ -161,24 +161,24 @@ namespace Oqtane.Controllers
                                     }
                                     _config.Reload();
                                 }
-                                response.Success = true;
+                                installation.Success = true;
                             }
                         }
                     }
                 }
                 else
                 {
-                    response.Message = "Application Is Already Installed";
+                    installation.Message = "Application Is Already Installed";
                 }
             }
-            return response;
+            return installation;
         }
 
         // GET api/<controller>/installed
         [HttpGet("installed")]
-        public GenericResponse IsInstalled()
+        public Installation IsInstalled()
         {
-            var response = new GenericResponse { Success = false, Message = "" };
+            var installation = new Installation { Success = false, Message = "" };
 
             string datadirectory = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
             string connectionString = _config.GetConnectionString("DefaultConnection");
@@ -193,28 +193,28 @@ namespace Oqtane.Controllers
                     {
                         connection.Open();
                     }
-                    response.Success = true;
+                    installation.Success = true;
                 }
                 catch
                 {
                     // database does not exist
-                    response.Message = "Database Does Not Exist";
+                    installation.Message = "Database Does Not Exist";
                 }
             }
             else
             {
-                response.Message = "Connection String Has Not Been Specified In Oqtane.Server\\appsettings.json";
+                installation.Message = "Connection String Has Not Been Specified In Oqtane.Server\\appsettings.json";
             }
 
-            if (response.Success)
+            if (installation.Success)
             {
                 var dbUpgradeConfig = DeployChanges.To.SqlDatabase(connectionString)
                     .WithScript(new DbUp.Engine.SqlScript("Master.sql", ""));
                 var dbUpgrade = dbUpgradeConfig.Build();
-                response.Success = !dbUpgrade.IsUpgradeRequired();
-                if (!response.Success)
+                installation.Success = !dbUpgrade.IsUpgradeRequired();
+                if (!installation.Success)
                 {
-                    response.Message = "Master Installation Scripts Have Not Been Executed";
+                    installation.Message = "Master Installation Scripts Have Not Been Executed";
                 }
                 else
                 {
@@ -264,7 +264,7 @@ namespace Oqtane.Controllers
                 }
             }
 
-            return response;
+            return installation;
         }
 
         private void InstallModule(Assembly assembly, string connectionstring)
@@ -284,11 +284,11 @@ namespace Oqtane.Controllers
 
         [HttpGet("upgrade")]
         [Authorize(Roles = Constants.HostRole)]
-        public GenericResponse Upgrade()
+        public Installation Upgrade()
         {
-            var response = new GenericResponse { Success = true, Message = "" };
+            var installation = new Installation { Success = true, Message = "" };
             _installationManager.UpgradeFramework();
-            return response;
+            return installation;
         }
     }
 

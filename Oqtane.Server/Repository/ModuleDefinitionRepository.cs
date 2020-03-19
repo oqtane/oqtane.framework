@@ -86,7 +86,7 @@ namespace Oqtane.Repository
                     }
                     else
                     {
-                        moduledefinition.Permissions = _permissions.EncodePermissions(moduledef.ModuleDefinitionId, permissions);
+                        moduledefinition.Permissions = _permissions.EncodePermissions(permissions.Where(item => item.EntityId == moduledef.ModuleDefinitionId));
                     }
                     // remove module definition from list
                     moduledefs.Remove(moduledef);  

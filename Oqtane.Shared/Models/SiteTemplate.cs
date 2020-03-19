@@ -2,6 +2,12 @@
 
 namespace Oqtane.Models
 {
+    public class SiteTemplate
+    {
+        public string Name { get; set; }
+        public string TypeName { get; set; }
+    }
+
     public class PageTemplate
     {
         public string Name { get; set; }

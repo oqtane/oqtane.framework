@@ -23,7 +23,7 @@ namespace Oqtane.Repository
             IEnumerable<Folder> folders = _db.Folder.Where(item => item.SiteId == siteId);
             foreach(Folder folder in folders)
             {
-                folder.Permissions = _permissions.EncodePermissions(folder.FolderId, permissions);
+                folder.Permissions = _permissions.EncodePermissions(permissions.Where(item => item.EntityId == folder.FolderId));
             }
             return folders;
         }
@@ -50,7 +50,7 @@ namespace Oqtane.Repository
             if (folder != null)
             {
                 IEnumerable<Permission> permissions = _permissions.GetPermissions(EntityNames.Folder, folder.FolderId).ToList();
-                folder.Permissions = _permissions.EncodePermissions(folder.FolderId, permissions);
+                folder.Permissions = _permissions.EncodePermissions(permissions);
             }
             return folder;
         }
@@ -61,7 +61,7 @@ namespace Oqtane.Repository
             if (folder != null)
             {
                 IEnumerable<Permission> permissions = _permissions.GetPermissions(EntityNames.Folder, folder.FolderId).ToList();
-                folder.Permissions = _permissions.EncodePermissions(folder.FolderId, permissions);
+                folder.Permissions = _permissions.EncodePermissions(permissions);
             }
             return folder;
         }

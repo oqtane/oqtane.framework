@@ -25,7 +25,7 @@ namespace Oqtane.Repository
             IEnumerable<Page> pages = _db.Page.Where(item => item.SiteId == siteId && item.UserId == null);
             foreach(Page page in pages)
             {
-                page.Permissions = _permissions.EncodePermissions(page.PageId, permissions);
+                page.Permissions = _permissions.EncodePermissions(permissions.Where(item => item.EntityId == page.PageId));
             }
             return pages;
         }
@@ -52,7 +52,7 @@ namespace Oqtane.Repository
             if (page != null)
             {
                 IEnumerable<Permission> permissions = _permissions.GetPermissions(EntityNames.Page, page.PageId).ToList();
-                page.Permissions = _permissions.EncodePermissions(page.PageId, permissions);
+                page.Permissions = _permissions.EncodePermissions(permissions);
             }
             return page;
         }
@@ -70,7 +70,7 @@ namespace Oqtane.Repository
                 if (page != null)
                 {
                     IEnumerable<Permission> permissions = _permissions.GetPermissions(EntityNames.Page, page.PageId).ToList();
-                    page.Permissions = _permissions.EncodePermissions(page.PageId, permissions);
+                    page.Permissions = _permissions.EncodePermissions(permissions);
                 }
             }
             return page;
@@ -82,7 +82,7 @@ namespace Oqtane.Repository
             if (page != null)
             {
                 IEnumerable<Permission> permissions = _permissions.GetPermissions(EntityNames.Page, page.PageId).ToList();
-                page.Permissions = _permissions.EncodePermissions(page.PageId, permissions);
+                page.Permissions = _permissions.EncodePermissions(permissions);
             }
             return page;
         }

@@ -53,7 +53,7 @@ namespace Oqtane.Repository
             if (module != null)
             {
                 List<Permission> permissions = _permissions.GetPermissions("Module", module.ModuleId).ToList();
-                module.Permissions = _permissions.EncodePermissions(module.ModuleId, permissions);
+                module.Permissions = _permissions.EncodePermissions(permissions);
             }
             return module;
         }

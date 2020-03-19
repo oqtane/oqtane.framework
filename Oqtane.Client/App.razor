@@ -23,8 +23,8 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        var response = await InstallationService.IsInstalled();
-        _installed = response.Success;
+        var installation = await InstallationService.IsInstalled();
+        _installed = installation.Success;
         _initialized = true;
     }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Models
 {
@@ -12,7 +13,6 @@ namespace Oqtane.Models
         public string DefaultLayoutType { get; set; }
         public string DefaultContainerType { get; set; }
 
-
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
         public string ModifiedBy { get; set; }
@@ -20,5 +20,8 @@ namespace Oqtane.Models
         public string DeletedBy { get; set; }
         public DateTime? DeletedOn { get; set; }
         public bool IsDeleted { get; set; }
+
+        [NotMapped]
+        public string SiteTemplateType { get; set; }
     }
 }

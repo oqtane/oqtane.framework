@@ -19,15 +19,17 @@ namespace Oqtane.Controllers
         private readonly IModuleRepository _modules;
         private readonly IPageModuleRepository _pageModules;
         private readonly IUserPermissions _userPermissions;
+        private readonly IPermissionRepository _permissionRepository;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
 
-        public PageController(IPageRepository pages, IModuleRepository modules, IPageModuleRepository pageModules, IUserPermissions userPermissions, ISyncManager syncManager, ILogManager logger)
+        public PageController(IPageRepository pages, IModuleRepository modules, IPageModuleRepository pageModules, IUserPermissions userPermissions, IPermissionRepository permissionRepository, ISyncManager syncManager, ILogManager logger)
         {
             _pages = pages;
             _modules = modules;
             _pageModules = pageModules;
             _userPermissions = userPermissions;
+            _permissionRepository = permissionRepository;
             _syncManager = syncManager;
             _logger = logger;
         }
@@ -111,7 +113,9 @@ namespace Oqtane.Controllers
                 }
                 else
                 {
-                    permissions = UserSecurity.SetPermissionStrings(new List<PermissionString> { new PermissionString { PermissionName = PermissionNames.Edit, Permissions = Constants.AdminRole } });
+                    permissions = _permissionRepository.EncodePermissions(new List<Permission> {
+                        new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                    });
                 }
             
                 if (_userPermissions.IsAuthorized(User,PermissionNames.Edit, permissions))
@@ -150,10 +154,10 @@ namespace Oqtane.Controllers
                 page.ThemeType = parent.ThemeType;
                 page.LayoutType = parent.LayoutType;
                 page.Icon = parent.Icon;
-                List<PermissionString> permissions = new List<PermissionString>();
-                permissions.Add(new PermissionString { PermissionName = PermissionNames.View, Permissions = "[" + userid + "]" });
-                permissions.Add(new PermissionString { PermissionName = PermissionNames.Edit, Permissions = "[" + userid + "]" });
-                page.Permissions = UserSecurity.SetPermissionStrings(permissions);
+                page.Permissions = _permissionRepository.EncodePermissions(new List<Permission> {
+                    new Permission(PermissionNames.View, userid, true),
+                    new Permission(PermissionNames.Edit, userid, true)
+                });
                 page.IsPersonalizable = false;
                 page.UserId = int.Parse(userid);
                 page = _pages.AddPage(page);
@@ -167,10 +171,10 @@ namespace Oqtane.Controllers
                     module.SiteId = page.SiteId;
                     module.PageId = page.PageId;
                     module.ModuleDefinitionName = pm.Module.ModuleDefinitionName;
-                    permissions = new List<PermissionString>();
-                    permissions.Add(new PermissionString { PermissionName = PermissionNames.View, Permissions = "[" + userid + "]" });
-                    permissions.Add(new PermissionString { PermissionName = PermissionNames.Edit, Permissions = "[" + userid + "]" });
-                    module.Permissions = UserSecurity.SetPermissionStrings(permissions);
+                    module.Permissions = _permissionRepository.EncodePermissions(new List<Permission> {
+                        new Permission(PermissionNames.View, userid, true),
+                        new Permission(PermissionNames.Edit, userid, true)
+                    });
                     module = _modules.AddModule(module);
 
                     string content = _modules.ExportModule(pm.ModuleId);
