@@ -22,7 +22,7 @@ namespace Oqtane.Repository
             IEnumerable<File> files = _db.File.Where(item => item.FolderId == folderId).Include(item => item.Folder);
             foreach (File file in files)
             {
-                file.Folder.Permissions = _permissions.EncodePermissions(folderId, permissions);
+                file.Folder.Permissions = _permissions.EncodePermissions(permissions);
             }
             return files;
         }
@@ -47,7 +47,7 @@ namespace Oqtane.Repository
             if (file != null)
             {
                 IEnumerable<Permission> permissions = _permissions.GetPermissions("Folder", file.FolderId).ToList();
-                file.Folder.Permissions = _permissions.EncodePermissions(file.FolderId, permissions);
+                file.Folder.Permissions = _permissions.EncodePermissions(permissions);
             }
             return file;
         }

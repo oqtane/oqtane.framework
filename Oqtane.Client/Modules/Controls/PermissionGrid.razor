@@ -94,22 +94,26 @@
     {
         if (string.IsNullOrEmpty(PermissionNames))
         {
-            _permissionnames = "View,Edit";
+            _permissionnames = Shared.PermissionNames.View + "," + Shared.PermissionNames.Edit;
         }
         else
         {
             _permissionnames = PermissionNames;
         }
+
         _roles = await RoleService.GetRolesAsync(ModuleState.SiteId);
         _roles.Insert(0, new Role { Name = Constants.AllUsersRole });
 
+        _permissions = new List<PermissionString>();
+        foreach (string permissionname in _permissionnames.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+        {
+            // initialize with admin role
+            _permissions.Add(new PermissionString { PermissionName = permissionname, Permissions = Constants.AdminRole });
+        }
+        
         if (!string.IsNullOrEmpty(Permissions))
         {
-            _permissions = new List<PermissionString>();
-            foreach (string permissionname in _permissionnames.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                _permissions.Add(new PermissionString { PermissionName = permissionname, Permissions = "" });
-            }
+            // populate permissions
             foreach (PermissionString permissionstring in UserSecurity.GetPermissionStrings(Permissions))
             {
                 if (_permissions.Find(item => item.PermissionName == permissionstring.PermissionName) != null)

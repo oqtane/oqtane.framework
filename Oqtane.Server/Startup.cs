@@ -104,6 +104,7 @@ namespace Oqtane
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IFolderService, FolderService>();
             services.AddScoped<IFileService, FileService>();
+            services.AddScoped<ISiteTemplateService, SiteTemplateService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -181,9 +182,11 @@ namespace Oqtane
             services.AddTransient<INotificationRepository, NotificationRepository>();
             services.AddTransient<IFolderRepository, FolderRepository>();
             services.AddTransient<IFileRepository, FileRepository>();
+            services.AddTransient<ISiteTemplateRepository, SiteTemplateRepository>();
 
             services.AddOqtaneModules();
             services.AddOqtaneThemes();
+            services.AddOqtaneSiteTemplates();
 
             services.AddMvc()
                 .AddOqtaneApplicationParts()
@@ -332,9 +335,11 @@ namespace Oqtane
             services.AddTransient<INotificationRepository, NotificationRepository>();
             services.AddTransient<IFolderRepository, FolderRepository>();
             services.AddTransient<IFileRepository, FileRepository>();
+            services.AddTransient<ISiteTemplateRepository, SiteTemplateRepository>();
 
             services.AddOqtaneModules();
             services.AddOqtaneThemes();
+            services.AddOqtaneSiteTemplates();
 
             services.AddMvc()
                 .AddOqtaneApplicationParts()

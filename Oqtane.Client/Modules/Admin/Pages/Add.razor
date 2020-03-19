@@ -165,7 +165,7 @@
     string _themetype = "";
     string _layouttype = "";
     string _icon = "";
-    string _permissions = ""; 
+    string _permissions = "";
 
     PermissionGrid _permissionGrid;
 
@@ -183,10 +183,7 @@
             _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
             _layouttype = PageState.Site.DefaultLayoutType;
 
-            List<PermissionString> permissionstrings = new List<PermissionString>();
-            permissionstrings.Add(new PermissionString { PermissionName = PermissionNames.View, Permissions = Constants.AdminRole });
-            permissionstrings.Add(new PermissionString { PermissionName = PermissionNames.Edit, Permissions = Constants.AdminRole });
-            _permissions = UserSecurity.SetPermissionStrings(permissionstrings);
+            _permissions = "";
         }
         catch (Exception ex)
         {

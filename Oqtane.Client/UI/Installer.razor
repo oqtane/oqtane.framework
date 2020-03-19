@@ -175,8 +175,8 @@
 
                 }
             }
-            GenericResponse response = await InstallationService.Install(connectionstring);
-            if (response.Success)
+            Installation installation = await InstallationService.Install(connectionstring);
+            if (installation.Success)
             {
                 Site site = new Site();
                 site.TenantId = -1; // will be populated on server
@@ -199,7 +199,7 @@
             }
             else
             {
-                _message = "<div class=\"alert alert-danger\" role=\"alert\">" + response.Message + "</div>";
+                _message = "<div class=\"alert alert-danger\" role=\"alert\">" + installation.Message + "</div>";
                 _loadingDisplay = "display: none;";
             }
         }

@@ -17,12 +17,14 @@ namespace Oqtane.Controllers
     {
         private readonly IFolderRepository _folders;
         private readonly IUserPermissions _userPermissions;
+        private readonly IPermissionRepository _permissionRepository;
         private readonly ILogManager _logger;
 
-        public FolderController(IFolderRepository folders, IUserPermissions userPermissions, ILogManager logger)
+        public FolderController(IFolderRepository folders, IUserPermissions userPermissions, IPermissionRepository permissionRepository, ILogManager logger)
         {
             _folders = folders;
             _userPermissions = userPermissions;
+            _permissionRepository = permissionRepository;
             _logger = logger;
         }
 
@@ -98,7 +100,9 @@ namespace Oqtane.Controllers
                 }
                 else
                 {
-                    permissions = UserSecurity.SetPermissionStrings(new List<PermissionString> { new PermissionString { PermissionName = PermissionNames.Edit, Permissions = Constants.AdminRole } });
+                    permissions = _permissionRepository.EncodePermissions(new List<Permission> {
+                        new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                    });
                 }
                 if (_userPermissions.IsAuthorized(User,PermissionNames.Edit, permissions))
                 {

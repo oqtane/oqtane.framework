@@ -101,14 +101,14 @@ namespace Oqtane.Repository
         }
 
         // permissions are stored in the format "{permissionname:!rolename1;![userid1];rolename2;rolename3;[userid2];[userid3]}" where "!" designates Deny permissions
-        public string EncodePermissions(int entityId, IEnumerable<Permission> permissionList)
+        public string EncodePermissions(IEnumerable<Permission> permissionList)
         {
             List<PermissionString> permissionstrings = new List<PermissionString>();
             string permissionname = "";
             string permissions = "";
             StringBuilder permissionsbuilder = new StringBuilder();
             string securityid = "";
-            foreach (Permission permission in permissionList.Where(item => item.EntityId == entityId).OrderBy(item => item.PermissionName))
+            foreach (Permission permission in permissionList.OrderBy(item => item.PermissionName))
             {
                 // permission collections are grouped by permissionname
                 if (permissionname != permission.PermissionName)

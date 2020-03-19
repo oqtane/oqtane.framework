@@ -5,8 +5,8 @@ namespace Oqtane.Services
 {
     public interface IInstallationService
     {
-        Task<GenericResponse> IsInstalled();
-        Task<GenericResponse> Install(string connectionstring);
-        Task<GenericResponse> Upgrade();
+        Task<Installation> IsInstalled();
+        Task<Installation> Install(string connectionstring);
+        Task<Installation> Upgrade();
     }
 }

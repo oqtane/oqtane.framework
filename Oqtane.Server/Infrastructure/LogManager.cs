@@ -112,7 +112,7 @@ namespace Oqtane.Infrastructure
             var section = _config.GetSection("Logging:LogLevel:Default");
             if (section.Exists())
             {
-                minlevel = Enum.Parse<LogLevel>(_config.GetSection("Logging:LogLevel:Default").ToString());
+                minlevel = Enum.Parse<LogLevel>(section.Value);
             }
 
             if (Enum.Parse<LogLevel>(log.Level) >= minlevel)

@@ -127,8 +127,8 @@
 
                 }
             }
-            GenericResponse response = await InstallationService.Install(connectionstring);
-            if (response.Success)
+            Installation installation = await InstallationService.Install(connectionstring);
+            if (installation.Success)
             {
                 Tenant tenant = new Tenant();
                 tenant.Name = name;
@@ -142,8 +142,8 @@
             }
             else
             {
-                await logger.LogError("Error Creating Tenant {Error}", response.Message);
-                AddModuleMessage(response.Message, MessageType.Error);
+                await logger.LogError("Error Creating Tenant {Error}", installation.Message);
+                AddModuleMessage(installation.Message, MessageType.Error);
             }
         }
         else
