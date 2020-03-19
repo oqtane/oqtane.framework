@@ -19,7 +19,9 @@ using Oqtane.Infrastructure.Interfaces;
 using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Services;
-using Oqtane.Shared; // needed for WASM
+// DO NOT REMOVE - needed for client-side Blazor
+using Oqtane.Shared; 
+using Microsoft.AspNetCore.ResponseCompression; 
 
 namespace Oqtane
 {

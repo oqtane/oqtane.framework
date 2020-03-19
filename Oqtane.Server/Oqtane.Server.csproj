@@ -8,7 +8,7 @@
       https://dotnet.myget.org/F/blazor-dev/api/v3/index.json;
     </RestoreAdditionalProjectSources>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-    <Configurations>Debug;Release;Wasm</Configurations>
+    <Configurations>Debug;Release;WebAssembly</Configurations>
     <Version>0.0.9</Version>
     <Product>Oqtane</Product>
     <Authors>Shaun Walker</Authors>
@@ -22,7 +22,7 @@
     <RootNamespace>Oqtane</RootNamespace>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Wasm|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='WebAssembly|AnyCPU'">
     <DefineConstants>TRACE;WASM</DefineConstants>
   </PropertyGroup>
 

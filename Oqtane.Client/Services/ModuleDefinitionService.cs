@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Components;
 using System;
 using System.Reflection;
 using Oqtane.Shared;
-using Oqtane.Providers;
+using Oqtane.UI;
 
 namespace Oqtane.Services
 {
@@ -16,14 +16,12 @@ namespace Oqtane.Services
         private readonly HttpClient _http;
         private readonly SiteState _siteState;
         private readonly NavigationManager _navigationManager;
-        private readonly IServiceProvider _serviceProvider;
 
-        public ModuleDefinitionService(HttpClient http, SiteState siteState, NavigationManager navigationManager, IServiceProvider serviceProvider)
+        public ModuleDefinitionService(HttpClient http, SiteState siteState, NavigationManager navigationManager)
         {
             _http = http;
             _siteState = siteState;
             _navigationManager = navigationManager;
-            _serviceProvider = serviceProvider;
         }
 
         private string Apiurl
@@ -57,14 +55,13 @@ namespace Oqtane.Services
             await _http.DeleteAsync(Apiurl + "/" + moduleDefinitionId.ToString() + "?siteid=" + siteId.ToString());
         }
 
-        public async Task LoadModuleDefinitionsAsync(int siteId)
+        public async Task LoadModuleDefinitionsAsync(int siteId, Runtime runtime)
         {
             // get list of modules from the server
             List<ModuleDefinition> moduledefinitions = await GetModuleDefinitionsAsync(siteId);
 
             // download assemblies to browser when running client-side Blazor
-            var authstateprovider = (IdentityAuthenticationStateProvider)_serviceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
-            if (authstateprovider != null)
+            if (runtime == Runtime.WebAssembly)
             {
                 // get list of loaded assemblies on the client ( in the client-side hosting module the browser client has its own app domain )
                 Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();

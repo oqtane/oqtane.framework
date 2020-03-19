@@ -1,4 +1,7 @@
-﻿namespace Oqtane
+﻿// DO NOT REMOVE - needed for client-side Blazor
+using Microsoft.AspNetCore.Blazor.Hosting;
+
+namespace Oqtane.Client
 {
     public class Program
     {
