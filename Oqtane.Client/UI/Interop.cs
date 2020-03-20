@@ -43,13 +43,58 @@ namespace Oqtane.UI
             }
         }
 
-        public Task IncludeCss(string id, string url)
+        public Task UpdateTitle(string title)
         {
             try
             {
                 _jsRuntime.InvokeAsync<string>(
-                    "interop.includeCSS",
-                    id, url);
+                    "interop.updateTitle",
+                    title);
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
+        }
+
+        public Task UpdateMeta(string id, string attribute, string name, string content)
+        {
+            try
+            {
+                _jsRuntime.InvokeAsync<string>(
+                    "interop.updateMeta",
+                    id, attribute, name, content);
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
+        }
+
+        public Task UpdateLink(string id, string rel, string type, string url)
+        {
+            try
+            {
+                _jsRuntime.InvokeAsync<string>(
+                    "interop.updateLink",
+                    id, rel, type, url);
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
+        }
+
+        public Task IncludeCSS(string id, string url)
+        {
+            try
+            {
+                _jsRuntime.InvokeAsync<string>(
+                    "interop.updateLink",
+                    id, "stylesheet", "text/css", url);
                 return Task.CompletedTask;
             }
             catch
