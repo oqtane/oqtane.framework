@@ -20,21 +20,49 @@ window.interop = {
         }
         return "";
     },
-    getElementByName: function (name) {
-        var elements = document.getElementsByName(name);
-        if (elements.length) {
-            return elements[0].value;
-        } else {
-            return "";
+    updateTitle: function (title) {
+        if (document.title !== title) {
+            document.title = title;
         }
     },
-    includeCSS: function (id, url) {
-        var link = document.getElementById(id);
+    updateMeta: function (id, attribute, name, content) {
+        var meta;
+        if (id !== "") {
+            meta = document.getElementById(id);
+        }
+        else {
+            meta = document.querySelector("meta[" + attribute + "=\"" + CSS.escape(name) + "\"]");
+        }
+        if (meta === null) {
+            meta = document.createElement("meta");
+            meta.setAttribute(attribute, name);
+            if (id !== "") {
+                meta.id = id;
+            }
+            meta.content = content;
+            document.head.appendChild(meta);
+        }
+        else {
+            if (meta.content !== content) {
+                meta.setAttribute("content", content);
+            }
+        }
+    },
+    updateLink: function (id, rel, type, url) {
+        var link;
+        if (id !== "") {
+            link = document.getElementById(id);
+        }
+        else {
+            link = document.querySelector("link[href=\"" + CSS.escape(url) + "\"]");
+        }
         if (link === null) {
             link = document.createElement("link");
-            link.id = id;
-            link.type = "text/css";
-            link.rel = "stylesheet";
+            if (id !== "") {
+                link.id = id;
+            }
+            link.rel = rel;
+            link.type = type;
             link.href = url;
             document.head.appendChild(link);
         }
@@ -42,6 +70,14 @@ window.interop = {
             if (link.href !== url) {
                 link.setAttribute('href', url);
             }
+        }
+    },
+    getElementByName: function (name) {
+        var elements = document.getElementsByName(name);
+        if (elements.length) {
+            return elements[0].value;
+        } else {
+            return "";
         }
     },
     submitForm: function (path, fields) {
