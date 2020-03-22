@@ -37,6 +37,7 @@ V1 (MVP)
 - [x] Auto-Upgrade Framework
 
 V.Next
+- [ ] Use Migrations rather than SQL scripts for database installation/upgrade
 - [ ] Optional Encryption of Settings Values ( ie. via an IsSecure flag )
 - [ ] Localization
 - [ ] Migrate to Code-Behind Pattern ( *.razor.cs )
