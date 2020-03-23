@@ -33,9 +33,9 @@
     [Parameter]
     public string Style { get; set; } // optional
 
-	[Parameter]
-	public bool Disabled { get; set; } // optional
-	
+    [Parameter]
+    public bool Disabled { get; set; } // optional
+
     [Parameter]
     public string EditMode { get; set; } // optional - specifies if a user must be in edit mode to see the action - default is true
 
@@ -119,10 +119,10 @@
                     authorized = true;
                     break;
                 case SecurityAccessLevel.View:
-                    authorized = UserSecurity.IsAuthorized(PageState.User,PermissionNames.View, ModuleState.Permissions);
+                    authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, ModuleState.Permissions);
                     break;
                 case SecurityAccessLevel.Edit:
-                    authorized = UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, ModuleState.Permissions);
+                    authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.Permissions);
                     break;
                 case SecurityAccessLevel.Admin:
                     authorized = UserSecurity.IsAuthorized(PageState.User, Constants.AdminRole);
