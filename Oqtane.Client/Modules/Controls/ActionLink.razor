@@ -6,7 +6,7 @@
 {
     if (Disabled)
     {
-        <NavLink class="@_classname" href="@_url" style="@_style" disabled>@((MarkupString)_iconSpan) @_text</NavLink>
+        <button class="@_classname" style="@_style" disabled>@((MarkupString)_iconSpan) @_text</button>
     }
     else
     {
@@ -82,7 +82,7 @@
         if (!string.IsNullOrEmpty(IconName))
         {
             _iconSpan = $"<span class=\"oi oi-{IconName}\"></span>&nbsp;";
-        }        
+        }
 
         _url = EditUrl(Action, _parameters);
         _authorized = IsAuthorized();
