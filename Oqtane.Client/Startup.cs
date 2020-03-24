@@ -59,6 +59,7 @@ namespace Oqtane.Client
             services.AddScoped<IFolderService, FolderService>();
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<ISiteTemplateService, SiteTemplateService>();
+            services.AddScoped<ISqlService, SqlService>();
 
             // dynamically register module contexts and repository services
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();

@@ -1,6 +1,6 @@
 ﻿@namespace Oqtane.Modules.Controls
 @inherits ModuleBase
-@typeparam TAbleItem
+@typeparam TableItem
 
 <p>
     @if(Format == "Table")
@@ -78,13 +78,13 @@
     public RenderFragment Header { get; set; }
 
     [Parameter]
-    public RenderFragment<TAbleItem> Row { get; set; }
+    public RenderFragment<TableItem> Row { get; set; }
 
     [Parameter]
-    public RenderFragment<TAbleItem> Detail { get; set; }
+    public RenderFragment<TableItem> Detail { get; set; }
 
     [Parameter]
-    public IEnumerable<TAbleItem> Items { get; set; }
+    public IEnumerable<TableItem> Items { get; set; }
 
     [Parameter]
     public string PageSize { get; set; }
@@ -95,7 +95,7 @@
     [Parameter]
     public string Class { get; set; }
 
-    IEnumerable<TAbleItem> ItemList { get; set; }
+    IEnumerable<TableItem> ItemList { get; set; }
 
     protected override void OnParametersSet()
     {

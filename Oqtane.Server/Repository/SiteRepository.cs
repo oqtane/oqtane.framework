@@ -362,6 +362,34 @@ namespace Oqtane.Repository
             });
             pageTemplates.Add(new PageTemplate
             {
+                Name = "Sql Management",
+                Parent = "Admin",
+                Path = "admin/sql",
+                Icon = "spreadsheet",
+                IsNavigation = false,
+                IsPersonalizable = false,
+                EditMode = true,
+                PagePermissions = _permissionRepository.EncodePermissions(new List<Permission>
+                {
+                    new Permission(PermissionNames.View, Constants.AdminRole, true),
+                    new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                }),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = "Oqtane.Modules.Admin.Sql, Oqtane.Client", Title = "Sql Management", Pane = "Content",
+                        ModulePermissions = _permissionRepository.EncodePermissions(new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, Constants.AdminRole, true),
+                            new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                        }),
+                        Content = ""
+                    }
+                }
+            });
+            pageTemplates.Add(new PageTemplate
+            {
                 Name = "Upgrade Service", Parent = "Admin", Path = "admin/upgrade", Icon = "aperture", IsNavigation = false, IsPersonalizable = false, EditMode = true,
                 PagePermissions = _permissionRepository.EncodePermissions(new List<Permission>
                 {

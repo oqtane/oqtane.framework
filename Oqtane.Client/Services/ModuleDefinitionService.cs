@@ -92,5 +92,9 @@ namespace Oqtane.Services
                 }
             }
         }
+        public async Task CreateModuleDefinitionAsync(ModuleDefinition moduleDefinition, int moduleId)
+        {
+            await _http.PostJsonAsync(Apiurl + "?moduleid=" + moduleId.ToString(), moduleDefinition);
+        }
     }
 }

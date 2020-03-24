@@ -27,6 +27,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='WebAssembly|AnyCPU'">
     <DefineConstants>TRACE;WASM</DefineConstants>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Modules\Admin\ModuleCreator\Templates\**" />
+    <Content Remove="Modules\Admin\ModuleCreator\Templates\**" />
+    <EmbeddedResource Remove="Modules\Admin\ModuleCreator\Templates\**" />
+    <None Remove="Modules\Admin\ModuleCreator\Templates\**" />
+  </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Blazor" Version="3.1.0-preview4.19579.2" />
