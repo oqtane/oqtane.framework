@@ -6,11 +6,11 @@
 {
     if (Disabled)
     {
-        <NavLink class="@_classname" href="@_url" style="@_style" disabled>@_text</NavLink>
+        <NavLink class="@_classname" href="@_url" style="@_style" disabled>@((MarkupString)_iconSpan) @_text</NavLink>
     }
     else
     {
-        <NavLink class="@_classname" href="@_url" style="@_style">@_text</NavLink>
+        <NavLink class="@_classname" href="@_url" style="@_style">@((MarkupString)_iconSpan) @_text</NavLink>
     }
 }
 
@@ -33,11 +33,14 @@
     [Parameter]
     public string Style { get; set; } // optional
 
-	[Parameter]
-	public bool Disabled { get; set; } // optional
-	
+    [Parameter]
+    public bool Disabled { get; set; } // optional
+
     [Parameter]
     public string EditMode { get; set; } // optional - specifies if a user must be in edit mode to see the action - default is true
+
+    [Parameter]
+    public string IconName { get; set; } // optional - specifies an icon for the link - default is no icon
 
     string _text = "";
     string _url = "";
@@ -46,6 +49,7 @@
     string _style = "";
     bool _editmode = true;
     bool _authorized = false;
+    string _iconSpan = "";
 
     protected override void OnParametersSet()
     {
@@ -74,6 +78,11 @@
         {
             _editmode = bool.Parse(EditMode);
         }
+
+        if (!string.IsNullOrEmpty(IconName))
+        {
+            _iconSpan = $"<span class=\"oi oi-{IconName}\"></span>&nbsp;";
+        }        
 
         _url = EditUrl(Action, _parameters);
         _authorized = IsAuthorized();
@@ -110,10 +119,10 @@
                     authorized = true;
                     break;
                 case SecurityAccessLevel.View:
-                    authorized = UserSecurity.IsAuthorized(PageState.User,PermissionNames.View, ModuleState.Permissions);
+                    authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, ModuleState.Permissions);
                     break;
                 case SecurityAccessLevel.Edit:
-                    authorized = UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, ModuleState.Permissions);
+                    authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.Permissions);
                     break;
                 case SecurityAccessLevel.Admin:
                     authorized = UserSecurity.IsAuthorized(PageState.User, Constants.AdminRole);
