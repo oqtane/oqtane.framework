@@ -1,0 +1,58 @@
+﻿@namespace Oqtane.Modules.Admin.ModuleCreator
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject IModuleDefinitionService ModuleDefinitionService
+@inject IModuleService ModuleService
+
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <label class="control-label">Module Name: </label>
+        </td>
+        <td>
+            <input class="form-control" @bind="@_name" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="control-label">Description: </label>
+        </td>
+        <td>
+            <textarea class="form-control" @bind="@_description" rows="5"></textarea>
+        </td>
+    </tr>
+</table>
+
+<button type="button" class="btn btn-success" @onclick="CreateModule">Create Module</button>
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+
+    string _name = "";
+    string _description = "";
+
+    protected override void OnInitialized()
+    {
+        AddModuleMessage("Please Note That Once You Select The Create Module Button The Application Must Restart In Order To Complete The Process.", MessageType.Info);
+    }
+    
+    private async Task CreateModule()
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(_name))
+            {
+                ModuleDefinition moduleDefinition = new ModuleDefinition { Name = _name, Description = _description };
+                await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition, ModuleState.ModuleId);
+            }
+            else
+            {
+                AddModuleMessage("You Must Provide A Name For The Module", MessageType.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Creating Module");
+        }
+    }
+}

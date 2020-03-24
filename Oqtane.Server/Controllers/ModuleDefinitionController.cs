@@ -11,6 +11,7 @@ using Oqtane.Enums;
 using Oqtane.Infrastructure.Interfaces;
 using Oqtane.Repository;
 using Oqtane.Security;
+using System;
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
 namespace Oqtane.Controllers
@@ -19,17 +20,23 @@ namespace Oqtane.Controllers
     public class ModuleDefinitionController : Controller
     {
         private readonly IModuleDefinitionRepository _moduleDefinitions;
+        private readonly IModuleRepository _modules;
         private readonly IUserPermissions _userPermissions;
         private readonly IInstallationManager _installationManager;
         private readonly IWebHostEnvironment _environment;
+        private readonly ITenantResolver _resolver;
+        private readonly ISqlRepository _sql;
         private readonly ILogManager _logger;
 
-        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, ILogManager logger)
+        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, IModuleRepository modules, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, ITenantResolver resolver, ISqlRepository sql, ILogManager logger)
         {
             _moduleDefinitions = moduleDefinitions;
+            _modules = modules;
             _userPermissions = userPermissions;
             _installationManager = installationManager;
             _environment = environment;
+            _resolver = resolver;
+            _sql = sql;
             _logger = logger;
         }
 
@@ -124,5 +131,69 @@ namespace Oqtane.Controllers
             return File(file, "application/octet-stream", assemblyname);
         }
 
+        // POST api/<controller>?moduleid=x
+        [HttpPost]
+        [Authorize(Roles = Constants.HostRole)]
+        public void Post([FromBody] ModuleDefinition moduleDefinition, string moduleid)
+        {
+            if (ModelState.IsValid)
+            {
+                string rootPath = Directory.GetParent(_environment.ContentRootPath).FullName;
+                string templatePath = Path.Combine(rootPath, "Oqtane.Client\\Modules\\Admin\\ModuleCreator\\Templates\\");
+                ProcessTemplatesRecursively(new DirectoryInfo(templatePath), rootPath, moduleDefinition);
+                moduleDefinition.ModuleDefinitionName = "Oqtane.Modules." + moduleDefinition.Name + "s, Oqtane.Client";
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Module Definition Created {ModuleDefinition}", moduleDefinition);
+                Models.Module module = _modules.GetModule(int.Parse(moduleid));
+                module.ModuleDefinitionName = moduleDefinition.ModuleDefinitionName;
+                _modules.UpdateModule(module);
+                _installationManager.RestartApplication();
+            }
+        }
+
+        private void ProcessTemplatesRecursively(DirectoryInfo current, string rootPath, ModuleDefinition moduleDefinition)
+        {
+            // process folder
+            string folderPath = current.FullName.Replace("Oqtane.Client\\Modules\\Admin\\ModuleCreator\\Templates\\", "");
+            folderPath = folderPath.Replace("[Module]", moduleDefinition.Name);
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+
+            FileInfo[] files = current.GetFiles("*.*");
+            if (files != null)
+            {
+                foreach (FileInfo file in files)
+                {
+                    // process file
+                    string filePath = Path.Combine(folderPath, file.Name);
+                    filePath = filePath.Replace("[Module]", moduleDefinition.Name);
+
+                    string text = System.IO.File.ReadAllText(file.FullName);
+                    text = text.Replace("[Module]", moduleDefinition.Name);
+                    text = text.Replace("[Description]", moduleDefinition.Description);
+                    text = text.Replace("[RootPath]", rootPath);
+                    text = text.Replace("[Folder]", folderPath);
+                    text = text.Replace("[File]", Path.GetFileName(filePath));
+                    System.IO.File.WriteAllText(filePath, text);
+
+                    if (Path.GetExtension(filePath) == ".sql")
+                    {
+                        // execute script
+                        foreach (string query in text.Split("GO", StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            _sql.ExecuteNonQuery(_resolver.GetTenant(), query);
+                        }
+                    }
+                }
+
+                DirectoryInfo[] folders = current.GetDirectories();
+
+                foreach (DirectoryInfo folder in folders.Reverse())
+                {
+                    ProcessTemplatesRecursively(folder, rootPath, moduleDefinition);
+                }
+            }
+        }
     }
 }

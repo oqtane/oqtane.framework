@@ -107,6 +107,7 @@ namespace Oqtane
             services.AddScoped<IFolderService, FolderService>();
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<ISiteTemplateService, SiteTemplateService>();
+            services.AddScoped<ISqlService, SqlService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -185,6 +186,7 @@ namespace Oqtane
             services.AddTransient<IFolderRepository, FolderRepository>();
             services.AddTransient<IFileRepository, FileRepository>();
             services.AddTransient<ISiteTemplateRepository, SiteTemplateRepository>();
+            services.AddTransient<ISqlRepository, SqlRepository>();
 
             services.AddOqtaneModules();
             services.AddOqtaneThemes();
@@ -338,6 +340,7 @@ namespace Oqtane
             services.AddTransient<IFolderRepository, FolderRepository>();
             services.AddTransient<IFileRepository, FileRepository>();
             services.AddTransient<ISiteTemplateRepository, SiteTemplateRepository>();
+            services.AddTransient<ISqlRepository, SqlRepository>();
 
             services.AddOqtaneModules();
             services.AddOqtaneThemes();
