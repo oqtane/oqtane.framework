@@ -6,37 +6,26 @@
 <table class="table table-borderless">
     <tr>
         <td>
-            <label  class="control-label">Name: </label>
+            <Label For="_name" Class="control-label" HelpText="Name Of The Role">Name: </Label>
         </td>
         <td>
-            <input class="form-control" @bind="@name" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label  class="control-label">Description: </label>
-        </td>
-        <td>
-            <textarea class="form-control" @bind="@description" rows="5"></textarea>
+            <input id="_name" class="form-control" @bind="@_name" />
         </td>
     </tr>
     <tr>
         <td>
-            <label  class="control-label">Auto Assigned? </label>
+            <Label For="_description" Class="control-label" HelpText="A Short Description Of The Role Which Describes Its Purpose">Description: </Label>
         </td>
         <td>
-            <select class="form-control" @bind="@isautoassigned">
-                <option value="True">Yes</option>
-                <option value="False">No</option>
-            </select>
+            <textarea id="_description" class="form-control" @bind="@_description" rows="5"></textarea>
         </td>
     </tr>
     <tr>
         <td>
-            <label  class="control-label">System Role? </label>
+            <Label For="_isautoassigned" Class="control-label" HelpText="Indicates Whether Or Not New Users Are Automatically Assigned To This Role">Auto Assigned? </Label>
         </td>
         <td>
-            <select class="form-control" @bind="@issystem">
+            <select id="_isautoassigned" class="form-control" @bind="@_isautoassigned">
                 <option value="True">Yes</option>
                 <option value="False">No</option>
             </select>
@@ -49,19 +38,18 @@
 @code {
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
 
-    string name = "";
-    string description = "";
-    string isautoassigned = "False";
-    string issystem = "False";
+    string _name = "";
+    string _description = "";
+    string _isautoassigned = "False";
 
     private async Task SaveRole()
     {
         Role role = new Role();
         role.SiteId = PageState.Page.SiteId;
-        role.Name = name;
-        role.Description = description;
-        role.IsAutoAssigned = (isautoassigned == null ? false : Boolean.Parse(isautoassigned));
-        role.IsSystem = (issystem == null ? false : Boolean.Parse(issystem));
+        role.Name = _name;
+        role.Description = _description;
+        role.IsAutoAssigned = (_isautoassigned == null ? false : Boolean.Parse(_isautoassigned));
+        role.IsSystem = false;
 
         try
         {

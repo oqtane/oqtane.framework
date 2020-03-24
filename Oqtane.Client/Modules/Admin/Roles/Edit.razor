@@ -31,17 +31,6 @@
             </select>
         </td>
     </tr>
-    <tr>
-        <td>
-            <Label For="_issystem" Class="control-label" HelpText="Indicates Whether Or Not This Is A System Role. System Roles Are Protected And Cannot Be Deleted.">System Role? </Label>
-        </td>
-        <td>
-            <select id="_issystem" class="form-control" @bind="@_issystem">
-                <option value="True">Yes</option>
-                <option value="False">No</option>
-            </select>
-        </td>
-    </tr>
 </table>
 <button type="button" class="btn btn-success" @onclick="SaveRole">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
@@ -53,7 +42,6 @@
     string _name = "";
     string _description = "";
     string _isautoassigned = "False";
-    string _issystem = "False";
 
     protected override async Task OnInitializedAsync()
     {
@@ -66,7 +54,6 @@
                 _name = role.Name;
                 _description = role.Description;
                 _isautoassigned = role.IsAutoAssigned.ToString();
-                _issystem = role.IsSystem.ToString();
             }
         }
         catch (Exception ex)
@@ -82,7 +69,7 @@
         role.Name = _name;
         role.Description = _description;
         role.IsAutoAssigned = (_isautoassigned != null && Boolean.Parse(_isautoassigned));
-        role.IsSystem = (_issystem != null && Boolean.Parse(_issystem));
+        role.IsSystem = false;
 
         try
         {
