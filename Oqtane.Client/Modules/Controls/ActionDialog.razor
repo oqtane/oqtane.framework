@@ -17,7 +17,7 @@
                     <div class="modal-footer">
                         @if (!string.IsNullOrEmpty(Action))
                         {
-                            <button type="button" class="@Class" @onclick="Confirm">@Action</button>
+                            <button type="button" class="@Class" @onclick="Confirm">@((MarkupString)_iconSpan) @Action</button>
                         }
                         <button type="button" class="btn btn-secondary" @onclick="DisplayModal">Cancel</button>
                     </div>
@@ -30,11 +30,11 @@
 {
     if (Disabled)
     {
-        <button class="@Class" disabled>@Text</button>
+        <button class="@Class" disabled>@((MarkupString)_iconSpan) @Text</button>
     }
     else
     {
-        <button class="@Class" @onclick="DisplayModal">@Text</button>
+        <button class="@Class" @onclick="DisplayModal">@((MarkupString)_iconSpan) @Text</button>
     }
 }
 
@@ -66,9 +66,13 @@
     [Parameter]
     public Action OnClick { get; set; } // required if an Action is specified - executes a method in the calling component
 
+    [Parameter]
+    public string IconName { get; set; } // optional - specifies an icon for the link - default is no icon
+
     bool _visible = false;
     bool _editmode = true;
     bool _authorized = false;
+    string _iconSpan = "";
 
     protected override void OnParametersSet()
     {
@@ -84,6 +88,12 @@
         {
             _editmode = bool.Parse(EditMode);
         }
+
+        if (!string.IsNullOrEmpty(IconName))
+        {
+            _iconSpan = $"<span class=\"oi oi-{IconName}\"></span>&nbsp;";
+        }
+
         _authorized = IsAuthorized();
     }
 
