@@ -75,94 +75,106 @@ namespace Oqtane.Controllers
         [HttpPost]
         public async Task<User> Post([FromBody] User user)
         {
-            User newUser = null;
-
             if (ModelState.IsValid)
             {
-                   // users created by non-administrators must be verified
-                bool verified = !(!User.IsInRole(Constants.AdminRole) && user.Username != Constants.HostUser);
+                var newUser = await CreateUser(user);
+                return newUser;
+            }
 
-                IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
-                if (identityuser == null)
+            return null;
+        }
+
+        //TODO shoud be moved to another layer
+        private async Task<User> CreateUser(User user)
+        {
+            User newUser = null;
+            // users created by non-administrators must be verified
+            bool verified = !(!User.IsInRole(Constants.AdminRole) && user.Username != Constants.HostUser);
+
+            IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
+            if (identityuser == null)
+            {
+                identityuser = new IdentityUser();
+                identityuser.UserName = user.Username;
+                identityuser.Email = user.Email;
+                identityuser.EmailConfirmed = verified;
+                var result = await _identityUserManager.CreateAsync(identityuser, user.Password);
+                if (result.Succeeded)
                 {
-                    identityuser = new IdentityUser();
-                    identityuser.UserName = user.Username;
-                    identityuser.Email = user.Email;
-                    identityuser.EmailConfirmed = verified;
-                    var result = await _identityUserManager.CreateAsync(identityuser, user.Password);
-                    if (result.Succeeded)
+                    user.LastLoginOn = null;
+                    user.LastIPAddress = "";
+                    newUser = _users.AddUser(user);
+                    if (!verified)
                     {
-                        user.LastLoginOn = null;
-                        user.LastIPAddress = "";
-                        newUser = _users.AddUser(user);
-                        if (!verified)
-                        {
-                            Notification notification = new Notification();
-                            notification.SiteId = user.SiteId;
-                            notification.FromUserId = null;
-                            notification.ToUserId = newUser.UserId;
-                            notification.ToEmail = "";
-                            notification.Subject = "User Account Verification";
-                            string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
-                            string url = HttpContext.Request.Scheme + "://" + _tenants.GetAlias().Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
-                            notification.Body = "Dear " + user.DisplayName + ",\n\nIn Order To Complete The Registration Of Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
-                            notification.ParentId = null;
-                            notification.CreatedOn = DateTime.UtcNow;
-                            notification.IsDelivered = false;
-                            notification.DeliveredOn = null;
-                            _notifications.AddNotification(notification);
-                        }
-
-                        // assign to host role if this is the host user ( initial installation )
-                        if (user.Username == Constants.HostUser)
-                        {
-                            int hostroleid = _roles.GetRoles(user.SiteId, true).Where(item => item.Name == Constants.HostRole).FirstOrDefault().RoleId;
-                            UserRole userrole = new UserRole();
-                            userrole.UserId = newUser.UserId;
-                            userrole.RoleId = hostroleid;
-                            userrole.EffectiveDate = null;
-                            userrole.ExpiryDate = null;
-                            _userRoles.AddUserRole(userrole);
-                        }
-
-                        // add folder for user
-                        Folder folder = _folders.GetFolder(user.SiteId, "Users\\");
-                        if (folder != null)
-                        {
-                            _folders.AddFolder(new Folder { SiteId = folder.SiteId, ParentId = folder.FolderId, Name = "My Folder", Path = folder.Path + newUser.UserId.ToString() + "\\", Order = 1, IsSystem = true, 
-                                Permissions = "[{\"PermissionName\":\"Browse\",\"Permissions\":\"[" + newUser.UserId.ToString() + "]\"},{\"PermissionName\":\"View\",\"Permissions\":\"All Users\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"[" + newUser.UserId.ToString() + "]\"}]" });
-                        }
+                        Notification notification = new Notification();
+                        notification.SiteId = user.SiteId;
+                        notification.FromUserId = null;
+                        notification.ToUserId = newUser.UserId;
+                        notification.ToEmail = "";
+                        notification.Subject = "User Account Verification";
+                        string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
+                        string url = HttpContext.Request.Scheme + "://" + _tenants.GetAlias().Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
+                        notification.Body = "Dear " + user.DisplayName + ",\n\nIn Order To Complete The Registration Of Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
+                        notification.ParentId = null;
+                        notification.CreatedOn = DateTime.UtcNow;
+                        notification.IsDelivered = false;
+                        notification.DeliveredOn = null;
+                        _notifications.AddNotification(notification);
                     }
-                }
-                else
-                {
-                    var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, user.Password, false);
-                    if (result.Succeeded)
-                    {
-                        newUser = _users.GetUser(user.Username);
-                    }
-                }
 
-                if (newUser != null && user.Username != Constants.HostUser)
-                {
-                    // add auto assigned roles to user for site
-                    List<Role> roles = _roles.GetRoles(user.SiteId).Where(item => item.IsAutoAssigned).ToList();
-                    foreach (Role role in roles)
+                    // assign to host role if this is the host user ( initial installation )
+                    if (user.Username == Constants.HostUser)
                     {
+                        int hostroleid = _roles.GetRoles(user.SiteId, true).Where(item => item.Name == Constants.HostRole).FirstOrDefault().RoleId;
                         UserRole userrole = new UserRole();
                         userrole.UserId = newUser.UserId;
-                        userrole.RoleId = role.RoleId;
+                        userrole.RoleId = hostroleid;
                         userrole.EffectiveDate = null;
                         userrole.ExpiryDate = null;
                         _userRoles.AddUserRole(userrole);
                     }
-                }
 
-                if (newUser != null)
-                {
-                    newUser.Password = ""; // remove sensitive information
-                    _logger.Log(user.SiteId, LogLevel.Information, this, LogFunction.Create, "User Added {User}", newUser);
+                    // add folder for user
+                    Folder folder = _folders.GetFolder(user.SiteId, "Users\\");
+                    if (folder != null)
+                    {
+                        _folders.AddFolder(new Folder
+                        {
+                            SiteId = folder.SiteId, ParentId = folder.FolderId, Name = "My Folder", Path = folder.Path + newUser.UserId.ToString() + "\\", Order = 1, IsSystem = true,
+                            Permissions = "[{\"PermissionName\":\"Browse\",\"Permissions\":\"[" + newUser.UserId.ToString() + "]\"},{\"PermissionName\":\"View\",\"Permissions\":\"All Users\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"[" +
+                                          newUser.UserId.ToString() + "]\"}]"
+                        });
+                    }
                 }
+            }
+            else
+            {
+                var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, user.Password, false);
+                if (result.Succeeded)
+                {
+                    newUser = _users.GetUser(user.Username);
+                }
+            }
+
+            if (newUser != null && user.Username != Constants.HostUser)
+            {
+                // add auto assigned roles to user for site
+                List<Role> roles = _roles.GetRoles(user.SiteId).Where(item => item.IsAutoAssigned).ToList();
+                foreach (Role role in roles)
+                {
+                    UserRole userrole = new UserRole();
+                    userrole.UserId = newUser.UserId;
+                    userrole.RoleId = role.RoleId;
+                    userrole.EffectiveDate = null;
+                    userrole.ExpiryDate = null;
+                    _userRoles.AddUserRole(userrole);
+                }
+            }
+
+            if (newUser != null)
+            {
+                newUser.Password = ""; // remove sensitive information
+                _logger.Log(user.SiteId, LogLevel.Information, this, LogFunction.Create, "User Added {User}", newUser);
             }
 
             return newUser;

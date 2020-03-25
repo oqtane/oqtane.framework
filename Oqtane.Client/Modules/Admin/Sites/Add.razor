@@ -164,7 +164,7 @@ else
             _tenantid = (string)e.Value;
             if (_tenantid != "-1")
             {
-                Tenant tenant = _tenants.Where(item => item.TenantId == int.Parse(_tenantid)).FirstOrDefault();
+                Tenant tenant = _tenants.FirstOrDefault(item => item.TenantId == int.Parse(_tenantid));
                 if (tenant != null)
                 {
                     _isinitialized = tenant.IsInitialized;
@@ -273,8 +273,11 @@ else
                         if (user != null)
                         {
                             Tenant tenant = _tenants.FirstOrDefault(item => item.TenantId == int.Parse(_tenantid));
-                            tenant.IsInitialized = true;
-                            await TenantService.UpdateTenantAsync(tenant);
+                            if (tenant != null)
+                            {
+                                tenant.IsInitialized = true;
+                                await TenantService.UpdateTenantAsync(tenant);
+                            }
                         }
                     }
                     await Log(aliases[0], LogLevel.Information, "", null, "Site Created {Site}", site);

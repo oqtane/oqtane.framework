@@ -19,9 +19,12 @@ using Oqtane.Infrastructure.Interfaces;
 using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Services;
-// DO NOT REMOVE - needed for client-side Blazor
 using Oqtane.Shared; 
+
+#if WASM
+// DO NOT REMOVE - needed for client-side Blazor
 using Microsoft.AspNetCore.ResponseCompression; 
+#endif
 
 namespace Oqtane
 {
@@ -113,7 +116,7 @@ namespace Oqtane
 
             services.AddDbContext<MasterDBContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")
-                    .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory").ToString())
+                    .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString())
                 ));
             services.AddDbContext<TenantDBContext>(options => { });
 
@@ -160,7 +163,8 @@ namespace Oqtane
             services.AddSingleton(Configuration);
             services.AddSingleton<IInstallationManager, InstallationManager>();
             services.AddSingleton<ISyncManager, SyncManager>();
-
+            services.AddSingleton<DatabaseManager>();
+            
             // register transient scoped core services
             services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
             services.AddTransient<IThemeRepository, ThemeRepository>();
@@ -203,6 +207,8 @@ namespace Oqtane
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Oqtane", Version = "v1" });
             });
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

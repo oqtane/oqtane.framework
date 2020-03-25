@@ -27,14 +27,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Scripts\00.00.01.sql" />
-    <None Remove="Scripts\Master.sql" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Scripts\Master.sql" />
-    <EmbeddedResource Include="Scripts\00.00.01.sql" />
-    <EmbeddedResource Include="Scripts\00.00.00.sql" />
+    <EmbeddedResource Include="Scripts\Master.00.00.00.sql" />
+    <EmbeddedResource Include="Scripts\Master.00.00.01.sql" />
+    <EmbeddedResource Include="Scripts\Tenant.00.00.00.sql" />
+    <EmbeddedResource Include="Scripts\Tenant.00.00.01.sql" />
   </ItemGroup>
 
   <ItemGroup>
