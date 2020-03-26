@@ -1,4 +1,5 @@
-﻿@namespace Oqtane.Modules.Admin.Register
+﻿@using System.Net.Mail;
+@namespace Oqtane.Modules.Admin.Register
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
@@ -42,13 +43,16 @@
     string _confirm = "";
     string _email = "";
     string _displayName = "";
+    bool _isEmailValid = false;
 
     private async Task Register()
     {
         try
         {
             _message = "";
-            if (_username != "" && _password != "" && _confirm != "" && _email != "")
+            ValidateEmailAddress();
+
+            if (_username != "" && _password != "" && _confirm != "" && _isEmailValid)
             {
                 if (_password == _confirm)
                 {
@@ -93,5 +97,24 @@
     private void Cancel()
     {
         NavigationManager.NavigateTo(NavigateUrl(""));
+    }
+
+    private void ValidateEmailAddress()
+    {
+        if (_email != "")
+        {
+            _isEmailValid = true;
+        }
+
+        try
+        {
+            MailAddress m = new MailAddress(_email);
+            _isEmailValid = true;
+        }
+        catch (FormatException)
+        {
+            _isEmailValid = false;
+        }
+
     }
 }
