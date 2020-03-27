@@ -1,4 +1,5 @@
 ﻿@namespace Oqtane.Modules.Admin.Register
+@using System.Text.RegularExpressions;
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
@@ -42,13 +43,15 @@
     string _confirm = "";
     string _email = "";
     string _displayName = "";
+    bool _isEmailValid = false;
 
     private async Task Register()
     {
         try
         {
             _message = "";
-            if (_username != "" && _password != "" && _confirm != "" && _email != "")
+            IsValidEmail();
+            if (_username != "" && _password != "" && _confirm != "" && _isEmailValid)
             {
                 if (_password == _confirm)
                 {
@@ -93,5 +96,17 @@
     private void Cancel()
     {
         NavigationManager.NavigateTo(NavigateUrl(""));
+    }
+}
+    private void IsValidEmail()
+    {
+        if (_email != ""){
+            _isEmailValid = true;
+        }
+
+        _isEmailValid = Regex.IsMatch(_email,
+              @"^(?("")("".+?(?<!\\)""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" +
+              @"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-0-9a-z]*[0-9a-z]*\.)+[a-z0-9][\-a-z0-9]{0,22}[a-z0-9]))$",
+              RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(250));
     }
 }
