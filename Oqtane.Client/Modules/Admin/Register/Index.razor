@@ -1,4 +1,5 @@
 ﻿@namespace Oqtane.Modules.Admin.Register
+@using System.Text.RegularExpressions;
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
@@ -41,14 +42,15 @@
     private string _email = string.Empty;
     private string _displayName = string.Empty;
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
 
     private async Task Register()
     {
         try
         {
-            _message = string.Empty;
-            if (_username != string.Empty && _password != string.Empty && _confirm != string.Empty && _email != string.Empty)
+            _message = String.Empty;
+            IsValidEmail();
+            
+            if (_username != String.Empty && _password != String.Empty && _confirm != String.Empty && _isEmailValid)
             {
                 if (_password == _confirm)
                 {
@@ -94,4 +96,5 @@
     {
         NavigationManager.NavigateTo(NavigateUrl(string.Empty));
     }
+}
 }
