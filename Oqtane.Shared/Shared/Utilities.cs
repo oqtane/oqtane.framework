@@ -222,10 +222,7 @@ namespace Oqtane.Shared
 
         public static bool IsValidEmail(string email)
         {
-            if (email != "")
-            {
-                return true;
-            }
+            if (string.IsNullOrEmpty(email)) return false;
 
             return Regex.IsMatch(email,
                   @"^(?("")("".+?(?<!\\)""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" +
