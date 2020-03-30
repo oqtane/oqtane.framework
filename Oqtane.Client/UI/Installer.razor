@@ -177,7 +177,7 @@
                 IsMaster = true,
             };
 
-            Installation installation = await InstallationService.Install(config);
+            var installation = await InstallationService.Install(config);
     //TODO: Should be moved to Database manager
             if (installation.Success)
             {

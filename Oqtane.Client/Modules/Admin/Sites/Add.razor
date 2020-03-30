@@ -274,7 +274,7 @@ else
 
                         if (user != null)
                         {
-                            Tenant tenant = _tenants.FirstOrDefault(item => item.TenantId == int.Parse(_tenantid));
+                            var tenant = _tenants.FirstOrDefault(item => item.TenantId == int.Parse(_tenantid));
                             if (tenant != null)
                             {
                                 tenant.IsInitialized = true;
