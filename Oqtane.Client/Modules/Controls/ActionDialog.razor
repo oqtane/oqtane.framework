@@ -39,6 +39,11 @@
 }
 
 @code {
+    private bool _visible = false;
+    private bool _editmode = true;
+    private bool _authorized = false;
+    private string _iconSpan = string.Empty;
+
     [Parameter]
     public string Header { get; set; } // required
 
@@ -68,11 +73,6 @@
 
     [Parameter]
     public string IconName { get; set; } // optional - specifies an icon for the link - default is no icon
-
-    bool _visible = false;
-    bool _editmode = true;
-    bool _authorized = false;
-    string _iconSpan = "";
 
     protected override void OnParametersSet()
     {

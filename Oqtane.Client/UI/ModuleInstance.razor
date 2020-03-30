@@ -11,6 +11,9 @@
 }
 
 @code {
+    private string _message;
+    private bool _progressindicator = false;
+
     [CascadingParameter]
     protected PageState PageState { get; set; }
 
@@ -18,11 +21,8 @@
     private Module ModuleState { get; set; }
 
     private ModuleMessage ModuleMessage { get; set; }
-    string _message;
 
-    RenderFragment DynamicComponent { get; set; }
-
-    bool _progressindicator = false;
+    private RenderFragment DynamicComponent { get; set; }
 
     protected override void OnParametersSet()
     {

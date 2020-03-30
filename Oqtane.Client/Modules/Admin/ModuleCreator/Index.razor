@@ -25,11 +25,11 @@
 
 <button type="button" class="btn btn-success" @onclick="CreateModule">Create Module</button>
 
-@code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+@code {    
+    private string _name = string.Empty;
+    private string _description = string.Empty;
 
-    string _name = "";
-    string _description = "";
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override void OnInitialized()
     {
@@ -42,7 +42,7 @@
         {
             if (!string.IsNullOrEmpty(_name))
             {
-                ModuleDefinition moduleDefinition = new ModuleDefinition { Name = _name, Description = _description };
+                var moduleDefinition = new ModuleDefinition { Name = _name, Description = _description };
                 await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition, ModuleState.ModuleId);
             }
             else

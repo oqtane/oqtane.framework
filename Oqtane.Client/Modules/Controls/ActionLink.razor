@@ -15,6 +15,15 @@
 }
 
 @code {
+    private string _text = string.Empty;
+    private string _url = string.Empty;
+    private string _parameters = string.Empty;
+    private string _classname = "btn btn-primary";
+    private string _style = string.Empty;
+    private bool _editmode = true;
+    private bool _authorized = false;
+    private string _iconSpan = string.Empty;
+
     [Parameter]
     public string Action { get; set; } // required
 
@@ -41,15 +50,6 @@
 
     [Parameter]
     public string IconName { get; set; } // optional - specifies an icon for the link - default is no icon
-
-    string _text = "";
-    string _url = "";
-    string _parameters = "";
-    string _classname = "btn btn-primary";
-    string _style = "";
-    bool _editmode = true;
-    bool _authorized = false;
-    string _iconSpan = "";
 
     protected override void OnParametersSet()
     {
@@ -90,14 +90,14 @@
 
     private bool IsAuthorized()
     {
-        bool authorized = false;
+        var authorized = false;
         if (PageState.EditMode || !_editmode)
         {
-            SecurityAccessLevel security = SecurityAccessLevel.Host;
+            var security = SecurityAccessLevel.Host;
             if (Security == null)
             {
-                string typename = ModuleState.ModuleType.Replace(Utilities.GetTypeNameLastSegment(ModuleState.ModuleType, 0) + ",", Action + ",");
-                Type moduleType = Type.GetType(typename);
+                var typename = ModuleState.ModuleType.Replace(Utilities.GetTypeNameLastSegment(ModuleState.ModuleType, 0) + ",", Action + ",");
+                var moduleType = Type.GetType(typename);
                 if (moduleType != null)
                 {
                     var moduleobject = Activator.CreateInstance(moduleType);
@@ -113,6 +113,7 @@
             {
                 security = Security.Value;
             }
+            
             switch (security)
             {
                 case SecurityAccessLevel.Anonymous:
@@ -132,6 +133,7 @@
                     break;
             }
         }
+        
         return authorized;
     }
 }

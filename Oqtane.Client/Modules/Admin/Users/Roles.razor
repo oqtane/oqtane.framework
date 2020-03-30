@@ -65,14 +65,14 @@ else
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+    private int userid;
+    private List<Role> roles;
+    private int roleid = -1;
+    private string effectivedate = string.Empty;
+    private string expirydate = string.Empty;
+    private List<UserRole> userroles;
 
-    int userid;
-    List<Role> roles;
-    int roleid = -1;
-    string effectivedate = "";
-    string expirydate = "";
-    List<UserRole> userroles;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override async Task OnInitializedAsync()
     {
@@ -109,7 +109,7 @@ else
         {
             if (roleid != -1)
             {
-                UserRole userrole = userroles.Where(item => item.UserId == userid && item.RoleId == roleid).FirstOrDefault();
+                var userrole = userroles.Where(item => item.UserId == userid && item.RoleId == roleid).FirstOrDefault();
                 if (userrole != null)
                 {
                     if (string.IsNullOrEmpty(effectivedate))
@@ -120,6 +120,7 @@ else
                     {
                         userrole.EffectiveDate = DateTime.Parse(effectivedate);
                     }
+                    
                     if (string.IsNullOrEmpty(expirydate))
                     {
                         userrole.ExpiryDate = null;
@@ -135,6 +136,7 @@ else
                     userrole = new UserRole();
                     userrole.UserId = userid;
                     userrole.RoleId = roleid;
+                    
                     if (string.IsNullOrEmpty(effectivedate))
                     {
                         userrole.EffectiveDate = null;
@@ -143,6 +145,7 @@ else
                     {
                         userrole.EffectiveDate = DateTime.Parse(effectivedate);
                     }
+                    
                     if (string.IsNullOrEmpty(expirydate))
                     {
                         userrole.ExpiryDate = null;
@@ -151,8 +154,10 @@ else
                     {
                         userrole.ExpiryDate = DateTime.Parse(expirydate);
                     }
+                    
                     await UserRoleService.AddUserRoleAsync(userrole);
                 }
+                
                 await GetUserRoles();
                 await logger.LogInformation("User Assigned To Role {UserRole}", userrole);
                 AddModuleMessage("User Assigned To Role", MessageType.Success);

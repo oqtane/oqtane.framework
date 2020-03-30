@@ -76,16 +76,16 @@
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+    private string username = string.Empty;
+    private string password = string.Empty;
+    private string confirm = string.Empty;
+    private string email = string.Empty;
+    private string displayname = string.Empty;
+    private List<Profile> profiles;
+    private Dictionary<string, string> settings;
+    private string category = string.Empty;
 
-    string username = "";
-    string password = "";
-    string confirm = "";
-    string email = "";
-    string displayname = "";
-    List<Profile> profiles;
-    Dictionary<string, string> settings;
-    string category = "";
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override async Task OnInitializedAsync()
     {
@@ -105,11 +105,11 @@
     {
         try
         {
-            if (username != "" && password != "" && confirm != "" && email != "")
+            if (username != string.Empty && password != string.Empty && confirm != string.Empty && email != string.Empty)
             {
                 if (password == confirm)
                 {
-                    User user = new User();
+                    var user = new User();
                     user.SiteId = PageState.Site.SiteId;
                     user.Username = username;
                     user.Password = password;
@@ -150,7 +150,7 @@
 
     private void ProfileChanged(ChangeEventArgs e, string SettingName)
     {
-        string value = (string)e.Value;
+        var value = (string)e.Value;
         settings = SettingService.SetSetting(settings, SettingName, value);
     }
 

@@ -27,17 +27,17 @@ else
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+    private List<Alias> _sites;
+    private string _scheme;
 
-    List<Alias> _sites;
-    string _scheme;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnParametersSetAsync()
     {
-        Uri uri = new Uri(NavigationManager.Uri);
+        var uri = new Uri(NavigationManager.Uri);
         _scheme = uri.Scheme + "://";
 
-        List<Alias> aliases = await AliasService.GetAliasesAsync();
+        var aliases = await AliasService.GetAliasesAsync();
         _sites = new List<Alias>();
         foreach (Alias alias in aliases)
         {
@@ -56,11 +56,13 @@ else
             {
                 await SiteService.DeleteSiteAsync(alias.SiteId, alias);
                 await Log(alias, LogLevel.Information, "", null, "Site Deleted {SiteId}", alias.SiteId);
-                List<Alias> aliases = await AliasService.GetAliasesAsync();
+                
+                var aliases = await AliasService.GetAliasesAsync();
                 foreach (Alias a in aliases.Where(item => item.SiteId == alias.SiteId && item.TenantId == alias.TenantId))
                 {
                     await AliasService.DeleteAliasAsync(a.AliasId);
                 }
+                
                 NavigationManager.NavigateTo(NavigateUrl());
             }
             else

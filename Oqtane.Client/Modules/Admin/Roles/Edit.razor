@@ -36,19 +36,19 @@
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+    private int _roleid;
+    private string _name = string.Empty;
+    private string _description = string.Empty;
+    private string _isautoassigned = "False";
 
-    int _roleid;
-    string _name = "";
-    string _description = "";
-    string _isautoassigned = "False";
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             _roleid = Int32.Parse(PageState.QueryString["id"]);
-            Role role = await RoleService.GetRoleAsync(_roleid);
+            var role = await RoleService.GetRoleAsync(_roleid);
             if (role != null)
             {
                 _name = role.Name;
@@ -65,7 +65,7 @@
 
     private async Task SaveRole()
     {
-        Role role = await RoleService.GetRoleAsync(_roleid);
+        var role = await RoleService.GetRoleAsync(_roleid);
         role.Name = _name;
         role.Description = _description;
         role.IsAutoAssigned = (_isautoassigned != null && Boolean.Parse(_isautoassigned));

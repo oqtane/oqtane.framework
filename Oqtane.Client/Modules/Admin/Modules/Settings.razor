@@ -91,22 +91,21 @@
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Edit; } }
-    public override string Title { get { return "Module Settings"; } }
+    private Dictionary<string, string> _containers;
+    private string _title;
+    private string _containerType;
+    private string _permissionNames = "";
+    private string _permissions;
+    private string _pageId;
+    private PermissionGrid _permissionGrid;
+    private Type _settingsModuleType;
+    private string _settingstitle = "Other Settings";
+    private object _settings;
 
-    Dictionary<string, string> _containers;
-    string _title;
-    string _containerType;
-    string _permissionNames = "";
-    string _permissions;
-    string _pageId;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
+    public override string Title => "Module Settings";
 
-    PermissionGrid _permissionGrid;
-
-    Type _settingsModuleType;
-    string _settingstitle = "Other Settings";
-    RenderFragment DynamicComponent { get; set; }
-    object _settings;
+    private RenderFragment DynamicComponent { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -134,20 +133,21 @@
 
     private async Task SaveModule()
     {
-        Module module = ModuleState;
+        var module = ModuleState;
         module.Permissions = _permissionGrid.GetPermissions();
         await ModuleService.UpdateModuleAsync(module);
 
-        PageModule pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
+        var pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
         pagemodule.PageId = int.Parse(_pageId);
         pagemodule.Title = _title;
         pagemodule.ContainerType = _containerType;
+        
         await PageModuleService.UpdatePageModuleAsync(pagemodule);
         await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
 
         if (_settingsModuleType != null)
         {
-            Type moduleType = Type.GetType(ModuleState.ModuleType);
+            var moduleType = Type.GetType(ModuleState.ModuleType);
             if (moduleType != null)
             {
                 moduleType.GetMethod("UpdateSettings")?.Invoke(_settings, null); // method must be public in settings component

@@ -134,20 +134,14 @@
     private string _confirmPassword = "";
     private string _hostEmail = "";
     private string _message = "";
-
     private string _integratedSecurityDisplay = "display: none;";
     private string _loadingDisplay = "display: none;";
 
     private void SetIntegratedSecurity(ChangeEventArgs e)
     {
-        if (Convert.ToBoolean((string)e.Value))
-        {
-            _integratedSecurityDisplay = "display: none;";
-        }
-        else
-        {
-            _integratedSecurityDisplay = "";
-        }
+        _integratedSecurityDisplay = Convert.ToBoolean((string)e.Value)
+            ? "display: none;"
+            : string.Empty;
     }
 
     private async Task Install()
@@ -157,7 +151,7 @@
             _loadingDisplay = "";
             StateHasChanged();
 
-            string connectionstring = "";
+            var connectionstring = "";
             if (_databaseType == "LocalDB")
             {
                 connectionstring = "Data Source=" + _serverName + ";AttachDbFilename=|DataDirectory|\\" + _databaseName + ".mdf;Initial Catalog=" + _databaseName + ";Integrated Security=SSPI;";
@@ -175,7 +169,8 @@
 
                 }
             }
-            Installation installation = await InstallationService.Install(connectionstring);
+            
+            var installation = await InstallationService.Install(connectionstring);
             if (installation.Success)
             {
                 Site site = new Site();

@@ -5,7 +5,7 @@
 @inject IUserService UserService
 @inject IServiceProvider ServiceProvider
 
-@if (_message != "")
+@if (_message != string.Empty)
 {
     <ModuleMessage Message="@_message" Type="@_type" />
 }
@@ -41,14 +41,14 @@
 </AuthorizeView>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Anonymous; } }
+    private string _returnUrl = string.Empty;
+    private string _message = string.Empty;
+    private MessageType _type = MessageType.Info;
+    private string _username = string.Empty;
+    private string _password = string.Empty;
+    private bool _remember = false;
 
-    string _returnUrl = "";
-    string _message = "";
-    MessageType _type = MessageType.Info;
-    string _username = "";
-    string _password = "";
-    bool _remember = false;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
 
     protected override async Task OnInitializedAsync()
     {
@@ -56,13 +56,15 @@
         {
             _returnUrl = PageState.QueryString["returnurl"];
         }
+        
         if (PageState.QueryString.ContainsKey("name"))
         {
             _username = PageState.QueryString["name"];
         }
+        
         if (PageState.QueryString.ContainsKey("token"))
         {
-            User user = new User();
+            var user = new User();
             user.SiteId = PageState.Site.SiteId;
             user.Username = _username;
             user = await UserService.VerifyEmailAsync(user, PageState.QueryString["token"]);
@@ -84,11 +86,12 @@
         if (PageState.Runtime == Runtime.Server)
         {
             // server-side Blazor
-            User user = new User();
+            var user = new User();
             user.SiteId = PageState.Site.SiteId;
             user.Username = _username;
             user.Password = _password;
             user = await UserService.LoginUserAsync(user, false, false);
+            
             if (user.IsAuthenticated)
             {
                 await logger.LogInformation("Login Successful For Username {Username}", _username);
@@ -107,7 +110,7 @@
         else
         {
             // client-side Blazor
-            User user = new User();
+            var user = new User();
             user.SiteId = PageState.Site.SiteId;
             user.Username = _username;
             user.Password = _password;
@@ -134,9 +137,9 @@
 
     private async Task Forgot()
     {
-        if (_username != "")
+        if (_username != string.Empty)
         {
-            User user = await UserService.GetUserAsync(_username, PageState.Site.SiteId);
+            var user = await UserService.GetUserAsync(_username, PageState.Site.SiteId);
             if (user != null)
             {
                 await UserService.ForgotPasswordAsync(user);
@@ -152,6 +155,7 @@
         {
             _message = "Please Enter The Username Related To Your Account And Then Select The Forgot Password Option Again";
         }
+        
         StateHasChanged();
     }
-    }
+}

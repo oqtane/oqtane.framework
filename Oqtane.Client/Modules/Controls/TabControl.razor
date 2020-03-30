@@ -16,12 +16,13 @@
 </CascadingValue>
 
 @code {
+    private List<TabPanel> _tabPanels = new List<TabPanel>();
+
     // Next line is needed so we are able to add <TabPanel> components inside
     [Parameter]
     public RenderFragment ChildContent { get; set; }
 
     public TabPanel ActiveTabPanel { get; set; }
-    List<TabPanel> _tabPanels = new List<TabPanel>();
 
     internal void AddTabPanel(TabPanel tabPanel)
     {
@@ -31,12 +32,12 @@
         StateHasChanged();
     }
 
-    string GetButtonClass(TabPanel tabPanel)
-    {
-        return tabPanel == ActiveTabPanel ? "btn-primary" : "btn-secondary";
-    }
+    private string GetButtonClass(TabPanel tabPanel)
+        => tabPanel == ActiveTabPanel
+        ? "btn-primary"
+        : "btn-secondary";
 
-    void ActivateTabPanel(TabPanel tabPanel)
+    private void ActivateTabPanel(TabPanel tabPanel)
     {
         ActiveTabPanel = tabPanel;
     }
