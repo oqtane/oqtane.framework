@@ -67,14 +67,6 @@
                 <input type="password" class="form-control" @bind="@password" />
             </td>
         </tr>
-        <tr>
-            <td>
-                <label  class="control-label">Schema: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@schema" />
-            </td>
-        </tr>
     </table>
 <button type="button" class="btn btn-success" @onclick="SaveTenant">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
@@ -88,7 +80,6 @@
     string database = "Oqtane-" + DateTime.UtcNow.ToString("yyyyMMddHHmm");
     string username = "";
     string password = "";
-    string schema = "";
     string integratedsecurity = "display: none;";
 
     private void SetIntegratedSecurity(ChangeEventArgs e)
@@ -109,32 +100,41 @@
         {
             ShowProgressIndicator();
 
-            string connectionstring = "";
+            string connectionString = "";
             if (type == "LocalDB")
             {
-                connectionstring = "Data Source=" + server + ";AttachDbFilename=|DataDirectory|\\" + database + ".mdf;Initial Catalog=" + database + ";Integrated Security=SSPI;";
+                connectionString = "Data Source=" + server + ";AttachDbFilename=|DataDirectory|\\" + database + ".mdf;Initial Catalog=" + database + ";Integrated Security=SSPI;";
             }
             else
             {
-                connectionstring = "Data Source=" + server + ";Initial Catalog=" + database + ";";
+                connectionString = "Data Source=" + server + ";Initial Catalog=" + database + ";";
                 if (integratedsecurity == "display: none;")
                 {
-                    connectionstring += "Integrated Security=SSPI;";
+                    connectionString += "Integrated Security=SSPI;";
                 }
                 else
                 {
-                    connectionstring += "User ID=" + username + ";Password=" + password;
+                    connectionString += "User ID=" + username + ";Password=" + password;
 
                 }
             }
-            Installation installation = await InstallationService.Install(connectionstring);
+
+            var config = new InstallConfig
+            {
+                IsMaster = false,
+                ConnectionString = connectionString,
+            };
+            
+            Installation installation = await InstallationService.Install(config);
             if (installation.Success)
             {
-                Tenant tenant = new Tenant();
-                tenant.Name = name;
-                tenant.DBConnectionString = connectionstring;
-                tenant.DBSchema = schema;
-                tenant.IsInitialized = false;
+                //TODO : Move to Database Manager
+                Tenant tenant = new Tenant
+                {
+                    Name = name,
+                    DBConnectionString = connectionString,
+                    IsInitialized = false
+                };
                 await TenantService.AddTenantAsync(tenant);
                 await logger.LogInformation("Tenant Created {Tenant}", tenant);
 

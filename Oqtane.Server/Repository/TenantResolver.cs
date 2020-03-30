@@ -29,43 +29,41 @@ namespace Oqtane.Repository
                 {
                     aliasName = accessor.HttpContext.Request.Host.Value;
                     string path = accessor.HttpContext.Request.Path.Value;
-                    string[] segments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                    string[] segments = path.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries);
                     if (segments.Length > 1 && segments[1] == "api" && segments[0] != "~")
                     {
                         aliasName += "/" + segments[0];
                     }
+
                     if (aliasName.EndsWith("/"))
                     {
                         aliasName = aliasName.Substring(0, aliasName.Length - 1);
                     }
                 }
             }
-            else  // background processes can pass in an alias using the SiteState service
+            else // background processes can pass in an alias using the SiteState service
             {
-                if (siteState != null)
-                {
-                    aliasId = siteState.Alias.AliasId;
-                }
+                aliasId = siteState?.Alias?.AliasId ?? -1;
             }
 
             // get the alias and tenant
-            if (aliasId != -1 || aliasName != "")
+            IEnumerable<Alias> aliases = aliasRepository.GetAliases().ToList(); // cached
+            if (aliasId != -1)
             {
-                IEnumerable<Alias> aliases = aliasRepository.GetAliases(); // cached
-                IEnumerable<Tenant> tenants = tenantRepository.GetTenants(); // cached
+                _alias = aliases.FirstOrDefault(item => item.AliasId == aliasId);
+            }
+            else
+            {
+                
+                _alias = aliases.FirstOrDefault(item => item.Name == aliasName
+                                                        //if here is only one alias and other methods fail, take it (case of startup install)
+                                                        || aliases.Count() == 1);
+            }
 
-                if (aliasId != -1)
-                {
-                    _alias = aliases.FirstOrDefault(item => item.AliasId == aliasId);
-                }
-                else
-                {
-                    _alias = aliases.FirstOrDefault(item => item.Name == aliasName);
-                }
-                if (_alias != null)
-                {
-                    _tenant = tenants.FirstOrDefault(item => item.TenantId == _alias.TenantId);
-                }
+            if (_alias != null)
+            {
+                IEnumerable<Tenant> tenants = tenantRepository.GetTenants(); // cached
+                _tenant = tenants.FirstOrDefault(item => item.TenantId == _alias.TenantId);
             }
         }
 

@@ -115,7 +115,7 @@ namespace Microsoft.Extensions.DependencyInjection
             foreach (var file in assembliesFolder.EnumerateFiles($"*.{pattern}.*.dll"))
             {
                 // check if assembly is already loaded
-                var assembly = Assemblies.FirstOrDefault(a => a.Location == file.FullName);
+                var assembly = Assemblies.FirstOrDefault(a =>!a.IsDynamic && a.Location == file.FullName);
                 if (assembly == null)
                 {
                     // load assembly from stream to prevent locking file ( as long as dependencies are in /bin they will load as well )

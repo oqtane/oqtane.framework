@@ -19,24 +19,21 @@ namespace Oqtane.Services
             _navigationManager = navigationManager;
         }
 
-        private string Apiurl
-        {
-            get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Installation"); }
-        }
+        private string ApiUrl => CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Installation");
 
         public async Task<Installation> IsInstalled()
         {
-            return await _http.GetJsonAsync<Installation>(Apiurl + "/installed");
+            return await _http.GetJsonAsync<Installation>(ApiUrl + "/installed");
         }
 
-        public async Task<Installation> Install(string connectionstring)
+        public async Task<Installation> Install(InstallConfig config)
         {
-            return await _http.PostJsonAsync<Installation>(Apiurl, connectionstring);
+            return await _http.PostJsonAsync<Installation>(ApiUrl, config);
         }
 
         public async Task<Installation> Upgrade()
         {
-            return await _http.GetJsonAsync<Installation>(Apiurl + "/upgrade");
+            return await _http.GetJsonAsync<Installation>(ApiUrl + "/upgrade");
         }
     }
 }

@@ -22,19 +22,9 @@ namespace Oqtane.Repository
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(_tenant.DBConnectionString
-                    .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory").ToString())
+                    .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString())
             );
             base.OnConfiguring(optionsBuilder);
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
-            if (_tenant.DBSchema != "")
-            {
-                modelBuilder.HasDefaultSchema(_tenant.DBSchema);
-            }
         }
 
         public override int SaveChanges()
