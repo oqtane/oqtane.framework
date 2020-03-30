@@ -87,19 +87,20 @@
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
-    public override string Actions { get { return "Add,Edit"; } }
+    private int _profileid = -1;
+    private string _name = string.Empty;
+    private string _title = string.Empty;
+    private string _description = string.Empty;
+    private string _category = string.Empty;
+    private string _vieworder = "0";
+    private string _maxlength = "0";
+    private string _defaultvalue = string.Empty;
+    private string _isrequired = "False";
+    private string _isprivate = "False";
 
-    int _profileid = -1;
-    string _name = "";
-    string _title = "";
-    string _description = "";
-    string _category = "";
-    string _vieworder = "0";
-    string _maxlength = "0";
-    string _defaultvalue = "";
-    string _isrequired = "False";
-    string _isprivate = "False";
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+
+    public override string Actions => "Add,Edit";
 
     protected override async Task OnInitializedAsync()
     {
@@ -108,7 +109,7 @@
             if (PageState.QueryString.ContainsKey("id"))
             {
                 _profileid = Int32.Parse(PageState.QueryString["id"]);
-                Profile profile = await ProfileService.GetProfileAsync(_profileid);
+                var profile = await ProfileService.GetProfileAsync(_profileid);
                 if (profile != null)
                 {
                     _name = profile.Name;
@@ -143,6 +144,7 @@
             {
                 profile = new Profile();
             }
+            
             profile.Name = _name;
             profile.Title = _title;
             profile.Description = _description;
@@ -153,6 +155,7 @@
             profile.IsRequired = (_isrequired == null ? false : Boolean.Parse(_isrequired));
             profile.IsPrivate = (_isprivate == null ? false : Boolean.Parse(_isprivate));
             profile = await ProfileService.UpdateProfileAsync(profile);
+            
             await logger.LogInformation("Profile Saved {Profile}", profile);
             NavigationManager.NavigateTo(NavigateUrl());
         }

@@ -25,9 +25,9 @@ else
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+    private List<Role> _roles;
 
-    List<Role> _roles;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override async Task OnParametersSetAsync()
     {

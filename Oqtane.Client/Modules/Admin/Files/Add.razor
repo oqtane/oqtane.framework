@@ -70,11 +70,11 @@
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+    private string url = string.Empty;
+    private List<Folder> _folders;
+    private int _folderId = -1;
 
-    string url = "";
-    List<Folder> _folders;
-    int _folderId = -1;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override async Task OnInitializedAsync()
     {
@@ -90,7 +90,7 @@
     {
         try
         {
-            if (url != "" && _folderId != -1)
+            if (url != string.Empty && _folderId != -1)
             {
                 await FileService.UploadFileAsync(url, _folderId);
                 await logger.LogInformation("File Downloaded Successfully From Url {Url}", url);

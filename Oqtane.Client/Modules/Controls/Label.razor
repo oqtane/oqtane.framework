@@ -11,8 +11,8 @@ else
 }
 
 @code {
-    string _openLabel = "";
-    string _closeLabel = "</label>";
+    private string _openLabel = string.Empty;
+    private string _closeLabel = "</label>";
 
     [Parameter]
     public RenderFragment ChildContent { get; set; } // required - the title of the label
@@ -31,12 +31,14 @@ else
         _openLabel = "<label";
         if (!string.IsNullOrEmpty(For))
         {
-            _openLabel += " for=\"" + For + "\"";
+            _openLabel += " for=\string.Empty + For + "\string.Empty;
         }
+        
         if (!string.IsNullOrEmpty(Class))
         {
-            _openLabel += " class=\"" + Class + "\"";
+            _openLabel += " class=\string.Empty + Class + "\string.Empty;
         }
+        
         _openLabel += ">";
     }
 }

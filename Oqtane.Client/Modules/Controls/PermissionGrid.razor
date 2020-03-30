@@ -74,6 +74,13 @@
 }
 
 @code {
+    private string _permissionnames = string.Empty;
+    private List<Role> _roles;
+    private List<PermissionString> _permissions;
+    private List<User> _users = new List<User>();
+    private string _username = string.Empty;
+    private string _message = string.Empty;
+
     [Parameter]
     public string EntityName { get; set; }
 
@@ -82,13 +89,6 @@
 
     [Parameter]
     public string Permissions { get; set; }
-
-    string _permissionnames = "";
-    List<Role> _roles;
-    List<PermissionString> _permissions;
-    List<User> _users = new List<User>();
-    string _username = "";
-    string _message = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -105,6 +105,7 @@
         _roles.Insert(0, new Role { Name = Constants.AllUsersRole });
 
         _permissions = new List<PermissionString>();
+        
         foreach (string permissionname in _permissionnames.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
         {
             // initialize with admin role
@@ -120,13 +121,14 @@
                 {
                     _permissions[_permissions.FindIndex(item => item.PermissionName == permissionstring.PermissionName)].Permissions = permissionstring.Permissions;
                 }
+                
                 if (permissionstring.Permissions.Contains("["))
                 {
                     foreach (string user in permissionstring.Permissions.Split(new char[] { '[' }, StringSplitOptions.RemoveEmptyEntries))
                     {
                         if (user.Contains("]"))
                         {
-                            int userid = int.Parse(user.Substring(0, user.IndexOf("]")));
+                            var userid = int.Parse(user.Substring(0, user.IndexOf("]")));
                             if (_users.Where(item => item.UserId == userid).FirstOrDefault() == null)
                             {
                                 _users.Add(await UserService.GetUserAsync(userid, ModuleState.SiteId));
@@ -158,16 +160,9 @@
     }
 
     private bool GetPermissionDisabled(string roleName)
-    {
-        if (roleName == Constants.AdminRole)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
+        => roleName == Constants.AdminRole
+            ? true
+            : false;
 
     private async Task AddUser()
     {
@@ -175,7 +170,7 @@
         {
             try
             {
-                User user = await UserService.GetUserAsync(_username, ModuleState.SiteId);
+                var user = await UserService.GetUserAsync(_username, ModuleState.SiteId);
                 if (user != null)
                 {
                     _users.Add(user);
@@ -186,16 +181,17 @@
                 _message = "Username Does Not Exist";
             }
         }
-        _username = "";
+        
+        _username = string.Empty;
     }
 
     private void PermissionChanged(bool? value, string permissionName, string securityId)
     {
-        bool? selected = value;
-        PermissionString permission = _permissions.Find(item => item.PermissionName == permissionName);
+        var selected = value;
+        var permission = _permissions.Find(item => item.PermissionName == permissionName);
         if (permission != null)
         {
-            List<string> ids = permission.Permissions.Split(';').ToList();
+            var ids = permission.Permissions.Split(';').ToList();
 
             ids.Remove(securityId); // remove grant permission
             ids.Remove("!" + securityId); // remove deny permission
@@ -211,6 +207,7 @@
                 case null:
                     break; // permission not specified
             }
+            
             _permissions[_permissions.FindIndex(item => item.PermissionName == permissionName)].Permissions = string.Join(";", ids.ToArray());
         }
     }

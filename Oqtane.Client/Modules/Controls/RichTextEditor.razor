@@ -27,6 +27,12 @@
 </div>
 
 @code {
+    private ElementReference _editorElement;
+    private ElementReference _toolBar;
+    private bool _filemanagervisible = false;
+    private FileManager _fileManager;
+    private string _message = string.Empty;
+
     [Parameter]
     public RenderFragment ToolbarContent { get; set; }
 
@@ -41,12 +47,6 @@
 
     [Parameter]
     public string DebugLevel { get; set; } = "info";
-
-    private ElementReference _editorElement;
-    private ElementReference _toolBar;
-    bool _filemanagervisible = false;
-    FileManager _fileManager;
-    string _message = "";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -102,14 +102,14 @@
     {
         if (_filemanagervisible)
         {
-            int fileid = _fileManager.GetFileId();
+            var fileid = _fileManager.GetFileId();
             if (fileid != -1)
             {
                 await RichTextEditorInterop.InsertImage(
                     JsRuntime,
                     _editorElement, ContentUrl(fileid));
                 _filemanagervisible = false;
-                _message = "";
+                _message = string.Empty;
             }
             else
             {
@@ -119,15 +119,17 @@
         else
         {
             _filemanagervisible = true;
-            _message = "";
+            _message = string.Empty;
         }
+        
         StateHasChanged();
     }
 
     public void CloseFileManager()
     {
         _filemanagervisible = false;
-        _message = "";
+        _message = string.Empty;
+        
         StateHasChanged();
     }
 

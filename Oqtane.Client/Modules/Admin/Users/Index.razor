@@ -28,9 +28,9 @@ else
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+    private List<UserRole> userroles;
 
-    List<UserRole> userroles;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override async Task OnInitializedAsync()
     {
@@ -42,7 +42,7 @@ else
     {
         try
         {
-            User user = await UserService.GetUserAsync(UserRole.UserId, PageState.Site.SiteId);
+            var user = await UserService.GetUserAsync(UserRole.UserId, PageState.Site.SiteId);
             if (user != null)
             {
                 await UserService.DeleteUserAsync(user.UserId);

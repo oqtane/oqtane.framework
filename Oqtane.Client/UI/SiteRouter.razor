@@ -20,17 +20,17 @@
 
 @code {
 
+    private string _absoluteUri;
+    private bool _navigationInterceptionEnabled;
+    private PageState _pagestate;
+
     [CascadingParameter]
     PageState PageState { get; set; }
 
     [Parameter]
     public Action<PageState> OnStateChange { get; set; }
 
-    PageState _pagestate;
-    RenderFragment DynamicComponent { get; set; }
-
-    string _absoluteUri;
-    bool _navigationInterceptionEnabled;
+    private RenderFragment DynamicComponent { get; set; }
 
     protected override void OnInitialized()
     {
@@ -77,22 +77,22 @@
         Page page;
         User user = null;
         List<Module> modules;
-        int moduleid = -1;
-        string action = "";
-        bool editmode = false;
-        Reload reload = Reload.None;
-        DateTime lastsyncdate = DateTime.UtcNow;
-        Runtime runtime = GetRuntime();
+        var moduleid = -1;
+        var action = "";
+        var editmode = false;
+        var reload = Reload.None;
+        var lastsyncdate = DateTime.UtcNow;
+        var runtime = GetRuntime();
 
         // get Url path and querystring ( and remove anchors )
-        string path = new Uri(_absoluteUri).PathAndQuery.Substring(1);
+        var path = new Uri(_absoluteUri).PathAndQuery.Substring(1);
         if (path.IndexOf("#") != -1)
         {
             path = path.Substring(0, path.IndexOf("#"));
         }
 
         // parse querystring and remove
-        Dictionary<string, string> querystring = new Dictionary<string, string>();
+        var querystring = new Dictionary<string, string>();
         if (path.IndexOf("?") != -1)
         {
             querystring = ParseQueryString(path);
@@ -137,6 +137,7 @@
         {
             site = PageState.Site;
         }
+        
         if (site != null)
         {
             if (PageState == null || reload == Reload.Site)
@@ -174,14 +175,19 @@
 
             // format path and remove alias
             path = path.Replace("//", "/");
-            if (!path.EndsWith("/")) { path += "/"; }
+            
+            if (!path.EndsWith("/"))
+            { 
+                path += "/";
+            }
+
             if (alias.Path != "")
             {
                 path = path.Replace(alias.Path + "/", "");
             }
 
             // extract admin route elements from path
-            string[] segments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            var segments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             int result;
             // check if path has moduleid and control specification ie. page/moduleid/control/
             if (segments.Length >= 2 && int.TryParse(segments[segments.Length - 2], out result))
@@ -199,6 +205,7 @@
                     path = path.Replace(moduleid.ToString() + "/", "");
                 }
             }
+            
             // remove trailing slash so it can be used as a key for Pages
             if (path.EndsWith("/")) path = path.Substring(0, path.Length - 1);
 
@@ -210,6 +217,7 @@
             {
                 page = PageState.Page;
             }
+            
             // failsafe in case router cannot locate the home page for the site
             if (page == null && path == "")
             {
@@ -313,6 +321,7 @@
             _navigationInterceptionEnabled = true;
             return NavigationInterception.EnableNavigationInterceptionAsync();
         }
+        
         return Task.CompletedTask;
     }
 
@@ -337,6 +346,7 @@
                 }
             }
         }
+        
         return querystring;
     }
 
@@ -356,6 +366,7 @@
                 page.LayoutType = site.DefaultLayoutType;
             }
             Type type;
+            
             if (!string.IsNullOrEmpty(page.LayoutType))
             {
                 type = Type.GetType(page.LayoutType);
@@ -364,24 +375,26 @@
             {
                 type = Type.GetType(page.ThemeType);
             }
-            System.Reflection.PropertyInfo property = type.GetProperty("Panes");
+            
+            var property = type.GetProperty("Panes");
             page.Panes = (string)property.GetValue(Activator.CreateInstance(type), null);
         }
         catch
         {
             // error loading theme or layout
         }
+        
         return page;
     }
 
     private List<Module> ProcessModules(List<Module> modules, int pageid, int moduleid, string control, string panes, string defaultcontainertype)
     {
-        Dictionary<string, int> paneindex = new Dictionary<string, int>();
+        var paneindex = new Dictionary<string, int>();
         foreach (Module module in modules)
         {
             if (module.PageId == pageid || module.ModuleId == moduleid)
             {
-                string typename = "";
+                var typename = string.Empty;
                 if (module.ModuleDefinition != null)
                 {
                     typename = module.ModuleDefinition.ControlTypeTemplate;
@@ -390,6 +403,7 @@
                 {
                     typename = Constants.ErrorModule;
                 }
+                
                 if (module.ModuleId == moduleid && control != "")
                 {
                     // check if the module defines custom routes
@@ -445,6 +459,7 @@
                 {
                     paneindex.Add(module.Pane, 0);
                 }
+                
                 module.PaneModuleIndex = paneindex[module.Pane];
 
                 if (string.IsNullOrEmpty(module.ContainerType))
@@ -458,18 +473,12 @@
         {
             module.PaneModuleCount = paneindex[module.Pane] + 1;
         }
+        
         return modules;
     }
 
     private Runtime GetRuntime()
-    {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Create("WEBASSEMBLY")))
-        {
-            return Runtime.WebAssembly;
-        }
-        else
-        {
-            return Runtime.Server;
-        }
-    }
+        => RuntimeInformation.IsOSPlatform(OSPlatform.Create("WEBASSEMBLY"))
+                ? Runtime.WebAssembly
+                : Runtime.Server;
 }

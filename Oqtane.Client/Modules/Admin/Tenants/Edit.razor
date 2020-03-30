@@ -26,18 +26,18 @@
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+    private int tenantid;
+    private string name = string.Empty;
+    private string connectionstring = string.Empty;
+    private string schema = string.Empty;
 
-    int tenantid;
-    string name = "";
-    string connectionstring = "";
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             tenantid = Int32.Parse(PageState.QueryString["id"]);
-            Tenant tenant = await TenantService.GetTenantAsync(tenantid);
+            var tenant = await TenantService.GetTenantAsync(tenantid);
             if (tenant != null)
             {
                 name = tenant.Name;
@@ -56,7 +56,6 @@
         try
         {
             connectionstring = connectionstring.Replace("\\\\", "\\");
-            Tenant tenant = await TenantService.GetTenantAsync(tenantid);
             if (tenant != null)
             {
                 tenant.Name = name;

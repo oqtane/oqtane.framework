@@ -41,10 +41,10 @@ else
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+    private List<ModuleDefinition> _moduleDefinitions;
+    private List<Package> _packages;
 
-    List<ModuleDefinition> _moduleDefinitions;
-    List<Package> _packages;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnInitializedAsync()
     {
@@ -62,12 +62,13 @@ else
 
     private bool UpgradeAvailable(string moduledefinitionname, string version)
     {
-        bool upgradeavailable = false;
-        Package package = _packages.Where(item => item.PackageId == Utilities.GetTypeName(moduledefinitionname)).FirstOrDefault();
+        var upgradeavailable = false;
+        var package = _packages.Where(item => item.PackageId == Utilities.GetTypeName(moduledefinitionname)).FirstOrDefault();
         if (package != null)
         {
             upgradeavailable = (Version.Parse(package.Version).CompareTo(Version.Parse(version)) > 0);
         }
+        
         return upgradeavailable;
     }
 

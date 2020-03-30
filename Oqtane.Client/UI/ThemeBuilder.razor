@@ -12,7 +12,7 @@
     {
         DynamicComponent = builder =>
         {
-            Type themeType = Type.GetType(PageState.Page.ThemeType);
+            var themeType = Type.GetType(PageState.Page.ThemeType);
             if (themeType != null)
             {
                 builder.OpenComponent(0, themeType);

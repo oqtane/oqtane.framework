@@ -3,6 +3,10 @@
 <img src="@_src" title="@_title" @onclick="SetValue" />
 
 @code {
+    private bool? _value = null;
+    private string _title;
+    private string _src = string.Empty;
+
     [Parameter]
     public bool? Value { get; set; }
 
@@ -11,10 +15,6 @@
 
     [Parameter]
     public Action<bool?> OnChange { get; set; }
-
-    bool? _value = null;
-    string _title;
-    string _src = "";
 
     protected override void OnInitialized()
     {
@@ -38,6 +38,7 @@
                     _value = true;
                     break;
             }
+            
             SetImage();
             OnChange(_value);
         }
@@ -57,9 +58,10 @@
                 break;
             case null:
                 _src = "images/null.png";
-                _title = "";
+                _title = string.Empty;
                 break;
         }
+
         StateHasChanged();
     }
 }
