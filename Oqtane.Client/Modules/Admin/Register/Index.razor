@@ -48,10 +48,10 @@
     {
         try
         {
-            _message = String.Empty;
-            IsValidEmail();
+            _message = string.Empty;
+            _isEmailValid  = Utilities.IsValidEmail(_email);
             
-            if (_username != String.Empty && _password != String.Empty && _confirm != String.Empty && _isEmailValid)
+            if (_username != "" && _password != "" && _confirm != "" && _isEmailValid)
             {
                 if (_password == _confirm)
                 {

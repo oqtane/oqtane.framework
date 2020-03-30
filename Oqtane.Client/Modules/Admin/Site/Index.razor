@@ -265,17 +265,19 @@
                 {
                     _logofileid = site.LogoFileId.Value;
                 }
+                
                 if (site.FaviconFileId != null)
                 {
                     _faviconfileid = site.FaviconFileId.Value;
                 }
+                
                 _themetype = site.DefaultThemeType;
                 _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
                 _layouttype = site.DefaultLayoutType;
                 _containertype = site.DefaultContainerType;
                 _allowregistration = site.AllowRegistration.ToString();
 
-                Dictionary<string, string> settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
+                var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
                 _smtphost = SettingService.GetSetting(settings, "SMTPHost", string.Empty);
                 _smtpport = SettingService.GetSetting(settings, "SMTPPort", string.Empty);
                 _smtpssl = SettingService.GetSetting(settings, "SMTPSSL", string.Empty);
@@ -283,6 +285,7 @@
                 _smtppassword = SettingService.GetSetting(settings, "SMTPPassword", string.Empty);
 
                 _pwaisenabled = site.PwaIsEnabled.ToString();
+                
                 if (site.PwaAppIconFileId != null)
                 {
                     _pwaappiconfileid = site.PwaAppIconFileId.Value;
@@ -368,12 +371,14 @@
                         site.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));
 
                         site.PwaIsEnabled = (_pwaisenabled == null ? true : Boolean.Parse(_pwaisenabled));
-                        int pwaappiconfileid = _pwaappiconfilemanager.GetFileId();
+                        
+                        var pwaappiconfileid = _pwaappiconfilemanager.GetFileId();
                         if (pwaappiconfileid != -1)
                         {
                             site.PwaAppIconFileId = pwaappiconfileid;
                         }
-                        int pwasplashiconfileid = _pwasplashiconfilemanager.GetFileId();
+                        
+                        var pwasplashiconfileid = _pwasplashiconfilemanager.GetFileId();
                         if (pwasplashiconfileid != -1)
                         {
                             site.PwaSplashIconFileId = pwasplashiconfileid;
