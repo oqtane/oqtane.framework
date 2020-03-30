@@ -41,7 +41,7 @@ namespace Oqtane.Repository
                 var siteTemplateObject = ActivatorUtilities.CreateInstance(_serviceProvider, siteTemplateType);
                 siteTemplate = new SiteTemplate
                 {
-                    Name = (string)siteTemplateType.GetProperty("Name").GetValue(siteTemplateObject),
+                    Name = (string)siteTemplateType.GetProperty("Name")?.GetValue(siteTemplateObject),
                     TypeName = siteTemplateType.AssemblyQualifiedName
                 };
                 siteTemplates.Add(siteTemplate);
