@@ -145,8 +145,7 @@ namespace Oqtane.Infrastructure
                     .SqlDatabase(connectionString)
                     .WithVariable("ConnectionString", connectionString)
                     .WithVariable("Alias", alias)
-                    .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), s => s.Contains("Master") && master || s.Contains("Tenant"))
-                ;
+                    .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), s => master || !s.Contains("Master."));
 
             var dbUpgrade = dbUpgradeConfig.Build();
             if (!dbUpgrade.IsUpgradeRequired())
