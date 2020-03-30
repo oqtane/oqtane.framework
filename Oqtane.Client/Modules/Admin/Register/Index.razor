@@ -42,13 +42,15 @@
     string _confirm = "";
     string _email = "";
     string _displayName = "";
+    bool _isEmailValid = false;
 
     private async Task Register()
     {
         try
         {
             _message = "";
-            if (_username != "" && _password != "" && _confirm != "" && _email != "")
+            _isEmailValid  = Utilities.IsValidEmail(_email);
+            if (_username != "" && _password != "" && _confirm != "" && _isEmailValid)
             {
                 if (_password == _confirm)
                 {
