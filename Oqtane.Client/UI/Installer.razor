@@ -151,6 +151,7 @@
             _loadingDisplay = "";
             StateHasChanged();
 
+            var connectionstring = "";
             if (_databaseType == "LocalDB")
             {
                 connectionstring = "Data Source=" + _serverName + ";AttachDbFilename=|DataDirectory|\\" + _databaseName + ".mdf;Initial Catalog=" + _databaseName + ";Integrated Security=SSPI;";
@@ -177,7 +178,7 @@
                 IsMaster = true,
             };
 
-            Installation installation = await InstallationService.Install(config);
+            var installation = await InstallationService.Install(config);
             //TODO: Should be moved to Database manager
             if (installation.Success)
             {

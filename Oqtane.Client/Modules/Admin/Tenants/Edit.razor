@@ -31,6 +31,7 @@
     private string connectionstring = string.Empty;
     private string schema = string.Empty;
 
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnInitializedAsync()
     {
@@ -56,10 +57,13 @@
         try
         {
             connectionstring = connectionstring.Replace("\\\\", "\\");
+            var tenant = await TenantService.GetTenantAsync(tenantid);
             if (tenant != null)
             {
                 tenant.Name = name;
                 tenant.DBConnectionString = connectionstring;
+                tenant.DBSchema = schema;
+                
                 await TenantService.UpdateTenantAsync(tenant);
                 await logger.LogInformation("Tenant Saved {TenantId}", tenantid);
 
