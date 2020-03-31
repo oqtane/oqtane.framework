@@ -23,7 +23,7 @@
 }
 
 @code {
-    List<ActionViewModel> actions;
+    private List<ActionViewModel> actions;
 
     protected override void OnParametersSet()
     {
@@ -31,29 +31,36 @@
         {
             actions = new List<ActionViewModel>();
             actions.Add(new ActionViewModel { Action = "settings", Name = "Manage Settings" });
+            
             if (ModuleState.ModuleDefinition != null && ModuleState.ModuleDefinition.ServerAssemblyName != "")
             {
                 actions.Add(new ActionViewModel { Action = "import", Name = "Import Content" });
                 actions.Add(new ActionViewModel { Action = "export", Name = "Export Content" });
             }
+            
             actions.Add(new ActionViewModel { Action = "delete", Name = "Delete Module" });
             actions.Add(new ActionViewModel { Action = "", Name = "" });
+            
             if (ModuleState.PaneModuleIndex > 0)
             {
                 actions.Add(new ActionViewModel { Action = "<<", Name = "Move To Top" });
             }
+            
             if (ModuleState.PaneModuleIndex > 0)
             {
                 actions.Add(new ActionViewModel { Action = "<", Name = "Move Up" });
             }
+            
             if (ModuleState.PaneModuleIndex < (ModuleState.PaneModuleCount - 1))
             {
                 actions.Add(new ActionViewModel { Action = ">", Name = "Move Down" });
             }
+            
             if (ModuleState.PaneModuleIndex < (ModuleState.PaneModuleCount - 1))
             {
                 actions.Add(new ActionViewModel { Action = ">>", Name = "Move To Bottom" });
             }
+            
             foreach (string pane in PageState.Page.Panes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
             {
                 if (pane != ModuleState.Pane)

@@ -81,10 +81,10 @@
 </div>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+    private List<Page> _pages;
+    private List<Module> _modules;
 
-    List<Page> _pages;
-    List<Module> _modules;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override async Task OnInitializedAsync()
     {
@@ -147,7 +147,7 @@
     {
         try
         {
-            PageModule pagemodule = await PageModuleService.GetPageModuleAsync(module.PageModuleId);
+            var pagemodule = await PageModuleService.GetPageModuleAsync(module.PageModuleId);
             pagemodule.IsDeleted = false;
             await PageModuleService.UpdatePageModuleAsync(pagemodule);
             await logger.LogInformation("Module Restored {Module}", module);
@@ -168,10 +168,12 @@
             await PageModuleService.DeletePageModuleAsync(module.PageModuleId);
             // check if there are any remaining module instances in the site
             _modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId);
+            
             if (!_modules.Exists(item => item.ModuleId == module.ModuleId))
             {
                 await ModuleService.DeleteModuleAsync(module.ModuleId);
             }
+            
             await logger.LogInformation("Module Permanently Deleted {Module}", module);
             await Load();
             StateHasChanged();

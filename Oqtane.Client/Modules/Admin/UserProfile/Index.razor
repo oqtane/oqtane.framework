@@ -172,20 +172,20 @@
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.View; } }
+    private string username = string.Empty;
+    private string password = string.Empty;
+    private string confirm = string.Empty;
+    private string email = string.Empty;
+    private string displayname = string.Empty;
+    private FileManager filemanager;
+    private int photofileid = -1;
+    private List<Profile> profiles;
+    private Dictionary<string, string> settings;
+    private string category = string.Empty;
+    private string filter = "to";
+    private List<Notification> notifications;
 
-    string username = "";
-    string password = "";
-    string confirm = "";
-    string email = "";
-    string displayname = "";
-    FileManager filemanager;
-    int photofileid = -1;
-    List<Profile> profiles;
-    Dictionary<string, string> settings;
-    string category = "";
-    string filter = "to";
-    List<Notification> notifications;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
 
     protected override async Task OnInitializedAsync()
     {
@@ -196,12 +196,15 @@
                 username = PageState.User.Username;
                 email = PageState.User.Email;
                 displayname = PageState.User.DisplayName;
+                
                 if (PageState.User.PhotoFileId != null)
                 {
                     photofileid = PageState.User.PhotoFileId.Value;
                 }
+                
                 profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
                 settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
+                
                 await LoadNotificationsAsync();
             }
             else
@@ -223,29 +226,29 @@
     }
 
     private string GetProfileValue(string SettingName, string DefaultValue)
-    {
-        return SettingService.GetSetting(settings, SettingName, DefaultValue);
-    }
+        => SettingService.GetSetting(settings, SettingName, DefaultValue);
 
     private async Task Save()
     {
         try
         {
-            if (username != "" && email != "")
+            if (username != string.Empty && email != string.Empty)
             {
                 if (password == confirm)
                 {
-                    User user = PageState.User;
+                    var user = PageState.User;
                     user.Username = username;
                     user.Password = password;
                     user.Email = email;
-                    user.DisplayName = (displayname == "" ? username : displayname);
+                    user.DisplayName = (displayname == string.Empty ? username : displayname);
                     user.PhotoFileId = null;
                     photofileid = filemanager.GetFileId();
+                    
                     if (photofileid != -1)
                     {
                         user.PhotoFileId = photofileid;
                     }
+                    
                     await UserService.UpdateUserAsync(user);
                     await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
                     await logger.LogInformation("User Profile Saved");
@@ -269,12 +272,12 @@
 
     private void Cancel()
     {
-        NavigationManager.NavigateTo(NavigateUrl(""));
+        NavigationManager.NavigateTo(NavigateUrl(string.Empty));
     }
 
     private void ProfileChanged(ChangeEventArgs e, string SettingName)
     {
-        string value = (string)e.Value;
+        var value = (string)e.Value;
         settings = SettingService.SetSetting(settings, SettingName, value);
     }
 
@@ -291,6 +294,7 @@
             {
                 await NotificationService.DeleteNotificationAsync(Notification.NotificationId);
             }
+            
             await logger.LogInformation("Notification Deleted {Notification}", Notification);
             await LoadNotificationsAsync();
             StateHasChanged();
@@ -305,6 +309,7 @@
     private async void FilterChanged(ChangeEventArgs e)
     {
         filter = (string)e.Value;
+        
         await LoadNotificationsAsync();
         StateHasChanged();
     }

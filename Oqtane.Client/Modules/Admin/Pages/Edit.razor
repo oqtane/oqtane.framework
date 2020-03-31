@@ -129,7 +129,7 @@
             </td>
             <td>
                 <select class="form-control" @onchange="(e => ThemeChanged(e))">
-                    <option value="">&lt;Select Theme&gt;</option>
+                    <option value=string.Empty>&lt;Select Theme&gt;</option>
                     @foreach (KeyValuePair<string, string> item in _themes)
                     {
                         if (item.Key == _themetype)
@@ -150,7 +150,7 @@
             </td>
             <td>
                 <select class="form-control" @bind="@_layouttype">
-                    <option value="">&lt;Select Layout&gt;</option>
+                    <option value=string.Empty>&lt;Select Layout&gt;</option>
                     @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
                     {
                         <option value="@panelayout.Key">@panelayout.Value</option>
@@ -181,40 +181,37 @@
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
-
-    Dictionary<string, string> _themes = new Dictionary<string, string>();
-    Dictionary<string, string> _panelayouts = new Dictionary<string, string>();
-
-    List<Theme> _themeList;
-    List<Page> _pageList;
-    int _pageId;
-    string _name = "";
-    string _title = "";
-    string _path = "";
-    string _currentparentid;
-    string _parentid;
-    string _insert = "=";
-    List<Page> _children;
-    int _childid = -1;
-    string _isnavigation;
-    string _url = "";
-    string _ispersonalizable;
-    string _mode;
-    string _themetype;
-    string _layouttype;
-    string _icon;
-    string _permissions;
-    string _createdby;
-    DateTime _createdon;
-    string _modifiedby;
-    DateTime _modifiedon;
-    string _deletedby;
-    DateTime? _deletedon;
+    private Dictionary<string, string> _themes = new Dictionary<string, string>();
+    private Dictionary<string, string> _panelayouts = new Dictionary<string, string>();
+    private List<Theme> _themeList;
+    private List<Page> _pageList;
+    private int _pageId;
+    private string _name;
+    private string _path;
+    private string _currentparentid;
+    private string _parentid;
+    private string _insert = "=";
+    private List<Page> _children;
+    private int _childid = -1;
+    private string _isnavigation;
+    private string _ispersonalizable;
+    private string _mode;
+    private string _themetype;
+    private string _layouttype;
+    private string _icon;
+    private string _permissions;
+    private string _createdby;
+    private DateTime _createdon;
+    private string _modifiedby;
+    private DateTime _modifiedon;
+    private string _deletedby;
+    private DateTime? _deletedon;
 
 #pragma warning disable 649
-    PermissionGrid _permissionGrid;
+    private PermissionGrid _permissionGrid;
 #pragma warning restore 649
+
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override async Task OnInitializedAsync()
     {
@@ -227,24 +224,27 @@
             _themes = ThemeService.GetThemeTypes(_themeList);
 
             _pageId = Int32.Parse(PageState.QueryString["id"]);
-            Page page = PageState.Pages.FirstOrDefault(item => item.PageId == _pageId);
+            var page = PageState.Pages.FirstOrDefault(item => item.PageId == _pageId);
             if (page != null)
             {
                 _name = page.Name;
                 _title = page.Title;
                 _path = page.Path;
+                
                 if (_path.Contains("/"))
                 {
                     _path = _path.Substring(_path.LastIndexOf("/") + 1);
                 }
+                
                 if (page.ParentId == null)
                 {
-                    _parentid = "";
+                    _parentid = string.Empty;
                 }
                 else
                 {
                     _parentid = page.ParentId.ToString();
                 }
+                
                 _currentparentid = _parentid;
                 _isnavigation = page.IsNavigation.ToString();
                 _url = page.Url;
@@ -305,7 +305,7 @@
         try
         {
             _themetype = (string)e.Value;
-            if (_themetype != "")
+            if (_themetype != string.Empty)
             {
                 _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
             }
@@ -327,7 +327,7 @@
         Page page = null;
         try
         {
-            if (_name != "" && !string.IsNullOrEmpty(_themetype) && (_panelayouts.Count == 0 || !string.IsNullOrEmpty(_layouttype)))
+            if (_name != string.Empty && !string.IsNullOrEmpty(_themetype) && (_panelayouts.Count == 0 || !string.IsNullOrEmpty(_layouttype)))
             {
                 page = PageState.Pages.FirstOrDefault(item => item.PageId == _pageId);
                 string currentPath = page.Path;
@@ -335,6 +335,7 @@
                 page.Name = _name;
                 page.Title = _title;
                 if (_path == "" && _name.ToLower() != "home")
+                if (_path == string.Empty && _name.ToLower() != "home")
                 {
                     _path = _name;
                 }
@@ -351,7 +352,7 @@
                 {
                     page.ParentId = Int32.Parse(_parentid);
                     Page parent = PageState.Pages.FirstOrDefault(item => item.PageId == page.ParentId);
-                    if (parent.Path == "")
+                    if (parent.Path == string.Empty)
                     {
                         page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(_path);
                     }
@@ -385,24 +386,24 @@
                 page.Url = _url;
                 page.EditMode = (_mode == "edit");
                 page.ThemeType = _themetype;
-                page.LayoutType = _layouttype ?? "";
-                page.Icon = _icon ?? "";
+                page.LayoutType = _layouttype ?? string.Empty;
+                page.Icon = _icon ?? string.Empty;
                 page.Permissions = _permissionGrid.GetPermissions();
 
                 if (page.ThemeType == PageState.Site.DefaultThemeType)
                 {
-                    page.ThemeType = "";
+                    page.ThemeType = string.Empty;
                 }
                 if (page.LayoutType == PageState.Site.DefaultLayoutType)
                 {
-                    page.LayoutType = "";
+                    page.LayoutType = string.Empty;
                 }
                 page.IsPersonalizable = (_ispersonalizable != null && Boolean.Parse(_ispersonalizable));
                 page.UserId = null;
 
                 page = await PageService.UpdatePageAsync(page);
                 await PageService.UpdatePageOrderAsync(page.SiteId, page.PageId, page.ParentId);
-                if (_currentparentid == "")
+                if (_currentparentid == string.Empty)
                 {
                     await PageService.UpdatePageOrderAsync(page.SiteId, page.PageId, null);
                 }

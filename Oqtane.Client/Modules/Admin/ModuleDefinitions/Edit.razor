@@ -26,26 +26,26 @@
 <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon"></AuditInfo>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
-
-    int _moduleDefinitionId;
-    string _name;
-    string _permissions;
-    string _createdby;
-    DateTime _createdon;
-    string _modifiedby;
-    DateTime _modifiedon;
+    private int _moduleDefinitionId;
+    private string _name;
+    private string _permissions;
+    private string _createdby;
+    private DateTime _createdon;
+    private string _modifiedby;
+    private DateTime _modifiedon;
 
 #pragma warning disable 649
-    PermissionGrid _permissionGrid;
+    private PermissionGrid _permissionGrid;
 #pragma warning restore 649
+
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             _moduleDefinitionId = Int32.Parse(PageState.QueryString["id"]);
-            ModuleDefinition moduleDefinition = await ModuleDefinitionService.GetModuleDefinitionAsync(_moduleDefinitionId, ModuleState.SiteId);
+            var moduleDefinition = await ModuleDefinitionService.GetModuleDefinitionAsync(_moduleDefinitionId, ModuleState.SiteId);
             if (moduleDefinition != null)
             {
                 _name = moduleDefinition.Name;
@@ -67,7 +67,7 @@
     {
         try
         {
-            ModuleDefinition moduledefinition = await ModuleDefinitionService.GetModuleDefinitionAsync(_moduleDefinitionId, ModuleState.SiteId);
+            var moduledefinition = await ModuleDefinitionService.GetModuleDefinitionAsync(_moduleDefinitionId, ModuleState.SiteId);
             moduledefinition.Permissions = _permissionGrid.GetPermissions();
             await ModuleDefinitionService.UpdateModuleDefinitionAsync(moduledefinition);
             await logger.LogInformation("ModuleDefinition Saved {ModuleDefinition}", moduledefinition);

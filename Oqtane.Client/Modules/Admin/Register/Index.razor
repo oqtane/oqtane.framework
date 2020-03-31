@@ -3,7 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
 
-@if  (_message != "")
+@if  (_message != string.Empty)
 {
     <ModuleMessage Message="@_message" Type="MessageType.Info" />
 }
@@ -34,31 +34,32 @@
 </div>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Anonymous; } }
+    private string _message = "Please Note That Registration Requires A Valid Email Address In Order To Verify Your Identity";
+    private string _username = string.Empty;
+    private string _password = string.Empty;
+    private string _confirm = string.Empty;
+    private string _email = string.Empty;
+    private string _displayName = string.Empty;
+    
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
 
-    string _message = "Please Note That Registration Requires A Valid Email Address In Order To Verify Your Identity";
-    string _username = "";
-    string _password = "";
-    string _confirm = "";
-    string _email = "";
-    string _displayName = "";
-    bool _isEmailValid = false;
 
     private async Task Register()
     {
         try
         {
-            _message = "";
+            _message = string.Empty;
             _isEmailValid  = Utilities.IsValidEmail(_email);
+            
             if (_username != "" && _password != "" && _confirm != "" && _isEmailValid)
             {
                 if (_password == _confirm)
                 {
-                    User user = new User
+                    var user = new User
                     {
                         SiteId = PageState.Site.SiteId,
                         Username = _username,
-                        DisplayName = (_displayName == "" ? _username : _displayName),
+                        DisplayName = (_displayName == string.Empty ? _username : _displayName),
                         Email = _email,
                         Password = _password
                     };
@@ -94,6 +95,5 @@
 
     private void Cancel()
     {
-        NavigationManager.NavigateTo(NavigateUrl(""));
+        NavigationManager.NavigateTo(NavigateUrl(string.Empty));
     }
-}

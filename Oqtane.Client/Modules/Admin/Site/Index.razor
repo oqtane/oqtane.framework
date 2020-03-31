@@ -56,7 +56,7 @@
             </td>
             <td>
                 <select class="form-control" @onchange="(e => ThemeChanged(e))">
-                    <option value="">&lt;Select Theme&gt;</option>
+                    <option value=string.Empty>&lt;Select Theme&gt;</option>
                     @foreach (KeyValuePair<string, string> item in _themes)
                     {
                         if (item.Key == _themetype)
@@ -77,7 +77,7 @@
             </td>
             <td>
                 <select class="form-control" @bind="@_layouttype">
-                    <option value="">&lt;Select Layout&gt;</option>
+                    <option value=string.Empty>&lt;Select Layout&gt;</option>
                     @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
                     {
                         <option value="@panelayout.Key">@panelayout.Value</option>
@@ -91,7 +91,7 @@
             </td>
             <td>
                 <select class="form-control" @bind="@_containertype">
-                    <option value="">&lt;Select Container&gt;</option>
+                    <option value=string.Empty>&lt;Select Container&gt;</option>
                     @foreach (KeyValuePair<string, string> container in _containers)
                     {
                         <option value="@container.Key">@container.Value</option>
@@ -216,46 +216,34 @@
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+    private Dictionary<string, string> _themes;
+    private Dictionary<string, string> _panelayouts;
+    private Dictionary<string, string> _containers;
+    private List<Theme> _themeList;
+    private string _name = string.Empty;
+    private List<Tenant> _tenantList;
+    private string _tenant = string.Empty;
+    private List<Alias> _aliasList;
+    private string _urls = string.Empty;
+    private int _logofileid = -1;
+    private FileManager _filemanager;
+    private string _themetype;
+    private string _layouttype;
+    private string _containertype
+    private string _smtphost = string.Empty;
+    private string _smtpport = string.Empty;
+    private string _smtpssl = string.Empty;
+    private string _smtpusername = string.Empty;
+    private string _smtppassword = string.Empty;
+    private string _createdby;
+    private DateTime _createdon;
+    private string _modifiedby;
+    private DateTime _modifiedon;
+    private string _deletedby;
+    private DateTime? _deletedon;
+    private string _isdeleted;
 
-    Dictionary<string, string> _themes;
-    Dictionary<string, string> _panelayouts;
-    Dictionary<string, string> _containers;
-
-    List<Theme> _themeList;
-    string _name = "";
-    List<Tenant> _tenantList;
-    string _tenant = "";
-    List<Alias> _aliasList;
-    string _urls = "";
-    int _logofileid = -1;
-    FileManager _logofilemanager;
-    int _faviconfileid = -1;
-    FileManager _faviconfilemanager;
-    string _themetype;
-    string _layouttype;
-    string _containertype;
-    string _allowregistration;
-
-    string _smtphost = "";
-    string _smtpport = "";
-    string _smtpssl = "";
-    string _smtpusername = "";
-    string _smtppassword = "";
-
-    string _pwaisenabled;
-    int _pwaappiconfileid = -1;
-    FileManager _pwaappiconfilemanager;
-    int _pwasplashiconfileid = -1;
-    FileManager _pwasplashiconfilemanager;
-
-    string _createdby;
-    DateTime _createdon;
-    string _modifiedby;
-    DateTime _modifiedon;
-    string _deletedby;
-    DateTime? _deletedon;
-    string _isdeleted;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override async Task OnInitializedAsync()
     {
@@ -277,22 +265,36 @@
                 {
                     _logofileid = site.LogoFileId.Value;
                 }
+                
                 if (site.FaviconFileId != null)
                 {
                     _faviconfileid = site.FaviconFileId.Value;
                 }
+                
                 _themetype = site.DefaultThemeType;
                 _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
                 _layouttype = site.DefaultLayoutType;
                 _containertype = site.DefaultContainerType;
                 _allowregistration = site.AllowRegistration.ToString();
 
-                Dictionary<string, string> settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
-                _smtphost = SettingService.GetSetting(settings, "SMTPHost", "");
-                _smtpport = SettingService.GetSetting(settings, "SMTPPort", "");
-                _smtpssl = SettingService.GetSetting(settings, "SMTPSSL", "");
-                _smtpusername = SettingService.GetSetting(settings, "SMTPUsername", "");
-                _smtppassword = SettingService.GetSetting(settings, "SMTPPassword", "");
+                var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
+                _smtphost = SettingService.GetSetting(settings, "SMTPHost", string.Empty);
+                _smtpport = SettingService.GetSetting(settings, "SMTPPort", string.Empty);
+                _smtpssl = SettingService.GetSetting(settings, "SMTPSSL", string.Empty);
+                _smtpusername = SettingService.GetSetting(settings, "SMTPUsername", string.Empty);
+                _smtppassword = SettingService.GetSetting(settings, "SMTPPassword", string.Empty);
+
+                _pwaisenabled = site.PwaIsEnabled.ToString();
+                
+                if (site.PwaAppIconFileId != null)
+                {
+                    _pwaappiconfileid = site.PwaAppIconFileId.Value;
+                }
+                
+                if (site.PwaSplashIconFileId != null)
+                {
+                    _pwasplashiconfileid = site.PwaSplashIconFileId.Value;
+                }
 
                 _pwaisenabled = site.PwaIsEnabled.ToString();
                 if (site.PwaAppIconFileId != null)
@@ -328,7 +330,7 @@
         try
         {
             _themetype = (string)e.Value;
-            if (_themetype != "")
+            if (_themetype != string.Empty)
             {
                 _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
             }
@@ -349,9 +351,9 @@
     {
         try
         {
-            if (_name != "" && _urls != "" && !string.IsNullOrEmpty(_themetype) && (_panelayouts.Count == 0 || !string.IsNullOrEmpty(_layouttype)) && !string.IsNullOrEmpty(_containertype))
+            if (_name != string.Empty && _urls != string.Empty && !string.IsNullOrEmpty(_themetype) && (_panelayouts.Count == 0 || !string.IsNullOrEmpty(_layouttype)) && !string.IsNullOrEmpty(_containertype))
             {
-                bool unique = true;
+                var unique = true;
                 foreach (string name in _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 {
                     if (_aliasList.Exists(item => item.Name == name && item.SiteId != PageState.Alias.SiteId && item.TenantId != PageState.Alias.TenantId))
@@ -359,36 +361,35 @@
                         unique = false;
                     }
                 }
+                
                 if (unique)
                 {
-                    Site site = await SiteService.GetSiteAsync(PageState.Site.SiteId, PageState.Alias);
+                    var site = await SiteService.GetSiteAsync(PageState.Site.SiteId, PageState.Alias);
                     if (site != null)
                     {
                         site.Name = _name;
                         site.LogoFileId = null;
-                        int logofileid = _logofilemanager.GetFileId();
+                        var logofileid = _filemanager.GetFileId();   
                         if (logofileid != -1)
                         {
                             site.LogoFileId = logofileid;
                         }
-                        int faviconfileid = _faviconfilemanager.GetFileId();
-                        if (faviconfileid != -1)
-                        {
-                            site.FaviconFileId = faviconfileid;
-                        }
+                        
                         site.DefaultThemeType = _themetype;
-                        site.DefaultLayoutType = (_layouttype == null ? "" : _layouttype);
+                        site.DefaultLayoutType = (_layouttype == null ? string.Empty : _layouttype);
                         site.DefaultContainerType = _containertype;
                         site.AllowRegistration = (_allowregistration == null ? true : Boolean.Parse(_allowregistration));
                         site.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));
 
                         site.PwaIsEnabled = (_pwaisenabled == null ? true : Boolean.Parse(_pwaisenabled));
-                        int pwaappiconfileid = _pwaappiconfilemanager.GetFileId();
+                        
+                        var pwaappiconfileid = _pwaappiconfilemanager.GetFileId();
                         if (pwaappiconfileid != -1)
                         {
                             site.PwaAppIconFileId = pwaappiconfileid;
                         }
-                        int pwasplashiconfileid = _pwasplashiconfilemanager.GetFileId();
+                        
+                        var pwasplashiconfileid = _pwasplashiconfilemanager.GetFileId();
                         if (pwasplashiconfileid != -1)
                         {
                             site.PwaSplashIconFileId = pwasplashiconfileid;
@@ -397,7 +398,7 @@
                         site = await SiteService.UpdateSiteAsync(site, PageState.Alias);
 
                         _urls = _urls.Replace("\n", ",");
-                        string[] names = _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        var names = _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                         foreach (Alias alias in _aliasList.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
                         {
                             if (!names.Contains(alias.Name))
@@ -405,6 +406,7 @@
                                 await AliasService.DeleteAliasAsync(alias.AliasId);
                             }
                         }
+                        
                         foreach (string name in names)
                         {
                             if (!_aliasList.Exists(item => item.Name == name))
@@ -417,7 +419,7 @@
                             }
                         }
 
-                        Dictionary<string, string> settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
+                        var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
                         SettingService.SetSetting(settings, "SMTPHost", _smtphost);
                         SettingService.SetSetting(settings, "SMTPPort", _smtpport);
                         SettingService.SetSetting(settings, "SMTPSSL", _smtpssl);

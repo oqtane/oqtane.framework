@@ -13,14 +13,14 @@
 <br /><br />
 
 @code {
-    string content = "";
+    private string content = "";
 
     protected override async Task OnParametersSetAsync()
     {
         try
         {
-            HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, NavigationManager);
-            HtmlTextInfo htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
+            var htmltextservice = new HtmlTextService(http, sitestate, NavigationManager);
+            var htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
             if (htmltext != null)
             {
                 content = htmltext.Content;

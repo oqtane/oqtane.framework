@@ -41,14 +41,15 @@
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+    private List<Package> packages;
 
-    List<Package> packages;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnInitializedAsync()
     {
-        List<Theme> themes = await ThemeService.GetThemesAsync();
+        var themes = await ThemeService.GetThemesAsync();
         packages = await PackageService.GetPackagesAsync("theme");
+        
         foreach(Package package in packages.ToArray())
         {
             if (themes.Exists(item => Utilities.GetTypeName(item.ThemeName) == package.PackageId))
