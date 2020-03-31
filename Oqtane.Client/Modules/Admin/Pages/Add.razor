@@ -17,6 +17,14 @@
         </tr>
         <tr>
             <td>
+                <label for="Title" class="control-label">Title: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@_title" />
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <label for="Name" class="control-label">Path: </label>
             </td>
             <td>
@@ -72,6 +80,14 @@
                     <option value="True">Yes</option>
                     <option value="False">No</option>
                 </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Url" class="control-label">Url: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@_url" />
             </td>
         </tr>
         <tr>
@@ -293,6 +309,7 @@
                 }
                 
                 page.IsNavigation = (_isnavigation == null ? true : Boolean.Parse(_isnavigation));
+                page.Url = _url;
                 page.EditMode = (_mode == "edit" ? true : false);
                 page.ThemeType = _themetype;
                 page.LayoutType = (_layouttype == null ? string.Empty : _layouttype);

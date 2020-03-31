@@ -56,6 +56,13 @@ namespace Oqtane.Shared
             return url;
         }
 
+        public static string ContentUrl(string alias, int fileid)
+        {
+            string url = (alias == "") ? "/~" : alias;
+            url += Constants.ContentUrl + fileid.ToString();
+            return url;
+        }
+
         public static string GetTypeName(string fullyqualifiedtypename)
         {
             if (fullyqualifiedtypename.Contains(","))

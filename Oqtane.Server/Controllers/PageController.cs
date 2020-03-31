@@ -146,10 +146,12 @@ namespace Oqtane.Controllers
                 page = new Page();
                 page.SiteId = parent.SiteId;
                 page.Name = parent.Name;
+                page.Title = parent.Title;
                 page.Path = parent.Path;
                 page.ParentId = parent.PageId;
                 page.Order = 0;
                 page.IsNavigation = false;
+                page.Url = "";
                 page.EditMode = false;
                 page.ThemeType = parent.ThemeType;
                 page.LayoutType = parent.LayoutType;

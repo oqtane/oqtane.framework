@@ -12,7 +12,7 @@
     <table class="table table-borderless">
         <tr>
             <td>
-                <label  class="control-label">Name: </label>
+                <label class="control-label">Name: </label>
             </td>
             <td>
                 <input class="form-control" @bind="@_name" />
@@ -20,7 +20,7 @@
         </tr>
         <tr>
             <td>
-                <label  class="control-label">Tenant: </label>
+                <label class="control-label">Tenant: </label>
             </td>
             <td>
                 <input class="form-control" @bind="@_tenant" readonly />
@@ -28,7 +28,7 @@
         </tr>
         <tr>
             <td>
-                <label  class="control-label">Aliases: </label>
+                <label class="control-label">Aliases: </label>
             </td>
             <td>
                 <textarea class="form-control" @bind="@_urls" rows="3"></textarea>
@@ -36,15 +36,23 @@
         </tr>
         <tr>
             <td>
-                <label  class="control-label">Logo: </label>
+                <label class="control-label">Logo: </label>
             </td>
             <td>
-                <FileManager FileId="@_logofileid.ToString()" @ref="_filemanager" />
+                <FileManager FileId="@_logofileid.ToString()" Filter="@Constants.ImageFiles" @ref="_logofilemanager" />
             </td>
         </tr>
         <tr>
             <td>
-                <label  class="control-label">Default Theme: </label>
+                <label class="control-label">Favicon: </label>
+            </td>
+            <td>
+                <FileManager FileId="@_faviconfileid.ToString()" Filter="ico" @ref="_faviconfilemanager" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="control-label">Default Theme: </label>
             </td>
             <td>
                 <select class="form-control" @onchange="(e => ThemeChanged(e))">
@@ -65,7 +73,7 @@
         </tr>
         <tr>
             <td>
-                <label  class="control-label">Default Layout: </label>
+                <label class="control-label">Default Layout: </label>
             </td>
             <td>
                 <select class="form-control" @bind="@_layouttype">
@@ -79,7 +87,7 @@
         </tr>
         <tr>
             <td>
-                <label  class="control-label">Default Container: </label>
+                <label class="control-label">Default Container: </label>
             </td>
             <td>
                 <select class="form-control" @bind="@_containertype">
@@ -93,7 +101,18 @@
         </tr>
         <tr>
             <td>
-                <label  class="control-label">Is Deleted? </label>
+                <label class="control-label">Allow User Registration? </label>
+            </td>
+            <td>
+                <select class="form-control" @bind="@_allowregistration">
+                    <option value="True">Yes</option>
+                    <option value="False">No</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="control-label">Is Deleted? </label>
             </td>
             <td>
                 <select class="form-control" @bind="@_isdeleted">
@@ -111,7 +130,7 @@
         <table class="table table-borderless">
             <tr>
                 <td>
-                    <label  class="control-label">Host: </label>
+                    <label class="control-label">Host: </label>
                 </td>
                 <td>
                     <input class="form-control" @bind="@_smtphost" />
@@ -119,7 +138,7 @@
             </tr>
             <tr>
                 <td>
-                    <label  class="control-label">Port: </label>
+                    <label class="control-label">Port: </label>
                 </td>
                 <td>
                     <input class="form-control" @bind="@_smtpport" />
@@ -127,7 +146,7 @@
             </tr>
             <tr>
                 <td>
-                    <label  class="control-label">SSL Enabled: </label>
+                    <label class="control-label">SSL Enabled: </label>
                 </td>
                 <td>
                     <input class="form-control" @bind="@_smtpssl" />
@@ -135,7 +154,7 @@
             </tr>
             <tr>
                 <td>
-                    <label  class="control-label">Username: </label>
+                    <label class="control-label">Username: </label>
                 </td>
                 <td>
                     <input class="form-control" @bind="@_smtpusername" />
@@ -143,7 +162,7 @@
             </tr>
             <tr>
                 <td>
-                    <label  class="control-label">Password: </label>
+                    <label class="control-label">Password: </label>
                 </td>
                 <td>
                     <input type="password" class="form-control" @bind="@_smtppassword" />
@@ -151,6 +170,43 @@
             </tr>
         </table>
     </div>
+
+    <a data-toggle="collapse" class="app-link-unstyled" href="#PWA" aria-expanded="false" aria-controls="PWA">
+        <h5><i class="oi oi-chevron-bottom"></i>&nbsp;Progressive Web Application Settings</h5><hr class="app-rule" />
+    </a>
+    <div class="collapse" id="PWA">
+        <table class="table table-borderless">
+            <tr>
+                <td>
+                    <label class="control-label">Is Enabled? </label>
+                </td>
+                <td>
+                    <select class="form-control" @bind="@_pwaisenabled">
+                        <option value="True">Yes</option>
+                        <option value="False">No</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label class="control-label">App Icon: </label>
+                </td>
+                <td>
+                    <FileManager FileId="@_pwaappiconfileid.ToString()" Filter="png" @ref="_pwaappiconfilemanager" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label class="control-label">Splash Icon: </label>
+                </td>
+                <td>
+                    <FileManager FileId="@_pwasplashiconfileid.ToString()" Filter="png" @ref="_pwasplashiconfilemanager" />
+                </td>
+            </tr>
+
+        </table>
+    </div>
+
     <br />
     <button type="button" class="btn btn-success" @onclick="SaveSite">Save</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
@@ -209,10 +265,15 @@
                 {
                     _logofileid = site.LogoFileId.Value;
                 }
+                if (site.FaviconFileId != null)
+                {
+                    _faviconfileid = site.FaviconFileId.Value;
+                }
                 _themetype = site.DefaultThemeType;
                 _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
                 _layouttype = site.DefaultLayoutType;
                 _containertype = site.DefaultContainerType;
+                _allowregistration = site.AllowRegistration.ToString();
 
                 Dictionary<string, string> settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
                 _smtphost = SettingService.GetSetting(settings, "SMTPHost", string.Empty);
@@ -220,6 +281,16 @@
                 _smtpssl = SettingService.GetSetting(settings, "SMTPSSL", string.Empty);
                 _smtpusername = SettingService.GetSetting(settings, "SMTPUsername", string.Empty);
                 _smtppassword = SettingService.GetSetting(settings, "SMTPPassword", string.Empty);
+
+                _pwaisenabled = site.PwaIsEnabled.ToString();
+                if (site.PwaAppIconFileId != null)
+                {
+                    _pwaappiconfileid = site.PwaAppIconFileId.Value;
+                }
+                if (site.PwaSplashIconFileId != null)
+                {
+                    _pwasplashiconfileid = site.PwaSplashIconFileId.Value;
+                }
 
                 _createdby = site.CreatedBy;
                 _createdon = site.CreatedOn;
@@ -293,7 +364,20 @@
                         site.DefaultThemeType = _themetype;
                         site.DefaultLayoutType = (_layouttype == null ? string.Empty : _layouttype);
                         site.DefaultContainerType = _containertype;
+                        site.AllowRegistration = (_allowregistration == null ? true : Boolean.Parse(_allowregistration));
                         site.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));
+
+                        site.PwaIsEnabled = (_pwaisenabled == null ? true : Boolean.Parse(_pwaisenabled));
+                        int pwaappiconfileid = _pwaappiconfilemanager.GetFileId();
+                        if (pwaappiconfileid != -1)
+                        {
+                            site.PwaAppIconFileId = pwaappiconfileid;
+                        }
+                        int pwasplashiconfileid = _pwasplashiconfilemanager.GetFileId();
+                        if (pwasplashiconfileid != -1)
+                        {
+                            site.PwaSplashIconFileId = pwasplashiconfileid;
+                        }
 
                         site = await SiteService.UpdateSiteAsync(site, PageState.Alias);
 
