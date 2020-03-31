@@ -17,6 +17,14 @@
         </tr>
         <tr>
             <td>
+                <label for="Title" class="control-label">Title: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@_title" />
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <label for="Name" class="control-label">Path: </label>
             </td>
             <td>
@@ -72,6 +80,14 @@
                         }
                     </select>
                 }
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Url" class="control-label">Url: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@_url" />
             </td>
         </tr>
         <tr>
@@ -153,7 +169,7 @@
         <tr>
             <td colspan="2" align="center">
                 <label for="Name" class="control-label">Permissions: </label>
-                 <PermissionGrid EntityName="@EntityNames.Page" Permissions="@_permissions" @ref="_permissionGrid" />
+                <PermissionGrid EntityName="@EntityNames.Page" Permissions="@_permissions" @ref="_permissionGrid" />
             </td>
         </tr>
     </table>
@@ -173,14 +189,16 @@
     List<Theme> _themeList;
     List<Page> _pageList;
     int _pageId;
-    string _name;
-    string _path;
+    string _name = "";
+    string _title = "";
+    string _path = "";
     string _currentparentid;
     string _parentid;
     string _insert = "=";
     List<Page> _children;
     int _childid = -1;
     string _isnavigation;
+    string _url = "";
     string _ispersonalizable;
     string _mode;
     string _themetype;
@@ -213,6 +231,7 @@
             if (page != null)
             {
                 _name = page.Name;
+                _title = page.Title;
                 _path = page.Path;
                 if (_path.Contains("/"))
                 {
@@ -228,6 +247,7 @@
                 }
                 _currentparentid = _parentid;
                 _isnavigation = page.IsNavigation.ToString();
+                _url = page.Url;
                 _ispersonalizable = page.IsPersonalizable.ToString();
                 _mode = (page.EditMode) ? "edit" : "view";
                 _themetype = page.ThemeType;
@@ -313,6 +333,7 @@
                 string currentPath = page.Path;
 
                 page.Name = _name;
+                page.Title = _title;
                 if (_path == "" && _name.ToLower() != "home")
                 {
                     _path = _name;
@@ -361,6 +382,7 @@
                     }
                 }
                 page.IsNavigation = (_isnavigation == null || Boolean.Parse(_isnavigation));
+                page.Url = _url;
                 page.EditMode = (_mode == "edit");
                 page.ThemeType = _themetype;
                 page.LayoutType = _layouttype ?? "";

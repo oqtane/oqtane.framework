@@ -58,12 +58,12 @@ namespace Oqtane.UI
             }
         }
 
-        public Task UpdateMeta(string id, string attribute, string name, string content)
+        public Task IncludeMeta(string id, string attribute, string name, string content)
         {
             try
             {
                 _jsRuntime.InvokeAsync<string>(
-                    "interop.updateMeta",
+                    "interop.includeMeta",
                     id, attribute, name, content);
                 return Task.CompletedTask;
             }
@@ -73,13 +73,28 @@ namespace Oqtane.UI
             }
         }
 
-        public Task UpdateLink(string id, string rel, string type, string url)
+        public Task IncludeLink(string id, string rel, string url, string type)
         {
             try
             {
                 _jsRuntime.InvokeAsync<string>(
-                    "interop.updateLink",
-                    id, rel, type, url);
+                    "interop.includeLink",
+                    id, rel, url, type);
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
+        }
+
+        public Task IncludeScript(string id, string src, string content, string location)
+        {
+            try
+            {
+                _jsRuntime.InvokeAsync<string>(
+                    "interop.includeScript",
+                    id, src, content, location);
                 return Task.CompletedTask;
             }
             catch
@@ -93,8 +108,8 @@ namespace Oqtane.UI
             try
             {
                 _jsRuntime.InvokeAsync<string>(
-                    "interop.updateLink",
-                    id, "stylesheet", "text/css", url);
+                    "interop.includeLink",
+                    id, "stylesheet", url, "text/css");
                 return Task.CompletedTask;
             }
             catch

@@ -87,9 +87,7 @@ namespace Oqtane.Modules
 
         public string ContentUrl(int fileid)
         {
-            string url = (PageState.Alias.Path == "") ? "/~" : PageState.Alias.Path;
-            url += Constants.ContentUrl + fileid.ToString();
-            return url;
+            return Utilities.ContentUrl(PageState.Alias.Path, fileid);
         }
 
         // user feedback methods
