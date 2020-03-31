@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using Oqtane.Controllers;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
@@ -41,7 +40,7 @@ namespace Oqtane.Infrastructure
             }
             set => _isInstalled = value;
         }
-            
+
         private bool CheckInstallState()
         {
             var defaultConnectionString = _config.GetConnectionString("DefaultConnection");
@@ -53,6 +52,7 @@ namespace Oqtane.Infrastructure
                     var dbContext = scope.ServiceProvider.GetRequiredService<MasterDBContext>();
                     result = dbContext.Database.CanConnect();
                 }
+
                 if (result)
                 {
                     //I think this is obsolete now and not accurate, maybe check presence of some table, Version ???
@@ -141,11 +141,11 @@ namespace Oqtane.Infrastructure
             }
 
             var dbUpgradeConfig = DeployChanges
-                    .To
-                    .SqlDatabase(connectionString)
-                    .WithVariable("ConnectionString", connectionString)
-                    .WithVariable("Alias", alias)
-                    .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), s => master || !s.Contains("Master."));
+                .To
+                .SqlDatabase(connectionString)
+                .WithVariable("ConnectionString", connectionString)
+                .WithVariable("Alias", alias)
+                .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), s => master || !s.Contains("Master."));
 
             var dbUpgrade = dbUpgradeConfig.Build();
             if (!dbUpgrade.IsUpgradeRequired())
@@ -277,7 +277,7 @@ namespace Oqtane.Infrastructure
         {
             var defaultConnectionString = _config.GetConnectionString("DefaultConnection");
             var defaultAlias = _config.GetSection("Oqtane").GetValue("DefaultAlias", string.Empty);
-            
+
             // if no values specified, fallback to IDE installer
             if (string.IsNullOrEmpty(defaultConnectionString) || string.IsNullOrEmpty(defaultAlias))
             {
@@ -287,7 +287,8 @@ namespace Oqtane.Infrastructure
 
             var result = MasterMigration(defaultConnectionString, defaultAlias, null, true);
             IsInstalled = result.Success;
-            if (_isInstalled)
+
+            if (_isInstalled && !IsDefaultSiteInstalled(defaultConnectionString))
                 BuildDefaultSite();
         }
 
@@ -297,7 +298,7 @@ namespace Oqtane.Infrastructure
             {
                 //Gather required services
                 var siteRepository = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
-                
+
                 // Build default site only if no site present
                 if (siteRepository.GetSites().Any()) return;
 
@@ -323,8 +324,8 @@ namespace Oqtane.Infrastructure
                     SiteId = site.SiteId,
                     Username = Constants.HostUser,
                     //TODO Decide default password or throw exception ??
-                    Password = _config.GetSection("Oqtane").GetValue("DefaultPassword", "oQtane123"),
-                    Email = _config.GetSection("Oqtane").GetValue("DefaultEmail", "nobody@cortonso.com"),
+                    Password = _config.GetSection("Oqtane").GetValue("HostPassword", "oQtane123"),
+                    Email = _config.GetSection("Oqtane").GetValue("HostEmail", "nobody@cortonso.com"),
                     DisplayName = Constants.HostUser,
                 };
                 CreateHostUser(folders, userRoles, roles, users, identityUserManager, user);
@@ -360,6 +361,14 @@ namespace Oqtane.Infrastructure
                         Permissions = "[{\"PermissionName\":\"Browse\",\"Permissions\":\"[" + newUser.UserId + "]\"},{\"PermissionName\":\"View\",\"Permissions\":\"All Users\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"[" +
                                       newUser.UserId + "]\"}]",
                     });
+            }
+        }
+
+        private static bool IsDefaultSiteInstalled(string connectionString)
+        {
+            using (var db = new InstallationContext(connectionString))
+            {
+                return db.Tenant.Any(t => t.IsInitialized);
             }
         }
     }
