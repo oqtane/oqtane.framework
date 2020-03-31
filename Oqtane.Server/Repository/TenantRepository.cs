@@ -50,14 +50,17 @@ namespace Oqtane.Repository
 
         public void DeleteTenant(int tenantId)
         {
-            Tenant tenant = _db.Tenant.Find(tenantId);
-            if (tenant != null)
+            if(_db.Tenant.Count() > 1)
             {
-                _db.Tenant.Remove(tenant);
-                _db.SaveChanges();
-            }
+                var tenant = _db.Tenant.Find(tenantId);
+                if (tenant != null)
+                {
+                    _db.Tenant.Remove(tenant);
+                    _db.SaveChanges();
+                }
 
-            _cache.Remove("tenants");
+                _cache.Remove("tenants");
+            }
         }
     }
 }
