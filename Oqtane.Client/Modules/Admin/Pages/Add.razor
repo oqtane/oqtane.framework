@@ -17,6 +17,14 @@
         </tr>
         <tr>
             <td>
+                <label for="Title" class="control-label">Title: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@_title" />
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <label for="Name" class="control-label">Path: </label>
             </td>
             <td>
@@ -72,6 +80,14 @@
                     <option value="True">Yes</option>
                     <option value="False">No</option>
                 </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Url" class="control-label">Url: </label>
+            </td>
+            <td>
+                <input class="form-control" @bind="@_url" />
             </td>
         </tr>
         <tr>
@@ -151,12 +167,14 @@
 
     List<Theme> _themeList;
     List<Page> _pageList;
-    string _name;
+    string _name = "";
+    string _title = "";
     string _path = "";
     string _parentid;
     string _insert = ">>";
     List<Page> _children;
     int _childid = -1;
+    string _url = "";
     string _isnavigation = "True";
     string _ispersonalizable = "False";
     string _mode = "view";
@@ -244,6 +262,7 @@
                 page = new Page();
                 page.SiteId = PageState.Page.SiteId;
                 page.Name = _name;
+                page.Title = _title;
                 if (_path == "")
                 {
                     _path = _name;
@@ -289,6 +308,7 @@
                         break;
                 }
                 page.IsNavigation = (_isnavigation == null ? true : Boolean.Parse(_isnavigation));
+                page.Url = _url;
                 page.EditMode = (_mode == "edit" ? true : false);
                 page.ThemeType = _themetype;
                 page.LayoutType = (_layouttype == null ? "" : _layouttype);

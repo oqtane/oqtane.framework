@@ -10,7 +10,10 @@
         <button type="button" class="btn btn-primary" @onclick="UpdateProfile">@context.User.Identity.Name</button>
     </Authorized>
     <NotAuthorized>
-        <button type="button" class="btn btn-primary" @onclick="RegisterUser">Register</button>
+        @if (PageState.Site.AllowRegistration)
+        {
+            <button type="button" class="btn btn-primary" @onclick="RegisterUser">Register</button>
+        }
     </NotAuthorized>
 </AuthorizeView>
 

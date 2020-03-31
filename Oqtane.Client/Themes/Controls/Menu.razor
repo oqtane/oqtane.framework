@@ -41,7 +41,19 @@
                 securitylevel = int.MaxValue;
 
                 menu += "<li class=\"nav-item px-3\">";
-                menu += "<a href=\"" + NavigateUrl(p.Path) + "\" class=\"nav-link\" style=\"padding-left: " + ((p.Level + 1) * 15).ToString() + "px !important;\">";
+                if (string.IsNullOrEmpty(p.Url))
+                {
+                    menu += "<a href=\"" + NavigateUrl(p.Path) + "\" class=\"nav-link\" style=\"padding-left: " + ((p.Level + 1) * 15).ToString() + "px !important;\">";
+                }
+                else
+                {
+                    string target = "";
+                    if (p.Url.StartsWith("http"))
+                    {
+                        target = " target=\"_new\"";
+                    }
+                    menu += "<a href=\"" + p.Url + "\" class=\"nav-link\" style=\"padding-left: " + ((p.Level + 1) * 15).ToString() + "px !important;\"" + target + ">";
+                }
                 if (p.HasChildren)
                 {
                     menu += "<i class=\"oi oi-chevron-right\"></i>";
@@ -69,6 +81,9 @@
 
     private void CreateHorizontalMenu()
     {
+        string url = "";
+        string target = "";
+
         menu = "<button class=\"navbar-toggler\" type=\"button\" data-toggle=\"collapse\" data-target=\"#Menu\" aria-controls=\"Menu\" aria-expanded=\"false\" aria-label=\"Toggle navigation\"><span class=\"navbar-toggler-icon\"></span></button>";
         menu += "<div class=\"collapse navbar-collapse\" id=\"Menu\">";
         menu += "<ul class=\"navbar-nav mr-auto\">";
@@ -76,18 +91,32 @@
         {
             if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.View, p.Permissions) && p.ParentId == PageState.Page.ParentId && p.Level == PageState.Page.Level)
             {
+                if (string.IsNullOrEmpty(p.Url))
+                {
+                    url = NavigateUrl(p.Path);
+                    target = "";
+                }
+                else
+                {
+                    url = p.Url;
+                    if (p.Url.StartsWith("http"))
+                    {
+                        target = " target=\"_new\"";
+                    }
+                }
+
                 if (p.PageId == PageState.Page.PageId)
                 {
                     menu += "<li class=\"nav-item active\">" +
-                        "<a class=\"nav-link\" href=\"" + NavigateUrl(p.Path) + "\">" +
-                        ((p.Icon != "") ? "<span class=\"oi oi-" + p.Icon + "\" aria-hidden=\"true\"></span> " : "") + 
+                        "<a class=\"nav-link\" href=\"" + url + "\"" + target + ">" +
+                        ((p.Icon != "") ? "<span class=\"oi oi-" + p.Icon + "\" aria-hidden=\"true\"></span> " : "") +
                         p.Name + " <span class=\"sr-only\">(current)</span></a></li>";
                 }
                 else
                 {
                     menu += "<li class=\"nav-item\">" +
-                        "<a class=\"nav-link\" href=\"" + NavigateUrl(p.Path) + "\">" +
-                        ((p.Icon != "") ? "<span class=\"oi oi-" + p.Icon + "\" aria-hidden=\"true\"></span> " : "") + 
+                        "<a class=\"nav-link\" href=\"" + url + "\"" + target + ">" +
+                        ((p.Icon != "") ? "<span class=\"oi oi-" + p.Icon + "\" aria-hidden=\"true\"></span> " : "") +
                         p.Name + "</a></li>";
                 }
             }

@@ -248,9 +248,14 @@ else
                     site.TenantId = int.Parse(_tenantid);
                     site.Name = _name;
                     site.LogoFileId = null;
+                    site.FaviconFileId = null;
                     site.DefaultThemeType = _themetype;
                     site.DefaultLayoutType = (_layouttype == null ? "" : _layouttype);
                     site.DefaultContainerType = _containertype;
+                    site.PwaIsEnabled = false;
+                    site.PwaAppIconFileId = null;
+                    site.PwaSplashIconFileId = null;
+                    site.AllowRegistration = false;
                     site.SiteTemplateType = _sitetemplatetype;
                     site = await SiteService.AddSiteAsync(site, aliases[0]);
 
