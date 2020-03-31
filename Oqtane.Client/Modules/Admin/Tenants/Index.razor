@@ -18,7 +18,7 @@ else
         </Header>
         <Row>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.TenantId.ToString())" /></td>
-            <td><ActionDialog Header="Delete Tenant" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Tenant?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteTenant(context))" /></td>
+            <td><ActionDialog Header="Delete Tenant" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Tenant?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteTenant(context))" Disabled="@(tenants.Count == 1)" /></td>
             <td>@context.Name</td>
         </Row>
     </Pager>
