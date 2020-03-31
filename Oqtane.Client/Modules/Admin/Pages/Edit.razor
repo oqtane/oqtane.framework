@@ -210,6 +210,7 @@
 #pragma warning disable 649
     private PermissionGrid _permissionGrid;
 #pragma warning restore 649
+
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override async Task OnInitializedAsync()
@@ -332,6 +333,8 @@
                 string currentPath = page.Path;
 
                 page.Name = _name;
+                page.Title = _title;
+                if (_path == "" && _name.ToLower() != "home")
                 if (_path == string.Empty && _name.ToLower() != "home")
                 {
                     _path = _name;

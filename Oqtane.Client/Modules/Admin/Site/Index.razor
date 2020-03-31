@@ -296,6 +296,16 @@
                     _pwasplashiconfileid = site.PwaSplashIconFileId.Value;
                 }
 
+                _pwaisenabled = site.PwaIsEnabled.ToString();
+                if (site.PwaAppIconFileId != null)
+                {
+                    _pwaappiconfileid = site.PwaAppIconFileId.Value;
+                }
+                if (site.PwaSplashIconFileId != null)
+                {
+                    _pwasplashiconfileid = site.PwaSplashIconFileId.Value;
+                }
+
                 _createdby = site.CreatedBy;
                 _createdon = site.CreatedOn;
                 _modifiedby = site.ModifiedBy;

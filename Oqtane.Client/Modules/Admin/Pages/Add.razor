@@ -259,8 +259,8 @@
                 page = new Page();
                 page.SiteId = PageState.Page.SiteId;
                 page.Name = _name;
-                
-                if (_path == string.Empty)
+                page.Title = _title;
+                if (_path == "")
                 {
                     _path = _name;
                 }
