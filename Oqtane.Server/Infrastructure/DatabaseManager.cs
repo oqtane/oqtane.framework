@@ -47,13 +47,26 @@ namespace Oqtane.Infrastructure
                 return;
             }
 
+            var freshInstall = !IsMasterInstalled(defaultConnectionString);
+            var password = GetInstallationConfig(SettingKeys.HostPasswordKey, String.Empty);
+            var email = GetInstallationConfig(SettingKeys.HostEmailKey, String.Empty);
+            if (freshInstall && (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(defaultAlias)))
+            {
+                IsInstalled = false;
+                Message = "Incomplete startup install configuration";
+                return;
+            }
+
             var result = MasterMigration(defaultConnectionString, defaultAlias, null, true);
             IsInstalled = result.Success;
 
             if (_isInstalled && !IsDefaultSiteInstalled(defaultConnectionString))
-                BuildDefaultSite();
+            {
+                BuildDefaultSite(password,email);
+            }
         }
-        
+
+
         public bool IsInstalled
         {
             get
@@ -291,8 +304,7 @@ namespace Oqtane.Infrastructure
             }
         }
 
-
-        private void BuildDefaultSite()
+        private void BuildDefaultSite(string password, string email)
         {
             using (var scope = _serviceScopeFactory.CreateScope())
             {
@@ -324,9 +336,8 @@ namespace Oqtane.Infrastructure
                 {
                     SiteId = site.SiteId,
                     Username = GetInstallationConfig(SettingKeys.HostUserKey, Constants.HostUser),
-                    //TODO this is wrong. Decide default password / email or throw exception ??
-                    Password = GetInstallationConfig(SettingKeys.HostPasswordKey, "oQtane123"),
-                    Email = GetInstallationConfig(SettingKeys.HostEmailKey, "nobody@cortonso.com"),
+                    Password = password,
+                    Email = email,
                     DisplayName = GetInstallationConfig(SettingKeys.HostUserKey, Constants.HostUser),
                 };
                 CreateHostUser(folders, userRoles, roles, users, identityUserManager, user);
