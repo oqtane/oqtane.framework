@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>7.3</LangVersion>
-    <Configurations>Debug;Release;WebAssembly</Configurations>
+    <Configurations>Debug;Release</Configurations>
     <Version>0.0.9</Version>
     <Product>Oqtane</Product>
     <Authors>Shaun Walker</Authors>
@@ -17,13 +17,9 @@
     <RootNamespace>Oqtane</RootNamespace>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='WebAssembly|AnyCPU'">
-    <DefineConstants>TRACE;WASM</DefineConstants>
-  </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="System.ComponentModel.Annotations" Version="4.6.0" />
-    <PackageReference Include="System.Text.Json" Version="4.6.0" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
+    <PackageReference Include="System.Text.Json" Version="4.7.1" />
   </ItemGroup>
 
 </Project>

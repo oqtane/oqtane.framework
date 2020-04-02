@@ -226,15 +226,23 @@
     private List<Alias> _aliasList;
     private string _urls = string.Empty;
     private int _logofileid = -1;
-    private FileManager _filemanager;
+    private FileManager _logofilemanager;
+    private int _faviconfileid = -1;
+    private FileManager _faviconfilemanager;
     private string _themetype;
     private string _layouttype;
-    private string _containertype
+    private string _containertype;
+    private string _allowregistration;
     private string _smtphost = string.Empty;
     private string _smtpport = string.Empty;
     private string _smtpssl = string.Empty;
     private string _smtpusername = string.Empty;
     private string _smtppassword = string.Empty;
+    private string _pwaisenabled;
+    private int _pwaappiconfileid = -1;
+    private FileManager _pwaappiconfilemanager;
+    private int _pwasplashiconfileid = -1;
+    private FileManager _pwasplashiconfilemanager;
     private string _createdby;
     private DateTime _createdon;
     private string _modifiedby;
@@ -265,12 +273,12 @@
                 {
                     _logofileid = site.LogoFileId.Value;
                 }
-                
+
                 if (site.FaviconFileId != null)
                 {
                     _faviconfileid = site.FaviconFileId.Value;
                 }
-                
+
                 _themetype = site.DefaultThemeType;
                 _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
                 _layouttype = site.DefaultLayoutType;
@@ -285,12 +293,12 @@
                 _smtppassword = SettingService.GetSetting(settings, "SMTPPassword", string.Empty);
 
                 _pwaisenabled = site.PwaIsEnabled.ToString();
-                
+
                 if (site.PwaAppIconFileId != null)
                 {
                     _pwaappiconfileid = site.PwaAppIconFileId.Value;
                 }
-                
+
                 if (site.PwaSplashIconFileId != null)
                 {
                     _pwasplashiconfileid = site.PwaSplashIconFileId.Value;
@@ -361,7 +369,7 @@
                         unique = false;
                     }
                 }
-                
+
                 if (unique)
                 {
                     var site = await SiteService.GetSiteAsync(PageState.Site.SiteId, PageState.Alias);
@@ -369,12 +377,12 @@
                     {
                         site.Name = _name;
                         site.LogoFileId = null;
-                        var logofileid = _filemanager.GetFileId();   
+                        var logofileid = _logofilemanager.GetFileId();
                         if (logofileid != -1)
                         {
                             site.LogoFileId = logofileid;
                         }
-                        
+
                         site.DefaultThemeType = _themetype;
                         site.DefaultLayoutType = (_layouttype == null ? string.Empty : _layouttype);
                         site.DefaultContainerType = _containertype;
@@ -382,13 +390,13 @@
                         site.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));
 
                         site.PwaIsEnabled = (_pwaisenabled == null ? true : Boolean.Parse(_pwaisenabled));
-                        
+
                         var pwaappiconfileid = _pwaappiconfilemanager.GetFileId();
                         if (pwaappiconfileid != -1)
                         {
                             site.PwaAppIconFileId = pwaappiconfileid;
                         }
-                        
+
                         var pwasplashiconfileid = _pwasplashiconfilemanager.GetFileId();
                         if (pwasplashiconfileid != -1)
                         {
@@ -406,7 +414,7 @@
                                 await AliasService.DeleteAliasAsync(alias.AliasId);
                             }
                         }
-                        
+
                         foreach (string name in names)
                         {
                             if (!_aliasList.Exists(item => item.Name == name))

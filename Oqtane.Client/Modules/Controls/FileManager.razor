@@ -225,7 +225,7 @@
     {
         _message = string.Empty;
         _fileid = int.Parse((string)e.Value);
-        
+
         await SetImage();
         StateHasChanged();
     }
@@ -245,9 +245,9 @@
                 var ratioY = (double)maxheight / (double)file.ImageHeight;
                 var ratio = ratioX < ratioY ? ratioX : ratioY;
 
-                _image = "<img src=\string.Empty + ContentUrl(_fileid) + "\" alt=\string.Empty + file.Name +
-                    "\" width=\string.Empty + Convert.ToInt32(file.ImageWidth * ratio).ToString() +
-                    "\" height=\string.Empty + Convert.ToInt32(file.ImageHeight * ratio).ToString() + "\" />";
+                _image = "<img src=\"" + ContentUrl(_fileid) + "\" alt=\"" + file.Name +
+                    "\" width=\"" + Convert.ToInt32(file.ImageWidth * ratio).ToString() +
+                    "\" height=\"" + Convert.ToInt32(file.ImageHeight * ratio).ToString() + "\" />";
             }
         }
     }
@@ -269,13 +269,13 @@
                 {
                     result = await FileService.UploadFilesAsync(_folderid, upload, _id);
                 }
-                
+
                 if (result == string.Empty)
                 {
                     await logger.LogInformation("File Upload Succeeded {Files}", upload);
                     _message = "<br /><div class=\"alert alert-success\" role=\"alert\">File Upload Succeeded</div>";
                     await GetFiles();
-                    
+
                     if (upload.Length == 1)
                     {
                         var file = _files.Where(item => item.Name == upload[0]).FirstOrDefault();
@@ -308,7 +308,7 @@
     private async Task DeleteFile()
     {
         _message = string.Empty;
-        
+
         try
         {
             await FileService.DeleteFileAsync(_fileid);
