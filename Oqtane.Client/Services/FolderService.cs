@@ -28,20 +28,25 @@ namespace Oqtane.Services
 
         public async Task<List<Folder>> GetFoldersAsync(int siteId)
         {
-            List<Folder> folders = await _http.GetJsonAsync<List<Folder>>(ApiUrl + "?siteid=" + siteId.ToString());
+            List<Folder> folders = await _http.GetJsonAsync<List<Folder>>($"{ApiUrl}?siteid={siteId.ToString()}");
             folders = GetFoldersHierarchy(folders);
             return folders;
         }
 
         public async Task<Folder> GetFolderAsync(int folderId)
         {
-            return await _http.GetJsonAsync<Folder>(ApiUrl + "/" + folderId.ToString());
+            return await _http.GetJsonAsync<Folder>($"{ApiUrl}/{folderId.ToString()}");
         }
 
         public async Task<Folder> GetFolderAsync(int siteId, [NotNull] string folderPath)
         {
-            if (!folderPath.EndsWith("\\")) folderPath += "\\";
+            if (!folderPath.EndsWith("\\"))
+            {
+                folderPath += "\\";
+            }
+            
             var path = WebUtility.UrlEncode(folderPath);
+            
             return await _http.GetJsonAsync<Folder>($"{ApiUrl}/{siteId}/{path}");
         }
 
@@ -52,19 +57,20 @@ namespace Oqtane.Services
 
         public async Task<Folder> UpdateFolderAsync(Folder folder)
         {
-            return await _http.PutJsonAsync<Folder>(ApiUrl + "/" + folder.FolderId.ToString(), folder);
+            return await _http.PutJsonAsync<Folder>($"{ApiUrl}/{folder.FolderId.ToString()}", folder);
         }
 
         public async Task UpdateFolderOrderAsync(int siteId, int folderId, int? parentId)
         {
-            await _http.PutJsonAsync(
-                ApiUrl + "/?siteid=" + siteId.ToString() + "&folderid=" + folderId.ToString() + "&parentid=" +
-                ((parentId == null) ? "" : parentId.ToString()), null);
+            var parent = parentId == null
+                ? string.Empty
+                : parentId.ToString();
+            await _http.PutJsonAsync($"{ApiUrl}/?siteid={siteId.ToString()}&folderid={folderId.ToString()}&parentid={parent}", null);
         }
 
         public async Task DeleteFolderAsync(int folderId)
         {
-            await _http.DeleteAsync(ApiUrl + "/" + folderId.ToString());
+            await _http.DeleteAsync($"{ApiUrl}/{folderId.ToString()}");
         }
 
         private static List<Folder> GetFoldersHierarchy(List<Folder> folders)

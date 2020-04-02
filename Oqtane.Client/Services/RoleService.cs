@@ -28,13 +28,13 @@ namespace Oqtane.Services
 
         public async Task<List<Role>> GetRolesAsync(int siteId)
         {
-            List<Role> roles = await _http.GetJsonAsync<List<Role>>(Apiurl + "?siteid=" + siteId.ToString());
+            List<Role> roles = await _http.GetJsonAsync<List<Role>>($"{Apiurl}?siteid={siteId.ToString()}");
             return roles.OrderBy(item => item.Name).ToList();
         }
 
         public async Task<Role> GetRoleAsync(int roleId)
         {
-            return await _http.GetJsonAsync<Role>(Apiurl + "/" + roleId.ToString());
+            return await _http.GetJsonAsync<Role>($"{Apiurl}/{roleId.ToString()}");
         }
 
         public async Task<Role> AddRoleAsync(Role role)
@@ -44,11 +44,11 @@ namespace Oqtane.Services
 
         public async Task<Role> UpdateRoleAsync(Role role)
         {
-            return await _http.PutJsonAsync<Role>(Apiurl + "/" + role.RoleId.ToString(), role);
+            return await _http.PutJsonAsync<Role>($"{Apiurl}/{role.RoleId.ToString()}", role);
         }
         public async Task DeleteRoleAsync(int roleId)
         {
-            await _http.DeleteAsync(Apiurl + "/" + roleId.ToString());
+            await _http.DeleteAsync($"{Apiurl}/{roleId.ToString()}");
         }
     }
 }

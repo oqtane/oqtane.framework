@@ -34,7 +34,7 @@ namespace Oqtane.Services
 
         public async Task<Site> GetSiteAsync(int siteId, Alias alias)
         {
-            return await _http.GetJsonAsync<Site>(CreateCrossTenantUrl(Apiurl + "/" + siteId.ToString(), alias));
+            return await _http.GetJsonAsync<Site>(CreateCrossTenantUrl($"{Apiurl}/{siteId.ToString()}", alias));
         }
 
         public async Task<Site> AddSiteAsync(Site site, Alias alias)
@@ -44,12 +44,12 @@ namespace Oqtane.Services
 
         public async Task<Site> UpdateSiteAsync(Site site, Alias alias)
         {
-            return await _http.PutJsonAsync<Site>(CreateCrossTenantUrl(Apiurl + "/" + site.SiteId.ToString(), alias), site);
+            return await _http.PutJsonAsync<Site>(CreateCrossTenantUrl($"{Apiurl}/{site.SiteId.ToString()}", alias), site);
         }
 
         public async Task DeleteSiteAsync(int siteId, Alias alias)
         {
-            await _http.DeleteAsync(CreateCrossTenantUrl(Apiurl + "/" + siteId.ToString(), alias));
+            await _http.DeleteAsync(CreateCrossTenantUrl($"{Apiurl}/{siteId.ToString()}", alias));
         }
     }
 }

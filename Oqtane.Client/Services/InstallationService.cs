@@ -23,7 +23,7 @@ namespace Oqtane.Services
 
         public async Task<Installation> IsInstalled()
         {
-            return await _http.GetJsonAsync<Installation>(ApiUrl + "/installed");
+            return await _http.GetJsonAsync<Installation>($"{ApiUrl}/installed");
         }
 
         public async Task<Installation> Install(InstallConfig config)
@@ -33,7 +33,7 @@ namespace Oqtane.Services
 
         public async Task<Installation> Upgrade()
         {
-            return await _http.GetJsonAsync<Installation>(ApiUrl + "/upgrade");
+            return await _http.GetJsonAsync<Installation>($"{ApiUrl}/upgrade");
         }
     }
 }

@@ -27,12 +27,12 @@ namespace Oqtane.Services
 
         public async Task<List<UserRole>> GetUserRolesAsync(int siteId)
         {
-            return await _http.GetJsonAsync<List<UserRole>>(Apiurl + "?siteid=" + siteId.ToString());
+            return await _http.GetJsonAsync<List<UserRole>>($"{Apiurl}?siteid={siteId.ToString()}");
         }
 
         public async Task<UserRole> GetUserRoleAsync(int userRoleId)
         {
-            return await _http.GetJsonAsync<UserRole>(Apiurl + "/" + userRoleId.ToString());
+            return await _http.GetJsonAsync<UserRole>($"{Apiurl}/{userRoleId.ToString()}");
         }
 
         public async Task<UserRole> AddUserRoleAsync(UserRole userRole)
@@ -42,12 +42,12 @@ namespace Oqtane.Services
 
         public async Task<UserRole> UpdateUserRoleAsync(UserRole userRole)
         {
-            return await _http.PutJsonAsync<UserRole>(Apiurl + "/" + userRole.UserRoleId.ToString(), userRole);
+            return await _http.PutJsonAsync<UserRole>($"{Apiurl}/{userRole.UserRoleId.ToString()}", userRole);
         }
 
         public async Task DeleteUserRoleAsync(int userRoleId)
         {
-            await _http.DeleteAsync(Apiurl + "/" + userRoleId.ToString());
+            await _http.DeleteAsync($"{Apiurl}/{userRoleId.ToString()}");
         }
     }
 }
