@@ -21,11 +21,12 @@
 @code {
     private void LoginUser()
     {
-        string returnurl = PageState.Alias.Path;
+        var returnurl = PageState.Alias.Path;
         if (PageState.Page.Path != "/")
         {
             returnurl += "/" + PageState.Page.Path;
         }
+        
         NavigationManager.NavigateTo(NavigateUrl("login", "returnurl=" + returnurl));
     }
 

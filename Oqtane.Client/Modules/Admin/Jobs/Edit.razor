@@ -74,17 +74,17 @@
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+    private int _jobId;
+    private string _name = string.Empty;
+    private string _jobType = string.Empty;
+    private string _isEnabled = "True";
+    private string _interval = string.Empty;
+    private string _frequency = string.Empty;
+    private string _startDate = string.Empty;
+    private string _endDate = string.Empty;
+    private string _retentionHistory = string.Empty;
 
-    int _jobId;
-    string _name = "";
-    string _jobType = "";
-    string _isEnabled = "True";
-    string _interval = "";
-    string _frequency = "";
-    string _startDate = "";
-    string _endDate = "";
-    string _retentionHistory = "";
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnInitializedAsync()
     {
@@ -99,8 +99,8 @@
                 _isEnabled = job.IsEnabled.ToString();
                 _interval = job.Interval.ToString();
                 _frequency = job.Frequency;
-                _startDate = (job.StartDate != null) ? job.StartDate.ToString() : "";
-                _endDate = (job.EndDate != null) ? job.EndDate.ToString() : "";
+                _startDate = (job.StartDate != null) ? job.StartDate.ToString() : string.Empty;
+                _endDate = (job.EndDate != null) ? job.EndDate.ToString() : string.Empty;
                 _retentionHistory = job.RetentionHistory.ToString();
             }
         }
@@ -113,15 +113,16 @@
 
     private async Task SaveJob()
     {
-        if (_name != "" && !string.IsNullOrEmpty(_jobType) && _frequency != "" && _interval != "" && _retentionHistory != "")
+        if (_name != string.Empty && !string.IsNullOrEmpty(_jobType) && _frequency != string.Empty && _interval != string.Empty && _retentionHistory != string.Empty)
         {
-            Job job = await JobService.GetJobAsync(_jobId);
+            var job = await JobService.GetJobAsync(_jobId);
             job.Name = _name;
             job.JobType = _jobType;
             job.IsEnabled = Boolean.Parse(_isEnabled);
             job.Frequency = _frequency;
             job.Interval = int.Parse(_interval);
-            if (_startDate == "")
+            
+            if (_startDate == string.Empty)
             {
                 job.StartDate = null;
             }
@@ -129,7 +130,8 @@
             {
                 job.StartDate = DateTime.Parse(_startDate);
             }
-            if (_endDate == "")
+            
+            if (_endDate == string.Empty)
             {
                 job.EndDate = null;
             }
@@ -137,6 +139,7 @@
             {
                 job.EndDate = DateTime.Parse(_endDate);
             }
+            
             job.RetentionHistory = int.Parse(_retentionHistory);
 
             try

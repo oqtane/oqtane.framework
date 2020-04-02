@@ -22,13 +22,14 @@
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     private async Task DeletePage(Page page)
     {
         try
         {
             page.IsDeleted = true;
+            
             await PageService.UpdatePageAsync(page);
             await logger.LogInformation("Page Deleted {Page}", page);
             NavigationManager.NavigateTo(NavigateUrl("admin/pages"));

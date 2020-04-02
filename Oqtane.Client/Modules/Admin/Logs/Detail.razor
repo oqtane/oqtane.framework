@@ -48,7 +48,7 @@
                 <input class="form-control" @bind="@_category" disabled />
             </td>
         </tr>
-        @if (_pageName != "")
+        @if (_pageName != string.Empty)
         {
             <tr>
                 <td>
@@ -59,7 +59,7 @@
                 </td>
             </tr>
         }
-        @if (_moduleTitle != "")
+        @if (_moduleTitle != string.Empty)
         {
             <tr>
                 <td>
@@ -70,7 +70,7 @@
                 </td>
             </tr>
         }
-        @if (_username != "")
+        @if (_username != string.Empty)
         {
             <tr>
                 <td>
@@ -136,30 +136,30 @@
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+    private int _logId;
+    private string _logDate = string.Empty;
+    private string _level = string.Empty;
+    private string _feature = string.Empty;
+    private string _function = string.Empty;
+    private string _category = string.Empty;
+    private string _pageName = string.Empty;
+    private string _moduleTitle = string.Empty;
+    private string _username = string.Empty;
+    private string _url = string.Empty;
+    private string _template = string.Empty;
+    private string _message = string.Empty;
+    private string _exception = string.Empty;
+    private string _properties = string.Empty;
+    private string _server = string.Empty;
 
-    int _logId;
-    string _logDate = "";
-    string _level = "";
-    string _feature = "";
-    string _function = "";
-    string _category = "";
-    string _pageName = "";
-    string _moduleTitle = "";
-    string _username = "";
-    string _url = "";
-    string _template = "";
-    string _message = "";
-    string _exception = "";
-    string _properties = "";
-    string _server = "";
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             _logId = Int32.Parse(PageState.QueryString["id"]);
-            Log log = await LogService.GetLogAsync(_logId);
+            var log = await LogService.GetLogAsync(_logId);
             if (log != null)
             {
                 _logDate = log.LogDate.ToString(CultureInfo.CurrentCulture);
@@ -167,30 +167,34 @@
                 _feature = log.Feature;
                 _function = log.Function;
                 _category = log.Category;
+                
                 if (log.PageId != null)
                 {
-                    Page page = await PageService.GetPageAsync(log.PageId.Value);
+                    var page = await PageService.GetPageAsync(log.PageId.Value);
                     if (page != null)
                     {
                         _pageName = page.Name;
                     }
                 }
+                
                 if (log.PageId != null && log.ModuleId != null)
                 {
-                    PageModule pagemodule = await PageModuleService.GetPageModuleAsync(log.PageId.Value, log.ModuleId.Value);
+                    var pagemodule = await PageModuleService.GetPageModuleAsync(log.PageId.Value, log.ModuleId.Value);
                     if (pagemodule != null)
                     {
                         _moduleTitle = pagemodule.Title;
                     }
                 }
+                
                 if (log.UserId != null)
                 {
-                    User user = await UserService.GetUserAsync(log.UserId.Value, PageState.Site.SiteId);
+                    var user = await UserService.GetUserAsync(log.UserId.Value, PageState.Site.SiteId);
                     if (user != null)
                     {
                         _username = user.Username;
                     }
                 }
+                
                 _url = log.Url;
                 _template = log.MessageTemplate;
                 _message = log.Message;

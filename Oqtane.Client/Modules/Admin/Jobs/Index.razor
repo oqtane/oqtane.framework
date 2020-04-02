@@ -47,9 +47,9 @@ else
 }
 
 @code {
+    private List<Job> _jobs;
+    
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
-
-    List<Job> _jobs;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -58,7 +58,7 @@ else
 
     private string DisplayStatus(bool isEnabled, bool isExecuting)
     {
-        string status = "";
+        var status = string.Empty;
         if (!isEnabled)
         {
             status = "Disabled";
@@ -81,7 +81,7 @@ else
 
     private string DisplayFrequency(int interval, string frequency)
     {
-        string result = "Every " + interval.ToString() + " ";
+        var  result = "Every " + interval.ToString() + " ";
         switch (frequency)
         {
             case "m":
@@ -97,10 +97,12 @@ else
                 result += "Month";
                 break;
         }
+        
         if (interval > 1)
         {
             result += "s";
         }
+        
         return result;
     }
 

@@ -56,23 +56,24 @@
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
-    public override string Title { get { return "Folder Management"; } }
-
-    List<Folder> _folders;
-    int _folderId = -1;
-    string _name;
-    int _parentId = -1;
-    bool _isSystem;
-    string _permissions = "";
-    string _createdBy;
-    DateTime _createdOn;
-    string _modifiedBy;
-    DateTime _modifiedOn;
+    private List<Folder> _folders;
+    private int _folderId = -1;
+    private string _name;
+    private int _parentId = -1;
+    private bool _isSystem;
+    private string _permissions = string.Empty;
+    private string _createdBy;
+    private DateTime _createdOn;
+    private string _modifiedBy;
+    private DateTime _modifiedOn;
 
 #pragma warning disable 649
-    PermissionGrid _permissionGrid;
+    private PermissionGrid _permissionGrid;
 #pragma warning restore 649
+
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+
+    public override string Title => "Folder Management";
 
     protected override async Task OnInitializedAsync()
     {
@@ -99,7 +100,7 @@
             else
             {
                 _parentId = _folders[0].FolderId;
-                _permissions = "";
+                _permissions = string.Empty;
             }
         }
         catch (Exception ex)
@@ -113,7 +114,7 @@
     {
         try
         {
-            if (_name != "" && _parentId != -1)
+            if (_name != string.Empty && _parentId != -1)
             {
                 Folder folder;
                 if (_folderId != -1)
@@ -126,6 +127,7 @@
                 }
 
                 folder.SiteId = PageState.Site.SiteId;
+                
                 if (_parentId == -1)
                 {
                     folder.ParentId = null;
@@ -134,6 +136,7 @@
                 {
                     folder.ParentId = _parentId;
                 }
+                
                 folder.Name = _name;
                 folder.IsSystem = _isSystem;
                 folder.Permissions = _permissionGrid.GetPermissions();
@@ -146,6 +149,7 @@
                 {
                     folder = await FolderService.AddFolderAsync(folder);
                 }
+                
                 await FolderService.UpdateFolderOrderAsync(folder.SiteId, folder.FolderId, folder.ParentId);
                 await logger.LogInformation("Folder Saved {Folder}", folder);
                 NavigationManager.NavigateTo(NavigateUrl());

@@ -5,6 +5,8 @@ Oqtane is a Modular Application Framework for Blazor
 
 Oqtane uses Blazor, a new web framework for .NET Core that lets you build interactive web UIs using C# instead of JavaScript. Blazor apps are composed of reusable web UI components implemented using C#, HTML, and CSS. Both client and server code is written in C#, allowing you to share code and libraries.
 
+Please note that this project is governed by the **[.NET Foundation Contributor Covenant Code of Conduct](https://dotnetfoundation.org/code-of-conduct)**
+
 **To get started with Oqtane:**
 
    1.&nbsp;Install **[.NET Core 3.1 SDK](https://dotnet.microsoft.com/download/dotnet-core/3.1)**.

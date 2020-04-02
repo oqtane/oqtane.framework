@@ -11,7 +11,7 @@
     {
         if (PageState.Site.LogoFileId != null)
         {
-            Uri uri = new Uri(NavigationManager.Uri);
+            var uri = new Uri(NavigationManager.Uri);
             logo = "<a href=\"" + uri.Scheme + "://" + uri.Authority + "\"><img src=\"" + ContentUrl(PageState.Site.LogoFileId.Value) + "\" alt=\"" + PageState.Site.Name + "\"/></a>";
         }
     }

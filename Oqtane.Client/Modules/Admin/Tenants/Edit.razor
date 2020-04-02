@@ -9,7 +9,14 @@
             <label  class="control-label">Name: </label>
         </td>
         <td>
-            <input class="form-control" @bind="@name" />
+            @if (name == Constants.MasterTenant)
+            {
+                <input class="form-control" @bind="@name" readonly />
+            }
+            else
+            {
+                <input class="form-control" @bind="@name" />
+            }
         </td>
     </tr>
     <tr>
@@ -26,18 +33,19 @@
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+    private int tenantid;
+    private string name = string.Empty;
+    private string connectionstring = string.Empty;
+    private string schema = string.Empty;
 
-    int tenantid;
-    string name = "";
-    string connectionstring = "";
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             tenantid = Int32.Parse(PageState.QueryString["id"]);
-            Tenant tenant = await TenantService.GetTenantAsync(tenantid);
+            var tenant = await TenantService.GetTenantAsync(tenantid);
             if (tenant != null)
             {
                 name = tenant.Name;
@@ -56,11 +64,13 @@
         try
         {
             connectionstring = connectionstring.Replace("\\\\", "\\");
-            Tenant tenant = await TenantService.GetTenantAsync(tenantid);
+            var tenant = await TenantService.GetTenantAsync(tenantid);
             if (tenant != null)
             {
                 tenant.Name = name;
                 tenant.DBConnectionString = connectionstring;
+                tenant.DBSchema = schema;
+                
                 await TenantService.UpdateTenantAsync(tenant);
                 await logger.LogInformation("Tenant Saved {TenantId}", tenantid);
 

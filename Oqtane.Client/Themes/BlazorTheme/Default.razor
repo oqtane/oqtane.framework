@@ -21,7 +21,7 @@
 </div>
 
 @code {
-    public override string Panes { get { return "Content"; } }
+    public override string Panes => "Content";
 
     protected override async Task OnParametersSetAsync()
     {

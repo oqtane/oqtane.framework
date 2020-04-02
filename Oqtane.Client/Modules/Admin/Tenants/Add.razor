@@ -72,15 +72,16 @@
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+    private string name = string.Empty;
+    private string type = "LocalDB";
+    private string server = "(LocalDb)\\MSSQLLocalDB";
+    private string database = "Oqtane-" + DateTime.UtcNow.ToString("yyyyMMddHHmm");
+    private string username = string.Empty;
+    private string password = string.Empty;
+    private string schema = string.Empty;
+    private string integratedsecurity = "display: none;";
 
-    string name = "";
-    string type = "LocalDB";
-    string server = "(LocalDb)\\MSSQLLocalDB";
-    string database = "Oqtane-" + DateTime.UtcNow.ToString("yyyyMMddHHmm");
-    string username = "";
-    string password = "";
-    string integratedsecurity = "display: none;";
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     private void SetIntegratedSecurity(ChangeEventArgs e)
     {
@@ -90,7 +91,7 @@
         }
         else
         {
-            integratedsecurity = "";
+            integratedsecurity = string.Empty;
         }
     }
 
@@ -100,7 +101,7 @@
         {
             ShowProgressIndicator();
 
-            string connectionString = "";
+            var connectionstring = string.Empty;
             if (type == "LocalDB")
             {
                 connectionString = "Data Source=" + server + ";AttachDbFilename=|DataDirectory|\\" + database + ".mdf;Initial Catalog=" + database + ";Integrated Security=SSPI;";
@@ -108,6 +109,7 @@
             else
             {
                 connectionString = "Data Source=" + server + ";Initial Catalog=" + database + ";";
+                
                 if (integratedsecurity == "display: none;")
                 {
                     connectionString += "Integrated Security=SSPI;";
@@ -125,11 +127,11 @@
                 ConnectionString = connectionString,
             };
             
-            Installation installation = await InstallationService.Install(config);
+            var installation = await InstallationService.Install(config);
             if (installation.Success)
             {
                 //TODO : Move to Database Manager
-                Tenant tenant = new Tenant
+                var tenant = new Tenant
                 {
                     Name = name,
                     DBConnectionString = connectionString,

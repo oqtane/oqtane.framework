@@ -70,7 +70,7 @@
                     @((MarkupString)_message)
                 }
             </div>
-            @if (_image != "")
+            @if (_image != string.Empty)
             {
                 <div class="col-auto">
                     @((MarkupString)_image)
@@ -81,6 +81,21 @@
 }
 
 @code {
+    private string _id;
+    private List<Folder> _folders;
+    private int _folderid = -1;
+    private List<File> _files = new List<File>();
+    private int _fileid = -1;
+    private bool _showfiles = true;
+    private string _fileinputid = string.Empty;
+    private string _progressinfoid = string.Empty;
+    private string _progressbarid = string.Empty;
+    private string _filter = "*";
+    private bool _uploadmultiple = false;
+    private bool _haseditpermission = false;
+    private string _message = string.Empty;
+    private string _image = string.Empty;
+
     [Parameter]
     public string Folder { get; set; } // optional - for setting a specific folder by default
 
@@ -98,21 +113,6 @@
 
     [Parameter]
     public string UploadMultiple { get; set; } // optional - enable multiple file uploads - default false
-
-    string _id;
-    List<Folder> _folders;
-    int _folderid = -1;
-    List<File> _files = new List<File>();
-    int _fileid = -1;
-    bool _showfiles = true;
-    string _fileinputid = "";
-    string _progressinfoid = "";
-    string _progressbarid = "";
-    string _filter = "*";
-    bool _uploadmultiple = false;
-    bool _haseditpermission = false;
-    string _message = "";
-    string _image = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -205,13 +205,13 @@
 
     private async Task FolderChanged(ChangeEventArgs e)
     {
-        _message = "";
+        _message = string.Empty;
         try
         {
             _folderid = int.Parse((string)e.Value);
             await GetFiles();
             _fileid = -1;
-            _image = "";
+            _image = string.Empty;
             StateHasChanged();
         }
         catch (Exception ex)
@@ -223,30 +223,31 @@
 
     private async Task FileChanged(ChangeEventArgs e)
     {
-        _message = "";
+        _message = string.Empty;
         _fileid = int.Parse((string)e.Value);
+        
         await SetImage();
         StateHasChanged();
     }
 
     private async Task SetImage()
     {
-        _image = "";
+        _image = string.Empty;
         if (_fileid != -1)
         {
             File file = await FileService.GetFileAsync(_fileid);
             if (file.ImageHeight != 0 && file.ImageWidth != 0)
             {
-                int maxwidth = 200;
-                int maxheight = 200;
+                var maxwidth = 200;
+                var maxheight = 200;
 
-                double ratioX = (double)maxwidth / (double)file.ImageWidth;
-                double ratioY = (double)maxheight / (double)file.ImageHeight;
-                double ratio = ratioX < ratioY ? ratioX : ratioY;
+                var ratioX = (double)maxwidth / (double)file.ImageWidth;
+                var ratioY = (double)maxheight / (double)file.ImageHeight;
+                var ratio = ratioX < ratioY ? ratioX : ratioY;
 
-                _image = "<img src=\"" + ContentUrl(_fileid) + "\" alt=\"" + file.Name +
-                    "\" width=\"" + Convert.ToInt32(file.ImageWidth * ratio).ToString() +
-                    "\" height=\"" + Convert.ToInt32(file.ImageHeight * ratio).ToString() + "\" />";
+                _image = "<img src=\string.Empty + ContentUrl(_fileid) + "\" alt=\string.Empty + file.Name +
+                    "\" width=\string.Empty + Convert.ToInt32(file.ImageWidth * ratio).ToString() +
+                    "\" height=\string.Empty + Convert.ToInt32(file.ImageHeight * ratio).ToString() + "\" />";
             }
         }
     }
@@ -254,7 +255,7 @@
     private async Task UploadFile()
     {
         var interop = new Interop(JsRuntime);
-        string[] upload = await interop.GetFiles(_fileinputid);
+        var upload = await interop.GetFiles(_fileinputid);
         if (upload.Length > 0)
         {
             try
@@ -268,14 +269,16 @@
                 {
                     result = await FileService.UploadFilesAsync(_folderid, upload, _id);
                 }
-                if (result == "")
+                
+                if (result == string.Empty)
                 {
                     await logger.LogInformation("File Upload Succeeded {Files}", upload);
                     _message = "<br /><div class=\"alert alert-success\" role=\"alert\">File Upload Succeeded</div>";
                     await GetFiles();
+                    
                     if (upload.Length == 1)
                     {
-                        File file = _files.Where(item => item.Name == upload[0]).FirstOrDefault();
+                        var file = _files.Where(item => item.Name == upload[0]).FirstOrDefault();
                         if (file != null)
                         {
                             _fileid = file.FileId;
@@ -304,7 +307,8 @@
 
     private async Task DeleteFile()
     {
-        _message = "";
+        _message = string.Empty;
+        
         try
         {
             await FileService.DeleteFileAsync(_fileid);
@@ -322,9 +326,6 @@
         }
     }
 
-    public int GetFileId()
-    {
-        return _fileid;
-    }
+    public int GetFileId() => _fileid;
 
 }

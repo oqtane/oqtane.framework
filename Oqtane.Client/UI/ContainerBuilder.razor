@@ -5,6 +5,8 @@
 </CascadingValue>
 
 @code {
+    private Module _moduleState;
+
     [CascadingParameter]
     protected PageState PageState { get; set; }
 
@@ -12,8 +14,6 @@
     public Module Module { get; set; }
 
     RenderFragment DynamicComponent { get; set; }
-
-    Module _moduleState;
 
     protected override void OnParametersSet()
     {

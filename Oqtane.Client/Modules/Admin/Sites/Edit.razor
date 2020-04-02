@@ -39,7 +39,7 @@
             </td>
             <td>
                 <select class="form-control" @onchange="(e => ThemeChanged(e))">
-                    <option value="">&lt;Select Theme&gt;</option>
+                    <option value=string.Empty>&lt;Select Theme&gt;</option>
                     @foreach (KeyValuePair<string, string> item in _themes)
                     {
                         if (item.Key == _themetype)
@@ -60,7 +60,7 @@
             </td>
             <td>
                 <select class="form-control" @bind="@_layouttype">
-                    <option value="">&lt;Select Layout&gt;</option>
+                    <option value=string.Empty>&lt;Select Layout&gt;</option>
                     @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
                     {
                         <option value="@panelayout.Key">@panelayout.Value</option>
@@ -74,7 +74,7 @@
             </td>
             <td>
                 <select class="form-control" @bind="@_containertype">
-                    <option value="">&lt;Select Container&gt;</option>
+                    <option value=string.Empty>&lt;Select Container&gt;</option>
                     @foreach (KeyValuePair<string, string> container in _containers)
                     {
                         <option value="@container.Key">@container.Value</option>
@@ -103,30 +103,28 @@
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+    private Dictionary<string, string> _themes;
+    private Dictionary<string, string> _panelayouts;
+    private Dictionary<string, string> _containers;
+    private Alias _alias;
+    private List<Theme> _themeList;
+    private string _name = string.Empty;
+    private List<Tenant> _tenantList;
+    private string _tenant = string.Empty;
+    private List<Alias> _aliasList;
+    private string _urls = string.Empty;
+    private string _themetype;
+    private string _layouttype;
+    private string _containertype;
+    private string _createdby;
+    private DateTime _createdon;
+    private string _modifiedby;
+    private DateTime _modifiedon;
+    private string _deletedby;
+    private DateTime? _deletedon;
+    private string _isdeleted;
 
-    Dictionary<string, string> _themes;
-    Dictionary<string, string> _panelayouts;
-    Dictionary<string, string> _containers;
-
-    Alias _alias;
-    List<Theme> _themeList;
-    string _name = "";
-    List<Tenant> _tenantList;
-    string _tenant = "";
-    List<Alias> _aliasList;
-    string _urls = "";
-    string _themetype;
-    string _layouttype;
-    string _containertype;
-
-    string _createdby;
-    DateTime _createdon;
-    string _modifiedby;
-    DateTime _modifiedon;
-    string _deletedby;
-    DateTime? _deletedon;
-    string _isdeleted;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnInitializedAsync()
     {
@@ -136,21 +134,22 @@
             _aliasList = await AliasService.GetAliasesAsync();
 
             _alias = _aliasList.Find(item => item.AliasId == Int32.Parse(PageState.QueryString["id"]));
-            Site site = await SiteService.GetSiteAsync(_alias.SiteId, _alias);
+            var site = await SiteService.GetSiteAsync(_alias.SiteId, _alias);
             if (site != null)
             {
                 _name = site.Name;
                 _tenantList = await TenantService.GetTenantsAsync();
                 _tenant = _tenantList.Find(item => item.TenantId == site.TenantId).Name;
+                
                 foreach (Alias alias in _aliasList.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
                 {
                     _urls += alias.Name + "\n";
                 }
+                
                 _themetype = site.DefaultThemeType;
                 _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
                 _layouttype = site.DefaultLayoutType;
                 _containertype = site.DefaultContainerType;
-
                 _createdby = site.CreatedBy;
                 _createdon = site.CreatedOn;
                 _modifiedby = site.ModifiedBy;
@@ -165,7 +164,7 @@
         }
         catch (Exception ex)
         {
-            await Log(_alias, LogLevel.Error, "", ex, "Error Loading Site {SiteId} {Error}", _alias.SiteId, ex.Message);
+            await Log(_alias, LogLevel.Error, string.Empty, ex, "Error Loading Site {SiteId} {Error}", _alias.SiteId, ex.Message);
             AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
@@ -175,7 +174,7 @@
         try
         {
             _themetype = (string)e.Value;
-            if (_themetype != "")
+            if (_themetype != string.Empty)
             {
                 _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
             }
@@ -183,6 +182,7 @@
             {
                 _panelayouts = new Dictionary<string, string>();
             }
+            
             StateHasChanged();
         }
         catch (Exception ex)
@@ -196,9 +196,9 @@
     {
         try
         {
-            if (_name != "" && _urls != "" && !string.IsNullOrEmpty(_themetype) && (_panelayouts.Count == 0 || !string.IsNullOrEmpty(_layouttype)) && !string.IsNullOrEmpty(_containertype))
+            if (_name != string.Empty && _urls != string.Empty && !string.IsNullOrEmpty(_themetype) && (_panelayouts.Count == 0 || !string.IsNullOrEmpty(_layouttype)) && !string.IsNullOrEmpty(_containertype))
             {
-                bool unique = true;
+                var unique = true;
                 foreach (string name in _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 {
                     if (_aliasList.Exists(item => item.Name == name && item.SiteId != _alias.SiteId && item.TenantId != _alias.TenantId))
@@ -206,22 +206,24 @@
                         unique = false;
                     }
                 }
+                
                 if (unique)
                 {
-                    Site site = await SiteService.GetSiteAsync(_alias.SiteId, _alias);
+                    var site = await SiteService.GetSiteAsync(_alias.SiteId, _alias);
                     if (site != null)
                     {
                         site.Name = _name;
                         site.LogoFileId = null;
                         site.DefaultThemeType = _themetype;
-                        site.DefaultLayoutType = _layouttype ?? "";
+                        site.DefaultLayoutType = _layouttype ?? string.Empty;
                         site.DefaultContainerType = _containertype;
                         site.IsDeleted = (_isdeleted == null || Boolean.Parse(_isdeleted));
 
                         site = await SiteService.UpdateSiteAsync(site, _alias);
 
                         _urls = _urls.Replace("\n", ",");
-                        string[] names = _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        var names = _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        
                         foreach (Alias alias in _aliasList.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
                         {
                             if (!names.Contains(alias.Name))
@@ -229,6 +231,7 @@
                                 await AliasService.DeleteAliasAsync(alias.AliasId);
                             }
                         }
+                        
                         foreach (string name in names)
                         {
                             if (!_aliasList.Exists(item => item.Name == name))
@@ -260,7 +263,7 @@
         }
         catch (Exception ex)
         {
-            await Log(_alias, LogLevel.Error, "", ex, "Error Saving Site {SiteId} {Error}", _alias.SiteId, ex.Message);
+            await Log(_alias, LogLevel.Error, string.Empty, ex, "Error Saving Site {SiteId} {Error}", _alias.SiteId, ex.Message);
             AddModuleMessage("Error Saving Site", MessageType.Error);
         }
     }
