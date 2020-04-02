@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -10,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Oqtane.Controllers;
+using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
@@ -23,6 +26,7 @@ namespace Oqtane.Infrastructure
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private bool _isInstalled;
 
+
         public DatabaseManager(IConfigurationRoot config, IServiceScopeFactory serviceScopeFactory)
         {
             _config = config;
@@ -30,6 +34,38 @@ namespace Oqtane.Infrastructure
         }
 
         public string Message { get; set; }
+
+        public void StartupMigration()
+        {
+            var defaultConnectionString = _config.GetConnectionString(SettingKeys.ConnectionStringKey);
+            var defaultAlias = GetInstallationConfig(SettingKeys.DefaultAliasKey, string.Empty);
+
+            // if no values specified, fallback to IDE installer
+            if (string.IsNullOrEmpty(defaultConnectionString))
+            {
+                IsInstalled = false;
+                return;
+            }
+
+            var freshInstall = !IsMasterInstalled(defaultConnectionString);
+            var password = GetInstallationConfig(SettingKeys.HostPasswordKey, String.Empty);
+            var email = GetInstallationConfig(SettingKeys.HostEmailKey, String.Empty);
+            if (freshInstall && (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(defaultAlias)))
+            {
+                IsInstalled = false;
+                Message = "Incomplete startup install configuration";
+                return;
+            }
+
+            var result = MasterMigration(defaultConnectionString, defaultAlias, null, true);
+            IsInstalled = result.Success;
+
+            if (_isInstalled && !IsDefaultSiteInstalled(defaultConnectionString))
+            {
+                BuildDefaultSite(password,email);
+            }
+        }
+
 
         public bool IsInstalled
         {
@@ -41,10 +77,10 @@ namespace Oqtane.Infrastructure
             }
             set => _isInstalled = value;
         }
-            
+        
         private bool CheckInstallState()
         {
-            var defaultConnectionString = _config.GetConnectionString("DefaultConnection");
+            var defaultConnectionString = _config.GetConnectionString(SettingKeys.ConnectionStringKey);
             var result = !string.IsNullOrEmpty(defaultConnectionString);
             if (result)
             {
@@ -73,7 +109,6 @@ namespace Oqtane.Infrastructure
             {
                 Message = "Connection string is empty";
             }
-
             return result;
         }
 
@@ -82,7 +117,6 @@ namespace Oqtane.Infrastructure
         {
             connectionString = connectionString
                 .Replace("|DataDirectory|", dataDirectory);
-            //.Replace(@"\", @"\\");
             return connectionString;
         }
 
@@ -94,25 +128,23 @@ namespace Oqtane.Infrastructure
             var alias = installConfig.Alias;
             var connectionString = NormalizeConnectionString(installConfig.ConnectionString, dataDirectory);
 
-            if (string.IsNullOrEmpty(connectionString) || string.IsNullOrEmpty(alias))
+            if (!string.IsNullOrEmpty(connectionString) && !string.IsNullOrEmpty(alias))
             {
-                result = new Installation
+                result = MasterMigration(connectionString, alias, result, installConfig.IsMaster);
+                if (installConfig.IsMaster && result.Success)
                 {
-                    Success = false,
-                    Message = "Connection string is empty",
-                };
+                    WriteVersionInfo(connectionString);
+                    TenantMigration(connectionString, dataDirectory);
+                    UpdateConnectionStringSetting(connectionString);
+                }
                 return result;
             }
 
-            result = MasterMigration(connectionString, alias, result, installConfig.IsMaster);
-            if (installConfig.IsMaster && result.Success)
+            result = new Installation
             {
-                WriteVersionInfo(connectionString);
-                TenantMigration(connectionString, dataDirectory);
-                UpdateOqtaneSettings(connectionString);
-                AddOrUpdateAppSetting("Oqtane:DefaultAlias", alias);
-            }
-
+                Success = false,
+                Message = "Connection string is empty",
+            };
             return result;
         }
 
@@ -120,6 +152,7 @@ namespace Oqtane.Infrastructure
         {
             if (result == null) result = new Installation {Success = false, Message = string.Empty};
 
+            bool firstInstall;
             try
             {
                 // create empty database if does not exists       
@@ -127,25 +160,25 @@ namespace Oqtane.Infrastructure
                 using (var dbc = new DbContext(new DbContextOptionsBuilder().UseSqlServer(connectionString).Options))
                 {
                     dbc.Database.EnsureCreated();
+                    //check for vanilla db
+                    firstInstall = !TableExists(dbc, "SchemaVersions");
                 }
             }
             catch (Exception e)
             {
-                result = new Installation
-                {
-                    Success = false,
-                    Message = e.Message,
-                };
+                result.Message = e.Message;
                 Console.WriteLine(e);
                 return result;
             }
-
+            // when alias is not specified on first install, fallback to ide
+            if (firstInstall && string.IsNullOrEmpty(alias)) return result;
+           
             var dbUpgradeConfig = DeployChanges
-                    .To
-                    .SqlDatabase(connectionString)
-                    .WithVariable("ConnectionString", connectionString)
-                    .WithVariable("Alias", alias)
-                    .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), s => master || !s.Contains("Master."));
+                .To
+                .SqlDatabase(connectionString)
+                .WithVariable("ConnectionString", connectionString)
+                .WithVariable("Alias", alias)
+                .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), s => master || !s.Contains("Master."));
 
             var dbUpgrade = dbUpgradeConfig.Build();
             if (!dbUpgrade.IsUpgradeRequired())
@@ -228,12 +261,10 @@ namespace Oqtane.Infrastructure
             }
         }
 
-        public static void UpdateOqtaneSettings(string connectionString)
+        public static void UpdateConnectionStringSetting(string connectionString)
         {
-            AddOrUpdateAppSetting("ConnectionStrings:DefaultConnection", connectionString);
-            //AddOrUpdateAppSetting("Oqtane:DefaultAlias", connectionString);
+            AddOrUpdateAppSetting($"ConnectionStrings:{SettingKeys.ConnectionStringKey}", connectionString);
         }
-
 
         public static void AddOrUpdateAppSetting<T>(string sectionPathKey, T value)
         {
@@ -262,7 +293,7 @@ namespace Oqtane.Infrastructure
             var currentSection = remainingSections[0];
             if (remainingSections.Length > 1)
             {
-                // continue with the procress, moving down the tree
+                // continue with the process, moving down the tree
                 var nextSection = remainingSections[1];
                 SetValueRecursively(nextSection, jsonObj[currentSection], value);
             }
@@ -273,31 +304,13 @@ namespace Oqtane.Infrastructure
             }
         }
 
-        public void StartupMigration()
-        {
-            var defaultConnectionString = _config.GetConnectionString("DefaultConnection");
-            var defaultAlias = _config.GetSection("Oqtane").GetValue("DefaultAlias", string.Empty);
-            
-            // if no values specified, fallback to IDE installer
-            if (string.IsNullOrEmpty(defaultConnectionString) || string.IsNullOrEmpty(defaultAlias))
-            {
-                IsInstalled = false;
-                return;
-            }
-
-            var result = MasterMigration(defaultConnectionString, defaultAlias, null, true);
-            IsInstalled = result.Success;
-            if (_isInstalled)
-                BuildDefaultSite();
-        }
-
-        public void BuildDefaultSite()
+        private void BuildDefaultSite(string password, string email)
         {
             using (var scope = _serviceScopeFactory.CreateScope())
             {
                 //Gather required services
                 var siteRepository = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
-                
+
                 // Build default site only if no site present
                 if (siteRepository.GetSites().Any()) return;
 
@@ -312,25 +325,34 @@ namespace Oqtane.Infrastructure
                     TenantId = -1,
                     Name = "Default Site",
                     LogoFileId = null,
-                    DefaultThemeType = Constants.DefaultTheme,
-                    DefaultLayoutType = Constants.DefaultLayout,
-                    DefaultContainerType = Constants.DefaultContainer,
+                    DefaultThemeType = GetInstallationConfig(SettingKeys.DefaultThemeKey, Constants.DefaultTheme),
+                    DefaultLayoutType = GetInstallationConfig(SettingKeys.DefaultLayoutKey, Constants.DefaultLayout),
+                    DefaultContainerType = GetInstallationConfig(SettingKeys.DefaultContainerKey, Constants.DefaultContainer),
+                    SiteTemplateType = GetInstallationConfig(SettingKeys.SiteTemplateKey, Constants.DefaultSiteTemplate),
                 };
                 site = siteRepository.AddSite(site);
 
                 var user = new User
                 {
                     SiteId = site.SiteId,
-                    Username = Constants.HostUser,
-                    //TODO Decide default password or throw exception ??
-                    Password = _config.GetSection("Oqtane").GetValue("DefaultPassword", "oQtane123"),
-                    Email = _config.GetSection("Oqtane").GetValue("DefaultEmail", "nobody@cortonso.com"),
-                    DisplayName = Constants.HostUser,
+                    Username = GetInstallationConfig(SettingKeys.HostUserKey, Constants.HostUser),
+                    Password = password,
+                    Email = email,
+                    DisplayName = GetInstallationConfig(SettingKeys.HostUserKey, Constants.HostUser),
                 };
                 CreateHostUser(folders, userRoles, roles, users, identityUserManager, user);
             }
         }
 
+        private string GetInstallationConfig(string key, string defaultValue)
+        {
+            var value = _config.GetSection(SettingKeys.InstallationSection).GetValue(key, defaultValue);
+            // double fallback to default value - allow hold sample keys in config
+            if (string.IsNullOrEmpty(value)) value = defaultValue;
+            return value;
+        }
+        
+        
 
         private static void CreateHostUser(IFolderRepository folderRepository, IUserRoleRepository userRoleRepository, IRoleRepository roleRepository, IUserRepository userRepository, UserManager<IdentityUser> identityUserManager, User user)
         {
@@ -356,10 +378,70 @@ namespace Oqtane.Infrastructure
                 if (folder != null)
                     folderRepository.AddFolder(new Folder
                     {
-                        SiteId = folder.SiteId, ParentId = folder.FolderId, Name = "My Folder", Path = folder.Path + newUser.UserId + "\\", Order = 1, IsSystem = true,
-                        Permissions = "[{\"PermissionName\":\"Browse\",\"Permissions\":\"[" + newUser.UserId + "]\"},{\"PermissionName\":\"View\",\"Permissions\":\"All Users\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"[" +
-                                      newUser.UserId + "]\"}]",
+                        SiteId = folder.SiteId,
+                        ParentId = folder.FolderId,
+                        Name = "My Folder",
+                        Path = folder.Path + newUser.UserId + "\\",
+                        Order = 1,
+                        IsSystem = true,
+                        Permissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.Browse, newUser.UserId, true),
+                            new Permission(PermissionNames.View, Constants.AllUsersRole, true),
+                            new Permission(PermissionNames.Edit, newUser.UserId, true),
+                        }.EncodePermissions(),
                     });
+            }
+        }
+
+        private static bool IsDefaultSiteInstalled(string connectionString)
+        {
+            using (var db = new InstallationContext(connectionString))
+            {
+                return db.Tenant.Any(t => t.IsInitialized);
+            }
+        }
+
+        private static bool IsMasterInstalled(string connectionString)
+        {
+            using (var db = new InstallationContext(connectionString))
+            {
+                //check if DbUp was initialized
+                return TableExists(db, "SchemaVersions");
+            }
+        }
+
+
+        public static bool TableExists(DbContext context, string tableName)
+        {
+            return TableExists(context, "dbo", tableName);
+        }
+
+        public static bool TableExists(DbContext context, string schema, string tableName)
+        {
+            var connection = context.Database.GetDbConnection();
+
+            if (connection.State.Equals(ConnectionState.Closed))
+                connection.Open();
+
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = @"
+            SELECT 1 FROM INFORMATION_SCHEMA.TABLES 
+            WHERE TABLE_SCHEMA = @Schema
+            AND TABLE_NAME = @TableName";
+
+                var schemaParam = command.CreateParameter();
+                schemaParam.ParameterName = "@Schema";
+                schemaParam.Value = schema;
+                command.Parameters.Add(schemaParam);
+
+                var tableNameParam = command.CreateParameter();
+                tableNameParam.ParameterName = "@TableName";
+                tableNameParam.Value = tableName;
+                command.Parameters.Add(tableNameParam);
+
+                return command.ExecuteScalar() != null;
             }
         }
     }

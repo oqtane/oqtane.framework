@@ -123,7 +123,7 @@ Create seed data
 SET IDENTITY_INSERT [dbo].[Tenant] ON 
 GO
 INSERT [dbo].[Tenant] ([TenantId], [Name], [DBConnectionString], [DBSchema], [IsInitialized], [CreatedBy], [CreatedOn], [ModifiedBy], [ModifiedOn]) 
-VALUES (1, N'Master', N'$ConnectionString$', N'', 1, '', getdate(), '', getdate())
+VALUES (1, N'Master', N'$ConnectionString$', N'', 0, '', getdate(), '', getdate())
 GO
 SET IDENTITY_INSERT [dbo].[Tenant] OFF
 GO
