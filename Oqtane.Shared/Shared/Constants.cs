@@ -32,6 +32,8 @@
 
         public const string HostUser = "host";
 
+        public const string MasterTenant = "Master";
+
         public const string AllUsersRole = "All Users";
         public const string HostRole = "Host Users";
         public const string AdminRole = "Administrators";
