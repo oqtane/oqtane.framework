@@ -48,22 +48,44 @@ namespace Oqtane.Repository
                         if (themetype != null)
                         {
                             var themeobject = Activator.CreateInstance(themetype);
-                            Dictionary<string, string> properties = (Dictionary<string, string>)themetype.GetProperty("Properties").GetValue(themeobject);
-                            theme = new Theme
+                            var properties = (Dictionary<string, string>)themetype.GetProperty("Properties").GetValue(themeobject);
+                            var moduleDefinition = (ModuleDefinition)themetype.GetProperty("ModuleDefinition").GetValue(themeobject);
+                            if (properties == null || properties.Count == 0)
                             {
-                                ThemeName = @namespace,
-                                Name = GetProperty(properties, "Name"),
-                                Version = GetProperty(properties, "Version"),
-                                Owner = GetProperty(properties, "Owner"),
-                                Url = GetProperty(properties, "Url"),
-                                Contact = GetProperty(properties, "Contact"),
-                                License = GetProperty(properties, "License"),
-                                Dependencies = GetProperty(properties, "Dependencies"),
-                                ThemeControls = "",
-                                PaneLayouts = "",
-                                ContainerControls = "",
-                                AssemblyName = assembly.FullName.Split(",")[0]
-                            };
+                                theme = new Theme
+                                {
+                                    ThemeName = @namespace,
+                                    Name = moduleDefinition.Name,
+                                    Version = moduleDefinition.Version,
+                                    Owner = moduleDefinition.Owner,
+                                    Url = moduleDefinition.Url,
+                                    Contact = moduleDefinition.Contact,
+                                    License = moduleDefinition.License,
+                                    Dependencies = moduleDefinition.Dependencies,
+                                    ThemeControls = string.Empty,
+                                    PaneLayouts = string.Empty,
+                                    ContainerControls = string.Empty,
+                                    AssemblyName = moduleDefinition.AssemblyName
+                                };
+                            }
+                            else
+                            {
+                                theme = new Theme
+                                {
+                                    ThemeName = @namespace,
+                                    Name = GetProperty(properties, "Name"),
+                                    Version = GetProperty(properties, "Version"),
+                                    Owner = GetProperty(properties, "Owner"),
+                                    Url = GetProperty(properties, "Url"),
+                                    Contact = GetProperty(properties, "Contact"),
+                                    License = GetProperty(properties, "License"),
+                                    Dependencies = GetProperty(properties, "Dependencies"),
+                                    ThemeControls = string.Empty,
+                                    PaneLayouts = string.Empty,
+                                    ContainerControls = string.Empty,
+                                    AssemblyName = assembly.FullName.Split(",")[0]
+                                };
+                            }
                         }
                         else
                         {

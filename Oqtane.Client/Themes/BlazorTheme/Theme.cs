@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Oqtane.Models;
+using System.Collections.Generic;
 
 namespace Oqtane.Themes.BlazorTheme
 {
@@ -16,5 +17,11 @@ namespace Oqtane.Themes.BlazorTheme
                 return properties;
             }
         }
+
+        public ModuleDefinition ModuleDefinition => new ModuleDefinition
+        {
+            Name = "Blazor Theme",
+            Version = "1.0.0"
+        };
     }
 }

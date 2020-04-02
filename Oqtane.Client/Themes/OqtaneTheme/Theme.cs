@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Oqtane.Models;
+using System.Collections.Generic;
 
 namespace Oqtane.Themes.OqtaneTheme
 {
@@ -16,5 +17,11 @@ namespace Oqtane.Themes.OqtaneTheme
                 return properties;
             }
         }
+
+        public ModuleDefinition ModuleDefinition => new ModuleDefinition
+        {
+            Name = "Oqtane Theme",
+            Version = "1.0.0"
+        };
     }
 }
