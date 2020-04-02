@@ -3,7 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
 
-@if  (_message != string.Empty)
+@if (_message != string.Empty)
 {
     <ModuleMessage Message="@_message" Type="MessageType.Info" />
 }
@@ -40,17 +40,16 @@
     private string _confirm = string.Empty;
     private string _email = string.Empty;
     private string _displayName = string.Empty;
-    
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
 
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
 
     private async Task Register()
     {
         try
         {
             _message = string.Empty;
-            _isEmailValid  = Utilities.IsValidEmail(_email);
-            
+            bool _isEmailValid = Utilities.IsValidEmail(_email);
+
             if (_username != "" && _password != "" && _confirm != "" && _isEmailValid)
             {
                 if (_password == _confirm)
@@ -97,3 +96,4 @@
     {
         NavigationManager.NavigateTo(NavigateUrl(string.Empty));
     }
+}

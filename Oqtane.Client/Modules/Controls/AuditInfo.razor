@@ -39,7 +39,7 @@
         _text = string.Empty;
         if (!String.IsNullOrEmpty(CreatedBy) || CreatedOn != null)
         {
-            _text += "<p style=\string.Empty + Style + "\">Created ";
+            _text += "<p style=\"" + Style + "\">Created ";
             
             if (!String.IsNullOrEmpty(CreatedBy))
             {
@@ -56,7 +56,7 @@
 
         if (!String.IsNullOrEmpty(ModifiedBy) || ModifiedOn != null)
         {
-            _text += "<p style=\string.Empty + Style + "\">Last modified ";
+            _text += "<p style=\"" + Style + "\">Last modified ";
             
             if (!String.IsNullOrEmpty(ModifiedBy))
             {
@@ -73,7 +73,7 @@
 
         if (!String.IsNullOrEmpty(DeletedBy) || DeletedOn.HasValue)
         {
-            _text += "<p style=\string.Empty + Style + "\">Deleted ";
+            _text += "<p style=\"" + Style + "\">Deleted ";
             
             if (!String.IsNullOrEmpty(DeletedBy))
             {

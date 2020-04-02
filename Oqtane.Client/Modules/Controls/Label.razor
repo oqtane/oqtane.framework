@@ -31,12 +31,12 @@ else
         _openLabel = "<label";
         if (!string.IsNullOrEmpty(For))
         {
-            _openLabel += " for=\string.Empty + For + "\string.Empty;
+            _openLabel += " for=\"" + For + "\"";
         }
         
         if (!string.IsNullOrEmpty(Class))
         {
-            _openLabel += " class=\string.Empty + Class + "\string.Empty;
+            _openLabel += " class=\"" + Class + "\"";
         }
         
         _openLabel += ">";

@@ -69,7 +69,6 @@
             {
                 tenant.Name = name;
                 tenant.DBConnectionString = connectionstring;
-                tenant.DBSchema = schema;
                 
                 await TenantService.UpdateTenantAsync(tenant);
                 await logger.LogInformation("Tenant Saved {TenantId}", tenantid);

@@ -3,14 +3,9 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <OutputType>Exe</OutputType>
-    <BlazorLinkOnBuild>false</BlazorLinkOnBuild>
-    <RestoreAdditionalProjectSources>
-      https://dotnet.myget.org/F/aspnetcore-dev/api/v3/index.json;
-      https://dotnet.myget.org/F/blazor-dev/api/v3/index.json;
-    </RestoreAdditionalProjectSources>
     <LangVersion>7.3</LangVersion>
     <RazorLangVersion>3.0</RazorLangVersion>
-    <Configurations>Debug;Release;WebAssembly</Configurations>
+    <Configurations>Debug;Release</Configurations>
     <Version>0.0.9</Version>
     <Product>Oqtane</Product>
     <Authors>Shaun Walker</Authors>
@@ -24,10 +19,6 @@
     <RootNamespace>Oqtane</RootNamespace>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='WebAssembly|AnyCPU'">
-    <DefineConstants>TRACE;WASM</DefineConstants>
-  </PropertyGroup>
-
   <ItemGroup>
     <Compile Remove="Modules\Admin\ModuleCreator\Templates\**" />
     <Content Remove="Modules\Admin\ModuleCreator\Templates\**" />
@@ -36,10 +27,10 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Blazor" Version="3.1.0-preview4.19579.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Blazor.Build" Version="3.1.0-preview4.19579.2" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.AspNetCore.Blazor.HttpClient" Version="3.1.0-preview4.19579.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="3.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="3.2.0-preview3.20168.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Build" Version="3.2.0-preview3.20168.3" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.Blazor.HttpClient" Version="3.2.0-preview3.20168.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="3.1.2" />
   </ItemGroup>
 
   <ItemGroup>
