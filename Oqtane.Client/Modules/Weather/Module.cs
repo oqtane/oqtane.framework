@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Oqtane.Models;
+using System.Collections.Generic;
 
 namespace Oqtane.Modules.Weather
 {
@@ -17,5 +18,12 @@ namespace Oqtane.Modules.Weather
                 return properties;
             }
         }
+
+        public ModuleDefinition ModuleDefinition => new ModuleDefinition
+        {
+            Name = "Weather",
+            Description = "Displays random weather using a service",
+            Version = "1.0.0"
+        };
     }
 }

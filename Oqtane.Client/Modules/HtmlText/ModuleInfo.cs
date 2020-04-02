@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Oqtane.Models;
+using System.Collections.Generic;
 
 namespace Oqtane.Modules.HtmlText
 {
@@ -18,5 +19,13 @@ namespace Oqtane.Modules.HtmlText
                 return properties;
             }
         }
+
+        public ModuleDefinition ModuleDefinition => new ModuleDefinition
+        {
+            Name = "HtmlText",
+            Description = "Renders HTML or Text",
+            Version = "1.0.0",
+            ServerAssemblyName = "Oqtane.Server"
+        };
     }
 }

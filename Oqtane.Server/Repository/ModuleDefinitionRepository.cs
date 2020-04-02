@@ -148,26 +148,34 @@ namespace Oqtane.Repository
                         if (moduletype != null)
                         {
                             var moduleobject = Activator.CreateInstance(moduletype);
-                            Dictionary<string, string> properties = (Dictionary<string, string>)moduletype.GetProperty("Properties").GetValue(moduleobject);
-                            moduledefinition = new ModuleDefinition
+                            var properties = (Dictionary<string, string>)moduletype.GetProperty("Properties").GetValue(moduleobject);
+                            if (properties == null || properties.Count == 0)
                             {
-                                ModuleDefinitionName = qualifiedModuleType,
-                                Name = GetProperty(properties, "Name"),
-                                Description = GetProperty(properties, "Description"),
-                                Categories = GetProperty(properties, "Categories"),
-                                Version = GetProperty(properties, "Version"),
-                                Owner = GetProperty(properties, "Owner"),
-                                Url = GetProperty(properties, "Url"),
-                                Contact = GetProperty(properties, "Contact"),
-                                License = GetProperty(properties, "License"),
-                                Dependencies = GetProperty(properties, "Dependencies"),
-                                PermissionNames = GetProperty(properties, "PermissionNames"),
-                                ServerAssemblyName = GetProperty(properties, "ServerAssemblyName"),
-                                ControlTypeTemplate = moduleType + "." + Constants.ActionToken + ", " + typename[1],
-                                ControlTypeRoutes = "",
-                                AssemblyName = assembly.FullName.Split(",")[0],
-                                Permissions = ""
-                            };
+                                // TODO: Avoid using reflection
+                                moduledefinition = (ModuleDefinition)moduletype.GetProperty("ModuleDefinitions").GetValue(moduleobject);
+                            }
+                            else
+                            {
+                                moduledefinition = new ModuleDefinition
+                                {
+                                    ModuleDefinitionName = qualifiedModuleType,
+                                    Name = GetProperty(properties, "Name"),
+                                    Description = GetProperty(properties, "Description"),
+                                    Categories = GetProperty(properties, "Categories"),
+                                    Version = GetProperty(properties, "Version"),
+                                    Owner = GetProperty(properties, "Owner"),
+                                    Url = GetProperty(properties, "Url"),
+                                    Contact = GetProperty(properties, "Contact"),
+                                    License = GetProperty(properties, "License"),
+                                    Dependencies = GetProperty(properties, "Dependencies"),
+                                    PermissionNames = GetProperty(properties, "PermissionNames"),
+                                    ServerAssemblyName = GetProperty(properties, "ServerAssemblyName"),
+                                    ControlTypeTemplate = moduleType + "." + Constants.ActionToken + ", " + typename[1],
+                                    ControlTypeRoutes = "",
+                                    AssemblyName = assembly.FullName.Split(",")[0],
+                                    Permissions = ""
+                                };
+                            }
                         }
                         else
                         {

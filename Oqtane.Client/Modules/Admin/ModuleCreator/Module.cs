@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Oqtane.Models;
+using System.Collections.Generic;
 
 namespace Oqtane.Modules.Admin.ModuleCreator
 {
@@ -18,5 +19,13 @@ namespace Oqtane.Modules.Admin.ModuleCreator
                 return properties;
             }
         }
+
+        public ModuleDefinition ModuleDefinition => new ModuleDefinition
+        {
+            Name = "Module Creator",
+            Description = "Enables software developers to quickly create modules by automating many of the initial module creation tasks",
+            Version = "1.0.0",
+            Categories = "Developer"
+        };
     }
 }
