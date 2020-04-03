@@ -14,8 +14,8 @@ namespace Oqtane.Services
             if (alias != null)
             {
                 // build a url which passes the alias that may include a subfolder for multi-tenancy
-                apiurl = uri.Scheme + "://" + alias.Name + "/";
-                if (alias.Path == "")
+                apiurl = $"{uri.Scheme}://{alias.Name}/";
+                if (alias.Path == string.Empty)
                 {
                     apiurl += "~/";
                 }
@@ -23,9 +23,10 @@ namespace Oqtane.Services
             else
             {
                 // build a url which ignores any subfolder for multi-tenancy
-                apiurl = uri.Scheme + "://" + uri.Authority + "/~/";
+                apiurl = $"{uri.Scheme}://{uri.Authority}/~/";
             }
-            apiurl += "api/" + serviceName;
+            apiurl += $"api/{serviceName}";
+            
             return apiurl;
         }
 

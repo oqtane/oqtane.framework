@@ -28,14 +28,14 @@ namespace Oqtane.Services
 
         public async Task<List<Notification>> GetNotificationsAsync(int siteId, string direction, int userId)
         {
-            string querystring = "?siteid=" + siteId.ToString() + "&direction=" + direction.ToLower() + "&userid=" + userId.ToString();
-            List<Notification> notifications = await _http.GetJsonAsync<List<Notification>>(Apiurl + querystring);
+            var notifications = await _http.GetJsonAsync<List<Notification>>($"{Apiurl}? siteid={siteId.ToString()}&direction={direction.ToLower()}&userid={userId.ToString()}");
+            
             return notifications.OrderByDescending(item => item.CreatedOn).ToList();
         }
 
         public async Task<Notification> GetNotificationAsync(int notificationId)
         {
-            return await _http.GetJsonAsync<Notification>(Apiurl + "/" + notificationId.ToString());
+            return await _http.GetJsonAsync<Notification>($"{Apiurl}/{notificationId.ToString()}");
         }
 
         public async Task<Notification> AddNotificationAsync(Notification notification)
@@ -45,11 +45,11 @@ namespace Oqtane.Services
 
         public async Task<Notification> UpdateNotificationAsync(Notification notification)
         {
-            return await _http.PutJsonAsync<Notification>(Apiurl + "/" + notification.NotificationId.ToString(), notification);
+            return await _http.PutJsonAsync<Notification>($"{Apiurl}/{notification.NotificationId.ToString()}", notification);
         }
         public async Task DeleteNotificationAsync(int notificationId)
         {
-            await _http.DeleteAsync(Apiurl + "/" + notificationId.ToString());
+            await _http.DeleteAsync($"{Apiurl}/{notificationId.ToString()}");
         }
     }
 }
