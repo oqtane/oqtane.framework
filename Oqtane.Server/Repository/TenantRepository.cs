@@ -38,9 +38,9 @@ namespace Oqtane.Repository
 
         public Tenant UpdateTenant(Tenant tenant)
         {
-            var oldTenant = GetTenant(tenant.TenantId);
+            var oldTenant =_db.Tenant.AsNoTracking().FirstOrDefault(t=> t.TenantId == tenant.TenantId);
             
-            if (oldTenant.Name.Equals(Constants.MasterTenant, StringComparison.OrdinalIgnoreCase) && !oldTenant.Name.Equals(tenant.Name))
+            if (oldTenant != null && (oldTenant.Name.Equals(Constants.MasterTenant, StringComparison.OrdinalIgnoreCase) && !oldTenant.Name.Equals(tenant.Name)))
             {
                 throw new InvalidOperationException("Unable to rename the master tenant.");
             }

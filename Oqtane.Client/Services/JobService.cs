@@ -34,7 +34,7 @@ namespace Oqtane.Services
 
         public async Task<Job> GetJobAsync(int jobId)
         {
-            return await _http.GetJsonAsync<Job>(Apiurl + "/" + jobId.ToString());
+            return await _http.GetJsonAsync<Job>($"{Apiurl}/{jobId.ToString()}");
         }
 
         public async Task<Job> AddJobAsync(Job job)
@@ -44,21 +44,21 @@ namespace Oqtane.Services
 
         public async Task<Job> UpdateJobAsync(Job job)
         {
-            return await _http.PutJsonAsync<Job>(Apiurl + "/" + job.JobId.ToString(), job);
+            return await _http.PutJsonAsync<Job>($"{Apiurl}/{job.JobId.ToString()}", job);
         }
         public async Task DeleteJobAsync(int jobId)
         {
-            await _http.DeleteAsync(Apiurl + "/" + jobId.ToString());
+            await _http.DeleteAsync($"{Apiurl}/{jobId.ToString()}");
         }
 
         public async Task StartJobAsync(int jobId)
         {
-            await _http.GetAsync(Apiurl + "/start/" + jobId.ToString());
+            await _http.GetAsync($"{Apiurl}/start/{jobId.ToString()}");
         }
 
         public async Task StopJobAsync(int jobId)
         {
-            await _http.GetAsync(Apiurl + "/stop/" + jobId.ToString());
+            await _http.GetAsync($"{Apiurl}/stop/{jobId.ToString()}");
         }
     }
 }

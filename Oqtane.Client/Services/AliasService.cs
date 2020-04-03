@@ -36,7 +36,7 @@ namespace Oqtane.Services
 
         public async Task<Alias> GetAliasAsync(int aliasId)
         {
-            return await _http.GetJsonAsync<Alias>(Apiurl + "/" + aliasId.ToString());
+            return await _http.GetJsonAsync<Alias>($"{Apiurl}/{aliasId.ToString()}");
         }
 
         public async Task<Alias> GetAliasAsync(string url, DateTime lastSyncDate)
@@ -51,7 +51,7 @@ namespace Oqtane.Services
             { 
                 name = name.Substring(0, name.Length - 1); 
             }
-            return await _http.GetJsonAsync<Alias>(Apiurl + "/name/" + WebUtility.UrlEncode(name) + "?lastsyncdate=" + lastSyncDate.ToString("yyyyMMddHHmmssfff"));
+            return await _http.GetJsonAsync<Alias>($"{Apiurl}/name/{WebUtility.UrlEncode(name)}?lastsyncdate={lastSyncDate.ToString("yyyyMMddHHmmssfff")}");
         }
 
         public async Task<Alias> AddAliasAsync(Alias alias)
@@ -61,11 +61,11 @@ namespace Oqtane.Services
 
         public async Task<Alias> UpdateAliasAsync(Alias alias)
         {
-            return await _http.PutJsonAsync<Alias>(Apiurl + "/" + alias.AliasId.ToString(), alias);
+            return await _http.PutJsonAsync<Alias>($"{Apiurl}/{alias.AliasId.ToString()}", alias);
         }
         public async Task DeleteAliasAsync(int aliasId)
         {
-            await _http.DeleteAsync(Apiurl + "/" + aliasId.ToString());
+            await _http.DeleteAsync($"{Apiurl}/{aliasId.ToString()}");
         }
     }
 }

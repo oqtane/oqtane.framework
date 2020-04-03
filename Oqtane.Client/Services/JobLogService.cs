@@ -34,7 +34,7 @@ namespace Oqtane.Services
 
         public async Task<JobLog> GetJobLogAsync(int jobLogId)
         {
-            return await _http.GetJsonAsync<JobLog>(Apiurl + "/" + jobLogId.ToString());
+            return await _http.GetJsonAsync<JobLog>($"{Apiurl}/{jobLogId.ToString()}");
         }
 
         public async Task<JobLog> AddJobLogAsync(JobLog joblog)
@@ -44,11 +44,11 @@ namespace Oqtane.Services
 
         public async Task<JobLog> UpdateJobLogAsync(JobLog joblog)
         {
-            return await _http.PutJsonAsync<JobLog>(Apiurl + "/" + joblog.JobLogId.ToString(), joblog);
+            return await _http.PutJsonAsync<JobLog>($"{Apiurl}/{joblog.JobLogId.ToString()}", joblog);
         }
         public async Task DeleteJobLogAsync(int jobLogId)
         {
-            await _http.DeleteAsync(Apiurl + "/" + jobLogId.ToString());
+            await _http.DeleteAsync($"{Apiurl}/{jobLogId.ToString()}");
         }
     }
 }

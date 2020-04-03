@@ -30,12 +30,12 @@ namespace Oqtane.Services
 
         public async Task<List<Log>> GetLogsAsync(int siteId, string level, string function, int rows)
         {
-            return await _http.GetJsonAsync<List<Log>>(Apiurl + "?siteid=" + siteId.ToString() + "&level=" + level + "&function=" + function + "&rows=" + rows.ToString());
+            return await _http.GetJsonAsync<List<Log>>($"{Apiurl}?siteid={siteId.ToString()}&level={level}&function={function}&rows={rows.ToString()}");
         }
 
         public async Task<Log> GetLogAsync(int logId)
         {
-            return await _http.GetJsonAsync<Log>(Apiurl + "/" + logId.ToString());
+            return await _http.GetJsonAsync<Log>($"{Apiurl}/{logId.ToString()}");
         }
 
         public async Task Log(int? pageId, int? moduleId, int? userId, string category, string feature, LogFunction function, LogLevel level, Exception exception, string message, params object[] args)

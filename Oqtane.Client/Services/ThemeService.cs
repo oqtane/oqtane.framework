@@ -45,7 +45,7 @@ namespace Oqtane.Services
                         if (assemblies.Where(item => item.FullName.StartsWith(assemblyname + ",")).FirstOrDefault() == null)
                         {
                             // download assembly from server and load
-                            var bytes = await _http.GetByteArrayAsync(Apiurl + "/load/" + assemblyname + ".dll");
+                            var bytes = await _http.GetByteArrayAsync($"{Apiurl}/load/{assemblyname}.dll");
                             Assembly.Load(bytes);
                         }
                     }
@@ -53,7 +53,7 @@ namespace Oqtane.Services
                 if (assemblies.Where(item => item.FullName.StartsWith(theme.AssemblyName + ",")).FirstOrDefault() == null)
                 {
                     // download assembly from server and load
-                    var bytes = await _http.GetByteArrayAsync(Apiurl + "/load/" + theme.AssemblyName + ".dll");
+                    var bytes = await _http.GetByteArrayAsync($"{Apiurl}/load/{theme.AssemblyName}.dll");
                     Assembly.Load(bytes);
                 }
             }
@@ -105,12 +105,12 @@ namespace Oqtane.Services
 
         public async Task InstallThemesAsync()
         {
-            await _http.GetJsonAsync<List<string>>(Apiurl + "/install");
+            await _http.GetJsonAsync<List<string>>($"{Apiurl}/install");
         }
 
         public async Task DeleteThemeAsync(string themeName)
         {
-            await _http.DeleteAsync(Apiurl + "/" + themeName);
+            await _http.DeleteAsync($"{Apiurl}/{themeName}");
         }
     }
 }

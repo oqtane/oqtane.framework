@@ -34,7 +34,7 @@ namespace Oqtane.Services
 
         public async Task<Tenant> GetTenantAsync(int tenantId)
         {
-            return await _http.GetJsonAsync<Tenant>(Apiurl + "/" + tenantId.ToString());
+            return await _http.GetJsonAsync<Tenant>($"{Apiurl}/{tenantId.ToString()}");
         }
 
         public async Task<Tenant> AddTenantAsync(Tenant tenant)
@@ -44,12 +44,12 @@ namespace Oqtane.Services
 
         public async Task<Tenant> UpdateTenantAsync(Tenant tenant)
         {
-            return await _http.PutJsonAsync<Tenant>(Apiurl + "/" + tenant.TenantId.ToString(), tenant);
+            return await _http.PutJsonAsync<Tenant>($"{Apiurl}/{tenant.TenantId.ToString()}", tenant);
         }
 
         public async Task DeleteTenantAsync(int tenantId)
         {
-            await _http.DeleteAsync(Apiurl + "/" + tenantId.ToString());
+            await _http.DeleteAsync($"{Apiurl}/{tenantId.ToString()}");
         }
     }
 }

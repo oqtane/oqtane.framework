@@ -63,6 +63,7 @@ namespace Oqtane.Infrastructure
             if (_isInstalled && !IsDefaultSiteInstalled(defaultConnectionString))
             {
                 BuildDefaultSite(password,email);
+                
             }
         }
 
@@ -319,10 +320,13 @@ namespace Oqtane.Infrastructure
                 var userRoles = scope.ServiceProvider.GetRequiredService<IUserRoleRepository>();
                 var folders = scope.ServiceProvider.GetRequiredService<IFolderRepository>();
                 var identityUserManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+                var tenants = scope.ServiceProvider.GetRequiredService<ITenantRepository>();
+
+                var tenant = tenants.GetTenants().First();
 
                 var site = new Site
                 {
-                    TenantId = -1,
+                    TenantId = tenant.TenantId,
                     Name = "Default Site",
                     LogoFileId = null,
                     DefaultThemeType = GetInstallationConfig(SettingKeys.DefaultThemeKey, Constants.DefaultTheme),
@@ -341,6 +345,8 @@ namespace Oqtane.Infrastructure
                     DisplayName = GetInstallationConfig(SettingKeys.HostUserKey, Constants.HostUser),
                 };
                 CreateHostUser(folders, userRoles, roles, users, identityUserManager, user);
+                tenant.IsInitialized = true;
+                tenants.UpdateTenant(tenant);
             }
         }
 

@@ -5,8 +5,15 @@ using System.Text.RegularExpressions;
 
 namespace Oqtane.Shared
 {
-    public class Utilities
+    public static class Utilities
     {
+        public static string ToModuleDefinitionName(this Type type)
+        {
+            if (type == null) return null;
+            var assemblyFullName = type.Assembly.FullName;
+            var assemblyName = assemblyFullName.Substring(0,  assemblyFullName.IndexOf(",", StringComparison.Ordinal));
+            return $"{type.Namespace}, {assemblyName}";
+        }
         public static string NavigateUrl(string alias, string path, string parameters)
         {
             string url = "";
