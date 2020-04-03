@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Linq;
 using Microsoft.AspNetCore.Components;
 using System.Collections.Generic;
+using Oqtane.Services.Interfaces;
 using Oqtane.Shared;
 
 namespace Oqtane.Services

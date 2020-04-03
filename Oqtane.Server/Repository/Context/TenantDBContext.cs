@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
+using Oqtane.Repository.Interfaces;
 
-namespace Oqtane.Repository
+namespace Oqtane.Repository.Context
 {
     public class TenantDBContext : DBContextBase
     {

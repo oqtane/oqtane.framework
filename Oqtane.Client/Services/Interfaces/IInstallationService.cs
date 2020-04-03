@@ -1,8 +1,8 @@
-﻿using Oqtane.Models;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Oqtane.Models;
 using Oqtane.Shared;
 
-namespace Oqtane.Services
+namespace Oqtane.Services.Interfaces
 {
     public interface IInstallationService
     {

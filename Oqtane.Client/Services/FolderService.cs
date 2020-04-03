@@ -8,6 +8,7 @@ using Oqtane.Shared;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using Oqtane.Services.Interfaces;
 
 namespace Oqtane.Services
 {

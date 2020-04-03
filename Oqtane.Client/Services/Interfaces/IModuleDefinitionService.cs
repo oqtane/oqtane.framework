@@ -1,9 +1,9 @@
-﻿using Oqtane.Models;
-using Oqtane.UI;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Oqtane.Models;
+using Oqtane.UI;
 
-namespace Oqtane.Services
+namespace Oqtane.Services.Interfaces
 {
     public interface IModuleDefinitionService
     {

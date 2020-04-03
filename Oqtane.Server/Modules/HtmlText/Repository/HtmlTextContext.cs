@@ -1,7 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Oqtane.Modules.HtmlText.Models;
 using Oqtane.Repository;
 using Microsoft.AspNetCore.Http;
+using Oqtane.Interfaces;
+using Oqtane.Models;
+using Oqtane.Modules.Models.HtmlText;
+using Oqtane.Repository.Context;
+using Oqtane.Repository.Interfaces;
 
 namespace Oqtane.Modules.HtmlText.Repository
 {

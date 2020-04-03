@@ -1,6 +1,6 @@
 ﻿using Oqtane.Models;
 
-namespace Oqtane.Repository
+namespace Oqtane.Repository.Interfaces
 {
     public interface ITenantResolver
     {

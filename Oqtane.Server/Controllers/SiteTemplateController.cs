@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Oqtane.Models;
 using Oqtane.Repository;
+using Oqtane.Repository.Interfaces;
 
 namespace Oqtane.Controllers
 {

@@ -1,4 +1,5 @@
-﻿using Oqtane.Shared;
+﻿using Oqtane.Enums;
+using Oqtane.Shared;
 
 namespace Oqtane.Modules
 {

@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Oqtane.Interfaces;
 using Oqtane.Models;
+using Oqtane.Repository.Interfaces;
 
-namespace Oqtane.Repository
+namespace Oqtane.Repository.Context
 {
     public class DBContextBase :  IdentityUserContext<IdentityUser> 
     {

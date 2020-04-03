@@ -2,6 +2,7 @@
 using System.Data;
 using System.Data.SqlClient;
 using Oqtane.Models;
+using Oqtane.Repository.Interfaces;
 
 namespace Oqtane.Repository
 {

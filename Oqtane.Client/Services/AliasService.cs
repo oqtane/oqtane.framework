@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using Oqtane.Shared;
 using System.Net;
 using System;
+using Oqtane.Services.Interfaces;
 
 namespace Oqtane.Services
 {

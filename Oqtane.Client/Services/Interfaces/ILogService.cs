@@ -1,11 +1,11 @@
-﻿using Oqtane.Models;
-using Oqtane.Shared;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Oqtane.Enums;
+using Oqtane.Models;
+using Oqtane.Shared;
 
-namespace Oqtane.Services
+namespace Oqtane.Services.Interfaces
 {
     public interface ILogService
     {

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
 using Oqtane.Infrastructure.Interfaces;
 using Oqtane.Repository;
+using Oqtane.Repository.Interfaces;
 using Oqtane.Shared;
 
 namespace Oqtane.Controllers
