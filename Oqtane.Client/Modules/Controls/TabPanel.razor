@@ -1,27 +1,35 @@
 ﻿@namespace Oqtane.Modules.Controls
 @inherits ModuleBase
 
-@if (Parent.ActiveTabPanel == (TabPanel)(object)this)
+@if (Name == Parent.ActiveTab)
 {
-    @ChildContent
+    <div id="@Name" class="tab-pane fade show active" role="tabpanel">
+        @ChildContent
+    </div>
+}
+else
+{
+    <div id="@Name" class="tab-pane fade" role="tabpanel">
+        @ChildContent
+    </div>
 }
 
 @code {
     [CascadingParameter]
-    private TabControl Parent { get; set; }
+    private TabStrip Parent { get; set; }
 
     [Parameter]
     public RenderFragment ChildContent { get; set; }
 
     [Parameter]
-    public string Text { get; set; }
+    public string Name { get; set; } // required - name of the TabPanel
+
+    [Parameter]
+    public string Heading { get; set; } // optional - defaults to name if not specified
 
     protected override void OnInitialized()
     {
-        if (Parent == null)
-            throw new ArgumentNullException(nameof(Parent), "TabPanel must exist within a TabControl");
-
         base.OnInitialized();
-        Parent.AddTabPanel((TabPanel)(object)this);
+        Parent.AddTabPanel((TabPanel)this);
     }
 }

@@ -123,10 +123,7 @@
         </tr>
     </table>
 
-    <a data-toggle="collapse" class="app-link-unstyled" href="#SMTP" aria-expanded="false" aria-controls="SMTP">
-        <h5><i class="oi oi-chevron-bottom"></i>&nbsp;SMTP Settings</h5><hr class="app-rule" />
-    </a>
-    <div class="collapse" id="SMTP">
+    <Section Name="SMTP" Heading="SMTP Settings">
         <table class="table table-borderless">
             <tr>
                 <td>
@@ -169,12 +166,8 @@
                 </td>
             </tr>
         </table>
-    </div>
-
-    <a data-toggle="collapse" class="app-link-unstyled" href="#PWA" aria-expanded="false" aria-controls="PWA">
-        <h5><i class="oi oi-chevron-bottom"></i>&nbsp;Progressive Web Application Settings</h5><hr class="app-rule" />
-    </a>
-    <div class="collapse" id="PWA">
+    </Section>
+    <Section Name="PWA" Heading="Progressive Web Application Settings">
         <table class="table table-borderless">
             <tr>
                 <td>
@@ -203,9 +196,8 @@
                     <FileManager FileId="@_pwasplashiconfileid.ToString()" Filter="png" @ref="_pwasplashiconfilemanager" />
                 </td>
             </tr>
-
         </table>
-    </div>
+    </Section>
 
     <br />
     <button type="button" class="btn btn-success" @onclick="SaveSite">Save</button>
