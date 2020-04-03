@@ -1,7 +1,7 @@
 ﻿using Oqtane.Models;
-using Oqtane.Modules.HtmlText.Models;
 using Oqtane.Modules.HtmlText.Repository;
 using System.Net;
+using Oqtane.Modules.Models.HtmlText;
 
 namespace Oqtane.Modules.HtmlText.Manager
 {

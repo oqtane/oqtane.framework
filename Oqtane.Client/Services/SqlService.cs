@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Components;
 using Oqtane.Shared;
 using System.Collections.Generic;
 using System.Linq;
+using Oqtane.Services.Interfaces;
 
 namespace Oqtane.Services
 {

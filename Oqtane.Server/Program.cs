@@ -1,13 +1,10 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
-// DO NOT REMOVE - needed for client-side Blazor
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+﻿using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
-using Oqtane.Infrastructure;
+using Oqtane.Infrastructure; // DO NOT REMOVE - needed for client-side Blazor
 
-namespace Oqtane.Server
+namespace Oqtane
 {
     public class Program
     {

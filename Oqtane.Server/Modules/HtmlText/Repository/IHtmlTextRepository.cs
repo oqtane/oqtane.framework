@@ -1,4 +1,4 @@
-﻿using Oqtane.Modules.HtmlText.Models;
+﻿using Oqtane.Modules.Models.HtmlText;
 
 namespace Oqtane.Modules.HtmlText.Repository
 {

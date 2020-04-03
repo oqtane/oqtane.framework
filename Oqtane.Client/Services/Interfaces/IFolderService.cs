@@ -1,9 +1,9 @@
-﻿using Oqtane.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
+using Oqtane.Models;
 
-namespace Oqtane.Services
+namespace Oqtane.Services.Interfaces
 {
     public interface IFolderService
     {

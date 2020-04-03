@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Oqtane.Models;
-using Oqtane.Repository;
+using Oqtane.Repository.Interfaces;
 using Oqtane.Shared;
 
-namespace Oqtane.Infrastructure
+namespace Oqtane.Infrastructure.Jobs
 {
     public abstract class HostedServiceBase : IHostedService, IDisposable
     {

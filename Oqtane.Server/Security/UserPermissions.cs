@@ -3,6 +3,7 @@ using Oqtane.Models;
 using System.Linq;
 using System.Security.Claims;
 using Oqtane.Repository;
+using Oqtane.Repository.Interfaces;
 
 namespace Oqtane.Security
 {

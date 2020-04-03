@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Oqtane.Modules.HtmlText.Models;
 using Oqtane.Modules.HtmlText.Repository;
 using Microsoft.AspNetCore.Http;
 using Oqtane.Shared;
@@ -8,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using Oqtane.Enums;
 using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Modules.Models.HtmlText;
 
 namespace Oqtane.Modules.HtmlText.Controllers
 {

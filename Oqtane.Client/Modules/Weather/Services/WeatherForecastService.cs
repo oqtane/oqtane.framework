@@ -2,6 +2,7 @@ using Oqtane.Modules;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Oqtane.Modules.Weather.Models;
 
 namespace Oqtane.Modules.Weather.Services
 {
