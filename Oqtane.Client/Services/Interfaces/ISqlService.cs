@@ -1,7 +1,7 @@
-﻿using Oqtane.Models;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Oqtane.Models;
 
-namespace Oqtane.Services
+namespace Oqtane.Services.Interfaces
 {
     public interface ISqlService
     {

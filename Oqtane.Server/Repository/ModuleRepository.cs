@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Models;
 using Oqtane.Modules;
+using Oqtane.Repository.Context;
+using Oqtane.Repository.Interfaces;
 using Module = Oqtane.Models.Module;
 
 namespace Oqtane.Repository

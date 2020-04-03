@@ -3,7 +3,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
-using Oqtane.Modules.HtmlText.Models;
+using Oqtane.Modules.Models.HtmlText;
 using Oqtane.Services;
 using Oqtane.Shared;
 

@@ -10,6 +10,7 @@ using System.Globalization;
 using Oqtane.Enums;
 using Oqtane.Infrastructure.Interfaces;
 using Oqtane.Repository;
+using Oqtane.Repository.Interfaces;
 
 namespace Oqtane.Controllers
 {

@@ -5,6 +5,7 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Infrastructure.Interfaces;
 using Oqtane.Models;
+using Oqtane.Repository.Interfaces;
 
 namespace Oqtane.Repository
 {

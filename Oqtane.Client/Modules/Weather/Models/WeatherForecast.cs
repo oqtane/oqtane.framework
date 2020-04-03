@@ -1,6 +1,6 @@
 using System;
 
-namespace Oqtane.Modules.Weather
+namespace Oqtane.Modules.Weather.Models
 {
     public class WeatherForecast
     {

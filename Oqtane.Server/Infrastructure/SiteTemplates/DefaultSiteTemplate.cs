@@ -1,11 +1,11 @@
-﻿using Oqtane.Models;
-using Oqtane.Infrastructure.Interfaces;
-using System.Collections.Generic;
-using Oqtane.Repository;
+﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Hosting;
+using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Models;
+using Oqtane.Repository.Interfaces;
 using Oqtane.Shared;
 
-namespace Oqtane.SiteTemplates
+namespace Oqtane.Infrastructure.SiteTemplates
 {
     public class DefaultSiteTemplate : ISiteTemplate
     {

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Oqtane.Enums;
 using Oqtane.Models;
+using Oqtane.Services.Interfaces;
 using Oqtane.Shared;
 
 namespace Oqtane.Services
