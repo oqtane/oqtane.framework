@@ -64,7 +64,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = "Oqtane.Modules.Admin.Dashboard, Oqtane.Client", Title = "Admin Dashboard", Pane = "Content",
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Dashboard.Index).ToModuleDefinitionName(), Title = "Admin Dashboard", Pane = "Content",
                         ModulePermissions = _permissionRepository.EncodePermissions(new List<Permission>
                         {
                             new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -86,7 +86,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = "Oqtane.Modules.Admin.Sites, Oqtane.Client", Title = "Site Management", Pane = "Content",
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Sites.Index).ToModuleDefinitionName(), Title = "Site Management", Pane = "Content",
                         ModulePermissions = _permissionRepository.EncodePermissions(new List<Permission>
                         {
                             new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -108,7 +108,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = "Oqtane.Modules.Admin.Site, Oqtane.Client", Title = "Site Settings", Pane = "Content",
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Site.Index).ToModuleDefinitionName(), Title = "Site Settings", Pane = "Content",
                         ModulePermissions = _permissionRepository.EncodePermissions(new List<Permission>
                         {
                             new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -130,7 +130,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = "Oqtane.Modules.Admin.Pages, Oqtane.Client", Title = "Page Management", Pane = "Content",
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Pages.Index).ToModuleDefinitionName(), Title = "Page Management", Pane = "Content",
                         ModulePermissions = _permissionRepository.EncodePermissions(new List<Permission>
                         {
                             new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -152,7 +152,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = "Oqtane.Modules.Admin.Users, Oqtane.Client", Title = "User Management", Pane = "Content",
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Users.Index).ToModuleDefinitionName(), Title = "User Management", Pane = "Content",
                         ModulePermissions = _permissionRepository.EncodePermissions(new List<Permission>
                         {
                             new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -174,7 +174,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = "Oqtane.Modules.Admin.Profiles, Oqtane.Client", Title = "Profile Management", Pane = "Content",
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Profiles.Index).ToModuleDefinitionName(), Title = "Profile Management", Pane = "Content",
                         ModulePermissions = _permissionRepository.EncodePermissions(new List<Permission>
                         {
                             new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -196,7 +196,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = "Oqtane.Modules.Admin.Roles, Oqtane.Client", Title = "Role Management", Pane = "Content",
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Roles.Index).ToModuleDefinitionName(), Title = "Role Management", Pane = "Content",
                         ModulePermissions = _permissionRepository.EncodePermissions(new List<Permission>
                         {
                             new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -218,7 +218,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = "Oqtane.Modules.Admin.Logs, Oqtane.Client", Title = "Event Log", Pane = "Content",
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Logs.Index).ToModuleDefinitionName(), Title = "Event Log", Pane = "Content",
                         ModulePermissions = _permissionRepository.EncodePermissions(new List<Permission>
                         {
                             new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -240,7 +240,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = "Oqtane.Modules.Admin.Files, Oqtane.Client", Title = "File Management", Pane = "Content",
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Files.Index).ToModuleDefinitionName(), Title = "File Management", Pane = "Content",
                         ModulePermissions = _permissionRepository.EncodePermissions(new List<Permission>
                         {
                             new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -262,7 +262,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = "Oqtane.Modules.Admin.RecycleBin, Oqtane.Client", Title = "Recycle Bin", Pane = "Content",
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.RecycleBin.Index).ToModuleDefinitionName(), Title = "Recycle Bin", Pane = "Content",
                         ModulePermissions = _permissionRepository.EncodePermissions(new List<Permission>
                         {
                             new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -284,7 +284,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = "Oqtane.Modules.Admin.Tenants, Oqtane.Client", Title = "Tenant Management", Pane = "Content",
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Tenants.Index).ToModuleDefinitionName(), Title = "Tenant Management", Pane = "Content",
                         ModulePermissions = _permissionRepository.EncodePermissions(new List<Permission>
                         {
                             new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -306,7 +306,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = "Oqtane.Modules.Admin.ModuleDefinitions, Oqtane.Client", Title = "Module Management", Pane = "Content",
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.ModuleDefinitions.Index).ToModuleDefinitionName(), Title = "Module Management", Pane = "Content",
                         ModulePermissions = _permissionRepository.EncodePermissions(new List<Permission>
                         {
                             new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -328,7 +328,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = "Oqtane.Modules.Admin.Themes, Oqtane.Client", Title = "Theme Management", Pane = "Content",
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Themes.Index).ToModuleDefinitionName(), Title = "Theme Management", Pane = "Content",
                         ModulePermissions = _permissionRepository.EncodePermissions(new List<Permission>
                         {
                             new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -350,7 +350,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = "Oqtane.Modules.Admin.Jobs, Oqtane.Client", Title = "Scheduled Jobs", Pane = "Content",
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Jobs.Index).ToModuleDefinitionName(), Title = "Scheduled Jobs", Pane = "Content",
                         ModulePermissions = _permissionRepository.EncodePermissions(new List<Permission>
                         {
                             new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -378,7 +378,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = "Oqtane.Modules.Admin.Sql, Oqtane.Client", Title = "Sql Management", Pane = "Content",
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Sql.Index).ToModuleDefinitionName(), Title = "Sql Management", Pane = "Content",
                         ModulePermissions = _permissionRepository.EncodePermissions(new List<Permission>
                         {
                             new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -400,7 +400,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = "Oqtane.Modules.Admin.Upgrade, Oqtane.Client", Title = "Upgrade Service", Pane = "Content",
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Upgrade.Index).ToModuleDefinitionName(), Title = "Upgrade Service", Pane = "Content",
                         ModulePermissions = _permissionRepository.EncodePermissions(new List<Permission>
                         {
                             new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -423,7 +423,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = "Oqtane.Modules.Admin.Login, Oqtane.Client", Title = "User Login", Pane = "Content",
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Login.Index).ToModuleDefinitionName(), Title = "User Login", Pane = "Content",
                         ModulePermissions = _permissionRepository.EncodePermissions(new List<Permission>
                         {
                             new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -447,7 +447,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = "Oqtane.Modules.Admin.Register, Oqtane.Client", Title = "User Registration", Pane = "Content",
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Register.Index).ToModuleDefinitionName(), Title = "User Registration", Pane = "Content",
                         ModulePermissions = _permissionRepository.EncodePermissions(new List<Permission>
                         {
                             new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -472,7 +472,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = "Oqtane.Modules.Admin.Reset, Oqtane.Client", Title = "Password Reset", Pane = "Content",
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Reset.Index).ToModuleDefinitionName(), Title = "Password Reset", Pane = "Content",
                         ModulePermissions = _permissionRepository.EncodePermissions(new List<Permission>
                         {
                             new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -496,7 +496,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = "Oqtane.Modules.Admin.UserProfile, Oqtane.Client", Title = "User Profile", Pane = "Content",
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.UserProfile.Index).ToModuleDefinitionName(), Title = "User Profile", Pane = "Content",
                         ModulePermissions = _permissionRepository.EncodePermissions(new List<Permission>
                         {
                             new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -517,6 +517,7 @@ namespace Oqtane.Repository
 
         public Site AddSite(Site site)
         {
+            
             _db.Site.Add(site);
             _db.SaveChanges();
             CreateSite(site);
