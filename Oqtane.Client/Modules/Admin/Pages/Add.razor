@@ -118,7 +118,7 @@
             </td>
             <td>
                 <select class="form-control" @onchange="(e => ThemeChanged(e))">
-                    <option value=string.Empty>&lt;Select Theme&gt;</option>
+                    <option value="">&lt;Select Theme&gt;</option>
                     @foreach (KeyValuePair<string, string> item in _themes)
                     {
                         <option value="@item.Key">@item.Value</option>
@@ -132,7 +132,7 @@
             </td>
             <td>
                 <select class="form-control" @bind="@_layouttype">
-                    <option value=string.Empty>&lt;Select Layout&gt;</option>
+                    <option value="">&lt;Select Layout&gt;</option>
                     @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
                     {
                         <option value="@panelayout.Key">@panelayout.Value</option>
