@@ -14,7 +14,7 @@ namespace Oqtane.Shared
             var assemblyName = assemblyFullName.Substring(0,  assemblyFullName.IndexOf(",", StringComparison.Ordinal));
             return $"{type.Namespace}, {assemblyName}";
         }
-        public static string NavigateUrl(string alias, string path, string parameters)
+        public static string NavigateUrl(string alias = "", string path = "", string parameters = "")
         {
             string url = "";
             if (alias != "")

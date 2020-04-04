@@ -1,26 +1,22 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Oqtane.Shared;
 using Oqtane.UI;
+using Oqtane.UI.Navigation;
 
 namespace Oqtane.Themes
 {
-    public class ThemeControlBase : ComponentBase
+    public class ThemeControlBase : ComponentBase, INavigator
     {
         [CascadingParameter]
         protected PageState PageState { get; set; }
 
-        public string NavigateUrl()
+        public string NavigateUrl(string path = "", string parameters = "")
         {
-            return NavigateUrl(PageState.Page.Path);
-        }
+            if (path == string.Empty && parameters == string.Empty)
+            {
+                path = PageState.Page.Path;
+            }
 
-        public string NavigateUrl(string path)
-        {
-            return NavigateUrl(path, "");
-        }
-
-        public string NavigateUrl(string path, string parameters)
-        {
             return Utilities.NavigateUrl(PageState.Alias.Path, path, parameters);
         }
 

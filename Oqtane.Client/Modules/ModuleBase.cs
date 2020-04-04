@@ -7,10 +7,11 @@ using System;
 using Oqtane.Enums;
 using Oqtane.Services.Interfaces;
 using Oqtane.UI;
+using Oqtane.UI.Navigation;
 
 namespace Oqtane.Modules
 {
-    public class ModuleBase : ComponentBase, IModuleControl
+    public class ModuleBase : ComponentBase, IModuleControl, INavigator
     {
         private Logger _logger;
 
@@ -45,19 +46,13 @@ namespace Oqtane.Modules
             return "Modules/" + GetType().Namespace + "/";
         }
 
-        // url methods
-        public string NavigateUrl()
+        public string NavigateUrl(string path = "", string parameters = "")
         {
-            return NavigateUrl(PageState.Page.Path);
-        }
+            if (path == string.Empty && parameters == string.Empty)
+            {
+                path = PageState.Page.Path;
+            }
 
-        public string NavigateUrl(string path)
-        {
-            return NavigateUrl(path, "");
-        }
-
-        public string NavigateUrl(string path, string parameters)
-        {
             return Utilities.NavigateUrl(PageState.Alias.Path, path, parameters);
         }
 

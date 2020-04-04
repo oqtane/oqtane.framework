@@ -3,10 +3,11 @@ using Microsoft.JSInterop;
 using Oqtane.Shared;
 using Oqtane.Models;
 using Oqtane.UI;
+using Oqtane.UI.Navigation;
 
 namespace Oqtane.Themes
 {
-    public class ContainerBase : ComponentBase, IContainerControl
+    public class ContainerBase : ComponentBase, IContainerControl, INavigator
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -24,18 +25,13 @@ namespace Oqtane.Themes
             return "Themes/" + GetType().Namespace + "/";
         }
 
-        public string NavigateUrl()
+        public string NavigateUrl(string path = "", string parameters = "")
         {
-            return NavigateUrl(PageState.Page.Path);
-        }
+            if (path == string.Empty && parameters == string.Empty)
+            {
+                path = PageState.Page.Path;
+            }
 
-        public string NavigateUrl(string path)
-        {
-            return NavigateUrl(path, "");
-        }
-
-        public string NavigateUrl(string path, string parameters)
-        {
             return Utilities.NavigateUrl(PageState.Alias.Path, path, parameters);
         }
 
