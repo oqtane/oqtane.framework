@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using Oqtane.Interfaces;
-using Oqtane.Models;
-using Oqtane.Modules.Models.HtmlText;
+using Oqtane.Modules.HtmlText.Models;
 
 namespace Oqtane.Modules.HtmlText.Repository
 {

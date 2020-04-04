@@ -4,7 +4,7 @@ using System.IO.Compression;
 using System.Reflection;
 using System.Threading;
 
-namespace Oqtane
+namespace Oqtane.Upgrade
 {
     class Program
     {

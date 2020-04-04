@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Oqtane.Infrastructure.Interfaces;
 using Oqtane.Repository;
-using Oqtane.Repository.Interfaces;
 
 namespace Oqtane.Infrastructure
 {

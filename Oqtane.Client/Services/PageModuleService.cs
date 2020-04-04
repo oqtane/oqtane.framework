@@ -2,7 +2,6 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
-using Oqtane.Services.Interfaces;
 using Oqtane.Shared;
 
 namespace Oqtane.Services

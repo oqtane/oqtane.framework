@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Oqtane.Models;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Oqtane.Models;
 
-namespace Oqtane.Services.Interfaces
+namespace Oqtane.Services
 {
     public interface IAliasService
     {

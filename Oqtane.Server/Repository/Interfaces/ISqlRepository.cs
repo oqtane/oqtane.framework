@@ -1,7 +1,7 @@
 ﻿using System.Data.SqlClient;
 using Oqtane.Models;
 
-namespace Oqtane.Repository.Interfaces
+namespace Oqtane.Repository
 {
     public interface ISqlRepository
     {

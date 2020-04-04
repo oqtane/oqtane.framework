@@ -4,8 +4,6 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Models;
-using Oqtane.Repository.Context;
-using Oqtane.Repository.Interfaces;
 using Oqtane.Shared;
 
 namespace Oqtane.Repository

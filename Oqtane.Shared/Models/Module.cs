@@ -1,8 +1,6 @@
 ﻿using Oqtane.Shared;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using Oqtane.Enums;
-using Oqtane.Interfaces;
 
 namespace Oqtane.Models
 {

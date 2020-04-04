@@ -1,4 +1,4 @@
-﻿namespace Oqtane.Enums
+﻿namespace Oqtane.Shared
 {
     public enum LogLevel
     {
