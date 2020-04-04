@@ -8,8 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Infrastructure.Interfaces;
 using Oqtane.Models;
 using Oqtane.Modules;
-using Oqtane.Repository.Context;
-using Oqtane.Repository.Interfaces;
 using Oqtane.Shared;
 using Module = Oqtane.Models.Module;
 

@@ -1,10 +1,9 @@
 using System;
+using Oqtane.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Oqtane.Interfaces;
-using Oqtane.Models;
 
-namespace Oqtane.Modules.Models.HtmlText
+namespace Oqtane.Modules.HtmlText.Models
 {
     [Table("HtmlText")]
     public class HtmlTextInfo : IAuditable

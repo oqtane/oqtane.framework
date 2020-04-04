@@ -17,11 +17,8 @@ using Microsoft.OpenApi.Models;
 using Oqtane.Infrastructure;
 using Oqtane.Infrastructure.Interfaces;
 using Oqtane.Repository;
-using Oqtane.Repository.Context;
-using Oqtane.Repository.Interfaces;
 using Oqtane.Security;
 using Oqtane.Services;
-using Oqtane.Services.Interfaces;
 using Oqtane.Shared; 
 
 namespace Oqtane

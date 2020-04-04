@@ -5,8 +5,6 @@ using System.Reflection;
 using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Models;
 using Oqtane.Modules;
-using Oqtane.Repository.Context;
-using Oqtane.Repository.Interfaces;
 using Oqtane.Shared;
 
 namespace Oqtane.Repository

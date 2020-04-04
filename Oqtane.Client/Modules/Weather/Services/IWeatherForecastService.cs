@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using Oqtane.Modules.Weather.Models;
 
 namespace Oqtane.Modules.Weather.Services
 {

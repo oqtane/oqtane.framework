@@ -12,8 +12,6 @@ using Oqtane.Infrastructure.Interfaces;
 using Oqtane.Repository;
 using Oqtane.Security;
 using System;
-using Oqtane.Repository.Interfaces;
-
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
 namespace Oqtane.Controllers

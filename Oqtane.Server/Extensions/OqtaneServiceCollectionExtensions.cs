@@ -6,11 +6,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 using Microsoft.Extensions.Hosting;
 using Oqtane.Infrastructure;
-using Oqtane.Infrastructure.Jobs;
-using Oqtane.Interfaces;
-using Oqtane.Models;
 using Oqtane.Modules;
-using File = System.IO.File;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection

@@ -1,19 +1,16 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+﻿using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Oqtane.Interfaces;
-using Oqtane.Models;
-using Oqtane.Modules;
-using Oqtane.Providers;
+using System.Threading.Tasks;
 using Oqtane.Services;
-using Oqtane.Services.Interfaces;
+using System.Reflection;
+using System;
+using System.Linq;
+using Oqtane.Modules;
 using Oqtane.Shared;
+using Oqtane.Providers;
+using Microsoft.AspNetCore.Components.Authorization;
 
-namespace Oqtane
+namespace Oqtane.Client
 {
     public class Program
     {

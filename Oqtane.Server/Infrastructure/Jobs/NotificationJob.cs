@@ -5,10 +5,10 @@ using System.Net;
 using System.Net.Mail;
 using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Models;
-using Oqtane.Repository.Interfaces;
+using Oqtane.Repository;
 using Oqtane.Shared;
 
-namespace Oqtane.Infrastructure.Jobs
+namespace Oqtane.Infrastructure
 {
     public class NotificationJob : HostedServiceBase
     {

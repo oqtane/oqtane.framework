@@ -1,4 +1,4 @@
-﻿namespace Oqtane.Interfaces
+﻿namespace Oqtane.Modules
 {
     public interface IService
     {
