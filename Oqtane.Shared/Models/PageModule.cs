@@ -1,5 +1,4 @@
 ﻿using System;
-using Oqtane.Interfaces;
 
 namespace Oqtane.Models
 {

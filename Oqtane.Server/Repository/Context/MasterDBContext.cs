@@ -2,10 +2,9 @@
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Oqtane.Interfaces;
 using Oqtane.Models;
 
-namespace Oqtane.Repository.Context
+namespace Oqtane.Repository
 {
     public class MasterDBContext : DbContext
     {

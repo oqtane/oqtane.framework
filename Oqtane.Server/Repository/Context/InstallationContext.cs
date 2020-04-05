@@ -1,7 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
 
-namespace Oqtane.Repository.Context
+namespace Oqtane.Repository
 {
     
     public class InstallationContext : DbContext

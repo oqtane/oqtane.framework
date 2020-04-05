@@ -3,7 +3,6 @@ using Oqtane.Models;
 using System.Net.Http;
 using Microsoft.AspNetCore.Components;
 using System.Threading.Tasks;
-using Oqtane.Services.Interfaces;
 
 namespace Oqtane.Services
 {

@@ -1,7 +1,7 @@
-﻿using System.Threading.Tasks;
-using Oqtane.Models;
+﻿using Oqtane.Models;
+using System.Threading.Tasks;
 
-namespace Oqtane.Services.Interfaces
+namespace Oqtane.Services
 {
     public interface IUserService
     {

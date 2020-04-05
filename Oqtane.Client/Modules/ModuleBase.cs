@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Oqtane.Services;
 using System;
 using Oqtane.Enums;
-using Oqtane.Services.Interfaces;
 using Oqtane.UI;
 
 namespace Oqtane.Modules

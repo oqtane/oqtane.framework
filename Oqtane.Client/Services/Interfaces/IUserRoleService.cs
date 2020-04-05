@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using Oqtane.Models;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using Oqtane.Models;
 
-namespace Oqtane.Services.Interfaces
+namespace Oqtane.Services
 {
     public interface IUserRoleService
     {
