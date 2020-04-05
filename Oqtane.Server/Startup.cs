@@ -222,6 +222,8 @@ namespace Oqtane
 
             app.UseStaticFiles();
 
+            app.UseBlazorFrameworkFiles();
+
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
