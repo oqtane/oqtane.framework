@@ -8,7 +8,7 @@ using System;
 using System.Net;
 using System.Globalization;
 using Oqtane.Enums;
-using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Infrastructure;
 using Oqtane.Repository;
 
 namespace Oqtane.Controllers

@@ -5,7 +5,7 @@ using Oqtane.Shared;
 using Oqtane.Security;
 using System.Linq;
 using Oqtane.Enums;
-using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Infrastructure;
 using Oqtane.Repository;
 
 namespace Oqtane.Controllers

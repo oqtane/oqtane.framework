@@ -1,4 +1,4 @@
-﻿namespace Oqtane.Infrastructure.Interfaces
+﻿namespace Oqtane.Infrastructure
 {
     public interface IInstallationManager
     {

@@ -3,7 +3,7 @@ using Oqtane.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Infrastructure;
 using Oqtane.Repository;
 
 namespace Oqtane.Infrastructure

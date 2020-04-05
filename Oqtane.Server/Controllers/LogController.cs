@@ -2,7 +2,7 @@
 using Oqtane.Models;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
-using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Shared;
 

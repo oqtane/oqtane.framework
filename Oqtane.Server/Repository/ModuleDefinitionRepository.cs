@@ -148,50 +148,22 @@ namespace Oqtane.Repository
                         if (moduletype != null)
                         {
                             var moduleobject = Activator.CreateInstance(moduletype);
-                            Dictionary<string, string> properties = (Dictionary<string, string>)moduletype.GetProperty("Properties").GetValue(moduleobject);
-                            moduledefinition = new ModuleDefinition
-                            {
-                                ModuleDefinitionName = qualifiedModuleType,
-                                Name = GetProperty(properties, "Name"),
-                                Description = GetProperty(properties, "Description"),
-                                Categories = GetProperty(properties, "Categories"),
-                                Version = GetProperty(properties, "Version"),
-                                Owner = GetProperty(properties, "Owner"),
-                                Url = GetProperty(properties, "Url"),
-                                Contact = GetProperty(properties, "Contact"),
-                                License = GetProperty(properties, "License"),
-                                Dependencies = GetProperty(properties, "Dependencies"),
-                                PermissionNames = GetProperty(properties, "PermissionNames"),
-                                ServerAssemblyName = GetProperty(properties, "ServerAssemblyName"),
-                                ControlTypeTemplate = moduleType + "." + Constants.ActionToken + ", " + typename[1],
-                                ControlTypeRoutes = "",
-                                AssemblyName = assembly.FullName.Split(",")[0],
-                                Permissions = ""
-                            };
+                            moduledefinition = (ModuleDefinition)moduletype.GetProperty("ModuleDefinition").GetValue(moduleobject);
                         }
                         else
                         {
                             moduledefinition = new ModuleDefinition
                             {
-                                ModuleDefinitionName = qualifiedModuleType,
                                 Name = moduleType.Substring(moduleType.LastIndexOf(".") + 1),
                                 Description = moduleType.Substring(moduleType.LastIndexOf(".") + 1),
                                 Categories = ((qualifiedModuleType.StartsWith("Oqtane.Modules.Admin.")) ? "Admin" : ""),
-                                Version = new Version(1, 0, 0).ToString(),
-                                Owner = "",
-                                Url = "",
-                                Contact = "",
-                                License = "",
-                                Dependencies = "",
-                                PermissionNames = "",
-                                ServerAssemblyName = "",
-                                ControlTypeTemplate = moduleType + "." + Constants.ActionToken + ", " + typename[1],
-                                ControlTypeRoutes = "",
-                                AssemblyName = assembly.FullName.Split(",")[0],
-                                Permissions = ""
+                                Version = new Version(1, 0, 0).ToString()
                             };
                         }
-                        // permissions
+                        // set internal properties
+                        moduledefinition.ModuleDefinitionName = qualifiedModuleType;
+                        moduledefinition.ControlTypeTemplate = moduleType + "." + Constants.ActionToken + ", " + typename[1];
+                        moduledefinition.AssemblyName = assembly.FullName.Split(",")[0];
                         if (moduledefinition.Categories == "Admin")
                         {
                             moduledefinition.Permissions = "[{\"PermissionName\":\"Utilize\",\"Permissions\":\"" + Constants.AdminRole + "\"}]";

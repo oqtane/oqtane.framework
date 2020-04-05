@@ -1,22 +1,16 @@
-using System.Collections.Generic;
+using Oqtane.Models;
+using Oqtane.Modules;
 
 namespace Oqtane.Modules.[Module]s
 {
     public class Module : IModule
     {
-        public Dictionary<string, string> Properties
+        public ModuleDefinition ModuleDefinition => new ModuleDefinition
         {
-            get
-            {
-                Dictionary<string, string> properties = new Dictionary<string, string>
-                {
-                    { "Name", "[Module]" },
-                    { "Description", "[Module]" },
-                    { "Version", "1.0.0" },
-                    { "ServerAssemblyName", "Oqtane.Server" }
-                };
-                return properties;
-            }
-        }
+            Name = "[Module]",
+            Description = "[Module]",
+            Version = "1.0.0",
+            ServerAssemblyName = "Oqtane.Server"
+        };
     }
 }

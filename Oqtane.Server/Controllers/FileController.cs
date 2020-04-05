@@ -14,7 +14,7 @@ using System.Linq;
 using System.Drawing;
 using System.Net;
 using Oqtane.Enums;
-using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Infrastructure;
 using Oqtane.Repository;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
