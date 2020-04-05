@@ -48,41 +48,22 @@ namespace Oqtane.Repository
                         if (themetype != null)
                         {
                             var themeobject = Activator.CreateInstance(themetype);
-                            Dictionary<string, string> properties = (Dictionary<string, string>)themetype.GetProperty("Properties").GetValue(themeobject);
-                            theme = new Theme
-                            {
-                                ThemeName = @namespace,
-                                Name = GetProperty(properties, "Name"),
-                                Version = GetProperty(properties, "Version"),
-                                Owner = GetProperty(properties, "Owner"),
-                                Url = GetProperty(properties, "Url"),
-                                Contact = GetProperty(properties, "Contact"),
-                                License = GetProperty(properties, "License"),
-                                Dependencies = GetProperty(properties, "Dependencies"),
-                                ThemeControls = "",
-                                PaneLayouts = "",
-                                ContainerControls = "",
-                                AssemblyName = assembly.FullName.Split(",")[0]
-                            };
+                            theme = (Theme)themetype.GetProperty("Theme").GetValue(themeobject);
                         }
                         else
                         {
                             theme = new Theme
                             {
-                                ThemeName = @namespace,
                                 Name = themeControlType.Name,
-                                Version = new Version(1, 0, 0).ToString(),
-                                Owner = "",
-                                Url = "",
-                                Contact = "",
-                                License = "",
-                                Dependencies = "",
-                                ThemeControls = "",
-                                PaneLayouts = "",
-                                ContainerControls = "",
-                                AssemblyName = assembly.FullName.Split(",")[0]
+                                Version = new Version(1, 0, 0).ToString()
                             };
                         }
+                        // set internal properties
+                        theme.ThemeName = @namespace;
+                        theme.ThemeControls = "";
+                        theme.PaneLayouts = "";
+                        theme.ContainerControls = "";
+                        theme.AssemblyName = assembly.FullName.Split(",")[0];
                         themes.Add(theme);
                         index = themes.FindIndex(item => item.ThemeName == @namespace);
                     }
