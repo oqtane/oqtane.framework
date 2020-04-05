@@ -3,7 +3,7 @@ using Oqtane.Modules;
 
 namespace Oqtane.Modules.[Module]s
 {
-    public class Module : IModule
+    public class ModuleInfo : IModule
     {
         public ModuleDefinition ModuleDefinition => new ModuleDefinition
         {
