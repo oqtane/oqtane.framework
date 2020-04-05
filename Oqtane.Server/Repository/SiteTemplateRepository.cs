@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Infrastructure;
 using Oqtane.Models;
 
 namespace Oqtane.Repository

@@ -4,7 +4,7 @@ using Oqtane.Models;
 using System.Collections.Generic;
 using Oqtane.Enums;
 using Oqtane.Shared;
-using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Infrastructure;
 using Oqtane.Repository;
 
 namespace Oqtane.Controllers

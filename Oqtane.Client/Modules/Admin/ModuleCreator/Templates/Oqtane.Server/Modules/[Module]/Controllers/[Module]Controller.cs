@@ -5,7 +5,7 @@ using Oqtane.Repository.[Module]s;
 using Oqtane.Shared;
 using System.Collections.Generic;
 using Oqtane.Enums;
-using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Infrastructure;
 
 namespace Oqtane.Controllers.[Module]s
 {

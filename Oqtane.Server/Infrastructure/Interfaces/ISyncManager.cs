@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Oqtane.Models;
 
-namespace Oqtane.Infrastructure.Interfaces
+namespace Oqtane.Infrastructure
 {
     public interface ISyncManager
     {

@@ -1,7 +1,7 @@
 ﻿using Oqtane.Models;
 using System.Collections.Generic;
 
-namespace Oqtane.Infrastructure.Interfaces
+namespace Oqtane.Infrastructure
 {
     public interface ISiteTemplate
     {

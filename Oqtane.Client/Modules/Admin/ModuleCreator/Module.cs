@@ -1,22 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using Oqtane.Models;
 
 namespace Oqtane.Modules.Admin.ModuleCreator
 {
     public class Module : IModule
     {
-        public Dictionary<string, string> Properties
+        public ModuleDefinition ModuleDefinition => new ModuleDefinition
         {
-            get
-            {
-                Dictionary<string, string> properties = new Dictionary<string, string>
-                {
-                    { "Name", "Module Creator" },
-                    { "Description", "Enables software developers to quickly create modules by automating many of the initial module creation tasks" },
-                    { "Version", "1.0.0" },
-                    { "Categories", "Developer" }
-                };
-                return properties;
-            }
-        }
+            Name = "Module Creator",
+            Description = "Enables software developers to quickly create modules by automating many of the initial module creation tasks",
+            Version = "1.0.0",
+            Categories = "Developer"
+        };
     }
 }

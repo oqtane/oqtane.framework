@@ -4,7 +4,6 @@ using Microsoft.Extensions.Configuration;
 using Oqtane.Models;
 using Oqtane.Shared;
 using Oqtane.Infrastructure;
-using Oqtane.Infrastructure.Interfaces;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 

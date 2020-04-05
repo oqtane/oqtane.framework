@@ -1,21 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using Oqtane.Models;
 
 namespace Oqtane.Modules.Weather
 {
     public class Module : IModule
     {
-        public Dictionary<string, string> Properties
+        public ModuleDefinition ModuleDefinition => new ModuleDefinition
         {
-            get
-            {
-                Dictionary<string, string> properties = new Dictionary<string, string>
-                {
-                    { "Name", "Weather" },
-                    { "Description", "Displays random weather using a service" },
-                    { "Version", "1.0.0" }
-                };
-                return properties;
-            }
-        }
+            Name = "Weather",
+            Description = "Displays random weather using a service",
+            Version = "1.0.0"
+        };
     }
 }

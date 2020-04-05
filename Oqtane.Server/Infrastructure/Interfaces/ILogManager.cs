@@ -3,7 +3,7 @@ using Oqtane.Enums;
 using Oqtane.Models;
 using Oqtane.Shared;
 
-namespace Oqtane.Infrastructure.Interfaces
+namespace Oqtane.Infrastructure
 {
     public interface ILogManager
     {

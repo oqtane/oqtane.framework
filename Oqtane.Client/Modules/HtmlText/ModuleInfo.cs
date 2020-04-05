@@ -1,22 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using Oqtane.Models;
 
 namespace Oqtane.Modules.HtmlText
 {
     public class ModuleInfo : IModule
     {
-        public Dictionary<string, string> Properties
+        public ModuleDefinition ModuleDefinition => new ModuleDefinition
         {
-            get
-            {
-                Dictionary<string, string> properties = new Dictionary<string, string>
-                {
-                    { "Name", "HtmlText" },
-                    { "Description", "Renders HTML or Text" },
-                    { "Version", "1.0.0" },
-                    { "ServerAssemblyName", "Oqtane.Server" }
-                };
-                return properties;
-            }
-        }
+            Name = "HtmlText",
+            Description = "Renders HTML or Text",
+            Version = "1.0.0",
+            ServerAssemblyName = "Oqtane.Server"
+        };
     }
 }

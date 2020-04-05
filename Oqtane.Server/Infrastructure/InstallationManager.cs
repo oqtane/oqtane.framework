@@ -7,7 +7,6 @@ using System.Xml;
 using Oqtane.Shared;
 using System;
 using System.Diagnostics;
-using Oqtane.Infrastructure.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Oqtane.Infrastructure

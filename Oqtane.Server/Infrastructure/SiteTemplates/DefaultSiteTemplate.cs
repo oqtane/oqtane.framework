@@ -1,5 +1,5 @@
 ﻿using Oqtane.Models;
-using Oqtane.Infrastructure.Interfaces;
+using Oqtane.Infrastructure;
 using System.Collections.Generic;
 using Oqtane.Repository;
 using Microsoft.AspNetCore.Hosting;

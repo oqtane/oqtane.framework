@@ -5,6 +5,22 @@ namespace Oqtane.Models
 {
     public class ModuleDefinition : IAuditable
     {
+        public ModuleDefinition()
+        {
+            Name = "";
+            Description = "";
+            Categories = "";
+            Version = "";
+            Owner = "";
+            Url = "";
+            Contact = "";
+            License = "";
+            Dependencies = "";
+            PermissionNames = "";
+            ServerAssemblyName = "";
+            ControlTypeRoutes = "";
+        }
+
         public int ModuleDefinitionId { get; set; }
         public string ModuleDefinitionName { get; set; }
 
@@ -13,6 +29,8 @@ namespace Oqtane.Models
         public string ModifiedBy { get; set; }
         public DateTime ModifiedOn { get; set; }
 
+        [NotMapped]
+        public int SiteId { get; set; }
         [NotMapped]
         public string Name { get; set; }
         [NotMapped]
@@ -41,8 +59,6 @@ namespace Oqtane.Models
         public string ControlTypeRoutes { get; set; }
         [NotMapped]
         public string AssemblyName { get; set; }
-        [NotMapped]
-        public int SiteId { get; set; }
         [NotMapped]
         public string Permissions { get; set; }
     }
