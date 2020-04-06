@@ -9,34 +9,34 @@
     <table class="table table-borderless">
         <tr>
             <td>
-                <label for="Name" class="control-label">Name: </label>
+                <Label For="Name" HelpText="Enter the page name">Name: </Label>
             </td>
             <td>
-                <input class="form-control" @bind="@_name" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="Title" class="control-label">Title: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@_title" />
+                <input id="name" class="form-control" @bind="@_name" />
             </td>
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Path: </label>
+                <Label For="Title" HelpText="Enter the page title">Title: </Label>
             </td>
             <td>
-                <input class="form-control" @bind="@_path" />
+                <input id="Title" class="form-control" @bind="@_title" />
             </td>
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Parent: </label>
+                <Label For="Path" HelpText="Enter the path for the page">Path: </Label>
             </td>
             <td>
-                <select class="form-control" @onchange="(e => ParentChanged(e))">
+                <input id="Path" class="form-control" @bind="@_path" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="Parent" HelpText="Select the parent for the page">Parent: </Label>
+            </td>
+            <td>
+                <select id="Parent" class="form-control" @onchange="(e => ParentChanged(e))">
                     <option value="-1">&lt;Site Root&gt;</option>
                     @foreach (Page page in _pageList)
                     {
@@ -54,10 +54,10 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Move: </label>
+                <Label For="Move" HelpText="Select where you wan to move the page">Move: </Label>
             </td>
             <td>
-                <select class="form-control" @bind="@_insert">
+                <select id="Move" class="form-control" @bind="@_insert">
                     @if (_parentid == _currentparentid)
                     {
                         <option value="=">&lt;Maintain Current Location&gt;</option>
@@ -72,7 +72,7 @@
                 </select>
                 @if (_children != null && _children.Count > 0 && (_insert == "<" || _insert == ">"))
                 {
-                    <select class="form-control" @bind="@_childid">
+                    <select id="Move" class="form-control" @bind="@_childid">
                         <option value="-1">&lt;Select Page&gt;</option>
                         @foreach (Page page in _children)
                         {
@@ -84,18 +84,18 @@
         </tr>
         <tr>
             <td>
-                <label for="Url" class="control-label">Url: </label>
+                <Label for="Url" HelpText="Enter the url for the page">Url: </Label>
             </td>
             <td>
-                <input class="form-control" @bind="@_url" />
+                <input id="Url" class="form-control" @bind="@_url" />
             </td>
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Navigation? </label>
+                <Label For="Navigation" HelpText="Select whether the page has navigation bar">Navigation? </Label>
             </td>
             <td>
-                <select class="form-control" @bind="@_isnavigation">
+                <select id="Navigation" class="form-control" @bind="@_isnavigation">
                     <option value="True">Yes</option>
                     <option value="False">No</option>
                 </select>
@@ -103,10 +103,10 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Personalizable? </label>
+                <Label For="Personalizable" HelpText="Do you want the page to be personalized by users">Personalizable? </Label>
             </td>
             <td>
-                <select class="form-control" @bind="@_ispersonalizable">
+                <select id="Personalizable" class="form-control" @bind="@_ispersonalizable">
                     <option value="True">Yes</option>
                     <option value="False">No</option>
                 </select>
@@ -114,10 +114,10 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Default Mode? </label>
+                <Label For="Default-Mode" HelpText="Select the default mode you want for the page">Default Mode? </Label>
             </td>
             <td>
-                <select class="form-control" @bind="@_mode">
+                <select id="Default-Mode" class="form-control" @bind="@_mode">
                     <option value="view">View Mode</option>
                     <option value="edit">Edit Mode</option>
                 </select>
@@ -125,10 +125,10 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Theme: </label>
+                <Label For="Theme" HelpText="Select the theme you want for the page">Theme: </Label>
             </td>
             <td>
-                <select class="form-control" @onchange="(e => ThemeChanged(e))">
+                <select id="Theme" class="form-control" @onchange="(e => ThemeChanged(e))">
                     <option value="">&lt;Select Theme&gt;</option>
                     @foreach (KeyValuePair<string, string> item in _themes)
                     {
@@ -146,10 +146,10 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Layout: </label>
+                <Label For="Layout" HelpText="Select the layout for the page">Layout: </Label>
             </td>
             <td>
-                <select class="form-control" @bind="@_layouttype">
+                <select id="Layout" class="form-control" @bind="@_layouttype">
                     <option value="">&lt;Select Layout&gt;</option>
                     @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
                     {
@@ -160,15 +160,15 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Icon: </label>
+                <Label For="Icon" HelpText="Enter the icon for the page">Icon: </Label>
             </td>
             <td>
-                <input class="form-control" @bind="@_icon" />
+                <input id="Icon" class="form-control" @bind="@_icon" />
             </td>
         </tr>
         <tr>
             <td colspan="2" align="center">
-                <label for="Name" class="control-label">Permissions: </label>
+                <Label For="Permissions" HelpText="Select the permissions you want for the page">Permissions: </Label>
                 <PermissionGrid EntityName="@EntityNames.Page" Permissions="@_permissions" @ref="_permissionGrid" />
             </td>
         </tr>
