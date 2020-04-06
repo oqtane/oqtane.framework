@@ -60,6 +60,13 @@ namespace Oqtane.Infrastructure
             var result = MasterMigration(defaultConnectionString, defaultAlias, null, true);
             IsInstalled = result.Success;
 
+            if (result.Success)
+            {
+                var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString();
+                WriteVersionInfo(defaultConnectionString);
+                TenantMigration(defaultConnectionString, dataDirectory);
+            }
+            
             if (_isInstalled && !IsDefaultSiteInstalled(defaultConnectionString))
             {
                 BuildDefaultSite(password,email);
