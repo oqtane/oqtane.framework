@@ -20,6 +20,7 @@ namespace Oqtane.Client
             builder.RootComponents.Add<App>("app");
 
             builder.Services.AddBaseAddressHttpClient();
+            builder.Services.AddOptions();
 
             // register auth services
             builder.Services.AddAuthorizationCore();

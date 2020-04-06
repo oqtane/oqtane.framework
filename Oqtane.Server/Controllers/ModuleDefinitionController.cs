@@ -122,13 +122,22 @@ namespace Oqtane.Controllers
             }
         }
 
-        // GET api/<controller>/load/filename
-        [HttpGet("load/{filename}")]
+        // GET api/<controller>/load/assembyname
+        [HttpGet("load/{assemblyname}")]
         public IActionResult Load(string assemblyname)
         {
-            string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            byte[] file = System.IO.File.ReadAllBytes(Path.Combine(binfolder, assemblyname));
-            return File(file, "application/octet-stream", assemblyname);
+            if (Path.GetExtension(assemblyname).ToLower() == ".dll")
+            {
+                string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                byte[] file = System.IO.File.ReadAllBytes(Path.Combine(binfolder, assemblyname));
+                return File(file, "application/octet-stream", assemblyname);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Download Assembly {Assembly}", assemblyname);
+                HttpContext.Response.StatusCode = 401;
+                return null;
+            }
         }
 
         // POST api/<controller>?moduleid=x

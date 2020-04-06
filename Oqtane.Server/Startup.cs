@@ -218,11 +218,8 @@ namespace Oqtane
             installationManager.InstallPackages("Modules,Themes", false);
 
             app.UseHttpsRedirection();
-
             app.UseStaticFiles();
-
             app.UseBlazorFrameworkFiles();
-
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
