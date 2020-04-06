@@ -27,7 +27,7 @@
                     <table class="table table-borderless">
                         <tr>
                             <td>
-                                <label  class="control-label">Upload: </label>
+                                <Label For="upload" HelpText="Upload the file you want">Upload: </Label>
                             </td>
                             <td>
                                 <FileManager UploadMultiple="true" ShowFiles="false" FolderId="@_folderId.ToString()" />
@@ -39,18 +39,18 @@
                     <table class="table table-borderless">
                         <tr>
                             <td>
-                                <label  class="control-label">Url: </label>
+                                <Label For="url" HelpText="Enter the file url">Url: </Label>
                             </td>
                             <td>
-                                <input class="form-control" @bind="@url" />
+                                <input id="url" class="form-control" @bind="@url" />
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                <label  class="control-label">Folder: </label>
+                                <Label For="folder" HelpText="Select the folder the file is in">Folder: </Label>
                             </td>
                             <td>
-                                <select class="form-control" @bind="@_folderId">
+                                <select id="folder" class="form-control" @bind="@_folderId">
                                     <option value="-1">&lt;Select Folder&gt;</option>
                                     @foreach (Folder folder in _folders)
                                     {
