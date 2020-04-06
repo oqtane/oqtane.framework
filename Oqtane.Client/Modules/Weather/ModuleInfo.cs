@@ -2,7 +2,7 @@
 
 namespace Oqtane.Modules.Weather
 {
-    public class Module : IModule
+    public class ModuleInfo : IModule
     {
         public ModuleDefinition ModuleDefinition => new ModuleDefinition
         {
