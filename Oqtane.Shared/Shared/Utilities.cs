@@ -2,8 +2,6 @@
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 
 namespace Oqtane.Shared
 {
@@ -19,29 +17,15 @@ namespace Oqtane.Shared
 
         public static string NavigateUrl(string alias, string path, string parameters)
         {
-            if (!alias.StartsWith("/"))
+            var uriBuilder = new UriBuilder
             {
-                alias = $"/{alias}";
-            }
+                Path = !string.IsNullOrEmpty(alias)
+                ? $"{alias}/{path}"
+                : $"{path}",
+                Query = parameters
+            };
 
-            if (!path.StartsWith("/"))
-            {
-                path = $"/{path}";
-            }
-
-            var pathPaseValue = alias == string.Empty
-                ? default
-                : new PathString(alias);
-
-            var pathValue = path == string.Empty
-                ? default
-                : new PathString(path);
-
-            var queryStringValue = parameters == string.Empty
-                ? default
-                : new QueryString($"?{parameters}");
-
-            return UriHelper.BuildRelative(pathPaseValue, pathValue, queryStringValue);
+            return uriBuilder.Uri.PathAndQuery;
         }
 
         public static string EditUrl(string alias, string path, int moduleid, string action, string parameters)
