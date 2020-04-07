@@ -121,6 +121,10 @@
         {
             var moduleobject = Activator.CreateInstance(_settingsModuleType);
             _settingstitle = (string)_settingsModuleType.GetProperty("Title").GetValue(moduleobject, null);
+            if (string.IsNullOrEmpty(_settingstitle))
+            {
+                _settingstitle = "Other Settings";
+            }
 
             DynamicComponent = builder =>
             {
@@ -141,7 +145,7 @@
         pagemodule.PageId = int.Parse(_pageId);
         pagemodule.Title = _title;
         pagemodule.ContainerType = _containerType;
-        
+
         await PageModuleService.UpdatePageModuleAsync(pagemodule);
         await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
 

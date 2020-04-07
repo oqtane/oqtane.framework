@@ -30,25 +30,15 @@ namespace Oqtane.Shared
 
         public static string EditUrl(string alias, string path, int moduleid, string action, string parameters)
         {
-            string url = NavigateUrl(alias, path, "");
-            if (url == "/") url = "";
             if (moduleid != -1)
             {
-                url += "/" + moduleid.ToString();
+                path += $"/{moduleid}";
+                if (!string.IsNullOrEmpty(action))
+                {
+                    path += $"/{action}";
+                }
             }
-            if (moduleid != -1 && action != "")
-            {
-                url += "/" + action;
-            }
-            if (!string.IsNullOrEmpty(parameters))
-            {
-                url += "?" + parameters;
-            }
-            if (!url.StartsWith("/"))
-            {
-                url = "/" + url;
-            }
-            return url;
+            return NavigateUrl(alias, path, parameters);
         }
 
         public static string ContentUrl(string alias, int fileid)
