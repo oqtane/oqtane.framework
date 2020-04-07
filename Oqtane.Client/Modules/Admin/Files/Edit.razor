@@ -8,10 +8,10 @@
     <table class="table table-borderless">
         <tr>
             <td>
-                <label  class="control-label">Parent: </label>
+                <Label For="parent" HelpText="Select the parent folder">Parent: </Label>
             </td>
             <td>
-                <select class="form-control" @bind="@_parentId">
+                <select id="parent" class="form-control" @bind="@_parentId">
                     @if (PageState.QueryString.ContainsKey("id"))
                     {
                         <option value="-1">&lt;No Parent&gt;</option>
@@ -25,15 +25,15 @@
         </tr>
         <tr>
             <td>
-                <label  class="control-label">Name: </label>
+                <Label for="name" HelpText="Enter the file name">Name: </Label>
             </td>
             <td>
-                <input class="form-control" @bind="@_name" />
+                <input id="name" class="form-control" @bind="@_name" />
             </td>
         </tr>
         <tr>
             <td colspan="2" align="center">
-                <label class="control-label">Permissions: </label>
+                <Label For="permissions" HelpText="Select the permissions you want for the file">Permissions: </Label>
                 <PermissionGrid EntityName="@EntityNames.Folder" PermissionNames="Browse,View,Edit" Permissions="@_permissions" @ref="_permissionGrid" />
             </td>
         </tr>
@@ -127,7 +127,7 @@
                 }
 
                 folder.SiteId = PageState.Site.SiteId;
-                
+
                 if (_parentId == -1)
                 {
                     folder.ParentId = null;
@@ -136,7 +136,7 @@
                 {
                     folder.ParentId = _parentId;
                 }
-                
+
                 folder.Name = _name;
                 folder.IsSystem = _isSystem;
                 folder.Permissions = _permissionGrid.GetPermissions();
@@ -149,7 +149,7 @@
                 {
                     folder = await FolderService.AddFolderAsync(folder);
                 }
-                
+
                 await FolderService.UpdateFolderOrderAsync(folder.SiteId, folder.FolderId, folder.ParentId);
                 await logger.LogInformation("Folder Saved {Folder}", folder);
                 NavigationManager.NavigateTo(NavigateUrl());
