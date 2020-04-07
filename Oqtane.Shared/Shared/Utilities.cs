@@ -14,30 +14,18 @@ namespace Oqtane.Shared
             var assemblyName = assemblyFullName.Substring(0,  assemblyFullName.IndexOf(",", StringComparison.Ordinal));
             return $"{type.Namespace}, {assemblyName}";
         }
+
         public static string NavigateUrl(string alias, string path, string parameters)
         {
-            string url = "";
-            if (alias != "")
+            var uriBuilder = new UriBuilder
             {
-                url += alias + "/";
-            }
-            if (path != "" && path != "/")
-            {
-                url += path + "/";
-            }
-            if (url.EndsWith("/"))
-            {
-                url = url.Substring(0, url.Length - 1);
-            }
-            if (!string.IsNullOrEmpty(parameters))
-            {
-                url += "?" + parameters;
-            }
-            if (!url.StartsWith("/"))
-            {
-                url = "/" + url;
-            }
-            return url;
+                Path = !string.IsNullOrEmpty(alias)
+                ? $"{alias}/{path}"
+                : $"{path}",
+                Query = parameters
+            };
+
+            return uriBuilder.Uri.PathAndQuery;
         }
 
         public static string EditUrl(string alias, string path, int moduleid, string action, string parameters)
