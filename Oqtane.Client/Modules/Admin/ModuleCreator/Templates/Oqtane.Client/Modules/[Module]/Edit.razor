@@ -26,9 +26,8 @@
 }
 
 @code {
-
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Edit; } }
-    public override string Actions { get { return "Add,Edit"; } }
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
+    public override string Actions => "Add,Edit";
 
     int _id;
     string _name;
