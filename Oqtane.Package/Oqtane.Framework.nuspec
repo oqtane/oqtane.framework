@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Oqtane.Framework</id>
+    <version>0.0.9</version>
+    <authors>Shaun Walker</authors>
+    <owners>.NET Foundation</owners>
+    <title>Oqtane Framework</title>
+    <description>A modular application framework for Blazor</description>
+    <copyright>.NET Foundation</copyright>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
+    <iconUrl>https://www.oqtane.org/Portals/0/icon.jpg</iconUrl>
+    <tags>oqtane framework</tags>
+    <releaseNotes>Initial Release</releaseNotes>
+    <summary>A modular application framework for Blazor</summary>
+  </metadata>
+  <files>
+    <file src="..\Oqtane.Client\bin\Release\netstandard2.1\Oqtane.Client.dll" target="lib" /> 
+    <file src="..\Oqtane.Server\bin\Release\netcoreapp3.1\Oqtane.Server.dll" target="lib" /> 
+    <file src="..\Oqtane.Shared\bin\Release\netstandard2.1\Oqtane.Shared.dll" target="lib" /> 
+    <file src="..\Oqtane.Server\bin\Release\netcoreapp3.1\Oqtane.Upgrade.dll" target="lib" /> 
+  </files>
+</package>

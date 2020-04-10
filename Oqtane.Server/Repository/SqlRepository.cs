@@ -15,7 +15,15 @@ namespace Oqtane.Repository
             using (conn)
             {
                 PrepareCommand(conn, cmd, query);
-                int val = cmd.ExecuteNonQuery();
+                int val = -1;
+                try
+                {
+                    val = cmd.ExecuteNonQuery();
+                }
+                catch
+                {
+                    // an error occurred executing the query
+                }
                 return val;
             }
         }

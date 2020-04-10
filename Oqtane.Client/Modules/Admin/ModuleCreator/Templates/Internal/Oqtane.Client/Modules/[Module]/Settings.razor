@@ -1,0 +1,47 @@
+@namespace [Owner].[Module]s.Modules
+@inherits ModuleBase
+@inject ISettingService SettingService
+
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <label for="Setting" class="control-label">Setting: </label>
+        </td>
+        <td>
+            <input type="text" class="form-control" @bind="_value" />
+        </td>
+    </tr>
+</table>
+
+@code {
+    public override string Title => "[Module] Settings";
+
+    string _value;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Dictionary<string, string> settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
+            _value = SettingService.GetSetting(settings, "SettingName", "");
+        }
+        catch (Exception ex)
+        {
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+
+    public async Task UpdateSettings()
+    {
+        try
+        {
+            Dictionary<string, string> settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
+            SettingService.SetSetting(settings, "SettingName", _value);
+            await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
+        }
+        catch (Exception ex)
+        {
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+}
