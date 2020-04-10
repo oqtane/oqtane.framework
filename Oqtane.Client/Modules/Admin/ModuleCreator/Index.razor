@@ -7,7 +7,7 @@
     <table class="table table-borderless">
         <tr>
             <td>
-                <Label For="owner" HelpText="Enter the name of the organization who is developing this module">Owner Name: </Label>
+                <Label For="owner" HelpText="Enter the name of the organization who is developing this module. It should not contain spaces or punctuation.">Owner Name: </Label>
             </td>
             <td>
                 <input id="owner" class="form-control" @bind="@_owner" />
@@ -64,7 +64,7 @@
         {
             if (!string.IsNullOrEmpty(_owner) && !string.IsNullOrEmpty(_module) && !string.IsNullOrEmpty(_template))
             {
-                var moduleDefinition = new ModuleDefinition { Owner = _owner, Name = _module, Description = _description, Template = _template };
+                var moduleDefinition = new ModuleDefinition { Owner = _owner.Replace(" ",""), Name = _module.Replace(" ", ""), Description = _description, Template = _template };
                 await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition, ModuleState.ModuleId);
             }
             else
