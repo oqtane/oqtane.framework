@@ -19,6 +19,7 @@ namespace Oqtane.Models
             PermissionNames = "";
             ServerAssemblyName = "";
             ControlTypeRoutes = "";
+            Template = "";
         }
 
         public int ModuleDefinitionId { get; set; }
@@ -54,9 +55,11 @@ namespace Oqtane.Models
         [NotMapped]
         public string ServerAssemblyName { get; set; }
         [NotMapped]
-        public string ControlTypeTemplate { get; set; }
-        [NotMapped]
         public string ControlTypeRoutes { get; set; }
+        [NotMapped]
+        public string Template { get; set; }
+        [NotMapped]
+        public string ControlTypeTemplate { get; set; }
         [NotMapped]
         public string AssemblyName { get; set; }
         [NotMapped]

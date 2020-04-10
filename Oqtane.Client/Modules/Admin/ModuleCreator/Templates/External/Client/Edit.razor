@@ -1,0 +1,95 @@
+@using Oqtane.Modules.Controls
+@using [Owner].[Module]s.Services
+@using [Owner].[Module]s.Models
+
+@namespace [Owner].[Module]s.Modules
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject HttpClient http
+@inject SiteState sitestate
+
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <label class="control-label">Name: </label>
+        </td>
+        <td>
+            <input id="_name" class="form-control" @bind="@_name" />
+        </td>
+    </tr>
+</table>
+<button type="button" class="btn btn-success" @onclick="Save">Save</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+<br />
+<br />
+@if (PageState.Action == "Edit")
+{
+    <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon"></AuditInfo>
+}
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
+    public override string Actions => "Add,Edit";
+
+    I[Module]Service [Module]Service;
+    int _id;
+    string _name;
+    string _createdby;
+    DateTime _createdon;
+    string _modifiedby;
+    DateTime _modifiedon;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            [Module]Service = new [Module]Service(http, sitestate, NavigationManager);
+            if (PageState.Action == "Edit")
+            {
+                _id = Int32.Parse(PageState.QueryString["id"]);
+                [Module] [Module] = await [Module]Service.Get[Module]Async(_id);
+                if ([Module] != null)
+                {
+                    _name = [Module].Name;
+                    _createdby = [Module].CreatedBy;
+                    _createdon = [Module].CreatedOn;
+                    _modifiedby = [Module].ModifiedBy;
+                    _modifiedon = [Module].ModifiedOn;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading [Module] {[Module]Id} {Error}", _id, ex.Message);
+            AddModuleMessage("Error Loading [Module]", MessageType.Error);
+        }
+    }
+
+    private async Task Save()
+    {
+        try
+        {
+            if (PageState.Action == "Add")
+            {
+                [Module] [Module] = new [Module]();
+                [Module].ModuleId = ModuleState.ModuleId;
+                [Module].Name = _name;
+                [Module] = await [Module]Service.Add[Module]Async([Module]);
+                await logger.LogInformation("[Module] Added {[Module]}", [Module]);
+            }
+            else
+            {
+                [Module] [Module] = await [Module]Service.Get[Module]Async(_id);
+                [Module].Name = _name;
+                await [Module]Service.Update[Module]Async([Module]);
+                await logger.LogInformation("[Module] Updated {[Module]}", [Module]);
+            }
+            NavigationManager.NavigateTo(NavigateUrl());
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Saving [Module] {Error}", ex.Message);
+            AddModuleMessage("Error Saving [Module]", MessageType.Error);
+        }
+    }
+}
