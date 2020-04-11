@@ -13,10 +13,10 @@ else
     <table class="table table-borderless">
         <tr>
             <td>
-                <label class="control-label">Tenant: </label>
+                <Label For="tenant" HelpText="Select the tenant for the SQL server">Tenant: </Label>
             </td>
             <td>
-                <select class="form-control" @bind="_tenantid">
+                <select id="teneant" class="form-control" @bind="_tenantid">
                     <option value="-1">&lt;Select Tenant&gt;</option>
                     @foreach (Tenant tenant in _tenants)
                     {
@@ -27,10 +27,10 @@ else
         </tr>
         <tr>
             <td>
-                <label class="control-label">SQL Query: </label>
+                <Label For="sqlQeury" HelpText="Enter the query for the SQL server">SQL Query: </Label>
             </td>
             <td>
-                <textarea class="form-control" @bind="@_sql" rows="5"></textarea>
+                <textarea id="sqlQeury" class="form-control" @bind="@_sql" rows="5"></textarea>
             </td>
         </tr>
     </table>

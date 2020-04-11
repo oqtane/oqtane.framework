@@ -12,31 +12,31 @@
     <table class="table table-borderless">
         <tr>
             <td>
-                <label class="control-label">Name: </label>
+                <Label For="name" HelpText="Enter the site name">Name: </Label>
             </td>
             <td>
-                <input class="form-control" @bind="@_name" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label class="control-label">Tenant: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@_tenant" readonly />
+                <input id="name" class="form-control" @bind="@_name" />
             </td>
         </tr>
         <tr>
             <td>
-                <label class="control-label">Aliases: </label>
+                <Label For="tenant" HelpText="Enter the tenant for the site">Tenant: </Label>
             </td>
             <td>
-                <textarea class="form-control" @bind="@_urls" rows="3"></textarea>
+                <input id="tenant" class="form-control" @bind="@_tenant" readonly />
             </td>
         </tr>
         <tr>
             <td>
-                <label class="control-label">Logo: </label>
+                <Label For="alias" HelpText="Enter the alias for the server">Aliases: </Label>
+            </td>
+            <td>
+                <textarea id="alias" class="form-control" @bind="@_urls" rows="3"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="logo" HelpText="Upload a logo for the site">Logo: </Label>
             </td>
             <td>
                 <FileManager FileId="@_logofileid.ToString()" Filter="@Constants.ImageFiles" @ref="_logofilemanager" />
@@ -44,7 +44,7 @@
         </tr>
         <tr>
             <td>
-                <label class="control-label">Favicon: </label>
+                <Label For="favicon" HelpText="Select Your default icon">Favicon: </Label>
             </td>
             <td>
                 <FileManager FileId="@_faviconfileid.ToString()" Filter="ico" @ref="_faviconfilemanager" />
@@ -52,10 +52,10 @@
         </tr>
         <tr>
             <td>
-                <label class="control-label">Default Theme: </label>
+                <Label For="defaultTheme" HelpText="Select the sites default theme">Default Theme: </Label>
             </td>
             <td>
-                <select class="form-control" @onchange="(e => ThemeChanged(e))">
+                <select id="defaultTheme" class="form-control" @onchange="(e => ThemeChanged(e))">
                     <option value="">&lt;Select Theme&gt;</option>
                     @foreach (KeyValuePair<string, string> item in _themes)
                     {
@@ -73,10 +73,10 @@
         </tr>
         <tr>
             <td>
-                <label class="control-label">Default Layout: </label>
+                <Label For="defaultLayout" HelpText="Select the sites default layout">Default Layout: </Label>
             </td>
             <td>
-                <select class="form-control" @bind="@_layouttype">
+                <select id="defaultLayout" class="form-control" @bind="@_layouttype">
                     <option value="">&lt;Select Layout&gt;</option>
                     @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
                     {
@@ -87,10 +87,10 @@
         </tr>
         <tr>
             <td>
-                <label class="control-label">Default Container: </label>
+                <Label For="defaultContainer" HelpText="Select the default container for the site">Default Container: </Label>
             </td>
             <td>
-                <select class="form-control" @bind="@_containertype">
+                <select id="defaultContainer" class="form-control" @bind="@_containertype">
                     <option value="">&lt;Select Container&gt;</option>
                     @foreach (KeyValuePair<string, string> container in _containers)
                     {
@@ -101,10 +101,10 @@
         </tr>
         <tr>
             <td>
-                <label class="control-label">Allow User Registration? </label>
+                <Label For="allowRegister" HelpText="Do you want the users to be able to register for an account on the site">Allow User Registration? </Label>
             </td>
             <td>
-                <select class="form-control" @bind="@_allowregistration">
+                <select id="allowRegister" class="form-control" @bind="@_allowregistration">
                     <option value="True">Yes</option>
                     <option value="False">No</option>
                 </select>
@@ -112,10 +112,10 @@
         </tr>
         <tr>
             <td>
-                <label class="control-label">Is Deleted? </label>
+                <Label For="isDeleted" HelpText="Is this site deleted?">Is Deleted? </Label>
             </td>
             <td>
-                <select class="form-control" @bind="@_isdeleted">
+                <select id="isDeleted" class="form-control" @bind="@_isdeleted">
                     <option value="True">Yes</option>
                     <option value="False">No</option>
                 </select>
@@ -127,42 +127,42 @@
         <table class="table table-borderless">
             <tr>
                 <td>
-                    <label class="control-label">Host: </label>
+                    <Label For="host" HelpText="Enter the host name of the server">Host: </Label>
                 </td>
                 <td>
-                    <input class="form-control" @bind="@_smtphost" />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <label class="control-label">Port: </label>
-                </td>
-                <td>
-                    <input class="form-control" @bind="@_smtpport" />
+                    <input id="host" class="form-control" @bind="@_smtphost" />
                 </td>
             </tr>
             <tr>
                 <td>
-                    <label class="control-label">SSL Enabled: </label>
+                    <Label For="port" HelpText="Enter the port number for the server">Port: </Label>
                 </td>
                 <td>
-                    <input class="form-control" @bind="@_smtpssl" />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <label class="control-label">Username: </label>
-                </td>
-                <td>
-                    <input class="form-control" @bind="@_smtpusername" />
+                    <input id="port" class="form-control" @bind="@_smtpport" />
                 </td>
             </tr>
             <tr>
                 <td>
-                    <label class="control-label">Password: </label>
+                    <Label For="enabledSSl" HelpText="Specifiy if SSL is enabled for your server">SSL Enabled: </Label>
                 </td>
                 <td>
-                    <input type="password" class="form-control" @bind="@_smtppassword" />
+                    <input id="enabledSSl" class="form-control" @bind="@_smtpssl" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Label For="username" HelpText="Enter the username for the server">Username: </Label>
+                </td>
+                <td>
+                    <input id="username" class="form-control" @bind="@_smtpusername" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Label For="password" HelpText="Enter the password for the server">Password: </Label>
+                </td>
+                <td>
+                    <input id="password" type="password" class="form-control" @bind="@_smtppassword" />
                 </td>
             </tr>
         </table>
@@ -171,10 +171,10 @@
         <table class="table table-borderless">
             <tr>
                 <td>
-                    <label class="control-label">Is Enabled? </label>
+                    <Label For="isEnabled" HelpText="Select whether you would like this site to be avaiable as a proggressive web application">Is Enabled? </Label>
                 </td>
                 <td>
-                    <select class="form-control" @bind="@_pwaisenabled">
+                    <select id="isEnabled" class="form-control" @bind="@_pwaisenabled">
                         <option value="True">Yes</option>
                         <option value="False">No</option>
                     </select>
@@ -182,7 +182,7 @@
             </tr>
             <tr>
                 <td>
-                    <label class="control-label">App Icon: </label>
+                    <Label For="appIcon" HelpText="Include an application icon for your PWA">App Icon: </Label>
                 </td>
                 <td>
                     <FileManager FileId="@_pwaappiconfileid.ToString()" Filter="png" @ref="_pwaappiconfilemanager" />
@@ -190,7 +190,7 @@
             </tr>
             <tr>
                 <td>
-                    <label class="control-label">Splash Icon: </label>
+                    <Label For="splashIcon" HelpText="Include a splash icon">Splash Icon: </Label>
                 </td>
                 <td>
                     <FileManager FileId="@_pwasplashiconfileid.ToString()" Filter="png" @ref="_pwasplashiconfilemanager" />

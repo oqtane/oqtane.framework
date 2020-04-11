@@ -9,10 +9,10 @@
     <table class="table table-borderless">
         <tr>
             <td>
-                <label  class="control-label">To: </label>
+                <Label  For="to" HelpText="Select the user it is going to">To: </Label>
             </td>
             <td>
-                <select class="form-control"  @bind="@userid">
+                <select id="to" class="form-control"  @bind="@userid">
                     <option value="-1">&lt;Select User&gt;</option>
                     @if (userroles != null)
                     {
@@ -26,18 +26,18 @@
         </tr>
         <tr>
             <td>
-                <label  class="control-label">Subject: </label>
+                <Label For="subject" HelpText="Enter the subject of the message">Subject: </Label>
             </td>
             <td>
-                <input class="form-control" @bind="@subject" />
+                <input id="subject" class="form-control" @bind="@subject" />
             </td>
         </tr>
         <tr>
             <td>
-                <label  class="control-label">Message: </label>
+                <Label For="message" HelpText="Enter the message">Message: </Label>
             </td>
             <td>
-                <textarea class="form-control" @bind="@body" rows="5" />
+                <textarea id="message" class="form-control" @bind="@body" rows="5" />
             </td>
         </tr>
     </table>

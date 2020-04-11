@@ -11,34 +11,34 @@
     <table class="table table-borderless">
         <tr>
             <td>
-                <label  class="control-label">Name: </label>
+                <Label For="name" HelpText="Enter the name of the site">Name: </Label>
             </td>
             <td>
-                <input class="form-control" @bind="@_name" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label  class="control-label">Tenant: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@_tenant" readonly />
+                <input id="name" class="form-control" @bind="@_name" />
             </td>
         </tr>
         <tr>
             <td>
-                <label  class="control-label">Aliases: </label>
+                <Label For="tenant" HelpText="Enter the tenant for the site">Tenant: </Label>
             </td>
             <td>
-                <textarea class="form-control" @bind="@_urls" rows="3" />
+                <input id="tenant" class="form-control" @bind="@_tenant" readonly />
             </td>
         </tr>
         <tr>
             <td>
-                <label  class="control-label">Default Theme: </label>
+                <Label For="alias" HelpText="Enter the alias for the server">Aliases: </Label>
             </td>
             <td>
-                <select class="form-control" @onchange="(e => ThemeChanged(e))">
+                <textarea id="alias" class="form-control" @bind="@_urls" rows="3" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="defaultTheme" HelpText="Select the default theme for the website">Default Theme: </Label>
+            </td>
+            <td>
+                <select id="defaultTheme" class="form-control" @onchange="(e => ThemeChanged(e))">
                     <option value="">&lt;Select Theme&gt;</option>
                     @foreach (KeyValuePair<string, string> item in _themes)
                     {
@@ -56,10 +56,10 @@
         </tr>
         <tr>
             <td>
-                <label  class="control-label">Default Layout: </label>
+                <Label For="defaultLayout" HelpText="Select the default layout for the site">Default Layout: </Label>
             </td>
             <td>
-                <select class="form-control" @bind="@_layouttype">
+                <select id="defaultLayout" class="form-control" @bind="@_layouttype">
                     <option value="">&lt;Select Layout&gt;</option>
                     @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
                     {
@@ -70,10 +70,10 @@
         </tr>
         <tr>
             <td>
-                <label  class="control-label">Default Container: </label>
+                <Label For="defaultContainer" HelpText="Select the default container for the site">Default Container: </Label>
             </td>
             <td>
-                <select class="form-control" @bind="@_containertype">
+                <select id="defaultIdea" class="form-control" @bind="@_containertype">
                     <option value="">&lt;Select Container&gt;</option>
                     @foreach (KeyValuePair<string, string> container in _containers)
                     {
@@ -84,10 +84,10 @@
         </tr>
         <tr>
             <td>
-                <label  class="control-label">Is Deleted? </label>
+                <Label For="isDeleted" HelpText="Has this site been deleted?">Is Deleted? </Label>
             </td>
             <td>
-                <select class="form-control" @bind="@_isdeleted">
+                <select id="isDeleted" class="form-control" @bind="@_isdeleted">
                     <option value="True">Yes</option>
                     <option value="False">No</option>
                 </select>
