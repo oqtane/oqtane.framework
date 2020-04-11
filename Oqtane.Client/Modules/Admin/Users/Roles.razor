@@ -12,10 +12,10 @@ else
     <table class="table table-borderless">
         <tr>
             <td>
-                <label  class="control-label">Role: </label>
+                <Label For="role" HelpText="What is the role of this user">Role: </Label>
             </td>
             <td>
-                <select class="form-control" @bind="@roleid">
+                <select id="role" class="form-control" @bind="@roleid">
                     <option value="-1">&lt;Select Role&gt;</option>
                     @foreach (Role role in roles)
                     {
@@ -26,18 +26,18 @@ else
         </tr>
         <tr>
             <td>
-                <label  class="control-label">Effective Date: </label>
+                <Label For="effectiveDate" HelpText="The date that this role is implemented">Effective Date: </Label>
             </td>
             <td>
-                <input class="form-control" @bind="@effectivedate" />
+                <input id="effectiveDate" class="form-control" @bind="@effectivedate" />
             </td>
         </tr>
         <tr>
             <td>
-                <label  class="control-label">Expiry Date: </label>
+                <Label For="expiryDate" HelpText="The date that this role expires">Expiry Date: </Label>
             </td>
             <td>
-                <input class="form-control" @bind="@expirydate" />
+                <input id="expiryDate" class="form-control" @bind="@expirydate" />
             </td>
         </tr>
     </table>

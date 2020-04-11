@@ -16,8 +16,11 @@ namespace Oqtane.Server
             var host = BuildWebHost(args);
             using (var serviceScope = host.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
-                var manager = serviceScope.ServiceProvider.GetService<DatabaseManager>();
-                manager.StartupMigration();
+                var installationManager = serviceScope.ServiceProvider.GetService<IInstallationManager>();
+                // install any modules or themes stored in nugget, then restart app to ensure all is loaded in order
+                installationManager.InstallPackages("Modules,Themes", true);
+                var databaseManager = serviceScope.ServiceProvider.GetService<DatabaseManager>();
+                databaseManager.StartupMigration();
             }
             host.Run();
         }

@@ -74,7 +74,6 @@ namespace Oqtane.Infrastructure
             }
         }
 
-
         public bool IsInstalled
         {
             get
@@ -212,6 +211,8 @@ namespace Oqtane.Infrastructure
 
         private static void ModuleMigration(Assembly assembly, string connectionString)
         {
+            
+            Console.WriteLine($"Migrating assembly {assembly.FullName}");
             var dbUpgradeConfig = DeployChanges.To.SqlDatabase(connectionString)
                 .WithScriptsEmbeddedInAssembly(assembly); // scripts must be included as Embedded Resources
             var dbUpgrade = dbUpgradeConfig.Build();
@@ -238,17 +239,19 @@ namespace Oqtane.Infrastructure
                 }
             }
         }
-
+        
         private static void TenantMigration(string connectionString, string dataDirectory)
         {
+            Console.WriteLine("Tenant migration");
             var assemblies = AppDomain.CurrentDomain.GetAssemblies()
-                .Where(item => item.FullName != null && item.FullName.Contains(".Module.")).ToArray();
+                .Where(item => item.FullName != null && item.FullName.ToLower().Contains(".module.")).ToArray();
 
             // get tenants
             using (var db = new InstallationContext(connectionString))
             {
                 foreach (var tenant in db.Tenant.ToList())
                 {
+                    Console.WriteLine($"Migrating tenant {tenant.Name}");
                     connectionString = NormalizeConnectionString(tenant.DBConnectionString, dataDirectory);
                     // upgrade framework
                     var dbUpgradeConfig = DeployChanges.To.SqlDatabase(connectionString)

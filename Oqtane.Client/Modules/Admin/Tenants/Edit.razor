@@ -6,25 +6,25 @@
 <table class="table table-borderless">
     <tr>
         <td>
-            <label  class="control-label">Name: </label>
+            <Label For="name" HelpText="Enter the nameof the tenant">Name: </Label>
         </td>
         <td>
             @if (name == Constants.MasterTenant)
             {
-                <input class="form-control" @bind="@name" readonly />
+                <input id="name" class="form-control" @bind="@name" readonly />
             }
             else
             {
-                <input class="form-control" @bind="@name" />
+                <input id="name" class="form-control" @bind="@name" />
             }
         </td>
     </tr>
     <tr>
         <td>
-            <label  class="control-label">Connection String: </label>
+            <Label For="connectionString" HelpText="Enter the connection string for the tenant">Connection String: </Label>
         </td>
         <td>
-            <input class="form-control" @bind="@connectionstring" />
+            <input id="integratedSecurity" class="form-control" @bind="@connectionstring" />
         </td>
     </tr>
 
