@@ -107,17 +107,9 @@ namespace Oqtane.Infrastructure
                 }
             }
 
-            if (install)
+            if (install && restart)
             {
-                if (restart)
-                {
-                    RestartApplication();
-                }
-                else
-                {
-                    _cache.Remove("moduledefinitions");
-                    _cache.Remove("jobs");
-                }
+                RestartApplication();
             }
         }
 
