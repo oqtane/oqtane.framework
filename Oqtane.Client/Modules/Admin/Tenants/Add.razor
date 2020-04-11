@@ -7,18 +7,18 @@
     <table class="table table-borderless">
         <tr>
             <td>
-                <label  class="control-label">Name: </label>
+                <Label For="name" HelpText="Enter the name for the tenant">Name: </Label>
             </td>
             <td>
-                <input class="form-control" @bind="@name" />
+                <input id="name" class="form-control" @bind="@name" />
             </td>
         </tr>
         <tr>
             <td>
-                <label for="Title" class="control-label">Database Type: </label>
+                <Label For="databaseType" HelpText="Select the database type for the tenant">Database Type: </Label>
             </td>
             <td>
-                <select class="custom-select" @bind="@type">
+                <select id="databaseType" class="custom-select" @bind="@type">
                     <option value="LocalDB">Local Database</option>
                     <option value="SQLServer">SQL Server</option>
                 </select>
@@ -26,26 +26,26 @@
         </tr>
         <tr>
             <td>
-                <label for="Title" class="control-label">Server: </label>
+                <Label For="server" HelpText="Enter the server for the tenant">Server: </Label>
             </td>
             <td>
-                <input type="text" class="form-control" @bind="@server" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="Title" class="control-label">Database: </label>
-            </td>
-            <td>
-                <input type="text" class="form-control" @bind="@database" />
+                <input id="server" type="text" class="form-control" @bind="@server" />
             </td>
         </tr>
         <tr>
             <td>
-                <label for="Title" class="control-label">Integrated Security: </label>
+                <Label For="database" HelpText="Enter the database for the tenant">Database: </Label>
             </td>
             <td>
-                <select class="custom-select" @onchange="SetIntegratedSecurity">
+                <input id="database" type="text" class="form-control" @bind="@database" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="integratedSecurity" HelpText="Select if you want integrated security or not">Integrated Security: </Label>
+            </td>
+            <td>
+                <select id="integratedSecurity" class="custom-select" @onchange="SetIntegratedSecurity">
                     <option value="true" selected>True</option>
                     <option value="false">False</option>
                 </select>
@@ -53,18 +53,18 @@
         </tr>
         <tr style="@integratedsecurity">
             <td>
-                <label for="Title" class="control-label">Username: </label>
+                <Label For="username" HelpText="Enter the username for the integrated security">Username: </Label>
             </td>
             <td>
-                <input type="text" class="form-control" @bind="@username" />
+                <input id="username" type="text" class="form-control" @bind="@username" />
             </td>
         </tr>
         <tr style="@integratedsecurity">
             <td>
-                <label for="Title" class="control-label">Password: </label>
+                <Label For="password" HelpText="Enter the password for the integrated security">Password: </Label>
             </td>
             <td>
-                <input type="password" class="form-control" @bind="@password" />
+                <input id="password" type="password" class="form-control" @bind="@password" />
             </td>
         </tr>
     </table>

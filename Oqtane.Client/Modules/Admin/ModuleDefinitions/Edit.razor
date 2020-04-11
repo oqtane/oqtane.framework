@@ -6,15 +6,15 @@
 <table class="table table-borderless">
     <tr>
         <td>
-            <label  class="control-label">Name: </label>
+            <Label For="name" HelpText="The name of the module">Name: </Label>
         </td>
         <td>
-            <input class="form-control" @bind="@_name" />
+            <input id="name" class="form-control" @bind="@_name" />
         </td>
     </tr>
     <tr>
         <td colspan="2" align="center">
-            <label class="control-label">Permissions: </label>
+            <Label For="permissions" HelpText="Select who you want to access the module">Permissions: </Label>
             <PermissionGrid EntityName="@EntityNames.ModuleDefinition" PermissionNames=PermissionNames.Utilize Permissions="@_permissions" @ref="_permissionGrid" />
         </td>
     </tr>

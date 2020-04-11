@@ -6,66 +6,66 @@
     <table class="table table-borderless">
         <tr>
             <td>
-                <label  class="control-label">Name: </label>
+                <Label For="name" HelpText="The name of this field">Name: </Label>
             </td>
             <td>
-                <input class="form-control" @bind="@_name" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label  class="control-label">Title: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@_title" />
+                <input id="name" class="form-control" @bind="@_name" />
             </td>
         </tr>
         <tr>
             <td>
-                <label  class="control-label">Description: </label>
+                <Label For="title" HelpText="The title of the field">Title: </Label>
             </td>
             <td>
-                <textarea class="form-control" @bind="@_description" rows="5"></textarea>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label  class="control-label">Category: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@_category" />
+                <input id="title" class="form-control" @bind="@_title" />
             </td>
         </tr>
         <tr>
             <td>
-                <label  class="control-label">Order: </label>
+                <Label For="description" HelpText="What the profile field is">Description: </Label>
             </td>
             <td>
-                <input class="form-control" @bind="@_vieworder" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label  class="control-label">Length: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@_maxlength" />
+                <textarea id="description" class="form-control" @bind="@_description" rows="5"></textarea>
             </td>
         </tr>
         <tr>
             <td>
-                <label  class="control-label">Default Value: </label>
+                <Label For="category" HelpText="What larger category does this field belong to">Category: </Label>
             </td>
             <td>
-                <input class="form-control" @bind="@_defaultvalue" />
+                <input id="category" class="form-control" @bind="@_category" />
             </td>
         </tr>
         <tr>
             <td>
-                <label  class="control-label">Required? </label>
+                <Label For="order" HelpText="What place is this field in a larger category list">Order: </Label>
             </td>
             <td>
-                <select class="form-control" @bind="@_isrequired">
+                <input id="order" class="form-control" @bind="@_vieworder" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="length" HelpText="What is the max amount of characters should this field accept">Length: </Label>
+            </td>
+            <td>
+                <input id="length" class="form-control" @bind="@_maxlength" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="defaultVal" HelpText="What value do you want this field to start with">Default Value: </Label>
+            </td>
+            <td>
+                <input id="defaultVal" class="form-control" @bind="@_defaultvalue" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="required" HelpText="Is a user required to input something into this field?">Required? </Label>
+            </td>
+            <td>
+                <select id="required" class="form-control" @bind="@_isrequired">
                     <option value="True">Yes</option>
                     <option value="False">No</option>
                 </select>
@@ -73,10 +73,10 @@
         </tr>
         <tr>
             <td>
-                <label  class="control-label">Private? </label>
+                <Label For="private" HelpText="Is this field private?">Private? </Label>
             </td>
             <td>
-                <select class="form-control" @bind="@_isprivate">
+                <select id="private" class="form-control" @bind="@_isprivate">
                     <option value="True">Yes</option>
                     <option value="False">No</option>
                 </select>

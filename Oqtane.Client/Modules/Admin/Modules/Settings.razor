@@ -33,18 +33,18 @@
                         <tbody>
                             <tr>
                                 <td>
-                                    <label for="Title" class="control-label">Title: </label>
+                                    <Label For="title" HelpText="Enter the title of the module">Title: </Label>
                                 </td>
                                 <td>
-                                    <input type="text" name="Title" class="form-control" @bind="@_title" />
+                                    <input id="title" type="text" name="Title" class="form-control" @bind="@_title" />
                                 </td>
                             </tr>
                             <tr>
                                 <td>
-                                    <label for="Container" class="control-label">Container: </label>
+                                    <Label For="container" HelpText="Select the module's container">Container: </Label>
                                 </td>
                                 <td>
-                                    <select class="form-control" @bind="@_containerType">
+                                    <select id="container" class="form-control" @bind="@_containerType">
                                         <option value="">&lt;Select Container&gt;</option>
                                         @foreach (KeyValuePair<string, string> container in _containers)
                                         {
@@ -55,16 +55,16 @@
                             </tr>
                             <tr>
                                 <td colspan="2" align="center">
-                                    <label for="Name" class="control-label">Permissions: </label>
+                                    <Label For="permissions" HelpText="Who do you want to be able to access the module">Permissions: </Label>
                                     <PermissionGrid EntityName="@EntityNames.Module" PermissionNames="@_permissionNames" Permissions="@_permissions" @ref="_permissionGrid" />
                                 </td>
                             </tr>
                             <tr>
                                 <td>
-                                    <label for="Page" class="control-label">Page: </label>
+                                    <Label For="page" HelpText="The page that the module is on">Page: </Label>
                                 </td>
                                 <td>
-                                    <select class="form-control" @bind="@_pageId">
+                                    <select id="page" class="form-control" @bind="@_pageId">
                                         @foreach (Page p in PageState.Pages)
                                         {
                                             <option value="@p.PageId">@p.Name</option>

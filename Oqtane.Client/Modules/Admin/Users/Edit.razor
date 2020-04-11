@@ -88,10 +88,10 @@
         }
         <tr>
             <td>
-                <label  class="control-label">Is Deleted? </label>
+                <Label For="isDeleted" HelpText="Has the user been deleted">Is Deleted? </Label>
             </td>
             <td>
-                <select class="form-control" @bind="@isdeleted">
+                <select id="isDeleted" class="form-control" @bind="@isdeleted">
                     <option value="True">Yes</option>
                     <option value="False">No</option>
                 </select>
