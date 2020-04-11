@@ -153,7 +153,14 @@ namespace Oqtane
             services.AddSingleton<IInstallationManager, InstallationManager>();
             services.AddSingleton<ISyncManager, SyncManager>();
             services.AddSingleton<DatabaseManager>();
-            
+
+            // install any modules or themes ( this needs to occur BEFORE the assemblies are loaded into the app domain )
+            #pragma warning disable ASP0000
+            ServiceProvider sp = services.BuildServiceProvider();
+            #pragma warning restore ASP0000 
+            var InstallationManager = sp.GetRequiredService<IInstallationManager>();
+            InstallationManager.InstallPackages("Modules,Themes", false);
+
             // register transient scoped core services
             services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
             services.AddTransient<IThemeRepository, ThemeRepository>();
@@ -181,12 +188,13 @@ namespace Oqtane
             services.AddTransient<ISiteTemplateRepository, SiteTemplateRepository>();
             services.AddTransient<ISqlRepository, SqlRepository>();
 
+            // load the external assemblies into the app domain
             services.AddOqtaneModules();
             services.AddOqtaneThemes();
             services.AddOqtaneSiteTemplates();
 
             services.AddMvc()
-                .AddOqtaneApplicationParts()
+                .AddOqtaneApplicationParts() // register any Controllers from custom modules
                 .AddNewtonsoftJson();
 
             services.AddOqtaneServices();

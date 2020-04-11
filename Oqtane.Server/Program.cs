@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-// DO NOT REMOVE - needed for client-side Blazor
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,11 +12,9 @@ namespace Oqtane.Server
         public static void Main(string[] args)
         {
             var host = BuildWebHost(args);
+            // execute any database migrations for the framework or extensions
             using (var serviceScope = host.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
-                var installationManager = serviceScope.ServiceProvider.GetService<IInstallationManager>();
-                // install any modules or themes stored in nugget, then restart app to ensure all is loaded in order
-                installationManager.InstallPackages("Modules,Themes", true);
                 var databaseManager = serviceScope.ServiceProvider.GetService<DatabaseManager>();
                 databaseManager.StartupMigration();
             }
