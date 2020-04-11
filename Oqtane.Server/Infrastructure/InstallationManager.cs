@@ -107,7 +107,7 @@ namespace Oqtane.Infrastructure
                 }
             }
 
-            if (install && restart)
+            if (install)
             {
                 if (restart)
                 {
