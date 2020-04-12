@@ -25,14 +25,15 @@ namespace Oqtane
     public class Startup
     {
         public IConfigurationRoot Configuration { get; }
-
+        private string _webRoot;
+        
         public Startup(IWebHostEnvironment env)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             Configuration = builder.Build();
-
+            _webRoot = env.WebRootPath;              
             AppDomain.CurrentDomain.SetData("DataDirectory", Path.Combine(env.ContentRootPath, "Data"));
         }
 
@@ -155,11 +156,7 @@ namespace Oqtane
             services.AddSingleton<DatabaseManager>();
 
             // install any modules or themes ( this needs to occur BEFORE the assemblies are loaded into the app domain )
-            #pragma warning disable ASP0000
-            ServiceProvider sp = services.BuildServiceProvider();
-            #pragma warning restore ASP0000 
-            var InstallationManager = sp.GetRequiredService<IInstallationManager>();
-            InstallationManager.InstallPackages("Modules,Themes", false);
+            InstallationManager.UnpackPackages("Modules,Themes", _webRoot);
 
             // register transient scoped core services
             services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();

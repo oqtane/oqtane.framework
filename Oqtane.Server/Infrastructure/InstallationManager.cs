@@ -26,12 +26,24 @@ namespace Oqtane.Infrastructure
 
         public void InstallPackages(string folders, bool restart)
         {
+            var webRootPath = _environment.WebRootPath;
+            
+            var install = UnpackPackages(folders, webRootPath);
+
+            if (install && restart)
+            {
+                RestartApplication();
+            }
+        }
+
+        public static bool UnpackPackages(string folders, string webRootPath)
+        {
             bool install = false;
             string binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
 
             foreach (string folder in folders.Split(','))
             {
-                string sourceFolder = Path.Combine(_environment.WebRootPath, folder);
+                string sourceFolder = Path.Combine(webRootPath, folder);
 
                 // create folder if it does not exist
                 if (!Directory.Exists(sourceFolder))
@@ -66,6 +78,7 @@ namespace Oqtane.Infrastructure
                                 {
                                     frameworkversion = node.Attributes["version"].Value;
                                 }
+
                                 reader.Close();
                             }
                         }
@@ -95,22 +108,21 @@ namespace Oqtane.Infrastructure
                                         {
                                             Directory.CreateDirectory(Path.GetDirectoryName(filename));
                                         }
+
                                         entry.ExtractToFile(filename, true);
                                         break;
                                 }
                             }
                         }
                     }
+
                     // remove package
                     File.Delete(packagename);
                     install = true;
                 }
             }
 
-            if (install && restart)
-            {
-                RestartApplication();
-            }
+            return install;
         }
 
         public void UpgradeFramework()
