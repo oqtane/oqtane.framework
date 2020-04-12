@@ -15,7 +15,7 @@
     <tr>
         <td colspan="2" align="center">
             <Label For="permissions" HelpText="Select who you want to access the module">Permissions: </Label>
-            <PermissionGrid EntityName="@EntityNames.ModuleDefinition" PermissionNames=PermissionNames.Utilize Permissions="@_permissions" @ref="_permissionGrid" />
+            <PermissionGrid EntityName="@EntityNames.ModuleDefinition" PermissionNames="@PermissionNames.Utilize" Permissions="@_permissions" @ref="_permissionGrid" />
         </td>
     </tr>
 </table>
