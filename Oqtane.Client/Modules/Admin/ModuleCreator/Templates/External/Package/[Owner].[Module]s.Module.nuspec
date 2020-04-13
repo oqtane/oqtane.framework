@@ -16,7 +16,7 @@
     <releaseNotes></releaseNotes>
     <summary></summary>
     <dependencies>
-      <dependency id="Oqtane.Framework" version="0.0.9" />
+      <dependency id="Oqtane.Framework" version="[FrameworkVersion]" />
     </dependencies>
   </metadata>
   <files>

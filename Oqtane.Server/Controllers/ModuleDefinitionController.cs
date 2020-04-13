@@ -186,23 +186,24 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid)
             {
-                string templatePath = Path.Combine(Directory.GetParent(_environment.ContentRootPath).FullName, "Oqtane.Client\\Modules\\Admin\\ModuleCreator\\Templates\\" + moduleDefinition.Template + "\\");
                 string rootPath;
+                DirectoryInfo rootFolder = Directory.GetParent(_environment.ContentRootPath);
+                string templatePath = Path.Combine(rootFolder.FullName, "Oqtane.Client\\Modules\\Admin\\ModuleCreator\\Templates\\" + moduleDefinition.Template + "\\");
 
                 if (moduleDefinition.Template == "internal")
                 {
-                    rootPath = Directory.GetParent(_environment.ContentRootPath).FullName + "\\";
+                    rootPath = rootFolder.FullName + "\\";
                     moduleDefinition.ModuleDefinitionName = moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Modules, Oqtane.Client";
                     moduleDefinition.ServerAssemblyName = "Oqtane.Server";
                 }
                 else
                 {
-                    rootPath = Directory.GetParent(_environment.ContentRootPath).Parent.FullName + "\\" + moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Module\\";
+                    rootPath = rootFolder.Parent.FullName + "\\" + moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Module\\";
                     moduleDefinition.ModuleDefinitionName = moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Modules, " + moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Module.Client";
                     moduleDefinition.ServerAssemblyName = moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Module.Server";
                 }
 
-                ProcessTemplatesRecursively(new DirectoryInfo(templatePath), rootPath, templatePath, moduleDefinition);
+                ProcessTemplatesRecursively(new DirectoryInfo(templatePath), rootPath, rootFolder.Name, templatePath, moduleDefinition);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Module Definition Created {ModuleDefinition}", moduleDefinition);
 
                 Models.Module module = _modules.GetModule(int.Parse(moduleid));
@@ -213,7 +214,7 @@ namespace Oqtane.Controllers
             }
         }
 
-        private void ProcessTemplatesRecursively(DirectoryInfo current, string rootPath, string templatePath, ModuleDefinition moduleDefinition)
+        private void ProcessTemplatesRecursively(DirectoryInfo current, string rootPath, string rootFolder, string templatePath, ModuleDefinition moduleDefinition)
         {
             // process folder
             string folderPath = rootPath + current.FullName.Replace(templatePath, "");
@@ -239,9 +240,11 @@ namespace Oqtane.Controllers
                     text = text.Replace("[Module]", moduleDefinition.Name);
                     text = text.Replace("[Description]", moduleDefinition.Description);
                     text = text.Replace("[RootPath]", rootPath);
+                    text = text.Replace("[RootFolder]", rootFolder);
                     text = text.Replace("[ServerAssemblyName]", moduleDefinition.ServerAssemblyName);
                     text = text.Replace("[Folder]", folderPath);
                     text = text.Replace("[File]", Path.GetFileName(filePath));
+                    text = text.Replace("[FrameworkVersion]", Constants.Version);
                     System.IO.File.WriteAllText(filePath, text);
 
                     if (Path.GetExtension(filePath).ToLower() == ".sql" && !filePath.ToLower().Contains("uninstall"))
@@ -255,7 +258,7 @@ namespace Oqtane.Controllers
 
                 foreach (DirectoryInfo folder in folders.Reverse())
                 {
-                    ProcessTemplatesRecursively(folder, rootPath, templatePath, moduleDefinition);
+                    ProcessTemplatesRecursively(folder, rootPath, rootFolder, templatePath, moduleDefinition);
                 }
             }
         }
