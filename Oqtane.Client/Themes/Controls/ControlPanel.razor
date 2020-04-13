@@ -10,7 +10,7 @@
 @inject IPageModuleService PageModuleService
 @inject ILogService logger
 
-@if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, PageState.Page.Permissions))
+@if (_moduleDefinitions != null && UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, PageState.Page.Permissions))
 {
     <div class="app-controlpanel" style="@_display">
 
@@ -231,17 +231,17 @@
         {
             ButtonClass = "btn-outline-primary";
         }
-        
+
         if (string.IsNullOrEmpty(CardClass))
         {
             CardClass = "card bg-secondary mb-3";
         }
-        
+
         if (string.IsNullOrEmpty(HeaderClass))
         {
             HeaderClass = "card-header text-white";
         }
-        
+
         if (string.IsNullOrEmpty(BodyClass))
         {
             BodyClass = "card-body";
@@ -251,8 +251,22 @@
         {
             _pages?.Clear();
 
+            foreach (Page p in PageState.Pages)
+            {
+                if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.View, p.Permissions))
+                {
+                    _pages.Add(p);
+                }
+            }
+
+            var panes = PageState.Page.Panes.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
+            _pane = panes.Count() == 1 ? panes.SingleOrDefault() : "";
+            var themes = await ThemeService.GetThemesAsync();
+            _containers = ThemeService.GetContainerTypes(themes);
+            _containerType = PageState.Site.DefaultContainerType;
+
             _allModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
-            
+
             foreach (ModuleDefinition moduledefinition in _allModuleDefinitions)
             {
                 if (moduledefinition.Categories != "")
@@ -266,22 +280,8 @@
                     }
                 }
             }
-            
+
             _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories == "").ToList();
-            
-            foreach (Page p in PageState.Pages)
-            {
-                if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.View, p.Permissions))
-                {
-                    _pages.Add(p);
-                }
-            }
-            
-            var panes = PageState.Page.Panes.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
-            _pane = panes.Count() == 1 ? panes.SingleOrDefault() : "";
-            var themes = await ThemeService.GetThemesAsync();
-            _containers = ThemeService.GetContainerTypes(themes);
-            _containerType = PageState.Site.DefaultContainerType;
         }
     }
 
@@ -296,7 +296,7 @@
         {
             _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(category)).ToList();
         }
-        
+
         _moduleDefinitionName = "-";
         StateHasChanged();
     }
@@ -305,7 +305,7 @@
     {
         _pageId = (string) e.Value;
         _modules?.Clear();
-        
+
         if (_pageId != "-")
         {
             foreach (Module module in PageState.Modules.Where(item => item.PageId == int.Parse(_pageId) && !item.IsDeleted))
@@ -316,7 +316,7 @@
                 }
             }
         }
-        
+
         _moduleId = "-";
         StateHasChanged();
     }
@@ -355,7 +355,7 @@
                         pageModule.Title = _modules.FirstOrDefault(item => item.ModuleId == int.Parse(_moduleId))?.Title;
                     }
                 }
-                
+
                 pageModule.Pane = _pane;
                 pageModule.Order = int.MaxValue;
                 pageModule.ContainerType = _containerType;
@@ -438,19 +438,19 @@
             case "Admin":
                 // get admin dashboard moduleid
                 module = PageState.Modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.AdminDashboardModule);
-                
+
                 if (module != null)
                 {
                     NavigationManager.NavigateTo(EditUrl(PageState.Page.Path, module.ModuleId, "Index", ""));
                 }
-                
+
                 break;
             case "Add":
             case "Edit":
                 string url = "";
                 // get page management moduleid
                 module = PageState.Modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.PageManagementModule);
-                
+
                 if (module != null)
                 {
                     switch (location)
@@ -463,12 +463,12 @@
                             break;
                     }
                 }
-                
+
                 if (url != "")
                 {
                     NavigationManager.NavigateTo(url);
                 }
-                
+
                 break;
         }
     }
@@ -482,7 +482,7 @@
     private async Task DeletePage()
     {
         ConfirmDelete();
-        
+
         var page = PageState.Page;
         try
         {

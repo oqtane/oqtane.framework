@@ -15,6 +15,7 @@ namespace Oqtane.Repository
         private MasterDBContext _db;
         private readonly IMemoryCache _cache;
         private readonly IPermissionRepository _permissions;
+        private List<ModuleDefinition> _moduleDefinitions; // lazy load
 
         public ModuleDefinitionRepository(MasterDBContext context, IMemoryCache cache, IPermissionRepository permissions)
         {
@@ -61,12 +62,12 @@ namespace Oqtane.Repository
 
         private List<ModuleDefinition> LoadSiteModuleDefinitions(int siteId)
         {
-            // get module assemblies 
-            List<ModuleDefinition> moduleDefinitions = _cache.GetOrCreate("moduledefinitions", entry =>
+            if (_moduleDefinitions == null)
             {
-                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
-                return LoadModuleDefinitionsFromAssemblies();
-            });
+                // get module assemblies 
+                _moduleDefinitions = LoadModuleDefinitionsFromAssemblies();
+            }
+            List<ModuleDefinition> moduleDefinitions = _moduleDefinitions;
 
             // get module definition permissions for site
             List<Permission> permissions = _permissions.GetPermissions(siteId, EntityNames.ModuleDefinition).ToList();
@@ -210,14 +211,5 @@ namespace Oqtane.Repository
             return moduledefinitions;
         }
 
-        private string GetProperty(Dictionary<string, string> properties, string key)
-        {
-            string value = "";
-            if (properties.ContainsKey(key))
-            {
-                value = properties[key];
-            }
-            return value;
-        }
     }
 }

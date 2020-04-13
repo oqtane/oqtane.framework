@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using Oqtane.Controllers;
 using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Repository;
@@ -109,7 +108,7 @@ namespace Oqtane.Infrastructure
                 }
                 else
                 {
-                    Message = "Database is not avaiable";
+                    Message = "Database is not available";
                 }
             }
             else
@@ -214,7 +213,7 @@ namespace Oqtane.Infrastructure
             
             Console.WriteLine($"Migrating assembly {assembly.FullName}");
             var dbUpgradeConfig = DeployChanges.To.SqlDatabase(connectionString)
-                .WithScriptsEmbeddedInAssembly(assembly); // scripts must be included as Embedded Resources
+                .WithScriptsEmbeddedInAssembly(assembly, s => !s.ToLower().Contains("uninstall.sql")); // scripts must be included as Embedded Resources
             var dbUpgrade = dbUpgradeConfig.Build();
             if (dbUpgrade.IsUpgradeRequired())
             {
@@ -368,8 +367,6 @@ namespace Oqtane.Infrastructure
             return value;
         }
         
-        
-
         private static void CreateHostUser(IFolderRepository folderRepository, IUserRoleRepository userRoleRepository, IRoleRepository roleRepository, IUserRepository userRepository, UserManager<IdentityUser> identityUserManager, User user)
         {
             var identityUser = new IdentityUser {UserName = user.Username, Email = user.Email, EmailConfirmed = true};
@@ -426,7 +423,6 @@ namespace Oqtane.Infrastructure
                 return TableExists(db, "SchemaVersions");
             }
         }
-
 
         public static bool TableExists(DbContext context, string tableName)
         {

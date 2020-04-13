@@ -26,10 +26,11 @@ namespace Oqtane.Controllers
         private readonly IInstallationManager _installationManager;
         private readonly IWebHostEnvironment _environment;
         private readonly ITenantResolver _resolver;
+        private readonly ITenantRepository _tenants;
         private readonly ISqlRepository _sql;
         private readonly ILogManager _logger;
 
-        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, IModuleRepository modules, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, ITenantResolver resolver, ISqlRepository sql, ILogManager logger)
+        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, IModuleRepository modules, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, ITenantResolver resolver, ITenantRepository tenants, ISqlRepository sql, ILogManager logger)
         {
             _moduleDefinitions = moduleDefinitions;
             _modules = modules;
@@ -37,6 +38,7 @@ namespace Oqtane.Controllers
             _installationManager = installationManager;
             _environment = environment;
             _resolver = resolver;
+            _tenants = tenants;
             _sql = sql;
             _logger = logger;
         }
@@ -102,23 +104,59 @@ namespace Oqtane.Controllers
             ModuleDefinition moduledefinition = moduledefinitions.Where(item => item.ModuleDefinitionId == id).FirstOrDefault();
             if (moduledefinition != null)
             {
+                if (!string.IsNullOrEmpty(moduledefinition.ServerAssemblyName))
+                {
+                    string uninstallScript = "";
+                    Assembly assembly = AppDomain.CurrentDomain.GetAssemblies().SingleOrDefault(a => a.GetName().Name == moduledefinition.ServerAssemblyName);
+                    if (assembly != null)
+                    {
+                        Stream resourceStream = assembly.GetManifestResourceStream(moduledefinition.ServerAssemblyName + ".Scripts.Uninstall.sql");
+                        if (resourceStream != null)
+                        {
+                            using (var reader = new StreamReader(resourceStream))
+                            {
+                                uninstallScript = reader.ReadToEnd();
+                            }
+                        }
+                    }
+
+                    foreach (Tenant tenant in _tenants.GetTenants())
+                    {
+                        // uninstall module database schema
+                        if (!string.IsNullOrEmpty(uninstallScript))
+                        {
+                            _sql.ExecuteScript(tenant, uninstallScript);
+                            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Uninstall Script Executed For {ServerAssemblyName}", moduledefinition.ServerAssemblyName);
+                        }
+                        // clean up module schema versions
+                        _sql.ExecuteNonQuery(tenant, "DELETE FROM [dbo].[SchemaVersions] WHERE ScriptName LIKE '" + moduledefinition.ServerAssemblyName + "%'");
+                        _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Schema Versions Removed For {ServerAssemblyName}", moduledefinition.ServerAssemblyName);
+                    }
+                }
+
                 string moduledefinitionname = moduledefinition.ModuleDefinitionName.Substring(0, moduledefinition.ModuleDefinitionName.IndexOf(","));
 
+                // clean up module static resource folder
                 string folder = Path.Combine(_environment.WebRootPath, "Modules\\" + moduledefinitionname);
                 if (Directory.Exists(folder))
                 {
                     Directory.Delete(folder, true);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Static Resources Removed For {ModuleDefinitionName}", moduledefinitionname);
                 }
 
+                // remove module assembly from /bin
                 string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-                foreach (string file in Directory.EnumerateFiles(binfolder, moduledefinitionname + "*.dll"))
+                foreach (string file in Directory.EnumerateFiles(binfolder, moduledefinitionname + "*.*"))
                 {
                     System.IO.File.Delete(file);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Assemblies Removed For {ModuleDefinitionName}", moduledefinitionname);
                 }
 
+                // remove module definition
                 _moduleDefinitions.DeleteModuleDefinition(id, siteid);
-                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Deleted {ModuleDefinitionId}", id);
+                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Definition Deleted {ModuleDefinitionName}", moduledefinition.Name);
 
+                // restart application
                 _installationManager.RestartApplication();
             }
         }
@@ -209,10 +247,7 @@ namespace Oqtane.Controllers
                     if (Path.GetExtension(filePath) == ".sql")
                     {
                         // execute script in curent tenant
-                        foreach (string query in text.Split("GO", StringSplitOptions.RemoveEmptyEntries))
-                        {
-                            _sql.ExecuteNonQuery(_resolver.GetTenant(), query);
-                        }
+                        _sql.ExecuteScript(_resolver.GetTenant(), text);
                     }
                 }
 
