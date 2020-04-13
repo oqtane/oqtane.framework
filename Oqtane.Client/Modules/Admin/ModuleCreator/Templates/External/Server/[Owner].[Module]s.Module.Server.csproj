@@ -21,10 +21,12 @@
 
   <ItemGroup>
     <None Remove="Scripts\01.00.00.sql" />
+    <None Remove="Scripts\Uninstall.sql" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Scripts\01.00.00.sql" />
+    <EmbeddedResource Include="Scripts\Uninstall.sql" />
   </ItemGroup>
 
   <ItemGroup>
