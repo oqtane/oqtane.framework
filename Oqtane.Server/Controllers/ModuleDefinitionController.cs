@@ -244,9 +244,9 @@ namespace Oqtane.Controllers
                     text = text.Replace("[File]", Path.GetFileName(filePath));
                     System.IO.File.WriteAllText(filePath, text);
 
-                    if (Path.GetExtension(filePath) == ".sql")
+                    if (Path.GetExtension(filePath).ToLower() == ".sql" && !filePath.ToLower().Contains("uninstall"))
                     {
-                        // execute script in curent tenant
+                        // execute installation script in curent tenant
                         _sql.ExecuteScript(_resolver.GetTenant(), text);
                     }
                 }
