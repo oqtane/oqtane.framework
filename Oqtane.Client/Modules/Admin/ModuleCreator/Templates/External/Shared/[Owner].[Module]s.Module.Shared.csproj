@@ -21,7 +21,7 @@
 
   <ItemGroup>
     <Reference Include="Oqtane.Shared">
-      <HintPath>..\..\oqtane.framework\Oqtane.Shared\bin\Debug\netstandard2.1\Oqtane.Shared.dll</HintPath>
+      <HintPath>..\..\[RootFolder]\Oqtane.Shared\bin\Debug\netstandard2.1\Oqtane.Shared.dll</HintPath>
     </Reference>
   </ItemGroup>
 

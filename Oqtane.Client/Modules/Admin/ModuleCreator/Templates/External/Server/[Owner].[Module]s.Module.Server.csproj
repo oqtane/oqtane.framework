@@ -43,10 +43,10 @@
 
   <ItemGroup>
     <Reference Include="Oqtane.Server">
-      <HintPath>..\..\oqtane.framework\Oqtane.Server\bin\Debug\netcoreapp3.1\Oqtane.Server.dll</HintPath>
+      <HintPath>..\..\[RootFolder]\Oqtane.Server\bin\Debug\netcoreapp3.1\Oqtane.Server.dll</HintPath>
     </Reference>
     <Reference Include="Oqtane.Shared">
-      <HintPath>..\..\oqtane.framework\Oqtane.Server\bin\Debug\netcoreapp3.1\Oqtane.Shared.dll</HintPath>
+      <HintPath>..\..\[RootFolder]\Oqtane.Server\bin\Debug\netcoreapp3.1\Oqtane.Shared.dll</HintPath>
     </Reference>
   </ItemGroup>
 
