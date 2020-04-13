@@ -9,7 +9,24 @@ namespace Oqtane.Repository
 {
     public class ThemeRepository : IThemeRepository
     {
+        private List<Theme> _themes; // lazy load
+
+        public IEnumerable<Theme> GetThemes()
+        {
+            return LoadThemes();
+        }
+
         private List<Theme> LoadThemes()
+        {
+            if (_themes == null)
+            {
+                // get themes
+                _themes = LoadThemesFromAssemblies();
+            }
+            return _themes;
+        }
+
+        private List<Theme> LoadThemesFromAssemblies()
         {
             List<Theme> themes = new List<Theme>();
 
@@ -102,21 +119,6 @@ namespace Oqtane.Repository
                 }
             }
             return themes;
-        }
-
-        private string GetProperty(Dictionary<string, string> properties, string key)
-        {
-            string value = "";
-            if (properties.ContainsKey(key))
-            {
-                value = properties[key];
-            }
-            return value;
-        }
-
-        public IEnumerable<Theme> GetThemes()
-        {
-            return LoadThemes();
         }
     }
 }

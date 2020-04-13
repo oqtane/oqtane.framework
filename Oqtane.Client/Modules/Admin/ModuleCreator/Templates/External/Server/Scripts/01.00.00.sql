@@ -1,5 +1,5 @@
 /*  
-Create [Module] table
+Create [Owner][Module] table
 */
 
 CREATE TABLE [dbo].[[Owner][Module]](
