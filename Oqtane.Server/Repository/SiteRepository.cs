@@ -596,7 +596,13 @@ namespace Oqtane.Repository
                 var section = _config.GetSection("Installation:SiteTemplate");
                 if (section.Exists())
                 {
-                    site.SiteTemplateType = section.Value;
+                    if(string.IsNullOrEmpty(section.Value)){
+                        site.SiteTemplateType = Constants.DefaultSiteTemplate;
+                    }
+                    else
+                    {
+                        site.SiteTemplateType = section.Value;
+                    }                    
                 }
                 else
                 {
