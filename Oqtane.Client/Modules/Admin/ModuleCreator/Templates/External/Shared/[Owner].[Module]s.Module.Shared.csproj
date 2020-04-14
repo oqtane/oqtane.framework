@@ -9,10 +9,6 @@
     <Company>[Owner]</Company>
     <Description>[Description]</Description>
     <Copyright>[Owner]</Copyright>
-    <PackageProjectUrl></PackageProjectUrl>
-    <RepositoryUrl></RepositoryUrl>
-    <RepositoryType></RepositoryType>
-    <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
