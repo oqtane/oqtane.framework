@@ -81,22 +81,22 @@ namespace Oqtane.Controllers
             Folder folder = _folders.GetFolder(siteId, folderPath);
             List<Models.File> files;
             if (folder != null)
+            {
                 if (_userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.Permissions))
                 {
                     files = _files.GetFiles(folder.FolderId).ToList();
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Folder {folder}",
-                        folder);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Folder {folder}", folder);
                     HttpContext.Response.StatusCode = 401;
                     return null;
                 }
+            }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "Folder not found {path}",
-                    path);
-                HttpContext.Response.StatusCode = 401;
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, "Folder Not Found {SiteId} {Path}", siteId, path);
+                HttpContext.Response.StatusCode = 404;
                 return null;
             }
 
@@ -108,14 +108,23 @@ namespace Oqtane.Controllers
         public Models.File Get(int id)
         {
             Models.File file = _files.GetFile(id);
-            if (_userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.Permissions))
+            if (file != null)
             {
-                return file;
+                if (_userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.Permissions))
+                {
+                    return file;
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access File {File}", file);
+                    HttpContext.Response.StatusCode = 401;
+                    return null;
+                }
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access File {File}", file);
-                HttpContext.Response.StatusCode = 401;
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Not Found {FileId}", id);
+                HttpContext.Response.StatusCode = 404;
                 return null;
             }
         }
@@ -146,22 +155,30 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             Models.File file = _files.GetFile(id);
-            if (_userPermissions.IsAuthorized(User, EntityNames.Folder, file.Folder.FolderId, PermissionNames.Edit))
+            if (file != null)
             {
-                _files.DeleteFile(id);
-
-                string filepath = Path.Combine(GetFolderPath(file.Folder) + file.Name);
-                if (System.IO.File.Exists(filepath))
+                if (_userPermissions.IsAuthorized(User, EntityNames.Folder, file.Folder.FolderId, PermissionNames.Edit))
                 {
-                    System.IO.File.Delete(filepath);
-                }
+                    _files.DeleteFile(id);
 
-                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "File Deleted {File}", file);
+                    string filepath = Path.Combine(GetFolderPath(file.Folder) + file.Name);
+                    if (System.IO.File.Exists(filepath))
+                    {
+                        System.IO.File.Delete(filepath);
+                    }
+
+                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, "File Deleted {File}", file);
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Delete, "User Not Authorized To Delete File {FileId}", id);
+                    HttpContext.Response.StatusCode = 401;
+                }
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Delete, "User Not Authorized To Delete File {FileId}", id);
-                HttpContext.Response.StatusCode = 401;
+                _logger.Log(LogLevel.Error, this, LogFunction.Delete, "File Not Found {FileId}", id);
+                HttpContext.Response.StatusCode = 404;
             }
         }
 
@@ -379,25 +396,34 @@ namespace Oqtane.Controllers
         public IActionResult Download(int id)
         {
             Models.File file = _files.GetFile(id);
-            if (file != null && _userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.Permissions))
+            if (file != null)
             {
-                string filepath = GetFolderPath(file.Folder) + file.Name;
-                if (System.IO.File.Exists(filepath))
+                if (_userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.Permissions))
                 {
-                    byte[] filebytes = System.IO.File.ReadAllBytes(filepath);
-                    return File(filebytes, "application/octet-stream", file.Name);
+                    string filepath = GetFolderPath(file.Folder) + file.Name;
+                    if (System.IO.File.Exists(filepath))
+                    {
+                        byte[] filebytes = System.IO.File.ReadAllBytes(filepath);
+                        return File(filebytes, "application/octet-stream", file.Name);
+                    }
+                    else
+                    {
+                        _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {FileId} {FilePath}", id, filepath);
+                        HttpContext.Response.StatusCode = 404;
+                        return null;
+                    }
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {File}", file);
-                    HttpContext.Response.StatusCode = 404;
+                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access File {FileId}", id);
+                    HttpContext.Response.StatusCode = 401;
                     return null;
                 }
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access File {FileId}", id);
-                HttpContext.Response.StatusCode = 401;
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Not Found {FileId}", id);
+                HttpContext.Response.StatusCode = 404;
                 return null;
             }
         }
