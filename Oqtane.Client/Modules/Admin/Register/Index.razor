@@ -43,6 +43,14 @@
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
 
+    protected override void OnInitialized()
+    {
+        if (!PageState.Site.AllowRegistration)
+        {
+            _message = "Registration is Disabled";
+        }
+    }
+
     private async Task Register()
     {
         try
