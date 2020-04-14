@@ -8,7 +8,7 @@
     <ModuleMessage Message="@_message" Type="MessageType.Info" />
 }
 
-<div class="container">
+<div class="container @_css">
     <div class="form-group">
         <label for="Username" class="control-label">Username: </label>
         <input type="text" class="form-control" placeholder="Username" @bind="@_username" id="Username"/>
@@ -40,6 +40,10 @@
     private string _confirm = string.Empty;
     private string _email = string.Empty;
     private string _displayName = string.Empty;
+    private string _css = string.Empty;
+    private const string displayNone = "d-none";
+
+
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
 
@@ -48,6 +52,7 @@
         if (!PageState.Site.AllowRegistration)
         {
             _message = "Registration is Disabled";
+            _css = displayNone;
         }
     }
 
