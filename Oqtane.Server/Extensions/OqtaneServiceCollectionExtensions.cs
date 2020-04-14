@@ -112,14 +112,22 @@ namespace Microsoft.Extensions.DependencyInjection
             var assembliesFolder = new DirectoryInfo(assemblyPath);
 
             // iterate through Oqtane assemblies in /bin ( filter is narrow to optimize loading process )
-            foreach (var file in assembliesFolder.EnumerateFiles($"*.{pattern}.*.dll"))
+            foreach (var dll in assembliesFolder.EnumerateFiles($"*.{pattern}.*.dll"))
             {
                 // check if assembly is already loaded
-                var assembly = Assemblies.FirstOrDefault(a =>!a.IsDynamic && a.Location == file.FullName);
+                var assembly = Assemblies.FirstOrDefault(a =>!a.IsDynamic && a.Location == dll.FullName);
                 if (assembly == null)
                 {
-                    // load assembly from stream to prevent locking file ( as long as dependencies are in /bin they will load as well )
-                    assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(file.FullName)));
+                    // load assembly ( and symbols ) from stream to prevent locking files ( as long as dependencies are in /bin they will load as well )
+                    string pdb = dll.FullName.Replace(".dll", ".pdb");
+                    if (File.Exists(pdb))
+                    {
+                        assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(dll.FullName)), new MemoryStream(File.ReadAllBytes(pdb)));
+                    }
+                    else
+                    {
+                        assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(dll.FullName)));
+                    }
                     if (pattern == "Module")
                     {
                         // build a list of module assemblies
