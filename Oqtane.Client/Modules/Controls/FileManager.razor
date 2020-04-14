@@ -6,7 +6,7 @@
 
 @if (_folders != null)
 {
-    <div class="container-fluid px-0">
+    <div id="@Id" class="container-fluid px-0">
         <div class="row">
             <div class="col">
                 <div>
@@ -95,6 +95,10 @@
     private bool _haseditpermission = false;
     private string _message = string.Empty;
     private string _image = string.Empty;
+    private string _guid;
+
+    [Parameter]
+    public string Id { get; set; } // optional - for setting the id of the FileManager component for accessibility
 
     [Parameter]
     public string Folder { get; set; } // optional - for setting a specific folder by default
@@ -116,6 +120,11 @@
 
     protected override async Task OnInitializedAsync()
     {
+        if (!string.IsNullOrEmpty(Id))
+        {
+            _id = Id;
+        }
+
         if (!string.IsNullOrEmpty(Folder))
         {
             _folders = new List<Folder> {new Folder {FolderId = -1, Name = Folder}};
@@ -133,7 +142,6 @@
         if (!string.IsNullOrEmpty(FileId))
         {
             _fileid = int.Parse(FileId);
-            await SetImage();
             if (_fileid != -1)
             {
                 File file = await FileService.GetFileAsync(int.Parse(FileId));
@@ -141,7 +149,12 @@
                 {
                     _folderid = file.FolderId;
                 }
+                else
+                {
+                    _fileid = -1; // file does not exist
+                }
             }
+            await SetImage();
         }
         if (!string.IsNullOrEmpty(ShowFiles))
         {
@@ -156,10 +169,10 @@
         await GetFiles();
 
         // create unique id for component
-        _id = Guid.NewGuid().ToString("N");
-        _fileinputid = _id + "FileInput";
-        _progressinfoid = _id + "ProgressInfo";
-        _progressbarid = _id + "ProgressBar";
+        _guid = Guid.NewGuid().ToString("N");
+        _fileinputid = _guid + "FileInput";
+        _progressinfoid = _guid + "ProgressInfo";
+        _progressbarid = _guid + "ProgressBar";
 
         if (!string.IsNullOrEmpty(UploadMultiple))
         {
@@ -236,7 +249,7 @@
         if (_fileid != -1)
         {
             File file = await FileService.GetFileAsync(_fileid);
-            if (file.ImageHeight != 0 && file.ImageWidth != 0)
+            if (file != null && file.ImageHeight != 0 && file.ImageWidth != 0)
             {
                 var maxwidth = 200;
                 var maxheight = 200;
@@ -263,11 +276,11 @@
                 string result;
                 if (!string.IsNullOrEmpty(Folder))
                 {
-                    result = await FileService.UploadFilesAsync(Folder, upload, _id);
+                    result = await FileService.UploadFilesAsync(Folder, upload, _guid);
                 }
                 else
                 {
-                    result = await FileService.UploadFilesAsync(_folderid, upload, _id);
+                    result = await FileService.UploadFilesAsync(_folderid, upload, _guid);
                 }
 
                 if (result == string.Empty)

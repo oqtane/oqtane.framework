@@ -56,7 +56,14 @@ namespace Oqtane.Services
 
         public async Task<File> GetFileAsync(int fileId)
         {
-            return await _http.GetJsonAsync<File>($"{Apiurl}/{fileId.ToString()}");
+            try
+            {
+                return await _http.GetJsonAsync<File>($"{Apiurl}/{fileId.ToString()}");
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public async Task<File> AddFileAsync(File file)
