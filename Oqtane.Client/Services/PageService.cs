@@ -12,13 +12,13 @@ namespace Oqtane.Services
 {
     public class PageService : ServiceBase, IPageService
     {
-        private readonly HttpClient _http;
+        
         private readonly SiteState _siteState;
         private readonly NavigationManager _navigationManager;
 
-        public PageService(HttpClient http, SiteState siteState, NavigationManager navigationManager)
+        public PageService(HttpClient http, SiteState siteState, NavigationManager navigationManager) : base(http)
         {
-            _http = http;
+            
             _siteState = siteState;
             _navigationManager = navigationManager;
         }
@@ -30,26 +30,26 @@ namespace Oqtane.Services
 
         public async Task<List<Page>> GetPagesAsync(int siteId)
         {
-            List<Page> pages = await _http.GetJsonAsync<List<Page>>($"{Apiurl}?siteid={siteId.ToString()}");
+            List<Page> pages = await GetJsonAsync<List<Page>>($"{Apiurl}?siteid={siteId.ToString()}");
             pages = GetPagesHierarchy(pages);
             return pages;
         }
 
         public async Task<Page> GetPageAsync(int pageId)
         {
-            return await _http.GetJsonAsync<Page>($"{Apiurl}/{pageId.ToString()}");
+            return await GetJsonAsync<Page>($"{Apiurl}/{pageId.ToString()}");
         }
 
         public async Task<Page> GetPageAsync(int pageId, int userId)
         {
-            return await _http.GetJsonAsync<Page>($"{Apiurl}/{pageId.ToString()}?userid={userId.ToString()}");
+            return await GetJsonAsync<Page>($"{Apiurl}/{pageId.ToString()}?userid={userId.ToString()}");
         }
 
         public async Task<Page> GetPageAsync(string path, int siteId)
         {
             try
             {
-                return await _http.GetJsonAsync<Page>($"{Apiurl}/path/{siteId.ToString()}?path={WebUtility.UrlEncode(path)}");
+                return await GetJsonAsync<Page>($"{Apiurl}/path/{siteId.ToString()}?path={WebUtility.UrlEncode(path)}");
             }
             catch
             {
@@ -59,17 +59,17 @@ namespace Oqtane.Services
 
         public async Task<Page> AddPageAsync(Page page)
         {
-            return await _http.PostJsonAsync<Page>(Apiurl, page);
+            return await PostJsonAsync<Page>(Apiurl, page);
         }
 
         public async Task<Page> AddPageAsync(int pageId, int userId)
         {
-            return await _http.PostJsonAsync<Page>($"{Apiurl}/{pageId.ToString()}?userid={userId.ToString()}", null);
+            return await PostJsonAsync<Page>($"{Apiurl}/{pageId.ToString()}?userid={userId.ToString()}", null);
         }
 
         public async Task<Page> UpdatePageAsync(Page page)
         {
-            return await _http.PutJsonAsync<Page>($"{Apiurl}/{page.PageId.ToString()}", page);
+            return await PutJsonAsync<Page>($"{Apiurl}/{page.PageId.ToString()}", page);
         }
 
         public async Task UpdatePageOrderAsync(int siteId, int pageId, int? parentId)
@@ -77,12 +77,12 @@ namespace Oqtane.Services
             var parent = parentId == null
                 ? string.Empty
                 : parentId.ToString();
-            await _http.PutJsonAsync($"{Apiurl}/?siteid={siteId.ToString()}&pageid={pageId.ToString()}&parentid={parent}", null);
+            await PutAsync($"{Apiurl}/?siteid={siteId.ToString()}&pageid={pageId.ToString()}&parentid={parent}");
         }
 
         public async Task DeletePageAsync(int pageId)
         {
-            await _http.DeleteAsync($"{Apiurl}/{pageId.ToString()}");
+            await DeleteAsync($"{Apiurl}/{pageId.ToString()}");
         }
 
         private static List<Page> GetPagesHierarchy(List<Page> pages)

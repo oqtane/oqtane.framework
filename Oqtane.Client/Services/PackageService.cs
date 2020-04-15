@@ -10,13 +10,13 @@ namespace Oqtane.Services
 {
     public class PackageService : ServiceBase, IPackageService
     {
-        private readonly HttpClient _http;
+        
         private readonly SiteState _siteState;
         private readonly NavigationManager _navigationManager;
 
-        public PackageService(HttpClient http, SiteState siteState, NavigationManager navigationManager)
+        public PackageService(HttpClient http, SiteState siteState, NavigationManager navigationManager) : base(http)
         {
-            _http = http;
+            
             _siteState = siteState;
             _navigationManager = navigationManager;
         }
@@ -28,13 +28,13 @@ namespace Oqtane.Services
 
         public async Task<List<Package>> GetPackagesAsync(string tag)
         {
-            List<Package> packages = await _http.GetJsonAsync<List<Package>>($"{Apiurl}?tag={tag}");
+            List<Package> packages = await GetJsonAsync<List<Package>>($"{Apiurl}?tag={tag}");
             return packages.OrderByDescending(item => item.Downloads).ToList();
         }
 
         public async Task DownloadPackageAsync(string packageId, string version, string folder)
         {
-            await _http.PostJsonAsync($"{Apiurl}?packageid={packageId}&version={version}&folder={folder}", null);
+            await PostAsync($"{Apiurl}?packageid={packageId}&version={version}&folder={folder}");
         }
     }
 }
