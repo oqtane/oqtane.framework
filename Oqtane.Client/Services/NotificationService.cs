@@ -28,7 +28,7 @@ namespace Oqtane.Services
 
         public async Task<List<Notification>> GetNotificationsAsync(int siteId, string direction, int userId)
         {
-            var notifications = await _http.GetJsonAsync<List<Notification>>($"{Apiurl}? siteid={siteId.ToString()}&direction={direction.ToLower()}&userid={userId.ToString()}");
+            var notifications = await _http.GetJsonAsync<List<Notification>>($"{Apiurl}?siteid={siteId.ToString()}&direction={direction.ToLower()}&userid={userId.ToString()}");
             
             return notifications.OrderByDescending(item => item.CreatedOn).ToList();
         }
