@@ -10,13 +10,13 @@ namespace Oqtane.Services
 {
     public class SqlService : ServiceBase, ISqlService
     {
-        private readonly HttpClient _http;
+        
         private readonly SiteState _siteState;
         private readonly NavigationManager _navigationManager;
 
-        public SqlService(HttpClient http, SiteState siteState, NavigationManager navigationManager)
+        public SqlService(HttpClient http, SiteState siteState, NavigationManager navigationManager) : base(http)
         {
-            _http = http;
+            
             _siteState = siteState;
             _navigationManager = navigationManager;
         }
@@ -28,7 +28,7 @@ namespace Oqtane.Services
 
         public async Task<SqlQuery> ExecuteQueryAsync(SqlQuery sqlquery)
         {
-            return await _http.PostJsonAsync<SqlQuery>(Apiurl, sqlquery);
+            return await PostJsonAsync<SqlQuery>(Apiurl, sqlquery);
         }
     }
 }
