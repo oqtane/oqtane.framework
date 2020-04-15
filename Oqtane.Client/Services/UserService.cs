@@ -11,12 +11,14 @@ namespace Oqtane.Services
         private readonly HttpClient _http;
         private readonly SiteState _siteState;
         private readonly NavigationManager _navigationManager;
+        private readonly ISiteService _siteService;        
 
-        public UserService(HttpClient http, SiteState siteState, NavigationManager navigationManager)
+        public UserService(HttpClient http, SiteState siteState, NavigationManager navigationManager, ISiteService siteService)
         {
             _http = http;
             _siteState = siteState;
             _navigationManager = navigationManager;
+            _siteService = siteService;
         }
 
         private string Apiurl
@@ -36,6 +38,13 @@ namespace Oqtane.Services
 
         public async Task<User> AddUserAsync(User user)
         {
+            Site site = await _siteService.GetSiteAsync(_siteState.Alias.SiteId, _siteState.Alias);
+
+            if (!site.AllowRegistration)
+            {
+                return null;
+            }
+
             try
             {
                 return await _http.PostJsonAsync<User>(Apiurl, user);
