@@ -16,7 +16,7 @@ namespace Oqtane.Services
         private readonly SiteState _siteState;
         private readonly NavigationManager _navigationManager;
 
-        public ThemeService(HttpClient http, SiteState siteState, NavigationManager navigationManager)
+        public ThemeService(HttpClient http, SiteState siteState, NavigationManager navigationManager) : base(http)
         {
             _http = http;
             _siteState = siteState;
@@ -30,7 +30,7 @@ namespace Oqtane.Services
 
         public async Task<List<Theme>> GetThemesAsync()
         {
-            List<Theme> themes = await _http.GetJsonAsync<List<Theme>>(Apiurl);
+            List<Theme> themes = await GetJsonAsync<List<Theme>>(Apiurl);
 
             // get list of loaded assemblies
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -105,12 +105,12 @@ namespace Oqtane.Services
 
         public async Task InstallThemesAsync()
         {
-            await _http.GetJsonAsync<List<string>>($"{Apiurl}/install");
+            await GetJsonAsync<List<string>>($"{Apiurl}/install");
         }
 
         public async Task DeleteThemeAsync(string themeName)
         {
-            await _http.DeleteAsync($"{Apiurl}/{themeName}");
+            await DeleteAsync($"{Apiurl}/{themeName}");
         }
     }
 }
