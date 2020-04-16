@@ -1,0 +1,64 @@
+﻿@namespace Oqtane.Modules.Admin.SystemInfo
+@inherits ModuleBase
+
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <Label For="version" HelpText="qtane Version">Oqtane Version: </Label>
+        </td>
+        <td>
+            @_version
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="runtime" HelpText="Blazor Runtime">Blazor Runtime: </Label>
+        </td>
+        <td>
+            @_runtime
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="netcore" HelpText=".NET Core">.NET Core: </Label>
+        </td>
+        <td>
+            @_netcore
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="serverpath" HelpText="Server Path">Server Path: </Label>
+        </td>
+        <td>
+            @_serverpath
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="servertime" HelpText="Server Time">Server Time: </Label>
+        </td>
+        <td>
+            @_servertime
+        </td>
+    </tr>
+</table>
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+
+    private string _version = string.Empty;
+    private string _runtime = string.Empty;
+    private string _netcore = string.Empty;
+    private string _serverpath = string.Empty;
+    private string _servertime = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        _version = Constants.Version;
+        _runtime = PageState.Runtime.ToString();
+        _netcore = string.Empty;
+        _serverpath = string.Empty;
+        _servertime = string.Empty;
+    }
+}

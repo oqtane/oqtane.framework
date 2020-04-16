@@ -10,13 +10,11 @@ namespace Oqtane.Services
     {
         private readonly SiteState _siteState;
         private readonly NavigationManager _navigationManager;
-        private readonly ISiteService _siteService;
 
-        public UserService(HttpClient http, SiteState siteState, NavigationManager navigationManager, ISiteService siteService) : base(http)
+        public UserService(HttpClient http, SiteState siteState, NavigationManager navigationManager) : base(http)
         {
             _siteState = siteState;
             _navigationManager = navigationManager;
-            _siteService = siteService;
         }
 
         private string Apiurl
@@ -26,26 +24,16 @@ namespace Oqtane.Services
 
         public async Task<User> GetUserAsync(int userId, int siteId)
         {
-            return await GetJsonAsync<User>($"{Apiurl}/{userId.ToString()}?siteid={siteId.ToString()}");
+            return await GetJsonAsync<User>($"{Apiurl}/{userId}?siteid={siteId}");
         }
 
         public async Task<User> GetUserAsync(string username, int siteId)
         {
-            return await GetJsonAsync<User>($"{Apiurl}/name/{username}?siteid={siteId.ToString()}");
+            return await GetJsonAsync<User>($"{Apiurl}/name/{username}?siteid={siteId}");
         }
 
         public async Task<User> AddUserAsync(User user)
         {
-            // On initial site creation alias is null and we always want to create host user
-            if (user.Username != Constants.HostUser && _siteState.Alias != null)
-            {
-                Site site = await _siteService.GetSiteAsync(_siteState.Alias.SiteId, _siteState.Alias);
-                if (!site.AllowRegistration)
-                {
-                    return null;
-                }
-            }
-
             return await PostJsonAsync<User>(Apiurl, user);
         }
 
@@ -56,17 +44,17 @@ namespace Oqtane.Services
 
         public async Task<User> UpdateUserAsync(User user)
         {
-            return await PutJsonAsync<User>($"{Apiurl}/{user.UserId.ToString()}", user);
+            return await PutJsonAsync<User>($"{Apiurl}/{user.UserId}", user);
         }
 
         public async Task DeleteUserAsync(int userId)
         {
-            await DeleteAsync($"{Apiurl}/{userId.ToString()}");
+            await DeleteAsync($"{Apiurl}/{userId}");
         }
 
         public async Task<User> LoginUserAsync(User user, bool setCookie, bool isPersistent)
         {
-            return await PostJsonAsync<User>($"{Apiurl}/login?setcookie={setCookie.ToString()}&persistent={isPersistent.ToString()}", user);
+            return await PostJsonAsync<User>($"{Apiurl}/login?setcookie={setCookie}&persistent={isPersistent}", user);
         }
 
         public async Task LogoutUserAsync(User user)
