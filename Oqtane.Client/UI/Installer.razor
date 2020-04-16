@@ -202,7 +202,7 @@
                 user.Password = _hostPassword;
                 user.Email = _hostEmail;
                 user.DisplayName = _hostUsername;
-                user = await UserService.AddUserAsync(user);
+                user = await UserService.AddUserAsync(user, null);
 
                 NavigationManager.NavigateTo("", true);
             }
