@@ -8,14 +8,12 @@ namespace Oqtane.Services
 {
     public class UserService : ServiceBase, IUserService
     {
-        
         private readonly SiteState _siteState;
         private readonly NavigationManager _navigationManager;
-        private readonly ISiteService _siteService;        
+        private readonly ISiteService _siteService;
 
         public UserService(HttpClient http, SiteState siteState, NavigationManager navigationManager, ISiteService siteService) : base(http)
         {
-            
             _siteState = siteState;
             _navigationManager = navigationManager;
             _siteService = siteService;
@@ -38,39 +36,29 @@ namespace Oqtane.Services
 
         public async Task<User> AddUserAsync(User user)
         {
-            Site site = await _siteService.GetSiteAsync(_siteState.Alias.SiteId, _siteState.Alias);
-
-            if (!site.AllowRegistration)
+            // On initial site creation alias is null and we always want to create host user
+            if (user.Username != Constants.HostUser && _siteState.Alias != null)
             {
-                return null;
+                Site site = await _siteService.GetSiteAsync(_siteState.Alias.SiteId, _siteState.Alias);
+                if (!site.AllowRegistration)
+                {
+                    return null;
+                }
             }
 
-            try
-            {
-                return await PostJsonAsync<User>(Apiurl, user);
-            }
-            catch
-            {
-                return null;
-            }
+            return await PostJsonAsync<User>(Apiurl, user);
         }
 
         public async Task<User> AddUserAsync(User user, Alias alias)
         {
-            try
-            {
-                return await PostJsonAsync<User>(CreateCrossTenantUrl(Apiurl, alias), user);
-            }
-            catch
-            {
-                return null;
-            }
+            return await PostJsonAsync<User>(CreateCrossTenantUrl(Apiurl, alias), user);
         }
 
         public async Task<User> UpdateUserAsync(User user)
         {
             return await PutJsonAsync<User>($"{Apiurl}/{user.UserId.ToString()}", user);
         }
+
         public async Task DeleteUserAsync(int userId)
         {
             await DeleteAsync($"{Apiurl}/{userId.ToString()}");
@@ -84,7 +72,7 @@ namespace Oqtane.Services
         public async Task LogoutUserAsync(User user)
         {
             // best practices recommend post is preferrable to get for logout
-            await PostJsonAsync($"{Apiurl}/logout", user); 
+            await PostJsonAsync($"{Apiurl}/logout", user);
         }
 
         public async Task<User> VerifyEmailAsync(User user, string token)
@@ -101,6 +89,5 @@ namespace Oqtane.Services
         {
             return await PostJsonAsync<User>($"{Apiurl}/reset?token={token}", user);
         }
-
     }
 }
