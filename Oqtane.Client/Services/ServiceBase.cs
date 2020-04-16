@@ -5,7 +5,6 @@ using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Oqtane.Models;
-using Oqtane.Modules.HtmlText.Models;
 
 namespace Oqtane.Services
 {
@@ -18,51 +17,40 @@ namespace Oqtane.Services
             _http = client;
         }
 
-        protected async Task<T> PutJsonAsync<T>(string uri, T value)
-        {
-            var response = await _http.PutAsJsonAsync(uri, value);
-            var result = await response.Content.ReadFromJsonAsync<T>();
-            return result;
-        }
-
-        protected async Task PutAsync(string uri)
-        {
-            await _http.PutAsync(uri, null);
-        }
-
-        protected async Task PostAsync(string uri)
-        {
-            await _http.PostAsync(uri, null);
-        }
 
         protected async Task GetAsync(string uri)
         {
-            await _http.GetAsync(uri);
+            var response = await _http.GetAsync(uri);
+            CheckResponse(response);
+        }
+
+        protected async Task<string> GetStringAsync(string uri)
+        {
+            try
+            {
+                return await _http.GetStringAsync(uri);
+            }
+            catch (Exception e)
+            {
+                //TODO replace with logging
+                Console.WriteLine(e);
+            }
+
+            return default;
         }
 
         protected async Task<byte[]> GetByteArrayAsync(string uri)
         {
-            return await _http.GetByteArrayAsync(uri);
-        }
+            try
+            {
+                return await _http.GetByteArrayAsync(uri);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
 
-        protected async Task<R> PostJsonAsync<T, R>(string uri, T value)
-        {
-            var response = await _http.PostAsJsonAsync(uri, value);
-            if (!ValidateJsonContent(response.Content)) return default;
-            
-            var result = await response.Content.ReadFromJsonAsync<R>();
-            return result;
-        }
-
-        private static bool ValidateJsonContent(HttpContent content)
-        {
-            var mediaType = content?.Headers.ContentType?.MediaType;
-            return mediaType != null && mediaType.Equals("application/json", StringComparison.OrdinalIgnoreCase);
-        }
-  
-        protected async Task<T> PostJsonAsync<T>(string uri, T value)
-        {
-            return await PostJsonAsync<T, T>(uri, value);
+            return default;
         }
 
         protected async Task<T> GetJsonAsync<T>(string uri)
@@ -76,25 +64,75 @@ namespace Oqtane.Services
             return default;
         }
 
+        protected async Task PutAsync(string uri)
+        {
+            var response = await _http.PutAsync(uri, null);
+            CheckResponse(response);
+        }
+
+        protected async Task<T> PutJsonAsync<T>(string uri, T value)
+        {
+            return await PutJsonAsync<T, T>(uri, value);
+        }
+
+        protected async Task<TResult> PutJsonAsync<TValue, TResult>(string uri, TValue value)
+        {
+            var response = await _http.PutAsJsonAsync(uri, value);
+            if (CheckResponse(response) && ValidateJsonContent(response.Content))
+            {
+                var result = await response.Content.ReadFromJsonAsync<TResult>();
+                return result;
+            }
+
+            return default;
+        }
+
+        protected async Task PostAsync(string uri)
+        {
+            var response = await _http.PostAsync(uri, null);
+            CheckResponse(response);
+        }
+
+        protected async Task<T> PostJsonAsync<T>(string uri, T value)
+        {
+            return await PostJsonAsync<T, T>(uri, value);
+        }
+
+        protected async Task<TResult> PostJsonAsync<TValue, TResult>(string uri, TValue value)
+        {
+            var response = await _http.PostAsJsonAsync(uri, value);
+            if (CheckResponse(response) && ValidateJsonContent(response.Content))
+            {
+                var result = await response.Content.ReadFromJsonAsync<TResult>();
+                return result;
+            }
+
+            return default;
+        }
+
+        protected async Task DeleteAsync(string uri)
+        {
+            var response = await _http.DeleteAsync(uri);
+            CheckResponse(response);
+        }
+
         private bool CheckResponse(HttpResponseMessage response)
         {
             if (response.IsSuccessStatusCode) return true;
             if (response.StatusCode != HttpStatusCode.NoContent && response.StatusCode != HttpStatusCode.NotFound)
             {
-                //TODO: Log error here
+                //TODO: Log errors here
+                Console.WriteLine($"Response status: {response.StatusCode} {response.ReasonPhrase}");
             }
 
             return false;
         }
 
-        protected async Task DeleteAsync(string uri)
+        private static bool ValidateJsonContent(HttpContent content)
         {
-            await _http.DeleteAsync(uri);
-        }
-
-        protected async Task<string> GetStringAsync(string uri)
-        {
-            return await _http.GetStringAsync(uri);
+            var mediaType = content?.Headers.ContentType?.MediaType;
+            return mediaType != null && mediaType.Equals("application/json", StringComparison.OrdinalIgnoreCase);
+            //TODO Missing content JSON validation 
         }
 
         public static string CreateApiUrl(Alias alias, string absoluteUri, string serviceName)
