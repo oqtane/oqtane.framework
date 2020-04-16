@@ -10,13 +10,13 @@ namespace Oqtane.Services
 {
     public class RoleService : ServiceBase, IRoleService
     {
-        private readonly HttpClient _http;
+        
         private readonly SiteState _siteState;
         private readonly NavigationManager _navigationManager;
 
-        public RoleService(HttpClient http, SiteState siteState, NavigationManager navigationManager)
+        public RoleService(HttpClient http, SiteState siteState, NavigationManager navigationManager) : base(http)
         {
-            _http = http;
+            
             _siteState = siteState;
             _navigationManager = navigationManager;
         }
@@ -28,27 +28,27 @@ namespace Oqtane.Services
 
         public async Task<List<Role>> GetRolesAsync(int siteId)
         {
-            List<Role> roles = await _http.GetJsonAsync<List<Role>>($"{Apiurl}?siteid={siteId.ToString()}");
+            List<Role> roles = await GetJsonAsync<List<Role>>($"{Apiurl}?siteid={siteId.ToString()}");
             return roles.OrderBy(item => item.Name).ToList();
         }
 
         public async Task<Role> GetRoleAsync(int roleId)
         {
-            return await _http.GetJsonAsync<Role>($"{Apiurl}/{roleId.ToString()}");
+            return await GetJsonAsync<Role>($"{Apiurl}/{roleId.ToString()}");
         }
 
         public async Task<Role> AddRoleAsync(Role role)
         {
-            return await _http.PostJsonAsync<Role>(Apiurl, role);
+            return await PostJsonAsync<Role>(Apiurl, role);
         }
 
         public async Task<Role> UpdateRoleAsync(Role role)
         {
-            return await _http.PutJsonAsync<Role>($"{Apiurl}/{role.RoleId.ToString()}", role);
+            return await PutJsonAsync<Role>($"{Apiurl}/{role.RoleId.ToString()}", role);
         }
         public async Task DeleteRoleAsync(int roleId)
         {
-            await _http.DeleteAsync($"{Apiurl}/{roleId.ToString()}");
+            await DeleteAsync($"{Apiurl}/{roleId.ToString()}");
         }
     }
 }

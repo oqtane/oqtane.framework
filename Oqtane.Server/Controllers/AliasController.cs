@@ -63,10 +63,12 @@ namespace Oqtane.Controllers
             }
 
             // get sync events
-            alias.SyncDate = DateTime.UtcNow;
-            alias.SyncEvents = _syncManager.GetSyncEvents(DateTime.ParseExact(lastsyncdate, "yyyyMMddHHmmssfff", CultureInfo.InvariantCulture));
-
-            return alias; 
+            if (alias != null)
+            {
+                alias.SyncDate = DateTime.UtcNow;
+                alias.SyncEvents = _syncManager.GetSyncEvents(DateTime.ParseExact(lastsyncdate, "yyyyMMddHHmmssfff", CultureInfo.InvariantCulture));
+            }
+            return alias;
         }
         
         // POST api/<controller>

@@ -17,7 +17,7 @@ namespace Oqtane.Services
         private readonly SiteState _siteState;
         private readonly NavigationManager _navigationManager;
 
-        public ModuleDefinitionService(HttpClient http, SiteState siteState, NavigationManager navigationManager)
+        public ModuleDefinitionService(HttpClient http, SiteState siteState, NavigationManager navigationManager) : base(http)
         {
             _http = http;
             _siteState = siteState;
@@ -31,28 +31,28 @@ namespace Oqtane.Services
 
         public async Task<List<ModuleDefinition>> GetModuleDefinitionsAsync(int siteId)
         {
-            List<ModuleDefinition> moduledefinitions = await _http.GetJsonAsync<List<ModuleDefinition>>($"{Apiurl}?siteid={siteId.ToString()}");
+            List<ModuleDefinition> moduledefinitions = await GetJsonAsync<List<ModuleDefinition>>($"{Apiurl}?siteid={siteId.ToString()}");
             return moduledefinitions.OrderBy(item => item.Name).ToList();
         }
 
         public async Task<ModuleDefinition> GetModuleDefinitionAsync(int moduleDefinitionId, int siteId)
         {
-            return await _http.GetJsonAsync<ModuleDefinition>($"{Apiurl}/{moduleDefinitionId.ToString()}?siteid={siteId.ToString()}");
+            return await GetJsonAsync<ModuleDefinition>($"{Apiurl}/{moduleDefinitionId.ToString()}?siteid={siteId.ToString()}");
         }
 
         public async Task UpdateModuleDefinitionAsync(ModuleDefinition moduleDefinition)
         {
-            await _http.PutJsonAsync($"{Apiurl}/{moduleDefinition.ModuleDefinitionId.ToString()}", moduleDefinition);
+            await PutJsonAsync($"{Apiurl}/{moduleDefinition.ModuleDefinitionId.ToString()}", moduleDefinition);
         }
 
         public async Task InstallModuleDefinitionsAsync()
         {
-            await _http.GetJsonAsync<List<string>>($"{Apiurl}/install");
+            await GetJsonAsync<List<string>>($"{Apiurl}/install");
         }
 
         public async Task DeleteModuleDefinitionAsync(int moduleDefinitionId, int siteId)
         {
-            await _http.DeleteAsync($"{Apiurl}/{moduleDefinitionId.ToString()}?siteid={siteId.ToString()}");
+            await DeleteAsync($"{Apiurl}/{moduleDefinitionId.ToString()}?siteid={siteId.ToString()}");
         }
 
         public async Task LoadModuleDefinitionsAsync(int siteId, Runtime runtime)
@@ -94,7 +94,7 @@ namespace Oqtane.Services
         }
         public async Task CreateModuleDefinitionAsync(ModuleDefinition moduleDefinition, int moduleId)
         {
-            await _http.PostJsonAsync($"{Apiurl}?moduleid={moduleId.ToString()}", moduleDefinition);
+            await PostJsonAsync($"{Apiurl}?moduleid={moduleId.ToString()}", moduleDefinition);
         }
     }
 }

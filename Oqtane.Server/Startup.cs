@@ -42,12 +42,7 @@ namespace Oqtane
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc(opt =>
-            {
-                // remove formatter that turns nulls into 204 - No Content responses
-                // sends JSON null instead
-                opt.OutputFormatters.RemoveType<HttpNoContentOutputFormatter>();
-            }).AddNewtonsoftJson();
+            services.AddMvc().AddNewtonsoftJson();
             services.AddServerSideBlazor();
 
             // setup HttpClient for server side in a client side compatible fashion ( with auth cookie )

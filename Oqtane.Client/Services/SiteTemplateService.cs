@@ -10,13 +10,13 @@ namespace Oqtane.Services
 {
     public class SiteTemplateService : ServiceBase, ISiteTemplateService
     {
-        private readonly HttpClient _http;
+        
         private readonly SiteState _siteState;
         private readonly NavigationManager _navigationManager;
 
-        public SiteTemplateService(HttpClient http, SiteState siteState, NavigationManager navigationManager)
+        public SiteTemplateService(HttpClient http, SiteState siteState, NavigationManager navigationManager) : base(http)
         {
-            _http = http;
+            
             _siteState = siteState;
             _navigationManager = navigationManager;
         }
@@ -28,7 +28,7 @@ namespace Oqtane.Services
 
         public async Task<List<SiteTemplate>> GetSiteTemplatesAsync()
         {
-            List<SiteTemplate> siteTemplates = await _http.GetJsonAsync<List<SiteTemplate>>(Apiurl);
+            List<SiteTemplate> siteTemplates = await GetJsonAsync<List<SiteTemplate>>(Apiurl);
             return siteTemplates.OrderBy(item => item.Name).ToList();
         }
     }
