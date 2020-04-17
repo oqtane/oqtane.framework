@@ -38,7 +38,15 @@
     public RenderFragment ChildContent { get; set; } // contains the TabPanels
 
     [Parameter]
-    public string ActiveTab { get; set; } // optional - defaults to first TabPanel if not specified
+    public string ActiveTab { get; set; } // optional - defaults to first TabPanel if not specified. Can also be set using a "tab=" querystring parameter.
+
+    protected override void OnInitialized()
+    {
+        if (PageState.QueryString.ContainsKey("tab"))
+        {
+            ActiveTab = PageState.QueryString["tab"];
+        }
+    }
 
     internal void AddTabPanel(TabPanel tabPanel)
     {
@@ -47,6 +55,7 @@
         {
             ActiveTab = tabPanel.Name;
         }
+        StateHasChanged();
     }
 
     private string DisplayHeading(string Name, string Heading)

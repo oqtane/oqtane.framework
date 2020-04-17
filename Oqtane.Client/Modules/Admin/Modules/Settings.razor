@@ -5,90 +5,73 @@
 @inject IModuleService ModuleService
 @inject IPageModuleService PageModuleService
 
-@if (_containers != null)
-{
-    <div class="container-fluid">
-        <div class="form-group">
-
-            <ul class="nav nav-tabs" role="tablist">
-                <li class="nav-item">
-                    <a class="nav-link active" data-toggle="tab" href="#Settings" role="tab">
-                        Module Settings
-                    </a>
-                </li>
-                @if (_settingsModuleType != null)
-                {
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#ModuleSettings" role="tab">
-                            @_settingstitle
-                        </a>
-                    </li>
-                }
-            </ul>
-
-            <div class="tab-content">
-                <div id="Settings" class="tab-pane fade show active" role="tabpanel">
-                    <br />
-                    <table class="table table-borderless">
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <Label For="title" HelpText="Enter the title of the module">Title: </Label>
-                                </td>
-                                <td>
-                                    <input id="title" type="text" name="Title" class="form-control" @bind="@_title" />
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <Label For="container" HelpText="Select the module's container">Container: </Label>
-                                </td>
-                                <td>
-                                    <select id="container" class="form-control" @bind="@_containerType">
-                                        <option value="">&lt;Select Container&gt;</option>
-                                        @foreach (KeyValuePair<string, string> container in _containers)
-                                        {
-                                            <option value="@container.Key">@container.Value</option>
-                                        }
-                                    </select>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="2" align="center">
-                                    <Label For="permissions" HelpText="Who do you want to be able to access the module">Permissions: </Label>
-                                    <PermissionGrid EntityName="@EntityNames.Module" PermissionNames="@_permissionNames" Permissions="@_permissions" @ref="_permissionGrid" />
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <Label For="page" HelpText="The page that the module is on">Page: </Label>
-                                </td>
-                                <td>
-                                    <select id="page" class="form-control" @bind="@_pageId">
-                                        @foreach (Page p in PageState.Pages)
-                                        {
-                                            <option value="@p.PageId">@p.Name</option>
-                                        }
-                                    </select>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                @if (_settingsModuleType != null)
-                {
-                    <div id="ModuleSettings" class="tab-pane fade" role="tabpanel">
-                        <br />
-                        @DynamicComponent
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
-
-    <button type="button" class="btn btn-success" @onclick="SaveModule">Save</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
-}
+<TabStrip>
+    <TabPanel Name="Settings" Heading="Module Settings">
+        @if (_containers != null)
+        {
+            <table class="table table-borderless">
+                <tr>
+                    <td>
+                        <Label For="title" HelpText="Enter the title of the module">Title: </Label>
+                    </td>
+                    <td>
+                        <input id="title" type="text" name="Title" class="form-control" @bind="@_title" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="container" HelpText="Select the module's container">Container: </Label>
+                    </td>
+                    <td>
+                        <select id="container" class="form-control" @bind="@_containerType">
+                            <option value="">&lt;Select Container&gt;</option>
+                            @foreach (KeyValuePair<string, string> container in _containers)
+                            {
+                                <option value="@container.Key">@container.Value</option>
+                            }
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="page" HelpText="The page that the module is on">Page: </Label>
+                    </td>
+                    <td>
+                        <select id="page" class="form-control" @bind="@_pageId">
+                            @foreach (Page p in PageState.Pages)
+                            {
+                                if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
+                                {
+                                    <option value="@p.PageId">@(new string('-', p.Level * 2))@(p.Name)</option>
+                                }
+                            }
+                        </select>
+                    </td>
+                </tr>
+            </table>
+        }
+    </TabPanel>
+    <TabPanel Name="Permissions">
+        @if (_containers != null)
+        {
+            <table class="table table-borderless">
+                <tr>
+                    <td>
+                        <PermissionGrid EntityName="@EntityNames.Module" PermissionNames="@_permissionNames" Permissions="@_permissions" @ref="_permissionGrid" />
+                    </td>
+                </tr>
+            </table>
+        }
+    </TabPanel>
+    @if (_settingsModuleType != null)
+    {
+        <TabPanel Name="ModuleSettings" Heading="@_settingstitle">
+            @DynamicComponent
+        </TabPanel>
+    }
+</TabStrip>
+<button type="button" class="btn btn-success" @onclick="SaveModule">Save</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
 @code {
     private Dictionary<string, string> _containers;
