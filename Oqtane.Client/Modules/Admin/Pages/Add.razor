@@ -4,164 +4,189 @@
 @inject IPageService PageService
 @inject IThemeService  ThemeService
 
-@if (_themeList != null)
-{
-    <table class="table table-borderless">
-        <tr>
-            <td>
-                <Label For="Name" HelpText="Enter the page name">Name: </Label>
-            </td>
-            <td>
-                <input id="Name" class="form-control" @bind="@_name" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="Title" HelpText="Enter the page title">Title: </Label>
-            </td>
-            <td>
-                <input id="Title" class="form-control" @bind="@_title" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="Path" HelpText="Enter the path for the page">Path: </Label>
-            </td>
-            <td>
-                <input id="Path" class="form-control" @bind="@_path" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="Parent" HelpText="Select the parent for the page">Parent: </Label>
-            </td>
-            <td>
-                <select id="Parent" class="form-control" @onchange="(e => ParentChanged(e))">
-                    <option value="-1">&lt;Site Root&gt;</option>
-                    @foreach (Page page in _pageList)
-                    {
-                        <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
-                    }
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="Insert" HelpText="Select the insert for the page">Insert: </Label>
-            </td>
-            <td>
-                <select id="Insert" class="form-control" @bind="@_insert">
-                    <option value="<<">At Beginning</option>
-                    @if (_children != null && _children.Count > 0)
-                    {
-                        <option value="<">Before</option>
-                        <option value=">">After</option>
-                    }
-                    <option value=">>">At End</option>
-                </select>
-                @if (_children != null && _children.Count > 0 && (_insert == "<" || _insert == ">"))
-                {
-                    <select id="Insert" class="form-control" @bind="@_childid">
-                        <option value="-1">&lt;Select Page&gt;</option>
-                        @foreach (Page page in _children)
+<TabStrip>
+    <TabPanel Name="Settings">
+        @if (_themeList != null)
+        {
+            <table class="table table-borderless">
+                <tr>
+                    <td>
+                        <Label For="Name" HelpText="Enter the page name">Name: </Label>
+                    </td>
+                    <td>
+                        <input id="Name" class="form-control" @bind="@_name" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="Parent" HelpText="Select the parent for the page in the site hierarchy">Parent: </Label>
+                    </td>
+                    <td>
+                        <select id="Parent" class="form-control" @onchange="(e => ParentChanged(e))">
+                            <option value="-1">&lt;Site Root&gt;</option>
+                            @foreach (Page page in _pageList)
+                            {
+                                <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
+                            }
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="Insert" HelpText="Select the location where you would like the page to be inserted in relation to other pages">Insert: </Label>
+                    </td>
+                    <td>
+                        <select id="Insert" class="form-control" @bind="@_insert">
+                            <option value="<<">At Beginning</option>
+                            @if (_children != null && _children.Count > 0)
+                            {
+                                <option value="<">Before</option>
+                                <option value=">">After</option>
+                            }
+                            <option value=">>">At End</option>
+                        </select>
+                        @if (_children != null && _children.Count > 0 && (_insert == "<" || _insert == ">"))
                         {
-                            <option value="@(page.PageId)">@(page.Name)</option>
+                            <select class="form-control" @bind="@_childid">
+                                <option value="-1">&lt;Select Page&gt;</option>
+                                @foreach (Page page in _children)
+                                {
+                                    <option value="@(page.PageId)">@(page.Name)</option>
+                                }
+                            </select>
                         }
-                    </select>
-                }
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="Navigation" HelpText="Select whether the page has navigation bar">Navigation? </Label>
-            </td>
-            <td>
-                <select id="Navigation" class="form-control" @bind="@_isnavigation">
-                    <option value="True">Yes</option>
-                    <option value="False">No</option>
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="Url" HelpText="Enter the url for the page">Url: </Label>
-            </td>
-            <td>
-                <input id="Url" class="form-control" @bind="@_url" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="Personalizable" HelpText="Do you want the page to be personalized by users">Personalizable? </Label>
-            </td>
-            <td>
-                <select id="Personalizable" class="form-control" @bind="@_ispersonalizable">
-                    <option value="True">Yes</option>
-                    <option value="False">No</option>
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="Default-Mode" HelpText="Select the default mode you want for the page">Default Mode? </Label>
-            </td>
-            <td>
-                <select id="Default-Mode" class="form-control" @bind="@_mode">
-                    <option value="view">View Mode</option>
-                    <option value="edit">Edit Mode</option>
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="Theme" HelpText="Select the theme you want for the page">Theme: </Label>
-            </td>
-            <td>
-                <select id="Theme" class="form-control" @onchange="(e => ThemeChanged(e))">
-                    <option value="">&lt;Select Theme&gt;</option>
-                    @foreach (KeyValuePair<string, string> item in _themes)
-                    {
-                        <option value="@item.Key">@item.Value</option>
-                    }
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="Layout" HelpText="Select the layout for the page">Layout: </Label>
-            </td>
-            <td>
-                <select id="Layout" class="form-control" @bind="@_layouttype">
-                    <option value="">&lt;Select Layout&gt;</option>
-                    @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
-                    {
-                        <option value="@panelayout.Key">@panelayout.Value</option>
-                    }
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="Icon" HelpText="Enter the icon for the page">Icon: </Label>
-            </td>
-            <td>
-                <input id="Icon" class="form-control" @bind="@_icon" />
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2" align="center">
-                <Label For="Permissions" HelpText="Select the permissions you want for the page">Permissions: </Label>
-                <PermissionGrid EntityName="@EntityNames.Page" Permissions="@_permissions" @ref="_permissionGrid" />
-            </td>
-        </tr>
-    </table>
-    <button type="button" class="btn btn-success" @onclick="SavePage">Save</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
-}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="Navigation" HelpText="Select whether the page is part of the site navigation or hidden">Navigation? </Label>
+                    </td>
+                    <td>
+                        <select id="Navigation" class="form-control" @bind="@_isnavigation">
+                            <option value="True">Yes</option>
+                            <option value="False">No</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="Path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used.">Url Path: </Label>
+                    </td>
+                    <td>
+                        <input id="Path" class="form-control" @bind="@_path" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="Url" HelpText="Optionally enter a url which this page should redirect to when a user navigates to it">Redirect: </Label>
+                    </td>
+                    <td>
+                        <input id="Url" class="form-control" @bind="@_url" />
+                    </td>
+                </tr>
+            </table>
+            <Section Name="Appearance">
+                <table class="table table-borderless">
+                    <tr>
+                        <td>
+                            <Label For="Title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used.">Title: </Label>
+                        </td>
+                        <td>
+                            <input id="Title" class="form-control" @bind="@_title" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <Label For="Theme" HelpText="Select the theme for this page">Theme: </Label>
+                        </td>
+                        <td>
+                            <select id="Theme" class="form-control" @onchange="(e => ThemeChanged(e))">
+                                <option value="">&lt;Select Theme&gt;</option>
+                                @foreach (KeyValuePair<string, string> item in _themes)
+                                {
+                                    if (item.Key == _themetype)
+                                    {
+                                        <option value="@item.Key" selected>@item.Value</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@item.Key">@item.Value</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <Label For="Layout" HelpText="Select a layout for the page (if the selected theme supports it)">Layout: </Label>
+                        </td>
+                        <td>
+                            <select id="Layout" class="form-control" @bind="@_layouttype">
+                                <option value="">&lt;Select Layout&gt;</option>
+                                @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
+                                {
+                                    if (panelayout.Key == _layouttype)
+                                    {
+                                        <option value="@panelayout.Key" selected>@panelayout.Value</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@panelayout.Key">@panelayout.Value</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <Label For="Icon" HelpText="Optionally provide an icon for this page which will be displayed in the site navigation">Icon: </Label>
+                        </td>
+                        <td>
+                            <input id="Icon" class="form-control" @bind="@_icon" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <Label For="Default-Mode" HelpText="Select the default administration mode you want for this page">Default Mode? </Label>
+                        </td>
+                        <td>
+                            <select id="Default-Mode" class="form-control" @bind="@_mode">
+                                <option value="view">View Mode</option>
+                                <option value="edit">Edit Mode</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <Label For="Personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content">Personalizable? </Label>
+                        </td>
+                        <td>
+                            <select id="Personalizable" class="form-control" @bind="@_ispersonalizable">
+                                <option value="True">Yes</option>
+                                <option value="False">No</option>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+            </Section>
+        }
+    </TabPanel>
+    <TabPanel Name="Permissions">
+        <table class="table table-borderless">
+            <tr>
+                <td>
+                    <PermissionGrid EntityName="@EntityNames.Page" Permissions="@_permissions" @ref="_permissionGrid" />
+                </td>
+            </tr>
+        </table>
+    </TabPanel>
+</TabStrip>
+<button type="button" class="btn btn-success" @onclick="SavePage">Save</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
 @code {
-    private Dictionary<string, string> _themes = new Dictionary<string, string>();
-    private Dictionary<string, string> _panelayouts = new Dictionary<string, string>();
+    private Dictionary<string, string> _themes;
+    private Dictionary<string, string> _panelayouts;
     private List<Theme> _themeList;
     private List<Page> _pageList;
     private string _name;
@@ -191,11 +216,11 @@
             _pageList = PageState.Pages;
             _children = PageState.Pages.Where(item => item.ParentId == null).ToList();
 
-            _themes = ThemeService.GetThemeTypes(_themeList);
             _themetype = PageState.Site.DefaultThemeType;
-
-            _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
             _layouttype = PageState.Site.DefaultLayoutType;
+
+            _themes = ThemeService.GetThemeTypes(_themeList);
+            _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
 
             _permissions = string.Empty;
         }
@@ -211,13 +236,26 @@
         try
         {
             _parentid = (string)e.Value;
+            _children = new List<Page>();
             if (_parentid == "-1")
             {
-                _children = PageState.Pages.Where(item => item.ParentId == null).ToList();
+                foreach (Page p in PageState.Pages.Where(item => item.ParentId == null))
+                {
+                    if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
+                    {
+                        _children.Add(p);
+                    }
+                }
             }
             else
             {
-                _children = PageState.Pages.Where(item => item.ParentId == int.Parse(_parentid)).ToList();
+                foreach (Page p in PageState.Pages.Where(item => item.ParentId == int.Parse(_parentid)))
+                {
+                    if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
+                    {
+                        _children.Add(p);
+                    }
+                }
             }
             StateHasChanged();
         }
@@ -241,7 +279,6 @@
             {
                 _panelayouts = new Dictionary<string, string>();
             }
-
             StateHasChanged();
         }
         catch (Exception ex)

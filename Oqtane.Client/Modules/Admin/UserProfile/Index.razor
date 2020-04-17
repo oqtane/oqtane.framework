@@ -6,170 +6,161 @@
 @inject ISettingService SettingService
 @inject INotificationService NotificationService
 
-@if (PageState.User != null && profiles != null)
-{
-<div class="container-fluid">
-    <div class="form-group">
-
-        <ul class="nav nav-tabs" role="tablist">
-            <li class="nav-item">
-                <a class="nav-link active" data-toggle="tab" href="#Profile" role="tab">
-                    Profile
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#Notifications" role="tab">
-                    Notifications
-                </a>
-            </li>
-        </ul>
-
-        <div class="tab-content">
-            <div id="Profile" class="tab-pane fade show active" role="tabpanel">
-                @if (photofileid != -1)
-                {
-                    <img src="@(ContentUrl(photofileid))" alt="@displayname" style="max-width: 400px" class="rounded-circle mx-auto d-block">
-                }
-                else
-                {
-                    <br />
-                }
-                <table class="table table-borderless">
-                    <tr>
-                        <td>
-                            <label for="Name" class="control-label">Username: </label>
-                        </td>
-                        <td>
-                            <input class="form-control" @bind="@username" readonly />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label for="Name" class="control-label">Password: </label>
-                        </td>
-                        <td>
-                            <input type="password" class="form-control" @bind="@password" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label for="Name" class="control-label">Confirm Password: </label>
-                        </td>
-                        <td>
-                            <input type="password" class="form-control" @bind="@confirm" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label for="Name" class="control-label">Email: </label>
-                        </td>
-                        <td>
-                            <input class="form-control" @bind="@email" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label for="Name" class="control-label">Full Name: </label>
-                        </td>
-                        <td>
-                            <input class="form-control" @bind="@displayname" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label for="Name" class="control-label">Photo: </label>
-                        </td>
-                        <td>
-                            <FileManager FileId="@photofileid.ToString()" @ref="filemanager" />
-                        </td>
-                    </tr>
-
-                    @foreach (Profile profile in profiles)
-                    {
-                        var p = profile;
-                        if (p.Category != category)
-                        {
-                            <tr>
-                                <th colspan="2" style="text-align: center;">
-                                    @p.Category
-                                </th>
-                            </tr>
-                            category = p.Category;
-                        }
-                        <tr>
-                            <td>
-                                <label for="@p.Name" class="control-label">@p.Title: </label>
-                            </td>
-                            <td>
-                                <input class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" placeholder="@p.Description" @onchange="@(e => ProfileChanged(e, p.Name))" />
-                            </td>
-                        </tr>
-                    }
-                </table>
-                <button type="button" class="btn btn-primary" @onclick="Save">Save</button>
-                <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
-            </div>
-
-            <div id="Notifications" class="tab-pane fade" role="tabpanel">
+<TabStrip>
+    <TabPanel Name="Identity">
+        @if (PageState.User != null)
+        {
+            @if (photofileid != -1)
+            {
+                <img src="@(ContentUrl(photofileid))" alt="@displayname" style="max-width: 400px" class="rounded-circle mx-auto d-block">
+            }
+            else
+            {
                 <br />
-                <ActionLink Action="Add" Text="Send Notification" Security="SecurityAccessLevel.View" EditMode="false" />
-                <br /><br />
-                @if (filter == "to")
+            }
+            <table class="table table-borderless">
+                <tr>
+                    <td>
+                        <label for="Name" class="control-label">Username: </label>
+                    </td>
+                    <td>
+                        <input class="form-control" @bind="@username" readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="Name" class="control-label">Password: </label>
+                    </td>
+                    <td>
+                        <input type="password" class="form-control" @bind="@password" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="Name" class="control-label">Confirm Password: </label>
+                    </td>
+                    <td>
+                        <input type="password" class="form-control" @bind="@confirm" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="Name" class="control-label">Email: </label>
+                    </td>
+                    <td>
+                        <input class="form-control" @bind="@email" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="Name" class="control-label">Full Name: </label>
+                    </td>
+                    <td>
+                        <input class="form-control" @bind="@displayname" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="Name" class="control-label">Photo: </label>
+                    </td>
+                    <td>
+                        <FileManager FileId="@photofileid.ToString()" @ref="filemanager" />
+                    </td>
+                </tr>
+            </table>
+            <button type="button" class="btn btn-primary" @onclick="Save">Save</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+        }
+    </TabPanel>
+    <TabPanel Name="Profile">
+        @if (profiles != null)
+        {
+            <table class="table table-borderless">
+                @foreach (Profile profile in profiles)
                 {
-                    <Pager Items="@notifications">
-                        <Header>
-                            <th>&nbsp;</th>
-                            <th>&nbsp;</th>
-                            <th>From</th>
-                            <th>Subject</th>
-                            <th>Received</th>
-                        </Header>
-                        <Row>
-                            <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" /></td>
-                            <td><ActionDialog Header="Delete Notification" Message="@("Are You Sure You Wish To Delete This Notification?")" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" /></td>
-                            <td>@(context.FromUser == null ? "System" : context.FromUser.DisplayName)</td>
-                            <td>@context.Subject</td>
-                            <td>@context.CreatedOn</td>
-                        </Row>
-                        <Detail>
-                            <td colspan="2"></td>
-                            <td colspan="3">@(context.Body.Length > 100 ? context.Body.Substring(0,100) : context.Body)</td>
-                        </Detail>
-                    </Pager>
+                    var p = profile;
+                    if (p.Category != category)
+                    {
+                        <tr>
+                            <th colspan="2" style="text-align: center;">
+                                @p.Category
+                            </th>
+                        </tr>
+                        category = p.Category;
+                    }
+                    <tr>
+                        <td>
+                            <label for="@p.Name" class="control-label">@p.Title: </label>
+                        </td>
+                        <td>
+                            <input class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" placeholder="@p.Description" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                        </td>
+                    </tr>
                 }
-                else
-                {
-                    <Pager Items="@notifications">
-                        <Header>
-                            <th>&nbsp;</th>
-                            <th>&nbsp;</th>
-                            <th>To</th>
-                            <th>Subject</th>
-                            <th>Sent</th>
-                        </Header>
-                        <Row>
-                            <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" /></td>
-                            <td><ActionDialog Header="Delete Notification" Message="@("Are You Sure You Wish To Delete This Notification?")" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" /></td>
-                            <td>@(context.ToUser == null ? context.ToEmail : context.ToUser.DisplayName)</td>
-                            <td>@context.Subject</td>
-                            <td>@context.CreatedOn</td>
-                        </Row>
-                        <Detail>
-                            <td colspan="2"></td>
-                            <td colspan="3">@(context.Body.Length > 100 ? context.Body.Substring(0,100) : context.Body)</td>
-                        </Detail>
-                    </Pager>
-                }
-                <br /><hr />
-                <select class="form-control" @onchange="(e => FilterChanged(e))">
-                    <option value="to">Inbox</option>
-                    <option value="from">Sent Items</option>
-                </select>
-            </div>
-        </div>
-    </div>
-</div>
-}
+            </table>
+            <button type="button" class="btn btn-primary" @onclick="Save">Save</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+        }
+    </TabPanel>
+    <TabPanel Name="Notifications">
+        @if (notifications != null)
+        {
+            <ActionLink Action="Add" Text="Send Notification" Security="SecurityAccessLevel.View" EditMode="false" />
+            <br /><br />
+            @if (filter == "to")
+            {
+                <Pager Items="@notifications">
+                    <Header>
+                        <th>&nbsp;</th>
+                        <th>&nbsp;</th>
+                        <th>From</th>
+                        <th>Subject</th>
+                        <th>Received</th>
+                    </Header>
+                    <Row>
+                        <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" /></td>
+                        <td><ActionDialog Header="Delete Notification" Message="@("Are You Sure You Wish To Delete This Notification?")" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" /></td>
+                        <td>@(context.FromUser == null ? "System" : context.FromUser.DisplayName)</td>
+                        <td>@context.Subject</td>
+                        <td>@context.CreatedOn</td>
+                    </Row>
+                    <Detail>
+                        <td colspan="2"></td>
+                        <td colspan="3">@(context.Body.Length > 100 ? context.Body.Substring(0, 100) : context.Body)</td>
+                    </Detail>
+                </Pager>
+            }
+            else
+            {
+                <Pager Items="@notifications">
+                    <Header>
+                        <th>&nbsp;</th>
+                        <th>&nbsp;</th>
+                        <th>To</th>
+                        <th>Subject</th>
+                        <th>Sent</th>
+                    </Header>
+                    <Row>
+                        <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" /></td>
+                        <td><ActionDialog Header="Delete Notification" Message="@("Are You Sure You Wish To Delete This Notification?")" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" /></td>
+                        <td>@(context.ToUser == null ? context.ToEmail : context.ToUser.DisplayName)</td>
+                        <td>@context.Subject</td>
+                        <td>@context.CreatedOn</td>
+                    </Row>
+                    <Detail>
+                        <td colspan="2"></td>
+                        <td colspan="3">@(context.Body.Length > 100 ? context.Body.Substring(0, 100) : context.Body)</td>
+                    </Detail>
+                </Pager>
+            }
+            <br /><hr />
+            <select class="form-control" @onchange="(e => FilterChanged(e))">
+                <option value="to">Inbox</option>
+                <option value="from">Sent Items</option>
+            </select>
+        }
+    </TabPanel>
+</TabStrip>
 
 @code {
     private string username = string.Empty;
@@ -196,15 +187,15 @@
                 username = PageState.User.Username;
                 email = PageState.User.Email;
                 displayname = PageState.User.DisplayName;
-                
+
                 if (PageState.User.PhotoFileId != null)
                 {
                     photofileid = PageState.User.PhotoFileId.Value;
                 }
-                
+
                 profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
                 settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
-                
+
                 await LoadNotificationsAsync();
             }
             else
@@ -243,12 +234,12 @@
                     user.DisplayName = (displayname == string.Empty ? username : displayname);
                     user.PhotoFileId = null;
                     photofileid = filemanager.GetFileId();
-                    
+
                     if (photofileid != -1)
                     {
                         user.PhotoFileId = photofileid;
                     }
-                    
+
                     await UserService.UpdateUserAsync(user);
                     await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
                     await logger.LogInformation("User Profile Saved");
@@ -294,7 +285,7 @@
             {
                 await NotificationService.DeleteNotificationAsync(Notification.NotificationId);
             }
-            
+
             await logger.LogInformation("Notification Deleted {Notification}", Notification);
             await LoadNotificationsAsync();
             StateHasChanged();
@@ -309,7 +300,7 @@
     private async void FilterChanged(ChangeEventArgs e)
     {
         filter = (string)e.Value;
-        
+
         await LoadNotificationsAsync();
         StateHasChanged();
     }

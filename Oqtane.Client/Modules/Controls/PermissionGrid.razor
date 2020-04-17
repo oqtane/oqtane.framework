@@ -12,7 +12,7 @@
                 <th>Role</th>
                 @foreach (PermissionString permission in _permissions)
                 {
-                    <th style="text-align: center;">@permission.PermissionName @EntityName</th>
+                    <th style="text-align: center;">@permission.PermissionName</th>
                 }
             </tr>
             @foreach (Role role in _roles)
@@ -38,7 +38,7 @@
                     <th>User</th>
                     @foreach (PermissionString permission in _permissions)
                     {
-                        <th style="text-align: center;">@permission.PermissionName @EntityName</th>
+                        <th style="text-align: center;">@permission.PermissionName</th>
                     }
                 </tr>
             </thead>
