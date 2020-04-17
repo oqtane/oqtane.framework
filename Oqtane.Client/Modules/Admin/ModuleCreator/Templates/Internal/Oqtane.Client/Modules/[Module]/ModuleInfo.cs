@@ -11,7 +11,7 @@ namespace [Owner].[Module]s.Modules
             Description = "[Module]",
             Version = "1.0.0",
             Dependencies = "[Owner].[Module]s.Module.Shared",
-            ServerAssemblyName = "[ServerAssemblyName]"
+            ServerManagerType = "[ServerManagerType]"
         };
     }
 }

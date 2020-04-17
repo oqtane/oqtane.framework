@@ -74,6 +74,19 @@ namespace Oqtane.Shared
             }
         }
 
+        public static string GetAssemblyName(string fullyqualifiedtypename)
+        {
+            fullyqualifiedtypename = GetFullTypeName(fullyqualifiedtypename);
+            if (fullyqualifiedtypename.Contains(","))
+            {
+                return fullyqualifiedtypename.Substring(fullyqualifiedtypename.IndexOf(",") + 1).Trim();
+            }
+            else
+            {
+                return "";
+            }
+        }
+
         public static string GetTypeNameLastSegment(string typename, int segment)
         {
             if (typename.Contains(","))

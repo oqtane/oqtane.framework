@@ -83,21 +83,13 @@ namespace Oqtane.Repository
                         modulecontent.Version = moduledefinition.Version;
                         modulecontent.Content = "";
 
-                        if (moduledefinition.ServerAssemblyName != "")
+                        if (moduledefinition.ServerManagerType != "")
                         {
-                            Assembly assembly = AppDomain.CurrentDomain.GetAssemblies()
-                                .Where(item => item.FullName.StartsWith(moduledefinition.ServerAssemblyName)).FirstOrDefault();
-                            if (assembly != null)
+                            Type moduletype = Type.GetType(moduledefinition.ServerManagerType);
+                            if (moduletype != null && moduletype.GetInterface("IPortable") != null)
                             {
-                                Type moduletype = assembly.GetTypes()
-                                    .Where(item => item.Namespace != null)
-                                    .Where(item => item.Namespace.StartsWith(moduledefinition.ModuleDefinitionName.Substring(0, moduledefinition.ModuleDefinitionName.IndexOf(","))))
-                                    .Where(item => item.GetInterfaces().Contains(typeof(IPortable))).FirstOrDefault();
-                                if (moduletype != null)
-                                {
-                                    var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
-                                    modulecontent.Content = ((IPortable)moduleobject).ExportModule(module);
-                                }
+                                var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
+                                modulecontent.Content = ((IPortable)moduleobject).ExportModule(module);
                             }
                         }
                         content = JsonSerializer.Serialize(modulecontent);
@@ -126,22 +118,14 @@ namespace Oqtane.Repository
                         ModuleContent modulecontent = JsonSerializer.Deserialize<ModuleContent>(content);
                         if (modulecontent.ModuleDefinitionName == moduledefinition.ModuleDefinitionName)
                         {
-                            if (moduledefinition.ServerAssemblyName != "")
+                            if (moduledefinition.ServerManagerType != "")
                             {
-                                Assembly assembly = AppDomain.CurrentDomain.GetAssemblies()
-                                    .Where(item => item.FullName.StartsWith(moduledefinition.ServerAssemblyName)).FirstOrDefault();
-                                if (assembly != null)
+                                Type moduletype = Type.GetType(moduledefinition.ServerManagerType);
+                                if (moduletype != null && moduletype.GetInterface("IPortable") != null)
                                 {
-                                    Type moduletype = assembly.GetTypes()
-                                        .Where(item => item.Namespace != null)
-                                        .Where(item => item.Namespace.StartsWith(moduledefinition.ModuleDefinitionName.Substring(0, moduledefinition.ModuleDefinitionName.IndexOf(","))))
-                                        .Where(item => item.GetInterfaces().Contains(typeof(IPortable))).FirstOrDefault();
-                                    if (moduletype != null)
-                                    {
-                                        var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
+                                    var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
                                         ((IPortable)moduleobject).ImportModule(module, modulecontent.Content, modulecontent.Version);
                                         success = true;
-                                    }
                                 }
                             }
                         }

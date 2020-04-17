@@ -670,21 +670,13 @@ namespace Oqtane.Repository
                             };
                             module = _moduleRepository.AddModule(module);
 
-                            if (pagetemplatemodule.Content != "" && moduledefinition.ServerAssemblyName != "")
+                            if (pagetemplatemodule.Content != "" && moduledefinition.ServerManagerType!= "")
                             {
-                                Assembly assembly = AppDomain.CurrentDomain.GetAssemblies()
-                                    .Where(item => item.FullName.StartsWith(moduledefinition.ServerAssemblyName)).FirstOrDefault();
-                                if (assembly != null)
+                                Type moduletype = Type.GetType(moduledefinition.ServerManagerType);
+                                if (moduletype != null && moduletype.GetInterface("IPortable") != null)
                                 {
-                                    Type moduletype = assembly.GetTypes()
-                                        .Where(item => item.Namespace != null)
-                                        .Where(item => item.Namespace.StartsWith(moduledefinition.ModuleDefinitionName.Substring(0, moduledefinition.ModuleDefinitionName.IndexOf(","))))
-                                        .Where(item => item.GetInterfaces().Contains(typeof(IPortable))).FirstOrDefault();
-                                    if (moduletype != null)
-                                    {
-                                        var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
+                                    var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
                                         ((IPortable) moduleobject).ImportModule(module, pagetemplatemodule.Content, moduledefinition.Version);
-                                    }
                                 }
                             }
 

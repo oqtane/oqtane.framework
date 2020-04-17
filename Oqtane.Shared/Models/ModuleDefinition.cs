@@ -17,7 +17,7 @@ namespace Oqtane.Models
             License = "";
             Dependencies = "";
             PermissionNames = "";
-            ServerAssemblyName = "";
+            ServerManagerType = "";
             ControlTypeRoutes = "";
             Template = "";
         }
@@ -53,7 +53,7 @@ namespace Oqtane.Models
         [NotMapped]
         public string PermissionNames { get; set; }
         [NotMapped]
-        public string ServerAssemblyName { get; set; }
+        public string ServerManagerType { get; set; }
         [NotMapped]
         public string ControlTypeRoutes { get; set; }
         [NotMapped]

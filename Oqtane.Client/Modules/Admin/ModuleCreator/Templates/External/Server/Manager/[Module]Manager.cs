@@ -6,7 +6,7 @@ using Oqtane.Models;
 using [Owner].[Module]s.Models;
 using [Owner].[Module]s.Repository;
 
-namespace [Owner].[Module]s.Modules
+namespace [Owner].[Module]s.Manager
 {
     public class [Module]Manager : IPortable
     {
