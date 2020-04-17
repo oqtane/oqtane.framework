@@ -138,7 +138,7 @@ namespace Oqtane.Controllers
                 assemblyname = assemblyname.Replace(".Server", "");
 
                 // clean up module static resource folder
-                string folder = Path.Combine(_environment.WebRootPath, "Modules\\" + assemblyname);
+                string folder = Path.Combine(_environment.WebRootPath, Path.Combine("Modules",assemblyname));
                 if (Directory.Exists(folder))
                 {
                     Directory.Delete(folder, true);
@@ -189,17 +189,17 @@ namespace Oqtane.Controllers
             {
                 string rootPath;
                 DirectoryInfo rootFolder = Directory.GetParent(_environment.ContentRootPath);
-                string templatePath = Path.Combine(rootFolder.FullName, "Oqtane.Client\\Modules\\Admin\\ModuleCreator\\Templates\\" + moduleDefinition.Template + "\\");
+                string templatePath = Path.Combine(rootFolder.FullName, "Oqtane.Client", "Modules", "Admin", "ModuleCreator", "Templates",moduleDefinition.Template," ").TrimEnd(' ');
 
                 if (moduleDefinition.Template == "internal")
                 {
-                    rootPath = rootFolder.FullName + "\\";
+                    rootPath = rootFolder.FullName;
                     moduleDefinition.ModuleDefinitionName = moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Modules, Oqtane.Client";
                     moduleDefinition.ServerManagerType = moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Manager." + moduleDefinition.Name + "Manager, Oqtane.Server";
                 }
                 else
                 {
-                    rootPath = rootFolder.Parent.FullName + "\\" + moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Module\\";
+                    rootPath = Path.Combine(rootFolder.Parent.FullName , moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Module");
                     moduleDefinition.ModuleDefinitionName = moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Modules, " + moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Module.Client";                    
                     moduleDefinition.ServerManagerType = moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Manager." + moduleDefinition.Name + "Manager, " + moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Module.Server";
                 }
@@ -218,7 +218,7 @@ namespace Oqtane.Controllers
         private void ProcessTemplatesRecursively(DirectoryInfo current, string rootPath, string rootFolder, string templatePath, ModuleDefinition moduleDefinition)
         {
             // process folder
-            string folderPath = rootPath + current.FullName.Replace(templatePath, "");
+            string folderPath = Path.Combine(rootPath, current.FullName.Replace(templatePath, ""));
             folderPath = folderPath.Replace("[Owner]", moduleDefinition.Owner);
             folderPath = folderPath.Replace("[Module]", moduleDefinition.Name);
             if (!Directory.Exists(folderPath))

@@ -583,7 +583,7 @@ namespace Oqtane.Repository
             });
             _folderRepository.AddFolder(new Folder
             {
-                SiteId = site.SiteId, ParentId = folder.FolderId, Name = "Users", Path = "Users\\", Order = 1, IsSystem = true,
+                SiteId = site.SiteId, ParentId = folder.FolderId, Name = "Users", Path = "Users", Order = 1, IsSystem = true,
                 Permissions = "[{\"PermissionName\":\"Browse\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]"
             });
 
