@@ -150,7 +150,7 @@ namespace Oqtane.Controllers
                         }
 
                         // add folder for user
-                        Folder folder = _folders.GetFolder(user.SiteId, "Users");
+                        Folder folder = _folders.GetFolder(user.SiteId, Utilities.PathCombine("Users","\\"));
                         if (folder != null)
                         {
                             _folders.AddFolder(new Folder
@@ -158,7 +158,7 @@ namespace Oqtane.Controllers
                                 SiteId = folder.SiteId,
                                 ParentId = folder.FolderId,
                                 Name = "My Folder",
-                                Path = System.IO.Path.Combine(folder.Path, newUser.UserId.ToString()),
+                                Path = Utilities.PathCombine(folder.Path, newUser.UserId.ToString(),"\\"),
                                 Order = 1,
                                 IsSystem = true,
                                 Permissions = "[{\"PermissionName\":\"Browse\",\"Permissions\":\"[" + newUser.UserId.ToString() + "]\"},{\"PermissionName\":\"View\",\"Permissions\":\"All Users\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"[" +

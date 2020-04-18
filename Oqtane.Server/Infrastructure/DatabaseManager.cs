@@ -387,14 +387,14 @@ namespace Oqtane.Infrastructure
                 }
 
                 // add folder for user
-                var folder = folderRepository.GetFolder(user.SiteId, "Users");
+                var folder = folderRepository.GetFolder(user.SiteId, Utilities.PathCombine("Users","\\"));
                 if (folder != null)
                     folderRepository.AddFolder(new Folder
                     {
                         SiteId = folder.SiteId,
                         ParentId = folder.FolderId,
                         Name = "My Folder",
-                        Path = Path.Combine(folder.Path, newUser.UserId.ToString()),
+                        Path = Utilities.PathCombine(folder.Path, newUser.UserId.ToString(),"\\"),
                         Order = 1,
                         IsSystem = true,
                         Permissions = new List<Permission>

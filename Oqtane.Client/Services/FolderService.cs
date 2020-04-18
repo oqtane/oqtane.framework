@@ -40,7 +40,7 @@ namespace Oqtane.Services
         {
             if (!(folderPath.EndsWith(System.IO.Path.DirectorySeparatorChar) || folderPath.EndsWith(System.IO.Path.AltDirectorySeparatorChar)))
             {
-                folderPath = System.IO.Path.Combine(folderPath, " ").TrimEnd(' ');
+                folderPath = Utilities.PathCombine(folderPath, "\\");
             }
             
             var path = WebUtility.UrlEncode(folderPath);
