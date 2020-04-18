@@ -431,12 +431,12 @@ namespace Oqtane.Controllers
 
         private string GetFolderPath(Folder folder)
         {
-            return Path.Combine(_environment.ContentRootPath, "Content", "Tenants", _tenants.GetTenant().TenantId.ToString(), "Sites", folder.SiteId.ToString(), folder.Path);
+            return Path.Combine(_environment.ContentRootPath, "Content", "Tenants", _tenants.GetTenant().TenantId.ToString(), "Sites", folder.SiteId.ToString(), folder.Path, " ").TrimEnd(' ');
         }
 
         private string GetFolderPath(string folder)
         {
-            return Path.Combine(_environment.WebRootPath, folder);
+            return Path.Combine(_environment.WebRootPath, folder, " ").TrimEnd(' ');
         }
 
         private void CreateDirectory(string folderpath)
@@ -448,7 +448,7 @@ namespace Oqtane.Controllers
                 string[] folders = folderpath.Split(separators, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string folder in folders)
                 {
-                    path = Path.Combine(path, folder," ").TrimEnd(' ');
+                    path = Path.Combine(path, folder);
                     if (!Directory.Exists(path))
                     {
                         Directory.CreateDirectory(path);

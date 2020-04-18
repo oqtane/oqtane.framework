@@ -13,7 +13,6 @@ using System.Net;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
-using System.IO;
 
 namespace Oqtane.Controllers
 {
@@ -151,8 +150,7 @@ namespace Oqtane.Controllers
                         }
 
                         // add folder for user
-                        string usersPath = Path.Combine("Users"," ").TrimEnd(' ');
-                        Folder folder = _folders.GetFolder(user.SiteId, usersPath);
+                        Folder folder = _folders.GetFolder(user.SiteId, "Users");
                         if (folder != null)
                         {
                             _folders.AddFolder(new Folder
@@ -160,7 +158,7 @@ namespace Oqtane.Controllers
                                 SiteId = folder.SiteId,
                                 ParentId = folder.FolderId,
                                 Name = "My Folder",
-                                Path = Path.Combine(folder.Path, newUser.UserId.ToString(), " ").TrimEnd(' '),
+                                Path = System.IO.Path.Combine(folder.Path, newUser.UserId.ToString()),
                                 Order = 1,
                                 IsSystem = true,
                                 Permissions = "[{\"PermissionName\":\"Browse\",\"Permissions\":\"[" + newUser.UserId.ToString() + "]\"},{\"PermissionName\":\"View\",\"Permissions\":\"All Users\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"[" +
