@@ -110,7 +110,7 @@ namespace Oqtane.Controllers
                     if (string.IsNullOrEmpty(folder.Path) && folder.ParentId != null)
                     {
                         Folder parent = _folders.GetFolder(folder.ParentId.Value);
-                        folder.Path = Path.Combine(parent.Path, folder.Name);
+                        folder.Path = Path.Combine(parent.Path, folder.Name," ").TrimEnd(' ');
                     }
                     folder = _folders.AddFolder(folder);
                     _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Added {Folder}", folder);
@@ -135,7 +135,7 @@ namespace Oqtane.Controllers
                 if (string.IsNullOrEmpty(folder.Path) && folder.ParentId != null)
                 {
                     Folder parent = _folders.GetFolder(folder.ParentId.Value);
-                    folder.Path = Path.Combine(parent.Path, folder.Name);
+                    folder.Path = Path.Combine(parent.Path, folder.Name, " ").TrimEnd(' ');
                 }
                 folder = _folders.UpdateFolder(folder);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Folder Updated {Folder}", folder);
