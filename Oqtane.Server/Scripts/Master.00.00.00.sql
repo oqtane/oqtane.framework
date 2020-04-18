@@ -40,6 +40,9 @@ GO
 CREATE TABLE [dbo].[ModuleDefinition](
 	[ModuleDefinitionId] [int] IDENTITY(1,1) NOT NULL,
 	[ModuleDefinitionName] [nvarchar](200) NOT NULL,
+	[Name] [nvarchar](200) NULL,
+	[Description] [nvarchar](2000) NULL,
+	[Categories] [nvarchar](200) NULL,
 	[CreatedBy] [nvarchar](256) NOT NULL,
 	[CreatedOn] [datetime] NOT NULL,
 	[ModifiedBy] [nvarchar](256) NOT NULL,

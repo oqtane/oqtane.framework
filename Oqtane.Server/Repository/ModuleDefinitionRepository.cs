@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Extensions;
 using Oqtane.Models;
@@ -37,6 +38,8 @@ namespace Oqtane.Repository
 
         public void UpdateModuleDefinition(ModuleDefinition moduleDefinition)
         {
+            _db.Entry(moduleDefinition).State = EntityState.Modified;
+            _db.SaveChanges();
             _permissions.UpdatePermissions(moduleDefinition.SiteId, EntityNames.ModuleDefinition, moduleDefinition.ModuleDefinitionId, moduleDefinition.Permissions);
             _cache.Remove("moduledefinitions:" + moduleDefinition.SiteId.ToString());
         }
@@ -90,6 +93,18 @@ namespace Oqtane.Repository
                 else
                 {
                     // existing module definition
+                    if (!string.IsNullOrEmpty(moduledef.Name))
+                    {
+                        moduledefinition.Name = moduledef.Name;
+                    }
+                    if (!string.IsNullOrEmpty(moduledef.Description))
+                    {
+                        moduledefinition.Description = moduledef.Description;
+                    }
+                    if (!string.IsNullOrEmpty(moduledef.Categories))
+                    {
+                        moduledefinition.Categories = moduledef.Categories;
+                    }
                     if (permissions.Count == 0)
                     {
                         _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledef.ModuleDefinitionId, moduledefinition.Permissions);
@@ -166,7 +181,7 @@ namespace Oqtane.Repository
                             moduledefinition = new ModuleDefinition
                             {
                                 Name = moduleType.Substring(moduleType.LastIndexOf(".") + 1),
-                                Description = moduleType.Substring(moduleType.LastIndexOf(".") + 1),
+                                Description = "Manage " + moduleType.Substring(moduleType.LastIndexOf(".") + 1),
                                 Categories = ((qualifiedModuleType.StartsWith("Oqtane.Modules.Admin.")) ? "Admin" : ""),
                                 Version = new Version(1, 0, 0).ToString()
                             };
@@ -175,6 +190,10 @@ namespace Oqtane.Repository
                         moduledefinition.ModuleDefinitionName = qualifiedModuleType;
                         moduledefinition.ControlTypeTemplate = moduleType + "." + Constants.ActionToken + ", " + typename[1];
                         moduledefinition.AssemblyName = assembly.FullName.Split(",")[0];
+                        if (string.IsNullOrEmpty(moduledefinition.Categories))
+                        {
+                            moduledefinition.Categories = "Common";
+                        }
                         if (moduledefinition.Categories == "Admin")
                         {
                             moduledefinition.Permissions = new List<Permission>
