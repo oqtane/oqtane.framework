@@ -16,10 +16,10 @@
             </tr>
             <tr>
                 <td>
-                    <Label For="version" HelpText="The version of the module">Version: </Label>
+                    <Label For="description" HelpText="The description of the module">Description: </Label>
                 </td>
                 <td>
-                    <input id="version" class="form-control" @bind="@_version" disabled />
+                    <textarea id="description" class="form-control" @bind="@_description" rows="2"></textarea>
                 </td>
             </tr>
             <tr>
@@ -43,10 +43,10 @@
                 </tr>
                 <tr>
                     <td>
-                        <Label For="description" HelpText="The description of the module">Description: </Label>
+                        <Label For="version" HelpText="The version of the module">Version: </Label>
                     </td>
                     <td>
-                        <textarea id="description" class="form-control" @bind="@_description" rows="2" disabled></textarea>
+                        <input id="version" class="form-control" @bind="@_version" disabled />
                     </td>
                 </tr>
                 <tr>
@@ -158,6 +158,18 @@
         try
         {
             var moduledefinition = await ModuleDefinitionService.GetModuleDefinitionAsync(_moduleDefinitionId, ModuleState.SiteId);
+            if (moduledefinition.Name != _name)
+            {
+                moduledefinition.Name = _name;
+            }
+            if (moduledefinition.Description != _description)
+            {
+                moduledefinition.Description = _description;
+            }
+            if (moduledefinition.Categories != _categories)
+            {
+                moduledefinition.Categories = _categories;
+            }
             moduledefinition.Permissions = _permissionGrid.GetPermissions();
             await ModuleDefinitionService.UpdateModuleDefinitionAsync(moduledefinition);
             await logger.LogInformation("ModuleDefinition Saved {ModuleDefinition}", moduledefinition);
