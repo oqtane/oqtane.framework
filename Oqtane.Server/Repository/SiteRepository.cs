@@ -389,6 +389,34 @@ namespace Oqtane.Repository
             });
             pageTemplates.Add(new PageTemplate
             {
+                Name = "System Info",
+                Parent = "Admin",
+                Path = "admin/system",
+                Icon = "medical-cross",
+                IsNavigation = false,
+                IsPersonalizable = false,
+                EditMode = true,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, Constants.AdminRole, true),
+                    new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.SystemInfo.Index).ToModuleDefinitionName(), Title = "System Info", Pane = "Content",
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, Constants.AdminRole, true),
+                            new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            });
+            pageTemplates.Add(new PageTemplate
+            {
                 Name = "Upgrade Service", Parent = "Admin", Path = "admin/upgrade", Icon = Icons.Aperture, IsNavigation = false, IsPersonalizable = false, EditMode = true,
                 PagePermissions = new List<Permission>
                 {

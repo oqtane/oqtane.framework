@@ -27,6 +27,7 @@ namespace Oqtane.Models
         public string Name { get; set; }
         public string Description { get; set; }
         public string Categories { get; set; }
+        public string Version { get; set; }
 
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
@@ -35,8 +36,6 @@ namespace Oqtane.Models
 
         [NotMapped]
         public int SiteId { get; set; }
-        [NotMapped]
-        public string Version { get; set; }
         [NotMapped]
         public string Owner { get; set; }
         [NotMapped]

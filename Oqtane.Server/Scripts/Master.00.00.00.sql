@@ -43,6 +43,7 @@ CREATE TABLE [dbo].[ModuleDefinition](
 	[Name] [nvarchar](200) NULL,
 	[Description] [nvarchar](2000) NULL,
 	[Categories] [nvarchar](200) NULL,
+	[Version] [nvarchar](50) NULL,
 	[CreatedBy] [nvarchar](256) NOT NULL,
 	[CreatedOn] [datetime] NOT NULL,
 	[ModifiedBy] [nvarchar](256) NOT NULL,

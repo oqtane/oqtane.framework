@@ -105,6 +105,10 @@ namespace Oqtane.Repository
                     {
                         moduledefinition.Categories = moduledef.Categories;
                     }
+                    if (!string.IsNullOrEmpty(moduledef.Version))
+                    {
+                        moduledefinition.Version = moduledef.Version;
+                    }
                     if (permissions.Count == 0)
                     {
                         _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledef.ModuleDefinitionId, moduledefinition.Permissions);
@@ -173,23 +177,29 @@ namespace Oqtane.Repository
                             .FirstOrDefault(item => item.GetInterfaces().Contains(typeof(IModule)));
                         if (moduletype != null)
                         {
+                            // get property values from IModule
                             var moduleobject = Activator.CreateInstance(moduletype);
                             moduledefinition = (ModuleDefinition)moduletype.GetProperty("ModuleDefinition").GetValue(moduleobject);
                         }
                         else
                         {
+                            // set default property values
                             moduledefinition = new ModuleDefinition
                             {
                                 Name = moduleType.Substring(moduleType.LastIndexOf(".") + 1),
                                 Description = "Manage " + moduleType.Substring(moduleType.LastIndexOf(".") + 1),
                                 Categories = ((qualifiedModuleType.StartsWith("Oqtane.Modules.Admin.")) ? "Admin" : ""),
-                                Version = new Version(1, 0, 0).ToString()
+                                Version = "1.0.0"
                             };
                         }
                         // set internal properties
                         moduledefinition.ModuleDefinitionName = qualifiedModuleType;
                         moduledefinition.ControlTypeTemplate = moduleType + "." + Constants.ActionToken + ", " + typename[1];
                         moduledefinition.AssemblyName = assembly.FullName.Split(",")[0];
+                        if (assembly.FullName.StartsWith("Oqtane.Client"))
+                        {
+                            moduledefinition.Version = Constants.Version;
+                        }
                         if (string.IsNullOrEmpty(moduledefinition.Categories))
                         {
                             moduledefinition.Categories = "Common";

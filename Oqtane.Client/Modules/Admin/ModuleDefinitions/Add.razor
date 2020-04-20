@@ -5,41 +5,46 @@
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject IPackageService PackageService
 
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <Label For="module" HelpText="Upload a module from your system">Module: </Label>
-        </td>
-        <td>
-            <FileManager Filter="nupkg" ShowFiles="false" Folder="Modules" />
-        </td>
-    </tr>
-</table>
-
 @if (_packages != null)
 {
-    <hr class="app-rule" />
-    <div class="mx-auto text-center"><h2>Available Modules</h2></div>
+    <TabStrip>
+        @if (_packages.Count > 0)
+        {
+        <TabPanel Name="Download">
+            <ModuleMessage Type="MessageType.Info" Message="Download one or more modules from the list below. Once you are ready click Install to complete the installation."></ModuleMessage>
+            <Pager Items="@_packages">
+                <Header>
+                    <th>Name</th>
+                    <th>Version</th>
+                    <th></th>
+                </Header>
+                <Row>
+                    <td>@context.Name</td>
+                    <td>@context.Version</td>
+                    <td>
+                        <button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadModule(context.PackageId, context.Version))>Download</button>
+                    </td>
+                </Row>
+            </Pager>
+        </TabPanel>
+        }
+        <TabPanel Name="Upload">
+            <table class="table table-borderless">
+                <tr>
+                    <td>
+                        <Label HelpText="Upload one or more module packages. Once they are uploaded click Install to complete the installation.">Module: </Label>
+                    </td>
+                    <td>
+                        <FileManager Filter="nupkg" ShowFiles="false" Folder="Modules" UploadMultiple="True" />
+                    </td>
+                </tr>
+            </table>
+        </TabPanel>
+    </TabStrip>
 
-    <Pager Items="@_packages">
-        <Header>
-            <th>Name</th>
-            <th>Version</th>
-            <th></th>
-        </Header>
-        <Row>
-            <td>@context.Name</td>
-            <td>@context.Version</td>
-            <td>
-                <button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadModule(context.PackageId, context.Version))>Download Module</button>
-            </td>
-        </Row>
-    </Pager>
+    <button type="button" class="btn btn-success" @onclick="InstallModules">Install</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 }
-
-<button type="button" class="btn btn-success" @onclick="InstallModules">Install</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
-
 
 @code {
     private List<Package> _packages;
@@ -52,8 +57,8 @@
         {
             var moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
             _packages = await PackageService.GetPackagesAsync("module");
-            
-            foreach(Package package in _packages.ToArray())
+
+            foreach (Package package in _packages.ToArray())
             {
                 if (moduledefinitions.Exists(item => Utilities.GetTypeName(item.ModuleDefinitionName) == package.PackageId))
                 {
@@ -81,18 +86,18 @@
         }
     }
 
-    private async Task DownloadModule(string moduledefinitionname, string version)
+    private async Task DownloadModule(string packageid, string version)
     {
         try
         {
-            await PackageService.DownloadPackageAsync(moduledefinitionname, version, "Modules");
-            await logger.LogInformation("Module {ModuleDefinitionName} {Version} Downloaded Successfully", moduledefinitionname, version);
-            AddModuleMessage("Module Downloaded Successfully. Click Install To Complete Installation.", MessageType.Success);
+            await PackageService.DownloadPackageAsync(packageid, version, "Modules");
+            await logger.LogInformation("Module {ModuleDefinitionName} {Version} Downloaded Successfully", packageid, version);
+            AddModuleMessage("Modules Downloaded Successfully. Click Install To Complete Installation.", MessageType.Success);
             StateHasChanged();
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Downloading Module {ModuleDefinitionName} {Version}", moduledefinitionname, version);
+            await logger.LogError(ex, "Error Downloading Module {ModuleDefinitionName} {Version}", packageid, version);
             AddModuleMessage("Error Downloading Module", MessageType.Error);
         }
     }
