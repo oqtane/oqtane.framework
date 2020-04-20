@@ -75,7 +75,7 @@ namespace Oqtane.Infrastructure
                 log.Url = $"{request.Scheme}://{request.Host}{request.Path}{request.QueryString}";
             }
 
-            Type type = @class.GetType();
+            Type type = Type.GetType(@class.ToString());
             if (type != null)
             {
                 log.Category = type.AssemblyQualifiedName;
