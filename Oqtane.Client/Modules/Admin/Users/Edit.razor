@@ -5,105 +5,115 @@
 @inject IProfileService ProfileService
 @inject ISettingService SettingService
 
-@if (profiles != null)
+@if (PageState.User != null && photofileid != -1)
 {
-    @if (photofileid != -1)
-    {
-        <img src="@(ContentUrl(photofileid))" alt="@displayname" style="max-width: 400px" class="rounded-circle mx-auto d-block">
-    }
-    else
-    {
-        <br />
-    }
-    <table class="table table-borderless">
-        <tr>
-            <td>
-                <label  class="control-label">Username: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@username" readonly />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label  class="control-label">Password: </label>
-            </td>
-            <td>
-                <input type="password" class="form-control" @bind="@password" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label  class="control-label">Confirm Password: </label>
-            </td>
-            <td>
-                <input type="password" class="form-control" @bind="@confirm" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label  class="control-label">Email: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@email" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label  class="control-label">Full Name: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@displayname" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label  class="control-label">Photo: </label>
-            </td>
-            <td>
-                <FileManager FileId="@photofileid.ToString()" @ref="filemanager" />
-            </td>
-        </tr>
-
-        @foreach (Profile profile in profiles)
-        {
-            var p = profile;
-            if (p.Category != category)
-            {
-                <tr>
-                    <th colspan="2" style="text-align: center;">
-                        @p.Category
-                    </th>
-                </tr>
-                category = p.Category;
-            }
-            <tr>
-                <td>
-                    <label for="@p.Name" class="control-label">@p.Title: </label>
-                </td>
-                <td>
-                    <input class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" placeholder="@p.Description" @onchange="@(e => ProfileChanged(e, p.Name))" />
-                </td>
-            </tr>
-        }
-        <tr>
-            <td>
-                <Label For="isDeleted" HelpText="Has the user been deleted">Is Deleted? </Label>
-            </td>
-            <td>
-                <select id="isDeleted" class="form-control" @bind="@isdeleted">
-                    <option value="True">Yes</option>
-                    <option value="False">No</option>
-                </select>
-            </td>
-        </tr>
-    </table>
-    <button type="button" class="btn btn-primary" @onclick="SaveUser">Save</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
-    <br />
-    <br />
-    <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>
+    <img src="@(ContentUrl(photofileid))" alt="@displayname" style="max-width: 400px" class="rounded-circle mx-auto d-block">
 }
+else
+{
+    <br />
+}
+<TabStrip>
+    <TabPanel Name="Identity">
+        @if (profiles != null)
+        {
+            <table class="table table-borderless">
+                <tr>
+                    <td>
+                        <label class="control-label">Username: </label>
+                    </td>
+                    <td>
+                        <input class="form-control" @bind="@username" readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label class="control-label">Password: </label>
+                    </td>
+                    <td>
+                        <input type="password" class="form-control" @bind="@password" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label class="control-label">Confirm Password: </label>
+                    </td>
+                    <td>
+                        <input type="password" class="form-control" @bind="@confirm" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label class="control-label">Email: </label>
+                    </td>
+                    <td>
+                        <input class="form-control" @bind="@email" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label class="control-label">Full Name: </label>
+                    </td>
+                    <td>
+                        <input class="form-control" @bind="@displayname" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label class="control-label">Photo: </label>
+                    </td>
+                    <td>
+                        <FileManager FileId="@photofileid.ToString()" @ref="filemanager" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label class="control-label">Is Deleted? </label>
+                    </td>
+                    <td>
+                        <select class="form-control" @bind="@isdeleted">
+                            <option value="True">Yes</option>
+                            <option value="False">No</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+        }
+    </TabPanel>
+    <TabPanel Name="Profile">
+        @if (profiles != null)
+        {
+        <table class="table table-borderless">
+            @foreach (Profile profile in profiles)
+            {
+                var p = profile;
+                if (p.Category != category)
+                {
+                    <tr>
+                        <th colspan="2" style="text-align: center;">
+                            @p.Category
+                        </th>
+                    </tr>
+                    category = p.Category;
+                }
+                <tr>
+                    <td>
+                        <label for="@p.Name" class="control-label">@p.Title: </label>
+                    </td>
+                    <td>
+                        <input class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" placeholder="@p.Description" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                    </td>
+                </tr>
+            }
+        </table>
+        }
+    </TabPanel>
+</TabStrip>
+
+<button type="button" class="btn btn-primary" @onclick="SaveUser">Save</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+<br /><br />
+<AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>
 
 @code {
     private int userid;
@@ -140,12 +150,12 @@
                 username = user.Username;
                 email = user.Email;
                 displayname = user.DisplayName;
-                
+
                 if (user.PhotoFileId != null)
                 {
                     photofileid = user.PhotoFileId.Value;
                 }
-                
+
                 settings = await SettingService.GetUserSettingsAsync(user.UserId);
                 createdby = user.CreatedBy;
                 createdon = user.CreatedOn;
@@ -170,7 +180,7 @@
     {
         try
         {
-            if (username != string.Empty && password != string.Empty && confirm != string.Empty && email != string.Empty)
+            if (username != string.Empty && email != string.Empty)
             {
                 if (password == confirm)
                 {
@@ -182,12 +192,12 @@
                     user.DisplayName = string.IsNullOrWhiteSpace(displayname) ? username : displayname;
                     user.PhotoFileId = null;
                     photofileid = filemanager.GetFileId();
-                    
+
                     if (photofileid != -1)
                     {
                         user.PhotoFileId = photofileid;
                     }
-                    
+
                     user.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));
 
                     user = await UserService.UpdateUserAsync(user);

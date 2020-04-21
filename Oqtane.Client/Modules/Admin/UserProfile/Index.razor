@@ -6,18 +6,18 @@
 @inject ISettingService SettingService
 @inject INotificationService NotificationService
 
+@if (PageState.User != null && photofileid != -1)
+{
+    <img src="@(ContentUrl(photofileid))" alt="@displayname" style="max-width: 400px" class="rounded-circle mx-auto d-block">
+}
+else
+{
+    <br />
+}
 <TabStrip>
     <TabPanel Name="Identity">
         @if (PageState.User != null)
         {
-            @if (photofileid != -1)
-            {
-                <img src="@(ContentUrl(photofileid))" alt="@displayname" style="max-width: 400px" class="rounded-circle mx-auto d-block">
-            }
-            else
-            {
-                <br />
-            }
             <table class="table table-borderless">
                 <tr>
                     <td>
