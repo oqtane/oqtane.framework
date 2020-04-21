@@ -419,6 +419,7 @@ namespace Oqtane.Infrastructure
         {
             using (var db = new InstallationContext(connectionString))
             {
+ 
                 //check if DbUp was initialized
                 return TableExists(db, "SchemaVersions");
             }
@@ -431,6 +432,7 @@ namespace Oqtane.Infrastructure
 
         public static bool TableExists(DbContext context, string schema, string tableName)
         {
+            if (!context.Database.CanConnect()) return false;
             var connection = context.Database.GetDbConnection();
 
             if (connection.State.Equals(ConnectionState.Closed))
