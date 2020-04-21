@@ -14,11 +14,13 @@ else
         <Header>
             <th>&nbsp;</th>
             <th>&nbsp;</th>
+            <th>&nbsp;</th>
             <th>Name</th>
         </Header>
         <Row>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.RoleId.ToString())" Disabled="@(context.IsSystem)" /></td>
             <td><ActionDialog Header="Delete Role" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Role?")" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteRole(context))" Disabled="@(context.IsSystem)" /></td>
+            <td><ActionLink Action="Users" Parameters="@($"id=" + context.RoleId.ToString())" /></td>
             <td>@context.Name</td>
         </Row>
     </Pager>

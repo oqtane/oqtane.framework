@@ -23,7 +23,7 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>
         [HttpGet]
-        [Authorize(Roles = Constants.HostRole)]
+        [Authorize(Roles = Constants.AdminRole)]
         public IEnumerable<Tenant> Get()
         {
             return _tenants.GetTenants();
@@ -31,7 +31,7 @@ namespace Oqtane.Controllers
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
-        [Authorize(Roles = Constants.HostRole)]
+        [Authorize(Roles = Constants.AdminRole)]
         public Tenant Get(int id)
         {
             return _tenants.GetTenant(id);

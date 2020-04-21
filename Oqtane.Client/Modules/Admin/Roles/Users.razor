@@ -1,7 +1,6 @@
-﻿@namespace Oqtane.Modules.Admin.Users
+﻿@namespace Oqtane.Modules.Admin.Roles
 @inherits ModuleBase
 @inject IRoleService RoleService
-@inject IUserService UserService
 @inject IUserRoleService UserRoleService
 
 @if (userroles == null)
@@ -13,22 +12,22 @@ else
     <table class="table table-borderless">
         <tr>
             <td>
-                <Label For="user" HelpText="The user you are assigning roles to">User: </Label>
+                <Label For="role" HelpText="The role you are assigning users to">Role: </Label>
             </td>
             <td>
-                <input id="user" class="form-control" @bind="@name" disabled />
+                <input id="role" class="form-control" @bind="@name" disabled />
             </td>
         </tr>
         <tr>
             <td>
-                <Label For="role" HelpText="Select a role">Role: </Label>
+                <Label For="user" HelpText="Select a user">User: </Label>
             </td>
             <td>
-                <select id="role" class="form-control" @bind="@roleid">
-                    <option value="-1">&lt;Select Role&gt;</option>
-                    @foreach (Role role in roles)
+                <select id="user" class="form-control" @bind="@userid">
+                    <option value="-1">&lt;Select User&gt;</option>
+                    @foreach (UserRole userrole in users)
                     {
-                        <option value="@(role.RoleId)">@role.Name</option>
+                        <option value="@(userrole.UserId)">@userrole.User.DisplayName</option>
                     }
                 </select>
             </td>
@@ -57,16 +56,13 @@ else
     <p align="center">
         <Pager Items="@userroles">
             <Header>
-                <th>Roles</th>
+                <th>Users</th>
                 <th>&nbsp;</th>
             </Header>
             <Row>
-                <td>@context.Role.Name</td>
+                <td>@context.User.DisplayName</td>
                 <td>
-                    @if (context.Role.Name != Constants.RegisteredRole)
-                        {
-                        <button type="button" class="btn btn-danger" @onclick=@(async () => await DeleteUserRole(context.UserRoleId))>Delete</button>
-                        }
+                    <button type="button" class="btn btn-danger" @onclick=@(async () => await DeleteUserRole(context.UserRoleId))>Delete</button>
                 </td>
             </Row>
         </Pager>
@@ -74,10 +70,10 @@ else
 }
 
 @code {
-    private int userid;
+    private int roleid;
     private string name = string.Empty;
-    private List<Role> roles;
-    private int roleid = -1;
+    private List<UserRole> users;
+    private int userid = -1;
     private string effectivedate = string.Empty;
     private string expirydate = string.Empty;
     private List<UserRole> userroles;
@@ -88,16 +84,17 @@ else
     {
         try
         {
-            userid = Int32.Parse(PageState.QueryString["id"]);
-            User user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
-            name = user.DisplayName;
-            roles = await RoleService.GetRolesAsync(PageState.Site.SiteId);
+            roleid = Int32.Parse(PageState.QueryString["id"]);
+            Role role = await RoleService.GetRoleAsync(roleid);
+            name = role.Name;
+            users = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
+            users = users.Where(item => item.Role.Name == Constants.RegisteredRole).ToList();
             await GetUserRoles();
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading Roles {Error}", ex.Message);
-            AddModuleMessage("Error Loading Roles", MessageType.Error);
+            await logger.LogError(ex, "Error Loading Users {Error}", ex.Message);
+            AddModuleMessage("Error Loading Users", MessageType.Error);
         }
     }
 
@@ -106,11 +103,11 @@ else
         try
         {
             userroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
-            userroles = userroles.Where(item => item.UserId == userid).ToList();
+            userroles = userroles.Where(item => item.RoleId == roleid).ToList();
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading User Roles {UserId} {Error}", userid, ex.Message);
+            await logger.LogError(ex, "Error Loading User Roles {RoleId} {Error}", roleid, ex.Message);
             AddModuleMessage("Error Loading User Roles", MessageType.Error);
         }
     }
@@ -119,7 +116,7 @@ else
     {
         try
         {
-            if (roleid != -1)
+            if (userid != -1)
             {
                 var userrole = userroles.Where(item => item.UserId == userid && item.RoleId == roleid).FirstOrDefault();
                 if (userrole != null)
@@ -176,12 +173,12 @@ else
             }
             else
             {
-                AddModuleMessage("You Must Select A Role", MessageType.Warning);
+                AddModuleMessage("You Must Select A User", MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Saving User Roles {UserId} {Error}", userid, ex.Message);
+            await logger.LogError(ex, "Error Saving User Roles {RoleId} {Error}", roleid, ex.Message);
             AddModuleMessage("Error Saving User Roles", MessageType.Error);
         }
     }

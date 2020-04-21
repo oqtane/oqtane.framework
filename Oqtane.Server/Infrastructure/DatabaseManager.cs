@@ -351,7 +351,7 @@ namespace Oqtane.Infrastructure
                     Username = Constants.HostUser,
                     Password = password,
                     Email = email,
-                    DisplayName = Constants.HostUser,
+                    DisplayName = Constants.HostUser
                 };
                 CreateHostUser(folders, userRoles, roles, users, identityUserManager, user);
                 tenant.IsInitialized = true;
