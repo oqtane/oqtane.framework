@@ -22,9 +22,9 @@ Please note that this project is governed by the **[.NET Foundation Contributor 
 # Roadmap
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
 
-Note: We are planning to release V1 at the same time that Blazor WebAssembly ships in May 2020
+Note: We are planning to release V1 at the same time that Blazor WebAssembly ships on May 21, 2020
 
-V1 (MVP)
+V1 (MVP) 
 - [x] Multi-Tenant ( Shared Database & Isolated Database ) 
 - [x] Modular Architecture / Headless API
 - [x] Dynamic Page Compositing Model / Site & Page Management
