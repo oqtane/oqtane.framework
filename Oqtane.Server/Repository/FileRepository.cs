@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Shared;
 
@@ -23,7 +24,7 @@ namespace Oqtane.Repository
             IEnumerable<File> files = _db.File.Where(item => item.FolderId == folderId).Include(item => item.Folder);
             foreach (File file in files)
             {
-                file.Folder.Permissions = _permissions.EncodePermissions(permissions);
+                file.Folder.Permissions = permissions.EncodePermissions();
             }
             return files;
         }
@@ -48,7 +49,7 @@ namespace Oqtane.Repository
             if (file != null)
             {
                 IEnumerable<Permission> permissions = _permissions.GetPermissions(EntityNames.Folder, file.FolderId).ToList();
-                file.Folder.Permissions = _permissions.EncodePermissions(permissions);
+                file.Folder.Permissions = permissions.EncodePermissions();
             }
             return file;
         }

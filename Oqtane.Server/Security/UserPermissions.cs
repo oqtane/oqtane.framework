@@ -2,6 +2,7 @@
 using Oqtane.Models;
 using System.Linq;
 using System.Security.Claims;
+using Oqtane.Extensions;
 using Oqtane.Repository;
 
 namespace Oqtane.Security
@@ -19,7 +20,8 @@ namespace Oqtane.Security
 
         public bool IsAuthorized(ClaimsPrincipal user, string entityName, int entityId, string permissionName)
         {
-            return IsAuthorized(user, permissionName, _permissions.EncodePermissions(_permissions.GetPermissions(entityName, entityId, permissionName).ToList()));
+            //TODO: Candidate for optimalization > complicate redundant permission processing, no reason to pack - unpack 
+            return IsAuthorized(user, permissionName, _permissions.GetPermissionString(entityName, entityId, permissionName));
         }
 
         public bool IsAuthorized(ClaimsPrincipal user, string permissionName, string permissions)
