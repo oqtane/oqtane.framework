@@ -1,6 +1,7 @@
 ﻿using Oqtane.Models;
 using Oqtane.Infrastructure;
 using System.Collections.Generic;
+using Oqtane.Extensions;
 using Oqtane.Repository;
 using Oqtane.Shared;
 
@@ -8,11 +9,8 @@ namespace Oqtane.SiteTemplates
 {
     public class EmptySiteTemplate : ISiteTemplate
     {
-        private readonly IPermissionRepository _permissionRepository;
- 
-        public EmptySiteTemplate(IPermissionRepository permissionRepository)
+        public EmptySiteTemplate()
         {
-            _permissionRepository = permissionRepository;
         }
 
         public string Name
@@ -33,11 +31,11 @@ namespace Oqtane.SiteTemplates
                 IsNavigation = true,
                 IsPersonalizable = false,
                 EditMode = false,
-                PagePermissions = _permissionRepository.EncodePermissions( new List<Permission> {
+                PagePermissions = new List<Permission> {
                     new Permission(PermissionNames.View, Constants.AllUsersRole, true),
                     new Permission(PermissionNames.View, Constants.AdminRole, true),
                     new Permission(PermissionNames.Edit, Constants.AdminRole, true)
-                }),
+                }.EncodePermissions(),
                 PageTemplateModules = new List<PageTemplateModule>()
             });
 
