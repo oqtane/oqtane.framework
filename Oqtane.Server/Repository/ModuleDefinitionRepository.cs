@@ -188,18 +188,15 @@ namespace Oqtane.Repository
                             {
                                 Name = moduleType.Substring(moduleType.LastIndexOf(".") + 1),
                                 Description = "Manage " + moduleType.Substring(moduleType.LastIndexOf(".") + 1),
-                                Categories = ((qualifiedModuleType.StartsWith("Oqtane.Modules.Admin.")) ? "Admin" : ""),
-                                Version = "1.0.0"
+                                Categories = ((qualifiedModuleType.StartsWith("Oqtane.Modules.Admin.")) ? "Admin" : "")
                             };
                         }
                         // set internal properties
                         moduledefinition.ModuleDefinitionName = qualifiedModuleType;
+                        moduledefinition.Version = ""; // will be populated from database
                         moduledefinition.ControlTypeTemplate = moduleType + "." + Constants.ActionToken + ", " + typename[1];
                         moduledefinition.AssemblyName = assembly.GetName().Name;
-                        if (assembly.FullName.StartsWith("Oqtane.Client"))
-                        {
-                            moduledefinition.Version = Constants.Version;
-                        }
+                        
                         if (string.IsNullOrEmpty(moduledefinition.Categories))
                         {
                             moduledefinition.Categories = "Common";
