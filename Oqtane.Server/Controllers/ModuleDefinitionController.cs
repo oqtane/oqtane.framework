@@ -130,10 +130,6 @@ namespace Oqtane.Controllers
                         System.IO.File.Delete(file);
                         _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Assembly Removed {Filename}", file);
                     }
-
-                    // clean up module schema versions
-                    _sql.ExecuteNonQuery(tenant, "DELETE FROM [dbo].[SchemaVersions] WHERE ScriptName LIKE '" + assemblyname + "%'");
-                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Schema Versions Removed For {AssemblyName}", assemblyname);
                 }
 
                 // remove module definition
