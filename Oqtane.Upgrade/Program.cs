@@ -13,11 +13,11 @@ namespace Oqtane.Upgrade
             string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
             // assumes that the application executable must be deployed to the /bin of the Oqtane.Server project
-            if (binfolder.Contains("Oqtane.Server\\bin"))
+            if (binfolder.Contains(Path.Combine("Oqtane.Server", "bin")))
             {
                 // ie. binfolder = Oqtane.Server\bin\Debug\netcoreapp3.0\
                 string rootfolder = Directory.GetParent(binfolder).Parent.Parent.FullName;
-                string deployfolder = Path.Combine(rootfolder, "wwwroot\\Framework");
+                string deployfolder = Path.Combine(rootfolder, Path.Combine("wwwroot","Framework"));
 
                 if (Directory.Exists(deployfolder))
                 {

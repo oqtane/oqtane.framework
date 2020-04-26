@@ -5,6 +5,7 @@ using Oqtane.Repository;
 using Microsoft.AspNetCore.Hosting;
 using Oqtane.Extensions;
 using Oqtane.Shared;
+using System.IO;
 
 namespace Oqtane.SiteTemplates
 {
@@ -131,16 +132,16 @@ namespace Oqtane.SiteTemplates
                 }
             });
 
-            if (System.IO.File.Exists(_environment.WebRootPath + "\\images\\logo.png"))
+            if (System.IO.File.Exists(Path.Combine(_environment.WebRootPath, "images", "logo.png")))
             {
-                string folderpath = _environment.ContentRootPath + "\\Content\\Tenants\\" + site.TenantId.ToString() + "\\Sites\\" + site.SiteId.ToString() + "\\";
+                string folderpath = Utilities.PathCombine(_environment.ContentRootPath, "Content", "Tenants", site.TenantId.ToString(), "Sites", site.SiteId.ToString(),"\\");
                 System.IO.Directory.CreateDirectory(folderpath);
-                if (!System.IO.File.Exists(folderpath + "logo.png"))
+                if (!System.IO.File.Exists(Path.Combine(folderpath, "logo.png")))
                 {
-                    System.IO.File.Copy(_environment.WebRootPath + "\\images\\logo.png", folderpath + "logo.png");
+                    System.IO.File.Copy(Path.Combine(_environment.WebRootPath, "images", "logo.png"), Path.Combine(folderpath, "logo.png"));
                 }
                 Folder folder = _folderRepository.GetFolder(site.SiteId, "");
-                File file = _fileRepository.AddFile(new File { FolderId = folder.FolderId, Name = "logo.png", Extension = "png", Size = 8192, ImageHeight = 80, ImageWidth = 250 });
+                Oqtane.Models.File file = _fileRepository.AddFile(new Oqtane.Models.File { FolderId = folder.FolderId, Name = "logo.png", Extension = "png", Size = 8192, ImageHeight = 80, ImageWidth = 250 });
                 site.LogoFileId = file.FileId;
                 _siteRepository.UpdateSite(site);
             }

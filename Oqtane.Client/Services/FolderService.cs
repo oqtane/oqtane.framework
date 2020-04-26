@@ -38,9 +38,9 @@ namespace Oqtane.Services
 
         public async Task<Folder> GetFolderAsync(int siteId, [NotNull] string folderPath)
         {
-            if (!folderPath.EndsWith("\\"))
+            if (!(folderPath.EndsWith(System.IO.Path.DirectorySeparatorChar) || folderPath.EndsWith(System.IO.Path.AltDirectorySeparatorChar)))
             {
-                folderPath += "\\";
+                folderPath = Utilities.PathCombine(folderPath, "\\");
             }
             
             var path = WebUtility.UrlEncode(folderPath);

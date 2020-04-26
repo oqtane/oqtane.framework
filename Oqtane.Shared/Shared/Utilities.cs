@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -235,6 +236,22 @@ namespace Oqtane.Shared
                   @"^(?("")("".+?(?<!\\)""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" +
                   @"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-0-9a-z]*[0-9a-z]*\.)+[a-z0-9][\-a-z0-9]{0,22}[a-z0-9]))$",
                   RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(250));
+        }
+
+        public static string PathCombine(params string[] segments)
+        {
+            var separators = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
+
+            for (int i =1;i < segments.Length; i++){
+                if(Path.IsPathRooted(segments[i])){
+                    segments[i] = segments[i].TrimStart(separators);
+                    if(String.IsNullOrEmpty(segments[i])){
+                        segments[i]=" ";
+                    }
+                }
+            }
+            
+            return Path.Combine(segments).TrimEnd(); 
         }
     }
 }

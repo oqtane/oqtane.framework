@@ -161,7 +161,7 @@ namespace Oqtane.Controllers
                 {
                     _files.DeleteFile(id);
 
-                    string filepath = Path.Combine(GetFolderPath(file.Folder) + file.Name);
+                    string filepath = Path.Combine(GetFolderPath(file.Folder), file.Name);
                     if (System.IO.File.Exists(filepath))
                     {
                         System.IO.File.Delete(filepath);
@@ -199,14 +199,15 @@ namespace Oqtane.Controllers
                     try
                     {
                         var client = new WebClient();
+                        string targetPath = Path.Combine(folderPath, filename);
                         // remove file if it already exists
-                        if (System.IO.File.Exists(folderPath + filename))
+                        if (System.IO.File.Exists(targetPath))
                         {
-                            System.IO.File.Delete(folderPath + filename);
+                            System.IO.File.Delete(targetPath);
                         }
 
-                        client.DownloadFile(url, folderPath + filename);
-                        _files.AddFile(CreateFile(filename, folder.FolderId, folderPath + filename));
+                        client.DownloadFile(url, targetPath);
+                        _files.AddFile(CreateFile(filename, folder.FolderId, targetPath));
                     }
                     catch
                     {
@@ -262,7 +263,7 @@ namespace Oqtane.Controllers
                     string upload = await MergeFile(folderPath, file.FileName);
                     if (upload != "" && folderId != -1)
                     {
-                        _files.AddFile(CreateFile(upload, folderId, folderPath + upload));
+                        _files.AddFile(CreateFile(upload, folderId, Path.Combine(folderPath, upload)));
                     }
                 }
                 else
@@ -400,7 +401,7 @@ namespace Oqtane.Controllers
             {
                 if (_userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.Permissions))
                 {
-                    string filepath = GetFolderPath(file.Folder) + file.Name;
+                    string filepath = Path.Combine(GetFolderPath(file.Folder) , file.Name);
                     if (System.IO.File.Exists(filepath))
                     {
                         byte[] filebytes = System.IO.File.ReadAllBytes(filepath);
@@ -430,12 +431,12 @@ namespace Oqtane.Controllers
 
         private string GetFolderPath(Folder folder)
         {
-            return _environment.ContentRootPath + "\\Content\\Tenants\\" + _tenants.GetTenant().TenantId.ToString() + "\\Sites\\" + folder.SiteId.ToString() + "\\" + folder.Path;
+            return Utilities.PathCombine(_environment.ContentRootPath, "Content", "Tenants", _tenants.GetTenant().TenantId.ToString(), "Sites", folder.SiteId.ToString(), folder.Path);
         }
 
         private string GetFolderPath(string folder)
         {
-            return Path.Combine(_environment.WebRootPath, folder);
+            return Utilities.PathCombine(_environment.WebRootPath, folder);
         }
 
         private void CreateDirectory(string folderpath)
@@ -443,10 +444,11 @@ namespace Oqtane.Controllers
             if (!Directory.Exists(folderpath))
             {
                 string path = "";
-                string[] folders = folderpath.Split(new[] {'\\'}, StringSplitOptions.RemoveEmptyEntries);
+                var separators = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
+                string[] folders = folderpath.Split(separators, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string folder in folders)
                 {
-                    path += folder + "\\";
+                    path = Utilities.PathCombine(path, folder,"\\");
                     if (!Directory.Exists(path))
                     {
                         Directory.CreateDirectory(path);
