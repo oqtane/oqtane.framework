@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Oqtane.Extensions;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
@@ -21,12 +22,12 @@ namespace Oqtane.Repository
             IEnumerable<PageModule> pagemodules = _db.PageModule
                 .Include(item => item.Module) // eager load modules
                 .Where(item => item.Module.SiteId == siteId);
-            if (pagemodules != null && pagemodules.Any())
+            if (pagemodules.Any())
             {
                 IEnumerable<Permission> permissions = _permissions.GetPermissions(pagemodules.FirstOrDefault().Module.SiteId, "Module").ToList();
                 foreach (PageModule pagemodule in pagemodules)
                 {
-                    pagemodule.Module.Permissions = _permissions.EncodePermissions(permissions.Where(item => item.EntityId == pagemodule.ModuleId));
+                    pagemodule.Module.Permissions = permissions.Where(item => item.EntityId == pagemodule.ModuleId).EncodePermissions();
                 }
             }
             return pagemodules;
@@ -37,16 +38,16 @@ namespace Oqtane.Repository
             IEnumerable<PageModule> pagemodules = _db.PageModule
                 .Include(item => item.Module) // eager load modules
                 .Where(item => item.PageId == pageId);
-            if (pane != "" && pagemodules != null && pagemodules.Any())
+            if (pane != "" && pagemodules.Any())
             {
                 pagemodules = pagemodules.Where(item => item.Pane == pane);
             }
-            if (pagemodules != null && pagemodules.Any())
+            if (pagemodules.Any())
             {
                 IEnumerable<Permission> permissions = _permissions.GetPermissions(pagemodules.FirstOrDefault().Module.SiteId, "Module").ToList();
                 foreach (PageModule pagemodule in pagemodules)
                 {
-                    pagemodule.Module.Permissions = _permissions.EncodePermissions(permissions.Where(item => item.EntityId == pagemodule.ModuleId));
+                    pagemodule.Module.Permissions = permissions.Where(item => item.EntityId == pagemodule.ModuleId).EncodePermissions();
                 }
             }
             return pagemodules;
@@ -72,8 +73,7 @@ namespace Oqtane.Repository
                 .SingleOrDefault(item => item.PageModuleId == pageModuleId);
             if (pagemodule != null)
             {
-                IEnumerable<Permission> permissions = _permissions.GetPermissions("Module", pagemodule.ModuleId).ToList();
-                pagemodule.Module.Permissions = _permissions.EncodePermissions(permissions);
+                pagemodule.Module.Permissions = _permissions.GetPermissionString("Module", pagemodule.ModuleId);
             }
             return pagemodule;
         }
@@ -84,8 +84,7 @@ namespace Oqtane.Repository
                 .SingleOrDefault(item => item.PageId == pageId && item.ModuleId == moduleId);
             if (pagemodule != null)
             {
-                IEnumerable<Permission> permissions = _permissions.GetPermissions("Module", pagemodule.ModuleId).ToList();
-                pagemodule.Module.Permissions = _permissions.EncodePermissions(permissions);
+                pagemodule.Module.Permissions = _permissions.GetPermissionString("Module", pagemodule.ModuleId);
             }
             return pagemodule;
         }

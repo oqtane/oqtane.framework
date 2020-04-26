@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Shared;
 
@@ -23,7 +24,7 @@ namespace Oqtane.Repository
             IEnumerable<Folder> folders = _db.Folder.Where(item => item.SiteId == siteId);
             foreach(Folder folder in folders)
             {
-                folder.Permissions = _permissions.EncodePermissions(permissions.Where(item => item.EntityId == folder.FolderId));
+                folder.Permissions = permissions.Where(item => item.EntityId == folder.FolderId).EncodePermissions();
             }
             return folders;
         }
@@ -49,8 +50,7 @@ namespace Oqtane.Repository
             Folder folder = _db.Folder.Find(folderId);
             if (folder != null)
             {
-                IEnumerable<Permission> permissions = _permissions.GetPermissions(EntityNames.Folder, folder.FolderId).ToList();
-                folder.Permissions = _permissions.EncodePermissions(permissions);
+                folder.Permissions = _permissions.GetPermissionString(EntityNames.Folder, folder.FolderId);
             }
             return folder;
         }
@@ -60,8 +60,7 @@ namespace Oqtane.Repository
             Folder folder = _db.Folder.Where(item => item.SiteId == siteId && item.Path == path).FirstOrDefault();
             if (folder != null)
             {
-                IEnumerable<Permission> permissions = _permissions.GetPermissions(EntityNames.Folder, folder.FolderId).ToList();
-                folder.Permissions = _permissions.EncodePermissions(permissions);
+                folder.Permissions = _permissions.GetPermissionString(EntityNames.Folder, folder.FolderId);
             }
             return folder;
         }
