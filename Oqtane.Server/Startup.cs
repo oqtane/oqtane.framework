@@ -102,6 +102,7 @@ namespace Oqtane
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<ISiteTemplateService, SiteTemplateService>();
             services.AddScoped<ISqlService, SqlService>();
+            services.AddScoped<ISystemService, SystemService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 

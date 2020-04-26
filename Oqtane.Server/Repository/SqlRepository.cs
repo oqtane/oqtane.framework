@@ -1,12 +1,61 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
 {
     public class SqlRepository : ISqlRepository
     {
+        private readonly ITenantRepository _tenants;
+
+        public SqlRepository(ITenantRepository tenants)
+        {
+            _tenants = tenants;
+        }
+
+        public bool ExecuteEmbeddedScript(Assembly assembly, string filename)
+        {
+            // script must be included as an Embedded Resource within an assembly
+            bool success = true;
+            string uninstallScript = "";
+
+            if (assembly != null)
+            {
+                string name = assembly.GetManifestResourceNames().FirstOrDefault(item => item.EndsWith("." + filename));
+                if (name != null)
+                {
+                    Stream resourceStream = assembly.GetManifestResourceStream(name);
+                    if (resourceStream != null)
+                    {
+                        using (var reader = new StreamReader(resourceStream))
+                        {
+                            uninstallScript = reader.ReadToEnd();
+                        }
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(uninstallScript))
+            {
+                foreach (Tenant tenant in _tenants.GetTenants())
+                {
+                    try
+                    {
+                        ExecuteScript(tenant, uninstallScript);
+                    }
+                    catch
+                    {
+                        success = false;
+                    }
+                }
+            }
+
+            return success;
+        }
 
         public void ExecuteScript(Tenant tenant, string script)
         {

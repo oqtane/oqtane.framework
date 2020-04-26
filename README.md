@@ -9,7 +9,7 @@ Please note that this project is governed by the **[.NET Foundation Contributor 
 
 **To get started with Oqtane:**
 
-   1.&nbsp;Install **[.NET Core 3.2 SDK (v3.1.3)](https://dotnet.microsoft.com/download/dotnet-core/3.1)**.
+   1.&nbsp;Install **[.NET Core 3.2 Preview4 SDK (v3.1.201)](https://dotnet.microsoft.com/download/dotnet-core/3.1)**.
    
    2.&nbsp;Install the Preview edition of [Visual Studio 2019](https://visualstudio.microsoft.com/vs/preview/) (version 16.6 or higher) with the **ASP.NET and web development** workload. If you do not have a SQL Server installation available already and you wish to use LocalDB for development, you must also install the **.NET desktop development workload**.  
 
@@ -22,9 +22,9 @@ Please note that this project is governed by the **[.NET Foundation Contributor 
 # Roadmap
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
 
-Note: We are planning to release V1 at the same time that Blazor WebAssembly ships in May 2020
+Note: We are planning to release V1 at the same time that Blazor WebAssembly ships on May 21, 2020
 
-V1 (MVP)
+V1 (MVP) 
 - [x] Multi-Tenant ( Shared Database & Isolated Database ) 
 - [x] Modular Architecture / Headless API
 - [x] Dynamic Page Compositing Model / Site & Page Management

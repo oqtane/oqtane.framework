@@ -18,6 +18,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Modules\HtmlText\Scripts\HtmlText.1.0.0.sql" />
+    <None Remove="Modules\HtmlText\Scripts\HtmlText.Uninstall.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Modules\HtmlText\Scripts\HtmlText.1.0.0.sql" />
+    <EmbeddedResource Include="Modules\HtmlText\Scripts\HtmlText.Uninstall.sql" />
     <EmbeddedResource Include="Scripts\Master.00.00.00.sql" />
     <EmbeddedResource Include="Scripts\Master.00.00.01.sql" />
     <EmbeddedResource Include="Scripts\Tenant.00.00.00.sql" />
@@ -26,7 +33,7 @@
 
   <ItemGroup>
     <PackageReference Include="dbup" Version="4.3.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="3.2.0-preview3.20168.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="3.2.0-preview5.20216.8" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.2" />

@@ -6,6 +6,7 @@ using Oqtane.Shared;
 using System.Linq;
 using System.Net;
 using Oqtane.Enums;
+using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Security;
@@ -18,14 +19,12 @@ namespace Oqtane.Controllers
     {
         private readonly IFolderRepository _folders;
         private readonly IUserPermissions _userPermissions;
-        private readonly IPermissionRepository _permissionRepository;
         private readonly ILogManager _logger;
 
-        public FolderController(IFolderRepository folders, IUserPermissions userPermissions, IPermissionRepository permissionRepository, ILogManager logger)
+        public FolderController(IFolderRepository folders, IUserPermissions userPermissions, ILogManager logger)
         {
             _folders = folders;
             _userPermissions = userPermissions;
-            _permissionRepository = permissionRepository;
             _logger = logger;
         }
 
@@ -101,9 +100,9 @@ namespace Oqtane.Controllers
                 }
                 else
                 {
-                    permissions = _permissionRepository.EncodePermissions(new List<Permission> {
-                        new Permission(PermissionNames.Edit, Constants.AdminRole, true)
-                    });
+                    permissions = new List<Permission> {
+                        new Permission(PermissionNames.Edit, Constants.AdminRole, true),
+                    }.EncodePermissions();
                 }
                 if (_userPermissions.IsAuthorized(User,PermissionNames.Edit, permissions))
                 {

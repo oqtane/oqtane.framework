@@ -38,6 +38,10 @@ namespace Oqtane.Infrastructure
         {
             var defaultConnectionString = _config.GetConnectionString(SettingKeys.ConnectionStringKey);
             var defaultAlias = GetInstallationConfig(SettingKeys.DefaultAliasKey, string.Empty);
+            var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString();
+            
+            //create data directory if does not exists
+            if (!Directory.Exists(dataDirectory)) Directory.CreateDirectory(dataDirectory);
 
             // if no values specified, fallback to IDE installer
             if (string.IsNullOrEmpty(defaultConnectionString))
@@ -61,7 +65,6 @@ namespace Oqtane.Infrastructure
 
             if (result.Success)
             {
-                var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString();
                 WriteVersionInfo(defaultConnectionString);
                 TenantMigration(defaultConnectionString, dataDirectory);
             }
@@ -69,7 +72,6 @@ namespace Oqtane.Infrastructure
             if (_isInstalled && !IsDefaultSiteInstalled(defaultConnectionString))
             {
                 BuildDefaultSite(password,email);
-                
             }
         }
 
@@ -184,7 +186,7 @@ namespace Oqtane.Infrastructure
                 .SqlDatabase(connectionString)
                 .WithVariable("ConnectionString", connectionString)
                 .WithVariable("Alias", alias)
-                .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), s => master || !s.Contains("Master."));
+                .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), s => s.Contains("Master."));
 
             var dbUpgrade = dbUpgradeConfig.Build();
             if (!dbUpgrade.IsUpgradeRequired())
@@ -210,7 +212,6 @@ namespace Oqtane.Infrastructure
 
         private static void ModuleMigration(Assembly assembly, string connectionString)
         {
-            
             Console.WriteLine($"Migrating assembly {assembly.FullName}");
             var dbUpgradeConfig = DeployChanges.To.SqlDatabase(connectionString)
                 .WithScriptsEmbeddedInAssembly(assembly, s => !s.ToLower().Contains("uninstall.sql")); // scripts must be included as Embedded Resources
@@ -351,7 +352,7 @@ namespace Oqtane.Infrastructure
                     Username = Constants.HostUser,
                     Password = password,
                     Email = email,
-                    DisplayName = Constants.HostUser,
+                    DisplayName = Constants.HostUser
                 };
                 CreateHostUser(folders, userRoles, roles, users, identityUserManager, user);
                 tenant.IsInitialized = true;

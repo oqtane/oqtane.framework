@@ -19,6 +19,7 @@ namespace Oqtane.Models
             PermissionNames = "";
             ServerManagerType = "";
             ControlTypeRoutes = "";
+            ReleaseVersions = "";
             Template = "";
         }
 
@@ -27,16 +28,14 @@ namespace Oqtane.Models
         public string Name { get; set; }
         public string Description { get; set; }
         public string Categories { get; set; }
+        public string Version { get; set; }
 
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
         public string ModifiedBy { get; set; }
         public DateTime ModifiedOn { get; set; }
 
-        [NotMapped]
-        public int SiteId { get; set; }
-        [NotMapped]
-        public string Version { get; set; }
+        // additional IModule properties 
         [NotMapped]
         public string Owner { get; set; }
         [NotMapped]
@@ -54,12 +53,18 @@ namespace Oqtane.Models
         [NotMapped]
         public string ControlTypeRoutes { get; set; }
         [NotMapped]
-        public string Template { get; set; }
+        public string ReleaseVersions { get; set; }
+
+        // internal properties
+        [NotMapped]
+        public int SiteId { get; set; }
         [NotMapped]
         public string ControlTypeTemplate { get; set; }
         [NotMapped]
         public string AssemblyName { get; set; }
         [NotMapped]
         public string Permissions { get; set; }
+        [NotMapped]
+        public string Template { get; set; }
     }
 }

@@ -105,13 +105,17 @@ namespace Oqtane.Repository
                     {
                         moduledefinition.Categories = moduledef.Categories;
                     }
+                    if (!string.IsNullOrEmpty(moduledef.Version))
+                    {
+                        moduledefinition.Version = moduledef.Version;
+                    }
                     if (permissions.Count == 0)
                     {
                         _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledef.ModuleDefinitionId, moduledefinition.Permissions);
                     }
                     else
                     {
-                        moduledefinition.Permissions = _permissions.EncodePermissions(permissions.Where(item => item.EntityId == moduledef.ModuleDefinitionId));
+                        moduledefinition.Permissions = permissions.Where(item => item.EntityId == moduledef.ModuleDefinitionId).EncodePermissions();
                     }
                     // remove module definition from list as it is already synced
                     moduledefs.Remove(moduledef);
@@ -156,7 +160,7 @@ namespace Oqtane.Repository
             {
                 if (modulecontroltype.Name != "ModuleBase" && !modulecontroltype.Namespace.EndsWith(".Controls"))
                 {
-                    string[] typename = modulecontroltype.AssemblyQualifiedName.Split(',').Select(item => item.Trim()).ToList().ToArray();
+                    string[] typename = modulecontroltype.AssemblyQualifiedName?.Split(',').Select(item => item.Trim()).ToArray();
                     string[] segments = typename[0].Split('.');
                     Array.Resize(ref segments, segments.Length - 1);
                     string moduleType = string.Join(".", segments);
@@ -173,23 +177,26 @@ namespace Oqtane.Repository
                             .FirstOrDefault(item => item.GetInterfaces().Contains(typeof(IModule)));
                         if (moduletype != null)
                         {
+                            // get property values from IModule
                             var moduleobject = Activator.CreateInstance(moduletype);
                             moduledefinition = (ModuleDefinition)moduletype.GetProperty("ModuleDefinition").GetValue(moduleobject);
                         }
                         else
                         {
+                            // set default property values
                             moduledefinition = new ModuleDefinition
                             {
                                 Name = moduleType.Substring(moduleType.LastIndexOf(".") + 1),
                                 Description = "Manage " + moduleType.Substring(moduleType.LastIndexOf(".") + 1),
-                                Categories = ((qualifiedModuleType.StartsWith("Oqtane.Modules.Admin.")) ? "Admin" : ""),
-                                Version = new Version(1, 0, 0).ToString()
+                                Categories = ((qualifiedModuleType.StartsWith("Oqtane.Modules.Admin.")) ? "Admin" : "")
                             };
                         }
                         // set internal properties
                         moduledefinition.ModuleDefinitionName = qualifiedModuleType;
+                        moduledefinition.Version = ""; // will be populated from database
                         moduledefinition.ControlTypeTemplate = moduleType + "." + Constants.ActionToken + ", " + typename[1];
-                        moduledefinition.AssemblyName = assembly.FullName.Split(",")[0];
+                        moduledefinition.AssemblyName = assembly.GetName().Name;
+                        
                         if (string.IsNullOrEmpty(moduledefinition.Categories))
                         {
                             moduledefinition.Categories = "Common";
@@ -215,8 +222,8 @@ namespace Oqtane.Repository
                     moduledefinition = moduledefinitions[index];
                     // actions
                     var modulecontrolobject = Activator.CreateInstance(modulecontroltype);
-                    string actions = (string)modulecontroltype.GetProperty("Actions").GetValue(modulecontrolobject);
-                    if (actions != "")
+                    string actions = (string)modulecontroltype.GetProperty("Actions")?.GetValue(modulecontrolobject);
+                    if (!string.IsNullOrEmpty(actions))
                     {
                         foreach (string action in actions.Split(','))
                         {

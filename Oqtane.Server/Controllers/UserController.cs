@@ -93,14 +93,14 @@ namespace Oqtane.Controllers
 
             bool verified;
             bool allowregistration;
-            if (user.Username == Constants.HostUser)
+            if (user.Username == Constants.HostUser || User.IsInRole(Constants.AdminRole))
             {
                 verified = true;
                 allowregistration = true;
             }
             else
-            {                
-                verified = User.IsInRole(Constants.AdminRole); // only users created by administrators are verified
+            {
+                verified = false;
                 allowregistration = _sites.GetSite(user.SiteId).AllowRegistration;
             }
 
@@ -308,7 +308,7 @@ namespace Oqtane.Controllers
         public async Task Logout([FromBody] User user)
         {
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
-            _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Logout {Username}", user.Username);
+            _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Logout {Username}", (user != null) ? user.Username : "");
         }
 
         // POST api/<controller>/verify
