@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -52,9 +51,9 @@ namespace Oqtane.Repository
             Module module = _db.Module.Find(moduleId);
             if (module != null)
             {
-                List<Permission> permissions = _permissions.GetPermissions("Module", module.ModuleId).ToList();
-                module.Permissions = _permissions.EncodePermissions(permissions);
+                module.Permissions = _permissions.GetPermissionString("Module", module.ModuleId);
             }
+
             return module;
         }
 
@@ -75,7 +74,7 @@ namespace Oqtane.Repository
                 if (module != null)
                 {
                     List<ModuleDefinition> moduledefinitions = _moduleDefinitions.GetModuleDefinitions(module.SiteId).ToList();
-                    ModuleDefinition moduledefinition = moduledefinitions.Where(item => item.ModuleDefinitionName == module.ModuleDefinitionName).FirstOrDefault();
+                    ModuleDefinition moduledefinition = moduledefinitions.FirstOrDefault(item => item.ModuleDefinitionName == module.ModuleDefinitionName);
                     if (moduledefinition != null)
                     {
                         ModuleContent modulecontent = new ModuleContent();
@@ -89,9 +88,10 @@ namespace Oqtane.Repository
                             if (moduletype != null && moduletype.GetInterface("IPortable") != null)
                             {
                                 var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
-                                modulecontent.Content = ((IPortable)moduleobject).ExportModule(module);
+                                modulecontent.Content = ((IPortable) moduleobject).ExportModule(module);
                             }
                         }
+
                         content = JsonSerializer.Serialize(modulecontent);
                     }
                 }
@@ -100,6 +100,7 @@ namespace Oqtane.Repository
             {
                 // error occurred during export
             }
+
             return content;
         }
 
@@ -124,8 +125,8 @@ namespace Oqtane.Repository
                                 if (moduletype != null && moduletype.GetInterface("IPortable") != null)
                                 {
                                     var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
-                                        ((IPortable)moduleobject).ImportModule(module, modulecontent.Content, modulecontent.Version);
-                                        success = true;
+                                    ((IPortable) moduleobject).ImportModule(module, modulecontent.Content, modulecontent.Version);
+                                    success = true;
                                 }
                             }
                         }
@@ -136,8 +137,8 @@ namespace Oqtane.Repository
             {
                 // error occurred during import
             }
+
             return success;
         }
-
     }
 }

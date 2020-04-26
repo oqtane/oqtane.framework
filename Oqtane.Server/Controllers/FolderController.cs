@@ -6,9 +6,11 @@ using Oqtane.Shared;
 using System.Linq;
 using System.Net;
 using Oqtane.Enums;
+using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Security;
+using System.IO;
 
 namespace Oqtane.Controllers
 {
@@ -17,14 +19,12 @@ namespace Oqtane.Controllers
     {
         private readonly IFolderRepository _folders;
         private readonly IUserPermissions _userPermissions;
-        private readonly IPermissionRepository _permissionRepository;
         private readonly ILogManager _logger;
 
-        public FolderController(IFolderRepository folders, IUserPermissions userPermissions, IPermissionRepository permissionRepository, ILogManager logger)
+        public FolderController(IFolderRepository folders, IUserPermissions userPermissions, ILogManager logger)
         {
             _folders = folders;
             _userPermissions = userPermissions;
-            _permissionRepository = permissionRepository;
             _logger = logger;
         }
 
@@ -100,16 +100,16 @@ namespace Oqtane.Controllers
                 }
                 else
                 {
-                    permissions = _permissionRepository.EncodePermissions(new List<Permission> {
-                        new Permission(PermissionNames.Edit, Constants.AdminRole, true)
-                    });
+                    permissions = new List<Permission> {
+                        new Permission(PermissionNames.Edit, Constants.AdminRole, true),
+                    }.EncodePermissions();
                 }
                 if (_userPermissions.IsAuthorized(User,PermissionNames.Edit, permissions))
                 {
                     if (string.IsNullOrEmpty(folder.Path) && folder.ParentId != null)
                     {
                         Folder parent = _folders.GetFolder(folder.ParentId.Value);
-                        folder.Path = parent.Path + folder.Name + "\\";
+                        folder.Path = Utilities.PathCombine(parent.Path, folder.Name,"\\");
                     }
                     folder = _folders.AddFolder(folder);
                     _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Added {Folder}", folder);
@@ -134,7 +134,7 @@ namespace Oqtane.Controllers
                 if (string.IsNullOrEmpty(folder.Path) && folder.ParentId != null)
                 {
                     Folder parent = _folders.GetFolder(folder.ParentId.Value);
-                    folder.Path = parent.Path + folder.Name + "\\";
+                    folder.Path = Utilities.PathCombine(parent.Path, folder.Name,"\\");
                 }
                 folder = _folders.UpdateFolder(folder);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Folder Updated {Folder}", folder);

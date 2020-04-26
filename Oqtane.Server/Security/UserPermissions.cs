@@ -19,7 +19,7 @@ namespace Oqtane.Security
 
         public bool IsAuthorized(ClaimsPrincipal user, string entityName, int entityId, string permissionName)
         {
-            return IsAuthorized(user, permissionName, _permissions.EncodePermissions(_permissions.GetPermissions(entityName, entityId, permissionName).ToList()));
+            return IsAuthorized(user, permissionName, _permissions.GetPermissionString(entityName, entityId, permissionName));
         }
 
         public bool IsAuthorized(ClaimsPrincipal user, string permissionName, string permissions)
