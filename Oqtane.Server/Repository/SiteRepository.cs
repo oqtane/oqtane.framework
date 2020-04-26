@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +19,6 @@ namespace Oqtane.Repository
         private readonly IRoleRepository _roleRepository;
         private readonly IProfileRepository _profileRepository;
         private readonly IFolderRepository _folderRepository;
-        private readonly IFileRepository _fileRepository;
         private readonly IPageRepository _pageRepository;
         private readonly IModuleRepository _moduleRepository;
         private readonly IPageModuleRepository _pageModuleRepository;
@@ -30,15 +28,14 @@ namespace Oqtane.Repository
 
         private readonly IConfigurationRoot _config;
 
-        public SiteRepository(TenantDBContext context, IRoleRepository roleRepository, IProfileRepository profileRepository, IFolderRepository folderRepository, IFileRepository fileRepository, IPageRepository pageRepository,
-            IModuleRepository moduleRepository, IPageModuleRepository pageModuleRepository, IModuleDefinitionRepository moduleDefinitionRepository, IPermissionRepository permissionRepository, IServiceProvider serviceProvider,
+        public SiteRepository(TenantDBContext context, IRoleRepository roleRepository, IProfileRepository profileRepository, IFolderRepository folderRepository, IPageRepository pageRepository,
+            IModuleRepository moduleRepository, IPageModuleRepository pageModuleRepository, IModuleDefinitionRepository moduleDefinitionRepository, IServiceProvider serviceProvider,
             IConfigurationRoot config)
         {
             _db = context;
             _roleRepository = roleRepository;
             _profileRepository = profileRepository;
             _folderRepository = folderRepository;
-            _fileRepository = fileRepository;
             _pageRepository = pageRepository;
             _moduleRepository = moduleRepository;
             _pageModuleRepository = pageModuleRepository;
@@ -787,7 +784,14 @@ namespace Oqtane.Repository
                                 if (moduletype != null && moduletype.GetInterface("IPortable") != null)
                                 {
                                     var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
-                                        ((IPortable) moduleobject).ImportModule(module, pagetemplatemodule.Content, moduledefinition.Version);
+                                    try
+                                    {
+                                        ((IPortable)moduleobject).ImportModule(module, pagetemplatemodule.Content, moduledefinition.Version);
+                                    }
+                                    catch
+                                    {
+                                        // error in module import
+                                    }
                                 }
                             }
 
