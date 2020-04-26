@@ -8,9 +8,15 @@
 
 @((MarkupString)content)
 
-<br />
+@if (PageState.EditMode)
+{
+    <br />
+}
 <ActionLink Action="Edit" />
-<br /><br />
+@if (PageState.EditMode)
+{
+    <br /><br />
+}
 
 @code {
     private string content = "";

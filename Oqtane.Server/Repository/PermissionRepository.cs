@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Oqtane.Extensions;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
@@ -40,6 +41,22 @@ namespace Oqtane.Repository
                 .Where(item => item.PermissionName == permissionName)
                 .Include(item => item.Role); // eager load roles
         }
+
+        public string GetPermissionString(int siteId, string entityName)
+        {
+            return GetPermissions(siteId, entityName)?.EncodePermissions();
+        }
+
+        public string GetPermissionString(string entityName, int entityId)
+        {
+            return GetPermissions(entityName, entityId)?.EncodePermissions();
+        }
+
+        public string GetPermissionString(string entityName, int entityId, string permissionName)
+        {
+            return GetPermissions(entityName, entityId, permissionName)?.EncodePermissions();
+        }
+
 
         public Permission AddPermission(Permission permission)
         {

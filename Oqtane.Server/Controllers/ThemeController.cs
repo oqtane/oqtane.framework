@@ -58,7 +58,7 @@ namespace Oqtane.Controllers
             {
                 themename = theme.ThemeName.Substring(0, theme.ThemeName.IndexOf(","));
 
-                string folder = Path.Combine(_environment.WebRootPath, "Themes\\" + themename);
+                string folder = Path.Combine(_environment.WebRootPath, "Themes" , themename);
                 if (Directory.Exists(folder))
                 {
                     Directory.Delete(folder, true);
