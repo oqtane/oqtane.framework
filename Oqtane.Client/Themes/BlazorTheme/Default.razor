@@ -1,14 +1,27 @@
 ﻿@namespace Oqtane.Themes.BlazorTheme
 @inherits ThemeBase
 
+<div class="breadcrumbs">
+    <Breadcrumbs />
+</div>
+
 <div class="sidebar">
-    <div align="center"><Logo /></div>
-    <Menu Orientation="Vertical" />
+    <nav class="navbar">
+        <Logo />
+        <button class="navbar-toggler" aria-expanded="false" aria-controls="navbarSupportedContent"
+                aria-label="Toggle navigation" type="button" data-toggle="collapse"
+                data-target="#navbarSupportedContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <Menu Orientation="Vertical" />
+        </div>
+    </nav>
 </div>
 
 <div class="main">
     <div class="top-row px-4">
-        <Breadcrumbs /> <div class="ml-md-auto"><UserProfile /> <Login /> <ControlPanel /></div>
+        <div class="ml-md-auto"><UserProfile /> <Login /> <ControlPanel /></div>
     </div>
     <div class="container">
         <div class="row px-4">
