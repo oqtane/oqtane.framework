@@ -5,7 +5,7 @@
 @if (PageState.Site.LogoFileId != null)
 {
     <a href="@Href">
-        <img src="@ContentUrl(PageState.Site.LogoFileId.Value)" alt="@PageState.Site.Name"/>
+        <img class="img-fluid" src="@ContentUrl(PageState.Site.LogoFileId.Value)" alt="@PageState.Site.Name"/>
     </a>
 }
 
