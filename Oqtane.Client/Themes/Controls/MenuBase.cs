@@ -8,13 +8,11 @@ namespace Oqtane.Themes.Controls
 {
     public class MenuBase : ThemeControlBase
     {
-        private List<Page> _menuPages;
-
-        protected IEnumerable<Page> MenuPages => _menuPages ?? (_menuPages = GetMenuPages().ToList());
+        protected IEnumerable<Page> MenuPages => GetMenuPages().ToList();
 
         protected string GetTarget(Page page)
         {
-            return page.Url.StartsWith("http") ? "_new" : string.Empty;
+            return page.Url != null && page.Url.StartsWith("http") ? "_new" : string.Empty;
         }
 
         protected string GetUrl(Page page)
