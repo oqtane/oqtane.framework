@@ -16,6 +16,7 @@
     .main .top-row {
         background-color: #e6e6e6;
         border-bottom: 1px solid #d6d5d5;
+        z-index: 9999;
     }
 
 .sidebar {
