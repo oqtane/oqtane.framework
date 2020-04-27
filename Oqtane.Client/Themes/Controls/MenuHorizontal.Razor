@@ -1,0 +1,42 @@
+﻿@namespace Oqtane.Themes.Controls
+@inherits MenuBase
+@if (MenuPages.Any())
+{
+    <div class="app-menu">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#Menu" aria-controls="Menu" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="Menu">
+            <ul class="navbar-nav mr-auto">
+                @foreach (var p in MenuPages)
+                {
+                    if (p.PageId == PageState.Page.PageId)
+                    {
+                        <li class="nav-item active">
+                            <a class="nav-link" href="@NavigateUrl(p.Path)">
+                                @if (p.Icon != string.Empty)
+                                {
+                                    <span class="oi oi-@p.Icon" aria-hidden="true"></span>
+                                }
+                                @p.Name<span class="sr-only">(current)</span>
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="@NavigateUrl(p.Path)">
+                                @if (p.Icon != string.Empty)
+                                {
+                                    <span class="oi oi-@p.Icon" aria-hidden="true"></span>
+                                }
+                                @p.Name
+                            </a>
+                        </li>
+                    }
+                }
+            </ul>
+        </div>
+    </div>
+}
