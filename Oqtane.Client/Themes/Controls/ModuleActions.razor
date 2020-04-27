@@ -1,135 +1,20 @@
 ﻿@namespace Oqtane.Themes.Controls
-@inherits ContainerBase
-@inject NavigationManager NavigationManager
-@inject IUserService UserService
-@inject IPageModuleService PageModuleService
+@inherits ModuleActionsBase
 
 @if (PageState.EditMode && !PageState.Page.EditMode && UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, ModuleState.Permissions))
 {
     <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"></a>
     <div class="dropdown-menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 37px, 0px);">
-    @foreach (var action in actions)
+    @foreach (var action in Actions)
     {
-        if (action.Action != "")
-        {
-            <a class="dropdown-item" @onclick="(async () => await ModuleAction(action.Action))">@action.Name</a>
-        }
-        else
+        if (string.IsNullOrEmpty(action.Name))
         {
             <div class="dropdown-divider"></div>
         }
+        else
+        {
+            <a class="dropdown-item" @onclick="(async () => await ModuleAction(action))">@action.Name</a>
+        }
     }
     </div>
-}
-
-@code {
-    private List<ActionViewModel> actions;
-
-    protected override void OnParametersSet()
-    {
-        if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, ModuleState.Permissions))
-        {
-            actions = new List<ActionViewModel>();
-            actions.Add(new ActionViewModel { Action = "settings", Name = "Manage Settings" });
-            
-            if (ModuleState.ModuleDefinition != null && ModuleState.ModuleDefinition.ServerManagerType != "")
-            {
-                actions.Add(new ActionViewModel { Action = "import", Name = "Import Content" });
-                actions.Add(new ActionViewModel { Action = "export", Name = "Export Content" });
-            }
-            
-            actions.Add(new ActionViewModel { Action = "delete", Name = "Delete Module" });
-            actions.Add(new ActionViewModel { Action = "", Name = "" });
-            
-            if (ModuleState.PaneModuleIndex > 0)
-            {
-                actions.Add(new ActionViewModel { Action = "<<", Name = "Move To Top" });
-            }
-            
-            if (ModuleState.PaneModuleIndex > 0)
-            {
-                actions.Add(new ActionViewModel { Action = "<", Name = "Move Up" });
-            }
-            
-            if (ModuleState.PaneModuleIndex < (ModuleState.PaneModuleCount - 1))
-            {
-                actions.Add(new ActionViewModel { Action = ">", Name = "Move Down" });
-            }
-            
-            if (ModuleState.PaneModuleIndex < (ModuleState.PaneModuleCount - 1))
-            {
-                actions.Add(new ActionViewModel { Action = ">>", Name = "Move To Bottom" });
-            }
-            
-            foreach (string pane in PageState.Page.Panes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                if (pane != ModuleState.Pane)
-                {
-                    actions.Add(new ActionViewModel { Action = pane, Name = "Move To " + pane + " Pane" });
-                }
-            }
-        }
-    }
-
-    protected async Task ModuleAction(string action)
-    {
-        if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, ModuleState.Permissions))
-        {
-            PageModule pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
-
-            string url = NavigateUrl();
-            switch (action)
-            {
-                case "<<":
-                    pagemodule.Order = 0;
-                    await PageModuleService.UpdatePageModuleAsync(pagemodule);
-                    await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
-                    break;
-                case "<":
-                    pagemodule.Order -= 3;
-                    await PageModuleService.UpdatePageModuleAsync(pagemodule);
-                    await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
-                    break;
-                case ">":
-                    pagemodule.Order += 3;
-                    await PageModuleService.UpdatePageModuleAsync(pagemodule);
-                    await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
-                    break;
-                case ">>":
-                    pagemodule.Order = int.MaxValue;
-                    await PageModuleService.UpdatePageModuleAsync(pagemodule);
-                    await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
-                    break;
-                case "settings":
-                    url = EditUrl(pagemodule.ModuleId, "Settings");
-                    break;
-                case "import":
-                    url = EditUrl(pagemodule.ModuleId, "Import");
-                    break;
-                case "export":
-                    url = EditUrl(pagemodule.ModuleId, "Export");
-                    break;
-                case "delete":
-                    pagemodule.IsDeleted = true;
-                    await PageModuleService.UpdatePageModuleAsync(pagemodule);
-                    await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
-                    break;
-                default: // move to pane
-                    string pane = pagemodule.Pane;
-                    pagemodule.Pane = action;
-                    pagemodule.Order = int.MaxValue; // add to bottom of pane
-                    await PageModuleService.UpdatePageModuleAsync(pagemodule);
-                    await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
-                    await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pane);
-                    break;
-            }
-            NavigationManager.NavigateTo(url);
-        }
-    }
-
-    public class ActionViewModel
-    {
-        public string Action { set; get; }
-        public string Name { set; get; }
-    }
 }
