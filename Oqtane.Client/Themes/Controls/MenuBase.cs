@@ -14,7 +14,7 @@ namespace Oqtane.Themes.Controls
 
         protected string GetTarget(Page page)
         {
-            return page.Url.StartsWith("http") ? "_new" : string.Empty;
+            return page.Url != null && page.Url.StartsWith("http") ? "_new" : string.Empty;
         }
 
         protected string GetUrl(Page page)
