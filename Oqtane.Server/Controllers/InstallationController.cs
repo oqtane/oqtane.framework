@@ -44,6 +44,7 @@ namespace Oqtane.Controllers
                         _config.Reload();
                     }
 
+                    _databaseManager.BuildDefaultSite(config.Password, config.HostEmail);
                     installation.Success = true;
                     return installation;
                 }
