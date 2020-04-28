@@ -315,7 +315,7 @@ namespace Oqtane.Infrastructure
             }
         }
 
-        private void BuildDefaultSite(string password, string email)
+        public void BuildDefaultSite(string password, string email)
         {
             using (var scope = _serviceScopeFactory.CreateScope())
             {

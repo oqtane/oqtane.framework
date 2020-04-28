@@ -179,31 +179,8 @@
             };
 
             var installation = await InstallationService.Install(config);
-            //TODO: Should be moved to Database manager
             if (installation.Success)
             {
-                Site site = new Site();
-                site.TenantId = -1; // will be populated on server
-                site.Name = "Default Site";
-                site.LogoFileId = null;
-                site.FaviconFileId = null;
-                site.DefaultThemeType = Constants.DefaultTheme;
-                site.DefaultLayoutType = Constants.DefaultLayout;
-                site.DefaultContainerType = Constants.DefaultContainer;
-                site.PwaIsEnabled = false;
-                site.PwaAppIconFileId = null;
-                site.PwaSplashIconFileId = null;
-                site.AllowRegistration = false;
-                site = await SiteService.AddSiteAsync(site, null);
-
-                User user = new User();
-                user.SiteId = site.SiteId;
-                user.Username = _hostUsername;
-                user.Password = _hostPassword;
-                user.Email = _hostEmail;
-                user.DisplayName = _hostUsername;
-                user = await UserService.AddUserAsync(user);
-
                 NavigationManager.NavigateTo("", true);
             }
             else
