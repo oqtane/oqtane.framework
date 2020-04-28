@@ -3,6 +3,7 @@
 @inject IInstallationService InstallationService
 @inject ISiteService SiteService
 @inject IUserService UserService
+@inject IConfigurationRoot Config 
 
 <div class="container">
     <div class="row">
@@ -187,9 +188,10 @@
                 site.Name = "Default Site";
                 site.LogoFileId = null;
                 site.FaviconFileId = null;
-                site.DefaultThemeType = Constants.DefaultTheme;
-                site.DefaultLayoutType = Constants.DefaultLayout;
-                site.DefaultContainerType = Constants.DefaultContainer;
+
+                site.DefaultThemeType = GetInstallationConfig(SettingKeys.DefaultThemeKey, Constants.DefaultTheme);
+                site.DefaultLayoutType = GetInstallationConfig(SettingKeys.DefaultLayoutKey, Constants.DefaultLayout);
+                site.DefaultContainerType = GetInstallationConfig(SettingKeys.DefaultContainerKey, Constants.DefaultContainer);
                 site.PwaIsEnabled = false;
                 site.PwaAppIconFileId = null;
                 site.PwaSplashIconFileId = null;
@@ -216,6 +218,14 @@
         {
             _message = "<div class=\"alert alert-danger\" role=\"alert\">Please Enter All Fields And Ensure Passwords Match And Are Greater Than 5 Characters In Length</div>";
         }
+    }
+
+    private string GetInstallationConfig(string key, string defaultValue)
+    {
+        var value = Config.GetSection(SettingKeys.InstallationSection).GetValue(key, defaultValue);
+        // double fallback to default value - allow hold sample keys in config
+        if (string.IsNullOrEmpty(value)) value = defaultValue;
+        return value;
     }
 
 }
