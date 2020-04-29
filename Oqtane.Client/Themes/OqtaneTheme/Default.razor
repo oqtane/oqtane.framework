@@ -18,6 +18,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        await LoadBootswatchTheme("cyborg");
         await IncludeCSS("Theme.css");
     }
 }

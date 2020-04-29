@@ -30,6 +30,13 @@ namespace Oqtane.Themes
             await interop.IncludeCSS("Theme", Url);
         }
 
+        public async Task LoadBootswatchTheme(string themeName)
+        {
+            var url = $"css/bootswatch/{themeName}/bootstrap.min.css";
+            var interop = new Interop(JSRuntime);
+            await interop.IncludeCSS("bootswatch", url);
+        }
+
         public string NavigateUrl()
         {
             return NavigateUrl(PageState.Page.Path);
