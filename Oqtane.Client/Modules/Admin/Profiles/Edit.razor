@@ -144,7 +144,7 @@
             {
                 profile = new Profile();
             }
-            
+
             profile.Name = _name;
             profile.Title = _title;
             profile.Description = _description;
@@ -154,8 +154,14 @@
             profile.DefaultValue = _defaultvalue;
             profile.IsRequired = (_isrequired == null ? false : Boolean.Parse(_isrequired));
             profile.IsPrivate = (_isprivate == null ? false : Boolean.Parse(_isprivate));
-            profile = await ProfileService.UpdateProfileAsync(profile);
-            
+            if (_profileid != -1)
+            {
+                profile = await ProfileService.UpdateProfileAsync(profile);
+            }else
+            {
+                profile = await ProfileService.AddProfileAsync(profile);
+            }
+
             await logger.LogInformation("Profile Saved {Profile}", profile);
             NavigationManager.NavigateTo(NavigateUrl());
         }
