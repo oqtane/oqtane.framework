@@ -1,4 +1,8 @@
-﻿
+﻿.breadcrumbs {
+    background-color: #e6e6e6;
+    border-bottom: 1px solid #d6d5d5;
+}
+
 .top-row {
     height: 3.5rem;
     display: flex;
@@ -12,6 +16,7 @@
     .main .top-row {
         background-color: #e6e6e6;
         border-bottom: 1px solid #d6d5d5;
+        z-index: 9999;
     }
 
 .sidebar {
@@ -22,8 +27,8 @@
         background-color: rgba(0,0,0,0.4);
     }
 
-    .sidebar .navbar-brand {
-        font-size: 1.1rem;
+    .sidebar .navbar-toggler .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3e%3cpath stroke='rgba(255, 255, 255, 0.5)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
     }
 
     .sidebar .oi {
@@ -32,6 +37,10 @@
         vertical-align: text-top;
         top: -2px;
     }
+
+.breadcrumb {
+    margin-bottom: 0;
+}
 
 .app-menu .nav-item {
     font-size: 0.9rem;
@@ -84,6 +93,13 @@
         flex-direction: row;
     }
 
+    .breadcrumbs {
+        position: fixed;
+        left: 275px;
+        top: 0;
+        z-index: 1;
+    }
+    
     .sidebar {
         width: 250px;
         height: 100vh;
@@ -94,7 +110,6 @@
     .main .top-row {
         position: sticky;
         top: 0;
-        z-index: 9999;
     }
 
     .main > div {
@@ -109,6 +124,10 @@
     .sidebar .collapse {
         /* Never collapse the sidebar for wide screens */
         display: block;
+    }
+
+    .main > .container {
+        margin-top: 30px;
     }
 }
 
@@ -133,3 +152,35 @@
         -webkit-transform: scaleY(1.0);
     }
 }
+
+@media (max-width: 767px) {
+    .sidebar {
+        margin-top: 3.5rem;
+        position: fixed;
+        width: 100%;
+    }
+
+    .main > .top-row.px-4 {
+        display: flex;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+
+    .ml-md-auto {
+        margin-left: auto;
+    }
+
+    .breadcrumbs {
+        position: fixed;
+        top: 150px;
+        width: 100%;
+        left: 0;
+    }
+
+    .main > .container {
+        margin-top: 200px;
+    }
+}
+

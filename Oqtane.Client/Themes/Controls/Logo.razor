@@ -2,17 +2,20 @@
 @inherits ThemeControlBase
 @inject NavigationManager NavigationManager
 
-@((MarkupString)logo)
+@if (PageState.Site.LogoFileId != null)
+{
+    <a href="@Href">
+        <img class="img-fluid" src="@ContentUrl(PageState.Site.LogoFileId.Value)" alt="@PageState.Site.Name"/>
+    </a>
+}
 
 @code {
-    string logo = "";
-
-    protected override void OnParametersSet()
+    string Href
     {
-        if (PageState.Site.LogoFileId != null)
+        get
         {
             var uri = new Uri(NavigationManager.Uri);
-            logo = "<a href=\"" + uri.Scheme + "://" + uri.Authority + "\"><img src=\"" + ContentUrl(PageState.Site.LogoFileId.Value) + "\" alt=\"" + PageState.Site.Name + "\"/></a>";
+            return $"{uri.Scheme}://{uri.Authority}";
         }
     }
 }
