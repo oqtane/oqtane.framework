@@ -48,7 +48,7 @@ window.interop = {
             }
         }
     },
-    includeLink: function (id, rel, url, type) {
+    includeLink: function (id, rel, url, type, integrity, crossorigin) {
         var link;
         if (id !== "") {
             link = document.getElementById(id);
@@ -66,6 +66,12 @@ window.interop = {
             if (type !== "") {
                 link.type = type;
             }
+            if (integrity !== "") {
+                link.integrity = integrity;
+            }
+            if (crossorigin !== "") {
+                link.crossorigin = crossorigin;
+            }
             document.head.appendChild(link);
         }
         else {
@@ -78,9 +84,15 @@ window.interop = {
             if (type !== "" && link.type !== type) {
                 link.setAttribute('type', type);
             }
+            if (integrity !== "" && link.integrity !== integrity) {
+                link.setAttribute('integrity', integrity);
+            }
+            if (crossorigin !== "" && link.crossorigin !== crossorigin) {
+                link.setAttribute('crossorigin', crossorigin);
+            }
         }
     },
-    includeScript: function (id, src, content, location) {
+    includeScript: function (id, src, content, location, integrity, crossorigin) {
         var script;
         if (id !== "") {
             script = document.getElementById(id);
@@ -92,6 +104,12 @@ window.interop = {
             }
             if (src !== "") {
                 script.src = src;
+                if (integrity !== "") {
+                    script.integrity = integrity;
+                }
+                if (crossorigin !== "") {
+                    script.crossorigin = crossorigin;
+                }
             }
             else {
                 script.innerHTML = content;
@@ -107,6 +125,12 @@ window.interop = {
             if (src !== "") {
                 if (script.src !== src) {
                     script.src = src;
+                }
+                if (integrity !== "" && script.integrity !== integrity) {
+                    script.setAttribute('integrity', integrity);
+                }
+                if (crossorigin !== "" && script.crossorigin !== crossorigin) {
+                    script.setAttribute('crossorigin', crossorigin);
                 }
             }
             else {

@@ -69,10 +69,14 @@ namespace Oqtane.Infrastructure
             {
                 log.UserId = user.UserId;
             }
-            HttpRequest request = _accessor.HttpContext.Request;
-            if (request != null)
+            log.Url = "";
+            if (_accessor.HttpContext != null)
             {
-                log.Url = $"{request.Scheme}://{request.Host}{request.Path}{request.QueryString}";
+                HttpRequest request = _accessor.HttpContext.Request;
+                if (request != null)
+                {
+                    log.Url = $"{request.Scheme}://{request.Host}{request.Path}{request.QueryString}";
+                }
             }
 
             Type type = Type.GetType(@class.ToString());

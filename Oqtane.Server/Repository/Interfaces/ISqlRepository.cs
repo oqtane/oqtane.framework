@@ -6,8 +6,8 @@ namespace Oqtane.Repository
 {
     public interface ISqlRepository
     {
-        bool ExecuteEmbeddedScript(Assembly assembly, string script);
         void ExecuteScript(Tenant tenant, string script);
+        bool ExecuteScript(Tenant tenant, Assembly assembly, string filename);
         int ExecuteNonQuery(Tenant tenant, string query);
         SqlDataReader ExecuteReader(Tenant tenant, string query);
     }

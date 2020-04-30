@@ -18,11 +18,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Modules\HtmlText\Scripts\HtmlText.1.0.0.sql" />
-    <None Remove="Modules\HtmlText\Scripts\HtmlText.Uninstall.sql" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Include="Modules\HtmlText\Scripts\HtmlText.1.0.0.sql" />
     <EmbeddedResource Include="Modules\HtmlText\Scripts\HtmlText.Uninstall.sql" />
     <EmbeddedResource Include="Scripts\Master.00.00.00.sql" />

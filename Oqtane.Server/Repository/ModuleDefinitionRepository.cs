@@ -25,6 +25,11 @@ namespace Oqtane.Repository
             _permissions = permissions;
         }
 
+        public IEnumerable<ModuleDefinition> GetModuleDefinitions()
+        {
+            return LoadModuleDefinitions(-1); // used only during startup
+        }
+
         public IEnumerable<ModuleDefinition> GetModuleDefinitions(int siteId)
         {
             return LoadModuleDefinitions(siteId);
@@ -72,8 +77,12 @@ namespace Oqtane.Repository
             }
             List<ModuleDefinition> moduleDefinitions = _moduleDefinitions;
 
-            // get module definition permissions for site
-            List<Permission> permissions = _permissions.GetPermissions(siteId, EntityNames.ModuleDefinition).ToList();
+            List<Permission> permissions = new List<Permission>();
+            if (siteId != -1)
+            {
+                // get module definition permissions for site
+                permissions = _permissions.GetPermissions(siteId, EntityNames.ModuleDefinition).ToList();
+            }
 
             // get module definitions in database
             List<ModuleDefinition> moduledefs = _db.ModuleDefinition.ToList();
@@ -88,7 +97,10 @@ namespace Oqtane.Repository
                     moduledef = new ModuleDefinition { ModuleDefinitionName = moduledefinition.ModuleDefinitionName };
                     _db.ModuleDefinition.Add(moduledef);
                     _db.SaveChanges();
-                    _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledef.ModuleDefinitionId, moduledefinition.Permissions);
+                    if (siteId != -1)
+                    {
+                        _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledef.ModuleDefinitionId, moduledefinition.Permissions);
+                    }
                 }
                 else
                 {
@@ -109,13 +121,16 @@ namespace Oqtane.Repository
                     {
                         moduledefinition.Version = moduledef.Version;
                     }
-                    if (permissions.Count == 0)
+                    if (siteId != -1)
                     {
-                        _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledef.ModuleDefinitionId, moduledefinition.Permissions);
-                    }
-                    else
-                    {
-                        moduledefinition.Permissions = permissions.Where(item => item.EntityId == moduledef.ModuleDefinitionId).EncodePermissions();
+                        if (permissions.Count == 0)
+                        {
+                            _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledef.ModuleDefinitionId, moduledefinition.Permissions);
+                        }
+                        else
+                        {
+                            moduledefinition.Permissions = permissions.Where(item => item.EntityId == moduledef.ModuleDefinitionId).EncodePermissions();
+                        }
                     }
                     // remove module definition from list as it is already synced
                     moduledefs.Remove(moduledef);
@@ -131,7 +146,10 @@ namespace Oqtane.Repository
             // any remaining module definitions are orphans
             foreach (ModuleDefinition moduledefinition in moduledefs)
             {
-                _permissions.DeletePermissions(siteId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId);
+                if (siteId != -1)
+                {
+                    _permissions.DeletePermissions(siteId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId);
+                }
                 _db.ModuleDefinition.Remove(moduledefinition); // delete
                 _db.SaveChanges();
             }

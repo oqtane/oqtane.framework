@@ -73,13 +73,13 @@ namespace Oqtane.UI
             }
         }
 
-        public Task IncludeLink(string id, string rel, string url, string type)
+        public Task IncludeLink(string id, string rel, string url, string type, string integrity, string crossorigin)
         {
             try
             {
                 _jsRuntime.InvokeAsync<string>(
                     "interop.includeLink",
-                    id, rel, url, type);
+                    id, rel, url, type, integrity, crossorigin);
                 return Task.CompletedTask;
             }
             catch
@@ -88,13 +88,13 @@ namespace Oqtane.UI
             }
         }
 
-        public Task IncludeScript(string id, string src, string content, string location)
+        public Task IncludeScript(string id, string src, string content, string location, string integrity, string crossorigin)
         {
             try
             {
                 _jsRuntime.InvokeAsync<string>(
                     "interop.includeScript",
-                    id, src, content, location);
+                    id, src, content, location, integrity, crossorigin);
                 return Task.CompletedTask;
             }
             catch

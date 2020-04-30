@@ -87,8 +87,15 @@ namespace Oqtane.Repository
                             Type moduletype = Type.GetType(moduledefinition.ServerManagerType);
                             if (moduletype != null && moduletype.GetInterface("IPortable") != null)
                             {
-                                var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
-                                modulecontent.Content = ((IPortable) moduleobject).ExportModule(module);
+                                try
+                                {
+                                    var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
+                                    modulecontent.Content = ((IPortable)moduleobject).ExportModule(module);
+                                }
+                                catch
+                                {
+                                    // error in IPortable implementation
+                                }
                             }
                         }
 
@@ -124,9 +131,16 @@ namespace Oqtane.Repository
                                 Type moduletype = Type.GetType(moduledefinition.ServerManagerType);
                                 if (moduletype != null && moduletype.GetInterface("IPortable") != null)
                                 {
-                                    var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
-                                    ((IPortable) moduleobject).ImportModule(module, modulecontent.Content, modulecontent.Version);
-                                    success = true;
+                                    try
+                                    {
+                                        var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
+                                        ((IPortable)moduleobject).ImportModule(module, modulecontent.Content, modulecontent.Version);
+                                        success = true;
+                                    }
+                                    catch 
+                                    {
+                                        // error in IPortable implementation
+                                    }
                                 }
                             }
                         }

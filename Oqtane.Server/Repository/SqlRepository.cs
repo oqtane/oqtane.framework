@@ -10,18 +10,21 @@ namespace Oqtane.Repository
 {
     public class SqlRepository : ISqlRepository
     {
-        private readonly ITenantRepository _tenants;
 
-        public SqlRepository(ITenantRepository tenants)
+        public void ExecuteScript(Tenant tenant, string script)
         {
-            _tenants = tenants;
+            // execute script in curent tenant
+            foreach (string query in script.Split("GO", StringSplitOptions.RemoveEmptyEntries))
+            {
+                ExecuteNonQuery(tenant, query);
+            }
         }
 
-        public bool ExecuteEmbeddedScript(Assembly assembly, string filename)
+        public bool ExecuteScript(Tenant tenant, Assembly assembly, string filename)
         {
             // script must be included as an Embedded Resource within an assembly
             bool success = true;
-            string uninstallScript = "";
+            string script = "";
 
             if (assembly != null)
             {
@@ -33,37 +36,25 @@ namespace Oqtane.Repository
                     {
                         using (var reader = new StreamReader(resourceStream))
                         {
-                            uninstallScript = reader.ReadToEnd();
+                            script = reader.ReadToEnd();
                         }
                     }
                 }
             }
 
-            if (!string.IsNullOrEmpty(uninstallScript))
+            if (!string.IsNullOrEmpty(script))
             {
-                foreach (Tenant tenant in _tenants.GetTenants())
+                try
                 {
-                    try
-                    {
-                        ExecuteScript(tenant, uninstallScript);
-                    }
-                    catch
-                    {
-                        success = false;
-                    }
+                    ExecuteScript(tenant, script);
+                }
+                catch
+                {
+                    success = false;
                 }
             }
 
             return success;
-        }
-
-        public void ExecuteScript(Tenant tenant, string script)
-        {
-            // execute script in curent tenant
-            foreach (string query in script.Split("GO", StringSplitOptions.RemoveEmptyEntries))
-            {
-                ExecuteNonQuery(tenant, query);
-            }
         }
 
         public int ExecuteNonQuery(Tenant tenant, string query)
