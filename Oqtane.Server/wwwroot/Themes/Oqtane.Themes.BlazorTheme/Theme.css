@@ -16,7 +16,6 @@
     .main .top-row {
         background-color: #e6e6e6;
         border-bottom: 1px solid #d6d5d5;
-        z-index: 9999;
     }
 
 .sidebar {
@@ -40,6 +39,10 @@
 
 .breadcrumb {
     margin-bottom: 0;
+}
+
+.app-controlpanel {
+    z-index: 9999;
 }
 
 .app-menu .nav-item {
@@ -97,19 +100,21 @@
         position: fixed;
         left: 275px;
         top: 0;
-        z-index: 1;
+        z-index: 3
     }
-    
+
     .sidebar {
         width: 250px;
         height: 100vh;
         position: sticky;
         top: 0;
+        z-index: 1
     }
 
     .main .top-row {
         position: sticky;
         top: 0;
+        z-index: 2
     }
 
     .main > div {
@@ -154,10 +159,23 @@
 }
 
 @media (max-width: 767px) {
+    .breadcrumbs {
+        position: fixed;
+        top: 150px;
+        width: 100%;
+        left: 0;
+        z-index: 1;
+    }
+
     .sidebar {
         margin-top: 3.5rem;
         position: fixed;
         width: 100%;
+        z-index: 2;
+    }
+
+    .main .top-row {
+        z-index: 2;
     }
 
     .main > .top-row.px-4 {
@@ -170,13 +188,6 @@
 
     .ml-md-auto {
         margin-left: auto;
-    }
-
-    .breadcrumbs {
-        position: fixed;
-        top: 150px;
-        width: 100%;
-        left: 0;
     }
 
     .main > .container {

@@ -22,16 +22,18 @@ namespace Oqtane.Controllers
     {
         private readonly IModuleDefinitionRepository _moduleDefinitions;
         private readonly IModuleRepository _modules;
+        private readonly ITenantRepository _tenants;
         private readonly IUserPermissions _userPermissions;
         private readonly IInstallationManager _installationManager;
         private readonly IWebHostEnvironment _environment;
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogManager _logger;
 
-        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, IModuleRepository modules, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, IServiceProvider serviceProvider, ILogManager logger)
+        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, IModuleRepository modules,ITenantRepository tenants, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, IServiceProvider serviceProvider, ILogManager logger)
         {
             _moduleDefinitions = moduleDefinitions;
             _modules = modules;
+            _tenants = tenants;
             _userPermissions = userPermissions;
             _installationManager = installationManager;
             _environment = environment;
@@ -104,8 +106,18 @@ namespace Oqtane.Controllers
                     Type moduletype = Type.GetType(moduledefinition.ServerManagerType);
                     if (moduletype != null && moduletype.GetInterface("IInstallable") != null)
                     {
-                        var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
-                        ((IInstallable)moduleobject).Uninstall();
+                        foreach (Tenant tenant in _tenants.GetTenants())
+                        {
+                            try
+                            {
+                                var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
+                                ((IInstallable)moduleobject).Uninstall(tenant);
+                            }
+                            catch
+                            {
+                                // an error occurred executing the uninstall
+                            }
+                        }
                     }
                 }
 
@@ -189,6 +201,11 @@ namespace Oqtane.Controllers
                 Models.Module module = _modules.GetModule(int.Parse(moduleid));
                 module.ModuleDefinitionName = moduleDefinition.ModuleDefinitionName;
                 _modules.UpdateModule(module);
+
+                if (moduleDefinition.Template == "internal")
+                {
+                     // need logic to add embedded scripts to Oqtane.Server.csproj - also you need to remove them on uninstall
+                }
 
                 _installationManager.RestartApplication();
             }

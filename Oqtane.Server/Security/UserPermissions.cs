@@ -55,7 +55,14 @@ namespace Oqtane.Security
 
         public User GetUser()
         {
-            return GetUser(_accessor.HttpContext.User);
+            if (_accessor.HttpContext != null)
+            {
+                return GetUser(_accessor.HttpContext.User);
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

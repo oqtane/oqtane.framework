@@ -18,14 +18,14 @@ namespace Oqtane.Modules.HtmlText.Manager
             _sql = sql;
         }
 
-        public bool Install(string version)
+        public bool Install(Tenant tenant, string version)
         {
-            return _sql.ExecuteEmbeddedScript(GetType().Assembly, "HtmlText." + version + ".sql");
+            return _sql.ExecuteScript(tenant, GetType().Assembly, "HtmlText." + version + ".sql");
         }
 
-        public bool Uninstall()
+        public bool Uninstall(Tenant tenant)
         {
-            return _sql.ExecuteEmbeddedScript(GetType().Assembly, "HtmlText.Uninstall.sql");
+            return _sql.ExecuteScript(tenant, GetType().Assembly, "HtmlText.Uninstall.sql");
         }
 
         public string ExportModule(Module module)

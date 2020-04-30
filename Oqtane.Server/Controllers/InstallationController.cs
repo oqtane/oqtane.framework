@@ -5,8 +5,6 @@ using Oqtane.Models;
 using Oqtane.Shared;
 using Oqtane.Infrastructure;
 
-// ReSharper disable StringIndexOfIsCultureSpecific.1
-
 namespace Oqtane.Controllers
 {
     [Route("{site}/api/[controller]")]
@@ -14,9 +12,9 @@ namespace Oqtane.Controllers
     {
         private readonly IConfigurationRoot _config;
         private readonly IInstallationManager _installationManager;
-        private readonly DatabaseManager _databaseManager;
+        private readonly IDatabaseManager _databaseManager;
 
-        public InstallationController(IConfigurationRoot config, IInstallationManager installationManager, DatabaseManager databaseManager)
+        public InstallationController(IConfigurationRoot config, IInstallationManager installationManager, IDatabaseManager databaseManager)
         {
             _config = config;
             _installationManager = installationManager;
@@ -27,33 +25,17 @@ namespace Oqtane.Controllers
         [HttpPost]
         public Installation Post([FromBody] InstallConfig config)
         {
-            //TODO Security ????
             var installation = new Installation {Success = false, Message = ""};
 
-            if (ModelState.IsValid && (!_databaseManager.IsInstalled || !config.IsMaster))
+            if (ModelState.IsValid && (User.IsInRole(Constants.HostRole) || string.IsNullOrEmpty(_config.GetConnectionString(SettingKeys.ConnectionStringKey))))
             {
-                bool master = config.IsMaster;
-
-                config.Alias = config.Alias ?? HttpContext.Request.Host.Value;
-                var result = DatabaseManager.InstallDatabase(config);
-
-                if (result.Success)
-                {
-                    if (master)
-                    {
-                        _config.Reload();
-                    }
-
-                    _databaseManager.BuildDefaultSite(config.Password, config.HostEmail);
-                    installation.Success = true;
-                    return installation;
-                }
-
-                installation.Message = result.Message;
-                return installation;
+                installation = _databaseManager.Install(config);
+            }
+            else
+            {
+                installation.Message = "Installation Not Authorized";
             }
 
-            installation.Message = "Application Is Already Installed";
             return installation;
         }
 
@@ -61,12 +43,8 @@ namespace Oqtane.Controllers
         [HttpGet("installed")]
         public Installation IsInstalled()
         {
-            var installation = new Installation {Success = false, Message = ""};
-
-            installation.Success = _databaseManager.IsInstalled;
-            installation.Message = _databaseManager.Message;
-
-            return installation;
+            bool isInstalled = _databaseManager.IsInstalled();
+            return new Installation {Success = isInstalled, Message = string.Empty};
         }
 
         [HttpGet("upgrade")]

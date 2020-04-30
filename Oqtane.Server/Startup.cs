@@ -155,7 +155,7 @@ namespace Oqtane
             services.AddSingleton(Configuration);
             services.AddSingleton<IInstallationManager, InstallationManager>();
             services.AddSingleton<ISyncManager, SyncManager>();
-            services.AddSingleton<DatabaseManager>();
+            services.AddSingleton<IDatabaseManager, DatabaseManager>();
 
             // install any modules or themes ( this needs to occur BEFORE the assemblies are loaded into the app domain )
             InstallationManager.UnpackPackages("Modules,Themes", _webRoot);

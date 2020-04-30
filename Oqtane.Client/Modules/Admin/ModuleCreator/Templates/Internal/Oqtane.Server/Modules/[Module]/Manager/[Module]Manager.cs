@@ -3,18 +3,32 @@ using System.Linq;
 using System.Text.Json;
 using Oqtane.Modules;
 using Oqtane.Models;
+using Oqtane.Infrastructure;
+using Oqtane.Repository;
 using [Owner].[Module]s.Models;
 using [Owner].[Module]s.Repository;
 
 namespace [Owner].[Module]s.Manager
 {
-    public class [Module]Manager : IPortable
+    public class [Module]Manager : IInstallable, IPortable
     {
         private I[Module]Repository _[Module]s;
+        private ISqlRepository _sql;
 
-        public [Module]Manager(I[Module]Repository [Module]s)
+        public [Module]Manager(I[Module]Repository [Module]s, ISqlRepository sql)
         {
             _[Module]s = [Module]s;
+            _sql = sql;
+        }
+
+        public bool Install(Tenant tenant, string version)
+        {
+            return _sql.ExecuteScript(tenant, GetType().Assembly, "[Owner].[Module]." + version + ".sql");
+        }
+
+        public bool Uninstall(Tenant tenant)
+        {
+            return _sql.ExecuteScript(tenant, GetType().Assembly, "[Owner].[Module].Uninstall.sql");
         }
 
         public string ExportModule(Module module)

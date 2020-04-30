@@ -5,8 +5,9 @@
 @inject IAliasService AliasService
 @inject ISiteService SiteService
 @inject IThemeService  ThemeService
-@inject ISiteTemplateService SiteTemplateService 
+@inject ISiteTemplateService SiteTemplateService
 @inject IUserService UserService
+@inject IInstallationService InstallationService
 
 @if (_tenants == null)
 {
@@ -17,21 +18,7 @@ else
 <table class="table table-borderless">
     <tr>
         <td>
-            <Label For="tenant" HelpText="Select the tenant for the site">Tenant: </Label>
-        </td>
-        <td>
-            <select id="tenant" class="form-control" @onchange="(e => TenantChanged(e))">
-                <option value="-1">&lt;Select Tenant&gt;</option>
-                @foreach (Tenant tenant in _tenants)
-                {
-                    <option value="@tenant.TenantId">@tenant.Name</option>
-                }
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="name" HelpText="Enter the name of the site">Name: </Label>
+            <Label For="name" HelpText="Enter the name of the site">Site Name: </Label>
         </td>
         <td>
             <input id="name" class="form-control" @bind="@_name" />
@@ -101,14 +88,99 @@ else
             </select>
         </td>
     </tr>
-    @if (!_isinitialized)
+    <tr>
+        <td>
+            <Label For="tenant" HelpText="Select the tenant for the site">Tenant: </Label>
+        </td>
+        <td>
+            <select id="tenant" class="form-control" @onchange="(e => TenantChanged(e))">
+                <option value="-">&lt;Select Tenant&gt;</option>
+                <option value="+">&lt;Create New Tenant&gt;</option>
+                @foreach (Tenant tenant in _tenants)
+                {
+                    <option value="@tenant.TenantId">@tenant.Name</option>
+                }
+            </select>
+        </td>
+    </tr>
+    @if (_tenantid == "+")
     {
+        <tr>
+            <td colspan="2">
+                <hr class="app-rule" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="name" HelpText="Enter the name for the tenant">Tenant Name: </Label>
+            </td>
+            <td>
+                <input id="name" class="form-control" @bind="@_tenantname" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="databaseType" HelpText="Select the database type for the tenant">Database Type: </Label>
+            </td>
+            <td>
+                <select id="databaseType" class="custom-select" @bind="@_databasetype">
+                    <option value="LocalDB">Local Database</option>
+                    <option value="SQLServer">SQL Server</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="server" HelpText="Enter the server for the tenant">Server: </Label>
+            </td>
+            <td>
+                <input id="server" type="text" class="form-control" @bind="@_server" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="database" HelpText="Enter the database for the tenant">Database: </Label>
+            </td>
+            <td>
+                <input id="database" type="text" class="form-control" @bind="@_database" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="integratedSecurity" HelpText="Select if you want integrated security or not">Integrated Security: </Label>
+            </td>
+            <td>
+                <select id="integratedSecurity" class="custom-select" @onchange="SetIntegratedSecurity">
+                    <option value="true" selected>True</option>
+                    <option value="false">False</option>
+                </select>
+            </td>
+        </tr>
+        @if (!_integratedsecurity)
+        {
+            <tr>
+                <td>
+                    <Label For="username" HelpText="Enter the username for the integrated security">Database Username: </Label>
+                </td>
+                <td>
+                    <input id="username" type="text" class="form-control" @bind="@_username" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Label For="password" HelpText="Enter the password for the integrated security">Database Password: </Label>
+                </td>
+                <td>
+                    <input id="password" type="password" class="form-control" @bind="@_password" />
+                </td>
+            </tr>
+        }
         <tr>
             <td>
                 <Label For="hostUsername" HelpText="Enter the username of the host for this site">Host Username:</Label>
             </td>
             <td>
-                <input id="hostUsername" class="form-control" @bind="@_username" readonly />
+                <input id="hostUsername" class="form-control" @bind="@_hostusername" readonly />
             </td>
         </tr>
         <tr>
@@ -116,7 +188,7 @@ else
                 <Label For="hostPassword" HelpText="Enter the password for the host of this site">Host Password:</Label>
             </td>
             <td>
-                <input id="hostPassword" type="password" class="form-control" @bind="@_password" />
+                <input id="hostPassword" type="password" class="form-control" @bind="@_hostpassword" />
             </td>
         </tr>
     }
@@ -132,16 +204,24 @@ else
     private List<SiteTemplate> _siteTemplates;
     private List<Theme> _themeList;
     private List<Tenant> _tenants;
-    private string _tenantid = "-1";
+    private string _tenantid = "-";
+
+    private string _tenantname = string.Empty;
+    private string _databasetype = "LocalDB";
+    private string _server = "(LocalDb)\\MSSQLLocalDB";
+    private string _database = "Oqtane-" + DateTime.UtcNow.ToString("yyyyMMddHHmm");
+    private string _username = string.Empty;
+    private string _password = string.Empty;
+    private bool _integratedsecurity = true;
+    private string _hostusername = Constants.HostUser;
+    private string _hostpassword = string.Empty;
+
     private string _name = string.Empty;
     private string _urls = string.Empty;
     private string _themetype = string.Empty;
     private string _layouttype = string.Empty;
     private string _containertype = string.Empty;
     private string _sitetemplatetype = string.Empty;
-    private bool _isinitialized = true;
-    private string _username = string.Empty;
-    private string _password = string.Empty;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
@@ -153,29 +233,29 @@ else
         _themes = ThemeService.GetThemeTypes(_themeList);
         _containers = ThemeService.GetContainerTypes(_themeList);
         _siteTemplates = await SiteTemplateService.GetSiteTemplatesAsync();
-        _username = Constants.HostUser;
     }
 
-    private async void TenantChanged(ChangeEventArgs e)
+    private void TenantChanged(ChangeEventArgs e)
     {
-        try
+        _tenantid = (string)e.Value;
+        if (string.IsNullOrEmpty(_tenantname))
         {
-            _tenantid = (string)e.Value;
-            if (_tenantid != "-1")
-            {
-                var tenant = _tenants.FirstOrDefault(item => item.TenantId == int.Parse(_tenantid));
-                if (tenant != null)
-                {
-                    _isinitialized = tenant.IsInitialized;
-                    StateHasChanged();
-                }
-            }
+            _tenantname = _name;
         }
-        catch (Exception ex)
+        StateHasChanged();
+    }
+
+    private void SetIntegratedSecurity(ChangeEventArgs e)
+    {
+        if (Convert.ToBoolean((string)e.Value))
         {
-            await logger.LogError(ex, "Error Loading Tenant {TenantId} {Error}", _tenantid, ex.Message);
-            AddModuleMessage("Error Loading Tenant", MessageType.Error);
+            _integratedsecurity = true;
         }
+        else
+        {
+            _integratedsecurity = false;
+        }
+        StateHasChanged();
     }
 
     private async void ThemeChanged(ChangeEventArgs e)
@@ -191,7 +271,7 @@ else
             {
                 _panelayouts = new Dictionary<string, string>();
             }
-            
+
             StateHasChanged();
         }
         catch (Exception ex)
@@ -203,105 +283,116 @@ else
 
     private async Task SaveSite()
     {
-        if (_tenantid != "-1" && _name != string.Empty && _urls != string.Empty && !string.IsNullOrEmpty(_themetype) && (_panelayouts.Count == 0 || !string.IsNullOrEmpty(_layouttype)) && !string.IsNullOrEmpty(_containertype) && !string.IsNullOrEmpty(_sitetemplatetype))
+        if (_tenantid != "-" && _name != string.Empty && _urls != string.Empty && !string.IsNullOrEmpty(_themetype) && (_panelayouts.Count == 0 || !string.IsNullOrEmpty(_layouttype)) && !string.IsNullOrEmpty(_containertype) && !string.IsNullOrEmpty(_sitetemplatetype))
         {
-            var unique = true;
+            var duplicates = new List<string>();
             var aliases = await AliasService.GetAliasesAsync();
             foreach (string name in _urls.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
             {
                 if (aliases.Exists(item => item.Name == name))
                 {
-                    unique = false;
+                    duplicates.Add(name);
                 }
             }
-            
-            if (unique)
+
+            if (duplicates.Count == 0)
             {
-                var isvalid = true;
+                InstallConfig config = new InstallConfig();
 
-                if (!_isinitialized)
+                if (_tenantid == "+")
                 {
-                    var user = new User();
-                    user.SiteId = PageState.Site.SiteId;
-                    user.Username = _username;
-                    user.Password = _password;
-                    user = await UserService.LoginUserAsync(user, false, false);
-                    isvalid = user.IsAuthenticated;
-                }
-
-                if (isvalid)
-                {
-                    ShowProgressIndicator();
-
-                    aliases = new List<Alias>();
-                    _urls = _urls.Replace("\n", ",");
-                    
-                    foreach (string name in _urls.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    if (!string.IsNullOrEmpty(_tenantname) && _tenants.FirstOrDefault(item => item.Name == _tenantname) == null)
                     {
-                        var alias = new Alias();
-                        alias.Name = name;
-                        alias.TenantId = int.Parse(_tenantid);
-                        alias.SiteId = -1;
-                        alias = await AliasService.AddAliasAsync(alias);
-                        aliases.Add(alias);
-                    }
-
-                    var site = new Site();
-                    site.TenantId = int.Parse(_tenantid);
-                    site.Name = _name;
-                    site.LogoFileId = null;
-                    site.FaviconFileId = null;
-                    site.DefaultThemeType = _themetype;
-                    site.DefaultLayoutType = (_layouttype == null ? string.Empty : _layouttype);
-                    site.DefaultContainerType = _containertype;
-                    site.PwaIsEnabled = false;
-                    site.PwaAppIconFileId = null;
-                    site.PwaSplashIconFileId = null;
-                    site.AllowRegistration = false;
-                    site.SiteTemplateType = _sitetemplatetype;
-                    site = await SiteService.AddSiteAsync(site, aliases[0]);
-
-                    foreach (Alias alias in aliases)
-                    {
-                        alias.SiteId = site.SiteId;
-                        await AliasService.UpdateAliasAsync(alias);
-                    }
-
-                    if (!_isinitialized)
-                    {
+                        // validate host credentials
                         var user = new User();
-                        user.SiteId = site.SiteId;
-                        user.Username = _username;
-                        user.Password = _password;
-                        user.Email = PageState.User.Email;
-                        user.DisplayName = PageState.User.DisplayName;
-                        user = await UserService.AddUserAsync(user, aliases[0]);
-
-                        if (user != null)
+                        user.SiteId = PageState.Site.SiteId;
+                        user.Username = Constants.HostUser;
+                        user.Password = _hostpassword;
+                        user = await UserService.LoginUserAsync(user, false, false);
+                        if (user.IsAuthenticated)
                         {
-                            var tenant = _tenants.FirstOrDefault(item => item.TenantId == int.Parse(_tenantid));
-                            if (tenant != null)
+                            if (!string.IsNullOrEmpty(_server) && !string.IsNullOrEmpty(_database))
                             {
-                                tenant.IsInitialized = true;
-                                await TenantService.UpdateTenantAsync(tenant);
+                                var connectionString = string.Empty;
+                                if (_databasetype == "LocalDB")
+                                {
+                                    connectionString = "Data Source=" + _server + ";AttachDbFilename=|DataDirectory|\\" + _database + ".mdf;Initial Catalog=" + _database + ";Integrated Security=SSPI;";
+                                }
+                                else
+                                {
+                                    connectionString = "Data Source=" + _server + ";Initial Catalog=" + _database + ";";
+
+                                    if (_integratedsecurity)
+                                    {
+                                        connectionString += "Integrated Security=SSPI;";
+                                    }
+                                    else
+                                    {
+                                        connectionString += "User ID=" + _username + ";Password=" + _password;
+                                    }
+                                }
+
+                                config.ConnectionString = connectionString;
+                                config.HostPassword = _hostpassword;
+                                config.HostEmail = user.Email;
+                                config.HostName = user.DisplayName;
+                                config.TenantName = _tenantname;
+                                config.IsNewTenant = true;
+                            }
+                            else
+                            {
+                                AddModuleMessage("You Must Specify A Server And Database", MessageType.Error);
                             }
                         }
+                        else
+                        {
+                            AddModuleMessage("Invalid Host Password", MessageType.Error);
+                        }
                     }
-                    
-                    await Log(aliases[0], LogLevel.Information, string.Empty, null, "Site Created {Site}", site);
-
-                    var uri = new Uri(NavigationManager.Uri);
-                    NavigationManager.NavigateTo(uri.Scheme + "://" + aliases[0].Name, true);
+                    else
+                    {
+                        AddModuleMessage("Tenant Name Is Missing Or Already Exists", MessageType.Error);
+                    }
                 }
                 else
                 {
-                    await logger.LogError("Invalid Password Entered For Host {Username}", _username);
-                    AddModuleMessage("Invalid Host Password", MessageType.Error);
+                    var tenant = _tenants.FirstOrDefault(item => item.TenantId == int.Parse(_tenantid));
+                    if (tenant != null)
+                    {
+                        config.TenantName = tenant.Name;
+                        config.ConnectionString= tenant.DBConnectionString;
+                        config.IsNewTenant = false;
+                    }
+                }
+
+                if  (!string.IsNullOrEmpty(config.TenantName))
+                {
+                    config.SiteName = _name;
+                    config.Aliases = _urls.Replace("\n", ",");
+                    config.DefaultTheme = _themetype;
+                    config.DefaultLayout = _layouttype;
+                    config.DefaultContainer = _containertype;
+                    config.SiteTemplate = _sitetemplatetype;
+
+                    ShowProgressIndicator();
+
+                    var installation = await InstallationService.Install(config);
+                    if (installation.Success)
+                    {
+                        var aliasname = config.Aliases.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)[0];
+                        var uri = new Uri(NavigationManager.Uri);
+                        NavigationManager.NavigateTo(uri.Scheme + "://" + aliasname, true);
+                    }
+                    else
+                    {
+                        await logger.LogError("Error Creating Site {Error}", installation.Message);
+                        AddModuleMessage(installation.Message, MessageType.Error);
+                    }
                 }
             }
             else
             {
-                AddModuleMessage("An Alias Specified Has Already Been Used For Another Site", MessageType.Warning);
+                AddModuleMessage(string.Join(", ", duplicates.ToArray()) + " Already Used For Another Site", MessageType.Warning);
             }
         }
         else

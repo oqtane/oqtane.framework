@@ -7,116 +7,116 @@
 <div class="container">
     <div class="row">
         <div class="mx-auto text-center">
-            <img src="oqtane.png"/>
+            <img src="oqtane.png" />
         </div>
     </div>
-    <hr class="app-rule"/>
+    <hr class="app-rule" />
     <div class="row justify-content-center">
         <div class="col text-center">
-            <h2>Database Configuration</h2><br/>
+            <h2>Database Configuration</h2><br />
             <table class="form-group" cellpadding="4" cellspacing="4" style="margin: auto;">
                 <tbody>
-                <tr>
-                    <td>
-                        <label class="control-label" style="font-weight: bold">Database Type: </label>
-                    </td>
-                    <td>
-                        <select class="custom-select" @bind="@_databaseType">
-                            <option value="LocalDB">Local Database</option>
-                            <option value="SQLServer">SQL Server</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label class="control-label" style="font-weight: bold">Server: </label>
-                    </td>
-                    <td>
-                        <input type="text" class="form-control" @bind="@_serverName"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label class="control-label" style="font-weight: bold">Database: </label>
-                    </td>
-                    <td>
-                        <input type="text" class="form-control" @bind="@_databaseName"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label class="control-label" style="font-weight: bold">Integrated Security: </label>
-                    </td>
-                    <td>
-                        <select class="custom-select" @onchange="SetIntegratedSecurity">
-                            <option value="true" selected>True</option>
-                            <option value="false">False</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr style="@_integratedSecurityDisplay">
-                    <td>
-                        <label class="control-label" style="font-weight: bold">Username: </label>
-                    </td>
-                    <td>
-                        <input type="text" class="form-control" @bind="@_username"/>
-                    </td>
-                </tr>
-                <tr style="@_integratedSecurityDisplay">
-                    <td>
-                        <label class="control-label" style="font-weight: bold">Password: </label>
-                    </td>
-                    <td>
-                        <input type="password" class="form-control" @bind="@_password"/>
-                    </td>
-                </tr>
+                    <tr>
+                        <td>
+                            <label class="control-label" style="font-weight: bold">Database Type: </label>
+                        </td>
+                        <td>
+                            <select class="custom-select" @bind="@_databaseType">
+                                <option value="LocalDB">Local Database</option>
+                                <option value="SQLServer">SQL Server</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="control-label" style="font-weight: bold">Server: </label>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" @bind="@_serverName" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="control-label" style="font-weight: bold">Database: </label>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" @bind="@_databaseName" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="control-label" style="font-weight: bold">Integrated Security: </label>
+                        </td>
+                        <td>
+                            <select class="custom-select" @onchange="SetIntegratedSecurity">
+                                <option value="true" selected>True</option>
+                                <option value="false">False</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr style="@_integratedSecurityDisplay">
+                        <td>
+                            <label class="control-label" style="font-weight: bold">Username: </label>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" @bind="@_username" />
+                        </td>
+                    </tr>
+                    <tr style="@_integratedSecurityDisplay">
+                        <td>
+                            <label class="control-label" style="font-weight: bold">Password: </label>
+                        </td>
+                        <td>
+                            <input type="password" class="form-control" @bind="@_password" />
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
         <div class="col text-center">
-            <h2>Application Administrator</h2><br/>
+            <h2>Application Administrator</h2><br />
             <table class="form-group" cellpadding="4" cellspacing="4" style="margin: auto;">
                 <tbody>
-                <tr>
-                    <td>
-                        <label class="control-label" style="font-weight: bold">Username: </label>
-                    </td>
-                    <td>
-                        <input type="text" class="form-control" @bind="@_hostUsername" readonly/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label class="control-label" style="font-weight: bold">Password: </label>
-                    </td>
-                    <td>
-                        <input type="password" class="form-control" @bind="@_hostPassword"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label class="control-label" style="font-weight: bold">Confirm: </label>
-                    </td>
-                    <td>
-                        <input type="password" class="form-control" @bind="@_confirmPassword"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label class="control-label" style="font-weight: bold">Email: </label>
-                    </td>
-                    <td>
-                        <input type="text" class="form-control" @bind="@_hostEmail"/>
-                    </td>
-                </tr>
+                    <tr>
+                        <td>
+                            <label class="control-label" style="font-weight: bold">Username: </label>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" @bind="@_hostUsername" readonly />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="control-label" style="font-weight: bold">Password: </label>
+                        </td>
+                        <td>
+                            <input type="password" class="form-control" @bind="@_hostPassword" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="control-label" style="font-weight: bold">Confirm: </label>
+                        </td>
+                        <td>
+                            <input type="password" class="form-control" @bind="@_confirmPassword" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="control-label" style="font-weight: bold">Email: </label>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" @bind="@_hostEmail" />
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
     </div>
-    <hr class="app-rule"/>
+    <hr class="app-rule" />
     <div class="row">
         <div class="mx-auto text-center">
-            <button type="button" class="btn btn-success" @onclick="Install">Install Now</button><br/><br/>
+            <button type="button" class="btn btn-success" @onclick="Install">Install Now</button><br /><br />
             @((MarkupString) _message)
         </div>
         <div class="app-progress-indicator" style="@_loadingDisplay"></div>
@@ -146,7 +146,7 @@
 
     private async Task Install()
     {
-        if (_hostUsername != "" && _hostPassword.Length >= 6 && _hostPassword == _confirmPassword && _hostEmail != "")
+        if (_serverName != "" && _databaseName != "" && _hostUsername != "" && _hostPassword.Length >= 6 && _hostPassword == _confirmPassword && _hostEmail != "")
         {
             _loadingDisplay = "";
             StateHasChanged();
@@ -169,19 +169,24 @@
                 }
             }
 
+            Uri uri = new Uri(NavigationManager.Uri);
+
             var config = new InstallConfig
             {
                 ConnectionString = connectionstring,
-                HostUser = _hostUsername,
+                Aliases = uri.Authority,
                 HostEmail = _hostEmail,
-                Password = _hostPassword,
-                IsMaster = true,
+                HostPassword = _hostPassword,
+                HostName = Constants.HostUser,
+                TenantName = Constants.MasterTenant,
+                IsNewTenant = true,
+                SiteName = Constants.DefaultSite
             };
 
             var installation = await InstallationService.Install(config);
             if (installation.Success)
             {
-                NavigationManager.NavigateTo("", true);
+                NavigationManager.NavigateTo(uri.Scheme + "://" + uri.Authority, true);
             }
             else
             {
