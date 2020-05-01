@@ -198,7 +198,7 @@ namespace Oqtane.Infrastructure
                 var upgradeConfig = DeployChanges
                     .To
                     .SqlDatabase(NormalizeConnectionString(install.ConnectionString))
-                    .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), s => s.Contains("Master."));
+                    .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), s => s.Contains("Master.") && s.EndsWith(".sql",StringComparison.OrdinalIgnoreCase));
 
                 var upgrade = upgradeConfig.Build();
                 if (upgrade.IsUpgradeRequired())
@@ -282,7 +282,7 @@ namespace Oqtane.Infrastructure
                 foreach (var tenant in db.Tenant.ToList())
                 {
                     var upgradeConfig = DeployChanges.To.SqlDatabase(NormalizeConnectionString(tenant.DBConnectionString))
-                        .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), s => s.Contains("Tenant"));
+                        .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), s => s.Contains("Tenant") && s.EndsWith(".sql",StringComparison.OrdinalIgnoreCase));
 
                     var upgrade = upgradeConfig.Build();
                     if (upgrade.IsUpgradeRequired())
