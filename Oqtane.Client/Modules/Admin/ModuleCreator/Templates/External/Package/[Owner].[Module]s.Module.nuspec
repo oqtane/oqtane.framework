@@ -21,8 +21,11 @@
   </metadata>
   <files>
     <file src="..\Client\bin\Release\netstandard2.1\[Owner].[Module]s.Module.Client.dll" target="lib" /> 
+    <file src="..\Client\bin\Release\netstandard2.1\[Owner].[Module]s.Module.Client.pdb" target="lib" /> 
     <file src="..\Server\bin\Release\netcoreapp3.1\[Owner].[Module]s.Module.Server.dll" target="lib" /> 
+    <file src="..\Server\bin\Release\netcoreapp3.1\[Owner].[Module]s.Module.Server.pdb" target="lib" /> 
     <file src="..\Shared\bin\Release\netstandard2.1\[Owner].[Module]s.Module.Shared.dll" target="lib" /> 
+    <file src="..\Shared\bin\Release\netstandard2.1\[Owner].[Module]s.Module.Shared.pdb" target="lib" /> 
     <file src="..\wwwroot\**\*.*" target="wwwroot" /> 
   </files>
 </package>
