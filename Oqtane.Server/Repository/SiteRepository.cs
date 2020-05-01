@@ -731,7 +731,7 @@ namespace Oqtane.Repository
             CreatePages(site, CreateAdminPages());
         }
 
-        private void CreatePages(Site site, List<PageTemplate> pageTemplates)
+        public void CreatePages(Site site, List<PageTemplate> pageTemplates)
         {
             List<ModuleDefinition> moduledefinitions = _moduleDefinitionRepository.GetModuleDefinitions(site.SiteId).ToList();
             foreach (PageTemplate pagetemplate in pageTemplates)

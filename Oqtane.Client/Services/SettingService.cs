@@ -26,14 +26,14 @@ namespace Oqtane.Services
             get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Setting"); }
         }
 
-        public async Task<Dictionary<string, string>> GetHostSettingsAsync()
+        public async Task<Dictionary<string, string>> GetTenantSettingsAsync()
         {
-            return await GetSettingsAsync(EntityNames.Host, -1);
+            return await GetSettingsAsync(EntityNames.Tenant, -1);
         }
 
-        public async Task UpdateHostSettingsAsync(Dictionary<string, string> hostSettings)
+        public async Task UpdateTenantSettingsAsync(Dictionary<string, string> tenantSettings)
         {
-            await UpdateSettingsAsync(hostSettings, EntityNames.Host, -1);
+            await UpdateSettingsAsync(tenantSettings, EntityNames.Tenant, -1);
         }
 
         public async Task<Dictionary<string, string>> GetSiteSettingsAsync(int siteId)

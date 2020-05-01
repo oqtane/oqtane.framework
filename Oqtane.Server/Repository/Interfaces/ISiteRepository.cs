@@ -10,5 +10,6 @@ namespace Oqtane.Repository
         Site UpdateSite(Site site);
         Site GetSite(int siteId);
         void DeleteSite(int siteId);
+        void CreatePages(Site site, List<PageTemplate> pageTemplates);
     }
 }
