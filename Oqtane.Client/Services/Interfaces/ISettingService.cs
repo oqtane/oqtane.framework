@@ -6,9 +6,9 @@ namespace Oqtane.Services
 {
     public interface ISettingService
     {
-        Task<Dictionary<string, string>> GetHostSettingsAsync();
+        Task<Dictionary<string, string>> GetTenantSettingsAsync();
 
-        Task UpdateHostSettingsAsync(Dictionary<string, string> hostSettings);
+        Task UpdateTenantSettingsAsync(Dictionary<string, string> tenantSettings);
 
         Task<Dictionary<string, string>> GetSiteSettingsAsync(int siteId);
 

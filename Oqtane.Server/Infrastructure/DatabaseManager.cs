@@ -26,7 +26,6 @@ namespace Oqtane.Infrastructure
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IMemoryCache _cache;
 
-
         public DatabaseManager(IConfigurationRoot config, IServiceScopeFactory serviceScopeFactory, IMemoryCache cache)
         {
             _config = config;
@@ -198,7 +197,7 @@ namespace Oqtane.Infrastructure
                 var upgradeConfig = DeployChanges
                     .To
                     .SqlDatabase(NormalizeConnectionString(install.ConnectionString))
-                    .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), s => s.Contains("Master."));
+                    .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), s => s.Contains("Master.") && s.EndsWith(".sql",StringComparison.OrdinalIgnoreCase));
 
                 var upgrade = upgradeConfig.Build();
                 if (upgrade.IsUpgradeRequired())
@@ -217,7 +216,6 @@ namespace Oqtane.Infrastructure
 
                 if (result.Success)
                 {
-                    CreateApplicationVersion(install.ConnectionString);
                     UpdateConnectionString(install.ConnectionString);
                 }
             }
@@ -277,21 +275,43 @@ namespace Oqtane.Infrastructure
         {
             var result = new Installation { Success = false, Message = string.Empty };
 
-            using (var db = new InstallationContext(NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey))))
-            {
-                foreach (var tenant in db.Tenant.ToList())
-                {
-                    var upgradeConfig = DeployChanges.To.SqlDatabase(NormalizeConnectionString(tenant.DBConnectionString))
-                        .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), s => s.Contains("Tenant"));
+            string[] versions = Constants.ReleaseVersions.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
-                    var upgrade = upgradeConfig.Build();
-                    if (upgrade.IsUpgradeRequired())
+            using (var scope = _serviceScopeFactory.CreateScope())
+            {
+                var upgrades = scope.ServiceProvider.GetRequiredService<IUpgradeManager>();
+  
+                using (var db = new InstallationContext(NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey))))
+                {
+                    foreach (var tenant in db.Tenant.ToList())
                     {
-                        var upgradeResult = upgrade.PerformUpgrade();
-                        result.Success = upgradeResult.Successful;
-                        if (!result.Success)
+                        var upgradeConfig = DeployChanges.To.SqlDatabase(NormalizeConnectionString(tenant.DBConnectionString))
+                            .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), s => s.Contains("Tenant.") && s.EndsWith(".sql", StringComparison.OrdinalIgnoreCase));
+
+                        var upgrade = upgradeConfig.Build();
+                        if (upgrade.IsUpgradeRequired())
                         {
-                            result.Message = upgradeResult.Error.Message;
+                            var upgradeResult = upgrade.PerformUpgrade();
+                            result.Success = upgradeResult.Successful;
+                            if (!result.Success)
+                            {
+                                result.Message = upgradeResult.Error.Message;
+                            }
+                        }
+
+                        // execute any version specific upgrade logic
+                        string version = tenant.Version;
+                        int index = Array.FindIndex(versions, item => item == version);
+                        if (index != (versions.Length - 1))
+                        {
+                            if (index == -1) index = 0;
+                            for (int i = index; i < versions.Length; i++)
+                            {
+                                upgrades.Upgrade(tenant, versions[i]);
+                            }
+                            tenant.Version = versions[versions.Length - 1];
+                            db.Entry(tenant).State = EntityState.Modified;
+                            db.SaveChanges();
                         }
                     }
                 }
@@ -460,6 +480,9 @@ namespace Oqtane.Infrastructure
                             aliases.UpdateAlias(alias);
                         }
 
+                        tenant.Version = Constants.Version;
+                        tenants.UpdateTenant(tenant);
+
                         log.Log(site.SiteId, LogLevel.Trace, this, LogFunction.Create, "Site Created {Site}", site);
                     }
                 }
@@ -468,20 +491,6 @@ namespace Oqtane.Infrastructure
             result.Success = true;
 
             return result;
-        }
-    
-        private void CreateApplicationVersion(string connectionString)
-        {
-            using (var db = new InstallationContext(NormalizeConnectionString(connectionString)))
-            {
-                var version = db.ApplicationVersion.FirstOrDefault(item => item.Version == Constants.Version);
-                if (version == null)
-                {
-                    version = new ApplicationVersion { Version = Constants.Version, CreatedOn = DateTime.UtcNow };
-                    db.ApplicationVersion.Add(version);
-                    db.SaveChanges();
-                }
-            }
         }
 
         private string NormalizeConnectionString(string connectionString)
