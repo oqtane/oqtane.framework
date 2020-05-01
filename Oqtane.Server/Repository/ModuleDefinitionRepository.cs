@@ -129,7 +129,14 @@ namespace Oqtane.Repository
                         }
                         else
                         {
-                            moduledefinition.Permissions = permissions.Where(item => item.EntityId == moduledef.ModuleDefinitionId).EncodePermissions();
+                            if (permissions.Where(item => item.EntityId == moduledef.ModuleDefinitionId).Any())
+                            {
+                                moduledefinition.Permissions = permissions.Where(item => item.EntityId == moduledef.ModuleDefinitionId).EncodePermissions();
+                            }
+                            else
+                            {
+                                _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledef.ModuleDefinitionId, moduledefinition.Permissions);
+                            }
                         }
                     }
                     // remove module definition from list as it is already synced
