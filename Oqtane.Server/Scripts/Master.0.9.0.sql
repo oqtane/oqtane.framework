@@ -7,6 +7,7 @@ CREATE TABLE [dbo].[Tenant](
 	[TenantId] [int] IDENTITY(1,1) NOT NULL,
 	[Name] [nvarchar](100) NOT NULL,
 	[DBConnectionString] [nvarchar](1024) NOT NULL,
+	[Version] [nvarchar](50) NULL,
 	[CreatedBy] [nvarchar](256) NOT NULL,
 	[CreatedOn] [datetime] NOT NULL,
 	[ModifiedBy] [nvarchar](256) NOT NULL,
@@ -88,17 +89,6 @@ CREATE TABLE [dbo].[JobLog] (
     (
 	  [JobLogId] ASC
     ) 
-)
-GO
-
-CREATE TABLE [dbo].[ApplicationVersion](
-	[ApplicationVersionId] [int] IDENTITY(1,1) NOT NULL,
-	[Version] [nvarchar](50) NOT NULL,
-	[CreatedOn] [datetime] NOT NULL
-  CONSTRAINT [PK_ApplicationVersion] PRIMARY KEY CLUSTERED 
-  (
-	[ApplicationVersionId] ASC
-  )
 )
 GO
 

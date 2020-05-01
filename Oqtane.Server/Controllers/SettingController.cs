@@ -123,7 +123,7 @@ namespace Oqtane.Controllers
             }
             switch (entityName)
             {
-                case EntityNames.Host:
+                case EntityNames.Tenant:
                     authorized = User.IsInRole(Constants.HostRole);
                     break;
                 case EntityNames.Site:
