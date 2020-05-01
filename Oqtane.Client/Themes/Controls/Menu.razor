@@ -1,133 +1,20 @@
 ﻿@namespace Oqtane.Themes.Controls
-@inherits ThemeControlBase
 
-@if (menu != string.Empty)
+@switch (Orientation)
 {
-    <div class="app-menu">
-        @((MarkupString)menu)
-    </div>
+    case "Horizontal":
+        <MenuHorizontal/>
+        break;
+    default: // Vertical
+    {
+        <MenuVertical/>
+        break;
+    }
 }
 
-@code {
-    private string menu = string.Empty;
-    
+@code{
+
     [Parameter]
     public string Orientation { get; set; }
 
-    protected override void OnParametersSet()
-    {
-        switch (Orientation)
-        {
-            case "Horizontal":
-                CreateHorizontalMenu();
-                break;
-            default: // Vertical
-                CreateVerticalMenu();
-                break;
-        }
-    }
-
-    private void CreateVerticalMenu()
-    {
-        var level = -1;
-        var securitylevel = int.MaxValue;
-
-        menu = "<ul class=\"nav flex-column\">\n";
-
-        foreach (Page p in PageState.Pages.Where(item => item.IsNavigation && !item.IsDeleted))
-        {
-            if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.View, p.Permissions) && p.Level <= securitylevel)
-            {
-                securitylevel = int.MaxValue;
-
-                menu += "<li class=\"nav-item px-3\">";
-                if (string.IsNullOrEmpty(p.Url))
-                {
-                    menu += "<a href=\"" + NavigateUrl(p.Path) + "\" class=\"nav-link\" style=\"padding-left: " + ((p.Level + 1) * 15).ToString() + "px !important;\">";
-                }
-                else
-                {
-                    string target = String.Empty;
-                    if (p.Url.StartsWith("http"))
-                    {
-                        target = " target=\"_new\"";
-                    }
-                    menu += "<a href=\"" + p.Url + "\" class=\"nav-link\" style=\"padding-left: " + ((p.Level + 1) * 15).ToString() + "px !important;\"" + target + ">";
-                }
-                
-                if (p.HasChildren)
-                {
-                    menu += "<i class=\"oi oi-chevron-right\"></i>";
-                }
-                
-                if (p.Icon != string.Empty)
-                {
-                    menu += "<span class=\"oi oi-" + p.Icon + "\" aria-hidden=\"true\"></span>";
-                }
-                
-                menu += p.Name;
-                menu += "</a>\n";
-                menu += "</li>\n";
-
-                level = p.Level;
-            }
-            else
-            {
-                if (securitylevel == int.MaxValue)
-                {
-                    securitylevel = p.Level;
-                }
-            }
-        }
-        
-        menu += "</ul>";
-    }
-
-    private void CreateHorizontalMenu()
-    {
-        var url = String.Empty;
-        var target = String.Empty;
-
-        menu = "<button class=\"navbar-toggler\" type=\"button\" data-toggle=\"collapse\" data-target=\"#Menu\" aria-controls=\"Menu\" aria-expanded=\"false\" aria-label=\"Toggle navigation\"><span class=\"navbar-toggler-icon\"></span></button>";
-        menu += "<div class=\"collapse navbar-collapse\" id=\"Menu\">";
-        menu += "<ul class=\"navbar-nav mr-auto\">";
-        
-        foreach (Page p in PageState.Pages.Where(item => item.IsNavigation && !item.IsDeleted))
-        {
-            if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.View, p.Permissions) && p.ParentId == PageState.Page.ParentId && p.Level == PageState.Page.Level)
-            {
-                if (string.IsNullOrEmpty(p.Url))
-                {
-                    url = NavigateUrl(p.Path);
-                    target = String.Empty;
-                }
-                else
-                {
-                    url = p.Url;
-                    if (p.Url.StartsWith("http"))
-                    {
-                        target = " target=\"_new\"";
-                    }
-                }
-
-                if (p.PageId == PageState.Page.PageId)
-                {
-                    menu += "<li class=\"nav-item active\">" +
-                        "<a class=\"nav-link\" href=\"" + NavigateUrl(p.Path) + "\">" +
-                        ((p.Icon != string.Empty) ? "<span class=\"oi oi-" + p.Icon + "\" aria-hidden=\"true\"></span> " : string.Empty) + 
-                        p.Name + " <span class=\"sr-only\">(current)</span></a></li>";
-                }
-                else
-                {
-                    menu += "<li class=\"nav-item\">" +
-                        "<a class=\"nav-link\" href=\"" + NavigateUrl(p.Path) + "\">" +
-                        ((p.Icon != string.Empty) ? "<span class=\"oi oi-" + p.Icon + "\" aria-hidden=\"true\"></span> " : string.Empty) + 
-                        p.Name + "</a></li>";
-                }
-            }
-        }
-        
-        menu += "</ul>";
-        menu += "</div>";
-    }
 }

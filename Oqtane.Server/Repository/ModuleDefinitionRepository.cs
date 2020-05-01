@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Extensions;
 using Oqtane.Models;
@@ -24,6 +25,11 @@ namespace Oqtane.Repository
             _permissions = permissions;
         }
 
+        public IEnumerable<ModuleDefinition> GetModuleDefinitions()
+        {
+            return LoadModuleDefinitions(-1); // used only during startup
+        }
+
         public IEnumerable<ModuleDefinition> GetModuleDefinitions(int siteId)
         {
             return LoadModuleDefinitions(siteId);
@@ -37,6 +43,8 @@ namespace Oqtane.Repository
 
         public void UpdateModuleDefinition(ModuleDefinition moduleDefinition)
         {
+            _db.Entry(moduleDefinition).State = EntityState.Modified;
+            _db.SaveChanges();
             _permissions.UpdatePermissions(moduleDefinition.SiteId, EntityNames.ModuleDefinition, moduleDefinition.ModuleDefinitionId, moduleDefinition.Permissions);
             _cache.Remove("moduledefinitions:" + moduleDefinition.SiteId.ToString());
         }
@@ -69,8 +77,12 @@ namespace Oqtane.Repository
             }
             List<ModuleDefinition> moduleDefinitions = _moduleDefinitions;
 
-            // get module definition permissions for site
-            List<Permission> permissions = _permissions.GetPermissions(siteId, EntityNames.ModuleDefinition).ToList();
+            List<Permission> permissions = new List<Permission>();
+            if (siteId != -1)
+            {
+                // get module definition permissions for site
+                permissions = _permissions.GetPermissions(siteId, EntityNames.ModuleDefinition).ToList();
+            }
 
             // get module definitions in database
             List<ModuleDefinition> moduledefs = _db.ModuleDefinition.ToList();
@@ -85,18 +97,40 @@ namespace Oqtane.Repository
                     moduledef = new ModuleDefinition { ModuleDefinitionName = moduledefinition.ModuleDefinitionName };
                     _db.ModuleDefinition.Add(moduledef);
                     _db.SaveChanges();
-                    _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledef.ModuleDefinitionId, moduledefinition.Permissions);
+                    if (siteId != -1)
+                    {
+                        _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledef.ModuleDefinitionId, moduledefinition.Permissions);
+                    }
                 }
                 else
                 {
                     // existing module definition
-                    if (permissions.Count == 0)
+                    if (!string.IsNullOrEmpty(moduledef.Name))
                     {
-                        _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledef.ModuleDefinitionId, moduledefinition.Permissions);
+                        moduledefinition.Name = moduledef.Name;
                     }
-                    else
+                    if (!string.IsNullOrEmpty(moduledef.Description))
                     {
-                        moduledefinition.Permissions = _permissions.EncodePermissions(permissions.Where(item => item.EntityId == moduledef.ModuleDefinitionId));
+                        moduledefinition.Description = moduledef.Description;
+                    }
+                    if (!string.IsNullOrEmpty(moduledef.Categories))
+                    {
+                        moduledefinition.Categories = moduledef.Categories;
+                    }
+                    if (!string.IsNullOrEmpty(moduledef.Version))
+                    {
+                        moduledefinition.Version = moduledef.Version;
+                    }
+                    if (siteId != -1)
+                    {
+                        if (permissions.Count == 0)
+                        {
+                            _permissions.UpdatePermissions(siteId, EntityNames.ModuleDefinition, moduledef.ModuleDefinitionId, moduledefinition.Permissions);
+                        }
+                        else
+                        {
+                            moduledefinition.Permissions = permissions.Where(item => item.EntityId == moduledef.ModuleDefinitionId).EncodePermissions();
+                        }
                     }
                     // remove module definition from list as it is already synced
                     moduledefs.Remove(moduledef);
@@ -112,7 +146,10 @@ namespace Oqtane.Repository
             // any remaining module definitions are orphans
             foreach (ModuleDefinition moduledefinition in moduledefs)
             {
-                _permissions.DeletePermissions(siteId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId);
+                if (siteId != -1)
+                {
+                    _permissions.DeletePermissions(siteId, EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId);
+                }
                 _db.ModuleDefinition.Remove(moduledefinition); // delete
                 _db.SaveChanges();
             }
@@ -141,7 +178,7 @@ namespace Oqtane.Repository
             {
                 if (modulecontroltype.Name != "ModuleBase" && !modulecontroltype.Namespace.EndsWith(".Controls"))
                 {
-                    string[] typename = modulecontroltype.AssemblyQualifiedName.Split(',').Select(item => item.Trim()).ToList().ToArray();
+                    string[] typename = modulecontroltype.AssemblyQualifiedName?.Split(',').Select(item => item.Trim()).ToArray();
                     string[] segments = typename[0].Split('.');
                     Array.Resize(ref segments, segments.Length - 1);
                     string moduleType = string.Join(".", segments);
@@ -158,23 +195,30 @@ namespace Oqtane.Repository
                             .FirstOrDefault(item => item.GetInterfaces().Contains(typeof(IModule)));
                         if (moduletype != null)
                         {
+                            // get property values from IModule
                             var moduleobject = Activator.CreateInstance(moduletype);
                             moduledefinition = (ModuleDefinition)moduletype.GetProperty("ModuleDefinition").GetValue(moduleobject);
                         }
                         else
                         {
+                            // set default property values
                             moduledefinition = new ModuleDefinition
                             {
                                 Name = moduleType.Substring(moduleType.LastIndexOf(".") + 1),
-                                Description = moduleType.Substring(moduleType.LastIndexOf(".") + 1),
-                                Categories = ((qualifiedModuleType.StartsWith("Oqtane.Modules.Admin.")) ? "Admin" : ""),
-                                Version = new Version(1, 0, 0).ToString()
+                                Description = "Manage " + moduleType.Substring(moduleType.LastIndexOf(".") + 1),
+                                Categories = ((qualifiedModuleType.StartsWith("Oqtane.Modules.Admin.")) ? "Admin" : "")
                             };
                         }
                         // set internal properties
                         moduledefinition.ModuleDefinitionName = qualifiedModuleType;
+                        moduledefinition.Version = ""; // will be populated from database
                         moduledefinition.ControlTypeTemplate = moduleType + "." + Constants.ActionToken + ", " + typename[1];
-                        moduledefinition.AssemblyName = assembly.FullName.Split(",")[0];
+                        moduledefinition.AssemblyName = assembly.GetName().Name;
+                        
+                        if (string.IsNullOrEmpty(moduledefinition.Categories))
+                        {
+                            moduledefinition.Categories = "Common";
+                        }
                         if (moduledefinition.Categories == "Admin")
                         {
                             moduledefinition.Permissions = new List<Permission>
@@ -196,8 +240,8 @@ namespace Oqtane.Repository
                     moduledefinition = moduledefinitions[index];
                     // actions
                     var modulecontrolobject = Activator.CreateInstance(modulecontroltype);
-                    string actions = (string)modulecontroltype.GetProperty("Actions").GetValue(modulecontrolobject);
-                    if (actions != "")
+                    string actions = (string)modulecontroltype.GetProperty("Actions")?.GetValue(modulecontrolobject);
+                    if (!string.IsNullOrEmpty(actions))
                     {
                         foreach (string action in actions.Split(','))
                         {

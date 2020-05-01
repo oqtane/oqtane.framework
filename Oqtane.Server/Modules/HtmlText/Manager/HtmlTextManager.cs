@@ -1,17 +1,31 @@
-﻿using Oqtane.Models;
+﻿using Oqtane.Infrastructure;
+using Oqtane.Models;
+using Oqtane.Repository;
 using Oqtane.Modules.HtmlText.Models;
 using Oqtane.Modules.HtmlText.Repository;
 using System.Net;
 
 namespace Oqtane.Modules.HtmlText.Manager
 {
-    public class HtmlTextManager : IPortable
+    public class HtmlTextManager : IInstallable, IPortable
     {
         private IHtmlTextRepository _htmlTexts;
+        private ISqlRepository _sql;
 
-        public HtmlTextManager(IHtmlTextRepository htmltexts)
+        public HtmlTextManager(IHtmlTextRepository htmltexts, ISqlRepository sql)
         {
             _htmlTexts = htmltexts;
+            _sql = sql;
+        }
+
+        public bool Install(Tenant tenant, string version)
+        {
+            return _sql.ExecuteScript(tenant, GetType().Assembly, "HtmlText." + version + ".sql");
+        }
+
+        public bool Uninstall(Tenant tenant)
+        {
+            return _sql.ExecuteScript(tenant, GetType().Assembly, "HtmlText.Uninstall.sql");
         }
 
         public string ExportModule(Module module)

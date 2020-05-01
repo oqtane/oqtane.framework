@@ -6,7 +6,7 @@
 <table class="table table-borderless">
     <tr>
         <td>
-            <Label For="name" HelpText="Enter the nameof the tenant">Name: </Label>
+            <Label For="name" HelpText="The name of the tenant">Name: </Label>
         </td>
         <td>
             @if (name == Constants.MasterTenant)
@@ -21,10 +21,10 @@
     </tr>
     <tr>
         <td>
-            <Label For="connectionString" HelpText="Enter the connection string for the tenant">Connection String: </Label>
+            <Label For="connectionstring" HelpText="The database connection string">Connection String: </Label>
         </td>
         <td>
-            <input id="integratedSecurity" class="form-control" @bind="@connectionstring" />
+            <textarea id="connectionstring" class="form-control" @bind="@connectionstring" rows="3" readonly></textarea>
         </td>
     </tr>
 

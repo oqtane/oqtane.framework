@@ -103,7 +103,8 @@ namespace Oqtane.Infrastructure
                                     case ".svg":
                                     case ".js":
                                     case ".css":
-                                        filename = sourceFolder + "\\" + entry.FullName.Replace("wwwroot", name).Replace("/", "\\");
+                                        string entryPath = Utilities.PathCombine(entry.FullName.Replace("wwwroot", name).Split('/'));
+                                        filename = Path.Combine(sourceFolder, entryPath);
                                         if (!Directory.Exists(Path.GetDirectoryName(filename)))
                                         {
                                             Directory.CreateDirectory(Path.GetDirectoryName(filename));

@@ -1,6 +1,7 @@
 ﻿@namespace Oqtane.Modules.Admin.Users
 @inherits ModuleBase
 @inject IRoleService RoleService
+@inject IUserService UserService
 @inject IUserRoleService UserRoleService
 
 @if (userroles == null)
@@ -12,7 +13,15 @@ else
     <table class="table table-borderless">
         <tr>
             <td>
-                <Label For="role" HelpText="What is the role of this user">Role: </Label>
+                <Label For="user" HelpText="The user you are assigning roles to">User: </Label>
+            </td>
+            <td>
+                <input id="user" class="form-control" @bind="@name" disabled />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="role" HelpText="Select a role">Role: </Label>
             </td>
             <td>
                 <select id="role" class="form-control" @bind="@roleid">
@@ -26,7 +35,7 @@ else
         </tr>
         <tr>
             <td>
-                <Label For="effectiveDate" HelpText="The date that this role is implemented">Effective Date: </Label>
+                <Label For="effectiveDate" HelpText="The date that this role assignment is active">Effective Date: </Label>
             </td>
             <td>
                 <input id="effectiveDate" class="form-control" @bind="@effectivedate" />
@@ -34,7 +43,7 @@ else
         </tr>
         <tr>
             <td>
-                <Label For="expiryDate" HelpText="The date that this role expires">Expiry Date: </Label>
+                <Label For="expiryDate" HelpText="The date that this role assignment expires">Expiry Date: </Label>
             </td>
             <td>
                 <input id="expiryDate" class="form-control" @bind="@expirydate" />
@@ -48,16 +57,16 @@ else
     <p align="center">
         <Pager Items="@userroles">
             <Header>
-                <th>Role</th>
+                <th>Roles</th>
                 <th>&nbsp;</th>
             </Header>
             <Row>
                 <td>@context.Role.Name</td>
                 <td>
-                    @if (!context.Role.IsSystem)
-                    {
+                    @if (context.Role.Name != Constants.RegisteredRole)
+                        {
                         <button type="button" class="btn btn-danger" @onclick=@(async () => await DeleteUserRole(context.UserRoleId))>Delete</button>
-                    }
+                        }
                 </td>
             </Row>
         </Pager>
@@ -66,6 +75,7 @@ else
 
 @code {
     private int userid;
+    private string name = string.Empty;
     private List<Role> roles;
     private int roleid = -1;
     private string effectivedate = string.Empty;
@@ -79,6 +89,8 @@ else
         try
         {
             userid = Int32.Parse(PageState.QueryString["id"]);
+            User user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
+            name = user.DisplayName;
             roles = await RoleService.GetRolesAsync(PageState.Site.SiteId);
             await GetUserRoles();
         }
@@ -120,7 +132,7 @@ else
                     {
                         userrole.EffectiveDate = DateTime.Parse(effectivedate);
                     }
-                    
+
                     if (string.IsNullOrEmpty(expirydate))
                     {
                         userrole.ExpiryDate = null;
@@ -136,7 +148,7 @@ else
                     userrole = new UserRole();
                     userrole.UserId = userid;
                     userrole.RoleId = roleid;
-                    
+
                     if (string.IsNullOrEmpty(effectivedate))
                     {
                         userrole.EffectiveDate = null;
@@ -145,7 +157,7 @@ else
                     {
                         userrole.EffectiveDate = DateTime.Parse(effectivedate);
                     }
-                    
+
                     if (string.IsNullOrEmpty(expirydate))
                     {
                         userrole.ExpiryDate = null;
@@ -154,10 +166,10 @@ else
                     {
                         userrole.ExpiryDate = DateTime.Parse(expirydate);
                     }
-                    
+
                     await UserRoleService.AddUserRoleAsync(userrole);
                 }
-                
+
                 await GetUserRoles();
                 await logger.LogInformation("User Assigned To Role {UserRole}", userrole);
                 AddModuleMessage("User Assigned To Role", MessageType.Success);

@@ -13,17 +13,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Scripts\01.00.00.sql" />
-    <None Remove="Scripts\Uninstall.sql" />
+    <EmbeddedResource Include="Scripts\[Owner].[Module].1.0.0.sql" />
+    <EmbeddedResource Include="Scripts\[Owner].[Module].Uninstall.sql" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Scripts\01.00.00.sql" />
-    <EmbeddedResource Include="Scripts\Uninstall.sql" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="3.2.0-preview3.20168.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="3.2.0-preview5.20216.8" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.2" />

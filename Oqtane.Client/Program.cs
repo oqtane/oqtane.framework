@@ -5,6 +5,7 @@ using Oqtane.Services;
 using System.Reflection;
 using System;
 using System.Linq;
+using System.Net.Http;
 using Oqtane.Modules;
 using Oqtane.Shared;
 using Oqtane.Providers;
@@ -19,7 +20,9 @@ namespace Oqtane.Client
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
 
-            builder.Services.AddBaseAddressHttpClient();
+            builder.Services.AddSingleton(
+                new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) }
+            );
             builder.Services.AddOptions();
 
             // register auth services
@@ -52,6 +55,7 @@ namespace Oqtane.Client
             builder.Services.AddScoped<IFileService, FileService>();
             builder.Services.AddScoped<ISiteTemplateService, SiteTemplateService>();
             builder.Services.AddScoped<ISqlService, SqlService>();
+            builder.Services.AddScoped<ISystemService, SystemService>();
 
             // dynamically register module contexts and repository services
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();

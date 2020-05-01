@@ -2,23 +2,24 @@
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Linq;
-using Microsoft.AspNetCore.Components;
+//using Microsoft.AspNetCore.Components;
 using System.Collections.Generic;
 using Oqtane.Shared;
 using System.Net;
 using System;
+using System.Net.Http.Json;
+using Microsoft.AspNetCore.Components;
 
 namespace Oqtane.Services
 {
     public class AliasService : ServiceBase, IAliasService
     {
-        private readonly HttpClient _http;
+        
         private readonly SiteState _siteState;
         private readonly NavigationManager _navigationManager;
 
-        public AliasService(HttpClient http, SiteState siteState, NavigationManager navigationManager)
+        public AliasService(HttpClient http, SiteState siteState, NavigationManager navigationManager) :base(http)
         {
-            _http = http;
             _siteState = siteState;
             _navigationManager = navigationManager;
         }
@@ -30,13 +31,13 @@ namespace Oqtane.Services
 
         public async Task<List<Alias>> GetAliasesAsync()
         {
-            List<Alias> aliases = await _http.GetJsonAsync<List<Alias>>(Apiurl);
+            List<Alias> aliases = await GetJsonAsync<List<Alias>>(Apiurl);
             return aliases.OrderBy(item => item.Name).ToList();
         }
 
         public async Task<Alias> GetAliasAsync(int aliasId)
         {
-            return await _http.GetJsonAsync<Alias>($"{Apiurl}/{aliasId.ToString()}");
+            return await GetJsonAsync<Alias>($"{Apiurl}/{aliasId.ToString()}");
         }
 
         public async Task<Alias> GetAliasAsync(string url, DateTime lastSyncDate)
@@ -51,21 +52,21 @@ namespace Oqtane.Services
             { 
                 name = name.Substring(0, name.Length - 1); 
             }
-            return await _http.GetJsonAsync<Alias>($"{Apiurl}/name/{WebUtility.UrlEncode(name)}?lastsyncdate={lastSyncDate.ToString("yyyyMMddHHmmssfff")}");
+            return await GetJsonAsync<Alias>($"{Apiurl}/name/{WebUtility.UrlEncode(name)}?lastsyncdate={lastSyncDate.ToString("yyyyMMddHHmmssfff")}");
         }
 
         public async Task<Alias> AddAliasAsync(Alias alias)
         {
-            return await _http.PostJsonAsync<Alias>(Apiurl, alias);
+            return await PostJsonAsync<Alias>(Apiurl, alias);
         }
 
         public async Task<Alias> UpdateAliasAsync(Alias alias)
         {
-            return await _http.PutJsonAsync<Alias>($"{Apiurl}/{alias.AliasId.ToString()}", alias);
+            return await PutJsonAsync<Alias>($"{Apiurl}/{alias.AliasId.ToString()}", alias);
         }
         public async Task DeleteAliasAsync(int aliasId)
         {
-            await _http.DeleteAsync($"{Apiurl}/{aliasId.ToString()}");
+            await DeleteAsync($"{Apiurl}/{aliasId.ToString()}");
         }
     }
 }

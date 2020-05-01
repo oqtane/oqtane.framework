@@ -1,6 +1,7 @@
 ﻿@namespace Oqtane.Modules.Admin.Tenants
 @inherits ModuleBase
 @inject ITenantService TenantService
+@inject IAliasService AliasService
 
 @if (tenants == null)
 {
@@ -8,8 +9,6 @@
 }
 else
 {
-    <ActionLink Action="Add" Text="Add Tenant" />
-
     <Pager Items="@tenants">
         <Header>
             <th>&nbsp;</th>
@@ -39,9 +38,25 @@ else
     {
         try
         {
-            await TenantService.DeleteTenantAsync(Tenant.TenantId);
-            await logger.LogInformation("Tenant Deleted {Tenant}", Tenant);
-            StateHasChanged();
+            string message = string.Empty;
+            var aliases = await AliasService.GetAliasesAsync();
+            foreach (var alias in aliases)
+            {
+                if (alias.TenantId == Tenant.TenantId)
+                {
+                    message += ", " + alias.Name;
+                }
+            }
+            if (string.IsNullOrEmpty(message))
+            {
+                await TenantService.DeleteTenantAsync(Tenant.TenantId);
+                await logger.LogInformation("Tenant Deleted {Tenant}", Tenant);
+                StateHasChanged();
+            }
+            else
+            {
+                AddModuleMessage("Tenant Cannot Be Deleted Until The Following Sites Are Deleted: " + message.Substring(2), MessageType.Warning);
+            }
         }
         catch (Exception ex)
         {

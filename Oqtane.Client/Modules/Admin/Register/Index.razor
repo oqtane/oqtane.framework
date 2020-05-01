@@ -3,38 +3,51 @@
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
 
-@if (_message != string.Empty)
+@if (PageState.Site.AllowRegistration)
 {
-    <ModuleMessage Message="@_message" Type="MessageType.Info" />
+    <AuthorizeView>
+        <Authorizing>
+            <text>...</text>
+        </Authorizing>
+        <Authorized>
+            <ModuleMessage Message="You Are Already Registered" Type="MessageType.Info" />            
+        </Authorized>
+        <NotAuthorized>
+            <ModuleMessage Message="Please Note That Registration Requires A Valid Email Address In Order To Verify Your Identity" Type="MessageType.Info" />
+
+            <div class="container">
+                <div class="form-group">
+                    <label for="Username" class="control-label">Username: </label>
+                    <input type="text" class="form-control" placeholder="Username" @bind="@_username" id="Username" />
+                </div>
+                <div class="form-group">
+                    <label for="Password" class="control-label">Password: </label>
+                    <input type="password" class="form-control" placeholder="Password" @bind="@_password" id="Password" />
+                </div>
+                <div class="form-group">
+                    <label for="Confirm" class="control-label">Confirm Password: </label>
+                    <input type="password" class="form-control" placeholder="Password" @bind="@_confirm" id="Confirm" />
+                </div>
+                <div class="form-group">
+                    <label for="Email" class="control-label">Email: </label>
+                    <input type="text" class="form-control" placeholder="Email" @bind="@_email" id="Email" />
+                </div>
+                <div class="form-group">
+                    <label for="DisplayName" class="control-label">Full Name: </label>
+                    <input type="text" class="form-control" placeholder="Full Name" @bind="@_displayName" id="DisplayName" />
+                </div>
+                <button type="button" class="btn btn-primary" @onclick="Register">Register</button>
+                <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+            </div>
+        </NotAuthorized>
+    </AuthorizeView>
+}
+else
+{
+    <ModuleMessage Message="Registration is Disabled For This Site" Type="MessageType.Info" />
 }
 
-<div class="container">
-    <div class="form-group">
-        <label for="Username" class="control-label">Username: </label>
-        <input type="text" class="form-control" placeholder="Username" @bind="@_username" id="Username"/>
-    </div>
-    <div class="form-group">
-        <label for="Password" class="control-label">Password: </label>
-        <input type="password" class="form-control" placeholder="Password" @bind="@_password" id="Password"/>
-    </div>
-    <div class="form-group">
-        <label for="Confirm" class="control-label">Confirm Password: </label>
-        <input type="password" class="form-control" placeholder="Password" @bind="@_confirm"id="Confirm" />
-    </div>
-    <div class="form-group">
-        <label for="Email" class="control-label">Email: </label>
-        <input type="text" class="form-control" placeholder="Email" @bind="@_email" id="Email"/>
-    </div>
-    <div class="form-group">
-        <label for="DisplayName" class="control-label">Full Name: </label>
-        <input type="text" class="form-control" placeholder="Full Name" @bind="@_displayName" id="DisplayName"/>
-    </div>
-    <button type="button" class="btn btn-primary" @onclick="Register">Register</button>
-    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
-</div>
-
 @code {
-    private string _message = "Please Note That Registration Requires A Valid Email Address In Order To Verify Your Identity";
     private string _username = string.Empty;
     private string _password = string.Empty;
     private string _confirm = string.Empty;
@@ -47,7 +60,6 @@
     {
         try
         {
-            _message = string.Empty;
             bool _isEmailValid = Utilities.IsValidEmail(_email);
 
             if (_username != "" && _password != "" && _confirm != "" && _isEmailValid)

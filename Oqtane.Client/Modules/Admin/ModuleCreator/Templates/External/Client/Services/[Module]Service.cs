@@ -12,13 +12,11 @@ namespace [Owner].[Module]s.Services
 {
     public class [Module]Service : ServiceBase, I[Module]Service, IService
     {
-        private readonly HttpClient _http;
         private readonly NavigationManager _navigationManager;
         private readonly SiteState _siteState;
 
-        public [Module]Service(HttpClient http, SiteState siteState, NavigationManager navigationManager)
+        public [Module]Service(HttpClient http, SiteState siteState, NavigationManager navigationManager) : base(http)
         {
-            _http = http;
             _siteState = siteState;
             _navigationManager = navigationManager;
         }
@@ -30,28 +28,28 @@ namespace [Owner].[Module]s.Services
 
         public async Task<List<[Module]>> Get[Module]sAsync(int ModuleId)
         {
-            List<[Module]> [Module]s = await _http.GetJsonAsync<List<[Module]>>(Apiurl + "?moduleid=" + ModuleId.ToString());
+            List<[Module]> [Module]s = await GetJsonAsync<List<[Module]>>(Apiurl + "?moduleid=" + ModuleId.ToString());
             return [Module]s.OrderBy(item => item.Name).ToList();
         }
 
         public async Task<[Module]> Get[Module]Async(int [Module]Id)
         {
-            return await _http.GetJsonAsync<[Module]>(Apiurl + "/" + [Module]Id.ToString());
+            return await GetJsonAsync<[Module]>(Apiurl + "/" + [Module]Id.ToString());
         }
 
         public async Task<[Module]> Add[Module]Async([Module] [Module])
         {
-            return await _http.PostJsonAsync<[Module]>(Apiurl + "?entityid=" + [Module].ModuleId, [Module]);
+            return await PostJsonAsync<[Module]>(Apiurl + "?entityid=" + [Module].ModuleId, [Module]);
         }
 
         public async Task<[Module]> Update[Module]Async([Module] [Module])
         {
-            return await _http.PutJsonAsync<[Module]>(Apiurl + "/" + [Module].[Module]Id + "?entityid=" + [Module].ModuleId, [Module]);
+            return await PutJsonAsync<[Module]>(Apiurl + "/" + [Module].[Module]Id + "?entityid=" + [Module].ModuleId, [Module]);
         }
 
         public async Task Delete[Module]Async(int [Module]Id)
         {
-            await _http.DeleteAsync(Apiurl + "/" + [Module]Id.ToString());
+            await DeleteAsync(Apiurl + "/" + [Module]Id.ToString());
         }
     }
 }

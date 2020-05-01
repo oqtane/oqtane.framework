@@ -87,22 +87,36 @@
                             @if (_moduleDefinitions != null)
                             {
                                 <select class="form-control" @onchange="(e => CategoryChanged(e))">
-                                    <option value="-">&lt;Common Modules&gt;</option>
                                     @foreach (var category in _categories)
                                     {
-                                        <option value="@category">@category</option>
+                                        if (category == _category)
+                                        {
+                                            <option value="@category" selected>@category Modules</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@category">@category Modules</option>
+                                        }
                                     }
                                 </select>
-                                <select class="form-control" @bind="@_moduleDefinitionName">
-                                    <option value="-">&lt;Select Module&gt;</option>
+                                <select class="form-control" @onchange="(e => ModuleChanged(e))">
+                                    @if (_moduleDefinitionName == "-")
+                                    {
+                                        <option value="-" selected>&lt;Select Module&gt;</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="-">&lt;Select Module&gt;</option>
+                                    }
                                     @foreach (var moduledefinition in _moduleDefinitions)
                                     {
-                                        if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.Utilize, moduledefinition.Permissions))
+                                        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Utilize, moduledefinition.Permissions))
                                         {
                                             <option value="@moduledefinition.ModuleDefinitionName">@moduledefinition.Name</option>
                                         }
                                     }
                                 </select>
+                                @((MarkupString)@_description)                                
                             }
                         }
                         else
@@ -191,7 +205,7 @@
 @if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, PageState.Page.Permissions))
 {
     <button type="button" class="btn @ButtonClass" @onclick="ShowControlPanel">
-        <span class="oi oi-menu"></span>
+        <span class="oi oi-cog"></span>
     </button>
 }
 
@@ -207,6 +221,8 @@
     private List<Module> _modules = new List<Module>();
     private Dictionary<string, string> _containers = new Dictionary<string, string>();
     private string _moduleDefinitionName = "-";
+    private string _category = "Common";
+    private string _description = "";
     private string _pane = "";
     private string _title = "";
     private string _containerType = "";
@@ -267,6 +283,7 @@
 
             _allModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
 
+            _categories = new List<string>();
             foreach (ModuleDefinition moduledefinition in _allModuleDefinitions)
             {
                 if (moduledefinition.Categories != "")
@@ -281,23 +298,34 @@
                 }
             }
 
-            _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories == "").ToList();
+            _category = "Common";
+            _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(_category)).ToList();
+            _moduleDefinitionName = "-";
+            _description = "";
         }
     }
 
     private void CategoryChanged(ChangeEventArgs e)
     {
-        var category = (string) e.Value;
-        if (category == "-")
+        _category = (string) e.Value;
+        _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(_category)).ToList();
+        _moduleDefinitionName = "-";
+        _description = "";
+        StateHasChanged();
+    }
+
+    private void ModuleChanged(ChangeEventArgs e)
+    {
+        _moduleDefinitionName = (string)e.Value;
+        if (_moduleDefinitionName != "-")
         {
-            _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories == "").ToList();
+            var moduleDefinition = _moduleDefinitions.FirstOrDefault(item => item.ModuleDefinitionName == _moduleDefinitionName);
+            _description = "<br /><div class=\"alert alert-info\" role=\"alert\">" + moduleDefinition.Description + "</div>";
         }
         else
         {
-            _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(category)).ToList();
+            _description = "";
         }
-
-        _moduleDefinitionName = "-";
         StateHasChanged();
     }
 
@@ -371,6 +399,7 @@
                 _message = "<br /><div class=\"alert alert-success\" role=\"alert\">Module Added To Page</div>";
 
                 _moduleDefinitionName = "-";
+                _description = "";
                 _pane = "";
                 _title = "";
                 _containerType = "";

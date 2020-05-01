@@ -33,6 +33,7 @@
         public const string HostUser = "host";
 
         public const string MasterTenant = "Master";
+        public const string DefaultSite = "Default Site";
 
         public const string AllUsersRole = "All Users";
         public const string HostRole = "Host Users";

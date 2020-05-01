@@ -22,7 +22,7 @@
         }
         if (PageState.Site.FaviconFileId != null)
         {
-            await interop.IncludeLink("fav-icon", "shortcut icon", Utilities.ContentUrl(PageState.Alias.Path, PageState.Site.FaviconFileId.Value), "image/x-icon");
+            await interop.IncludeLink("fav-icon", "shortcut icon", Utilities.ContentUrl(PageState.Alias.Path, PageState.Site.FaviconFileId.Value), "image/x-icon", "", "");
         }
         if (PageState.Site.PwaIsEnabled)
         {
@@ -74,7 +74,7 @@
             "document.getElementById('pwa-manifest').setAttribute('href', url); " +
             "} " +
             ", 1000);";
-        await interop.IncludeScript("pwa-manifestscript", "", manifest, "body");
+        await interop.IncludeScript("pwa-manifestscript", "", manifest, "body", "", "");
 
         // service worker must be in root of site
         string serviceworker = "if ('serviceWorker' in navigator) { " +
@@ -84,6 +84,6 @@
                 "console.log('ServiceWorker Registration Failed ', err); " +
             "}); " +
             "}";
-        await interop.IncludeScript("pwa-serviceworker", "", serviceworker, "body");
+        await interop.IncludeScript("pwa-serviceworker", "", serviceworker, "body", "", "");
     }
 }

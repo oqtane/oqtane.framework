@@ -8,13 +8,11 @@ namespace Oqtane.Services
 {
     public class InstallationService : ServiceBase, IInstallationService
     {
-        private readonly HttpClient _http;
         private readonly SiteState _siteState;
         private readonly NavigationManager _navigationManager;
 
-        public InstallationService(HttpClient http, SiteState siteState, NavigationManager navigationManager)
+        public InstallationService(HttpClient http, SiteState siteState, NavigationManager navigationManager):base(http)
         {
-            _http = http;
             _siteState = siteState;
             _navigationManager = navigationManager;
         }
@@ -23,17 +21,17 @@ namespace Oqtane.Services
 
         public async Task<Installation> IsInstalled()
         {
-            return await _http.GetJsonAsync<Installation>($"{ApiUrl}/installed");
+            return await GetJsonAsync<Installation>($"{ApiUrl}/installed");
         }
 
         public async Task<Installation> Install(InstallConfig config)
         {
-            return await _http.PostJsonAsync<Installation>(ApiUrl, config);
+            return await PostJsonAsync<InstallConfig,Installation>(ApiUrl, config);
         }
 
         public async Task<Installation> Upgrade()
         {
-            return await _http.GetJsonAsync<Installation>($"{ApiUrl}/upgrade");
+            return await GetJsonAsync<Installation>($"{ApiUrl}/upgrade");
         }
     }
 }
