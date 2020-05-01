@@ -359,7 +359,7 @@
         Page page = null;
         try
         {
-            if (_name != string.Empty && !string.IsNullOrEmpty(_themetype) && (_panelayouts.Count == 0 || !string.IsNullOrEmpty(_layouttype)))
+            if (_name != string.Empty)
             {
                 page = PageState.Pages.FirstOrDefault(item => item.PageId == _pageId);
                 string currentPath = page.Path;
@@ -375,7 +375,7 @@
                 {
                     _path = _path.Substring(_path.LastIndexOf("/") + 1);
                 }
-                if (string.IsNullOrEmpty(_parentid))
+                if (string.IsNullOrEmpty(_parentid) || _parentid == "-1")
                 {
                     page.ParentId = null;
                     page.Path = Utilities.GetFriendlyUrl(_path);
@@ -459,7 +459,7 @@
             }
             else
             {
-                AddModuleMessage("You Must Provide Page Name And Theme", MessageType.Warning);
+                AddModuleMessage("You Must Provide Page Name", MessageType.Warning);
             }
         }
         catch (Exception ex)
