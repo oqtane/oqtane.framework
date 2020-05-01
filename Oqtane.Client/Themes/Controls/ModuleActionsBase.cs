@@ -75,8 +75,7 @@ namespace Oqtane.Themes.Controls
         private async Task<string> EditUrlAsync(string url, int moduleId, string import)
         {
             await Task.Yield();
-            EditUrl(moduleId, import);
-            return url;
+            return EditUrl(moduleId, import);
         }
 
         protected async Task ModuleAction(ActionViewModel action)

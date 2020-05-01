@@ -367,7 +367,7 @@ namespace Oqtane.Infrastructure
                                     }
                                 }
                             }
-                            if (moduledefinition.Version != versions[versions.Length - 1])
+                            if (string.IsNullOrEmpty(result.Message) && moduledefinition.Version != versions[versions.Length - 1])
                             {
                                 moduledefinition.Version = versions[versions.Length - 1];
                                 db.Entry(moduledefinition).State = EntityState.Modified;
