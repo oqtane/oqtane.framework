@@ -112,7 +112,7 @@
                         </td>
                         <td>
                             <select id="Theme" class="form-control" @onchange="(e => ThemeChanged(e))">
-                                <option value="">&lt;Select Theme&gt;</option>
+                                <option value="-">&lt;Select Theme&gt;</option>
                                 @foreach (KeyValuePair<string, string> item in _themes)
                                 {
                                     if (item.Key == _themetype)
@@ -133,7 +133,7 @@
                         </td>
                         <td>
                             <select id="Layout" class="form-control" @bind="@_layouttype">
-                                <option value="">&lt;Select Layout&gt;</option>
+                                <option value="-">&lt;Select Layout&gt;</option>
                                 @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
                                 {
                                     if (panelayout.Key == _layouttype)
@@ -215,8 +215,8 @@
     private string _url;
     private string _ispersonalizable;
     private string _mode;
-    private string _themetype;
-    private string _layouttype;
+    private string _themetype = "-";
+    private string _layouttype = "-";
     private string _icon;
     private string _permissions;
     private string _createdby;
@@ -272,6 +272,14 @@
                 _themetype = page.ThemeType;
                 _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
                 _layouttype = page.LayoutType;
+                if (_themetype == PageState.Site.DefaultThemeType)
+                {
+                    _themetype = "-";
+                }
+                if (_layouttype == PageState.Site.DefaultLayoutType)
+                {
+                    _layouttype = "-";
+                }
                 _icon = page.Icon;
                 _permissions = page.Permissions;
                 _createdby = page.CreatedBy;
@@ -337,7 +345,7 @@
         try
         {
             _themetype = (string)e.Value;
-            if (_themetype != string.Empty)
+            if (_themetype != "-")
             {
                 _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
             }
@@ -417,11 +425,8 @@
                 page.IsNavigation = (_isnavigation == null || Boolean.Parse(_isnavigation));
                 page.Url = _url;
                 page.EditMode = (_mode == "edit");
-                page.ThemeType = _themetype;
-                page.LayoutType = _layouttype ?? string.Empty;
-                page.Icon = _icon ?? string.Empty;
-                page.Permissions = _permissionGrid.GetPermissions();
-
+                page.ThemeType = (_themetype != "-") ? _themetype : string.Empty;
+                page.LayoutType = (_layouttype != "-") ? _layouttype : string.Empty;
                 if (page.ThemeType == PageState.Site.DefaultThemeType)
                 {
                     page.ThemeType = string.Empty;
@@ -430,6 +435,8 @@
                 {
                     page.LayoutType = string.Empty;
                 }
+                page.Icon = _icon ?? string.Empty;
+                page.Permissions = _permissionGrid.GetPermissions();
                 page.IsPersonalizable = (_ispersonalizable != null && Boolean.Parse(_ispersonalizable));
                 page.UserId = null;
 

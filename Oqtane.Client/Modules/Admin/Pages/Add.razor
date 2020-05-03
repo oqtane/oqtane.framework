@@ -101,7 +101,7 @@
                         </td>
                         <td>
                             <select id="Theme" class="form-control" @onchange="(e => ThemeChanged(e))">
-                                <option value="">&lt;Select Theme&gt;</option>
+                                <option value="-">&lt;Select Theme&gt;</option>
                                 @foreach (KeyValuePair<string, string> item in _themes)
                                 {
                                     if (item.Key == _themetype)
@@ -122,7 +122,7 @@
                         </td>
                         <td>
                             <select id="Layout" class="form-control" @bind="@_layouttype">
-                                <option value="">&lt;Select Layout&gt;</option>
+                                <option value="-">&lt;Select Layout&gt;</option>
                                 @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
                                 {
                                     if (panelayout.Key == _layouttype)
@@ -200,8 +200,8 @@
     private string _url;
     private string _ispersonalizable = "False";
     private string _mode = "view";
-    private string _themetype = string.Empty;
-    private string _layouttype = string.Empty;
+    private string _themetype = "-";
+    private string _layouttype = "-";
     private string _icon = string.Empty;
     private string _permissions = string.Empty;
     private PermissionGrid _permissionGrid;
@@ -271,7 +271,7 @@
         try
         {
             _themetype = (string)e.Value;
-            if (_themetype != string.Empty)
+            if (_themetype != "-")
             {
                 _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
             }
@@ -350,11 +350,8 @@
                 page.IsNavigation = (_isnavigation == null ? true : Boolean.Parse(_isnavigation));
                 page.Url = _url;
                 page.EditMode = (_mode == "edit" ? true : false);
-                page.ThemeType = _themetype;
-                page.LayoutType = (_layouttype == null ? string.Empty : _layouttype);
-                page.Icon = (_icon == null ? string.Empty : _icon);
-                page.Permissions = _permissionGrid.GetPermissions();
-
+                page.ThemeType = (_themetype != "-") ? _themetype : string.Empty;
+                page.LayoutType = (_layouttype != "-") ? _layouttype : string.Empty;
                 if (page.ThemeType == PageState.Site.DefaultThemeType)
                 {
                     page.ThemeType = string.Empty;
@@ -364,7 +361,8 @@
                 {
                     page.LayoutType = string.Empty;
                 }
-
+                page.Icon = (_icon == null ? string.Empty : _icon);
+                page.Permissions = _permissionGrid.GetPermissions();
                 page.IsPersonalizable = (_ispersonalizable == null ? false : Boolean.Parse(_ispersonalizable));
                 page.UserId = null;
 
