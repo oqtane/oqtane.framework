@@ -171,7 +171,7 @@
         <table class="table table-borderless">
             <tr>
                 <td>
-                    <Label For="isEnabled" HelpText="Select whether you would like this site to be avaiable as a proggressive web application">Is Enabled? </Label>
+                    <Label For="isEnabled" HelpText="Select whether you would like this site to be available as a Progressive Web Application (PWA)">Is Enabled? </Label>
                 </td>
                 <td>
                     <select id="isEnabled" class="form-control" @bind="@_pwaisenabled">
@@ -182,7 +182,7 @@
             </tr>
             <tr>
                 <td>
-                    <Label For="appIcon" HelpText="Include an application icon for your PWA">App Icon: </Label>
+                    <Label For="appIcon" HelpText="Include an application icon for your PWA. It should be a PNG which is 192 X 192 pixels in dimension.">App Icon: </Label>
                 </td>
                 <td>
                     <FileManager FileId="@_pwaappiconfileid.ToString()" Filter="png" @ref="_pwaappiconfilemanager" />
@@ -190,7 +190,7 @@
             </tr>
             <tr>
                 <td>
-                    <Label For="splashIcon" HelpText="Include a splash icon">Splash Icon: </Label>
+                    <Label For="splashIcon" HelpText="Include a splash icon for your PWA. It should be a PNG which is 512 X 512 pixels in dimension.">Splash Icon: </Label>
                 </td>
                 <td>
                     <FileManager FileId="@_pwasplashiconfileid.ToString()" Filter="png" @ref="_pwasplashiconfilemanager" />

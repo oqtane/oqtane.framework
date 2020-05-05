@@ -16,7 +16,7 @@ using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
-    [Route("{site}/api/[controller]")]
+    [Route("{alias}/api/[controller]")]
     public class UserController : Controller
     {
         private readonly IUserRepository _users;

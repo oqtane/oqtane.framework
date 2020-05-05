@@ -471,7 +471,7 @@
     }
 
     private Runtime GetRuntime()
-        => RuntimeInformation.IsOSPlatform(OSPlatform.Create("WEBASSEMBLY"))
+        => RuntimeInformation.IsOSPlatform(OSPlatform.Create("BROWSER"))
                 ? Runtime.WebAssembly
                 : Runtime.Server;
 }

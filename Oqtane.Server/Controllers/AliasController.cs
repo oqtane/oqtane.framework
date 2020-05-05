@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Oqtane.Controllers
 {
-    [Route("{site}/api/[controller]")]
+    [Route("{alias}/api/[controller]")]
     public class AliasController : Controller
     {
         private readonly IAliasRepository _aliases;

@@ -99,7 +99,7 @@
                 var interop = new Interop(JsRuntime);
                 string antiforgerytoken = await interop.GetElementByName("__RequestVerificationToken");
                 var fields = new { __RequestVerificationToken = antiforgerytoken, username = _username, password = _password, remember = _remember, returnurl = _returnUrl };
-                await interop.SubmitForm("/pages/login/", fields);
+                await interop.SubmitForm($"/{PageState.Alias.AliasId}/pages/login/", fields);
             }
             else
             {
