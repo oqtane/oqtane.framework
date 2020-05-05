@@ -43,7 +43,7 @@
     {
         try
         {
-            [Module]Service = new [Module]Service(http, sitestate, NavigationManager);
+            [Module]Service = new [Module]Service(http, sitestate);
             if (PageState.Action == "Edit")
             {
                 _id = Int32.Parse(PageState.QueryString["id"]);

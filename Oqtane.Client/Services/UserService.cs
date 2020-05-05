@@ -1,7 +1,6 @@
 ﻿using Oqtane.Shared;
 using Oqtane.Models;
 using System.Net.Http;
-using Microsoft.AspNetCore.Components;
 using System.Threading.Tasks;
 
 namespace Oqtane.Services
@@ -9,18 +8,13 @@ namespace Oqtane.Services
     public class UserService : ServiceBase, IUserService
     {
         private readonly SiteState _siteState;
-        private readonly NavigationManager _navigationManager;
 
-        public UserService(HttpClient http, SiteState siteState, NavigationManager navigationManager) : base(http)
+        public UserService(HttpClient http, SiteState siteState) : base(http)
         {
             _siteState = siteState;
-            _navigationManager = navigationManager;
         }
 
-        private string Apiurl
-        {
-            get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "User"); }
-        }
+        private string Apiurl => CreateApiUrl(_siteState.Alias, "User");
 
         public async Task<User> GetUserAsync(int userId, int siteId)
         {
@@ -35,11 +29,6 @@ namespace Oqtane.Services
         public async Task<User> AddUserAsync(User user)
         {
             return await PostJsonAsync<User>(Apiurl, user);
-        }
-
-        public async Task<User> AddUserAsync(User user, Alias alias)
-        {
-            return await PostJsonAsync<User>(CreateCrossTenantUrl(Apiurl, alias), user);
         }
 
         public async Task<User> UpdateUserAsync(User user)

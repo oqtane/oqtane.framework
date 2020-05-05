@@ -1,8 +1,6 @@
 ﻿using Oqtane.Models;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
-using Oqtane.Shared;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,21 +8,9 @@ namespace Oqtane.Services
 {
     public class TenantService : ServiceBase, ITenantService
     {
-        
-        private readonly SiteState _siteState;
-        private readonly NavigationManager _navigationManager;
+        public TenantService(HttpClient http) : base(http) { }
 
-        public TenantService(HttpClient http, SiteState siteState, NavigationManager navigationManager) : base(http)
-        {
-            
-            _siteState = siteState;
-            _navigationManager = navigationManager;
-        }
-
-        private string Apiurl
-        {
-            get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Tenant"); }
-        }
+        private string Apiurl => CreateApiUrl("Tenant");
 
         public async Task<List<Tenant>> GetTenantsAsync()
         {
@@ -34,7 +20,7 @@ namespace Oqtane.Services
 
         public async Task<Tenant> GetTenantAsync(int tenantId)
         {
-            return await GetJsonAsync<Tenant>($"{Apiurl}/{tenantId.ToString()}");
+            return await GetJsonAsync<Tenant>($"{Apiurl}/{tenantId}");
         }
 
         public async Task<Tenant> AddTenantAsync(Tenant tenant)
@@ -44,12 +30,12 @@ namespace Oqtane.Services
 
         public async Task<Tenant> UpdateTenantAsync(Tenant tenant)
         {
-            return await PutJsonAsync<Tenant>($"{Apiurl}/{tenant.TenantId.ToString()}", tenant);
+            return await PutJsonAsync<Tenant>($"{Apiurl}/{tenant.TenantId}", tenant);
         }
 
         public async Task DeleteTenantAsync(int tenantId)
         {
-            await DeleteAsync($"{Apiurl}/{tenantId.ToString()}");
+            await DeleteAsync($"{Apiurl}/{tenantId}");
         }
     }
 }

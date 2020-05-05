@@ -1,7 +1,6 @@
 ﻿using Oqtane.Models;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
 using Oqtane.Shared;
 
 namespace Oqtane.Services
@@ -10,28 +9,22 @@ namespace Oqtane.Services
     {
         
         private readonly SiteState _siteState;
-        private readonly NavigationManager _navigationManager;
 
-        public PageModuleService(HttpClient http, SiteState siteState, NavigationManager navigationManager) : base(http)
-        {
-            
+        public PageModuleService(HttpClient http, SiteState siteState) : base(http)
+        {            
             _siteState = siteState;
-            _navigationManager = navigationManager;
         }
 
-        private string Apiurl
-        {
-            get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "PageModule"); }
-        }
+        private string Apiurl => CreateApiUrl(_siteState.Alias, "PageModule");
 
         public async Task<PageModule> GetPageModuleAsync(int pageModuleId)
         {
-            return await GetJsonAsync<PageModule>($"{Apiurl}/{pageModuleId.ToString()}");
+            return await GetJsonAsync<PageModule>($"{Apiurl}/{pageModuleId}");
         }
 
         public async Task<PageModule> GetPageModuleAsync(int pageId, int moduleId)
         {
-            return await GetJsonAsync<PageModule>($"{Apiurl}/{pageId.ToString()}/{moduleId.ToString()}");
+            return await GetJsonAsync<PageModule>($"{Apiurl}/{pageId}/{moduleId}");
         }
 
         public async Task<PageModule> AddPageModuleAsync(PageModule pageModule)
@@ -41,17 +34,17 @@ namespace Oqtane.Services
 
         public async Task<PageModule> UpdatePageModuleAsync(PageModule pageModule)
         {
-            return await PutJsonAsync<PageModule>($"{Apiurl}/{pageModule.PageModuleId.ToString()}", pageModule);
+            return await PutJsonAsync<PageModule>($"{Apiurl}/{pageModule.PageModuleId}", pageModule);
         }
 
         public async Task UpdatePageModuleOrderAsync(int pageId, string pane)
         {
-            await PutAsync($"{Apiurl}/?pageid={pageId.ToString()}&pane={pane}");
+            await PutAsync($"{Apiurl}/?pageid={pageId}&pane={pane}");
         }
 
         public async Task DeletePageModuleAsync(int pageModuleId)
         {
-            await DeleteAsync($"{Apiurl}/{pageModuleId.ToString()}");
+            await DeleteAsync($"{Apiurl}/{pageModuleId}");
         }
     }
 }

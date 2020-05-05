@@ -251,7 +251,7 @@
         {
             _themeList = await ThemeService.GetThemesAsync();
             _aliasList = await AliasService.GetAliasesAsync();
-            Site site = await SiteService.GetSiteAsync(PageState.Site.SiteId, PageState.Alias);
+            Site site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
             if (site != null)
             {
                 _name = site.Name;
@@ -364,7 +364,7 @@
 
                 if (unique)
                 {
-                    var site = await SiteService.GetSiteAsync(PageState.Site.SiteId, PageState.Alias);
+                    var site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
                     if (site != null)
                     {
                         site.Name = _name;
@@ -395,7 +395,7 @@
                             site.PwaSplashIconFileId = pwasplashiconfileid;
                         }
 
-                        site = await SiteService.UpdateSiteAsync(site, PageState.Alias);
+                        site = await SiteService.UpdateSiteAsync(site);
 
                         _urls = _urls.Replace("\n", ",");
                         var names = _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
