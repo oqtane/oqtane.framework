@@ -18,6 +18,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <AssemblyAttribute Include="Oqtane.Shared.OqtaneAssemblyAttribute">
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="Modules\HtmlText\Scripts\HtmlText.1.0.0.sql" />
     <EmbeddedResource Include="Modules\HtmlText\Scripts\HtmlText.Uninstall.sql" />
     <EmbeddedResource Include="Scripts\Master.0.9.0.sql" />
