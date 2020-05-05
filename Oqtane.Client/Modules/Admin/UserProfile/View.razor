@@ -6,52 +6,37 @@
 
 @if (PageState.User != null)
 {
-    <table class="table table-borderless">
-        <tr>
-            <td>
-                <label  class="control-label">@title: </label>
-            </td>
-            <td>
-                <select class="form-control" readonly @bind="userid">
-                    <option value="-1">&lt;System&gt;</option>
-                    @if (userroles != null)
+    <form>
+        <div class="form-group">
+            <label class="control-label">@title: </label>
+            <select class="form-control" readonly @bind="userid">
+                <option value="-1">&lt;System&gt;</option>
+                @if (userroles != null)
+                {
+                    foreach (UserRole userrole in userroles)
                     {
-                        foreach (UserRole userrole in userroles)
-                        {
-                            <option value="@userrole.UserId">@userrole.User.DisplayName</option>
-                        }
+                        <option value="@userrole.UserId">@userrole.User.DisplayName</option>
                     }
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label  class="control-label">Subject: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@subject" />
-            </td>
-        </tr>
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="control-label">Subject: </label>
+            <input class="form-control" @bind="@subject" />
+        </div>
+
         @if (title == "From")
         {
-            <tr>
-                <td>
-                    <label  class="control-label">Date: </label>
-                </td>
-                <td>
-                    <input class="form-control" @bind="@createdon" />
-                </td>
-            </tr>
+            <div class="form-group">
+                <label class="control-label">Date: </label>
+                <input class="form-control" @bind="@createdon" />
+            </div>
         }
-        <tr>
-            <td>
-                <label  class="control-label">Message: </label>
-            </td>
-            <td>
-                <textarea class="form-control" @bind="@body" rows="5" />
-            </td>
-        </tr>
-    </table>
+        <div class="form-group">
+            <label class="control-label">Message: </label>
+            <textarea class="form-control" @bind="@body" rows="5" />
+        </div>
+    </form>
     @if (reply != string.Empty)
     {
         <button type="button" class="btn btn-primary" @onclick="Send">Send</button>
@@ -110,7 +95,7 @@
                         userid = notification.ToUserId.ToString();
                     }
                 }
-                
+
                 subject = notification.Subject;
                 createdon = notification.CreatedOn.ToString();
                 body = notification.Body;

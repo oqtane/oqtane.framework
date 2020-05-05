@@ -6,41 +6,29 @@
 
 @if (PageState.User != null)
 {
-    <table class="table table-borderless">
-        <tr>
-            <td>
-                <Label  For="to" HelpText="Select the user it is going to">To: </Label>
-            </td>
-            <td>
-                <select id="to" class="form-control"  @bind="@userid">
-                    <option value="-1">&lt;Select User&gt;</option>
-                    @if (userroles != null)
+    <form>
+        <div class="form-group">
+            <Label For="to" HelpText="Select the user it is going to">To: </Label>
+            <select id="to" class="form-control" @bind="@userid">
+                <option value="-1">&lt;Select User&gt;</option>
+                @if (userroles != null)
+                {
+                    foreach (UserRole userrole in userroles)
                     {
-                        foreach (UserRole userrole in userroles)
-                        {
-                            <option value="@userrole.UserId">@userrole.User.DisplayName</option>
-                        }
+                        <option value="@userrole.UserId">@userrole.User.DisplayName</option>
                     }
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="subject" HelpText="Enter the subject of the message">Subject: </Label>
-            </td>
-            <td>
-                <input id="subject" class="form-control" @bind="@subject" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="message" HelpText="Enter the message">Message: </Label>
-            </td>
-            <td>
-                <textarea id="message" class="form-control" @bind="@body" rows="5" />
-            </td>
-        </tr>
-    </table>
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <Label For="subject" HelpText="Enter the subject of the message">Subject: </Label>
+            <input id="subject" class="form-control" @bind="@subject" />
+        </div>
+        <div class="form-group">
+            <Label For="message" HelpText="Enter the message">Message: </Label>
+            <textarea id="message" class="form-control" @bind="@body" rows="5" />
+        </div>
+    </form>
     <button type="button" class="btn btn-primary" @onclick="Send">Send</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 }
