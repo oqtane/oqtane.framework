@@ -5,98 +5,61 @@
 
 <TabStrip>
     <TabPanel Name="Definition">
-        <table class="table table-borderless">
-            <tr>
-                <td>
-                    <Label For="name" HelpText="The name of the module">Name: </Label>
-                </td>
-                <td>
-                    <input id="name" class="form-control" @bind="@_name" />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="description" HelpText="The description of the module">Description: </Label>
-                </td>
-                <td>
-                    <textarea id="description" class="form-control" @bind="@_description" rows="2"></textarea>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="categories" HelpText="Comma delimited list of module categories">Categories: </Label>
-                </td>
-                <td>
-                    <input id="categories" class="form-control" @bind="@_categories" />
-                </td>
-            </tr>
-        </table>
+        <form>
+            <div class="form-group">
+                <Label For="name" HelpText="The name of the module">Name: </Label>
+                <input id="name" class="form-control" @bind="@_name" />
+            </div>
+            <div class="form-group">
+                <Label For="description" HelpText="The description of the module">Description: </Label>
+                <textarea id="description" class="form-control" @bind="@_description" rows="2"></textarea>
+            </div>
+            <div class="form-group">
+                <Label For="categories" HelpText="Comma delimited list of module categories">Categories: </Label>
+                <input id="categories" class="form-control" @bind="@_categories" />
+            </div>
+        </form>
         <Section Name="Information">
-            <table class="table table-borderless">
-                <tr>
-                    <td>
-                        <Label For="moduledefinitionname" HelpText="The internal name of the module">Internal Name: </Label>
-                    </td>
-                    <td>
-                        <input id="moduledefinitionname" class="form-control" @bind="@_moduledefinitionname" disabled />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="version" HelpText="The version of the module">Version: </Label>
-                    </td>
-                    <td>
-                        <input id="version" class="form-control" @bind="@_version" disabled />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="owner" HelpText="The owner or creator of the module">Owner: </Label>
-                    </td>
-                    <td>
-                        <input id="owner" class="form-control" @bind="@_owner" disabled />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="url" HelpText="The reference url of the module">Reference Url: </Label>
-                    </td>
-                    <td>
-                        <input id="url" class="form-control" @bind="@_url" disabled />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="contact" HelpText="The contact for the module">Contact: </Label>
-                    </td>
-                    <td>
-                        <input id="contact" class="form-control" @bind="@_contact" disabled />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="license" HelpText="The license of the module">License: </Label>
-                    </td>
-                    <td>
-                        <textarea id="license" class="form-control" @bind="@_license" rows="5" disabled></textarea>
-                    </td>
-                </tr>
-            </table>
+            <form>
+                <div class="form-group">
+                    <Label For="moduledefinitionname" HelpText="The internal name of the module">Internal Name: </Label>
+                    <input id="moduledefinitionname" class="form-control" @bind="@_moduledefinitionname" disabled />
+                </div>
+                <div class="form-group">
+                    <Label For="version" HelpText="The version of the module">Version: </Label>
+                    <input id="version" class="form-control" @bind="@_version" disabled />
+                </div>
+                <div class="form-group">
+                    <Label For="owner" HelpText="The owner or creator of the module">Owner: </Label>
+                    <input id="owner" class="form-control" @bind="@_owner" disabled />
+                </div>
+                <div class="form-group">
+                    <Label For="url" HelpText="The reference url of the module">Reference Url: </Label>
+                    <input id="url" class="form-control" @bind="@_url" disabled />
+                </div>
+                <div class="form-group">
+                    <Label For="contact" HelpText="The contact for the module">Contact: </Label>
+                    <input id="contact" class="form-control" @bind="@_contact" disabled />
+                </div>
+                <div class="form-group">
+                    <Label For="license" HelpText="The license of the module">License: </Label>
+                    <textarea id="license" class="form-control" @bind="@_license" rows="5" disabled></textarea>
+                </div>
+            </form>
         </Section>
     </TabPanel>
     <TabPanel Name="Permissions">
-        <table class="table table-borderless">
-            <tr>
-                <td>
-                    <PermissionGrid EntityName="@EntityNames.ModuleDefinition" PermissionNames="@PermissionNames.Utilize" Permissions="@_permissions" @ref="_permissionGrid" />
-                </td>
-            </tr>
-        </table>
+        <form>
+            <div class="form-group">
+                <PermissionGrid EntityName="@EntityNames.ModuleDefinition" PermissionNames="@PermissionNames.Utilize" Permissions="@_permissions" @ref="_permissionGrid" />
+            </div>
+        </form>
     </TabPanel>
 </TabStrip>
 <button type="button" class="btn btn-success" @onclick="SaveModuleDefinition">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
-<br /><br />
+<br />
+<br />
 <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon"></AuditInfo>
 
 @code {
