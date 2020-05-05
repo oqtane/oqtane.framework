@@ -10,32 +10,25 @@
 }
 else
 {
-    <table class="table table-borderless">
-        <tr>
-            <td>
-                <Label For="tenant" HelpText="Select the tenant for the SQL server">Tenant: </Label>
-            </td>
-            <td>
-                <select id="teneant" class="form-control" @bind="_tenantid">
-                    <option value="-1">&lt;Select Tenant&gt;</option>
-                    @foreach (Tenant tenant in _tenants)
-                    {
-                        <option value="@tenant.TenantId">@tenant.Name</option>
-                    }
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="sqlQeury" HelpText="Enter the query for the SQL server">SQL Query: </Label>
-            </td>
-            <td>
-                <textarea id="sqlQeury" class="form-control" @bind="@_sql" rows="5"></textarea>
-            </td>
-        </tr>
-    </table>
+    <form>
+        <div class="form-group">
+            <Label For="tenant" HelpText="Select the tenant for the SQL server">Tenant: </Label>
+            <select id="teneant" class="form-control" @bind="_tenantid">
+                <option value="-1">&lt;Select Tenant&gt;</option>
+                @foreach (Tenant tenant in _tenants)
+                {
+                    <option value="@tenant.TenantId">@tenant.Name</option>
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <Label For="sqlQeury" HelpText="Enter the query for the SQL server">SQL Query: </Label>
+            <textarea id="sqlQeury" class="form-control" @bind="@_sql" rows="5"></textarea>
+        </div>
+    </form>
     <button type="button" class="btn btn-success" @onclick="Execute">Execute</button>
-    <br /><br />
+    <br />
+    <br />
     @if (!string.IsNullOrEmpty(_results))
     {
         @((MarkupString)_results)
@@ -78,25 +71,25 @@ else
             {
                 table = "<div class=\"table-responsive\">";
                 table += "<table class=\"table table-bordered\"><thead><tr>";
-                
+
                 foreach (KeyValuePair<string, string> kvp in item)
                 {
                     table += "<th scope=\"col\">" + kvp.Key + "</th>";
                 }
-                
+
                 table += "</tr></thead><tbody>";
             }
-            
+
             table += "<tr>";
-            
+
             foreach (KeyValuePair<string, string> kvp in item)
             {
                 table += "<td>" + kvp.Value + "</td>";
             }
-            
+
             table += "</tr>";
         }
-        
+
         if (table != string.Empty)
         {
             table += "</tbody></table></div>";
@@ -105,7 +98,7 @@ else
         {
             table = "No Results Returned";
         }
-        
+
         return table;
     }
 }
