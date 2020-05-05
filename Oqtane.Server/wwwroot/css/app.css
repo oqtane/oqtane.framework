@@ -24,8 +24,8 @@ app {
 
     /* Position the content inside the overlay */
     .app-controlpanel .card-body {
-            position: relative;
-            width: 100%; /* 100% width */
+        position: relative;
+        width: 100%; /* 100% width */
     }
 
     /* Pad the navigation links */
@@ -51,16 +51,16 @@ app {
     background: rgba(0,0,0,0.3); /* Dim background */
 }
 
-    .app-admin-modal .modal-dialog {
-        width: 100%; /* Full width */
-        height: 100%; /* Full height */
-        max-width: none; /* Override default of 500px */
-    }
+.app-admin-modal .modal-dialog {
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    max-width: none; /* Override default of 500px */
+}
 
-    .app-admin-modal .modal-content {
-        margin: 5% auto; /* 5% from the top and centered */
-        width: 80%; /* Could be more or less, depending on screen size */
-    }
+.app-admin-modal .modal-content {
+    margin: 5% auto; /* 5% from the top and centered */
+    width: 80%; /* Could be more or less, depending on screen size */
+}
 
 .app-pane-admin-border {
     width: 100%;
@@ -114,6 +114,7 @@ app {
 .app-tooltip {
     cursor: help;
     position: relative;
+    display: inline-block;
 }
 
     .app-tooltip::before,
@@ -137,25 +138,25 @@ app {
         border-style: solid;
         border-width: 1em 0.75em 0 0.75em;
         border-color: #3E474F transparent transparent transparent;
-        bottom: 100%;
+        bottom: 80%;
         content: "";
-        margin-left: -0.5em;
-        transition: all .65s cubic-bezier(.84,-0.18,.31,1.26), opacity .65s .5s;
+        margin-left: 33.3%;
+        transition: all .40s cubic-bezier(.84,-0.18,.31,1.26), opacity .40s .5s;
         transform: scale(.6) translateY(-90%);
     }
 
     .app-tooltip:hover::before,
     .app-tooltip:focus::before {
-        transition: all .65s cubic-bezier(.84,-0.18,.31,1.26) .2s;
+        transition: all .40s cubic-bezier(.84,-0.18,.31,1.26) .2s;
     }
 
     .app-tooltip::after {
         background: #3E474F;
         border-radius: .25em;
-        bottom: 180%;
+        bottom: 140%;
         color: #EDEFF0;
         content: attr(data-tip);
-        margin-left: -8.75em;
+        margin-left: -10%;
         padding: 1em;
         transition: all .65s cubic-bezier(.84,-0.18,.31,1.26) .2s;
         transform: scale(.6) translateY(50%);
