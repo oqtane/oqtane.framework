@@ -3,18 +3,13 @@
 @inject NavigationManager NavigationManager
 @inject IModuleService ModuleService
 
-<table class="table table-borderless">
-    <tbody>
-        <tr>
-            <td>
-                <Label For="content" HelpText="Enter the module content">Content: </Label>
-            </td>
-            <td>
-                <textarea id="content" class="form-control" @bind="@_content" rows="5"></textarea>
-            </td>
-        </tr>
-    </tbody>
-</table>
+<form>
+    <div class="form-group">
+        <Label For="content" HelpText="Enter the module content">Content: </Label>
+
+        <textarea id="content" class="form-control" @bind="@_content" rows="5"></textarea>
+    </div>
+</form>
 <button type="button" class="btn btn-success" @onclick="ImportModule">Import</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
