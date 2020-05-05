@@ -27,7 +27,7 @@ namespace Oqtane.Repository
                 if (accessor.HttpContext != null)
                 {
                     string[] segments = accessor.HttpContext.Request.Path.Value.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-                    if (segments.Length > 1 && segments[1] == "api" && segments[0] != "~")
+                    if (segments.Length > 1 && (segments[1] == "api" || segments[1] == "pages") && segments[0] != "~")
                     {
                         aliasId = int.Parse(segments[0]);
                     }

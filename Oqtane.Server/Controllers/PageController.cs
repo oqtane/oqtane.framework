@@ -13,7 +13,7 @@ using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
-    [Route("{site}/api/[controller]")]
+    [Route("{alias}/api/[controller]")]
     public class PageController : Controller
     {
         private readonly IPageRepository _pages;

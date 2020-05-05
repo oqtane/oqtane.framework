@@ -14,7 +14,7 @@ using System.IO;
 
 namespace Oqtane.Controllers
 {
-    [Route("{site}/api/[controller]")]
+    [Route("{alias}/api/[controller]")]
     public class FolderController : Controller
     {
         private readonly IFolderRepository _folders;

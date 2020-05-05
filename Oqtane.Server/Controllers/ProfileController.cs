@@ -9,7 +9,7 @@ using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
-    [Route("{site}/api/[controller]")]
+    [Route("{alias}/api/[controller]")]
     public class ProfileController : Controller
     {
         private readonly IProfileRepository _profiles;

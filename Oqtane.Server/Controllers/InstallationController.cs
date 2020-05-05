@@ -7,7 +7,7 @@ using Oqtane.Infrastructure;
 
 namespace Oqtane.Controllers
 {
-    [Route("{site}/api/[controller]")]
+    [Route("{alias}/api/[controller]")]
     public class InstallationController : Controller
     {
         private readonly IConfigurationRoot _config;

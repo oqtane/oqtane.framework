@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace Oqtane.Controllers
 {
-    [Route("{site}/api/[controller]")]
+    [Route("{alias}/api/[controller]")]
     public class SystemController : Controller
     {
         private readonly IWebHostEnvironment _environment;
