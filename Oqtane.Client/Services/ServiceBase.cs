@@ -169,5 +169,11 @@ namespace Oqtane.Services
         // can be used to override the default alias
         public Alias Alias { get; set; }
 
+        [Obsolete("This method is obsolete. Use CreateApiUrl(Alias alias, string serviceName) instead.", false)]
+        public string CreateApiUrl(Alias alias, string absoluteUri, string serviceName)
+        {
+            // only retained for short term backward compatibility
+            return CreateApiUrl(alias, serviceName);
+        }
     }
 }
