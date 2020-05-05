@@ -134,18 +134,19 @@
             _aliasList = await AliasService.GetAliasesAsync();
 
             _alias = _aliasList.Find(item => item.AliasId == Int32.Parse(PageState.QueryString["id"]));
-            var site = await SiteService.GetSiteAsync(_alias.SiteId, _alias);
+            SiteService.SetAlias(_alias);
+            var site = await SiteService.GetSiteAsync(_alias.SiteId);
             if (site != null)
             {
                 _name = site.Name;
                 _tenantList = await TenantService.GetTenantsAsync();
                 _tenant = _tenantList.Find(item => item.TenantId == site.TenantId).Name;
-                
+
                 foreach (Alias alias in _aliasList.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
                 {
                     _urls += alias.Name + "\n";
                 }
-                
+
                 _themetype = site.DefaultThemeType;
                 _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
                 _layouttype = site.DefaultLayoutType;
@@ -182,7 +183,7 @@
             {
                 _panelayouts = new Dictionary<string, string>();
             }
-            
+
             StateHasChanged();
         }
         catch (Exception ex)
@@ -206,10 +207,11 @@
                         unique = false;
                     }
                 }
-                
+
                 if (unique)
                 {
-                    var site = await SiteService.GetSiteAsync(_alias.SiteId, _alias);
+                    SiteService.SetAlias(_alias);
+                    var site = await SiteService.GetSiteAsync(_alias.SiteId);
                     if (site != null)
                     {
                         site.Name = _name;
@@ -219,11 +221,11 @@
                         site.DefaultContainerType = _containertype;
                         site.IsDeleted = (_isdeleted == null || Boolean.Parse(_isdeleted));
 
-                        site = await SiteService.UpdateSiteAsync(site, _alias);
+                        site = await SiteService.UpdateSiteAsync(site);
 
                         _urls = _urls.Replace("\n", ",");
                         var names = _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                        
+
                         foreach (Alias alias in _aliasList.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
                         {
                             if (!names.Contains(alias.Name))
@@ -231,7 +233,7 @@
                                 await AliasService.DeleteAliasAsync(alias.AliasId);
                             }
                         }
-                        
+
                         foreach (string name in names)
                         {
                             if (!_aliasList.Exists(item => item.Name == name))

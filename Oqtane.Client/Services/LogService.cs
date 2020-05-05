@@ -23,19 +23,16 @@ namespace Oqtane.Services
             _navigationManager = navigationManager;
         }
 
-        private string Apiurl
-        {
-            get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Log"); }
-        }
+        private string Apiurl => CreateApiUrl(_siteState.Alias, "Log");
 
         public async Task<List<Log>> GetLogsAsync(int siteId, string level, string function, int rows)
         {
-            return await GetJsonAsync<List<Log>>($"{Apiurl}?siteid={siteId.ToString()}&level={level}&function={function}&rows={rows.ToString()}");
+            return await GetJsonAsync<List<Log>>($"{Apiurl}?siteid={siteId}&level={level}&function={function}&rows={rows}");
         }
 
         public async Task<Log> GetLogAsync(int logId)
         {
-            return await GetJsonAsync<Log>($"{Apiurl}/{logId.ToString()}");
+            return await GetJsonAsync<Log>($"{Apiurl}/{logId}");
         }
 
         public async Task Log(int? pageId, int? moduleId, int? userId, string category, string feature, LogFunction function, LogLevel level, Exception exception, string message, params object[] args)
@@ -52,6 +49,7 @@ namespace Oqtane.Services
             }
             else
             {
+                base.Alias = alias;
                 log.SiteId = alias.SiteId;
             }
             log.PageId = pageId;
@@ -69,7 +67,7 @@ namespace Oqtane.Services
             log.Message = message;
             log.MessageTemplate = "";
             log.Properties = JsonSerializer.Serialize(args);
-            await PostJsonAsync(CreateCrossTenantUrl(Apiurl, alias), log);
+            await PostJsonAsync(Apiurl, log);
         }
     }
 }

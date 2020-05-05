@@ -2,29 +2,15 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
-using Oqtane.Shared;
 using System.Linq;
 
 namespace Oqtane.Services
 {
     public class PackageService : ServiceBase, IPackageService
-    {
-        
-        private readonly SiteState _siteState;
-        private readonly NavigationManager _navigationManager;
+    {        
+        public PackageService(HttpClient http) : base(http) { }
 
-        public PackageService(HttpClient http, SiteState siteState, NavigationManager navigationManager) : base(http)
-        {
-            
-            _siteState = siteState;
-            _navigationManager = navigationManager;
-        }
-
-        private string Apiurl
-        {
-            get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Package"); }
-        }
+        private string Apiurl => CreateApiUrl("Package");
 
         public async Task<List<Package>> GetPackagesAsync(string tag)
         {

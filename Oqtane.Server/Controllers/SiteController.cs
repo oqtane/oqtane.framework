@@ -76,7 +76,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 site = _sites.UpdateSite(site);
-                _syncManager.AddSyncEvent(EntityNames.Site, site.SiteId);
+                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, site.SiteId);
                 _logger.Log(site.SiteId, LogLevel.Information, this, LogFunction.Update, "Site Updated {Site}", site);
             }
             return site;

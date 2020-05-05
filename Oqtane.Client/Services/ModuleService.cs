@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
 using Oqtane.Shared;
 
 namespace Oqtane.Services
@@ -12,23 +11,17 @@ namespace Oqtane.Services
     {
         
         private readonly SiteState _siteState;
-        private readonly NavigationManager _navigationManager;
 
-        public ModuleService(HttpClient http, SiteState siteState, NavigationManager navigationManager) : base(http)
+        public ModuleService(HttpClient http, SiteState siteState) : base(http)
         {
-            
             _siteState = siteState;
-            _navigationManager = navigationManager;
         }
 
-        private string Apiurl
-        {
-            get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Module"); }
-        }
+        private string Apiurl => CreateApiUrl(_siteState.Alias, "Module");
 
         public async Task<List<Module>> GetModulesAsync(int siteId)
         {
-            List<Module> modules = await GetJsonAsync<List<Module>>($"{Apiurl}?siteid={siteId.ToString()}");
+            List<Module> modules = await GetJsonAsync<List<Module>>($"{Apiurl}?siteid={siteId}");
             modules = modules
                 .OrderBy(item => item.Order)
                 .ToList();
@@ -37,7 +30,7 @@ namespace Oqtane.Services
 
         public async Task<Module> GetModuleAsync(int moduleId)
         {
-            return await GetJsonAsync<Module>($"{Apiurl}/{moduleId.ToString()}");
+            return await GetJsonAsync<Module>($"{Apiurl}/{moduleId}");
         }
 
         public async Task<Module> AddModuleAsync(Module module)
@@ -47,7 +40,7 @@ namespace Oqtane.Services
 
         public async Task<Module> UpdateModuleAsync(Module module)
         {
-            return await PutJsonAsync<Module>($"{Apiurl}/{module.ModuleId.ToString()}", module);
+            return await PutJsonAsync<Module>($"{Apiurl}/{module.ModuleId}", module);
         }
 
         public async Task DeleteModuleAsync(int moduleId)
@@ -62,7 +55,7 @@ namespace Oqtane.Services
 
         public async Task<string> ExportModuleAsync(int moduleId)
         {
-            return await GetStringAsync($"{Apiurl}/export?moduleid={moduleId.ToString()}");
+            return await GetStringAsync($"{Apiurl}/export?moduleid={moduleId}");
         }
     }
 }

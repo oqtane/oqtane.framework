@@ -2,28 +2,15 @@
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Linq;
-using Microsoft.AspNetCore.Components;
 using System.Collections.Generic;
-using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
     public class JobLogService : ServiceBase, IJobLogService
     {
-        private readonly SiteState _siteState;
-        private readonly NavigationManager _navigationManager;
+        public JobLogService(HttpClient http) :base(http) { }
 
-        public JobLogService(HttpClient http, SiteState siteState, NavigationManager navigationManager) :base(http)    
-
-        {
-            _siteState = siteState;
-            _navigationManager = navigationManager;
-        }
-
-        private string Apiurl
-        {
-            get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "JobLog"); }
-        }
+        private string Apiurl => CreateApiUrl("JobLog");
 
         public async Task<List<JobLog>> GetJobLogsAsync()
         {
@@ -33,7 +20,7 @@ namespace Oqtane.Services
 
         public async Task<JobLog> GetJobLogAsync(int jobLogId)
         {
-            return await GetJsonAsync<JobLog>($"{Apiurl}/{jobLogId.ToString()}");
+            return await GetJsonAsync<JobLog>($"{Apiurl}/{jobLogId}");
         }
 
         public async Task<JobLog> AddJobLogAsync(JobLog joblog)
@@ -43,11 +30,11 @@ namespace Oqtane.Services
 
         public async Task<JobLog> UpdateJobLogAsync(JobLog joblog)
         {
-            return await PutJsonAsync<JobLog>($"{Apiurl}/{joblog.JobLogId.ToString()}", joblog);
+            return await PutJsonAsync<JobLog>($"{Apiurl}/{joblog.JobLogId}", joblog);
         }
         public async Task DeleteJobLogAsync(int jobLogId)
         {
-            await DeleteAsync($"{Apiurl}/{jobLogId.ToString()}");
+            await DeleteAsync($"{Apiurl}/{jobLogId}");
         }
     }
 }

@@ -1,23 +1,15 @@
 ﻿using Oqtane.Models;
 using System.Threading.Tasks;
 using System.Net.Http;
-using Microsoft.AspNetCore.Components;
 using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
     public class InstallationService : ServiceBase, IInstallationService
     {
-        private readonly SiteState _siteState;
-        private readonly NavigationManager _navigationManager;
+        public InstallationService(HttpClient http):base(http) { }
 
-        public InstallationService(HttpClient http, SiteState siteState, NavigationManager navigationManager):base(http)
-        {
-            _siteState = siteState;
-            _navigationManager = navigationManager;
-        }
-
-        private string ApiUrl => CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Installation");
+        private string ApiUrl => CreateApiUrl("Installation");
 
         public async Task<Installation> IsInstalled()
         {

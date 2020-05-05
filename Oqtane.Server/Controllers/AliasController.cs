@@ -10,6 +10,7 @@ using System.Globalization;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
+using Microsoft.AspNetCore.Http;
 
 namespace Oqtane.Controllers
 {
@@ -17,12 +18,14 @@ namespace Oqtane.Controllers
     public class AliasController : Controller
     {
         private readonly IAliasRepository _aliases;
+        private readonly IHttpContextAccessor _accessor;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
 
-        public AliasController(IAliasRepository aliases, ISyncManager syncManager, ILogManager logger)
+        public AliasController(IAliasRepository aliases, IHttpContextAccessor accessor, ISyncManager syncManager, ILogManager logger)
         {
             _aliases = aliases;
+            _accessor = accessor;
             _syncManager = syncManager;
             _logger = logger;
         }
@@ -43,20 +46,30 @@ namespace Oqtane.Controllers
             return _aliases.GetAlias(id);
         }
 
-        // GET api/<controller>/name/localhost:12345?lastsyncdate=yyyyMMddHHmmssfff
+        // GET api/<controller>/name/xxx?sync=yyyyMMddHHmmssfff
         [HttpGet("name/{name}")]
-        public Alias Get(string name, string lastsyncdate)
+        public Alias Get(string name, string sync)
         {
-            name = WebUtility.UrlDecode(name);
-            List<Alias> aliases = _aliases.GetAliases().ToList();
+            List<Alias> aliases = _aliases.GetAliases().ToList(); // cached
             Alias alias = null;
-            alias = aliases.FirstOrDefault(item => item.Name == name);
-            if (name != null && (alias == null && name.Contains("/")))
+            if (_accessor.HttpContext != null)
             {
-                // lookup alias without folder name
-                alias = aliases.Find(item => item.Name == name.Substring(0, name.IndexOf("/", StringComparison.Ordinal)));
+                name = (name == "~") ? "" : name;
+                name = _accessor.HttpContext.Request.Host.Value + "/" + WebUtility.UrlDecode(name);
+                var segments = name.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+
+                // iterate segments in reverse order
+                for (int i = segments.Length; i > 0; i--)
+                {
+                    name = string.Join("/", segments, 0, i);
+                    alias = aliases.Find(item => item.Name == name);
+                    if (alias != null)
+                    {
+                        break; // found a matching alias
+                    }
+                }
             }
-            if (alias == null && aliases.Count > 0)
+            if (alias == null && aliases.Any())
             {
                 // use first alias if name does not exist
                 alias = aliases.FirstOrDefault();
@@ -66,7 +79,7 @@ namespace Oqtane.Controllers
             if (alias != null)
             {
                 alias.SyncDate = DateTime.UtcNow;
-                alias.SyncEvents = _syncManager.GetSyncEvents(DateTime.ParseExact(lastsyncdate, "yyyyMMddHHmmssfff", CultureInfo.InvariantCulture));
+                alias.SyncEvents = _syncManager.GetSyncEvents(alias.TenantId, DateTime.ParseExact(sync, "yyyyMMddHHmmssfff", CultureInfo.InvariantCulture));
             }
             return alias;
         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Oqtane.Models;
+using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -44,9 +45,9 @@ namespace Oqtane.Shared
             return NavigateUrl(alias, path, parameters);
         }
 
-        public static string ContentUrl(string alias, int fileid)
+        public static string ContentUrl(Alias alias, int fileid)
         {
-            string url = (alias == "") ? "/~" : alias;
+            string url = (alias == null) ? "/~" : "/" + alias.AliasId;
             url += Constants.ContentUrl + fileid.ToString();
             return url;
         }

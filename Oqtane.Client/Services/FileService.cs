@@ -3,7 +3,6 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Oqtane.Models;
 using Oqtane.Shared;
@@ -14,21 +13,15 @@ namespace Oqtane.Services
     public class FileService : ServiceBase, IFileService
     {
         private readonly SiteState _siteState;
-        private readonly NavigationManager _navigationManager;
         private readonly IJSRuntime _jsRuntime;
 
-        public FileService(HttpClient http, SiteState siteState, NavigationManager navigationManager,
-            IJSRuntime jsRuntime) : base(http)
+        public FileService(HttpClient http, SiteState siteState, IJSRuntime jsRuntime) : base(http)
         {
             _siteState = siteState;
-            _navigationManager = navigationManager;
             _jsRuntime = jsRuntime;
         }
 
-        private string Apiurl
-        {
-            get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "File"); }
-        }
+        private string Apiurl => CreateApiUrl(_siteState.Alias, "File");
 
         public async Task<List<File>> GetFilesAsync(int folderId)
         {
@@ -54,7 +47,7 @@ namespace Oqtane.Services
 
         public async Task<File> GetFileAsync(int fileId)
         {
-            return await GetJsonAsync<File>($"{Apiurl}/{fileId.ToString()}");
+            return await GetJsonAsync<File>($"{Apiurl}/{fileId}");
         }
 
         public async Task<File> AddFileAsync(File file)
@@ -64,17 +57,17 @@ namespace Oqtane.Services
 
         public async Task<File> UpdateFileAsync(File file)
         {
-            return await PutJsonAsync<File>($"{Apiurl}/{file.FileId.ToString()}", file);
+            return await PutJsonAsync<File>($"{Apiurl}/{file.FileId}", file);
         }
 
         public async Task DeleteFileAsync(int fileId)
         {
-            await DeleteAsync($"{Apiurl}/{fileId.ToString()}");
+            await DeleteAsync($"{Apiurl}/{fileId}");
         }
 
         public async Task<File> UploadFileAsync(string url, int folderId)
         {
-            return await GetJsonAsync<File>($"{Apiurl}/upload?url={WebUtility.UrlEncode(url)}&folderid={folderId.ToString()}");
+            return await GetJsonAsync<File>($"{Apiurl}/upload?url={WebUtility.UrlEncode(url)}&folderid={folderId}");
         }
 
         public async Task<string> UploadFilesAsync(int folderId, string[] files, string id)
@@ -124,7 +117,7 @@ namespace Oqtane.Services
 
         public async Task<byte[]> DownloadFileAsync(int fileId)
         {
-            return await GetByteArrayAsync($"{Apiurl}/download/{fileId.ToString()}");
+            return await GetByteArrayAsync($"{Apiurl}/download/{fileId}");
         }
     }
 }
