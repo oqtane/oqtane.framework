@@ -5,39 +5,31 @@
 
 @if (_folders != null)
 {
-    <table class="table table-borderless">
-        <tr>
-            <td>
-                <Label For="parent" HelpText="Select the parent folder">Parent: </Label>
-            </td>
-            <td>
-                <select id="parent" class="form-control" @bind="@_parentId">
-                    @if (PageState.QueryString.ContainsKey("id"))
-                    {
-                        <option value="-1">&lt;No Parent&gt;</option>
-                    }
-                    @foreach (Folder folder in _folders)
-                    {
-                        <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
-                    }
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label for="name" HelpText="Enter the file name">Name: </Label>
-            </td>
-            <td>
-                <input id="name" class="form-control" @bind="@_name" />
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2" align="center">
+    <form>
+        <div class="form-group">
+            <Label For="parent" HelpText="Select the parent folder">Parent: </Label>
+            <select id="parent" class="form-control" @bind="@_parentId">
+                @if (PageState.QueryString.ContainsKey("id"))
+                {
+                    <option value="-1">&lt;No Parent&gt;</option>
+                }
+                @foreach (Folder folder in _folders)
+                {
+                    <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <Label for="name" HelpText="Enter the file name">Name: </Label>
+            <input id="name" class="form-control" @bind="@_name" />
+        </div>
+        <div class="form-group">
+            <div class="col-sm-6" align="center">
                 <Label For="permissions" HelpText="Select the permissions you want for the folder">Permissions: </Label>
                 <PermissionGrid EntityName="@EntityNames.Folder" PermissionNames="Browse,View,Edit" Permissions="@_permissions" @ref="_permissionGrid" />
-            </td>
-        </tr>
-    </table>
+            </div>
+        </div>
+    </form>
     @if (!_isSystem)
     {
         <button type="button" class="btn btn-success" @onclick="SaveFolder">Save</button>

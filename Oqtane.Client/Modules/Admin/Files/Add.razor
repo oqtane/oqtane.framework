@@ -6,45 +6,33 @@
 
 <TabStrip>
     <TabPanel Name="Upload" Heading="Upload Files">
-        <table class="table table-borderless">
-            <tr>
-                <td>
-                    <Label For="upload" HelpText="Upload the file you want">Upload: </Label>
-                </td>
-                <td>
-                    <FileManager UploadMultiple="true" ShowFiles="false" FolderId="@_folderId.ToString()" />
-                </td>
-            </tr>
-        </table>
+        <form>
+            <div class="form-group">
+                <Label For="upload" HelpText="Upload the file you want">Upload: </Label>
+                <FileManager UploadMultiple="true" ShowFiles="false" FolderId="@_folderId.ToString()" />
+            </div>
+        </form>
         <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
     </TabPanel>
     <TabPanel Name="Download" Heading="Download Files">
         @if (_folders != null)
         {
-            <table class="table table-borderless">
-                <tr>
-                    <td>
-                        <Label For="url" HelpText="Enter the url of the file you wish to download">Url: </Label>
-                    </td>
-                    <td>
-                        <input id="url" class="form-control" @bind="@url" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="folder" HelpText="Select the folder to save the file in">Folder: </Label>
-                    </td>
-                    <td>
-                        <select id="folder" class="form-control" @bind="@_folderId">
-                            <option value="-1">&lt;Select Folder&gt;</option>
-                            @foreach (Folder folder in _folders)
-                            {
-                                <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
-                            }
-                        </select>
-                    </td>
-                </tr>
-            </table>
+            <form>
+                <div class="form-group">
+                    <Label For="url" HelpText="Enter the url of the file you wish to download">Url: </Label>
+                    <input id="url" class="form-control" @bind="@url" />
+                </div>
+                <div class="form-group">
+                    <Label For="folder" HelpText="Select the folder to save the file in">Folder: </Label>
+                    <select id="folder" class="form-control" @bind="@_folderId">
+                        <option value="-1">&lt;Select Folder&gt;</option>
+                        @foreach (Folder folder in _folders)
+                        {
+                            <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                        }
+                    </select>
+                </div>
+            </form>
             <button type="button" class="btn btn-success" @onclick="Download">Download</button>
             <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
         }
