@@ -16,7 +16,7 @@ using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
-    [Route("{site}/api/[controller]")]
+    [Route("{alias}/api/[controller]")]
     public class UserController : Controller
     {
         private readonly IUserRepository _users;
@@ -224,7 +224,7 @@ namespace Oqtane.Controllers
                         }
                     }
                     user = _users.UpdateUser(user);
-                    _syncManager.AddSyncEvent(EntityNames.User, user.UserId);
+                    _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.User, user.UserId);
                     user.Password = ""; // remove sensitive information
                     _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Updated {User}", user);
                 }
@@ -406,16 +406,19 @@ namespace Oqtane.Controllers
         [HttpGet("authenticate")]
         public User Authenticate()
         {
-            User user = new User();
-            user.Username = User.Identity.Name;
-            user.IsAuthenticated = User.Identity.IsAuthenticated;
-            string roles = "";
-            foreach (var claim in User.Claims.Where(item => item.Type == ClaimTypes.Role))
+            User user = new User { IsAuthenticated = User.Identity.IsAuthenticated, Username = "", UserId = -1, Roles = "" };            
+            if (user.IsAuthenticated)
             {
-                roles += claim.Value + ";";
+                user.Username = User.Identity.Name;
+                user.UserId = int.Parse(User.Claims.First(item => item.Type == ClaimTypes.PrimarySid).Value);
+                string roles = "";
+                foreach (var claim in User.Claims.Where(item => item.Type == ClaimTypes.Role))
+                {
+                    roles += claim.Value + ";";
+                }
+                if (roles != "") roles = ";" + roles;
+                user.Roles = roles;
             }
-            if (roles != "") roles = ";" + roles;
-            user.Roles = roles;
             return user;
         }
 

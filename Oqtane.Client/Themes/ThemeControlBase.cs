@@ -41,7 +41,7 @@ namespace Oqtane.Themes
 
         public string ContentUrl(int fileid)
         {
-            return Utilities.ContentUrl(PageState.Alias.Path, fileid);
+            return Utilities.ContentUrl(PageState.Alias, fileid);
         }
     }
 }

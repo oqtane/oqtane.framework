@@ -25,7 +25,7 @@
     {
         try
         {
-            var htmltextservice = new HtmlTextService(http, sitestate, NavigationManager);
+            var htmltextservice = new HtmlTextService(http, sitestate);
             var htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
             if (htmltext != null)
             {

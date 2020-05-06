@@ -69,7 +69,7 @@ else
     {
         try
         {
-            [Module]Service = new [Module]Service(http, sitestate, NavigationManager);
+            [Module]Service = new [Module]Service(http, sitestate);
             _[Module]s = await [Module]Service.Get[Module]sAsync(ModuleState.ModuleId);
         }
         catch (Exception ex)

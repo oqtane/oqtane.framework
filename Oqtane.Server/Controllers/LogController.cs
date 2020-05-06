@@ -9,7 +9,7 @@ using Oqtane.Shared;
 namespace Oqtane.Controllers
 {
 
-    [Route("{site}/api/[controller]")]
+    [Route("{alias}/api/[controller]")]
     public class LogController : Controller
     {
         private readonly ILogManager _logger;

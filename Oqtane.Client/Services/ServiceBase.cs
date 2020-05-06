@@ -17,7 +17,6 @@ namespace Oqtane.Services
             _http = client;
         }
 
-
         protected async Task GetAsync(string uri)
         {
             var response = await _http.GetAsync(uri);
@@ -135,24 +134,31 @@ namespace Oqtane.Services
             //TODO Missing content JSON validation 
         }
 
-        public static string CreateApiUrl(Alias alias, string absoluteUri, string serviceName)
+        // create an API Url which is tenant agnostic ( for use with entities in the MasterDB )
+        public string CreateApiUrl(string serviceName)
         {
-            Uri uri = new Uri(absoluteUri);
+            return CreateApiUrl(null, serviceName);
+        }
 
-            string apiurl;
+        // create an API Url which is tenant aware ( for use with entities in the TenantDB )
+        public string CreateApiUrl(Alias alias, string serviceName)
+        {
+            string apiurl = "/";
+
+            if (Alias != null)
+            {
+                alias = Alias; // override the default alias ( for cross-tenant service calls )
+            }
+
             if (alias != null)
             {
-                // build a url which passes the alias that may include a subfolder for multi-tenancy
-                apiurl = $"{uri.Scheme}://{alias.Name}/";
-                if (alias.Path == string.Empty)
-                {
-                    apiurl += "~/";
-                }
+                // include the alias for multi-tenant context
+                apiurl += $"{alias.AliasId}/";
             }
             else
             {
-                // build a url which ignores any subfolder for multi-tenancy
-                apiurl = $"{uri.Scheme}://{uri.Authority}/~/";
+                // tenant agnostic
+                apiurl += "~/";
             }
 
             apiurl += $"api/{serviceName}";
@@ -160,15 +166,14 @@ namespace Oqtane.Services
             return apiurl;
         }
 
-        public static string CreateCrossTenantUrl(string url, Alias alias)
-        {
-            if (alias != null)
-            {
-                url += (url.Contains("?")) ? "&" : "?";
-                url += "aliasid=" + alias.AliasId.ToString();
-            }
+        // can be used to override the default alias
+        public Alias Alias { get; set; }
 
-            return url;
+        [Obsolete("This method is obsolete. Use CreateApiUrl(Alias alias, string serviceName) instead.", false)]
+        public string CreateApiUrl(Alias alias, string absoluteUri, string serviceName)
+        {
+            // only retained for short term backward compatibility
+            return CreateApiUrl(alias, serviceName);
         }
     }
 }

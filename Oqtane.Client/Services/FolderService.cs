@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using System.Linq;
 using System.Net.Http;
-using Microsoft.AspNetCore.Components;
 using System.Collections.Generic;
 using Oqtane.Shared;
 using System;
@@ -14,26 +13,24 @@ namespace Oqtane.Services
     public class FolderService : ServiceBase, IFolderService
     {
         private readonly SiteState _siteState;
-        private readonly NavigationManager _navigationManager;
 
-        public FolderService(HttpClient http, SiteState siteState, NavigationManager navigationManager):base(http)
+        public FolderService(HttpClient http, SiteState siteState) : base(http)
         {
             _siteState = siteState;
-            _navigationManager = navigationManager;
         }
 
-        private string ApiUrl => CreateApiUrl(_siteState.Alias, _navigationManager.Uri, EntityNames.Folder);
+        private string ApiUrl => CreateApiUrl(_siteState.Alias, "Folder");
 
         public async Task<List<Folder>> GetFoldersAsync(int siteId)
         {
-            List<Folder> folders = await GetJsonAsync<List<Folder>>($"{ApiUrl}?siteid={siteId.ToString()}");
+            List<Folder> folders = await GetJsonAsync<List<Folder>>($"{ApiUrl}?siteid={siteId}");
             folders = GetFoldersHierarchy(folders);
             return folders;
         }
 
         public async Task<Folder> GetFolderAsync(int folderId)
         {
-            return await GetJsonAsync<Folder>($"{ApiUrl}/{folderId.ToString()}");
+            return await GetJsonAsync<Folder>($"{ApiUrl}/{folderId}");
         }
 
         public async Task<Folder> GetFolderAsync(int siteId, [NotNull] string folderPath)
@@ -55,7 +52,7 @@ namespace Oqtane.Services
 
         public async Task<Folder> UpdateFolderAsync(Folder folder)
         {
-            return await PutJsonAsync<Folder>($"{ApiUrl}/{folder.FolderId.ToString()}", folder);
+            return await PutJsonAsync<Folder>($"{ApiUrl}/{folder.FolderId}", folder);
         }
 
         public async Task UpdateFolderOrderAsync(int siteId, int folderId, int? parentId)
@@ -63,12 +60,12 @@ namespace Oqtane.Services
             var parent = parentId == null
                 ? string.Empty
                 : parentId.ToString();
-            await PutAsync($"{ApiUrl}/?siteid={siteId.ToString()}&folderid={folderId.ToString()}&parentid={parent}");
+            await PutAsync($"{ApiUrl}/?siteid={siteId}&folderid={folderId}&parentid={parent}");
         }
 
         public async Task DeleteFolderAsync(int folderId)
         {
-            await DeleteAsync($"{ApiUrl}/{folderId.ToString()}");
+            await DeleteAsync($"{ApiUrl}/{folderId}");
         }
 
         private static List<Folder> GetFoldersHierarchy(List<Folder> folders)

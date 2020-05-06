@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Linq;
-using Microsoft.AspNetCore.Components;
 using System.Collections.Generic;
 using Oqtane.Shared;
 
@@ -12,29 +11,24 @@ namespace Oqtane.Services
     {
         
         private readonly SiteState _siteState;
-        private readonly NavigationManager _navigationManager;
 
-        public RoleService(HttpClient http, SiteState siteState, NavigationManager navigationManager) : base(http)
+        public RoleService(HttpClient http, SiteState siteState) : base(http)
         {
             
             _siteState = siteState;
-            _navigationManager = navigationManager;
         }
 
-        private string Apiurl
-        {
-            get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Role"); }
-        }
+        private string Apiurl => CreateApiUrl(_siteState.Alias, "Role");
 
         public async Task<List<Role>> GetRolesAsync(int siteId)
         {
-            List<Role> roles = await GetJsonAsync<List<Role>>($"{Apiurl}?siteid={siteId.ToString()}");
+            List<Role> roles = await GetJsonAsync<List<Role>>($"{Apiurl}?siteid={siteId}");
             return roles.OrderBy(item => item.Name).ToList();
         }
 
         public async Task<Role> GetRoleAsync(int roleId)
         {
-            return await GetJsonAsync<Role>($"{Apiurl}/{roleId.ToString()}");
+            return await GetJsonAsync<Role>($"{Apiurl}/{roleId}");
         }
 
         public async Task<Role> AddRoleAsync(Role role)
@@ -44,11 +38,11 @@ namespace Oqtane.Services
 
         public async Task<Role> UpdateRoleAsync(Role role)
         {
-            return await PutJsonAsync<Role>($"{Apiurl}/{role.RoleId.ToString()}", role);
+            return await PutJsonAsync<Role>($"{Apiurl}/{role.RoleId}", role);
         }
         public async Task DeleteRoleAsync(int roleId)
         {
-            await DeleteAsync($"{Apiurl}/{roleId.ToString()}");
+            await DeleteAsync($"{Apiurl}/{roleId}");
         }
     }
 }

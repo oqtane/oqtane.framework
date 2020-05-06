@@ -54,7 +54,8 @@ else
         {
             if (alias.SiteId != PageState.Site.SiteId || alias.TenantId != PageState.Site.TenantId)
             {
-                await SiteService.DeleteSiteAsync(alias.SiteId, alias);
+                SiteService.SetAlias(alias);
+                await SiteService.DeleteSiteAsync(alias.SiteId);
                 await Log(alias, LogLevel.Information, "", null, "Site Deleted {SiteId}", alias.SiteId);
                 
                 var aliases = await AliasService.GetAliasesAsync();

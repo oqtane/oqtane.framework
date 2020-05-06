@@ -15,7 +15,7 @@ using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
-    [Route("{site}/api/[controller]")]
+    [Route("{alias}/api/[controller]")]
     public class ThemeController : Controller
     {
         private readonly IThemeRepository _themes;

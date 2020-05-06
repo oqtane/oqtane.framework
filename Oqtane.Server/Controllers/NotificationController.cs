@@ -10,7 +10,7 @@ using Oqtane.Security;
 
 namespace Oqtane.Controllers
 {
-    [Route("{site}/api/[controller]")]
+    [Route("{alias}/api/[controller]")]
     public class NotificationController : Controller
     {
         private readonly INotificationRepository _notifications;

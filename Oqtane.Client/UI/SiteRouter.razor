@@ -84,20 +84,13 @@
         var lastsyncdate = DateTime.UtcNow;
         var runtime = GetRuntime();
 
-        // get Url path and querystring ( and remove anchors )
-        var path = new Uri(_absoluteUri).PathAndQuery.Substring(1);
-        if (path.IndexOf("#") != -1)
-        {
-            path = path.Substring(0, path.IndexOf("#"));
-        }
+        Uri uri = new Uri(_absoluteUri);
 
-        // parse querystring and remove
-        var querystring = new Dictionary<string, string>();
-        if (path.IndexOf("?") != -1)
-        {
-            querystring = ParseQueryString(path);
-            path = path.Substring(0, path.IndexOf("?"));
-        }
+        // get path
+        var path = uri.LocalPath.Substring(1);
+
+        // parse querystring 
+        var querystring = ParseQueryString(uri.Query);
 
         // the reload parameter is used during user login/logout
         if (querystring.ContainsKey("reload"))
@@ -111,7 +104,7 @@
             lastsyncdate = PageState.LastSyncDate;
         }
 
-        alias = await AliasService.GetAliasAsync(_absoluteUri, lastsyncdate);
+        alias = await AliasService.GetAliasAsync(path, lastsyncdate);
         SiteState.Alias = alias; // set state for services
         lastsyncdate = alias.SyncDate;
 
@@ -130,14 +123,14 @@
 
         if (reload == Reload.Site || PageState == null || alias.SiteId != PageState.Alias.SiteId)
         {
-            site = await SiteService.GetSiteAsync(alias.SiteId, alias);
+            site = await SiteService.GetSiteAsync(alias.SiteId);
             reload = Reload.Site;
         }
         else
         {
             site = PageState.Site;
         }
-        
+
         if (site != null)
         {
             if (PageState == null || reload == Reload.Site)
@@ -175,9 +168,9 @@
 
             // format path and remove alias
             path = path.Replace("//", "/");
-            
+
             if (!path.EndsWith("/"))
-            { 
+            {
                 path += "/";
             }
 
@@ -205,7 +198,7 @@
                     path = path.Replace(moduleid.ToString() + "/", "");
                 }
             }
-            
+
             // remove trailing slash so it can be used as a key for Pages
             if (path.EndsWith("/")) path = path.Substring(0, path.Length - 1);
 
@@ -217,7 +210,7 @@
             {
                 page = PageState.Page;
             }
-            
+
             // failsafe in case router cannot locate the home page for the site
             if (page == null && path == "")
             {
@@ -321,16 +314,17 @@
             _navigationInterceptionEnabled = true;
             return NavigationInterception.EnableNavigationInterceptionAsync();
         }
-        
+
         return Task.CompletedTask;
     }
 
-    private Dictionary<string, string> ParseQueryString(string path)
+    private Dictionary<string, string> ParseQueryString(string query)
     {
         Dictionary<string, string> querystring = new Dictionary<string, string>();
-        if (path.IndexOf("?") != -1)
+        if (!string.IsNullOrEmpty(query))
         {
-            foreach (string kvp in path.Substring(path.IndexOf("?") + 1).Split(new[] { '&' }, StringSplitOptions.RemoveEmptyEntries))
+            query = query.Substring(1); // ignore "?"
+            foreach (string kvp in query.Split(new[] { '&' }, StringSplitOptions.RemoveEmptyEntries))
             {
                 if (kvp != "")
                 {
@@ -341,12 +335,11 @@
                     }
                     else
                     {
-                        querystring.Add(kvp, "true"); // default querystring when no value is provided
+                        querystring.Add(kvp, "true"); // default parameter when no value is provided
                     }
                 }
             }
         }
-        
         return querystring;
     }
 
@@ -366,7 +359,7 @@
                 page.LayoutType = site.DefaultLayoutType;
             }
             Type type;
-            
+
             if (!string.IsNullOrEmpty(page.LayoutType))
             {
                 type = Type.GetType(page.LayoutType);
@@ -375,7 +368,7 @@
             {
                 type = Type.GetType(page.ThemeType);
             }
-            
+
             var property = type.GetProperty("Panes");
             page.Panes = (string)property.GetValue(Activator.CreateInstance(type), null);
         }
@@ -383,7 +376,7 @@
         {
             // error loading theme or layout
         }
-        
+
         return page;
     }
 
@@ -403,7 +396,7 @@
                 {
                     typename = Constants.ErrorModule;
                 }
-                
+
                 if (module.ModuleId == moduleid && control != "")
                 {
                     // check if the module defines custom routes
@@ -459,7 +452,7 @@
                 {
                     paneindex.Add(module.Pane, 0);
                 }
-                
+
                 module.PaneModuleIndex = paneindex[module.Pane];
 
                 if (string.IsNullOrEmpty(module.ContainerType))
@@ -473,12 +466,12 @@
         {
             module.PaneModuleCount = paneindex[module.Pane] + 1;
         }
-        
+
         return modules;
     }
 
     private Runtime GetRuntime()
-        => RuntimeInformation.IsOSPlatform(OSPlatform.Create("WEBASSEMBLY"))
+        => RuntimeInformation.IsOSPlatform(OSPlatform.Create("BROWSER"))
                 ? Runtime.WebAssembly
                 : Runtime.Server;
 }

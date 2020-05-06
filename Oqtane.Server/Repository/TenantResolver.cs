@@ -15,7 +15,6 @@ namespace Oqtane.Repository
         public TenantResolver(IHttpContextAccessor accessor, IAliasRepository aliasRepository, ITenantRepository tenantRepository, SiteState siteState)
         {
             int aliasId = -1;
-            string aliasName = "";
 
             if (siteState != null && siteState.Alias != null)
             {
@@ -23,29 +22,14 @@ namespace Oqtane.Repository
                 _alias = siteState.Alias;
             }
             else
-            { 
-                // get alias identifier based on request context
+            {
+                // get aliasid identifier based on request
                 if (accessor.HttpContext != null)
                 {
-                    // check if an alias is passed as a querystring parameter ( for cross tenant access )
-                    if (accessor.HttpContext.Request.Query.ContainsKey("aliasid"))
+                    string[] segments = accessor.HttpContext.Request.Path.Value.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (segments.Length > 1 && (segments[1] == "api" || segments[1] == "pages") && segments[0] != "~")
                     {
-                        aliasId = int.Parse(accessor.HttpContext.Request.Query["aliasid"]);
-                    }
-                    else // get the alias from the request url
-                    {
-                        aliasName = accessor.HttpContext.Request.Host.Value;
-                        string path = accessor.HttpContext.Request.Path.Value;
-                        string[] segments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-                        if (segments.Length > 1 && segments[1] == "api" && segments[0] != "~")
-                        {
-                            aliasName += "/" + segments[0];
-                        }
-
-                        if (aliasName.EndsWith("/"))
-                        {
-                            aliasName = aliasName.Substring(0, aliasName.Length - 1);
-                        }
+                        aliasId = int.Parse(segments[0]);
                     }
                 }
 
@@ -55,14 +39,11 @@ namespace Oqtane.Repository
                 {
                     _alias = aliases.FirstOrDefault(item => item.AliasId == aliasId);
                 }
-                else
-                {
-                    _alias = aliases.FirstOrDefault(item => item.Name == aliasName || aliases.Count() == 1);
-                }
             }
 
             if (_alias != null)
             {
+                // get the tenant
                 IEnumerable<Tenant> tenants = tenantRepository.GetTenants(); // cached
                 _tenant = tenants.FirstOrDefault(item => item.TenantId == _alias.TenantId);
             }
