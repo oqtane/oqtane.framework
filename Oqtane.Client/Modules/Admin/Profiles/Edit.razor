@@ -3,86 +3,50 @@
 @inject NavigationManager NavigationManager
 @inject IProfileService ProfileService
 
-    <table class="table table-borderless">
-        <tr>
-            <td>
-                <Label For="name" HelpText="The name of this field">Name: </Label>
-            </td>
-            <td>
-                <input id="name" class="form-control" @bind="@_name" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="title" HelpText="The title of the field">Title: </Label>
-            </td>
-            <td>
-                <input id="title" class="form-control" @bind="@_title" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="description" HelpText="What the profile field is">Description: </Label>
-            </td>
-            <td>
-                <textarea id="description" class="form-control" @bind="@_description" rows="5"></textarea>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="category" HelpText="What larger category does this field belong to">Category: </Label>
-            </td>
-            <td>
-                <input id="category" class="form-control" @bind="@_category" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="order" HelpText="What place is this field in a larger category list">Order: </Label>
-            </td>
-            <td>
-                <input id="order" class="form-control" @bind="@_vieworder" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="length" HelpText="What is the max amount of characters should this field accept">Length: </Label>
-            </td>
-            <td>
-                <input id="length" class="form-control" @bind="@_maxlength" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="defaultVal" HelpText="What value do you want this field to start with">Default Value: </Label>
-            </td>
-            <td>
-                <input id="defaultVal" class="form-control" @bind="@_defaultvalue" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="required" HelpText="Is a user required to input something into this field?">Required? </Label>
-            </td>
-            <td>
-                <select id="required" class="form-control" @bind="@_isrequired">
-                    <option value="True">Yes</option>
-                    <option value="False">No</option>
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="private" HelpText="Is this field private?">Private? </Label>
-            </td>
-            <td>
-                <select id="private" class="form-control" @bind="@_isprivate">
-                    <option value="True">Yes</option>
-                    <option value="False">No</option>
-                </select>
-            </td>
-        </tr>
-    </table>
+<form>
+    <div class="form-group">
+        <Label For="name" HelpText="The name of this field">Name: </Label>
+        <input id="name" class="form-control" @bind="@_name" />
+    </div>
+    <div class="form-group">
+        <Label For="title" HelpText="The title of the field">Title: </Label>
+        <input id="title" class="form-control" @bind="@_title" />
+    </div>
+    <div class="form-group">
+        <Label For="description" HelpText="What the profile field is">Description: </Label>
+        <textarea id="description" class="form-control" @bind="@_description" rows="5"></textarea>
+    </div>
+    <div class="form-group">
+        <Label For="category" HelpText="What larger category does this field belong to">Category: </Label>
+        <input id="category" class="form-control" @bind="@_category" />
+    </div>
+    <div class="form-group">
+        <Label For="order" HelpText="What place is this field in a larger category list">Order: </Label>
+        <input id="order" class="form-control" @bind="@_vieworder" />
+    </div>
+    <div class="form-group">
+        <Label For="length" HelpText="What is the max amount of characters should this field accept">Length: </Label>
+        <input id="length" class="form-control" @bind="@_maxlength" />
+    </div>
+    <div class="form-group">
+        <Label For="defaultVal" HelpText="What value do you want this field to start with">Default Value: </Label>
+        <input id="defaultVal" class="form-control" @bind="@_defaultvalue" />
+    </div>
+    <div class="form-group">
+        <Label For="required" HelpText="Is a user required to input something into this field?">Required? </Label>
+        <select id="required" class="form-control" @bind="@_isrequired">
+            <option value="True">Yes</option>
+            <option value="False">No</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <Label For="private" HelpText="Is this field private?">Private? </Label>
+        <select id="private" class="form-control" @bind="@_isprivate">
+            <option value="True">Yes</option>
+            <option value="False">No</option>
+        </select>
+    </div>
+</form>
 <button type="button" class="btn btn-success" @onclick="SaveProfile">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
@@ -157,7 +121,8 @@
             if (_profileid != -1)
             {
                 profile = await ProfileService.UpdateProfileAsync(profile);
-            }else
+            }
+            else
             {
                 profile = await ProfileService.AddProfileAsync(profile);
             }

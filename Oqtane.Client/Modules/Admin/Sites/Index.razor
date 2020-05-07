@@ -57,13 +57,13 @@ else
                 SiteService.SetAlias(alias);
                 await SiteService.DeleteSiteAsync(alias.SiteId);
                 await Log(alias, LogLevel.Information, "", null, "Site Deleted {SiteId}", alias.SiteId);
-                
+
                 var aliases = await AliasService.GetAliasesAsync();
                 foreach (Alias a in aliases.Where(item => item.SiteId == alias.SiteId && item.TenantId == alias.TenantId))
                 {
                     await AliasService.DeleteAliasAsync(a.AliasId);
                 }
-                
+
                 NavigationManager.NavigateTo(NavigateUrl());
             }
             else

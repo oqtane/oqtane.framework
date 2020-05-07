@@ -2,56 +2,32 @@
 @inherits ModuleBase
 @inject ISystemService SystemService
 
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <Label For="version" HelpText="Framework Version">Framework Version: </Label>
-        </td>
-        <td>
-            <input id="version" class="form-control" @bind="@_version" disabled />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="runtime" HelpText="Blazor Runtime (Server or WebAssembly)">Blazor Runtime: </Label>
-        </td>
-        <td>
-            <input id="runtime" class="form-control" @bind="@_runtime" disabled />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="clrversion" HelpText="Common Language Runtime Version">CLR Version: </Label>
-        </td>
-        <td>
-            <input id="clrversion" class="form-control" @bind="@_clrversion" disabled />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="osversion" HelpText="Operating System Version">OS Version: </Label>
-        </td>
-        <td>
-            <input id="osversion" class="form-control" @bind="@_osversion" disabled />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="serverpath" HelpText="Server Path">Server Path: </Label>
-        </td>
-        <td>
-            <input id="serverpath" class="form-control" @bind="@_serverpath" disabled />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="servertime" HelpText="Server Time">Server Time: </Label>
-        </td>
-        <td>
-            <input id="servertime" class="form-control" @bind="@_servertime" disabled />
-        </td>
-    </tr>
-</table>
+<form>
+    <div class="form-group">
+        <Label For="version" HelpText="Framework Version">Framework Version: </Label>
+        <input id="version" class="form-control" @bind="@_version" disabled />
+    </div>
+    <div class="form-group">
+        <Label For="runtime" HelpText="Blazor Runtime (Server or WebAssembly)">Blazor Runtime: </Label>
+        <input id="runtime" class="form-control" @bind="@_runtime" disabled />
+    </div>
+    <div class="form-group">
+        <Label For="clrversion" HelpText="Common Language Runtime Version">CLR Version: </Label>
+        <input id="clrversion" class="form-control" @bind="@_clrversion" disabled />
+    </div>
+    <div class="form-group">
+        <Label For="osversion" HelpText="Operating System Version">OS Version: </Label>
+        <input id="osversion" class="form-control" @bind="@_osversion" disabled />
+    </div>
+    <div class="form-group">
+        <Label For="serverpath" HelpText="Server Path">Server Path: </Label>
+        <input id="serverpath" class="form-control" @bind="@_serverpath" disabled />
+    </div>
+    <div class="form-group">
+        <Label For="servertime" HelpText="Server Time">Server Time: </Label>
+        <input id="servertime" class="form-control" @bind="@_servertime" disabled />
+    </div>
+</form>
 <a class="btn btn-primary" href="swagger/index.html" target="_new">Access Framework API</a>
 
 @code {

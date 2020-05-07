@@ -6,7 +6,6 @@
 @if (PageState.Pages != null)
 {
     <ActionLink Action="Add" Text="Add Page" />
-
     <Pager Items="@PageState.Pages.Where(item => !item.IsDeleted)">
         <Header>
             <th>&nbsp;</th>
@@ -29,7 +28,7 @@
         try
         {
             page.IsDeleted = true;
-            
+
             await PageService.UpdatePageAsync(page);
             await logger.LogInformation("Page Deleted {Page}", page);
             NavigationManager.NavigateTo(NavigateUrl("admin/pages"));

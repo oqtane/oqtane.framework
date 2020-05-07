@@ -10,49 +10,32 @@
 }
 else
 {
-    <table class="table table-borderless">
-        <tr>
-            <td>
-                <Label For="user" HelpText="The user you are assigning roles to">User: </Label>
-            </td>
-            <td>
-                <input id="user" class="form-control" @bind="@name" disabled />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="role" HelpText="Select a role">Role: </Label>
-            </td>
-            <td>
-                <select id="role" class="form-control" @bind="@roleid">
-                    <option value="-1">&lt;Select Role&gt;</option>
-                    @foreach (Role role in roles)
-                    {
-                        <option value="@(role.RoleId)">@role.Name</option>
-                    }
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="effectiveDate" HelpText="The date that this role assignment is active">Effective Date: </Label>
-            </td>
-            <td>
-                <input id="effectiveDate" class="form-control" @bind="@effectivedate" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="expiryDate" HelpText="The date that this role assignment expires">Expiry Date: </Label>
-            </td>
-            <td>
-                <input id="expiryDate" class="form-control" @bind="@expirydate" />
-            </td>
-        </tr>
-    </table>
+    <form>
+        <div class="form-group">
+            <Label For="user" HelpText="The user you are assigning roles to">User: </Label>
+            <input id="user" class="form-control" @bind="@name" disabled />
+        </div>
+        <div class="form-group">
+            <Label For="role" HelpText="Select a role">Role: </Label>
+            <select id="role" class="form-control" @bind="@roleid">
+                <option value="-1">&lt;Select Role&gt;</option>
+                @foreach (Role role in roles)
+                {
+                    <option value="@(role.RoleId)">@role.Name</option>
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <Label For="effectiveDate" HelpText="The date that this role assignment is active">Effective Date: </Label>
+            <input id="effectiveDate" class="form-control" @bind="@effectivedate" />
+        </div>
+        <div class="form-group">
+            <Label For="expiryDate" HelpText="The date that this role assignment expires">Expiry Date: </Label>
+            <input id="expiryDate" class="form-control" @bind="@expirydate" />
+        </div>
+    </form>
     <button type="button" class="btn btn-success" @onclick="SaveUserRole">Save</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
-
     <hr class="app-rule" />
     <p align="center">
         <Pager Items="@userroles">
@@ -67,6 +50,7 @@ else
                         {
                         <button type="button" class="btn btn-danger" @onclick=@(async () => await DeleteUserRole(context.UserRoleId))>Delete</button>
                         }
+                    /**/
                 </td>
             </Row>
         </Pager>

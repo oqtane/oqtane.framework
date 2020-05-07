@@ -13,7 +13,7 @@
             string message = "A Problem Was Encountered Loading Module " + module.ModuleDefinitionName;
             AddModuleMessage(message, MessageType.Error);
         }
-        
+
         await logger.LogCritical("Error Loading Module {Module}", module);
     }
 }

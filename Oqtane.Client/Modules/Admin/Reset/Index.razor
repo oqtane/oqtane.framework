@@ -6,15 +6,15 @@
 <div class="container">
     <div class="form-group">
         <label for="Username" class="control-label">Username: </label>
-        <input type="text" class="form-control" placeholder="Username" @bind="@_username" readonly id="Username"/>
+        <input type="text" class="form-control" placeholder="Username" @bind="@_username" readonly id="Username" />
     </div>
     <div class="form-group">
         <label for="Password" class="control-label">Password: </label>
-        <input type="password" class="form-control" placeholder="Password" @bind="@_password" id="Password"/>
+        <input type="password" class="form-control" placeholder="Password" @bind="@_password" id="Password" />
     </div>
     <div class="form-group">
         <label for="Confirm" class="control-label">Confirm Password: </label>
-        <input type="password" class="form-control" placeholder="Password" @bind="@_confirm" id="Confirm"/>
+        <input type="password" class="form-control" placeholder="Password" @bind="@_confirm" id="Confirm" />
     </div>
     <button type="button" class="btn btn-primary" @onclick="Reset">Reset Password</button>
     <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
@@ -34,7 +34,7 @@
             _username = PageState.QueryString["name"];
         }
         else
-        { 
+        {
             NavigationManager.NavigateTo(NavigateUrl(string.Empty));
         }
     }

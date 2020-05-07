@@ -10,38 +10,33 @@
     <TabStrip>
         @if (_packages.Count > 0)
         {
-        <TabPanel Name="Download">
-            <ModuleMessage Type="MessageType.Info" Message="Download one or more modules from the list below. Once you are ready click Install to complete the installation."></ModuleMessage>
-            <Pager Items="@_packages">
-                <Header>
-                    <th>Name</th>
-                    <th>Version</th>
-                    <th></th>
-                </Header>
-                <Row>
-                    <td>@context.Name</td>
-                    <td>@context.Version</td>
-                    <td>
-                        <button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadModule(context.PackageId, context.Version))>Download</button>
-                    </td>
-                </Row>
-            </Pager>
-        </TabPanel>
+            <TabPanel Name="Download">
+                <ModuleMessage Type="MessageType.Info" Message="Download one or more modules from the list below. Once you are ready click Install to complete the installation."></ModuleMessage>
+                <Pager Items="@_packages">
+                    <Header>
+                        <th>Name</th>
+                        <th>Version</th>
+                        <th></th>
+                    </Header>
+                    <Row>
+                        <td>@context.Name</td>
+                        <td>@context.Version</td>
+                        <td>
+                            <button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadModule(context.PackageId, context.Version))>Download</button>
+                        </td>
+                    </Row>
+                </Pager>
+            </TabPanel>
         }
         <TabPanel Name="Upload">
-            <table class="table table-borderless">
-                <tr>
-                    <td>
-                        <Label HelpText="Upload one or more module packages. Once they are uploaded click Install to complete the installation.">Module: </Label>
-                    </td>
-                    <td>
-                        <FileManager Filter="nupkg" ShowFiles="false" Folder="Modules" UploadMultiple="True" />
-                    </td>
-                </tr>
-            </table>
+            <form>
+                <div class="form-group">
+                    <Label HelpText="Upload one or more module packages. Once they are uploaded click Install to complete the installation.">Module: </Label>
+                    <FileManager Filter="nupkg" ShowFiles="false" Folder="Modules" UploadMultiple="True" />
+                </div>
+            </form>
         </TabPanel>
     </TabStrip>
-
     <button type="button" class="btn btn-success" @onclick="InstallModules">Install</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 }

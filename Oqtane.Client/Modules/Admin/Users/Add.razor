@@ -9,80 +9,53 @@
     <TabPanel Name="Identity">
         @if (profiles != null)
         {
-            <table class="table table-borderless">
-                <tr>
-                    <td>
-                        <label class="control-label">Username: </label>
-                    </td>
-                    <td>
-                        <input class="form-control" @bind="@username" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label class="control-label">Password: </label>
-                    </td>
-                    <td>
-                        <input type="password" class="form-control" @bind="@password" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label class="control-label">Confirm Password: </label>
-                    </td>
-                    <td>
-                        <input type="password" class="form-control" @bind="@confirm" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label class="control-label">Email: </label>
-                    </td>
-                    <td>
-                        <input class="form-control" @bind="@email" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label class="control-label">Full Name: </label>
-                    </td>
-                    <td>
-                        <input class="form-control" @bind="@displayname" />
-                    </td>
-                </tr>
-            </table>
+            <form>
+                <div class="form-group">
+                    <label class="control-label">Username: </label>
+                    <input class="form-control" @bind="@username" />
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Password: </label>
+                    <input type="password" class="form-control" @bind="@password" />
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Confirm Password: </label>
+                    <input type="password" class="form-control" @bind="@confirm" />
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Email: </label>
+                    <input class="form-control" @bind="@email" />
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Full Name: </label>
+                    <input class="form-control" @bind="@displayname" />
+                </div>
+            </form>
         }
     </TabPanel>
     <TabPanel Name="Profile">
         @if (profiles != null)
         {
-        <table class="table table-borderless">
-            @foreach (Profile profile in profiles)
-            {
-                var p = profile;
-                if (p.Category != category)
+            <form>
+                @foreach (Profile profile in profiles)
                 {
-                    <tr>
-                        <th colspan="2" style="text-align: center;">
+                    var p = profile;
+                    if (p.Category != category)
+                    {
+                        <div class="form-group" style="text-align: center;">
                             @p.Category
-                        </th>
-                    </tr>
-                    category = p.Category;
-                }
-                <tr>
-                    <td>
+                        </div>
+                        category = p.Category;
+                    }
+                    <div class="form-group">
                         <label for="@p.Name" class="control-label">@p.Title: </label>
-                    </td>
-                    <td>
                         <input class="form-control" maxlength="@p.MaxLength" placeholder="@p.Description" @onchange="@(e => ProfileChanged(e, p.Name))" />
-                    </td>
-                </tr>
-            }
-        </table>
+                    </div>
+                }
+            </form>
         }
     </TabPanel>
 </TabStrip>
-
 <button type="button" class="btn btn-primary" @onclick="SaveUser">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 

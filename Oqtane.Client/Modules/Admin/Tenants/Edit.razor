@@ -3,32 +3,23 @@
 @inject NavigationManager NavigationManager
 @inject ITenantService TenantService
 
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <Label For="name" HelpText="The name of the tenant">Name: </Label>
-        </td>
-        <td>
-            @if (name == Constants.MasterTenant)
-            {
-                <input id="name" class="form-control" @bind="@name" readonly />
-            }
-            else
-            {
-                <input id="name" class="form-control" @bind="@name" />
-            }
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="connectionstring" HelpText="The database connection string">Connection String: </Label>
-        </td>
-        <td>
-            <textarea id="connectionstring" class="form-control" @bind="@connectionstring" rows="3" readonly></textarea>
-        </td>
-    </tr>
-
-</table>
+<form>
+    <div class="form-group">
+        <Label For="name" HelpText="The name of the tenant">Name: </Label>
+        @if (name == Constants.MasterTenant)
+        {
+            <input id="name" class="form-control" @bind="@name" readonly />
+        }
+        else
+        {
+            <input id="name" class="form-control" @bind="@name" />
+        }
+    </div>
+    <div class="form-group">
+        <Label For="connectionstring" HelpText="The database connection string">Connection String: </Label>
+        <textarea id="connectionstring" class="form-control" @bind="@connectionstring" rows="3" readonly></textarea>
+    </div>
+</form>
 <button type="button" class="btn btn-success" @onclick="SaveTenant">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
@@ -69,7 +60,7 @@
             {
                 tenant.Name = name;
                 tenant.DBConnectionString = connectionstring;
-                
+
                 await TenantService.UpdateTenantAsync(tenant);
                 await logger.LogInformation("Tenant Saved {TenantId}", tenantid);
 

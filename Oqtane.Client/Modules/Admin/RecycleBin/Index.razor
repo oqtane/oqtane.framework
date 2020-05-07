@@ -150,12 +150,12 @@
             await PageModuleService.DeletePageModuleAsync(module.PageModuleId);
             // check if there are any remaining module instances in the site
             _modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId);
-            
+
             if (!_modules.Exists(item => item.ModuleId == module.ModuleId))
             {
                 await ModuleService.DeleteModuleAsync(module.ModuleId);
             }
-            
+
             await logger.LogInformation("Module Permanently Deleted {Module}", module);
             await Load();
             StateHasChanged();

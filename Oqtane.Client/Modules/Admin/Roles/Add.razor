@@ -3,39 +3,27 @@
 @inject NavigationManager NavigationManager
 @inject IRoleService RoleService
 
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <Label For="name" HelpText="Name Of The Role">Name:</Label>
-        </td>
-        <td>
-            <input id="name" class="form-control" @bind="@_name" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="description" HelpText="A Short Description Of The Role Which Describes Its Purpose">Description:</Label>
-        </td>
-        <td>
-            <textarea id="description" class="form-control" @bind="@_description" rows="5"></textarea>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="isautoassigned" HelpText="Indicates Whether Or Not New Users Are Automatically Assigned To This Role">Auto Assigned?</Label>
-        </td>
-        <td>
-            <select id="isautoassigned" class="form-control" @bind="@_isautoassigned">
-                <option value="True">Yes</option>
-                <option value="False">No</option>
-            </select>
-        </td>
-    </tr>
-</table>
+<form>
+    <div class="form-group">
+        <Label For="name" HelpText="Name Of The Role">Name:</Label>
+        <input id="name" class="form-control" @bind="@_name" />
+    </div>
+    <div class="form-group">
+        <Label For="description" HelpText="A Short Description Of The Role Which Describes Its Purpose">Description:</Label>
+        <textarea id="description" class="form-control" @bind="@_description" rows="5"></textarea>
+    </div>
+    <div class="form-group">
+        <Label For="isautoassigned" HelpText="Indicates Whether Or Not New Users Are Automatically Assigned To This Role">Auto Assigned?</Label>
+        <select id="isautoassigned" class="form-control" @bind="@_isautoassigned">
+            <option value="True">Yes</option>
+            <option value="False">No</option>
+        </select>
+    </div>
+</form>
 <button type="button" class="btn btn-success" @onclick="SaveRole">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
-@code { 
+@code {
     private string _name = string.Empty;
     private string _description = string.Empty;
     private string _isautoassigned = "False";

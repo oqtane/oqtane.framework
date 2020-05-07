@@ -139,7 +139,7 @@ app {
         border-color: #3E474F transparent transparent transparent;
         bottom: 100%;
         content: "";
-        margin-left: -0.5em;
+        margin-left: -30%;
         transition: all .65s cubic-bezier(.84,-0.18,.31,1.26), opacity .65s .5s;
         transform: scale(.6) translateY(-90%);
     }
@@ -155,7 +155,7 @@ app {
         bottom: 180%;
         color: #EDEFF0;
         content: attr(data-tip);
-        margin-left: -8.75em;
+        margin-left: -50%;
         padding: 1em;
         transition: all .65s cubic-bezier(.84,-0.18,.31,1.26) .2s;
         transform: scale(.6) translateY(50%);

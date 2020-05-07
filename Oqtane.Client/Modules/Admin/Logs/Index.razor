@@ -8,42 +8,40 @@
 }
 else
 {
-    <table class="table table-borderless">
-        <tr>
-            <td>
-                <label>Level: </label>
-                <select class="form-control" @onchange="(e => LevelChanged(e))">
-                    <option value="-">&lt;All Levels&gt;</option>
-                    <option value="Trace">Trace</option>
-                    <option value="Debug">Debug</option>
-                    <option value="Information">Information</option>
-                    <option value="Warning">Warning</option>
-                    <option value="Error">Error</option>
-                    <option value="Critical">Critical</option>
-                </select>
-            </td>
-            <td>
-                <label>Function: </label>
-                <select class="form-control" @onchange="(e => FunctionChanged(e))">
-                    <option value="-">&lt;All Functions&gt;</option>
-                    <option value="Create">Create</option>
-                    <option value="Read">Read</option>
-                    <option value="Update">Update</option>
-                    <option value="Delete">Delete</option>
-                    <option value="Security">Security</option>
-                    <option value="Other">Other</option>
-                </select>
-            </td>
-            <td>
-                <label>Rows: </label>
-                <select class="form-control" @onchange="(e => RowsChanged(e))">
-                    <option value="10">10</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                </select>
-            </td>
-        </tr>
-    </table>
+    <form>
+        <div class="form-group">
+            <label>Level: </label>
+            <select class="form-control" @onchange="(e => LevelChanged(e))">
+                <option value="-">&lt;All Levels&gt;</option>
+                <option value="Trace">Trace</option>
+                <option value="Debug">Debug</option>
+                <option value="Information">Information</option>
+                <option value="Warning">Warning</option>
+                <option value="Error">Error</option>
+                <option value="Critical">Critical</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Function: </label>
+            <select class="form-control" @onchange="(e => FunctionChanged(e))">
+                <option value="-">&lt;All Functions&gt;</option>
+                <option value="Create">Create</option>
+                <option value="Read">Read</option>
+                <option value="Update">Update</option>
+                <option value="Delete">Delete</option>
+                <option value="Security">Security</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Rows: </label>
+            <select class="form-control" @onchange="(e => RowsChanged(e))">
+                <option value="10">10</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+        </div>
+    </form>
 
     @if (_logs.Any())
     {
