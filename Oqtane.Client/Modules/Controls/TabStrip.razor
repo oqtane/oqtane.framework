@@ -1,0 +1,65 @@
+﻿@namespace Oqtane.Modules.Controls
+@inherits ModuleBase
+
+<CascadingValue Value="this">
+    <div class="container-fluid">
+        <div class="form-group">
+            <ul class="nav nav-tabs" role="tablist">
+                @foreach (TabPanel tabPanel in _tabPanels)
+                {
+                    <li class="nav-item">
+                        @if (tabPanel.Name == ActiveTab)
+                        {
+                            <a class="nav-link active" data-toggle="tab" href="#@tabPanel.Name" role="tab">
+                                @DisplayHeading(tabPanel.Name, tabPanel.Heading)
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="nav-link" data-toggle="tab" href="#@tabPanel.Name" role="tab">
+                                @DisplayHeading(tabPanel.Name, tabPanel.Heading)
+                            </a>
+                        }
+                    </li>
+                }
+            </ul>
+            <div class="tab-content">
+                <br />
+                @ChildContent
+            </div>
+        </div>
+    </div>
+</CascadingValue>
+
+@code {
+    private List<TabPanel> _tabPanels = new List<TabPanel>();
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; } // contains the TabPanels
+
+    [Parameter]
+    public string ActiveTab { get; set; } // optional - defaults to first TabPanel if not specified. Can also be set using a "tab=" querystring parameter.
+
+    protected override void OnInitialized()
+    {
+        if (PageState.QueryString.ContainsKey("tab"))
+        {
+            ActiveTab = PageState.QueryString["tab"];
+        }
+    }
+
+    internal void AddTabPanel(TabPanel tabPanel)
+    {
+        _tabPanels.Add(tabPanel);
+        if (string.IsNullOrEmpty(ActiveTab))
+        {
+            ActiveTab = tabPanel.Name;
+        }
+        StateHasChanged();
+    }
+
+    private string DisplayHeading(string Name, string Heading)
+    {
+        return (string.IsNullOrEmpty(Heading)) ? Name : Heading;
+    }
+}

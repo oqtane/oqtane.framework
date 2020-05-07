@@ -52,7 +52,7 @@
             </td>
         </tr>
     </table>
-    @if (reply != "")
+    @if (reply != string.Empty)
     {
         <button type="button" class="btn btn-primary" @onclick="Send">Send</button>
     }
@@ -70,17 +70,17 @@
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.View; } }
-    public override string Title { get { return "View Notification"; } }
+    private int notificationid;
+    private string title = string.Empty;
+    private List<UserRole> userroles;
+    private string userid = "-1";
+    private string subject = string.Empty;
+    private string createdon = string.Empty;
+    private string body = string.Empty;
+    private string reply = string.Empty;
 
-    int notificationid;
-    string title = "";
-    List<UserRole> userroles;
-    string userid = "-1";
-    string subject = "";
-    string createdon = "";
-    string body = "";
-    string reply = "";
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
+    public override string Title => "View Notification";
 
     protected override async Task OnInitializedAsync()
     {
@@ -110,6 +110,7 @@
                         userid = notification.ToUserId.ToString();
                     }
                 }
+                
                 subject = notification.Subject;
                 createdon = notification.CreatedOn.ToString();
                 body = notification.Body;
@@ -132,11 +133,11 @@
 
     private async Task Send()
     {
-        Notification notification = new Notification();
+        var notification = new Notification();
         notification.SiteId = PageState.Site.SiteId;
         notification.FromUserId = PageState.User.UserId;
         notification.ToUserId = int.Parse(userid);
-        notification.ToEmail = "";
+        notification.ToEmail = string.Empty;
         notification.Subject = subject;
         notification.Body = body;
         notification.ParentId = notificationid;

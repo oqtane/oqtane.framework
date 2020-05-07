@@ -1,14 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Oqtane.Repository;
 using Oqtane.Models;
 using System.Collections.Generic;
+using Oqtane.Enums;
 using Oqtane.Shared;
 using Oqtane.Infrastructure;
+using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
-    [Route("{site}/api/[controller]")]
+    [Route("{alias}/api/[controller]")]
     public class TenantController : Controller
     {
         private readonly ITenantRepository _tenants;
@@ -22,7 +23,7 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>
         [HttpGet]
-        [Authorize(Roles = Constants.HostRole)]
+        [Authorize(Roles = Constants.AdminRole)]
         public IEnumerable<Tenant> Get()
         {
             return _tenants.GetTenants();
@@ -30,7 +31,7 @@ namespace Oqtane.Controllers
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
-        [Authorize(Roles = Constants.HostRole)]
+        [Authorize(Roles = Constants.AdminRole)]
         public Tenant Get(int id)
         {
             return _tenants.GetTenant(id);
@@ -39,27 +40,27 @@ namespace Oqtane.Controllers
         // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = Constants.HostRole)]
-        public Tenant Post([FromBody] Tenant Tenant)
+        public Tenant Post([FromBody] Tenant tenant)
         {
             if (ModelState.IsValid)
             {
-                Tenant = _tenants.AddTenant(Tenant);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Tenant Added {TenantId}", Tenant.TenantId);
+                tenant = _tenants.AddTenant(tenant);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Tenant Added {TenantId}", tenant.TenantId);
             }
-            return Tenant;
+            return tenant;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Roles = Constants.HostRole)]
-        public Tenant Put(int id, [FromBody] Tenant Tenant)
+        public Tenant Put(int id, [FromBody] Tenant tenant)
         {
             if (ModelState.IsValid)
             {
-                Tenant = _tenants.UpdateTenant(Tenant);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Tenant Updated {TenantId}", Tenant.TenantId);
+                tenant = _tenants.UpdateTenant(tenant);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Tenant Updated {TenantId}", tenant.TenantId);
             }
-            return Tenant;
+            return tenant;
         }
 
         // DELETE api/<controller>/5

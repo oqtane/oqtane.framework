@@ -1,0 +1,1 @@
+This is the location where static resources such as images or style sheets should be located

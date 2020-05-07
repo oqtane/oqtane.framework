@@ -3,88 +3,88 @@
 @inject NavigationManager NavigationManager
 @inject IJobService JobService
 
-    <table class="table table-borderless">
-        <tr>
-            <td>
-                <label  class="control-label">Name: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@_name" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label  class="control-label">Type: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@_jobType" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label  class="control-label">Enabled? </label>
-            </td>
-            <td>
-                <select class="form-control" @bind="@_isEnabled">
-                    <option value="True">Yes</option>
-                    <option value="False">No</option>
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label  class="control-label">Runs Every: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@_interval" />
-                <select class="form-control" @bind="@_frequency">
-                    <option value="m">Minute(s)</option>
-                    <option value="H">Hour(s)</option>
-                    <option value="d">Day(s)</option>
-                    <option value="M">Month(s)</option>
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label  class="control-label">Starting: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@_startDate" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label  class="control-label">Ending: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@_endDate" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label  class="control-label">Retention Log (Items): </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@_retentionHistory" />
-            </td>
-        </tr>
-    </table>
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <Label For="name" HelpText="Enter the job name">Name: </Label>
+        </td>
+        <td>
+            <input id="name" class="form-control" @bind="@_name" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="type" HelpText="Enter the job type">Type: </Label>
+        </td>
+        <td>
+            <input id="type" class="form-control" @bind="@_jobType" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="enabled" HelpText="Select whether you want the job enabled or not">Enabled? </Label>
+        </td>
+        <td>
+            <select id="enabled" class="form-control" @bind="@_isEnabled">
+                <option value="True">Yes</option>
+                <option value="False">No</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="runs-every" HelpText="Select how often you want the job to run">Runs Every: </Label>
+        </td>
+        <td>
+            <input id="runs-every" class="form-control" @bind="@_interval" />
+            <select id="runs-every" class="form-control" @bind="@_frequency">
+                <option value="m">Minute(s)</option>
+                <option value="H">Hour(s)</option>
+                <option value="d">Day(s)</option>
+                <option value="M">Month(s)</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="starting" HelpText="What time do you want the job to start">Starting: </Label>
+        </td>
+        <td>
+            <input id="starting" class="form-control" @bind="@_startDate" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="ending" HelpText="When do you want the job to end">Ending: </Label>
+        </td>
+        <td>
+            <input id="ending" class="form-control" @bind="@_endDate" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="retention-log" HelpText="What items do you want in the retention log">Retention Log (Items): </Label>
+        </td>
+        <td>
+            <input id="retention-log" class="form-control" @bind="@_retentionHistory" />
+        </td>
+    </tr>
+</table>
 <button type="button" class="btn btn-success" @onclick="SaveJob">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+    private int _jobId;
+    private string _name = string.Empty;
+    private string _jobType = string.Empty;
+    private string _isEnabled = "True";
+    private string _interval = string.Empty;
+    private string _frequency = string.Empty;
+    private string _startDate = string.Empty;
+    private string _endDate = string.Empty;
+    private string _retentionHistory = string.Empty;
 
-    int _jobId;
-    string _name = "";
-    string _jobType = "";
-    string _isEnabled = "True";
-    string _interval = "";
-    string _frequency = "";
-    string _startDate = "";
-    string _endDate = "";
-    string _retentionHistory = "";
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnInitializedAsync()
     {
@@ -99,8 +99,8 @@
                 _isEnabled = job.IsEnabled.ToString();
                 _interval = job.Interval.ToString();
                 _frequency = job.Frequency;
-                _startDate = (job.StartDate != null) ? job.StartDate.ToString() : "";
-                _endDate = (job.EndDate != null) ? job.EndDate.ToString() : "";
+                _startDate = (job.StartDate != null) ? job.StartDate.ToString() : string.Empty;
+                _endDate = (job.EndDate != null) ? job.EndDate.ToString() : string.Empty;
                 _retentionHistory = job.RetentionHistory.ToString();
             }
         }
@@ -113,15 +113,16 @@
 
     private async Task SaveJob()
     {
-        if (_name != "" && !string.IsNullOrEmpty(_jobType) && _frequency != "" && _interval != "" && _retentionHistory != "")
+        if (_name != string.Empty && !string.IsNullOrEmpty(_jobType) && _frequency != string.Empty && _interval != string.Empty && _retentionHistory != string.Empty)
         {
-            Job job = await JobService.GetJobAsync(_jobId);
+            var job = await JobService.GetJobAsync(_jobId);
             job.Name = _name;
             job.JobType = _jobType;
             job.IsEnabled = Boolean.Parse(_isEnabled);
             job.Frequency = _frequency;
             job.Interval = int.Parse(_interval);
-            if (_startDate == "")
+
+            if (_startDate == string.Empty)
             {
                 job.StartDate = null;
             }
@@ -129,7 +130,8 @@
             {
                 job.StartDate = DateTime.Parse(_startDate);
             }
-            if (_endDate == "")
+
+            if (_endDate == string.Empty)
             {
                 job.EndDate = null;
             }
@@ -137,6 +139,7 @@
             {
                 job.EndDate = DateTime.Parse(_endDate);
             }
+
             job.RetentionHistory = int.Parse(_retentionHistory);
 
             try

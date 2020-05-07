@@ -7,6 +7,7 @@ using System.Xml;
 using Oqtane.Shared;
 using System;
 using System.Diagnostics;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Oqtane.Infrastructure
 {
@@ -14,34 +15,48 @@ namespace Oqtane.Infrastructure
     {
         private readonly IHostApplicationLifetime _hostApplicationLifetime;
         private readonly IWebHostEnvironment _environment;
+        private readonly IMemoryCache _cache;
 
-        public InstallationManager(IHostApplicationLifetime hostApplicationLifetime, IWebHostEnvironment environment)
+        public InstallationManager(IHostApplicationLifetime hostApplicationLifetime, IWebHostEnvironment environment, IMemoryCache cache)
         {
             _hostApplicationLifetime = hostApplicationLifetime;
             _environment = environment;
+            _cache = cache;
         }
 
-        public void InstallPackages(string Folders, bool Restart)
+        public void InstallPackages(string folders, bool restart)
+        {
+            var webRootPath = _environment.WebRootPath;
+            
+            var install = UnpackPackages(folders, webRootPath);
+
+            if (install && restart)
+            {
+                RestartApplication();
+            }
+        }
+
+        public static bool UnpackPackages(string folders, string webRootPath)
         {
             bool install = false;
-            string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            string binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
 
-            foreach (string Folder in Folders.Split(','))
+            foreach (string folder in folders.Split(','))
             {
-                string folder = Path.Combine(_environment.WebRootPath, Folder);
+                string sourceFolder = Path.Combine(webRootPath, folder);
 
                 // create folder if it does not exist
-                if (!Directory.Exists(folder))
+                if (!Directory.Exists(sourceFolder))
                 {
-                    Directory.CreateDirectory(folder);
+                    Directory.CreateDirectory(sourceFolder);
                 }
 
                 // iterate through packages
-                foreach (string packagename in Directory.GetFiles(folder, "*.nupkg"))
+                foreach (string packagename in Directory.GetFiles(sourceFolder, "*.nupkg"))
                 {
                     string name = Path.GetFileNameWithoutExtension(packagename);
-                    string[] segments = name.Split('.');
-                    name = string.Join('.', segments, 0, segments.Length - 3);
+                    string[] segments = name?.Split('.');
+                    if (segments != null) name = string.Join('.', segments, 0, segments.Length - 3);
 
                     // iterate through files
                     using (ZipArchive archive = ZipFile.OpenRead(packagename))
@@ -63,6 +78,7 @@ namespace Oqtane.Infrastructure
                                 {
                                     frameworkversion = node.Attributes["version"].Value;
                                 }
+
                                 reader.Close();
                             }
                         }
@@ -78,7 +94,7 @@ namespace Oqtane.Infrastructure
                                 {
                                     case ".pdb":
                                     case ".dll":
-                                        entry.ExtractToFile(Path.Combine(binfolder, filename), true);
+                                        if (binFolder != null) entry.ExtractToFile(Path.Combine(binFolder, filename), true);
                                         break;
                                     case ".png":
                                     case ".jpg":
@@ -87,28 +103,27 @@ namespace Oqtane.Infrastructure
                                     case ".svg":
                                     case ".js":
                                     case ".css":
-                                        filename = folder + "\\" + entry.FullName.Replace("wwwroot", name).Replace("/", "\\");
+                                        string entryPath = Utilities.PathCombine(entry.FullName.Replace("wwwroot", name).Split('/'));
+                                        filename = Path.Combine(sourceFolder, entryPath);
                                         if (!Directory.Exists(Path.GetDirectoryName(filename)))
                                         {
                                             Directory.CreateDirectory(Path.GetDirectoryName(filename));
                                         }
+
                                         entry.ExtractToFile(filename, true);
                                         break;
                                 }
                             }
                         }
                     }
+
                     // remove package
                     File.Delete(packagename);
                     install = true;
                 }
             }
 
-            if (install && Restart)
-            {
-                // restart application
-                RestartApplication();
-            }
+            return install;
         }
 
         public void UpgradeFramework()
@@ -165,26 +180,29 @@ namespace Oqtane.Infrastructure
 
         private void FinishUpgrade()
         {
-            string folder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            string folder = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
 
             // check if upgrade application exists
-            if (File.Exists(Path.Combine(folder, "Oqtane.Upgrade.exe")))
+            if (folder == null || !File.Exists(Path.Combine(folder, "Oqtane.Upgrade.exe"))) return;
+            // run upgrade application
+            var process = new Process
             {
-                // run upgrade application
-                var process = new Process();
-                process.StartInfo.FileName = Path.Combine(folder, "Oqtane.Upgrade.exe");
-                process.StartInfo.Arguments = "";
-                process.StartInfo.ErrorDialog = false;
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.CreateNoWindow = true;
-                process.StartInfo.RedirectStandardOutput = false;
-                process.StartInfo.RedirectStandardError = false;
-                process.Start();
-                process.Dispose();
+                StartInfo =
+                {
+                    FileName = Path.Combine(folder, "Oqtane.Upgrade.exe"),
+                    Arguments = "",
+                    ErrorDialog = false,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = false,
+                    RedirectStandardError = false
+                }
+            };
+            process.Start();
+            process.Dispose();
 
-                // stop application so upgrade application can proceed
-                RestartApplication();
-            }
+            // stop application so upgrade application can proceed
+            RestartApplication();
         }
 
         public void RestartApplication()

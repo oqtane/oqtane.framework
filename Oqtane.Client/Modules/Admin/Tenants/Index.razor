@@ -1,6 +1,7 @@
 ﻿@namespace Oqtane.Modules.Admin.Tenants
 @inherits ModuleBase
 @inject ITenantService TenantService
+@inject IAliasService AliasService
 
 @if (tenants == null)
 {
@@ -8,8 +9,6 @@
 }
 else
 {
-    <ActionLink Action="Add" Text="Add Tenant" />
-
     <Pager Items="@tenants">
         <Header>
             <th>&nbsp;</th>
@@ -18,7 +17,7 @@ else
         </Header>
         <Row>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.TenantId.ToString())" /></td>
-            <td><ActionDialog Header="Delete Tenant" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Tenant?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteTenant(context))" /></td>
+            <td><ActionDialog Header="Delete Tenant" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Tenant?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteTenant(context))" Disabled="@(context.Name == Constants.MasterTenant)" /></td>
             <td>@context.Name</td>
         </Row>
     </Pager>
@@ -26,9 +25,9 @@ else
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+    private List<Tenant> tenants;
 
-    List<Tenant> tenants;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -39,9 +38,25 @@ else
     {
         try
         {
-            await TenantService.DeleteTenantAsync(Tenant.TenantId);
-            await logger.LogInformation("Tenant Deleted {Tenant}", Tenant);
-            StateHasChanged();
+            string message = string.Empty;
+            var aliases = await AliasService.GetAliasesAsync();
+            foreach (var alias in aliases)
+            {
+                if (alias.TenantId == Tenant.TenantId)
+                {
+                    message += ", " + alias.Name;
+                }
+            }
+            if (string.IsNullOrEmpty(message))
+            {
+                await TenantService.DeleteTenantAsync(Tenant.TenantId);
+                await logger.LogInformation("Tenant Deleted {Tenant}", Tenant);
+                StateHasChanged();
+            }
+            else
+            {
+                AddModuleMessage("Tenant Cannot Be Deleted Until The Following Sites Are Deleted: " + message.Substring(2), MessageType.Warning);
+            }
         }
         catch (Exception ex)
         {

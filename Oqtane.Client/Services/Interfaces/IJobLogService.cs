@@ -8,12 +8,12 @@ namespace Oqtane.Services
     {
         Task<List<JobLog>> GetJobLogsAsync();
 
-        Task<JobLog> GetJobLogAsync(int JobLogId);
+        Task<JobLog> GetJobLogAsync(int jobLogId);
 
-        Task<JobLog> AddJobLogAsync(JobLog JobLog);
+        Task<JobLog> AddJobLogAsync(JobLog jobLog);
 
-        Task<JobLog> UpdateJobLogAsync(JobLog JobLog);
+        Task<JobLog> UpdateJobLogAsync(JobLog jobLog);
 
-        Task DeleteJobLogAsync(int JobLogId);
+        Task DeleteJobLogAsync(int jobLogId);
     }
 }

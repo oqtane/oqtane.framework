@@ -12,11 +12,17 @@
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject ILogService LogService
 @using System.Diagnostics.CodeAnalysis
+@using Oqtane.Enums
+@using System.Runtime.InteropServices 
 @implements IHandleAfterRender
 
 @DynamicComponent
 
 @code {
+
+    private string _absoluteUri;
+    private bool _navigationInterceptionEnabled;
+    private PageState _pagestate;
 
     [CascadingParameter]
     PageState PageState { get; set; }
@@ -24,11 +30,7 @@
     [Parameter]
     public Action<PageState> OnStateChange { get; set; }
 
-    PageState pagestate;
-    RenderFragment DynamicComponent { get; set; }
-
-    string _absoluteUri;
-    bool _navigationInterceptionEnabled;
+    private RenderFragment DynamicComponent { get; set; }
 
     protected override void OnInitialized()
     {
@@ -75,26 +77,20 @@
         Page page;
         User user = null;
         List<Module> modules;
-        int moduleid = -1;
-        string action = "";
-        bool editmode = false;
-        Reload reload = Reload.None;
-        DateTime lastsyncdate = DateTime.UtcNow;
+        var moduleid = -1;
+        var action = "";
+        var editmode = false;
+        var reload = Reload.None;
+        var lastsyncdate = DateTime.UtcNow;
+        var runtime = GetRuntime();
 
-        // get Url path and querystring ( and remove anchors )
-        string path = new Uri(_absoluteUri).PathAndQuery.Substring(1);
-        if (path.IndexOf("#") != -1)
-        {
-            path = path.Substring(0, path.IndexOf("#"));
-        }
+        Uri uri = new Uri(_absoluteUri);
 
-        // parse querystring and remove
-        Dictionary<string, string> querystring = new Dictionary<string, string>();
-        if (path.IndexOf("?") != -1)
-        {
-            querystring = ParseQueryString(path);
-            path = path.Substring(0, path.IndexOf("?"));
-        }
+        // get path
+        var path = uri.LocalPath.Substring(1);
+
+        // parse querystring 
+        var querystring = ParseQueryString(uri.Query);
 
         // the reload parameter is used during user login/logout
         if (querystring.ContainsKey("reload"))
@@ -108,18 +104,18 @@
             lastsyncdate = PageState.LastSyncDate;
         }
 
-        alias = await AliasService.GetAliasAsync(_absoluteUri, lastsyncdate);
+        alias = await AliasService.GetAliasAsync(path, lastsyncdate);
         SiteState.Alias = alias; // set state for services
         lastsyncdate = alias.SyncDate;
 
         // process any sync events for site or page
         if (reload != Reload.Site && alias.SyncEvents.Any())
         {
-            if (PageState != null && alias.SyncEvents.Exists(item => item.EntityName == "Page" && item.EntityId == PageState.Page.PageId))
+            if (PageState != null && alias.SyncEvents.Exists(item => item.EntityName == EntityNames.Page && item.EntityId == PageState.Page.PageId))
             {
                 reload = Reload.Page;
             }
-            if (alias.SyncEvents.Exists(item => item.EntityName == "Site" && item.EntityId == alias.SiteId))
+            if (alias.SyncEvents.Exists(item => item.EntityName == EntityNames.Site && item.EntityId == alias.SiteId))
             {
                 reload = Reload.Site;
             }
@@ -127,13 +123,14 @@
 
         if (reload == Reload.Site || PageState == null || alias.SiteId != PageState.Alias.SiteId)
         {
-            site = await SiteService.GetSiteAsync(alias.SiteId, alias);
+            site = await SiteService.GetSiteAsync(alias.SiteId);
             reload = Reload.Site;
         }
         else
         {
             site = PageState.Site;
         }
+
         if (site != null)
         {
             if (PageState == null || reload == Reload.Site)
@@ -153,7 +150,7 @@
             // process any sync events for user
             if (reload != Reload.Site && user != null && alias.SyncEvents.Any())
             {
-                if (alias.SyncEvents.Exists(item => item.EntityName == "User" && item.EntityId == user.UserId))
+                if (alias.SyncEvents.Exists(item => item.EntityName == EntityNames.User && item.EntityId == user.UserId))
                 {
                     reload = Reload.Site;
                 }
@@ -161,7 +158,7 @@
 
             if (PageState == null || reload >= Reload.Site)
             {
-                await ModuleDefinitionService.LoadModuleDefinitionsAsync(site.SiteId);
+                await ModuleDefinitionService.LoadModuleDefinitionsAsync(site.SiteId, runtime);
                 pages = await PageService.GetPagesAsync(site.SiteId);
             }
             else
@@ -171,14 +168,19 @@
 
             // format path and remove alias
             path = path.Replace("//", "/");
-            if (!path.EndsWith("/")) { path += "/"; }
+
+            if (!path.EndsWith("/"))
+            {
+                path += "/";
+            }
+
             if (alias.Path != "")
             {
                 path = path.Replace(alias.Path + "/", "");
             }
 
             // extract admin route elements from path
-            string[] segments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            var segments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             int result;
             // check if path has moduleid and control specification ie. page/moduleid/control/
             if (segments.Length >= 2 && int.TryParse(segments[segments.Length - 2], out result))
@@ -196,6 +198,7 @@
                     path = path.Replace(moduleid.ToString() + "/", "");
                 }
             }
+
             // remove trailing slash so it can be used as a key for Pages
             if (path.EndsWith("/")) path = path.Substring(0, path.Length - 1);
 
@@ -207,6 +210,7 @@
             {
                 page = PageState.Page;
             }
+
             // failsafe in case router cannot locate the home page for the site
             if (page == null && path == "")
             {
@@ -237,18 +241,21 @@
                 {
                     page = await ProcessPage(page, site, user);
 
-                    pagestate = new PageState();
-                    pagestate.Alias = alias;
-                    pagestate.Site = site;
-                    pagestate.Pages = pages;
-                    pagestate.Page = page;
-                    pagestate.User = user;
-                    pagestate.Uri = new Uri(_absoluteUri, UriKind.Absolute);
-                    pagestate.QueryString = querystring;
-                    pagestate.ModuleId = moduleid;
-                    pagestate.Action = action;
+                    _pagestate = new PageState
+                    {
+                        Alias = alias,
+                        Site = site,
+                        Pages = pages,
+                        Page = page,
+                        User = user,
+                        Uri = new Uri(_absoluteUri, UriKind.Absolute),
+                        QueryString = querystring,
+                        ModuleId = moduleid,
+                        Action = action,
+                        Runtime = runtime
+                    };
 
-                    if (PageState != null && (PageState.ModuleId != pagestate.ModuleId || PageState.Action != pagestate.Action))
+                    if (PageState != null && (PageState.ModuleId != _pagestate.ModuleId || PageState.Action != _pagestate.Action))
                     {
                         reload = Reload.Page;
                     }
@@ -256,17 +263,17 @@
                     if (PageState == null || reload >= Reload.Page)
                     {
                         modules = await ModuleService.GetModulesAsync(site.SiteId);
-                        modules = ProcessModules(modules, page.PageId, pagestate.ModuleId, pagestate.Action, page.Panes, site.DefaultContainerType);
+                        modules = ProcessModules(modules, page.PageId, _pagestate.ModuleId, _pagestate.Action, page.Panes, site.DefaultContainerType);
                     }
                     else
                     {
                         modules = PageState.Modules;
                     }
-                    pagestate.Modules = modules;
-                    pagestate.EditMode = editmode;
-                    pagestate.LastSyncDate = lastsyncdate;
+                    _pagestate.Modules = modules;
+                    _pagestate.EditMode = editmode;
+                    _pagestate.LastSyncDate = lastsyncdate;
 
-                    OnStateChange?.Invoke(pagestate);
+                    OnStateChange?.Invoke(_pagestate);
                 }
             }
             else
@@ -307,15 +314,17 @@
             _navigationInterceptionEnabled = true;
             return NavigationInterception.EnableNavigationInterceptionAsync();
         }
+
         return Task.CompletedTask;
     }
 
-    private Dictionary<string, string> ParseQueryString(string path)
+    private Dictionary<string, string> ParseQueryString(string query)
     {
         Dictionary<string, string> querystring = new Dictionary<string, string>();
-        if (path.IndexOf("?") != -1)
+        if (!string.IsNullOrEmpty(query))
         {
-            foreach (string kvp in path.Substring(path.IndexOf("?") + 1).Split(new[] { '&' }, StringSplitOptions.RemoveEmptyEntries))
+            query = query.Substring(1); // ignore "?"
+            foreach (string kvp in query.Split(new[] { '&' }, StringSplitOptions.RemoveEmptyEntries))
             {
                 if (kvp != "")
                 {
@@ -326,7 +335,7 @@
                     }
                     else
                     {
-                        querystring.Add(kvp, "true"); // default querystring when no value is provided
+                        querystring.Add(kvp, "true"); // default parameter when no value is provided
                     }
                 }
             }
@@ -350,6 +359,7 @@
                 page.LayoutType = site.DefaultLayoutType;
             }
             Type type;
+
             if (!string.IsNullOrEmpty(page.LayoutType))
             {
                 type = Type.GetType(page.LayoutType);
@@ -358,24 +368,26 @@
             {
                 type = Type.GetType(page.ThemeType);
             }
-            System.Reflection.PropertyInfo property = type.GetProperty("Panes");
+
+            var property = type.GetProperty("Panes");
             page.Panes = (string)property.GetValue(Activator.CreateInstance(type), null);
         }
         catch
         {
             // error loading theme or layout
         }
+
         return page;
     }
 
     private List<Module> ProcessModules(List<Module> modules, int pageid, int moduleid, string control, string panes, string defaultcontainertype)
     {
-        Dictionary<string, int> paneindex = new Dictionary<string, int>();
+        var paneindex = new Dictionary<string, int>();
         foreach (Module module in modules)
         {
             if (module.PageId == pageid || module.ModuleId == moduleid)
             {
-                string typename = "";
+                var typename = string.Empty;
                 if (module.ModuleDefinition != null)
                 {
                     typename = module.ModuleDefinition.ControlTypeTemplate;
@@ -384,6 +396,7 @@
                 {
                     typename = Constants.ErrorModule;
                 }
+
                 if (module.ModuleId == moduleid && control != "")
                 {
                     // check if the module defines custom routes
@@ -439,6 +452,7 @@
                 {
                     paneindex.Add(module.Pane, 0);
                 }
+
                 module.PaneModuleIndex = paneindex[module.Pane];
 
                 if (string.IsNullOrEmpty(module.ContainerType))
@@ -452,7 +466,12 @@
         {
             module.PaneModuleCount = paneindex[module.Pane] + 1;
         }
+
         return modules;
     }
 
+    private Runtime GetRuntime()
+        => RuntimeInformation.IsOSPlatform(OSPlatform.Create("BROWSER"))
+                ? Runtime.WebAssembly
+                : Runtime.Server;
 }

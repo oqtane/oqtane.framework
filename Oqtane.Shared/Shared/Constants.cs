@@ -3,7 +3,8 @@
     public class Constants
     {
         public const string PackageId = "Oqtane.Framework";
-        public const string Version = "0.0.1";
+        public const string Version = "0.9.0";
+        public const string ReleaseVersions = "0.9.0";
 
         public const string PageComponent = "Oqtane.UI.ThemeBuilder, Oqtane.Client";
         public const string ContainerComponent = "Oqtane.UI.ContainerBuilder, Oqtane.Client";
@@ -26,9 +27,14 @@
         public const string ErrorModule = "Oqtane.Modules.Admin.Error.{Action}, Oqtane.Client";
         public const string ModuleMessageComponent = "Oqtane.Modules.Controls.ModuleMessage, Oqtane.Client";
 
+        public const string DefaultSiteTemplate = "Oqtane.SiteTemplates.DefaultSiteTemplate, Oqtane.Server";
+
         public const string ContentUrl = "/api/file/download/";
 
         public const string HostUser = "host";
+
+        public const string MasterTenant = "Master";
+        public const string DefaultSite = "Default Site";
 
         public const string AllUsersRole = "All Users";
         public const string HostRole = "Host Users";

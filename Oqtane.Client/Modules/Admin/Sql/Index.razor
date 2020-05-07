@@ -1,0 +1,111 @@
+﻿@namespace Oqtane.Modules.Admin.Sql
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject ITenantService TenantService
+@inject ISqlService SqlService
+
+@if (_tenants == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table table-borderless">
+        <tr>
+            <td>
+                <Label For="tenant" HelpText="Select the tenant for the SQL server">Tenant: </Label>
+            </td>
+            <td>
+                <select id="teneant" class="form-control" @bind="_tenantid">
+                    <option value="-1">&lt;Select Tenant&gt;</option>
+                    @foreach (Tenant tenant in _tenants)
+                    {
+                        <option value="@tenant.TenantId">@tenant.Name</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="sqlQeury" HelpText="Enter the query for the SQL server">SQL Query: </Label>
+            </td>
+            <td>
+                <textarea id="sqlQeury" class="form-control" @bind="@_sql" rows="5"></textarea>
+            </td>
+        </tr>
+    </table>
+    <button type="button" class="btn btn-success" @onclick="Execute">Execute</button>
+    <br /><br />
+    @if (!string.IsNullOrEmpty(_results))
+    {
+        @((MarkupString)_results)
+    }
+}
+
+@code {
+    private List<Tenant> _tenants;
+    private string _tenantid = "-1";
+    private string _sql = string.Empty;
+    private string _results = string.Empty;
+
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _tenants = await TenantService.GetTenantsAsync();
+    }
+
+    private async Task Execute()
+    {
+        if (_tenantid != "-1" && !string.IsNullOrEmpty(_sql))
+        {
+            var sqlquery = new SqlQuery { TenantId = int.Parse(_tenantid), Query = _sql };
+            sqlquery = await SqlService.ExecuteQueryAsync(sqlquery);
+            _results = DisplayResults(sqlquery.Results);
+        }
+        else
+        {
+            AddModuleMessage("You Must Select A Tenant And Provide A SQL Query", MessageType.Warning);
+        }
+    }
+
+    private string DisplayResults(List<Dictionary<string, string>> results)
+    {
+        var table = string.Empty;
+        foreach (Dictionary<string, string> item in results)
+        {
+            if (table == string.Empty)
+            {
+                table = "<div class=\"table-responsive\">";
+                table += "<table class=\"table table-bordered\"><thead><tr>";
+                
+                foreach (KeyValuePair<string, string> kvp in item)
+                {
+                    table += "<th scope=\"col\">" + kvp.Key + "</th>";
+                }
+                
+                table += "</tr></thead><tbody>";
+            }
+            
+            table += "<tr>";
+            
+            foreach (KeyValuePair<string, string> kvp in item)
+            {
+                table += "<td>" + kvp.Value + "</td>";
+            }
+            
+            table += "</tr>";
+        }
+        
+        if (table != string.Empty)
+        {
+            table += "</tbody></table></div>";
+        }
+        else
+        {
+            table = "No Results Returned";
+        }
+        
+        return table;
+    }
+}

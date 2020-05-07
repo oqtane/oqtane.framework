@@ -6,14 +6,16 @@ namespace Oqtane.Services
 {
     public interface ISiteService
     {
-        Task<List<Site>> GetSitesAsync(Alias Alias);
+        void SetAlias(Alias alias);
 
-        Task<Site> GetSiteAsync(int SiteId, Alias Alias);
+        Task<List<Site>> GetSitesAsync();
 
-        Task<Site> AddSiteAsync(Site Site, Alias Alias);
+        Task<Site> GetSiteAsync(int siteId);
 
-        Task<Site> UpdateSiteAsync(Site Site, Alias Alias);
+        Task<Site> AddSiteAsync(Site site);
 
-        Task DeleteSiteAsync(int SiteId, Alias Alias);
+        Task<Site> UpdateSiteAsync(Site site);
+
+        Task DeleteSiteAsync(int siteId);
     }
 }

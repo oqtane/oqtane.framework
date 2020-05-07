@@ -3,8 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>7.3</LangVersion>
-    <Configurations>Debug;Release;Wasm</Configurations>
-    <Version>0.0.1</Version>
+    <Configurations>Debug;Release</Configurations>
+    <Version>0.9.0</Version>
     <Product>Oqtane</Product>
     <Authors>Shaun Walker</Authors>
     <Company>.NET Foundation</Company>
@@ -17,13 +17,9 @@
     <RootNamespace>Oqtane</RootNamespace>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Wasm|AnyCPU'">
-    <DefineConstants>TRACE;WASM</DefineConstants>
-  </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="System.ComponentModel.Annotations" Version="4.6.0" />
-    <PackageReference Include="System.Text.Json" Version="4.6.0" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
+    <PackageReference Include="System.Text.Json" Version="4.7.1" />
   </ItemGroup>
 
 </Project>

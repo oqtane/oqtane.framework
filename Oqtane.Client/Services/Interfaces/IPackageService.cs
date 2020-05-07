@@ -6,7 +6,7 @@ namespace Oqtane.Services
 {
     public interface IPackageService
     {
-        Task<List<Package>> GetPackagesAsync(string Tag);
-        Task DownloadPackageAsync(string PackageId, string Version, string Folder);
+        Task<List<Package>> GetPackagesAsync(string tag);
+        Task DownloadPackageAsync(string packageId, string version, string folder);
     }
 }

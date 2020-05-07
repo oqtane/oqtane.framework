@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using Oqtane.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
 using Microsoft.Extensions.Caching.Memory;
+using Oqtane.Models;
 
 namespace Oqtane.Repository
 {
@@ -27,30 +27,33 @@ namespace Oqtane.Repository
             });
         }
 
-        public Job AddJob(Job Job)
+        public Job AddJob(Job job)
         {
-            _db.Job.Add(Job);
+            _db.Job.Add(job);
             _db.SaveChanges();
-            return Job;
+            _cache.Remove("jobs");
+            return job;
         }
 
-        public Job UpdateJob(Job Job)
+        public Job UpdateJob(Job job)
         {
-            _db.Entry(Job).State = EntityState.Modified;
+            _db.Entry(job).State = EntityState.Modified;
             _db.SaveChanges();
-            return Job;
+            _cache.Remove("jobs");
+            return job;
         }
 
-        public Job GetJob(int JobId)
+        public Job GetJob(int jobId)
         {
-            return _db.Job.Find(JobId);
+            return _db.Job.Find(jobId);
         }
 
-        public void DeleteJob(int JobId)
+        public void DeleteJob(int jobId)
         {
-            Job Job = _db.Job.Find(JobId);
-            _db.Job.Remove(Job);
+            Job job = _db.Job.Find(jobId);
+            _db.Job.Remove(job);
             _db.SaveChanges();
+            _cache.Remove("jobs");
         }
     }
 }

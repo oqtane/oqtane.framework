@@ -6,9 +6,10 @@ namespace Oqtane.Repository
     public interface ISiteRepository
     {
         IEnumerable<Site> GetSites();
-        Site AddSite(Site Site);
-        Site UpdateSite(Site Site);
-        Site GetSite(int SiteId);
-        void DeleteSite(int SiteId);
+        Site AddSite(Site site);
+        Site UpdateSite(Site site);
+        Site GetSite(int siteId);
+        void DeleteSite(int siteId);
+        void CreatePages(Site site, List<PageTemplate> pageTemplates);
     }
 }

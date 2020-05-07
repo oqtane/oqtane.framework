@@ -28,23 +28,25 @@ else
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
-
-    List<JobLog> _jobLogs;
+    private List<JobLog> _jobLogs;
+    
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnParametersSetAsync()
     {
         _jobLogs = await JobLogService.GetJobLogsAsync();
+        
         if (PageState.QueryString.ContainsKey("id"))
         {
             _jobLogs = _jobLogs.Where(item => item.JobId == Int32.Parse(PageState.QueryString["id"])).ToList();
         }
+        
         _jobLogs = _jobLogs.OrderByDescending(item => item.JobLogId).ToList();
     }
 
     private string DisplayStatus(bool isExecuting, bool? succeeded)
     {
-        string status = "";
+        var status = string.Empty;
         if (isExecuting)
         {
             status = "Executing";
@@ -60,6 +62,7 @@ else
                 status = "Failed";
             }
         }
+        
         return status;
     }
 }

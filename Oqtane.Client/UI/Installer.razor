@@ -18,10 +18,10 @@
                 <tbody>
                     <tr>
                         <td>
-                            <label for="Title" class="control-label" style="font-weight: bold">Database Type: </label>
+                            <label class="control-label" style="font-weight: bold">Database Type: </label>
                         </td>
                         <td>
-                            <select class="custom-select" @bind="@DatabaseType">
+                            <select class="custom-select" @bind="@_databaseType">
                                 <option value="LocalDB">Local Database</option>
                                 <option value="SQLServer">SQL Server</option>
                             </select>
@@ -29,23 +29,23 @@
                     </tr>
                     <tr>
                         <td>
-                            <label for="Title" class="control-label" style="font-weight: bold">Server: </label>
+                            <label class="control-label" style="font-weight: bold">Server: </label>
                         </td>
                         <td>
-                            <input type="text" class="form-control" @bind="@ServerName" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label for="Title" class="control-label" style="font-weight: bold">Database: </label>
-                        </td>
-                        <td>
-                            <input type="text" class="form-control" @bind="@DatabaseName" />
+                            <input type="text" class="form-control" @bind="@_serverName" />
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <label for="Title" class="control-label" style="font-weight: bold">Integrated Security: </label>
+                            <label class="control-label" style="font-weight: bold">Database: </label>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" @bind="@_databaseName" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="control-label" style="font-weight: bold">Integrated Security: </label>
                         </td>
                         <td>
                             <select class="custom-select" @onchange="SetIntegratedSecurity">
@@ -54,20 +54,20 @@
                             </select>
                         </td>
                     </tr>
-                    <tr style="@IntegratedSecurityDisplay">
+                    <tr style="@_integratedSecurityDisplay">
                         <td>
-                            <label for="Title" class="control-label" style="font-weight: bold">Username: </label>
+                            <label class="control-label" style="font-weight: bold">Username: </label>
                         </td>
                         <td>
-                            <input type="text" class="form-control" @bind="@Username" />
+                            <input type="text" class="form-control" @bind="@_username" />
                         </td>
                     </tr>
-                    <tr style="@IntegratedSecurityDisplay">
+                    <tr style="@_integratedSecurityDisplay">
                         <td>
-                            <label for="Title" class="control-label" style="font-weight: bold">Password: </label>
+                            <label class="control-label" style="font-weight: bold">Password: </label>
                         </td>
                         <td>
-                            <input type="password" class="form-control" @bind="@Password" />
+                            <input type="password" class="form-control" @bind="@_password" />
                         </td>
                     </tr>
                 </tbody>
@@ -79,34 +79,34 @@
                 <tbody>
                     <tr>
                         <td>
-                            <label for="Title" class="control-label" style="font-weight: bold">Username: </label>
+                            <label class="control-label" style="font-weight: bold">Username: </label>
                         </td>
                         <td>
-                            <input type="text" class="form-control" @bind="@HostUsername" readonly />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label for="Title" class="control-label" style="font-weight: bold">Password: </label>
-                        </td>
-                        <td>
-                            <input type="password" class="form-control" @bind="@HostPassword" />
+                            <input type="text" class="form-control" @bind="@_hostUsername" readonly />
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <label for="Title" class="control-label" style="font-weight: bold">Confirm: </label>
+                            <label class="control-label" style="font-weight: bold">Password: </label>
                         </td>
                         <td>
-                            <input type="password" class="form-control" @bind="@ConfirmPassword" />
+                            <input type="password" class="form-control" @bind="@_hostPassword" />
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <label for="Title" class="control-label" style="font-weight: bold">Email: </label>
+                            <label class="control-label" style="font-weight: bold">Confirm: </label>
                         </td>
                         <td>
-                            <input type="text" class="form-control" @bind="@HostEmail" />
+                            <input type="password" class="form-control" @bind="@_confirmPassword" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="control-label" style="font-weight: bold">Email: </label>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" @bind="@_hostEmail" />
                         </td>
                     </tr>
                 </tbody>
@@ -117,95 +117,87 @@
     <div class="row">
         <div class="mx-auto text-center">
             <button type="button" class="btn btn-success" @onclick="Install">Install Now</button><br /><br />
-            @((MarkupString)@Message)
+            @((MarkupString) _message)
         </div>
-        <div class="app-progress-indicator" style="@LoadingDisplay"></div>
+        <div class="app-progress-indicator" style="@_loadingDisplay"></div>
     </div>
 </div>
 
 @code {
-    private string DatabaseType = "LocalDB";
-    private string ServerName = "(LocalDb)\\MSSQLLocalDB";
-    private string DatabaseName = "Oqtane-" + DateTime.UtcNow.ToString("yyyyMMddHHmm");
-    private string Username = "";
-    private string Password = "";
-    private string HostUsername = Constants.HostUser;
-    private string HostPassword = "";
-    private string ConfirmPassword = "";
-    private string HostEmail = "";
-    private string Message = "";
-
-    private string IntegratedSecurityDisplay = "display: none;";
-    private string LoadingDisplay = "display: none;";
+    private string _databaseType = "LocalDB";
+    private string _serverName = "(LocalDb)\\MSSQLLocalDB";
+    private string _databaseName = "Oqtane-" + DateTime.UtcNow.ToString("yyyyMMddHHmm");
+    private string _username = "";
+    private string _password = "";
+    private string _hostUsername = Constants.HostUser;
+    private string _hostPassword = "";
+    private string _confirmPassword = "";
+    private string _hostEmail = "";
+    private string _message = "";
+    private string _integratedSecurityDisplay = "display: none;";
+    private string _loadingDisplay = "display: none;";
 
     private void SetIntegratedSecurity(ChangeEventArgs e)
     {
-        if (Convert.ToBoolean((string)e.Value))
-        {
-            IntegratedSecurityDisplay = "display: none;";
-        }
-        else
-        {
-            IntegratedSecurityDisplay = "";
-        }
+        _integratedSecurityDisplay = Convert.ToBoolean((string)e.Value)
+            ? "display: none;"
+            : string.Empty;
     }
 
     private async Task Install()
     {
-        if (HostUsername != "" && HostPassword.Length >= 6 && HostPassword == ConfirmPassword && HostEmail != "")
+        if (_serverName != "" && _databaseName != "" && _hostUsername != "" && _hostPassword.Length >= 6 && _hostPassword == _confirmPassword && _hostEmail != "")
         {
-            LoadingDisplay = "";
+            _loadingDisplay = "";
             StateHasChanged();
 
-            string connectionstring = "";
-            if (DatabaseType == "LocalDB")
+            var connectionstring = "";
+            if (_databaseType == "LocalDB")
             {
-                connectionstring = "Data Source=" + ServerName + ";AttachDbFilename=|DataDirectory|\\" + DatabaseName + ".mdf;Initial Catalog=" + DatabaseName + ";Integrated Security=SSPI;";
+                connectionstring = "Data Source=" + _serverName + ";AttachDbFilename=|DataDirectory|\\" + _databaseName + ".mdf;Initial Catalog=" + _databaseName + ";Integrated Security=SSPI;";
             }
             else
             {
-                connectionstring = "Data Source=" + ServerName + ";Initial Catalog=" + DatabaseName + ";";
-                if (IntegratedSecurityDisplay == "display: none;")
+                connectionstring = "Data Source=" + _serverName + ";Initial Catalog=" + _databaseName + ";";
+                if (_integratedSecurityDisplay == "display: none;")
                 {
                     connectionstring += "Integrated Security=SSPI;";
                 }
                 else
                 {
-                    connectionstring += "User ID=" + Username + ";Password=" + Password;
-
+                    connectionstring += "User ID=" + _username + ";Password=" + _password;
                 }
             }
-            GenericResponse response = await InstallationService.Install(connectionstring);
-            if (response.Success)
+
+            Uri uri = new Uri(NavigationManager.Uri);
+
+            var config = new InstallConfig
             {
-                Site site = new Site();
-                site.TenantId = -1; // will be populated on server
-                site.Name = "Default Site";
-                site.LogoFileId = null;
-                site.DefaultThemeType = Constants.DefaultTheme;
-                site.DefaultLayoutType = Constants.DefaultLayout;
-                site.DefaultContainerType = Constants.DefaultContainer;
-                site = await SiteService.AddSiteAsync(site, null);
+                ConnectionString = connectionstring,
+                Aliases = uri.Authority,
+                HostEmail = _hostEmail,
+                HostPassword = _hostPassword,
+                HostName = Constants.HostUser,
+                TenantName = Constants.MasterTenant,
+                IsNewTenant = true,
+                SiteName = Constants.DefaultSite
+            };
 
-                User user = new User();
-                user.SiteId = site.SiteId;
-                user.Username = HostUsername;
-                user.Password = HostPassword;
-                user.Email = HostEmail;
-                user.DisplayName = HostUsername;
-                user = await UserService.AddUserAsync(user);
-
-                NavigationManager.NavigateTo("", true);
+            var installation = await InstallationService.Install(config);
+            if (installation.Success)
+            {
+                NavigationManager.NavigateTo(uri.Scheme + "://" + uri.Authority, true);
             }
             else
             {
-                Message = "<div class=\"alert alert-danger\" role=\"alert\">" + response.Message + "</div>";
-                LoadingDisplay = "display: none;";
+                _message = "<div class=\"alert alert-danger\" role=\"alert\">" + installation.Message + "</div>";
+                _loadingDisplay = "display: none;";
             }
         }
         else
         {
-            Message = "<div class=\"alert alert-danger\" role=\"alert\">Please Enter All Fields And Ensure Passwords Match And Are Greater Than 5 Characters In Length</div>";
+            _message = "<div class=\"alert alert-danger\" role=\"alert\">Please Enter All Fields And Ensure Passwords Match And Are Greater Than 5 Characters In Length</div>";
         }
     }
+
 }

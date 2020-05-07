@@ -36,40 +36,40 @@
     </div>
     }
     <div class="mx-auto text-center">
-        @if (Page > MaxPages)
+        @if (_page > _maxPages)
         {
             <button class="btn btn-secondary" @onclick=@(async () => SetPagerSize("back"))><span class="oi oi-media-skip-backward" title="back" aria-hidden="true"></span></button>
         }
-        @if (EndPage > 1)
+        @if (_endPage > 1)
         {
             <button class="btn btn-secondary" @onclick=@(async () => NavigateToPage("previous"))><span class="oi oi-chevron-left" title="previous" aria-hidden="true"></span></button>            
-            @for (int i = StartPage; i <= EndPage; i++)
+            @for (int i = _startPage; i <= _endPage; i++)
             {
                 var pager = i;
-                <button class="btn @((pager == Page) ? "btn-primary" : "btn-link")" @onclick=@(async () => UpdateList(pager))>
+                <button class="btn @((pager == _page) ? "btn-primary" : "btn-link")" @onclick=@(async () => UpdateList(pager))>
                     @pager
                 </button>
             }
             <button class="btn btn-secondary" @onclick=@(async () => NavigateToPage("next"))><span class="oi oi-chevron-right" title="next" aria-hidden="true"></span></button>
         }
-        @if (EndPage < Pages)
+        @if (_endPage < _pages)
         {
             <button class="btn btn-secondary" @onclick=@(async () => SetPagerSize("forward"))><span class="oi oi-media-skip-forward" title="forward" aria-hidden="true"></span></button>
         }
-        @if (EndPage > 1)
+        @if (_endPage > 1)
         {
-            <span class="btn btn-link disabled">Page @Page of @Pages</span>
+            <span class="btn btn-link disabled">Page @_page of @_pages</span>
         }
     </div>
 </p>
 
 @code {
-    int Pages = 0;
-    int Page = 1;
-    int MaxItems;
-    int MaxPages;
-    int StartPage;
-    int EndPage;
+    private int _pages = 0;
+    private int _page = 1;
+    private int _maxItems;
+    private int _maxPages;
+    private int _startPage;
+    private int _endPage;
 
     [Parameter]
     public string Format { get; set; }
@@ -95,7 +95,7 @@
     [Parameter]
     public string Class { get; set; }
 
-    IEnumerable<TableItem> ItemList { get; set; }
+    private IEnumerable<TableItem> ItemList { get; set; }
 
     protected override void OnParametersSet()
     {
@@ -103,6 +103,7 @@
         {
             Format = "Table";
         }
+        
         if (string.IsNullOrEmpty(Class))
         {
             if (Format == "Table")
@@ -114,36 +115,39 @@
                 Class = "container";
             }
         }
+        
         if (string.IsNullOrEmpty(PageSize))
         {
-            MaxItems = 10;
+            _maxItems = 10;
         }
         else
         {
-            MaxItems = int.Parse(PageSize);
+            _maxItems = int.Parse(PageSize);
         }
+        
         if (string.IsNullOrEmpty(DisplayPages))
         {
-            MaxPages = 5;
+            _maxPages = 5;
         }
         else
         {
-            MaxPages = int.Parse(DisplayPages);
+            _maxPages = int.Parse(DisplayPages);
         }
 
         if (Items != null)
         {
-            ItemList = Items.Skip((Page - 1) * MaxItems).Take(MaxItems);
-            Pages = (int)Math.Ceiling(Items.Count() / (decimal)MaxItems);
+            ItemList = Items.Skip((_page - 1) * _maxItems).Take(_maxItems);
+            _pages = (int)Math.Ceiling(Items.Count() / (decimal)_maxItems);
         }
 
         SetPagerSize("forward");
     }
 
-    public void UpdateList(int CurrentPage)
+    public void UpdateList(int currentPage)
     {
-        ItemList = Items.Skip((CurrentPage - 1) * MaxItems).Take(MaxItems);
-        Page = CurrentPage;
+        ItemList = Items.Skip((currentPage - 1) * _maxItems).Take(_maxItems);
+        _page = currentPage;
+        
         StateHasChanged();
     }
 
@@ -151,29 +155,30 @@
     {
         if (direction == "forward")
         {
-            if (EndPage + 1 < Pages)
+            if (_endPage + 1 < _pages)
             {
-                StartPage = EndPage + 1;
+                _startPage = _endPage + 1;
             }
             else
             {
-                StartPage = 1;
+                _startPage = 1;
             }
 
-            if (EndPage + MaxPages < Pages)
+            if (_endPage + _maxPages < _pages)
             {
-                EndPage = StartPage + MaxPages - 1;
+                _endPage = _startPage + _maxPages - 1;
             }
             else
             {
-                EndPage = Pages;
+                _endPage = _pages;
             }
+            
             StateHasChanged();
         }
         else if (direction == "back")
         {
-            EndPage = StartPage - 1;
-            StartPage = StartPage - MaxPages;
+            _endPage = _startPage - 1;
+            _startPage = _startPage - _maxPages;
         }
     }
 
@@ -181,26 +186,27 @@
     {
         if (direction == "next")
         {
-            if (Page < Pages)
+            if (_page < _pages)
             {
-                if (Page == EndPage)
+                if (_page == _endPage)
                 {
                     SetPagerSize("forward");
                 }
-                Page += 1;
+                _page += 1;
             }
         }
         else if (direction == "previous")
         {
-            if (Page > 1)
+            if (_page > 1)
             {
-                if (Page == StartPage)
+                if (_page == _startPage)
                 {
                     SetPagerSize("back");
                 }
-                Page -= 1;
+                _page -= 1;
             }
         }
-        UpdateList(Page);
+        
+        UpdateList(_page);
     }
 }

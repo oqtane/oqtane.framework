@@ -6,37 +6,26 @@
 <table class="table table-borderless">
     <tr>
         <td>
-            <label  class="control-label">Name: </label>
+            <Label For="name" HelpText="Name Of The Role">Name:</Label>
         </td>
         <td>
-            <input class="form-control" @bind="@_name" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label  class="control-label">Description: </label>
-        </td>
-        <td>
-            <textarea class="form-control" @bind="@_description" rows="5"></textarea>
+            <input id="name" class="form-control" @bind="@_name" />
         </td>
     </tr>
     <tr>
         <td>
-            <label  class="control-label">Auto Assigned? </label>
+            <Label For="description" HelpText="A Short Description Of The Role Which Describes Its Purpose">Description:</Label>
         </td>
         <td>
-            <select class="form-control" @bind="@_isautoassigned">
-                <option value="True">Yes</option>
-                <option value="False">No</option>
-            </select>
+            <textarea id="description" class="form-control" @bind="@_description" rows="5"></textarea>
         </td>
     </tr>
     <tr>
         <td>
-            <label  class="control-label">System Role? </label>
+            <Label For="isautoassigned" HelpText="Indicates Whether Or Not New Users Are Automatically Assigned To This Role">Auto Assigned?</Label>
         </td>
         <td>
-            <select class="form-control" @bind="@_issystem">
+            <select id="isautoassigned" class="form-control" @bind="@_isautoassigned">
                 <option value="True">Yes</option>
                 <option value="False">No</option>
             </select>
@@ -47,26 +36,24 @@
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+    private int _roleid;
+    private string _name = string.Empty;
+    private string _description = string.Empty;
+    private string _isautoassigned = "False";
 
-    int _roleid;
-    string _name = "";
-    string _description = "";
-    string _isautoassigned = "False";
-    string _issystem = "False";
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             _roleid = Int32.Parse(PageState.QueryString["id"]);
-            Role role = await RoleService.GetRoleAsync(_roleid);
+            var role = await RoleService.GetRoleAsync(_roleid);
             if (role != null)
             {
                 _name = role.Name;
                 _description = role.Description;
                 _isautoassigned = role.IsAutoAssigned.ToString();
-                _issystem = role.IsSystem.ToString();
             }
         }
         catch (Exception ex)
@@ -78,11 +65,11 @@
 
     private async Task SaveRole()
     {
-        Role role = await RoleService.GetRoleAsync(_roleid);
+        var role = await RoleService.GetRoleAsync(_roleid);
         role.Name = _name;
         role.Description = _description;
         role.IsAutoAssigned = (_isautoassigned != null && Boolean.Parse(_isautoassigned));
-        role.IsSystem = (_issystem != null && Boolean.Parse(_issystem));
+        role.IsSystem = false;
 
         try
         {

@@ -1,18 +1,21 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using Oqtane.Repository;
 using Oqtane.Models;
 using Microsoft.AspNetCore.Authorization;
 using Oqtane.Shared;
-using Oqtane.Infrastructure;
 using System.IO;
 using System.Reflection;
 using System.Linq;
 using Microsoft.AspNetCore.Hosting;
+using Oqtane.Enums;
+using Oqtane.Infrastructure;
+using Oqtane.Repository;
+
+// ReSharper disable StringIndexOfIsCultureSpecific.1
 
 namespace Oqtane.Controllers
 {
-    [Route("{site}/api/[controller]")]
+    [Route("{alias}/api/[controller]")]
     public class ThemeController : Controller
     {
         private readonly IThemeRepository _themes;
@@ -55,7 +58,7 @@ namespace Oqtane.Controllers
             {
                 themename = theme.ThemeName.Substring(0, theme.ThemeName.IndexOf(","));
 
-                string folder = Path.Combine(_environment.WebRootPath, "Themes\\" + themename);
+                string folder = Path.Combine(_environment.WebRootPath, "Themes" , themename);
                 if (Directory.Exists(folder))
                 {
                     Directory.Delete(folder, true);
@@ -72,13 +75,23 @@ namespace Oqtane.Controllers
             }
         }
 
-        // GET api/<controller>/load/filename
-        [HttpGet("load/{filename}")]
-        public IActionResult Load(string filename)
+        // GET api/<controller>/load/assembyname
+        [HttpGet("load/{assemblyname}")]
+        public IActionResult Load(string assemblyname)
         {
-            string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            byte[] file = System.IO.File.ReadAllBytes(Path.Combine(binfolder, filename));
-            return File(file, "application/octet-stream", filename);
+            if (Path.GetExtension(assemblyname).ToLower() == ".dll")
+            {
+                string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                byte[] file = System.IO.File.ReadAllBytes(Path.Combine(binfolder, assemblyname));
+                return File(file, "application/octet-stream", assemblyname);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Download Assembly {Assembly}", assemblyname);
+                HttpContext.Response.StatusCode = 401;
+                return null;
+            }
         }
+
     }
 }

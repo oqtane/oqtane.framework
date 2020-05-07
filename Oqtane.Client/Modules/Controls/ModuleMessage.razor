@@ -8,14 +8,14 @@
 }
 
 @code {
+    private string _message = string.Empty;
+    private string _classname = "alert alert-danger";
+
     [Parameter]
     public string Message { get; set; }
 
     [Parameter]
     public MessageType Type { get; set; }
-
-    string _message = "";
-    string _classname = "alert alert-danger";
 
     protected override void OnParametersSet()
     {
@@ -35,7 +35,7 @@
 
     private string GetMessageType(MessageType type)
     {
-        string classname = "";
+        var classname = string.Empty;
         switch (type)
         {
             case MessageType.Success:
@@ -51,6 +51,7 @@
                 classname = "alert alert-danger";
                 break;
         }
+        
         return classname;
     }
 }

@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Oqtane.Models;
-using Oqtane.Repository;
 using System.Linq;
 using System.Security.Claims;
+using Oqtane.Repository;
 
 namespace Oqtane.Security
 {
@@ -17,46 +17,52 @@ namespace Oqtane.Security
             _accessor = accessor;
         }
 
-        public bool IsAuthorized(ClaimsPrincipal User, string EntityName, int EntityId, string PermissionName)
+        public bool IsAuthorized(ClaimsPrincipal user, string entityName, int entityId, string permissionName)
         {
-            return IsAuthorized(User, PermissionName, _permissions.EncodePermissions(EntityId, _permissions.GetPermissions(EntityName, EntityId, PermissionName).ToList()));
+            return IsAuthorized(user, permissionName, _permissions.GetPermissionString(entityName, entityId, permissionName));
         }
 
-        public bool IsAuthorized(ClaimsPrincipal User, string PermissionName, string Permissions)
+        public bool IsAuthorized(ClaimsPrincipal user, string permissionName, string permissions)
         {
-            return UserSecurity.IsAuthorized(GetUser(User), PermissionName, Permissions);
+            return UserSecurity.IsAuthorized(GetUser(user), permissionName, permissions);
         }
 
-        public User GetUser(ClaimsPrincipal User)
+        public User GetUser(ClaimsPrincipal user)
         {
-            User user = new User();
-            user.Username = "";
-            user.IsAuthenticated = false;
-            user.UserId = -1;
-            user.Roles = "";
+            User resultUser = new User();
+            resultUser.Username = "";
+            resultUser.IsAuthenticated = false;
+            resultUser.UserId = -1;
+            resultUser.Roles = "";
 
-            if (User != null)
+            if (user == null) return resultUser;
+
+            resultUser.Username = user.Identity.Name;
+            resultUser.IsAuthenticated = user.Identity.IsAuthenticated;
+            var idclaim = user.Claims.FirstOrDefault(item => item.Type == ClaimTypes.PrimarySid);
+            if (idclaim != null)
             {
-                user.Username = User.Identity.Name;
-                user.IsAuthenticated = User.Identity.IsAuthenticated;
-                var idclaim = User.Claims.Where(item => item.Type == ClaimTypes.PrimarySid).FirstOrDefault();
-                if (idclaim != null)
+                resultUser.UserId = int.Parse(idclaim.Value);
+                foreach (var claim in user.Claims.Where(item => item.Type == ClaimTypes.Role))
                 {
-                    user.UserId = int.Parse(idclaim.Value);
-                    foreach (var claim in User.Claims.Where(item => item.Type == ClaimTypes.Role))
-                    {
-                        user.Roles += claim.Value + ";";
-                    }
-                    if (user.Roles != "") user.Roles = ";" + user.Roles;
+                    resultUser.Roles += claim.Value + ";";
                 }
-            }
 
-            return user;
+                if (resultUser.Roles != "") resultUser.Roles = ";" + resultUser.Roles;
+            }
+            return resultUser;
         }
 
         public User GetUser()
         {
-            return GetUser(_accessor.HttpContext.User);
+            if (_accessor.HttpContext != null)
+            {
+                return GetUser(_accessor.HttpContext.User);
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

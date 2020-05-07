@@ -5,12 +5,12 @@ namespace Oqtane.Repository
 {
     public interface IModuleRepository
     {
-        IEnumerable<Module> GetModules(int SiteId);
-        Module AddModule(Module Module);
-        Module UpdateModule(Module Module);
-        Module GetModule(int ModuleId);
-        void DeleteModule(int ModuleId);
-        string ExportModule(int ModuleId);
-        bool ImportModule(int ModuleId, string Content);
+        IEnumerable<Module> GetModules(int siteId);
+        Module AddModule(Module module);
+        Module UpdateModule(Module module);
+        Module GetModule(int moduleId);
+        void DeleteModule(int moduleId);
+        string ExportModule(int moduleId);
+        bool ImportModule(int moduleId, string content);
     }
 }

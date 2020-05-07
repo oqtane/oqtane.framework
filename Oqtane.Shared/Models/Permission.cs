@@ -19,5 +19,23 @@ namespace Oqtane.Models
         public DateTime ModifiedOn { get; set; }
 
         public Role Role { get; set; }
+
+        public Permission()
+        {
+        }
+
+        public Permission(string permissionName, string roleName, bool isAuthorized)
+        {
+            PermissionName = permissionName;
+            Role = new Role { Name = roleName };
+            IsAuthorized = isAuthorized;
+        }
+
+        public Permission(string permissionName, int userId, bool isAuthorized)
+        {
+            PermissionName = permissionName;
+            UserId = userId;
+            IsAuthorized = isAuthorized;
+        }
     }
 }

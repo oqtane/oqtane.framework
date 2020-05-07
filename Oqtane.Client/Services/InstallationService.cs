@@ -1,44 +1,29 @@
 ﻿using Oqtane.Models;
 using System.Threading.Tasks;
 using System.Net.Http;
-using System.Linq;
-using Microsoft.AspNetCore.Components;
-using System.Collections.Generic;
 using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
     public class InstallationService : ServiceBase, IInstallationService
     {
-        private readonly HttpClient _http;
-        private readonly SiteState _siteState;
-        private readonly NavigationManager _navigationManager;
+        public InstallationService(HttpClient http):base(http) { }
 
-        public InstallationService(HttpClient http, SiteState siteState, NavigationManager navigationManager)
+        private string ApiUrl => CreateApiUrl("Installation");
+
+        public async Task<Installation> IsInstalled()
         {
-            _http = http;
-            _siteState = siteState;
-            _navigationManager = navigationManager;
+            return await GetJsonAsync<Installation>($"{ApiUrl}/installed");
         }
 
-        private string apiurl
+        public async Task<Installation> Install(InstallConfig config)
         {
-            get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Installation"); }
+            return await PostJsonAsync<InstallConfig,Installation>(ApiUrl, config);
         }
 
-        public async Task<GenericResponse> IsInstalled()
+        public async Task<Installation> Upgrade()
         {
-            return await _http.GetJsonAsync<GenericResponse>(apiurl + "/installed");
-        }
-
-        public async Task<GenericResponse> Install(string connectionstring)
-        {
-            return await _http.PostJsonAsync<GenericResponse>(apiurl, connectionstring);
-        }
-
-        public async Task<GenericResponse> Upgrade()
-        {
-            return await _http.GetJsonAsync<GenericResponse>(apiurl + "/upgrade");
+            return await GetJsonAsync<Installation>($"{ApiUrl}/upgrade");
         }
     }
 }

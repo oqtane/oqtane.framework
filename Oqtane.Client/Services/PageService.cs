@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using System.Linq;
 using System.Net.Http;
-using Microsoft.AspNetCore.Components;
 using System.Collections.Generic;
 using Oqtane.Shared;
 using System;
@@ -12,44 +11,39 @@ namespace Oqtane.Services
 {
     public class PageService : ServiceBase, IPageService
     {
-        private readonly HttpClient _http;
+        
         private readonly SiteState _siteState;
-        private readonly NavigationManager _navigationManager;
 
-        public PageService(HttpClient http, SiteState siteState, NavigationManager navigationManager)
+        public PageService(HttpClient http, SiteState siteState) : base(http)
         {
-            _http = http;
+            
             _siteState = siteState;
-            _navigationManager = navigationManager;
         }
 
-        private string apiurl
-        {
-            get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "Page"); }
-        }
+        private string Apiurl => CreateApiUrl(_siteState.Alias, "Page");
 
-        public async Task<List<Page>> GetPagesAsync(int SiteId)
+        public async Task<List<Page>> GetPagesAsync(int siteId)
         {
-            List<Page> pages = await _http.GetJsonAsync<List<Page>>(apiurl + "?siteid=" + SiteId.ToString());
+            List<Page> pages = await GetJsonAsync<List<Page>>($"{Apiurl}?siteid={siteId}");
             pages = GetPagesHierarchy(pages);
             return pages;
         }
 
-        public async Task<Page> GetPageAsync(int PageId)
+        public async Task<Page> GetPageAsync(int pageId)
         {
-            return await _http.GetJsonAsync<Page>(apiurl + "/" + PageId.ToString());
+            return await GetJsonAsync<Page>($"{Apiurl}/{pageId}");
         }
 
-        public async Task<Page> GetPageAsync(int PageId, int UserId)
+        public async Task<Page> GetPageAsync(int pageId, int userId)
         {
-            return await _http.GetJsonAsync<Page>(apiurl + "/" + PageId.ToString() + "?userid=" + UserId.ToString());
+            return await GetJsonAsync<Page>($"{Apiurl}/{pageId}?userid={userId}");
         }
 
-        public async Task<Page> GetPageAsync(string Path, int SiteId)
+        public async Task<Page> GetPageAsync(string path, int siteId)
         {
             try
             {
-                return await _http.GetJsonAsync<Page>(apiurl + "/path/" + SiteId.ToString() + "?path=" + WebUtility.UrlEncode(Path));
+                return await GetJsonAsync<Page>($"{Apiurl}/path/{siteId}?path={WebUtility.UrlEncode(path)}");
             }
             catch
             {
@@ -57,62 +51,65 @@ namespace Oqtane.Services
             }
         }
 
-        public async Task<Page> AddPageAsync(Page Page)
+        public async Task<Page> AddPageAsync(Page page)
         {
-            return await _http.PostJsonAsync<Page>(apiurl, Page);
+            return await PostJsonAsync<Page>(Apiurl, page);
         }
 
-        public async Task<Page> AddPageAsync(int PageId, int UserId)
+        public async Task<Page> AddPageAsync(int pageId, int userId)
         {
-            return await _http.PostJsonAsync<Page>(apiurl + "/" + PageId.ToString() + "?userid=" + UserId.ToString(), null);
+            return await PostJsonAsync<Page>($"{Apiurl}/{pageId}?userid={userId}", null);
         }
 
-        public async Task<Page> UpdatePageAsync(Page Page)
+        public async Task<Page> UpdatePageAsync(Page page)
         {
-            return await _http.PutJsonAsync<Page>(apiurl + "/" + Page.PageId.ToString(), Page);
+            return await PutJsonAsync<Page>($"{Apiurl}/{page.PageId}", page);
         }
 
-        public async Task UpdatePageOrderAsync(int SiteId, int PageId, int? ParentId)
+        public async Task UpdatePageOrderAsync(int siteId, int pageId, int? parentId)
         {
-            await _http.PutJsonAsync(apiurl + "/?siteid=" + SiteId.ToString() + "&pageid=" + PageId.ToString() + "&parentid=" + ((ParentId == null) ? "" : ParentId.ToString()), null);
+            var parent = parentId == null
+                ? string.Empty
+                : parentId.ToString();
+            await PutAsync($"{Apiurl}/?siteid={siteId}&pageid={pageId}&parentid={parent}");
         }
 
-        public async Task DeletePageAsync(int PageId)
+        public async Task DeletePageAsync(int pageId)
         {
-            await _http.DeleteAsync(apiurl + "/" + PageId.ToString());
+            await DeleteAsync($"{Apiurl}/{pageId}");
         }
 
-        private static List<Page> GetPagesHierarchy(List<Page> Pages)
+        private static List<Page> GetPagesHierarchy(List<Page> pages)
         {
             List<Page> hierarchy = new List<Page>();
-            Action<List<Page>, Page> GetPath = null;
-            GetPath = (List<Page> pages, Page page) =>
+            Action<List<Page>, Page> getPath = null;
+            getPath = (pageList, page) =>
             {
                 IEnumerable<Page> children;
                 int level;
                 if (page == null)
                 {
                     level = -1;
-                    children = Pages.Where(item => item.ParentId == null);
+                    children = pages.Where(item => item.ParentId == null);
                 }
                 else
                 {
                     level = page.Level;
-                    children = Pages.Where(item => item.ParentId == page.PageId);
+                    children = pages.Where(item => item.ParentId == page.PageId);
                 }
                 foreach (Page child in children)
                 {
                     child.Level = level + 1;
-                    child.HasChildren = Pages.Where(item => item.ParentId == child.PageId).Any();
+                    child.HasChildren = pages.Any(item => item.ParentId == child.PageId);
                     hierarchy.Add(child);
-                    GetPath(pages, child);
+                    getPath(pageList, child);
                 }
             };
-            Pages = Pages.OrderBy(item => item.Order).ToList();
-            GetPath(Pages, null);
+            pages = pages.OrderBy(item => item.Order).ToList();
+            getPath(pages, null);
 
             // add any non-hierarchical items to the end of the list
-            foreach (Page page in Pages)
+            foreach (Page page in pages)
             {
                 if (hierarchy.Find(item => item.PageId == page.PageId) == null)
                 {

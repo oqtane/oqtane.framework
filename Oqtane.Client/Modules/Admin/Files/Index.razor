@@ -49,24 +49,23 @@
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+    private List<Folder> _folders;
+    private int _folderId = -1;
+    private List<File> _files;
 
-    List<Folder> _folders;
-    int _folderId = -1;
-    List<File> _files;
-    Uri _uri;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override async Task OnParametersSetAsync()
     {
         try
         {
             _folders = await FolderService.GetFoldersAsync(PageState.Site.SiteId);
+            
             if (_folderId == -1 && _folders.Count > 0)
             {
                 _folderId = _folders[0].FolderId;
                 await GetFiles();
             }
-            _uri = new Uri(NavigationManager.Uri);
         }
         catch (Exception ex)
         {

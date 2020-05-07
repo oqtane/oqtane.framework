@@ -5,42 +5,55 @@
 @inject IPackageService PackageService
 @inject IInstallationService InstallationService
 
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <label  class="control-label">Framework: </label>
-        </td>
-        <td>
-            <FileManager Filter="nupkg" ShowFiles="false" Folder="Framework" />
-        </td>
-    </tr>
-</table>
-<button type="button" class="btn btn-success" @onclick="Upgrade">Upgrade</button>
-
-@if (upgradeavailable)
+@if (_package != null)
 {
-    <hr class="app-rule" />
-    <div class="mx-auto text-center"><h2>Upgrade Available</h2></div>
-
-    <button type="button" class="btn btn-success" @onclick=@(async () => await Download(Constants.PackageId, Constants.Version))>Upgrade Framework</button>
+<TabStrip>
+    <TabPanel Name="Download">
+        @if (_upgradeavailable)
+        {
+            <ModuleMessage Type="MessageType.Info" Message="Download a new version of the framework. Once you are ready click Install to complete the installation."></ModuleMessage>
+            @("Framework") @_package.Version <button type="button" class="btn btn-success" @onclick=@(async () => await Download(Constants.PackageId, Constants.Version))>Download</button>
+        }
+        else
+        {
+            <ModuleMessage Type="MessageType.Info" Message="Framework Is Already Up To Date"></ModuleMessage>
+        }
+    </TabPanel>
+    @if (_upgradeavailable)
+    {
+    <TabPanel Name="Upload">
+        <table class="table table-borderless">
+            <tr>
+                <td>
+                    <Label HelpText="Upload a new framework package. Once it is uploaded click Install to complete the installation.">Framework: </Label>
+                </td>
+                <td>
+                    <FileManager Filter="nupkg" ShowFiles="false" Folder="Framework" />
+                </td>
+            </tr>
+        </table>
+    </TabPanel>
+    }
+</TabStrip>
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+    private Package _package;
+    private bool _upgradeavailable = false;
 
-    bool upgradeavailable = false;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnInitializedAsync()
     {
         List<Package> packages = await PackageService.GetPackagesAsync("framework");
-        Package package = packages.FirstOrDefault();
-        if (package != null)
+        _package = packages.FirstOrDefault();
+        if (_package != null)
         {
-            upgradeavailable = (Version.Parse(package.Version).CompareTo(Version.Parse(Constants.Version)) > 0);
+            _upgradeavailable = (Version.Parse(_package.Version).CompareTo(Version.Parse(Constants.Version)) > 0);
         }
-        if (!upgradeavailable)
+        else
         {
-            AddModuleMessage("Framework Is Up To Date", MessageType.Info);
+            _package = new Package { Name = Constants.PackageId, Version = Constants.Version };
         }
     }
 

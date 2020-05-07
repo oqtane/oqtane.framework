@@ -1,32 +1,36 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
 using System.Linq;
-using Oqtane.Infrastructure;
 using Oqtane.Security;
 using System.Net;
+using Oqtane.Enums;
+using Oqtane.Extensions;
+using Oqtane.Infrastructure;
+using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
-    [Route("{site}/api/[controller]")]
+    [Route("{alias}/api/[controller]")]
     public class PageController : Controller
     {
         private readonly IPageRepository _pages;
         private readonly IModuleRepository _modules;
         private readonly IPageModuleRepository _pageModules;
         private readonly IUserPermissions _userPermissions;
+        private readonly ITenantResolver _tenants;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
 
-        public PageController(IPageRepository pages, IModuleRepository modules, IPageModuleRepository pageModules, IUserPermissions userPermissions, ISyncManager syncManager, ILogManager logger)
+        public PageController(IPageRepository pages, IModuleRepository modules, IPageModuleRepository pageModules, IUserPermissions userPermissions, ITenantResolver tenants, ISyncManager syncManager, ILogManager logger)
         {
             _pages = pages;
             _modules = modules;
             _pageModules = pageModules;
             _userPermissions = userPermissions;
+            _tenants = tenants;
             _syncManager = syncManager;
             _logger = logger;
         }
@@ -99,34 +103,36 @@ namespace Oqtane.Controllers
         // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = Constants.RegisteredRole)]
-        public Page Post([FromBody] Page Page)
+        public Page Post([FromBody] Page page)
         {
             if (ModelState.IsValid)
             {
                 string permissions;
-                if (Page.ParentId != null)
+                if (page.ParentId != null)
                 {
-                    permissions = _pages.GetPage(Page.ParentId.Value).Permissions;
+                    permissions = _pages.GetPage(page.ParentId.Value).Permissions;
                 }
                 else
                 {
-                    permissions = UserSecurity.SetPermissionStrings(new List<PermissionString> { new PermissionString { PermissionName = PermissionNames.Edit, Permissions = Constants.AdminRole } });
+                    permissions = new List<Permission> {
+                        new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                    }.EncodePermissions();
                 }
             
                 if (_userPermissions.IsAuthorized(User,PermissionNames.Edit, permissions))
                 {
-                    Page = _pages.AddPage(Page);
-                    _syncManager.AddSyncEvent(EntityNames.Site, Page.SiteId);
-                    _logger.Log(LogLevel.Information, this, LogFunction.Create, "Page Added {Page}", Page);
+                    page = _pages.AddPage(page);
+                    _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, page.SiteId);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Create, "Page Added {Page}", page);
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Add Page {Page}", Page);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Add Page {Page}", page);
                     HttpContext.Response.StatusCode = 401;
-                    Page = null;
+                    page = null;
                 }
             }
-            return Page;
+            return page;
         }
 
         // POST api/<controller>/5?userid=x
@@ -141,22 +147,24 @@ namespace Oqtane.Controllers
                 page = new Page();
                 page.SiteId = parent.SiteId;
                 page.Name = parent.Name;
+                page.Title = parent.Title;
                 page.Path = parent.Path;
                 page.ParentId = parent.PageId;
                 page.Order = 0;
                 page.IsNavigation = false;
+                page.Url = "";
                 page.EditMode = false;
                 page.ThemeType = parent.ThemeType;
                 page.LayoutType = parent.LayoutType;
                 page.Icon = parent.Icon;
-                List<PermissionString> permissions = new List<PermissionString>();
-                permissions.Add(new PermissionString { PermissionName = PermissionNames.View, Permissions = "[" + userid + "]" });
-                permissions.Add(new PermissionString { PermissionName = PermissionNames.Edit, Permissions = "[" + userid + "]" });
-                page.Permissions = UserSecurity.SetPermissionStrings(permissions);
+                page.Permissions = new List<Permission> {
+                    new Permission(PermissionNames.View, userid, true),
+                    new Permission(PermissionNames.Edit, userid, true)
+                }.EncodePermissions();
                 page.IsPersonalizable = false;
                 page.UserId = int.Parse(userid);
                 page = _pages.AddPage(page);
-                _syncManager.AddSyncEvent(EntityNames.Site, page.SiteId);
+                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, page.SiteId);
 
                 // copy modules
                 List<PageModule> pagemodules = _pageModules.GetPageModules(page.SiteId).ToList();
@@ -166,10 +174,10 @@ namespace Oqtane.Controllers
                     module.SiteId = page.SiteId;
                     module.PageId = page.PageId;
                     module.ModuleDefinitionName = pm.Module.ModuleDefinitionName;
-                    permissions = new List<PermissionString>();
-                    permissions.Add(new PermissionString { PermissionName = PermissionNames.View, Permissions = "[" + userid + "]" });
-                    permissions.Add(new PermissionString { PermissionName = PermissionNames.Edit, Permissions = "[" + userid + "]" });
-                    module.Permissions = UserSecurity.SetPermissionStrings(permissions);
+                    module.Permissions = new List<Permission> {
+                        new Permission(PermissionNames.View, userid, true),
+                        new Permission(PermissionNames.Edit, userid, true)
+                    }.EncodePermissions();
                     module = _modules.AddModule(module);
 
                     string content = _modules.ExportModule(pm.ModuleId);
@@ -195,21 +203,21 @@ namespace Oqtane.Controllers
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Roles = Constants.RegisteredRole)]
-        public Page Put(int id, [FromBody] Page Page)
+        public Page Put(int id, [FromBody] Page page)
         {
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Page, Page.PageId, PermissionNames.Edit))
+            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Page, page.PageId, PermissionNames.Edit))
             {
-                Page = _pages.UpdatePage(Page);
-                _syncManager.AddSyncEvent(EntityNames.Site, Page.SiteId);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Updated {Page}", Page);
+                page = _pages.UpdatePage(page);
+                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, page.SiteId);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Updated {Page}", page);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Page {Page}", Page);
+                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Page {Page}", page);
                 HttpContext.Response.StatusCode = 401;
-                Page = null;
+                page = null;
             }
-            return Page;
+            return page;
         }
 
         // PUT api/<controller>/?siteid=x&pageid=y&parentid=z
@@ -230,7 +238,7 @@ namespace Oqtane.Controllers
                     }
                     order += 2;
                 }
-                _syncManager.AddSyncEvent(EntityNames.Site, siteid);
+                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, siteid);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Order Updated {SiteId} {PageId} {ParentId}", siteid, pageid, parentid);
             }
             else
@@ -249,7 +257,7 @@ namespace Oqtane.Controllers
             if (_userPermissions.IsAuthorized(User, EntityNames.Page, page.PageId, PermissionNames.Edit))
             {
                 _pages.DeletePage(page.PageId);
-                _syncManager.AddSyncEvent(EntityNames.Site, page.SiteId);
+                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, page.SiteId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Page Deleted {PageId}", page.PageId);
             }
             else

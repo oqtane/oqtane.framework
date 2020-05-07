@@ -19,13 +19,13 @@
 </div>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
-
-    List<Page> _pages;
+    private List<Page> _pages;
+    
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override void OnInitialized()
     {
-        Page admin = PageState.Pages.FirstOrDefault(item => item.Path == "admin");
+        var admin = PageState.Pages.FirstOrDefault(item => item.Path == "admin");
         _pages = PageState.Pages.Where(item => item.ParentId == admin?.PageId).ToList();
     }
 }

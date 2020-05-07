@@ -1,71 +1,51 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using Oqtane.Models;
 using Microsoft.AspNetCore.Http;
-using System;
+using Oqtane.Models;
 using Oqtane.Shared;
 
 namespace Oqtane.Repository
 {
     public class TenantResolver : ITenantResolver
     {
-        private readonly Alias _alias = null;
-        private readonly Tenant _tenant = null;
+        private readonly Alias _alias;
+        private readonly Tenant _tenant;
 
-        public TenantResolver(IHttpContextAccessor Accessor, IAliasRepository Aliases, ITenantRepository Tenants, SiteState SiteState)
+        public TenantResolver(IHttpContextAccessor accessor, IAliasRepository aliasRepository, ITenantRepository tenantRepository, SiteState siteState)
         {
-            int aliasid = -1;
-            string aliasname = "";
+            int aliasId = -1;
 
-            // get alias identifier based on request context
-            if (Accessor.HttpContext != null)
+            if (siteState != null && siteState.Alias != null)
             {
-                // check if an alias is passed as a querystring parameter ( for cross tenant access )
-                if (Accessor.HttpContext.Request.Query.ContainsKey("aliasid"))
-                {
-                    aliasid = int.Parse(Accessor.HttpContext.Request.Query["aliasid"]);
-                }
-                else // get the alias from the request url
-                {
-                    aliasname = Accessor.HttpContext.Request.Host.Value;
-                    string path = Accessor.HttpContext.Request.Path.Value;
-                    string[] segments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-                    if (segments.Length > 1 && segments[1] == "api" && segments[0] != "~")
-                    {
-                        aliasname += "/" + segments[0];
-                    }
-                    if (aliasname.EndsWith("/"))
-                    {
-                        aliasname = aliasname.Substring(0, aliasname.Length - 1);
-                    }
-                }
+                // background processes can pass in an alias using the SiteState service
+                _alias = siteState.Alias;
             }
-            else  // background processes can pass in an alias using the SiteState service
+            else
             {
-                if (SiteState != null)
+                // get aliasid identifier based on request
+                if (accessor.HttpContext != null)
                 {
-                    aliasid = SiteState.Alias.AliasId;
+                    string[] segments = accessor.HttpContext.Request.Path.Value.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (segments.Length > 1 && (segments[1] == "api" || segments[1] == "pages") && segments[0] != "~")
+                    {
+                        aliasId = int.Parse(segments[0]);
+                    }
+                }
+
+                // get the alias
+                IEnumerable<Alias> aliases = aliasRepository.GetAliases().ToList(); // cached
+                if (aliasId != -1)
+                {
+                    _alias = aliases.FirstOrDefault(item => item.AliasId == aliasId);
                 }
             }
 
-            // get the alias and tenant
-            if (aliasid != -1 || aliasname != "")
+            if (_alias != null)
             {
-                IEnumerable<Alias> aliases = Aliases.GetAliases(); // cached
-                IEnumerable<Tenant> tenants = Tenants.GetTenants(); // cached
-
-                if (aliasid != -1)
-                {
-                    _alias = aliases.Where(item => item.AliasId == aliasid).FirstOrDefault();
-                }
-                else
-                {
-                    _alias = aliases.Where(item => item.Name == aliasname).FirstOrDefault();
-                }
-                if (_alias != null)
-                {
-                    _tenant = tenants.Where(item => item.TenantId == _alias.TenantId).FirstOrDefault();
-                }
+                // get the tenant
+                IEnumerable<Tenant> tenants = tenantRepository.GetTenants(); // cached
+                _tenant = tenants.FirstOrDefault(item => item.TenantId == _alias.TenantId);
             }
         }
 

@@ -21,11 +21,11 @@
 </div>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Anonymous; } }
+    private string _username = string.Empty;
+    private string _password = string.Empty;
+    private string _confirm = string.Empty;
 
-    string _username = "";
-    string _password = "";
-    string _confirm = "";
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
 
     protected override void OnInitialized()
     {
@@ -35,7 +35,7 @@
         }
         else
         { 
-            NavigationManager.NavigateTo(NavigateUrl(""));
+            NavigationManager.NavigateTo(NavigateUrl(string.Empty));
         }
     }
 
@@ -43,11 +43,11 @@
     {
         try
         {
-            if (_username != "" && _password != "" && _confirm != "")
+            if (_username != string.Empty && _password != string.Empty && _confirm != string.Empty)
             {
                 if (_password == _confirm)
                 {
-                    User user = new User
+                    var user = new User
                     {
                         SiteId = PageState.Site.SiteId,
                         Username = _username,
@@ -85,6 +85,6 @@
 
     private void Cancel()
     {
-        NavigationManager.NavigateTo(NavigateUrl(""));
+        NavigationManager.NavigateTo(NavigateUrl(string.Empty));
     }
 }

@@ -67,16 +67,19 @@
 </div>
 
 @code {
+    private string _visibleText = "d-none";
+    private string _visibleRich;
+    private bool _richTextEditorMode;
+    private RichTextEditor RichTextEditorHtml;
+    private string content;
+    private string createdby;
+    private DateTime createdon;
+    private string modifiedby;
+    private DateTime modifiedon;
 
-    public override SecurityAccessLevel SecurityAccessLevel
-    {
-        get { return SecurityAccessLevel.Edit; }
-    }
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
 
-    public override string Title
-    {
-        get { return "Edit Html/Text"; }
-    }
+    public override string Title => "Edit Html/Text";
 
     public bool RichTextEditorMode
     {
@@ -88,26 +91,15 @@
             if (_richTextEditorMode)
             {
                 _visibleText = "d-none";
-                _visibleRich = "";
+                _visibleRich = string.Empty;
             }
             else
             {
-                _visibleText = "";
+                _visibleText = string.Empty;
                 _visibleRich = "d-none";
             }
         }
     }
-
-    string _visibleText = "d-none";
-    string _visibleRich;
-    bool _richTextEditorMode;
-
-    RichTextEditor RichTextEditorHtml;
-    string content;
-    string createdby;
-    DateTime createdon;
-    string modifiedby;
-    DateTime modifiedon;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -131,8 +123,8 @@
 
     private async Task LoadText()
     {
-        HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, NavigationManager);
-        HtmlTextInfo htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
+        var htmltextservice = new HtmlTextService(http, sitestate);
+        var htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
         if (htmltext != null)
         {
             content = htmltext.Content;
@@ -158,7 +150,7 @@
 
     private async Task RawHtmlEditor()
     {
-        content = await this.RichTextEditorHtml.GetHTML();
+        content = await this.RichTextEditorHtml.GetHtml();
         RichTextEditorMode = false;
         StateHasChanged();
     }
@@ -167,15 +159,15 @@
     {
         if (RichTextEditorMode)
         {
-            content = await RichTextEditorHtml.GetHTML();
+            content = await RichTextEditorHtml.GetHtml();
         }
 
-        content = content.Replace(((PageState.Alias.Path == "") ? "/~" : PageState.Alias.Path) + Constants.ContentUrl, Constants.ContentUrl);
+        content = content.Replace(((PageState.Alias.Path == string.Empty) ? "/~" : PageState.Alias.Path) + Constants.ContentUrl, Constants.ContentUrl);
 
         try
         {
-            HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, NavigationManager);
-            HtmlTextInfo htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
+            var htmltextservice = new HtmlTextService(http, sitestate);
+            var htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
             if (htmltext != null)
             {
                 htmltext.Content = content;
@@ -188,6 +180,7 @@
                 htmltext.Content = content;
                 await htmltextservice.AddHtmlTextAsync(htmltext);
             }
+            
             await logger.LogInformation("Html/Text Content Saved {HtmlText}", htmltext);
             NavigationManager.NavigateTo(NavigateUrl());
         }
