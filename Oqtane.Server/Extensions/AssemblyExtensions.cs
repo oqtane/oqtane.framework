@@ -36,12 +36,12 @@ namespace System.Reflection
 
         public static bool IsOqtaneAssembly(this Assembly assembly)
         {
-            return assembly.FullName != null && (assembly.FullName.Contains("oqtane.", StringComparison.OrdinalIgnoreCase));
+            return assembly.FullName != null && (assembly.FullName.Contains("oqtane", StringComparison.OrdinalIgnoreCase));
         }
 
         public static bool IsOqtaneAssembly(this FileInfo fileInfo)
         {
-            return (fileInfo.Name.Contains("oqtane.", StringComparison.OrdinalIgnoreCase));
+            return (fileInfo.Name.Contains("oqtane", StringComparison.OrdinalIgnoreCase));
         }
 
         public static IEnumerable<Assembly> GetOqtaneAssemblies(this AppDomain appDomain)

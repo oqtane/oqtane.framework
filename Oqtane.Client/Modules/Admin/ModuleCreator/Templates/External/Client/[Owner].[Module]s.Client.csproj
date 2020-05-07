@@ -7,8 +7,9 @@
     <Authors>[Owner]</Authors>
     <Company>[Owner]</Company>
     <Description>[Description]</Description>
-    <Product>[Owner].[Module]s.Module</Product>
+    <Product>[Owner].[Module]s</Product>
     <Copyright>[Owner]</Copyright>
+    <AssemblyName>[Owner].[Module]s.Client.Oqtane</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Shared\[Owner].[Module]s.Module.Shared.csproj" />
+    <ProjectReference Include="..\Shared\[Owner].[Module]s.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
