@@ -16,14 +16,16 @@ namespace Oqtane.Controllers
     {
         private readonly IModuleRepository _modules;
         private readonly IPageModuleRepository _pageModules;
+        private readonly IPageRepository _pages;
         private readonly IModuleDefinitionRepository _moduleDefinitions;
         private readonly IUserPermissions _userPermissions;
         private readonly ILogManager _logger;
 
-        public ModuleController(IModuleRepository modules, IPageModuleRepository pageModules, IModuleDefinitionRepository moduleDefinitions, IUserPermissions userPermissions, ILogManager logger)
+        public ModuleController(IModuleRepository modules, IPageModuleRepository pageModules, IPageRepository pages, IModuleDefinitionRepository moduleDefinitions, IUserPermissions userPermissions, ILogManager logger)
         {
             _modules = modules;
             _pageModules = pageModules;
+            _pages = pages;
             _moduleDefinitions = moduleDefinitions;
             _userPermissions = userPermissions;
             _logger = logger;
@@ -42,6 +44,7 @@ namespace Oqtane.Controllers
                     Module module = new Module();
                     module.SiteId = pagemodule.Module.SiteId;
                     module.ModuleDefinitionName = pagemodule.Module.ModuleDefinitionName;
+                    module.AllPages = pagemodule.Module.AllPages;
                     module.Permissions = pagemodule.Module.Permissions;
                     module.CreatedBy = pagemodule.Module.CreatedBy;
                     module.CreatedOn = pagemodule.Module.CreatedOn;
@@ -111,7 +114,20 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Module, module.ModuleId, PermissionNames.Edit))
             {
                 module = _modules.UpdateModule(module);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Module Updated {Module}", module);
+                if (module.AllPages)
+                {
+                    var pageModule = _pageModules.GetPageModules(module.SiteId).FirstOrDefault(item => item.ModuleId == module.ModuleId);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Update, "Module Updated {Module}", module);
+
+                    var pages = _pages.GetPages(module.SiteId).ToList();
+                    foreach (Page page in pages)
+                    {
+                        if (page.PageId != pageModule.PageId && !page.EditMode)
+                        {
+                            _pageModules.AddPageModule(new PageModule { PageId = page.PageId, ModuleId = pageModule.ModuleId, Title = pageModule.Title, Pane = pageModule.Pane, Order = pageModule.Order, ContainerType = pageModule.ContainerType });
+                        }
+                    }
+                }
             }
             else
             {

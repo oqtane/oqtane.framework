@@ -775,6 +775,7 @@ namespace Oqtane.Repository
                             {
                                 SiteId = site.SiteId,
                                 ModuleDefinitionName = pagetemplatemodule.ModuleDefinitionName,
+                                AllPages = false,
                                 Permissions = pagetemplatemodule.ModulePermissions,
                             };
                             module = _moduleRepository.AddModule(module);

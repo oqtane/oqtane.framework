@@ -70,7 +70,7 @@ window.interop = {
                 link.integrity = integrity;
             }
             if (crossorigin !== "") {
-                link.crossorigin = crossorigin;
+                link.crossOrigin = crossorigin;
             }
             document.head.appendChild(link);
         }
@@ -87,7 +87,7 @@ window.interop = {
             if (integrity !== "" && link.integrity !== integrity) {
                 link.setAttribute('integrity', integrity);
             }
-            if (crossorigin !== "" && link.crossorigin !== crossorigin) {
+            if (crossorigin !== "" && link.crossOrigin !== crossorigin) {
                 link.setAttribute('crossorigin', crossorigin);
             }
         }

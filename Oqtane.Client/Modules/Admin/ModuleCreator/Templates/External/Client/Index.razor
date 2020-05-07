@@ -42,7 +42,7 @@ else
 <hr />
 [Module] Module Created Successfully. Use Edit Mode To Add A [Module]. You Can Access The Files At The Following Locations:<br /><br />
 [RootPath]Client\<br />
-- [Owner].[Module]s.Module.Client.csproj - client project<br />
+- [Owner].[Module]s.Client.csproj - client project<br />
 - _Imports.razor - global imports for module components<br />
 - Edit.razor - component for adding or editing content<br />
 - Index.razor - main component for your module **the content you are reading is in this file**<br />
@@ -51,12 +51,12 @@ else
 - Services\I[Module]Service.cs - interface for defining service API methods<br />
 - Services\[Module]Service.cs - implements service API interface methods<br /><br />
 [RootPath]Package\<br />
-- [Owner].[Module]s.Module.nuspec - nuget manifest for packaging module<br />
-- [Owner].[Module]s.Module.Package.csproj - packaging project<br />
+- [Owner].[Module]s.nuspec - nuget manifest for packaging module<br />
+- [Owner].[Module]s.Package.csproj - packaging project<br />
 - debug.cmd - copies assemblies to Oqtane bin folder when in Debug mode<br />
 - release.cmd - creates nuget package and deploys to Oqtane wwwroot/modules folder when in Release mode<br /><br />
 [RootPath]Server\<br />
-- [Owner].[Module]s.Module.Server.csproj - server project<br />
+- [Owner].[Module]s.Server.csproj - server project<br />
 - Controllers\[Module]Controller.cs - API methods implemented using a REST pattern<br />
 - Manager\[Module]Manager.cs - implements optional module interfaces for features such as import/export of content<br />
 - Repository\I[Module]Repository.cs - interface for defining repository methods<br />
@@ -65,7 +65,7 @@ else
 - Scripts\[Owner].[Module].1.0.0.sql - database schema definition script<br /><br />
 - Scripts\[Owner].[Module].Uninstall.sql - database uninstall script<br /><br />
 [RootPath]Shared\<br />
-- [Owner].[Module]s.Module.Shared.csproj - shared project<br />
+- [Owner].[Module]s.csproj - shared project<br />
 - Models\[Module].cs - model definition<br /><br />
 
 <!-- The content above is for informational purposes only and can be safely removed -->

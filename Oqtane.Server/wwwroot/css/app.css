@@ -28,16 +28,6 @@ app {
             width: 100%; /* 100% width */
     }
 
-    /* Pad the navigation links */
-    .app-controlpanel .nav-item {
-        font-size: 0.9rem;
-        padding-bottom: 0.5rem;
-    }
-
-    .app-controlpanel .card-body .control-label {
-        color: white;
-    }
-
 /* Admin Modal */
 .app-admin-modal .modal {
     position: fixed; /* Stay in place */
