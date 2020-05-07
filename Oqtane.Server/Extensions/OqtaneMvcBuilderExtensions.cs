@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 
@@ -16,10 +17,11 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             // load MVC application parts from module assemblies
-            foreach (var assembly in OqtaneServiceCollectionExtensions.GetOqtaneModuleAssemblies())
+            var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
+            foreach (var assembly in assemblies)
             {
                 // check if assembly contains MVC Controllers
-                if (assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(Controller))).ToArray().Length > 0)
+                if (assembly.GetTypes().Any(t => t.IsSubclassOf(typeof(Controller))))
                 {
                     var partFactory = ApplicationPartFactory.GetApplicationPartFactory(assembly);
                     foreach (var part in partFactory.GetApplicationParts(assembly))

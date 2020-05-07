@@ -31,8 +31,7 @@ namespace Oqtane.Repository
             List<Theme> themes = new List<Theme>();
 
             // iterate through Oqtane theme assemblies
-            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies()
-                .Where(item => item.FullName.StartsWith("Oqtane.") || item.FullName.Contains(".Theme.")).ToArray();
+            var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
             foreach (Assembly assembly in assemblies)
             {
                 themes = LoadThemesFromAssembly(themes, assembly);
