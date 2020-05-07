@@ -18,6 +18,9 @@
 
     protected override async Task OnParametersSetAsync()
     {
+    // go to https://www.bootstrapcdn.com/bootswatch/ and take your favorite theme
+    //<link href="https://stackpath.bootstrapcdn.com/bootswatch/4.4.1/cyborg/bootstrap.min.css" rel="stylesheet" integrity="sha384-l7xaoY0cJM4h9xh1RfazbgJVUZvdtyLWPueWNtLAphf/UbBgOVzqbOTogxPwYLHM" crossorigin="anonymous">
+        await LoadBootstrapTheme("https://stackpath.bootstrapcdn.com/bootswatch/4.4.1/cyborg/bootstrap.min.css","sha384-l7xaoY0cJM4h9xh1RfazbgJVUZvdtyLWPueWNtLAphf/UbBgOVzqbOTogxPwYLHM");
         await IncludeCSS("Theme.css");
     }
 }

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Oqtane.Shared;
 using Oqtane.UI;
@@ -28,6 +28,13 @@ namespace Oqtane.Themes
             }
             var interop = new Interop(JSRuntime);
             await interop.IncludeCSS("Theme", Url);
+        }
+
+        public async Task LoadBootstrapTheme(string url, string integrity = null)
+        {
+            var interop = new Interop(JSRuntime);
+            string crossorigin = string.IsNullOrEmpty(integrity) ? string.Empty : "anonymous";
+            await interop.IncludeLink("bootstrap", "stylesheet", url, "text/css", integrity, crossorigin);
         }
 
         public string NavigateUrl()
