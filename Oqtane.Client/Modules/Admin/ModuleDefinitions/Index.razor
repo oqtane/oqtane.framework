@@ -24,17 +24,19 @@ else
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ModuleDefinitionId.ToString())" /></td>
             <td>
                 @if (context.AssemblyName != "Oqtane.Client")
-                {
+                    {
                     <ActionDialog Header="Delete Module" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Module?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" />
-                }
+                    }
+                /**/
             </td>
             <td>@context.Name</td>
             <td>@context.Version</td>
             <td>
                 @if (UpgradeAvailable(context.ModuleDefinitionName, context.Version))
-                {
+                    {
                     <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadModule(context.ModuleDefinitionName, context.Version))>Upgrade</button>
-                }
+                    }
+                /**/
             </td>
         </Row>
     </Pager>
@@ -68,7 +70,7 @@ else
         {
             upgradeavailable = (Version.Parse(package.Version).CompareTo(Version.Parse(version)) > 0);
         }
-        
+
         return upgradeavailable;
     }
 
@@ -86,7 +88,7 @@ else
             await logger.LogError(ex, "Error Downloading Module {ModuleDefinitionName} {Version} {Error}", moduledefinitionname, version, ex.Message);
             AddModuleMessage("Error Downloading Module", MessageType.Error);
         }
-  }
+    }
 
     private async Task DeleteModule(ModuleDefinition moduleDefinition)
     {

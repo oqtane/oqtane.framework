@@ -11,7 +11,8 @@ else
     <ActionLink Action="Add" Text="Add Job" />
     <ActionLink Action="Log" Class="btn btn-secondary" Text="View Logs" />
     <button type="button" class="btn btn-secondary" @onclick="(async () => await Refresh())">Refresh</button>
-    <br /><br />
+    <br />
+    <br />
 
     <Pager Items="@_jobs">
         <Header>
@@ -34,13 +35,14 @@ else
             <td>@context.NextExecution</td>
             <td>
                 @if (context.IsStarted)
-                {
+                    {
                     <button type="button" class="btn btn-danger" @onclick="(async () => await StopJob(context.JobId))">Stop</button>
-                }
-                else
-                {
+                    }
+                    else
+                    {
                     <button type="button" class="btn btn-success" @onclick="(async () => await StartJob(context.JobId))">Start</button>
-                }
+                    }
+                /**/
             </td>
         </Row>
     </Pager>
@@ -48,7 +50,7 @@ else
 
 @code {
     private List<Job> _jobs;
-    
+
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
 
     protected override async Task OnParametersSetAsync()
@@ -81,7 +83,7 @@ else
 
     private string DisplayFrequency(int interval, string frequency)
     {
-        var  result = "Every " + interval.ToString() + " ";
+        var result = "Every " + interval.ToString() + " ";
         switch (frequency)
         {
             case "m":
@@ -97,12 +99,12 @@ else
                 result += "Month";
                 break;
         }
-        
+
         if (interval > 1)
         {
             result += "s";
         }
-        
+
         return result;
     }
 

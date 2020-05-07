@@ -56,12 +56,12 @@
         {
             _returnUrl = PageState.QueryString["returnurl"];
         }
-        
+
         if (PageState.QueryString.ContainsKey("name"))
         {
             _username = PageState.QueryString["name"];
         }
-        
+
         if (PageState.QueryString.ContainsKey("token"))
         {
             var user = new User();
@@ -91,7 +91,7 @@
             user.Username = _username;
             user.Password = _password;
             user = await UserService.LoginUserAsync(user, false, false);
-            
+
             if (user.IsAuthenticated)
             {
                 await logger.LogInformation("Login Successful For Username {Username}", _username);
@@ -155,7 +155,7 @@
         {
             _message = "Please Enter The Username Related To Your Account And Then Select The Forgot Password Option Again";
         }
-        
+
         StateHasChanged();
     }
 }

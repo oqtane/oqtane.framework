@@ -7,12 +7,11 @@
 <TabStrip>
     <TabPanel Name="Upload" Heading="Upload Files">
         <form>
-    </div>
-    <div class="form-group">
-        <Label For="upload" HelpText="Upload the file you want">Upload: </Label>
-        <FileManager UploadMultiple="true" ShowFiles="false" FolderId="@_folderId.ToString()" />
-    </div>
-    </form>
+            <div class="form-group">
+                <Label For="upload" HelpText="Upload the file you want">Upload: </Label>
+                <FileManager UploadMultiple="true" ShowFiles="false" FolderId="@_folderId.ToString()" />
+            </div>
+        </form>
         <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
     </TabPanel>
     <TabPanel Name="Download" Heading="Download Files">

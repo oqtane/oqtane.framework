@@ -18,36 +18,36 @@
                 <Label For="categories" HelpText="Comma delimited list of module categories">Categories: </Label>
                 <input id="categories" class="form-control" @bind="@_categories" />
             </div>
+        </form>
+        <Section Name="Information">
+            <form>
+                <div class="form-group">
+                    <Label For="moduledefinitionname" HelpText="The internal name of the module">Internal Name: </Label>
+                    <input id="moduledefinitionname" class="form-control" @bind="@_moduledefinitionname" disabled />
+                </div>
+                <div class="form-group">
+                    <Label For="version" HelpText="The version of the module">Version: </Label>
+                    <input id="version" class="form-control" @bind="@_version" disabled />
+                </div>
+                <div class="form-group">
+                    <Label For="owner" HelpText="The owner or creator of the module">Owner: </Label>
+                    <input id="owner" class="form-control" @bind="@_owner" disabled />
+                </div>
+                <div class="form-group">
+                    <Label For="url" HelpText="The reference url of the module">Reference Url: </Label>
+                    <input id="url" class="form-control" @bind="@_url" disabled />
+                </div>
+                <div class="form-group">
+                    <Label For="contact" HelpText="The contact for the module">Contact: </Label>
+                    <input id="contact" class="form-control" @bind="@_contact" disabled />
+                </div>
+                <div class="form-group">
+                    <Label For="license" HelpText="The license of the module">License: </Label>
+                    <textarea id="license" class="form-control" @bind="@_license" rows="5" disabled></textarea>
+                </div>
             </form>
-                <Section Name="Information">
-                    <form>
-                        <div class="form-group">
-                            <Label For="moduledefinitionname" HelpText="The internal name of the module">Internal Name: </Label>
-                            <input id="moduledefinitionname" class="form-control" @bind="@_moduledefinitionname" disabled />
-                        </div>
-                        <div class="form-group">
-                            <Label For="version" HelpText="The version of the module">Version: </Label>
-                            <input id="version" class="form-control" @bind="@_version" disabled />
-                        </div>
-                        <div class="form-group">
-                            <Label For="owner" HelpText="The owner or creator of the module">Owner: </Label>
-                            <input id="owner" class="form-control" @bind="@_owner" disabled />
-                        </div>
-                        <div class="form-group">
-                            <Label For="url" HelpText="The reference url of the module">Reference Url: </Label>
-                            <input id="url" class="form-control" @bind="@_url" disabled />
-                        </div>
-                        <div class="form-group">
-                            <Label For="contact" HelpText="The contact for the module">Contact: </Label>
-                            <input id="contact" class="form-control" @bind="@_contact" disabled />
-                        </div>
-                        <div class="form-group">
-                            <Label For="license" HelpText="The license of the module">License: </Label>
-                            <textarea id="license" class="form-control" @bind="@_license" rows="5" disabled></textarea>
-                        </div>
-                        </form>
-</Section>
-</TabPanel>
+        </Section>
+    </TabPanel>
     <TabPanel Name="Permissions">
         <form>
             <div class="form-group">
@@ -58,7 +58,8 @@
 </TabStrip>
 <button type="button" class="btn btn-success" @onclick="SaveModuleDefinition">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
-<br /><br />
+<br />
+<br />
 <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon"></AuditInfo>
 
 @code {
