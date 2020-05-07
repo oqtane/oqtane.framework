@@ -10,7 +10,7 @@ namespace [Owner].[Module]s.Modules
             Name = "[Module]",
             Description = "[Module]",
             Version = "1.0.0",
-            Dependencies = "[Owner].[Module]s.Module.Shared",
+            Dependencies = "[Owner].[Module]s.Shared.Oqtane",
             ServerManagerType = "[ServerManagerType]",
             ReleaseVersions = "1.0.0"
         };
