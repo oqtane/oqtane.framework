@@ -41,7 +41,7 @@ namespace Oqtane
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().AddNewtonsoftJson();
+            
             services.AddServerSideBlazor();
 
             // setup HttpClient for server side in a client side compatible fashion ( with auth cookie )
@@ -188,16 +188,13 @@ namespace Oqtane
             services.AddTransient<IUpgradeManager, UpgradeManager>();
 
             // load the external assemblies into the app domain
-            services.AddOqtaneModules();
-            services.AddOqtaneThemes();
-            services.AddOqtaneSiteTemplates();
+            services.AddOqtaneParts();
 
             services.AddMvc()
                 .AddOqtaneApplicationParts() // register any Controllers from custom modules
                 .AddNewtonsoftJson();
 
-            services.AddOqtaneServices();
-            services.AddOqtaneHostedServices();
+
 
             services.AddSwaggerGen(c =>
             {
