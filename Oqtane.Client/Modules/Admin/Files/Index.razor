@@ -6,26 +6,21 @@
 
 @if (_files != null)
 {
-    <table class="table table-borderless">
-        <tr>
-            <td>
-                <label  class="control-label">Folder: </label>
-            </td>
-            <td>
-                <select class="form-control" @onchange="(e => FolderChanged(e))">
-                    @foreach (Folder folder in _folders)
-                    {
-                        <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
-                    }
-                </select>
-            </td>
-            <td>
-                <ActionLink Action="Edit" Text="Edit Folder" Class="btn btn-secondary" Parameters="@($"id=" + _folderId.ToString())" />&nbsp;
-                <ActionLink Action="Edit" Text="Add Folder" Class="btn btn-secondary" />&nbsp;
-                <ActionLink Action="Add" Text="Upload Files" Parameters="@($"id=" + _folderId.ToString())" />
-            </td>
-        </tr>
-    </table>
+    <form>
+        <div class="form-group">
+            <label class="control-label">Folder: </label>
+            <select class="form-control" @onchange="(e => FolderChanged(e))">
+                @foreach (Folder folder in _folders)
+                {
+                    <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                }
+            </select>
+            <br />
+            <ActionLink Action="Edit" Text="Edit Folder" Class="btn btn-secondary" Parameters="@($"id=" + _folderId.ToString())" />&nbsp;
+            <ActionLink Action="Edit" Text="Add Folder" Class="btn btn-secondary" />&nbsp;
+            <ActionLink Action="Add" Text="Upload Files" Parameters="@($"id=" + _folderId.ToString())" />
+        </div>
+    </form>
     <Pager Items="@_files">
         <Header>
             <th>&nbsp;</th>
@@ -60,7 +55,7 @@
         try
         {
             _folders = await FolderService.GetFoldersAsync(PageState.Site.SiteId);
-            
+
             if (_folderId == -1 && _folders.Count > 0)
             {
                 _folderId = _folders[0].FolderId;

@@ -9,52 +9,29 @@
 
 @if (_themes != null)
 {
-    <table class="table table-borderless">
-        <tr>
-            <td>
+    <form>
+        <div class="form-group">
                 <Label For="name" HelpText="Enter the site name">Name: </Label>
-            </td>
-            <td>
                 <input id="name" class="form-control" @bind="@_name" />
-            </td>
-        </tr>
-        <tr>
-            <td>
+        </div>
+        <div class="form-group">
                 <Label For="tenant" HelpText="Enter the tenant for the site">Tenant: </Label>
-            </td>
-            <td>
                 <input id="tenant" class="form-control" @bind="@_tenant" readonly />
-            </td>
-        </tr>
-        <tr>
-            <td>
+        </div>
+        <div class="form-group">
                 <Label For="alias" HelpText="Enter the alias for the server">Aliases: </Label>
-            </td>
-            <td>
                 <textarea id="alias" class="form-control" @bind="@_urls" rows="3"></textarea>
-            </td>
-        </tr>
-        <tr>
-            <td>
+        </div>
+        <div class="form-group">
                 <Label For="logo" HelpText="Upload a logo for the site">Logo: </Label>
-            </td>
-            <td>
                 <FileManager FileId="@_logofileid.ToString()" Filter="@Constants.ImageFiles" @ref="_logofilemanager" />
-            </td>
-        </tr>
-        <tr>
-            <td>
+        </div>
+        <div class="form-group">
                 <Label For="favicon" HelpText="Select Your default icon">Favicon: </Label>
-            </td>
-            <td>
                 <FileManager FileId="@_faviconfileid.ToString()" Filter="ico" @ref="_faviconfilemanager" />
-            </td>
-        </tr>
-        <tr>
-            <td>
+        </div>
+        <div class="form-group">
                 <Label For="defaultTheme" HelpText="Select the sites default theme">Default Theme: </Label>
-            </td>
-            <td>
                 <select id="defaultTheme" class="form-control" @onchange="(e => ThemeChanged(e))">
                     <option value="">&lt;Select Theme&gt;</option>
                     @foreach (KeyValuePair<string, string> item in _themes)
@@ -69,13 +46,9 @@
                         }
                     }
                 </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
+        </div>
+        <div class="form-group">
                 <Label For="defaultLayout" HelpText="Select the sites default layout">Default Layout: </Label>
-            </td>
-            <td>
                 <select id="defaultLayout" class="form-control" @bind="@_layouttype">
                     <option value="">&lt;Select Layout&gt;</option>
                     @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
@@ -83,13 +56,9 @@
                         <option value="@panelayout.Key">@panelayout.Value</option>
                     }
                 </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
+        </div>
+        <div class="form-group">
                 <Label For="defaultContainer" HelpText="Select the default container for the site">Default Container: </Label>
-            </td>
-            <td>
                 <select id="defaultContainer" class="form-control" @bind="@_containertype">
                     <option value="">&lt;Select Container&gt;</option>
                     @foreach (KeyValuePair<string, string> container in _containers)
@@ -97,106 +66,66 @@
                         <option value="@container.Key">@container.Value</option>
                     }
                 </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
+        </div>
+        <div class="form-group">
                 <Label For="allowRegister" HelpText="Do you want the users to be able to register for an account on the site">Allow User Registration? </Label>
-            </td>
-            <td>
                 <select id="allowRegister" class="form-control" @bind="@_allowregistration">
                     <option value="True">Yes</option>
                     <option value="False">No</option>
                 </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
+        </div>
+        <div class="form-group">
                 <Label For="isDeleted" HelpText="Is this site deleted?">Is Deleted? </Label>
-            </td>
-            <td>
                 <select id="isDeleted" class="form-control" @bind="@_isdeleted">
                     <option value="True">Yes</option>
                     <option value="False">No</option>
                 </select>
-            </td>
-        </tr>
-    </table>
+        </div>
+        </form>
 
     <Section Name="SMTP" Heading="SMTP Settings">
-        <table class="table table-borderless">
-            <tr>
-                <td>
+        <form>
+        </div>
+        <div class="form-group">
                     <Label For="host" HelpText="Enter the host name of the server">Host: </Label>
-                </td>
-                <td>
                     <input id="host" class="form-control" @bind="@_smtphost" />
-                </td>
-            </tr>
-            <tr>
-                <td>
+        </div>
+        <div class="form-group">
                     <Label For="port" HelpText="Enter the port number for the server">Port: </Label>
-                </td>
-                <td>
                     <input id="port" class="form-control" @bind="@_smtpport" />
-                </td>
-            </tr>
-            <tr>
-                <td>
+        </div>
+        <div class="form-group">
                     <Label For="enabledSSl" HelpText="Specifiy if SSL is enabled for your server">SSL Enabled: </Label>
-                </td>
-                <td>
                     <input id="enabledSSl" class="form-control" @bind="@_smtpssl" />
-                </td>
-            </tr>
-            <tr>
-                <td>
+        </div>
+        <div class="form-group">
                     <Label For="username" HelpText="Enter the username for the server">Username: </Label>
-                </td>
-                <td>
                     <input id="username" class="form-control" @bind="@_smtpusername" />
-                </td>
-            </tr>
-            <tr>
-                <td>
+        </div>
+        <div class="form-group">
                     <Label For="password" HelpText="Enter the password for the server">Password: </Label>
-                </td>
-                <td>
                     <input id="password" type="password" class="form-control" @bind="@_smtppassword" />
-                </td>
-            </tr>
-        </table>
+        </div>
+        </form>
     </Section>
     <Section Name="PWA" Heading="Progressive Web Application Settings">
-        <table class="table table-borderless">
-            <tr>
-                <td>
+        <form>
+        <div class="form-group">
                     <Label For="isEnabled" HelpText="Select whether you would like this site to be available as a Progressive Web Application (PWA)">Is Enabled? </Label>
-                </td>
-                <td>
                     <select id="isEnabled" class="form-control" @bind="@_pwaisenabled">
                         <option value="True">Yes</option>
                         <option value="False">No</option>
                     </select>
-                </td>
-            </tr>
-            <tr>
-                <td>
+        </div>
+        <div class="form-group">
                     <Label For="appIcon" HelpText="Include an application icon for your PWA. It should be a PNG which is 192 X 192 pixels in dimension.">App Icon: </Label>
-                </td>
-                <td>
                     <FileManager FileId="@_pwaappiconfileid.ToString()" Filter="png" @ref="_pwaappiconfilemanager" />
-                </td>
-            </tr>
-            <tr>
-                <td>
+        </div>
+        <div class="form-group">
                     <Label For="splashIcon" HelpText="Include a splash icon for your PWA. It should be a PNG which is 512 X 512 pixels in dimension.">Splash Icon: </Label>
-                </td>
-                <td>
                     <FileManager FileId="@_pwasplashiconfileid.ToString()" Filter="png" @ref="_pwasplashiconfilemanager" />
-                </td>
-            </tr>
-        </table>
+        </div>
+        </form>
     </Section>
 
     <br />

@@ -2,16 +2,14 @@
 @inherits ModuleBase
 @inject ISettingService SettingService
 
-<table class="table table-borderless">
-    <tr>
-        <td>
+<form>
+        </div>
+        <div class="form-group">
             <label for="Setting" class="control-label">Setting: </label>
-        </td>
-        <td>
+
             <input type="text" class="form-control" @bind="_value" />
-        </td>
-    </tr>
-</table>
+        </div>
+</form>
 
 @code {
     public override string Title => "[Module] Settings";

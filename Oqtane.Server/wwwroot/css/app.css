@@ -24,8 +24,8 @@ app {
 
     /* Position the content inside the overlay */
     .app-controlpanel .card-body {
-            position: relative;
-            width: 100%; /* 100% width */
+        position: relative;
+        width: 100%; /* 100% width */
     }
 
     /* Pad the navigation links */
@@ -51,16 +51,16 @@ app {
     background: rgba(0,0,0,0.3); /* Dim background */
 }
 
-    .app-admin-modal .modal-dialog {
-        width: 100%; /* Full width */
-        height: 100%; /* Full height */
-        max-width: none; /* Override default of 500px */
-    }
+.app-admin-modal .modal-dialog {
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    max-width: none; /* Override default of 500px */
+}
 
-    .app-admin-modal .modal-content {
-        margin: 5% auto; /* 5% from the top and centered */
-        width: 80%; /* Could be more or less, depending on screen size */
-    }
+.app-admin-modal .modal-content {
+    margin: 5% auto; /* 5% from the top and centered */
+    width: 80%; /* Could be more or less, depending on screen size */
+}
 
 .app-pane-admin-border {
     width: 100%;

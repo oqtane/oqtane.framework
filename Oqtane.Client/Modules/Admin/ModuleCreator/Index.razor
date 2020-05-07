@@ -4,48 +4,32 @@
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject IModuleService ModuleService
 
-    <table class="table table-borderless">
-        <tr>
-            <td>
-                <Label For="owner" HelpText="Enter the name of the organization who is developing this module. It should not contain spaces or punctuation.">Owner Name: </Label>
-            </td>
-            <td>
-                <input id="owner" class="form-control" @bind="@_owner" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="module" HelpText="Enter a name for this module. It should be in singular form (ie. Car) and not contain spaces or punctuation.">Module Name: </Label>
-            </td>
-            <td>
-                <input id="module" class="form-control" @bind="@_module" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="description" HelpText="Enter s short description for the module">Description: </Label>
-            </td>
-            <td>
-                <textarea id="description" class="form-control" @bind="@_description" rows="3"></textarea>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="template" HelpText="Select a module template. Internal modules are created inside of the Oqtane solution. External modules are created outside of the Oqtane solution.">Template: </Label>
-            </td>
-            <td>
-                <select id="template" class="form-control" @bind="@_template">
-                    <option value="">&lt;Select Template&gt;</option>
-                    <option value="internal">Internal</option>
-                    <option value="external">External</option>
-                </select>
-            </td>
-        </tr>
-    </table>
+<form>
+    <div class="form-group">
+        <Label For="owner" HelpText="Enter the name of the organization who is developing this module. It should not contain spaces or punctuation.">Owner Name: </Label>
+        <input id="owner" class="form-control" @bind="@_owner" />
+    </div>
+    <div class="form-group">
+        <Label For="module" HelpText="Enter a name for this module. It should be in singular form (ie. Car) and not contain spaces or punctuation.">Module Name: </Label>
+        <input id="module" class="form-control" @bind="@_module" />
+    </div>
+    <div class="form-group">
+        <Label For="description" HelpText="Enter s short description for the module">Description: </Label>
+        <textarea id="description" class="form-control" @bind="@_description" rows="3"></textarea>
+    </div>
+    <div class="form-group">
+        <Label For="template" HelpText="Select a module template. Internal modules are created inside of the Oqtane solution. External modules are created outside of the Oqtane solution.">Template: </Label>
+        <select id="template" class="form-control" @bind="@_template">
+            <option value="">&lt;Select Template&gt;</option>
+            <option value="internal">Internal</option>
+            <option value="external">External</option>
+        </select>
+    </div>
+</form>
 
 <button type="button" class="btn btn-success" @onclick="CreateModule">Create Module</button>
 
-@code {    
+@code {
     private string _owner = string.Empty;
     private string _module = string.Empty;
     private string _description = string.Empty;
@@ -64,7 +48,7 @@
         {
             if (!string.IsNullOrEmpty(_owner) && !string.IsNullOrEmpty(_module) && !string.IsNullOrEmpty(_template))
             {
-                var moduleDefinition = new ModuleDefinition { Owner = _owner.Replace(" ",""), Name = _module.Replace(" ", ""), Description = _description, Template = _template };
+                var moduleDefinition = new ModuleDefinition { Owner = _owner.Replace(" ", ""), Name = _module.Replace(" ", ""), Description = _description, Template = _template };
                 await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition, ModuleState.ModuleId);
             }
             else

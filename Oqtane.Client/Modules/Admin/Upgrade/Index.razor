@@ -7,34 +7,30 @@
 
 @if (_package != null)
 {
-<TabStrip>
-    <TabPanel Name="Download">
+    <TabStrip>
+        <TabPanel Name="Download">
+            @if (_upgradeavailable)
+            {
+                <ModuleMessage Type="MessageType.Info" Message="Download a new version of the framework. Once you are ready click Install to complete the installation."></ModuleMessage>
+                @("Framework") @_package.Version <button type="button" class="btn btn-success" @onclick=@(async () => await Download(Constants.PackageId, Constants.Version))>Download</button>
+            }
+            else
+            {
+                <ModuleMessage Type="MessageType.Info" Message="Framework Is Already Up To Date"></ModuleMessage>
+            }
+        </TabPanel>
         @if (_upgradeavailable)
         {
-            <ModuleMessage Type="MessageType.Info" Message="Download a new version of the framework. Once you are ready click Install to complete the installation."></ModuleMessage>
-            @("Framework") @_package.Version <button type="button" class="btn btn-success" @onclick=@(async () => await Download(Constants.PackageId, Constants.Version))>Download</button>
+            <TabPanel Name="Upload">
+                <form>
+                    <div class="form-group">
+                        <Label HelpText="Upload a new framework package. Once it is uploaded click Install to complete the installation.">Framework: </Label>
+                        <FileManager Filter="nupkg" ShowFiles="false" Folder="Framework" />
+                    </div>
+                </form>
+            </TabPanel>
         }
-        else
-        {
-            <ModuleMessage Type="MessageType.Info" Message="Framework Is Already Up To Date"></ModuleMessage>
-        }
-    </TabPanel>
-    @if (_upgradeavailable)
-    {
-    <TabPanel Name="Upload">
-        <table class="table table-borderless">
-            <tr>
-                <td>
-                    <Label HelpText="Upload a new framework package. Once it is uploaded click Install to complete the installation.">Framework: </Label>
-                </td>
-                <td>
-                    <FileManager Filter="nupkg" ShowFiles="false" Folder="Framework" />
-                </td>
-            </tr>
-        </table>
-    </TabPanel>
-    }
-</TabStrip>
+    </TabStrip>
 }
 
 @code {

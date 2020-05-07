@@ -8,16 +8,13 @@
 @inject HttpClient http
 @inject SiteState sitestate
 
-<table class="table table-borderless">
-    <tr>
-        <td>
+<form>
+        
+        <div class="form-group">
             <label class="control-label">Name: </label>
-        </td>
-        <td>
             <input id="_name" class="form-control" @bind="@_name" />
-        </td>
-    </tr>
-</table>
+        </div>
+</form>
 <button type="button" class="btn btn-success" @onclick="Save">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 <br />
