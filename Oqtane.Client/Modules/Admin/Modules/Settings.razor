@@ -25,6 +25,13 @@
                     </select>
                 </div>
                 <div class="form-group">
+                    <Label For="allpages" HelpText="Indicate if this module should be displayed on all pages">Display On All Pages? </Label>
+                    <select id="allpages" class="form-control" @bind="@_allPages">
+                        <option value="True">Yes</option>
+                        <option value="False">No</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <Label For="page" HelpText="The page that the module is on">Page: </Label>
                     <select id="page" class="form-control" @bind="@_pageId">
                         @foreach (Page p in PageState.Pages)
@@ -43,6 +50,7 @@
         @if (_containers != null)
         {
             <form>
+
                 <div class="form-group">
                     <PermissionGrid EntityName="@EntityNames.Module" PermissionNames="@_permissionNames" Permissions="@_permissions" @ref="_permissionGrid" />
                 </div>
@@ -63,6 +71,7 @@
     private Dictionary<string, string> _containers;
     private string _title;
     private string _containerType;
+    private string _allPages = "false";
     private string _permissionNames = "";
     private string _permissions;
     private string _pageId;
@@ -81,6 +90,7 @@
         _title = ModuleState.Title;
         _containers = ThemeService.GetContainerTypes(await ThemeService.GetThemesAsync());
         _containerType = ModuleState.ContainerType;
+        _allPages = ModuleState.AllPages.ToString();
         _permissions = ModuleState.Permissions;
         _permissionNames = ModuleState.ModuleDefinition.PermissionNames;
         _pageId = ModuleState.PageId.ToString();
@@ -106,17 +116,17 @@
 
     private async Task SaveModule()
     {
-        var module = ModuleState;
-        module.Permissions = _permissionGrid.GetPermissions();
-        await ModuleService.UpdateModuleAsync(module);
-
         var pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
         pagemodule.PageId = int.Parse(_pageId);
         pagemodule.Title = _title;
         pagemodule.ContainerType = _containerType;
-
         await PageModuleService.UpdatePageModuleAsync(pagemodule);
         await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
+
+        var module = ModuleState;
+        module.AllPages = bool.Parse(_allPages);
+        module.Permissions = _permissionGrid.GetPermissions();
+        await ModuleService.UpdateModuleAsync(module);
 
         if (_settingsModuleType != null)
         {
@@ -129,4 +139,5 @@
 
         NavigationManager.NavigateTo(NavigateUrl());
     }
+
 }
