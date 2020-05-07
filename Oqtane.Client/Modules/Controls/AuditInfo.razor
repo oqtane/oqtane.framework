@@ -1,12 +1,15 @@
 ﻿@namespace Oqtane.Modules.Controls
 @inherits ModuleBase
 
-@if (text != "")
+@if (_text != string.Empty)
 {
-    @((MarkupString)@text)
+    @((MarkupString)_text)
 }
 
 @code {
+   
+    private string _text = string.Empty;
+
     [Parameter]
     public string CreatedBy { get; set; }
 
@@ -31,51 +34,58 @@
     [Parameter]
     public string Style { get; set; }
 
-    string text = "";
-
     protected override void OnParametersSet()
     {
-        text = "";
+        _text = string.Empty;
         if (!String.IsNullOrEmpty(CreatedBy) || CreatedOn != null)
         {
-            text += "<p style=\"" + Style + "\">Created ";
+            _text += "<p style=\"" + Style + "\">Created ";
+            
             if (!String.IsNullOrEmpty(CreatedBy))
             {
-                text += " by <b>" + CreatedBy + "</b>";
+                _text += " by <b>" + CreatedBy + "</b>";
             }
+            
             if (CreatedOn != null)
             {
-                text += " on <b>" + CreatedOn.ToString("MMM dd yyyy HH:mm:ss") + "</b>";
+                _text += " on <b>" + CreatedOn.ToString("MMM dd yyyy HH:mm:ss") + "</b>";
             }
-            text += "</p>";
+            
+            _text += "</p>";
         }
 
         if (!String.IsNullOrEmpty(ModifiedBy) || ModifiedOn != null)
         {
-            text += "<p style=\"" + Style + "\">Last modified ";
+            _text += "<p style=\"" + Style + "\">Last modified ";
+            
             if (!String.IsNullOrEmpty(ModifiedBy))
             {
-                text += " by <b>" + ModifiedBy + "</b>";
+                _text += " by <b>" + ModifiedBy + "</b>";
             }
+            
             if (ModifiedOn != null)
             {
-                text += " on <b>" + ModifiedOn.ToString("MMM dd yyyy HH:mm:ss") + "</b>";
+                _text += " on <b>" + ModifiedOn.ToString("MMM dd yyyy HH:mm:ss") + "</b>";
             }
-            text += "</p>";
+            
+            _text += "</p>";
         }
 
         if (!String.IsNullOrEmpty(DeletedBy) || DeletedOn.HasValue)
         {
-            text += "<p style=\"" + Style + "\">Deleted ";
+            _text += "<p style=\"" + Style + "\">Deleted ";
+            
             if (!String.IsNullOrEmpty(DeletedBy))
             {
-                text += " by <b>" + DeletedBy + "</b>";
+                _text += " by <b>" + DeletedBy + "</b>";
             }
+            
             if (DeletedOn != null)
             {
-                text += " on <b>" + DeletedOn.Value.ToString("MMM dd yyyy HH:mm:ss") + "</b>";
+                _text += " on <b>" + DeletedOn.Value.ToString("MMM dd yyyy HH:mm:ss") + "</b>";
             }
-            text += "</p>";
+            
+            _text += "</p>";
         }
     }
 }

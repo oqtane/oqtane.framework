@@ -2,19 +2,28 @@
 @inherits ModuleBase
 @inject IUserService UserService
 
-@if (authorized)
+@if (_authorized)
 {
     if (Disabled)
     {
-        <NavLink class="@classname" href="@url" style="@style" disabled>@text</NavLink>
+        <button class="@_classname" style="@_style" disabled>@((MarkupString)_iconSpan) @_text</button>
     }
     else
     {
-        <NavLink class="@classname" href="@url" style="@style">@text</NavLink>
+        <NavLink class="@_classname" href="@_url" style="@_style">@((MarkupString)_iconSpan) @_text</NavLink>
     }
 }
 
 @code {
+    private string _text = string.Empty;
+    private string _url = string.Empty;
+    private string _parameters = string.Empty;
+    private string _classname = "btn btn-primary";
+    private string _style = string.Empty;
+    private bool _editmode = true;
+    private bool _authorized = false;
+    private string _iconSpan = string.Empty;
+
     [Parameter]
     public string Action { get; set; } // required
 
@@ -33,62 +42,62 @@
     [Parameter]
     public string Style { get; set; } // optional
 
-	[Parameter]
-	public bool Disabled { get; set; } // optional
-	
+    [Parameter]
+    public bool Disabled { get; set; } // optional
+
     [Parameter]
     public string EditMode { get; set; } // optional - specifies if a user must be in edit mode to see the action - default is true
 
-    string text = "";
-    string url = "";
-    string parameters = "";
-    string classname = "btn btn-primary";
-    string style = "";
-    bool editmode = true;
-    bool authorized = false;
+    [Parameter]
+    public string IconName { get; set; } // optional - specifies an icon for the link - default is no icon
 
     protected override void OnParametersSet()
     {
-        text = Action;
+        _text = Action;
         if (!string.IsNullOrEmpty(Text))
         {
-            text = Text;
+            _text = Text;
         }
 
         if (!string.IsNullOrEmpty(Parameters))
         {
-            parameters = Parameters;
+            _parameters = Parameters;
         }
 
         if (!string.IsNullOrEmpty(Class))
         {
-            classname = Class;
+            _classname = Class;
         }
 
         if (!string.IsNullOrEmpty(Style))
         {
-            style = Style;
+            _style = Style;
         }
 
         if (!string.IsNullOrEmpty(EditMode))
         {
-            editmode = bool.Parse(EditMode);
+            _editmode = bool.Parse(EditMode);
         }
 
-        url = EditUrl(Action, parameters);
-        authorized = IsAuthorized();
+        if (!string.IsNullOrEmpty(IconName))
+        {
+            _iconSpan = $"<span class=\"oi oi-{IconName}\"></span>&nbsp;";
+        }
+
+        _url = EditUrl(Action, _parameters);
+        _authorized = IsAuthorized();
     }
 
     private bool IsAuthorized()
     {
-        bool authorized = false;
-        if (PageState.EditMode || !editmode)
+        var authorized = false;
+        if (PageState.EditMode || !_editmode)
         {
-            SecurityAccessLevel security = SecurityAccessLevel.Host;
+            var security = SecurityAccessLevel.Host;
             if (Security == null)
             {
-                string typename = ModuleState.ModuleType.Replace(Utilities.GetTypeNameLastSegment(ModuleState.ModuleType, 0) + ",", Action + ",");
-                Type moduleType = Type.GetType(typename);
+                var typename = ModuleState.ModuleType.Replace(Utilities.GetTypeNameLastSegment(ModuleState.ModuleType, 0) + ",", Action + ",");
+                var moduleType = Type.GetType(typename);
                 if (moduleType != null)
                 {
                     var moduleobject = Activator.CreateInstance(moduleType);
@@ -104,16 +113,17 @@
             {
                 security = Security.Value;
             }
+            
             switch (security)
             {
                 case SecurityAccessLevel.Anonymous:
                     authorized = true;
                     break;
                 case SecurityAccessLevel.View:
-                    authorized = UserSecurity.IsAuthorized(PageState.User,PermissionNames.View, ModuleState.Permissions);
+                    authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, ModuleState.Permissions);
                     break;
                 case SecurityAccessLevel.Edit:
-                    authorized = UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, ModuleState.Permissions);
+                    authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.Permissions);
                     break;
                 case SecurityAccessLevel.Admin:
                     authorized = UserSecurity.IsAuthorized(PageState.User, Constants.AdminRole);
@@ -123,6 +133,7 @@
                     break;
             }
         }
+        
         return authorized;
     }
 }

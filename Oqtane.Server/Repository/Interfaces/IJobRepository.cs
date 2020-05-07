@@ -6,9 +6,9 @@ namespace Oqtane.Repository
     public interface IJobRepository
     {
         IEnumerable<Job> GetJobs();
-        Job AddJob(Job Job);
-        Job UpdateJob(Job Job);
-        Job GetJob(int JobId);
-        void DeleteJob(int JobId);
+        Job AddJob(Job job);
+        Job UpdateJob(Job job);
+        Job GetJob(int jobId);
+        void DeleteJob(int jobId);
     }
 }

@@ -4,6 +4,7 @@ using Oqtane.Models;
 using System.Threading.Tasks;
 using Oqtane.Services;
 using System;
+using Oqtane.Enums;
 using Oqtane.UI;
 
 namespace Oqtane.Modules
@@ -86,9 +87,7 @@ namespace Oqtane.Modules
 
         public string ContentUrl(int fileid)
         {
-            string url = (PageState.Alias.Path == "") ? "/~" : PageState.Alias.Path;
-            url += Constants.ContentUrl + fileid.ToString();
-            return url;
+            return Utilities.ContentUrl(PageState.Alias, fileid);
         }
 
         // user feedback methods

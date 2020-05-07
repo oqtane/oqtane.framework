@@ -1,0 +1,44 @@
+﻿@namespace Oqtane.Modules.Controls
+@inherits ModuleBase
+
+@if (!string.IsNullOrEmpty(HelpText))
+{
+    <span class="app-tooltip" data-tip="@((MarkupString)HelpText)">@((MarkupString)_openLabel)@ChildContent@((MarkupString)_closeLabel) <img src="images/help.png" /></span>
+}
+else
+{
+    @((MarkupString)_openLabel)@ChildContent@((MarkupString)_closeLabel)
+}
+
+@code {
+    private string _openLabel = string.Empty;
+    private string _closeLabel = "</label>";
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; } 
+
+    [Parameter]
+    public string For { get; set; } // optional - the id of the associated input control for accessibility
+
+    [Parameter]
+    public string Class { get; set; } // optional - the class for the label ( ie. control-label )
+
+    [Parameter]
+    public string HelpText { get; set; } // optional - tooltip for this label
+
+    protected override void OnParametersSet()
+    {
+        _openLabel = "<label";
+        if (!string.IsNullOrEmpty(For))
+        {
+            _openLabel += " for=\"" + For + "\"";
+        }
+        
+        if (!string.IsNullOrEmpty(Class))
+        {
+            _openLabel += " class=\"" + Class + "\"";
+        }
+        
+        _openLabel += ">";
+    }
+}

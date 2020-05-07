@@ -6,8 +6,8 @@ namespace Oqtane.Modules
     {
         // You Must Set The "ServerAssemblyName" In Your IModule Interface
 
-        string ExportModule(Module Module);
+        string ExportModule(Module module);
 
-        void ImportModule(Module Module, string Content, string Version);
+        void ImportModule(Module module, string content, string version);
     }
 }

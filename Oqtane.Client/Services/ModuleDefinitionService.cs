@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
 using System;
 using System.Reflection;
 using Oqtane.Shared;
-using Oqtane.Providers;
+using Oqtane.UI;
 
 namespace Oqtane.Services
 {
@@ -15,56 +14,48 @@ namespace Oqtane.Services
     {
         private readonly HttpClient _http;
         private readonly SiteState _siteState;
-        private readonly NavigationManager _navigationManager;
-        private readonly IServiceProvider _serviceProvider;
 
-        public ModuleDefinitionService(HttpClient http, SiteState siteState, NavigationManager navigationManager, IServiceProvider serviceProvider)
+        public ModuleDefinitionService(HttpClient http, SiteState siteState) : base(http)
         {
             _http = http;
             _siteState = siteState;
-            _navigationManager = navigationManager;
-            _serviceProvider = serviceProvider;
         }
 
-        private string apiurl
-        {
-            get { return CreateApiUrl(_siteState.Alias, _navigationManager.Uri, "ModuleDefinition"); }
-        }
+        private string Apiurl => CreateApiUrl(_siteState.Alias, "ModuleDefinition");
 
-        public async Task<List<ModuleDefinition>> GetModuleDefinitionsAsync(int SiteId)
+        public async Task<List<ModuleDefinition>> GetModuleDefinitionsAsync(int siteId)
         {
-            List<ModuleDefinition> moduledefinitions = await _http.GetJsonAsync<List<ModuleDefinition>>(apiurl + "?siteid=" + SiteId.ToString());
+            List<ModuleDefinition> moduledefinitions = await GetJsonAsync<List<ModuleDefinition>>($"{Apiurl}?siteid={siteId}");
             return moduledefinitions.OrderBy(item => item.Name).ToList();
         }
 
-        public async Task<ModuleDefinition> GetModuleDefinitionAsync(int ModuleDefinitionId, int SiteId)
+        public async Task<ModuleDefinition> GetModuleDefinitionAsync(int moduleDefinitionId, int siteId)
         {
-            return await _http.GetJsonAsync<ModuleDefinition>(apiurl + "/" + ModuleDefinitionId.ToString() + "?siteid=" + SiteId.ToString());
+            return await GetJsonAsync<ModuleDefinition>($"{Apiurl}/{moduleDefinitionId}?siteid={siteId}");
         }
 
-        public async Task UpdateModuleDefinitionAsync(ModuleDefinition ModuleDefinition)
+        public async Task UpdateModuleDefinitionAsync(ModuleDefinition moduleDefinition)
         {
-            await _http.PutJsonAsync(apiurl + "/" + ModuleDefinition.ModuleDefinitionId.ToString(), ModuleDefinition);
+            await PutJsonAsync($"{Apiurl}/{moduleDefinition.ModuleDefinitionId}", moduleDefinition);
         }
 
         public async Task InstallModuleDefinitionsAsync()
         {
-            await _http.GetJsonAsync<List<string>>(apiurl + "/install");
+            await GetJsonAsync<List<string>>($"{Apiurl}/install");
         }
 
-        public async Task DeleteModuleDefinitionAsync(int ModuleDefinitionId, int SiteId)
+        public async Task DeleteModuleDefinitionAsync(int moduleDefinitionId, int siteId)
         {
-            await _http.DeleteAsync(apiurl + "/" + ModuleDefinitionId.ToString() + "?siteid=" + SiteId.ToString());
+            await DeleteAsync($"{Apiurl}/{moduleDefinitionId}?siteid={siteId}");
         }
 
-        public async Task LoadModuleDefinitionsAsync(int SiteId)
+        public async Task LoadModuleDefinitionsAsync(int siteId, Runtime runtime)
         {
             // get list of modules from the server
-            List<ModuleDefinition> moduledefinitions = await GetModuleDefinitionsAsync(SiteId);
+            List<ModuleDefinition> moduledefinitions = await GetModuleDefinitionsAsync(siteId);
 
             // download assemblies to browser when running client-side Blazor
-            var authstateprovider = (IdentityAuthenticationStateProvider)_serviceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
-            if (authstateprovider != null)
+            if (runtime == Runtime.WebAssembly)
             {
                 // get list of loaded assemblies on the client ( in the client-side hosting module the browser client has its own app domain )
                 Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -80,7 +71,7 @@ namespace Oqtane.Services
                             if (assemblies.Where(item => item.FullName.StartsWith(assemblyname + ",")).FirstOrDefault() == null)
                             {
                                 // download assembly from server and load
-                                var bytes = await _http.GetByteArrayAsync(apiurl + "/load/" + assemblyname + ".dll");
+                                var bytes = await _http.GetByteArrayAsync($"{Apiurl}/load/{assemblyname}.dll");
                                 Assembly.Load(bytes);
                             }
                         }
@@ -89,11 +80,15 @@ namespace Oqtane.Services
                     if (assemblies.Where(item => item.FullName.StartsWith(moduledefinition.AssemblyName + ",")).FirstOrDefault() == null)
                     {
                         // download assembly from server and load
-                        var bytes = await _http.GetByteArrayAsync(apiurl + "/load/" + moduledefinition.AssemblyName + ".dll");
+                        var bytes = await _http.GetByteArrayAsync($"{Apiurl}/load/{moduledefinition.AssemblyName}.dll");
                         Assembly.Load(bytes);
                     }
                 }
             }
+        }
+        public async Task CreateModuleDefinitionAsync(ModuleDefinition moduleDefinition, int moduleId)
+        {
+            await PostJsonAsync($"{Apiurl}?moduleid={moduleId.ToString()}", moduleDefinition);
         }
     }
 }

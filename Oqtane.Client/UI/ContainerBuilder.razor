@@ -1,10 +1,12 @@
 ﻿@namespace Oqtane.UI
 
-<CascadingValue Value="@ModuleState">
+<CascadingValue Value="@_moduleState">
     @DynamicComponent
 </CascadingValue>
 
 @code {
+    private Module _moduleState;
+
     [CascadingParameter]
     protected PageState PageState { get; set; }
 
@@ -13,13 +15,11 @@
 
     RenderFragment DynamicComponent { get; set; }
 
-    Module ModuleState;
-
     protected override void OnParametersSet()
     {
-        ModuleState = Module; // passed in from Pane component
-        string container = ModuleState.ContainerType;
-        if (PageState.ModuleId != -1 && PageState.Action != "" && ModuleState.UseAdminContainer)
+        _moduleState = Module; // passed in from Pane component
+        string container = _moduleState.ContainerType;
+        if (PageState.ModuleId != -1 && PageState.Action != "" && _moduleState.UseAdminContainer)
         {
             container = Constants.DefaultAdminContainer;
         }

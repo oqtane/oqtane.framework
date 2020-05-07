@@ -5,10 +5,10 @@ namespace Oqtane.Repository
 {
     public interface IFileRepository
     {
-        IEnumerable<File> GetFiles(int FolderId);
-        File AddFile(File File);
-        File UpdateFile(File File);
-        File GetFile(int FileId);
-        void DeleteFile(int FileId);
+        IEnumerable<File> GetFiles(int folderId);
+        File AddFile(File file);
+        File UpdateFile(File file);
+        File GetFile(int fileId);
+        void DeleteFile(int fileId);
     }
 }

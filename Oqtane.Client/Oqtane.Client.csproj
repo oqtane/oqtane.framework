@@ -3,15 +3,10 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <OutputType>Exe</OutputType>
-    <BlazorLinkOnBuild>false</BlazorLinkOnBuild>
-    <RestoreAdditionalProjectSources>
-      https://dotnet.myget.org/F/aspnetcore-dev/api/v3/index.json;
-      https://dotnet.myget.org/F/blazor-dev/api/v3/index.json;
-    </RestoreAdditionalProjectSources>
     <LangVersion>7.3</LangVersion>
     <RazorLangVersion>3.0</RazorLangVersion>
-    <Configurations>Debug;Release;Wasm</Configurations>
-    <Version>0.0.1</Version>
+    <Configurations>Debug;Release</Configurations>
+    <Version>0.9.0</Version>
     <Product>Oqtane</Product>
     <Authors>Shaun Walker</Authors>
     <Company>.NET Foundation</Company>
@@ -24,15 +19,18 @@
     <RootNamespace>Oqtane</RootNamespace>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Wasm|AnyCPU'">
-    <DefineConstants>TRACE;WASM</DefineConstants>
-  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Modules\Admin\ModuleCreator\Templates\**" />
+    <Content Remove="Modules\Admin\ModuleCreator\Templates\**" />
+    <EmbeddedResource Remove="Modules\Admin\ModuleCreator\Templates\**" />
+    <None Remove="Modules\Admin\ModuleCreator\Templates\**" />
+  </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Blazor" Version="3.1.0-preview4.19579.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Blazor.Build" Version="3.1.0-preview4.19579.2" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.AspNetCore.Blazor.HttpClient" Version="3.1.0-preview4.19579.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="3.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="3.2.0-rc1.20223.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Build" Version="3.2.0-rc1.20223.4" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="3.1.2" />
+    <PackageReference Include="System.Net.Http.Json" Version="3.2.0-rc1.20217.1" />
   </ItemGroup>
 
   <ItemGroup>

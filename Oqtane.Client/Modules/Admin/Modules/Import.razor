@@ -7,10 +7,10 @@
     <tbody>
         <tr>
             <td>
-                <label for="Title" class="control-label">Content: </label>
+                <Label For="content" HelpText="Enter the module content">Content: </Label>
             </td>
             <td>
-                <textarea class="form-control" @bind="@_content" rows="5"></textarea>
+                <textarea id="content" class="form-control" @bind="@_content" rows="5"></textarea>
             </td>
         </tr>
     </tbody>
@@ -20,15 +20,14 @@
 
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
-    public override string Title { get { return "Import Module"; } }
+    private string _content = string.Empty;
 
-    string _content = "";
-
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+    public override string Title => "Import Module";
 
     private async Task ImportModule()
     {
-        if (_content != "")
+        if (_content != string.Empty)
         {
             try
             {

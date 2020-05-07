@@ -71,12 +71,12 @@ else
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+    private string _level = "-";
+    private string _function = "-";
+    private string _rows = "10";
+    private List<Log> _logs;
 
-    string _level = "-";
-    string _function = "-";
-    string _rows = "10";
-    List<Log> _logs;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnInitializedAsync()
     {
@@ -139,12 +139,12 @@ else
 
     private async Task GetLogs()
     {
-        _logs = await LogService.GetLogsAsync(PageState.Site.SiteId, ((_level == "-") ? "" : _level), ((_function == "-") ? "" : _function), int.Parse(_rows));
+        _logs = await LogService.GetLogsAsync(PageState.Site.SiteId, ((_level == "-") ? string.Empty : _level), ((_function == "-") ? string.Empty : _function), int.Parse(_rows));
     }
 
     private string GetClass(string function)
     {
-        string classname = "";
+        string classname = string.Empty;
         switch (function)
         {
             case "Create":
@@ -163,7 +163,7 @@ else
                 classname = "table-secondary";
                 break;
             default:
-                classname = "";
+                classname = string.Empty;
                 break;
         }
         return classname;

@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
@@ -14,48 +14,48 @@ namespace Oqtane.Repository
             _db = context;
         }
 
-        public IEnumerable<UserRole> GetUserRoles(int SiteId)
+        public IEnumerable<UserRole> GetUserRoles(int siteId)
         {
             return _db.UserRole
                 .Include(item => item.Role) // eager load roles
                 .Include(item => item.User) // eager load users
-                .Where(item => item.Role.SiteId == SiteId || item.Role.SiteId == null);
+                .Where(item => item.Role.SiteId == siteId || item.Role.SiteId == null);
         }
 
-        public IEnumerable<UserRole> GetUserRoles(int UserId, int SiteId)
+        public IEnumerable<UserRole> GetUserRoles(int userId, int siteId)
         {
-            return _db.UserRole.Where(item => item.UserId == UserId)
+            return _db.UserRole.Where(item => item.UserId == userId)
                 .Include(item => item.Role) // eager load roles
                 .Include(item => item.User) // eager load users
-                .Where(item => item.Role.SiteId == SiteId || item.Role.SiteId == null);
+                .Where(item => item.Role.SiteId == siteId || item.Role.SiteId == null);
         }
 
-        public UserRole AddUserRole(UserRole UserRole)
+        public UserRole AddUserRole(UserRole userRole)
         {
-            _db.UserRole.Add(UserRole);
+            _db.UserRole.Add(userRole);
             _db.SaveChanges();
-            return UserRole;
+            return userRole;
         }
 
-        public UserRole UpdateUserRole(UserRole UserRole)
+        public UserRole UpdateUserRole(UserRole userRole)
         {
-            _db.Entry(UserRole).State = EntityState.Modified;
+            _db.Entry(userRole).State = EntityState.Modified;
             _db.SaveChanges();
-            return UserRole;
+            return userRole;
         }
 
-        public UserRole GetUserRole(int UserRoleId)
+        public UserRole GetUserRole(int userRoleId)
         {
             return _db.UserRole
                 .Include(item => item.Role) // eager load roles
                 .Include(item => item.User) // eager load users
-                .SingleOrDefault(item => item.UserRoleId == UserRoleId);
+                .SingleOrDefault(item => item.UserRoleId == userRoleId);
         }
 
-        public void DeleteUserRole(int UserRoleId)
+        public void DeleteUserRole(int userRoleId)
         {
-            UserRole UserRole = _db.UserRole.Find(UserRoleId);
-            _db.UserRole.Remove(UserRole);
+            UserRole userRole = _db.UserRole.Find(userRoleId);
+            _db.UserRole.Remove(userRole);
             _db.SaveChanges();
         }
     }

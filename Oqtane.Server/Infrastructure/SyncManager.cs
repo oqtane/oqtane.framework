@@ -1,42 +1,28 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Oqtane.Models;
-using Oqtane.Repository;
+﻿using Oqtane.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Oqtane.Repository;
 
 namespace Oqtane.Infrastructure
 {
     public class SyncManager : ISyncManager
     {
-        private readonly IServiceScopeFactory ServiceScopeFactory;
         private List<SyncEvent> SyncEvents { get; set; }
 
-        public SyncManager(IServiceScopeFactory ServiceScopeFactory)
+        public SyncManager()
         {
-            this.ServiceScopeFactory = ServiceScopeFactory;
             SyncEvents = new List<SyncEvent>();
         }
 
-        private int TenantId
+        public List<SyncEvent> GetSyncEvents(int tenantId, DateTime lastSyncDate)
         {
-            get 
-            {
-                using (var scope = ServiceScopeFactory.CreateScope())
-                {
-                    return scope.ServiceProvider.GetRequiredService<ITenantResolver>().GetTenant().TenantId;
-                }
-            }
+            return SyncEvents.Where(item => item.TenantId == tenantId && item.ModifiedOn >= lastSyncDate).ToList();
         }
 
-        public List<SyncEvent> GetSyncEvents(DateTime LastSyncDate)
+        public void AddSyncEvent(int tenantId, string entityName, int entityId)
         {
-            return SyncEvents.Where(item => item.TenantId == TenantId && item.ModifiedOn >= LastSyncDate).ToList();
-        }
-
-        public void AddSyncEvent(string EntityName, int EntityId)
-        {
-            SyncEvents.Add(new SyncEvent { TenantId = TenantId, EntityName = EntityName, EntityId = EntityId, ModifiedOn = DateTime.UtcNow });
+            SyncEvents.Add(new SyncEvent { TenantId = tenantId, EntityName = entityName, EntityId = entityId, ModifiedOn = DateTime.UtcNow });
             // trim sync events 
             SyncEvents.RemoveAll(item => item.ModifiedOn < DateTime.UtcNow.AddHours(-1));
         }

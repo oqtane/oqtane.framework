@@ -6,16 +6,16 @@ namespace Oqtane.Services
 {
     public interface IFileService
     {
-        Task<List<File>> GetFilesAsync(int FolderId);
-        Task<List<File>> GetFilesAsync(string Folder);
-        Task<File> GetFileAsync(int FileId);
-        Task<File> AddFileAsync(File File);
-        Task<File> UpdateFileAsync(File File);
-        Task DeleteFileAsync(int FileId);
-        Task<File> UploadFileAsync(string Url, int FolderId);
-        Task<string> UploadFilesAsync(int FolderId, string[] Files, string FileUploadName);
-        Task<string> UploadFilesAsync(string Folder, string[] Files, string FileUploadName);
-        Task<byte[]> DownloadFileAsync(int FileId);
+        Task<List<File>> GetFilesAsync(int folderId);
+        Task<List<File>> GetFilesAsync(string folder);
+        Task<File> GetFileAsync(int fileId);
+        Task<File> AddFileAsync(File file);
+        Task<File> UpdateFileAsync(File file);
+        Task DeleteFileAsync(int fileId);
+        Task<File> UploadFileAsync(string url, int folderId);
+        Task<string> UploadFilesAsync(int folderId, string[] files, string fileUploadName);
+        Task<string> UploadFilesAsync(string folder, string[] files, string fileUploadName);
+        Task<byte[]> DownloadFileAsync(int fileId);
 
         Task<List<File>> GetFilesAsync(int siteId, string folderPath);
     }

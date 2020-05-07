@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Oqtane.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Oqtane.Models;
+using Oqtane.Shared;
 
 namespace Oqtane.Repository
 {
@@ -28,32 +28,43 @@ namespace Oqtane.Repository
             });
         }
 
-        public Tenant AddTenant(Tenant Tenant)
+        public Tenant AddTenant(Tenant tenant)
         {
-            _db.Tenant.Add(Tenant);
+            _db.Tenant.Add(tenant);
             _db.SaveChanges();
             _cache.Remove("tenants");
-            return Tenant;
+            return tenant;
         }
 
-        public Tenant UpdateTenant(Tenant Tenant)
+        public Tenant UpdateTenant(Tenant tenant)
         {
-            _db.Entry(Tenant).State = EntityState.Modified;
+            var oldTenant =_db.Tenant.AsNoTracking().FirstOrDefault(t=> t.TenantId == tenant.TenantId);
+            
+            if (oldTenant != null && (oldTenant.Name.Equals(Constants.MasterTenant, StringComparison.OrdinalIgnoreCase) && !oldTenant.Name.Equals(tenant.Name)))
+            {
+                throw new InvalidOperationException("Unable to rename the master tenant.");
+            }
+            
+            _db.Entry(tenant).State = EntityState.Modified;
             _db.SaveChanges();
             _cache.Remove("tenants");
-            return Tenant;
+            return tenant;
         }
 
-        public Tenant GetTenant(int TenantId)
+        public Tenant GetTenant(int tenantId)
         {
-            return _db.Tenant.Find(TenantId);
+            return _db.Tenant.Find(tenantId);
         }
 
-        public void DeleteTenant(int TenantId)
-        { 
-            Tenant tenant = _db.Tenant.Find(TenantId);
-            _db.Tenant.Remove(tenant);
-            _db.SaveChanges();
+        public void DeleteTenant(int tenantId)
+        {
+            var tenant = GetTenant(tenantId);
+            if (tenant != null && !tenant.Name.Equals(Constants.MasterTenant, StringComparison.OrdinalIgnoreCase))
+            {
+                _db.Tenant.Remove(tenant);
+                _db.SaveChanges();
+            }
+
             _cache.Remove("tenants");
         }
     }

@@ -6,14 +6,14 @@ namespace Oqtane.Services
 {
     public interface IProfileService
     {
-        Task<List<Profile>> GetProfilesAsync(int SiteId);
+        Task<List<Profile>> GetProfilesAsync(int siteId);
 
-        Task<Profile> GetProfileAsync(int ProfileId);
+        Task<Profile> GetProfileAsync(int profileId);
 
-        Task<Profile> AddProfileAsync(Profile Profile);
+        Task<Profile> AddProfileAsync(Profile profile);
 
-        Task<Profile> UpdateProfileAsync(Profile Profile);
+        Task<Profile> UpdateProfileAsync(Profile profile);
 
-        Task DeleteProfileAsync(int ProfileId);
+        Task DeleteProfileAsync(int profileId);
     }
 }

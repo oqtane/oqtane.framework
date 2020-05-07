@@ -5,77 +5,90 @@
 @inject IModuleService ModuleService
 @inject IPageModuleService PageModuleService
 
-<table class="table table-borderless">
-    <tbody>
-        <tr>
-            <td>
-                <label for="Title" class="control-label">Title: </label>
-            </td>
-            <td>
-                <input type="text" name="Title" class="form-control" @bind="@_title" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="Container" class="control-label">Container: </label>
-            </td>
-            <td>
-                <select class="form-control" @bind="@_containerType">
-                    <option value="">&lt;Select Container&gt;</option>
-                    @foreach (KeyValuePair<string, string> container in _containers)
-                    {
-                        <option value="@container.Key">@container.Value</option>
-                    }
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="Name" class="control-label">Permissions: </label>
-            </td>
-            <td>
-                <PermissionGrid EntityName="Module" PermissionNames="@_permissionNames" Permissions="@_permissions" @ref="_permissionGrid" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="Page" class="control-label">Page: </label>
-            </td>
-            <td>
-                <select class="form-control" @bind="@_pageId">
-                    @foreach (Page p in PageState.Pages)
-                    {
-                        <option value="@p.PageId">@p.Name</option>
-                    }
-                </select>
-            </td>
-        </tr>
-    </tbody>
-</table>
-
-@DynamicComponent
-
+<TabStrip>
+    <TabPanel Name="Settings" Heading="Module Settings">
+        @if (_containers != null)
+        {
+            <table class="table table-borderless">
+                <tr>
+                    <td>
+                        <Label For="title" HelpText="Enter the title of the module">Title: </Label>
+                    </td>
+                    <td>
+                        <input id="title" type="text" name="Title" class="form-control" @bind="@_title" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="container" HelpText="Select the module's container">Container: </Label>
+                    </td>
+                    <td>
+                        <select id="container" class="form-control" @bind="@_containerType">
+                            <option value="">&lt;Select Container&gt;</option>
+                            @foreach (KeyValuePair<string, string> container in _containers)
+                            {
+                                <option value="@container.Key">@container.Value</option>
+                            }
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="page" HelpText="The page that the module is on">Page: </Label>
+                    </td>
+                    <td>
+                        <select id="page" class="form-control" @bind="@_pageId">
+                            @foreach (Page p in PageState.Pages)
+                            {
+                                if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
+                                {
+                                    <option value="@p.PageId">@(new string('-', p.Level * 2))@(p.Name)</option>
+                                }
+                            }
+                        </select>
+                    </td>
+                </tr>
+            </table>
+        }
+    </TabPanel>
+    <TabPanel Name="Permissions">
+        @if (_containers != null)
+        {
+            <table class="table table-borderless">
+                <tr>
+                    <td>
+                        <PermissionGrid EntityName="@EntityNames.Module" PermissionNames="@_permissionNames" Permissions="@_permissions" @ref="_permissionGrid" />
+                    </td>
+                </tr>
+            </table>
+        }
+    </TabPanel>
+    @if (_settingsModuleType != null)
+    {
+        <TabPanel Name="ModuleSettings" Heading="@_settingstitle">
+            @DynamicComponent
+        </TabPanel>
+    }
+</TabStrip>
 <button type="button" class="btn btn-success" @onclick="SaveModule">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
-
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Edit; } }
-    public override string Title { get { return "Module Settings"; } }
+    private Dictionary<string, string> _containers;
+    private string _title;
+    private string _containerType;
+    private string _permissionNames = "";
+    private string _permissions;
+    private string _pageId;
+    private PermissionGrid _permissionGrid;
+    private Type _settingsModuleType;
+    private string _settingstitle = "Other Settings";
+    private object _settings;
 
-    Dictionary<string, string> _containers = new Dictionary<string, string>();
-    string _title;
-    string _containerType;
-    string _permissionNames = "";
-    string _permissions;
-    string _pageId;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
+    public override string Title => "Module Settings";
 
-#pragma warning disable 649
-    PermissionGrid _permissionGrid;
-#pragma warning restore 649
-
-    RenderFragment DynamicComponent { get; set; }
-    object _settings;
+    private RenderFragment DynamicComponent { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -86,35 +99,46 @@
         _permissionNames = ModuleState.ModuleDefinition.PermissionNames;
         _pageId = ModuleState.PageId.ToString();
 
-        DynamicComponent = builder =>
+        _settingsModuleType = Type.GetType(ModuleState.ModuleType);
+        if (_settingsModuleType != null)
         {
-            Type moduleType = Type.GetType(ModuleState.ModuleType);
-            if (moduleType != null)
+            var moduleobject = Activator.CreateInstance(_settingsModuleType);
+            _settingstitle = (string)_settingsModuleType.GetProperty("Title").GetValue(moduleobject, null);
+            if (string.IsNullOrEmpty(_settingstitle))
             {
-                builder.OpenComponent(0, moduleType);
-                builder.AddComponentReferenceCapture(1, inst => { _settings = Convert.ChangeType(inst, moduleType); });
-                builder.CloseComponent();
+                _settingstitle = "Other Settings";
             }
-        };
+
+            DynamicComponent = builder =>
+            {
+                builder.OpenComponent(0, _settingsModuleType);
+                builder.AddComponentReferenceCapture(1, inst => { _settings = Convert.ChangeType(inst, _settingsModuleType); });
+                builder.CloseComponent();
+            };
+        }
     }
 
     private async Task SaveModule()
     {
-        Module module = ModuleState;
+        var module = ModuleState;
         module.Permissions = _permissionGrid.GetPermissions();
         await ModuleService.UpdateModuleAsync(module);
 
-        PageModule pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
+        var pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
         pagemodule.PageId = int.Parse(_pageId);
         pagemodule.Title = _title;
         pagemodule.ContainerType = _containerType;
+
         await PageModuleService.UpdatePageModuleAsync(pagemodule);
         await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
 
-        Type moduleType = Type.GetType(ModuleState.ModuleType);
-        if (moduleType != null)
+        if (_settingsModuleType != null)
         {
-            moduleType.GetMethod("UpdateSettings")?.Invoke(_settings, null); // method must be public in settings component
+            var moduleType = Type.GetType(ModuleState.ModuleType);
+            if (moduleType != null)
+            {
+                moduleType.GetMethod("UpdateSettings")?.Invoke(_settings, null); // method must be public in settings component
+            }
         }
 
         NavigationManager.NavigateTo(NavigateUrl());

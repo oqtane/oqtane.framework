@@ -1,68 +1,56 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.ResponseCompression; // needed for WASM
-using Microsoft.Extensions.DependencyInjection;
-using System.Linq;
-using Microsoft.Extensions.Configuration;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
 using System;
-using System.Reflection;
-using Microsoft.Extensions.Hosting;
-using Oqtane.Modules;
-using Oqtane.Repository;
 using System.IO;
-using System.Runtime.Loader;
-using Oqtane.Services;
+using System.Linq;
 using System.Net.Http;
-using Microsoft.AspNetCore.Components;
-using Oqtane.Shared;
-using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.OpenApi.Models;
-using Oqtane.Security;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
-using System.Net;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 using Oqtane.Infrastructure;
+using Oqtane.Repository;
+using Oqtane.Security;
+using Oqtane.Services;
+using Oqtane.Shared; 
 
-namespace Oqtane.Server
+namespace Oqtane
 {
     public class Startup
     {
         public IConfigurationRoot Configuration { get; }
-
+        private string _webRoot;
+        
         public Startup(IWebHostEnvironment env)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             Configuration = builder.Build();
-
+            _webRoot = env.WebRootPath;              
             AppDomain.CurrentDomain.SetData("DataDirectory", Path.Combine(env.ContentRootPath, "Data"));
         }
 
-#if DEBUG || RELEASE
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddRazorPages();
-#if DEBUG
-            services.AddServerSideBlazor().AddCircuitOptions(options => { options.DetailedErrors = true; });
-#endif
-#if RELEASE
+            services.AddMvc().AddNewtonsoftJson();
             services.AddServerSideBlazor();
-#endif
+
             // setup HttpClient for server side in a client side compatible fashion ( with auth cookie )
             if (!services.Any(x => x.ServiceType == typeof(HttpClient)))
             {
-                services.AddScoped<HttpClient>(s =>
+                services.AddScoped(s =>
                 {
                     // creating the URI helper needs to wait until the JS Runtime is initialized, so defer it.
-                    var NavigationManager = s.GetRequiredService<NavigationManager>();
+                    var navigationManager = s.GetRequiredService<NavigationManager>();
                     var httpContextAccessor = s.GetRequiredService<IHttpContextAccessor>();
                     var authToken = httpContextAccessor.HttpContext.Request.Cookies[".AspNetCore.Identity.Application"];
                     var client = new HttpClient(new HttpClientHandler { UseCookies = false });
@@ -70,7 +58,7 @@ namespace Oqtane.Server
                     {
                         client.DefaultRequestHeaders.Add("Cookie", ".AspNetCore.Identity.Application=" + authToken);
                     }
-                    client.BaseAddress = new Uri(NavigationManager.Uri);
+                    client.BaseAddress = new Uri(navigationManager.Uri);
                     return client;
                 });
             }
@@ -78,13 +66,13 @@ namespace Oqtane.Server
             // register authorization services
             services.AddAuthorizationCore(options =>
             {
-                options.AddPolicy("ViewPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", PermissionNames.View)));
-                options.AddPolicy("EditPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", PermissionNames.Edit)));
-                options.AddPolicy("ViewModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", PermissionNames.View)));
-                options.AddPolicy("EditModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", PermissionNames.Edit)));
-                options.AddPolicy("ViewFolder", policy => policy.Requirements.Add(new PermissionRequirement("Folder", PermissionNames.View)));
-                options.AddPolicy("EditFolder", policy => policy.Requirements.Add(new PermissionRequirement("Folder", PermissionNames.Edit)));
-                options.AddPolicy("ListFolder", policy => policy.Requirements.Add(new PermissionRequirement("Folder", "List")));
+                options.AddPolicy("ViewPage", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Page, PermissionNames.View)));
+                options.AddPolicy("EditPage", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Page, PermissionNames.Edit)));
+                options.AddPolicy("ViewModule", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Module, PermissionNames.View)));
+                options.AddPolicy("EditModule", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Module, PermissionNames.Edit)));
+                options.AddPolicy("ViewFolder", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Folder, PermissionNames.View)));
+                options.AddPolicy("EditFolder", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Folder, PermissionNames.Edit)));
+                options.AddPolicy("ListFolder", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Folder, PermissionNames.Browse)));
             });
 
             // register scoped core services
@@ -111,12 +99,15 @@ namespace Oqtane.Server
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IFolderService, FolderService>();
             services.AddScoped<IFileService, FileService>();
+            services.AddScoped<ISiteTemplateService, SiteTemplateService>();
+            services.AddScoped<ISqlService, SqlService>();
+            services.AddScoped<ISystemService, SystemService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddDbContext<MasterDBContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")
-                    .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory").ToString())
+                    .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString())
                 ));
             services.AddDbContext<TenantDBContext>(options => { });
 
@@ -160,9 +151,13 @@ namespace Oqtane.Server
             services.AddTransient<IUserClaimsPrincipalFactory<IdentityUser>, ClaimsPrincipalFactory<IdentityUser>>();
 
             // register singleton scoped core services
-            services.AddSingleton<IConfigurationRoot>(Configuration);
+            services.AddSingleton(Configuration);
             services.AddSingleton<IInstallationManager, InstallationManager>();
             services.AddSingleton<ISyncManager, SyncManager>();
+            services.AddSingleton<IDatabaseManager, DatabaseManager>();
+
+            // install any modules or themes ( this needs to occur BEFORE the assemblies are loaded into the app domain )
+            InstallationManager.UnpackPackages("Modules,Themes", _webRoot);
 
             // register transient scoped core services
             services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
@@ -188,12 +183,17 @@ namespace Oqtane.Server
             services.AddTransient<INotificationRepository, NotificationRepository>();
             services.AddTransient<IFolderRepository, FolderRepository>();
             services.AddTransient<IFileRepository, FileRepository>();
+            services.AddTransient<ISiteTemplateRepository, SiteTemplateRepository>();
+            services.AddTransient<ISqlRepository, SqlRepository>();
+            services.AddTransient<IUpgradeManager, UpgradeManager>();
 
+            // load the external assemblies into the app domain
             services.AddOqtaneModules();
             services.AddOqtaneThemes();
+            services.AddOqtaneSiteTemplates();
 
             services.AddMvc()
-                .AddOqtaneApplicationParts()
+                .AddOqtaneApplicationParts() // register any Controllers from custom modules
                 .AddNewtonsoftJson();
 
             services.AddOqtaneServices();
@@ -203,14 +203,17 @@ namespace Oqtane.Server
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Oqtane", Version = "v1" });
             });
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IInstallationManager InstallationManager)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseWebAssemblyDebugging();
             }
             else
             {
@@ -218,13 +221,9 @@ namespace Oqtane.Server
                 app.UseHsts();
             }
 
-            // install any modules or themes
-            InstallationManager.InstallPackages("Modules,Themes", false);
-
             app.UseHttpsRedirection();
-
             app.UseStaticFiles();
-
+            app.UseBlazorFrameworkFiles();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
@@ -237,165 +236,10 @@ namespace Oqtane.Server
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapRazorPages();
-                endpoints.MapControllers();
                 endpoints.MapBlazorHub();
+                endpoints.MapControllers();
                 endpoints.MapFallbackToPage("/_Host");
             });
         }
-#endif
-
-#if WASM
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
-        public void ConfigureServices(IServiceCollection services)
-        {
-            // register authorization services
-            services.AddAuthorizationCore(options =>
-            {
-                options.AddPolicy("ViewPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", PermissionNames.View)));
-                options.AddPolicy("EditPage", policy => policy.Requirements.Add(new PermissionRequirement("Page", PermissionNames.Edit)));
-                options.AddPolicy("ViewModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", PermissionNames.View)));
-                options.AddPolicy("EditModule", policy => policy.Requirements.Add(new PermissionRequirement("Module", PermissionNames.Edit)));
-            });
-
-            // register scoped core services
-            services.AddScoped<SiteState>();
-            services.AddScoped<IAuthorizationHandler, PermissionHandler>();
-            
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
-            services.AddDbContext<MasterDBContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")
-                    .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory").ToString())
-                ));
-            services.AddDbContext<TenantDBContext>(options => { });
-
-            services.AddIdentityCore<IdentityUser>(options => { })
-                .AddEntityFrameworkStores<TenantDBContext>()
-                .AddSignInManager()
-                .AddDefaultTokenProviders();
-
-            services.Configure<IdentityOptions>(options =>
-            {
-                // Password settings
-                options.Password.RequireDigit = false;
-                options.Password.RequiredLength = 6;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = false;
-                options.Password.RequireLowercase = false;
-
-                // Lockout settings
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
-                options.Lockout.MaxFailedAccessAttempts = 10;
-                options.Lockout.AllowedForNewUsers = true;
-
-                // User settings
-                options.User.RequireUniqueEmail = false;
-            });
-
-            services.AddAuthentication(IdentityConstants.ApplicationScheme)
-                .AddCookie(IdentityConstants.ApplicationScheme);
-
-            services.ConfigureApplicationCookie(options =>
-            {
-                options.Cookie.HttpOnly = false;
-                options.Events.OnRedirectToLogin = context =>
-                {
-                    context.Response.StatusCode = 401;
-                    return Task.CompletedTask;
-                };
-            });
-
-            // register custom claims principal factory for role claims
-            services.AddTransient<IUserClaimsPrincipalFactory<IdentityUser>, ClaimsPrincipalFactory<IdentityUser>>();
-
-            // register singleton scoped core services
-            services.AddSingleton<IConfigurationRoot>(Configuration);
-            services.AddSingleton<IInstallationManager, InstallationManager>();
-            services.AddSingleton<ISyncManager, SyncManager>();
-
-            // register transient scoped core services
-            services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
-            services.AddTransient<IThemeRepository, ThemeRepository>();
-            services.AddTransient<IUserPermissions, UserPermissions>();
-            services.AddTransient<ITenantResolver, TenantResolver>();
-            services.AddTransient<IAliasRepository, AliasRepository>();
-            services.AddTransient<ITenantRepository, TenantRepository>();
-            services.AddTransient<ISiteRepository, SiteRepository>();
-            services.AddTransient<IPageRepository, PageRepository>();
-            services.AddTransient<IModuleRepository, ModuleRepository>();
-            services.AddTransient<IPageModuleRepository, PageModuleRepository>();
-            services.AddTransient<IUserRepository, UserRepository>();
-            services.AddTransient<IProfileRepository, ProfileRepository>();
-            services.AddTransient<IRoleRepository, RoleRepository>();
-            services.AddTransient<IUserRoleRepository, UserRoleRepository>();
-            services.AddTransient<IPermissionRepository, PermissionRepository>();
-            services.AddTransient<ISettingRepository, SettingRepository>();
-            services.AddTransient<ILogRepository, LogRepository>();
-            services.AddTransient<ILogManager, LogManager>();
-            services.AddTransient<IJobRepository, JobRepository>();
-            services.AddTransient<IJobLogRepository, JobLogRepository>();
-            services.AddTransient<INotificationRepository, NotificationRepository>();
-            services.AddTransient<IFolderRepository, FolderRepository>();
-            services.AddTransient<IFileRepository, FileRepository>();
-
-            services.AddOqtaneModules();
-            services.AddOqtaneThemes();
-
-            services.AddMvc()
-                .AddOqtaneApplicationParts()
-                .AddNewtonsoftJson();
-
-            services.AddOqtaneServices();
-            services.AddOqtaneHostedServices();
-
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Oqtane", Version = "v1" });
-            });
-
-            services.AddResponseCompression(opts =>
-            {
-                opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
-                    new[] { "application/octet-stream" });
-            });
-        }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IInstallationManager InstallationManager)
-        {
-            app.UseResponseCompression();
-
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                app.UseBlazorDebugging();
-            }
-
-            // install any modules or themes
-            InstallationManager.InstallPackages("Modules,Themes", false);
-
-            app.UseClientSideBlazorFiles<Client.Startup>();
-            app.UseStaticFiles();
-
-            app.UseRouting();
-            app.UseAuthentication();
-            app.UseAuthorization();
-
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Oqtane V1");
-            });
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapDefaultControllerRoute();
-                endpoints.MapFallbackToClientSideBlazor<Client.Startup>("index.html");
-            });
-        }
-#endif
-
     }
 }

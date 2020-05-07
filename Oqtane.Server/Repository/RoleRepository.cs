@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
@@ -14,40 +14,40 @@ namespace Oqtane.Repository
             _db = context;
         }
             
-        public IEnumerable<Role> GetRoles(int SiteId)
+        public IEnumerable<Role> GetRoles(int siteId)
         {
-            return _db.Role.Where(item => item.SiteId == SiteId);
+            return _db.Role.Where(item => item.SiteId == siteId);
         }
 
-        public IEnumerable<Role> GetRoles(int SiteId, bool IncludeGlobalRoles)
+        public IEnumerable<Role> GetRoles(int siteId, bool includeGlobalRoles)
         {
-            return _db.Role.Where(item => item.SiteId == SiteId || item.SiteId == null);
+            return _db.Role.Where(item => item.SiteId == siteId || item.SiteId == null);
         }
 
 
-        public Role AddRole(Role Role)
+        public Role AddRole(Role role)
         {
-            _db.Role.Add(Role);
+            _db.Role.Add(role);
             _db.SaveChanges();
-            return Role;
+            return role;
         }
 
-        public Role UpdateRole(Role Role)
+        public Role UpdateRole(Role role)
         {
-            _db.Entry(Role).State = EntityState.Modified;
+            _db.Entry(role).State = EntityState.Modified;
             _db.SaveChanges();
-            return Role;
+            return role;
         }
 
-        public Role GetRole(int RoleId)
+        public Role GetRole(int roleId)
         {
-            return _db.Role.Find(RoleId);
+            return _db.Role.Find(roleId);
         }
 
-        public void DeleteRole(int RoleId)
+        public void DeleteRole(int roleId)
         {
-            Role Role = _db.Role.Find(RoleId);
-            _db.Role.Remove(Role);
+            Role role = _db.Role.Find(roleId);
+            _db.Role.Remove(role);
             _db.SaveChanges();
         }
     }

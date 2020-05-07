@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Oqtane.Repository;
+using Oqtane.Enums;
 using Oqtane.Models;
 using Oqtane.Shared;
 using Oqtane.Infrastructure;
+using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
-    [Route("{site}/api/[controller]")]
+    [Route("{alias}/api/[controller]")]
     public class RoleController : Controller
     {
         private readonly IRoleRepository _roles;
@@ -39,27 +40,27 @@ namespace Oqtane.Controllers
         // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = Constants.AdminRole)]
-        public Role Post([FromBody] Role Role)
+        public Role Post([FromBody] Role role)
         {
             if (ModelState.IsValid)
             {
-                Role = _roles.AddRole(Role);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Role Added {Role}", Role);
+                role = _roles.AddRole(role);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Role Added {Role}", role);
             }
-            return Role;
+            return role;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Roles = Constants.AdminRole)]
-        public Role Put(int id, [FromBody] Role Role)
+        public Role Put(int id, [FromBody] Role role)
         {
             if (ModelState.IsValid)
             {
-                Role = _roles.UpdateRole(Role);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Role Updated {Role}", Role);
+                role = _roles.UpdateRole(role);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Role Updated {Role}", role);
             }
-            return Role;
+            return role;
         }
 
         // DELETE api/<controller>/5

@@ -4,77 +4,59 @@
 @inject IFileService FileService
 @inject IFolderService FolderService
 
-@if (_folders != null)
-{
-    <div class="container-fluid">
-        <div class="form-group">
-
-            <ul class="nav nav-tabs" role="tablist">
-                <li class="nav-item">
-                    <a class="nav-link active" data-toggle="tab" href="#Upload" role="tab">
-                        Upload Files
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-toggle="tab" href="#Download" role="tab">
-                        Download Files
-                    </a>
-                </li>
-            </ul>
-
-            <div class="tab-content">
-                <div id="Upload" class="tab-pane fade show active" role="tabpanel">
-                    <table class="table table-borderless">
-                        <tr>
-                            <td>
-                                <label  class="control-label">Upload: </label>
-                            </td>
-                            <td>
-                                <FileManager UploadMultiple="true" ShowFiles="false" FolderId="@_folderId.ToString()" />
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                <div id="Download" class="tab-pane fade" role="tabpanel">
-                    <table class="table table-borderless">
-                        <tr>
-                            <td>
-                                <label  class="control-label">Url: </label>
-                            </td>
-                            <td>
-                                <input class="form-control" @bind="@url" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <label  class="control-label">Folder: </label>
-                            </td>
-                            <td>
-                                <select class="form-control" @bind="@_folderId">
-                                    <option value="-1">&lt;Select Folder&gt;</option>
-                                    @foreach (Folder folder in _folders)
-                                    {
-                                        <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
-                                    }
-                                </select>
-                            </td>
-                        </tr>
-                    </table>
-                    <button type="button" class="btn btn-primary" @onclick="Download">Download</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <br />
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
-}
+<TabStrip>
+    <TabPanel Name="Upload" Heading="Upload Files">
+        <table class="table table-borderless">
+            <tr>
+                <td>
+                    <Label For="upload" HelpText="Upload the file you want">Upload: </Label>
+                </td>
+                <td>
+                    <FileManager UploadMultiple="true" ShowFiles="false" FolderId="@_folderId.ToString()" />
+                </td>
+            </tr>
+        </table>
+        <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    </TabPanel>
+    <TabPanel Name="Download" Heading="Download Files">
+        @if (_folders != null)
+        {
+            <table class="table table-borderless">
+                <tr>
+                    <td>
+                        <Label For="url" HelpText="Enter the url of the file you wish to download">Url: </Label>
+                    </td>
+                    <td>
+                        <input id="url" class="form-control" @bind="@url" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="folder" HelpText="Select the folder to save the file in">Folder: </Label>
+                    </td>
+                    <td>
+                        <select id="folder" class="form-control" @bind="@_folderId">
+                            <option value="-1">&lt;Select Folder&gt;</option>
+                            @foreach (Folder folder in _folders)
+                            {
+                                <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                            }
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            <button type="button" class="btn btn-success" @onclick="Download">Download</button>
+            <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+        }
+    </TabPanel>
+</TabStrip>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+    private string url = string.Empty;
+    private List<Folder> _folders;
+    private int _folderId = -1;
 
-    string url = "";
-    List<Folder> _folders;
-    int _folderId = -1;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override async Task OnInitializedAsync()
     {
@@ -90,7 +72,7 @@
     {
         try
         {
-            if (url != "" && _folderId != -1)
+            if (url != string.Empty && _folderId != -1)
             {
                 await FileService.UploadFileAsync(url, _folderId);
                 await logger.LogInformation("File Downloaded Successfully From Url {Url}", url);

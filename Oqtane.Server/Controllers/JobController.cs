@@ -1,17 +1,18 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Oqtane.Repository;
 using Oqtane.Models;
 using Oqtane.Shared;
-using Oqtane.Infrastructure;
 using System;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Oqtane.Enums;
+using Oqtane.Infrastructure;
+using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
-    [Route("{site}/api/[controller]")]
+    [Route("{alias}/api/[controller]")]
     public class JobController : Controller
     {
         private readonly IJobRepository _jobs;
@@ -44,27 +45,27 @@ namespace Oqtane.Controllers
         // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = Constants.HostRole)]
-        public Job Post([FromBody] Job Job)
+        public Job Post([FromBody] Job job)
         {
             if (ModelState.IsValid)
             {
-                Job = _jobs.AddJob(Job);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Job Added {Job}", Job);
+                job = _jobs.AddJob(job);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Job Added {Job}", job);
             }
-            return Job;
+            return job;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Roles = Constants.HostRole)]
-        public Job Put(int id, [FromBody] Job Job)
+        public Job Put(int id, [FromBody] Job job)
         {
             if (ModelState.IsValid)
             {
-                Job = _jobs.UpdateJob(Job);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Job Updated {Job}", Job);
+                job = _jobs.UpdateJob(job);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Job Updated {Job}", job);
             }
-            return Job;
+            return job;
         }
 
         // DELETE api/<controller>/5

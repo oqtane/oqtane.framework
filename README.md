@@ -5,13 +5,15 @@ Oqtane is a Modular Application Framework for Blazor
 
 Oqtane uses Blazor, a new web framework for .NET Core that lets you build interactive web UIs using C# instead of JavaScript. Blazor apps are composed of reusable web UI components implemented using C#, HTML, and CSS. Both client and server code is written in C#, allowing you to share code and libraries.
 
+Please note that this project is governed by the **[.NET Foundation Contributor Covenant Code of Conduct](https://dotnetfoundation.org/code-of-conduct)**
+
 **To get started with Oqtane:**
 
-   1.&nbsp;Install **[.NET Core 3.1 SDK](https://dotnet.microsoft.com/download/dotnet-core/3.1)**.
+   1.&nbsp;Install **[.NET Core 3.2 Preview5 SDK (v3.1.201)](https://dotnet.microsoft.com/download/dotnet-core/3.1)**.
    
-   2.&nbsp;Install the latest edition of [Visual Studio 2019](https://visualstudio.com/vs/) (version 16.4 or higher) with the **ASP.NET and web development** workload. If you do not have a SQL Server installation available already and you wish to use LocalDB for development, you must also install the **.NET desktop development workload**.  
+   2.&nbsp;Install the Preview edition of [Visual Studio 2019](https://visualstudio.microsoft.com/vs/preview/) (version 16.6 or higher) with the **ASP.NET and web development** workload. If you do not have a SQL Server installation available already and you wish to use LocalDB for development, you must also install the **.NET desktop development workload**.  
 
-   3.&nbsp;Download or Clone the Oqtane source code to your local system. Open the **Oqtane.sln** solution file. If you want to develop using **server-side** Blazor (which includes a full debugging experience in Visual Studio) you should choose to Build the solution using the default Debug configuration. If you want to develop using **client-side** Blazor (WebAssembly) you should first choose the "Wasm" configuration option in the Visual Studio toolbar and then Build.
+   3.&nbsp;Download or Clone the Oqtane source code to your local system. Open the **Oqtane.sln** solution file and Build the solution. 
    
    NOTE: If you have already installed a previous version of Oqtane and you wish to install a newer version, there is currently no upgrade path from one version to the next. The recommended upgrade approach is to get the latest code and build it, and then reset the DefaultConnection value to "" in the appsettings.json file in the Oqtane.server project. This will trigger a re-install when you run the application which will execute the latest database scripts.
    
@@ -20,7 +22,9 @@ Oqtane uses Blazor, a new web framework for .NET Core that lets you build intera
 # Roadmap
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
 
-V1 (MVP)
+Note: We are planning to release V1 at the same time that Blazor WebAssembly ships on May 21, 2020
+
+V1 (MVP) 
 - [x] Multi-Tenant ( Shared Database & Isolated Database ) 
 - [x] Modular Architecture / Headless API
 - [x] Dynamic Page Compositing Model / Site & Page Management
@@ -37,6 +41,7 @@ V1 (MVP)
 - [x] Auto-Upgrade Framework
 
 V.Next
+- [ ] Use Migrations rather than SQL scripts for database installation/upgrade
 - [ ] Optional Encryption of Settings Values ( ie. via an IsSecure flag )
 - [ ] Localization
 - [ ] Migrate to Code-Behind Pattern ( *.razor.cs )

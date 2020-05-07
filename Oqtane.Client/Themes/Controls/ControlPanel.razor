@@ -1,4 +1,5 @@
 ﻿@namespace Oqtane.Themes.Controls
+@using Oqtane.Enums
 @inherits ThemeControlBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
@@ -9,7 +10,7 @@
 @inject IPageModuleService PageModuleService
 @inject ILogService logger
 
-@if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, PageState.Page.Permissions))
+@if (_moduleDefinitions != null && UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, PageState.Page.Permissions))
 {
     <div class="app-controlpanel" style="@_display">
 
@@ -86,22 +87,36 @@
                             @if (_moduleDefinitions != null)
                             {
                                 <select class="form-control" @onchange="(e => CategoryChanged(e))">
-                                    <option value="-">&lt;Common Modules&gt;</option>
                                     @foreach (var category in _categories)
                                     {
-                                        <option value="@category">@category</option>
+                                        if (category == _category)
+                                        {
+                                            <option value="@category" selected>@category Modules</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@category">@category Modules</option>
+                                        }
                                     }
                                 </select>
-                                <select class="form-control" @bind="@_moduleDefinitionName">
-                                    <option value="-">&lt;Select Module&gt;</option>
+                                <select class="form-control" @onchange="(e => ModuleChanged(e))">
+                                    @if (_moduleDefinitionName == "-")
+                                    {
+                                        <option value="-" selected>&lt;Select Module&gt;</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="-">&lt;Select Module&gt;</option>
+                                    }
                                     @foreach (var moduledefinition in _moduleDefinitions)
                                     {
-                                        if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.Utilize, moduledefinition.Permissions))
+                                        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Utilize, moduledefinition.Permissions))
                                         {
                                             <option value="@moduledefinition.ModuleDefinitionName">@moduledefinition.Name</option>
                                         }
                                     }
                                 </select>
+                                @((MarkupString)@_description)                                
                             }
                         }
                         else
@@ -190,11 +205,29 @@
 @if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, PageState.Page.Permissions))
 {
     <button type="button" class="btn @ButtonClass" @onclick="ShowControlPanel">
-        <span class="oi oi-menu"></span>
+        <span class="oi oi-cog"></span>
     </button>
 }
 
 @code {
+    private bool _deleteConfirmation = false;
+    private string _moduleType = "new";
+    private List<string> _categories = new List<string>();
+    private List<ModuleDefinition> _allModuleDefinitions;
+    private List<ModuleDefinition> _moduleDefinitions;
+    private List<Page> _pages = new List<Page>();
+    private string _pageId = "-";
+    private string _moduleId = "-";
+    private List<Module> _modules = new List<Module>();
+    private Dictionary<string, string> _containers = new Dictionary<string, string>();
+    private string _moduleDefinitionName = "-";
+    private string _category = "Common";
+    private string _description = "";
+    private string _pane = "";
+    private string _title = "";
+    private string _containerType = "";
+    private string _display = "display: none;";
+    private string _message = "";
 
     [Parameter]
     public string ButtonClass { get; set; }
@@ -208,37 +241,23 @@
     [Parameter]
     public string BodyClass { get; set; }
 
-    bool _deleteConfirmation = false;
-    string _moduleType = "new";
-    List<string> _categories = new List<string>();
-    List<ModuleDefinition> _allModuleDefinitions;
-    List<ModuleDefinition> _moduleDefinitions;
-    List<Page> _pages = new List<Page>();
-    string _pageId = "-";
-    string _moduleId = "-";
-    List<Module> _modules = new List<Module>();
-    Dictionary<string, string> _containers = new Dictionary<string, string>();
-    string _moduleDefinitionName = "-";
-    string _pane = "";
-    string _title = "";
-    string _containerType = "";
-    string _display = "display: none;";
-    string _message = "";
-
     protected override async Task OnParametersSetAsync()
     {
         if (string.IsNullOrEmpty(ButtonClass))
         {
             ButtonClass = "btn-outline-primary";
         }
+
         if (string.IsNullOrEmpty(CardClass))
         {
             CardClass = "card bg-secondary mb-3";
         }
+
         if (string.IsNullOrEmpty(HeaderClass))
         {
             HeaderClass = "card-header text-white";
         }
+
         if (string.IsNullOrEmpty(BodyClass))
         {
             BodyClass = "card-body";
@@ -248,7 +267,23 @@
         {
             _pages?.Clear();
 
+            foreach (Page p in PageState.Pages)
+            {
+                if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.View, p.Permissions))
+                {
+                    _pages.Add(p);
+                }
+            }
+
+            var panes = PageState.Page.Panes.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
+            _pane = panes.Count() == 1 ? panes.SingleOrDefault() : "";
+            var themes = await ThemeService.GetThemesAsync();
+            _containers = ThemeService.GetContainerTypes(themes);
+            _containerType = PageState.Site.DefaultContainerType;
+
             _allModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
+
+            _categories = new List<string>();
             foreach (ModuleDefinition moduledefinition in _allModuleDefinitions)
             {
                 if (moduledefinition.Categories != "")
@@ -262,34 +297,35 @@
                     }
                 }
             }
-            _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories == "").ToList();
-            foreach (Page p in PageState.Pages)
-            {
-                if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.View, p.Permissions))
-                {
-                    _pages.Add(p);
-                }
-            }
-            var panes = PageState.Page.Panes.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
-            _pane = panes.Count() == 1 ? panes.SingleOrDefault() : "";
-            List<Theme> themes = await ThemeService.GetThemesAsync();
-            _containers = ThemeService.GetContainerTypes(themes);
-            _containerType = PageState.Site.DefaultContainerType;
+
+            _category = "Common";
+            _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(_category)).ToList();
+            _moduleDefinitionName = "-";
+            _description = "";
         }
     }
 
     private void CategoryChanged(ChangeEventArgs e)
     {
-        string category = (string) e.Value;
-        if (category == "-")
+        _category = (string) e.Value;
+        _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(_category)).ToList();
+        _moduleDefinitionName = "-";
+        _description = "";
+        StateHasChanged();
+    }
+
+    private void ModuleChanged(ChangeEventArgs e)
+    {
+        _moduleDefinitionName = (string)e.Value;
+        if (_moduleDefinitionName != "-")
         {
-            _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories == "").ToList();
+            var moduleDefinition = _moduleDefinitions.FirstOrDefault(item => item.ModuleDefinitionName == _moduleDefinitionName);
+            _description = "<br /><div class=\"alert alert-info\" role=\"alert\">" + moduleDefinition.Description + "</div>";
         }
         else
         {
-            _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(category)).ToList();
+            _description = "";
         }
-        _moduleDefinitionName = "-";
         StateHasChanged();
     }
 
@@ -297,6 +333,7 @@
     {
         _pageId = (string) e.Value;
         _modules?.Clear();
+
         if (_pageId != "-")
         {
             foreach (Module module in PageState.Modules.Where(item => item.PageId == int.Parse(_pageId) && !item.IsDeleted))
@@ -307,6 +344,7 @@
                 }
             }
         }
+
         _moduleId = "-";
         StateHasChanged();
     }
@@ -345,6 +383,7 @@
                         pageModule.Title = _modules.FirstOrDefault(item => item.ModuleId == int.Parse(_moduleId))?.Title;
                     }
                 }
+
                 pageModule.Pane = _pane;
                 pageModule.Order = int.MaxValue;
                 pageModule.ContainerType = _containerType;
@@ -360,6 +399,7 @@
                 _message = "<br /><div class=\"alert alert-success\" role=\"alert\">Module Added To Page</div>";
 
                 _moduleDefinitionName = "-";
+                _description = "";
                 _pane = "";
                 _title = "";
                 _containerType = "";
@@ -407,7 +447,7 @@
     private void ShowControlPanel()
     {
         _message = "";
-        _display = "width: 25%; minwidth:300px";
+        _display = "width: 25%; min-width: 375px;";
         StateHasChanged();
     }
 
@@ -425,18 +465,21 @@
         switch (location)
         {
             case "Admin":
-    // get admin dashboard moduleid
+                // get admin dashboard moduleid
                 module = PageState.Modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.AdminDashboardModule);
+
                 if (module != null)
                 {
                     NavigationManager.NavigateTo(EditUrl(PageState.Page.Path, module.ModuleId, "Index", ""));
                 }
+
                 break;
             case "Add":
             case "Edit":
                 string url = "";
-    // get page management moduleid
+                // get page management moduleid
                 module = PageState.Modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.PageManagementModule);
+
                 if (module != null)
                 {
                     switch (location)
@@ -449,10 +492,12 @@
                             break;
                     }
                 }
+
                 if (url != "")
                 {
                     NavigationManager.NavigateTo(url);
                 }
+
                 break;
         }
     }
@@ -466,7 +511,8 @@
     private async Task DeletePage()
     {
         ConfirmDelete();
-        Page page = PageState.Page;
+
+        var page = PageState.Page;
         try
         {
             if (page.UserId == null)

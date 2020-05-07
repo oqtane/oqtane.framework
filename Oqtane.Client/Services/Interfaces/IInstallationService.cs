@@ -1,12 +1,13 @@
 ﻿using Oqtane.Models;
 using System.Threading.Tasks;
+using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
     public interface IInstallationService
     {
-        Task<GenericResponse> IsInstalled();
-        Task<GenericResponse> Install(string connectionstring);
-        Task<GenericResponse> Upgrade();
+        Task<Installation> IsInstalled();
+        Task<Installation> Install(InstallConfig config);
+        Task<Installation> Upgrade();
     }
 }

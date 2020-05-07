@@ -1,4 +1,4 @@
-﻿namespace Oqtane.Shared
+﻿namespace Oqtane.Enums
 {
     public enum LogFunction
     {

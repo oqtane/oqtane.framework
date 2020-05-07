@@ -1,15 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Oqtane.Models;
 using System.Collections.Generic;
-using Oqtane.Repository;
-using Oqtane.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
+using Oqtane.Infrastructure;
+using Oqtane.Repository;
 using Oqtane.Shared;
 
 namespace Oqtane.Controllers
 {
 
-    [Route("{site}/api/[controller]")]
+    [Route("{alias}/api/[controller]")]
     public class LogController : Controller
     {
         private readonly ILogManager _logger;
@@ -39,11 +39,11 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        public void Post([FromBody] Log Log)
+        public void Post([FromBody] Log log)
         {
             if (ModelState.IsValid)
             {
-                _logger.Log(Log);
+                _logger.Log(log);
             }
         }
     }

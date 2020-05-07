@@ -1,0 +1,201 @@
+﻿@namespace Oqtane.Modules.Admin.Roles
+@inherits ModuleBase
+@inject IRoleService RoleService
+@inject IUserRoleService UserRoleService
+
+@if (userroles == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table table-borderless">
+        <tr>
+            <td>
+                <Label For="role" HelpText="The role you are assigning users to">Role: </Label>
+            </td>
+            <td>
+                <input id="role" class="form-control" @bind="@name" disabled />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="user" HelpText="Select a user">User: </Label>
+            </td>
+            <td>
+                <select id="user" class="form-control" @bind="@userid">
+                    <option value="-1">&lt;Select User&gt;</option>
+                    @foreach (UserRole userrole in users)
+                    {
+                        <option value="@(userrole.UserId)">@userrole.User.DisplayName</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="effectiveDate" HelpText="The date that this role assignment is active">Effective Date: </Label>
+            </td>
+            <td>
+                <input id="effectiveDate" class="form-control" @bind="@effectivedate" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="expiryDate" HelpText="The date that this role assignment expires">Expiry Date: </Label>
+            </td>
+            <td>
+                <input id="expiryDate" class="form-control" @bind="@expirydate" />
+            </td>
+        </tr>
+    </table>
+    <button type="button" class="btn btn-success" @onclick="SaveUserRole">Save</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+
+    <hr class="app-rule" />
+    <p align="center">
+        <Pager Items="@userroles">
+            <Header>
+                <th>Users</th>
+                <th>&nbsp;</th>
+            </Header>
+            <Row>
+                <td>@context.User.DisplayName</td>
+                <td>
+                    <button type="button" class="btn btn-danger" @onclick=@(async () => await DeleteUserRole(context.UserRoleId))>Delete</button>
+                </td>
+            </Row>
+        </Pager>
+    </p>
+}
+
+@code {
+    private int roleid;
+    private string name = string.Empty;
+    private List<UserRole> users;
+    private int userid = -1;
+    private string effectivedate = string.Empty;
+    private string expirydate = string.Empty;
+    private List<UserRole> userroles;
+
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            roleid = Int32.Parse(PageState.QueryString["id"]);
+            Role role = await RoleService.GetRoleAsync(roleid);
+            name = role.Name;
+            users = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
+            users = users.Where(item => item.Role.Name == Constants.RegisteredRole).ToList();
+            await GetUserRoles();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Users {Error}", ex.Message);
+            AddModuleMessage("Error Loading Users", MessageType.Error);
+        }
+    }
+
+    private async Task GetUserRoles()
+    {
+        try
+        {
+            userroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
+            userroles = userroles.Where(item => item.RoleId == roleid).ToList();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading User Roles {RoleId} {Error}", roleid, ex.Message);
+            AddModuleMessage("Error Loading User Roles", MessageType.Error);
+        }
+    }
+
+    private async Task SaveUserRole()
+    {
+        try
+        {
+            if (userid != -1)
+            {
+                var userrole = userroles.Where(item => item.UserId == userid && item.RoleId == roleid).FirstOrDefault();
+                if (userrole != null)
+                {
+                    if (string.IsNullOrEmpty(effectivedate))
+                    {
+                        userrole.EffectiveDate = null;
+                    }
+                    else
+                    {
+                        userrole.EffectiveDate = DateTime.Parse(effectivedate);
+                    }
+
+                    if (string.IsNullOrEmpty(expirydate))
+                    {
+                        userrole.ExpiryDate = null;
+                    }
+                    else
+                    {
+                        userrole.ExpiryDate = DateTime.Parse(expirydate);
+                    }
+                    await UserRoleService.UpdateUserRoleAsync(userrole);
+                }
+                else
+                {
+                    userrole = new UserRole();
+                    userrole.UserId = userid;
+                    userrole.RoleId = roleid;
+
+                    if (string.IsNullOrEmpty(effectivedate))
+                    {
+                        userrole.EffectiveDate = null;
+                    }
+                    else
+                    {
+                        userrole.EffectiveDate = DateTime.Parse(effectivedate);
+                    }
+
+                    if (string.IsNullOrEmpty(expirydate))
+                    {
+                        userrole.ExpiryDate = null;
+                    }
+                    else
+                    {
+                        userrole.ExpiryDate = DateTime.Parse(expirydate);
+                    }
+
+                    await UserRoleService.AddUserRoleAsync(userrole);
+                }
+
+                await GetUserRoles();
+                await logger.LogInformation("User Assigned To Role {UserRole}", userrole);
+                AddModuleMessage("User Assigned To Role", MessageType.Success);
+            }
+            else
+            {
+                AddModuleMessage("You Must Select A User", MessageType.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Saving User Roles {RoleId} {Error}", roleid, ex.Message);
+            AddModuleMessage("Error Saving User Roles", MessageType.Error);
+        }
+    }
+
+    private async Task DeleteUserRole(int UserRoleId)
+    {
+        try
+        {
+            await UserRoleService.DeleteUserRoleAsync(UserRoleId);
+            await GetUserRoles();
+            await logger.LogInformation("User Removed From Role {UserRoleId}", UserRoleId);
+            AddModuleMessage("User Removed From Role", MessageType.Success);
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Removing User From Role {UserRoleId} {Error}", UserRoleId, ex.Message);
+            AddModuleMessage("Error Removing User From Role", MessageType.Error);
+        }
+    }
+}

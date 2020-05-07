@@ -43,13 +43,73 @@ namespace Oqtane.UI
             }
         }
 
+        public Task UpdateTitle(string title)
+        {
+            try
+            {
+                _jsRuntime.InvokeAsync<string>(
+                    "interop.updateTitle",
+                    title);
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
+        }
+
+        public Task IncludeMeta(string id, string attribute, string name, string content)
+        {
+            try
+            {
+                _jsRuntime.InvokeAsync<string>(
+                    "interop.includeMeta",
+                    id, attribute, name, content);
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
+        }
+
+        public Task IncludeLink(string id, string rel, string url, string type, string integrity, string crossorigin)
+        {
+            try
+            {
+                _jsRuntime.InvokeAsync<string>(
+                    "interop.includeLink",
+                    id, rel, url, type, integrity, crossorigin);
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
+        }
+
+        public Task IncludeScript(string id, string src, string content, string location, string integrity, string crossorigin)
+        {
+            try
+            {
+                _jsRuntime.InvokeAsync<string>(
+                    "interop.includeScript",
+                    id, src, content, location, integrity, crossorigin);
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
+        }
+
         public Task IncludeCSS(string id, string url)
         {
             try
             {
                 _jsRuntime.InvokeAsync<string>(
-                    "interop.includeCSS",
-                    id, url);
+                    "interop.includeLink",
+                    id, "stylesheet", url, "text/css");
                 return Task.CompletedTask;
             }
             catch

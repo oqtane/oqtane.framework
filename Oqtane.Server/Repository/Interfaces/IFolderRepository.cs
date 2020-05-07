@@ -5,11 +5,11 @@ namespace Oqtane.Repository
 {
     public interface IFolderRepository
     {
-        IEnumerable<Folder> GetFolders(int SiteId);
-        Folder AddFolder(Folder Folder);
-        Folder UpdateFolder(Folder Folder);
-        Folder GetFolder(int FolderId);
-        Folder GetFolder(int SiteId, string Path);
-        void DeleteFolder(int FolderId);
+        IEnumerable<Folder> GetFolders(int siteId);
+        Folder AddFolder(Folder folder);
+        Folder UpdateFolder(Folder folder);
+        Folder GetFolder(int folderId);
+        Folder GetFolder(int siteId, string path);
+        void DeleteFolder(int folderId);
     }
 }

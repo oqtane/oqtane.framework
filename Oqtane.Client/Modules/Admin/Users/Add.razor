@@ -5,87 +5,98 @@
 @inject IProfileService ProfileService
 @inject ISettingService SettingService
 
-@if (profiles != null)
-{
-    <table class="table table-borderless">
-        <tr>
-            <td>
-                <label  class="control-label">Username: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@username" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label  class="control-label">Password: </label>
-            </td>
-            <td>
-                <input type="password" class="form-control" @bind="@password" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label  class="control-label">Confirm Password: </label>
-            </td>
-            <td>
-                <input type="password" class="form-control" @bind="@confirm" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label  class="control-label">Email: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@email" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label  class="control-label">Full Name: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@displayname" />
-            </td>
-        </tr>
-
-        @foreach (Profile profile in profiles)
+<TabStrip>
+    <TabPanel Name="Identity">
+        @if (profiles != null)
         {
-            var p = profile;
-            if (p.Category != category)
-            {
+            <table class="table table-borderless">
                 <tr>
-                    <th colspan="2" style="text-align: center;">
-                        @p.Category
-                    </th>
+                    <td>
+                        <label class="control-label">Username: </label>
+                    </td>
+                    <td>
+                        <input class="form-control" @bind="@username" />
+                    </td>
                 </tr>
-                category = p.Category;
-            }
-            <tr>
-                <td>
-                    <label for="@p.Name" class="control-label">@p.Title: </label>
-                </td>
-                <td>
-                    <input class="form-control" maxlength="@p.MaxLength" placeholder="@p.Description" @onchange="@(e => ProfileChanged(e, p.Name))" />
-                </td>
-            </tr>
+                <tr>
+                    <td>
+                        <label class="control-label">Password: </label>
+                    </td>
+                    <td>
+                        <input type="password" class="form-control" @bind="@password" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label class="control-label">Confirm Password: </label>
+                    </td>
+                    <td>
+                        <input type="password" class="form-control" @bind="@confirm" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label class="control-label">Email: </label>
+                    </td>
+                    <td>
+                        <input class="form-control" @bind="@email" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label class="control-label">Full Name: </label>
+                    </td>
+                    <td>
+                        <input class="form-control" @bind="@displayname" />
+                    </td>
+                </tr>
+            </table>
         }
-    </table>
-    <button type="button" class="btn btn-primary" @onclick="SaveUser">Save</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
-}
+    </TabPanel>
+    <TabPanel Name="Profile">
+        @if (profiles != null)
+        {
+        <table class="table table-borderless">
+            @foreach (Profile profile in profiles)
+            {
+                var p = profile;
+                if (p.Category != category)
+                {
+                    <tr>
+                        <th colspan="2" style="text-align: center;">
+                            @p.Category
+                        </th>
+                    </tr>
+                    category = p.Category;
+                }
+                <tr>
+                    <td>
+                        <label for="@p.Name" class="control-label">@p.Title: </label>
+                    </td>
+                    <td>
+                        <input class="form-control" maxlength="@p.MaxLength" placeholder="@p.Description" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                    </td>
+                </tr>
+            }
+        </table>
+        }
+    </TabPanel>
+</TabStrip>
+
+<button type="button" class="btn btn-primary" @onclick="SaveUser">Save</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+    private string username = string.Empty;
+    private string password = string.Empty;
+    private string confirm = string.Empty;
+    private string email = string.Empty;
+    private string displayname = string.Empty;
+    private List<Profile> profiles;
+    private Dictionary<string, string> settings;
+    private string category = string.Empty;
 
-    string username = "";
-    string password = "";
-    string confirm = "";
-    string email = "";
-    string displayname = "";
-    List<Profile> profiles;
-    Dictionary<string, string> settings;
-    string category = "";
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override async Task OnInitializedAsync()
     {
@@ -105,11 +116,11 @@
     {
         try
         {
-            if (username != "" && password != "" && confirm != "" && email != "")
+            if (username != string.Empty && password != string.Empty && confirm != string.Empty && email != string.Empty)
             {
                 if (password == confirm)
                 {
-                    User user = new User();
+                    var user = new User();
                     user.SiteId = PageState.Site.SiteId;
                     user.Username = username;
                     user.Password = password;
@@ -150,7 +161,7 @@
 
     private void ProfileChanged(ChangeEventArgs e, string SettingName)
     {
-        string value = (string)e.Value;
+        var value = (string)e.Value;
         settings = SettingService.SetSetting(settings, SettingName, value);
     }
 

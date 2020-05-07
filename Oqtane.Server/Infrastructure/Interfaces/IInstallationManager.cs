@@ -2,7 +2,7 @@
 {
     public interface IInstallationManager
     {
-        void InstallPackages(string Folders, bool Restart);
+        void InstallPackages(string folders, bool restart);
         void UpgradeFramework();
         void RestartApplication();
     }
