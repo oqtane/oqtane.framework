@@ -82,7 +82,6 @@ namespace Oqtane.Services
                 var result = await response.Content.ReadFromJsonAsync<TResult>();
                 return result;
             }
-
             return default;
         }
 
@@ -121,6 +120,8 @@ namespace Oqtane.Services
             if (response.StatusCode != HttpStatusCode.NoContent && response.StatusCode != HttpStatusCode.NotFound)
             {
                 //TODO: Log errors here
+                
+                Console.WriteLine($"Request: {response.RequestMessage.RequestUri}");
                 Console.WriteLine($"Response status: {response.StatusCode} {response.ReasonPhrase}");
             }
 
