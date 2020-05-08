@@ -69,11 +69,11 @@
                 </div>
                 @if (ReadOnly)
                 {
-                    <textarea class="form-control" @bind="@_content" rows="10" readonly></textarea>
+                    <textarea class="form-control" placeholder="@Placeholder" @bind="@_content" rows="10" readonly></textarea>
                 }
                 else
                 {
-                    <textarea class="form-control" @bind="@_content" rows="10"></textarea>
+                    <textarea class="form-control" placeholder="@Placeholder" @bind="@_content" rows="10"></textarea>
                 }
             </TabPanel>
         </TabStrip>
@@ -111,12 +111,7 @@
     protected override void OnInitialized()
     {
         _original = Content;
-
         _content = _original;
-        if (string.IsNullOrEmpty(_content))
-        {
-            _content = Placeholder;
-        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
