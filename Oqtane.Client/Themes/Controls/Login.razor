@@ -2,14 +2,16 @@
 @inherits LoginBase   
 @attribute [OqtaneIgnore]
 
-<AuthorizeView>
-    <Authorizing>
-        <text>...</text>
-    </Authorizing>
-    <Authorized>
-        <button type="button" class="btn btn-primary" @onclick="LogoutUser">Logout</button>
-    </Authorized>
-    <NotAuthorized>
-        <button type="button" class="btn btn-primary" @onclick="LoginUser">Login</button>
-    </NotAuthorized>
-</AuthorizeView>
+<span class="app-login">
+    <AuthorizeView>
+        <Authorizing>
+            <text>...</text>
+        </Authorizing>
+        <Authorized>
+            <button type="button" class="btn btn-primary" @onclick="LogoutUser">Logout</button>
+        </Authorized>
+        <NotAuthorized>
+            <button type="button" class="btn btn-primary" @onclick="LoginUser">Login</button>
+        </NotAuthorized>
+    </AuthorizeView>
+</span>

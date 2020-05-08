@@ -1,28 +1,32 @@
 ﻿@namespace Oqtane.Themes.Controls
-@inherits MenuBase        
+@inherits MenuBase
 @attribute [OqtaneIgnore]
 @if (MenuPages.Any())
 {
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#Menu" aria-controls="Menu" aria-expanded="false" aria-label="Toggle Navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
     <div class="app-menu">
-        <ul class="nav flex-column">
-            @foreach (var p in MenuPages)
-            {
-                <li class="nav-item px-3">
-                    <a href="@GetUrl(p)" class="nav-link" style="padding-left:@((p.Level + 1) * 15)px !important;" target="@GetTarget(p)">
+        <div class="collapse navbar-collapse" id="Menu">
+            <ul class="nav flex-column">
+                @foreach (var p in MenuPages)
+                {
+                    <li class="nav-item px-3">
+                        <a href="@GetUrl(p)" class="nav-link" style="padding-left:@((p.Level + 1) * 15)px !important;" target="@GetTarget(p)">
 
-                        @if (p.HasChildren)
-                        {
-                            <i class="oi oi-chevron-right"></i>
-                        }
-                        @if (p.Icon != string.Empty)
-                        {
-                            <span class="oi oi-@p.Icon" aria-hidden="true"></span>
-                        }
-                        @p.Name
-
-                    </a>
-                </li>
-            }
-        </ul>
+                            @if (p.HasChildren)
+                            {
+                                <i class="oi oi-chevron-right"></i>
+                            }
+                            @if (p.Icon != string.Empty)
+                            {
+                                <span class="oi oi-@p.Icon" aria-hidden="true"></span>
+                            }
+                            @p.Name
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
     </div>
 }

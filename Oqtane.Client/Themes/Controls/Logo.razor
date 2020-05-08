@@ -1,22 +1,13 @@
 ﻿@namespace Oqtane.Themes.Controls
 @inherits ThemeControlBase     
 @attribute [OqtaneIgnore]
-@inject NavigationManager NavigationManager
 
 @if (PageState.Site.LogoFileId != null)
 {
-    <a href="@Href">
-        <img class="img-fluid" src="@ContentUrl(PageState.Site.LogoFileId.Value)" alt="@PageState.Site.Name"/>
-    </a>
+    <span class="app-logo">
+        <a href="@PageState.Alias.Path">
+            <img class="img-fluid" src="@ContentUrl(PageState.Site.LogoFileId.Value)" alt="@PageState.Site.Name" />
+        </a>
+    </span>
 }
 
-@code {
-    string Href
-    {
-        get
-        {
-            var uri = new Uri(NavigationManager.Uri);
-            return $"{uri.Scheme}://{uri.Authority}";
-        }
-    }
-}
