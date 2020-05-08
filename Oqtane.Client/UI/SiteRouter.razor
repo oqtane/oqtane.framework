@@ -1,4 +1,6 @@
-﻿@namespace Oqtane.UI
+﻿@using System.Diagnostics.CodeAnalysis
+@using System.Runtime.InteropServices
+@namespace Oqtane.UI
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject SiteState SiteState
 @inject NavigationManager NavigationManager
@@ -11,9 +13,6 @@
 @inject IModuleService ModuleService
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject ILogService LogService
-@using System.Diagnostics.CodeAnalysis
-@using Oqtane.Enums
-@using System.Runtime.InteropServices 
 @implements IHandleAfterRender
 
 @DynamicComponent
@@ -89,7 +88,7 @@
         // get path
         var path = uri.LocalPath.Substring(1);
 
-        // parse querystring 
+        // parse querystring
         var querystring = ParseQueryString(uri.Query);
 
         // the reload parameter is used during user login/logout
@@ -237,7 +236,7 @@
                 }
 
                 // check if user is authorized to view page
-                if (UserSecurity.IsAuthorized(user,PermissionNames.View, page.Permissions))
+                if (UserSecurity.IsAuthorized(user, PermissionNames.View, page.Permissions))
                 {
                     page = await ProcessPage(page, site, user);
 

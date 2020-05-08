@@ -85,8 +85,8 @@
     private ElementReference _toolBar;
     private bool _filemanagervisible = false;
     private FileManager _fileManager;
-    private string _original = string.Empty;
     private string _content = string.Empty;
+    private string _original = string.Empty;
     private string _message = string.Empty;
 
     [Parameter]
@@ -110,8 +110,7 @@
 
     protected override void OnInitialized()
     {
-        _original = Content;
-        _content = _original;
+        _content = Content; // raw HTML
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -129,45 +128,54 @@
 
             await RichTextEditorInterop.LoadEditorContent(
                 JsRuntime,
-                _editorElement, _original);
-        }
-    }
+                _editorElement, Content);
 
-    public async Task<string> GetText()
-    {
-        return await RichTextEditorInterop.GetText(
-            JsRuntime,
-            _editorElement);
-    }
-
-    public async Task<string> GetHtml()
-    {
-        if (_original != _content)
-        {
-            // raw html content changed
-            return _content;
-        }
-        else
-        {
-            // return rich text content
-            return await RichTextEditorInterop.GetHtml(
+            // preserve a copy of the rich text content ( Quill sanitizes content so we need to retrieve it from the editor )
+            _original = await RichTextEditorInterop.GetHtml(
                 JsRuntime,
                 _editorElement);
         }
     }
 
-    public async Task<string> GetContent()
+    public void CloseFileManager()
     {
-        return await RichTextEditorInterop.GetContent(
-            JsRuntime,
-            _editorElement);
+        _filemanagervisible = false;
+        _message = string.Empty;
+        StateHasChanged();
     }
 
-    public async Task EnableEditor(bool mode)
+    public async Task RefreshRichText()
     {
-        await RichTextEditorInterop.EnableEditor(
+        await RichTextEditorInterop.LoadEditorContent(
             JsRuntime,
-            _editorElement, mode);
+            _editorElement, _content);
+    }
+
+    public async Task RefreshRawHtml()
+    {
+        _content = await RichTextEditorInterop.GetHtml(
+            JsRuntime,
+            _editorElement);
+        StateHasChanged();
+    }
+
+    public async Task<string> GetHtml()
+    {
+        // get rich text content
+        string content = await RichTextEditorInterop.GetHtml(
+                JsRuntime,
+                _editorElement);
+
+        if (_original != content)
+        {
+            // rich text content has changed - return it
+            return content;
+        }
+        else
+        {
+            // return raw html content
+            return _content;
+        }
     }
 
     public async Task InsertImage()
@@ -196,25 +204,25 @@
         StateHasChanged();
     }
 
-    public void CloseFileManager()
+    // other rich text editor methods which can be used by developers
+    public async Task<string> GetText()
     {
-        _filemanagervisible = false;
-        _message = string.Empty;
-        StateHasChanged();
-    }
-
-    public async Task RefreshRichText()
-    {
-        await RichTextEditorInterop.LoadEditorContent(
-            JsRuntime,
-            _editorElement, _content);
-    }
-
-    public async Task RefreshRawHtml()
-    {
-        _content = await RichTextEditorInterop.GetHtml(
+        return await RichTextEditorInterop.GetText(
             JsRuntime,
             _editorElement);
-        StateHasChanged();
+    }
+
+    public async Task<string> GetContent()
+    {
+        return await RichTextEditorInterop.GetContent(
+            JsRuntime,
+            _editorElement);
+    }
+
+    public async Task EnableEditor(bool mode)
+    {
+        await RichTextEditorInterop.EnableEditor(
+            JsRuntime,
+            _editorElement, mode);
     }
 }

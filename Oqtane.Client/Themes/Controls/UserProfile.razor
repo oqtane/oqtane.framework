@@ -3,21 +3,22 @@
 @attribute [OqtaneIgnore]
 @inject NavigationManager NavigationManager
 
-<AuthorizeView>
-    <Authorizing>
-        <text>...</text>
-    </Authorizing>
-    <Authorized>
-        <button type="button" class="btn btn-primary" @onclick="UpdateProfile">@context.User.Identity.Name</button>
-    </Authorized>
-    <NotAuthorized>
-        @if (PageState.Site.AllowRegistration)
-        {
-            <button type="button" class="btn btn-primary" @onclick="RegisterUser">Register</button>
-        }
-    </NotAuthorized>
-</AuthorizeView>
-
+<span class="app-profile">
+    <AuthorizeView>
+        <Authorizing>
+            <text>...</text>
+        </Authorizing>
+        <Authorized>
+            <button type="button" class="btn btn-primary" @onclick="UpdateProfile">@context.User.Identity.Name</button>
+        </Authorized>
+        <NotAuthorized>
+            @if (PageState.Site.AllowRegistration)
+            {
+                <button type="button" class="btn btn-primary" @onclick="RegisterUser">Register</button>
+            }
+        </NotAuthorized>
+    </AuthorizeView>
+</span>
 
 @code {
 
