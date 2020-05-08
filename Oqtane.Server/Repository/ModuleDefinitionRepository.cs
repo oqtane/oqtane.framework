@@ -194,6 +194,7 @@ namespace Oqtane.Repository
                 // Check if type should be ignored
                 if (modulecontroltype.Name == "ModuleBase"
                     || modulecontroltype.IsGenericType
+                    || modulecontroltype.IsAbstract
                     || Attribute.IsDefined(modulecontroltype, typeof(OqtaneIgnoreAttribute))
                 ) continue;
 
