@@ -1,7 +1,10 @@
 ﻿@namespace Oqtane.Themes.Controls
-@inherits ContainerBase
+@inherits ContainerBase      
+@attribute [OqtaneIgnore]
 
-@((MarkupString)title)
+<span class="app-moduletitle">
+    @((MarkupString)title)
+</span>
 
 @code {
     private string title = "";

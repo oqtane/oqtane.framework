@@ -10,14 +10,12 @@ namespace Oqtane.Upgrade
     {
         static void Main(string[] args)
         {
-            string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-
-            // assumes that the application executable must be deployed to the /bin of the Oqtane.Server project
-            if (binfolder.Contains(Path.Combine("Oqtane.Server", "bin")))
+            // requires 2 arguments - the contentrootpath and the webrootpath of the site
+            if (args.Length == 2)
             {
-                // ie. binfolder = Oqtane.Server\bin\Debug\netcoreapp3.0\
-                string rootfolder = Directory.GetParent(binfolder).Parent.Parent.FullName;
-                string deployfolder = Path.Combine(rootfolder, Path.Combine("wwwroot","Framework"));
+                string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                string rootfolder = args[0];
+                string deployfolder = Path.Combine(args[1], "Framework");
 
                 if (Directory.Exists(deployfolder))
                 {
@@ -87,7 +85,7 @@ namespace Oqtane.Upgrade
                                 success = false;
                             }
 
-                            if (success) 
+                            if (success)
                             {
                                 // clean up backup
                                 foreach (string file in files)
@@ -99,7 +97,7 @@ namespace Oqtane.Upgrade
                                     }
                                 }
                             }
-                            else 
+                            else
                             {
                                 // restore on failure
                                 foreach (string file in files)

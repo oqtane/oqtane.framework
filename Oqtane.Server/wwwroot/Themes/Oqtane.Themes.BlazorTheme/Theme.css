@@ -37,6 +37,10 @@
         top: -2px;
     }
 
+.app-menu {
+    width: 100%
+}
+
 .breadcrumb {
     margin-bottom: 0;
 }
@@ -83,6 +87,7 @@
 
 .navbar-toggler {
     background-color: rgba(255, 255, 255, 0.1);
+    margin-left: auto;
 }
 
 @media (max-width: 767.98px) {
@@ -158,7 +163,7 @@
     }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px) {    
     .breadcrumbs {
         position: fixed;
         top: 150px;

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <id>[Owner].[Module]s.Module</id>
+    <id>[Owner].[Module]s</id>
     <version>1.0.0</version>
     <authors>[Owner]</authors>
     <owners>[Owner]</owners>
@@ -20,12 +20,12 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="..\Client\bin\Release\netstandard2.1\[Owner].[Module]s.Module.Client.dll" target="lib" /> 
-    <file src="..\Client\bin\Release\netstandard2.1\[Owner].[Module]s.Module.Client.pdb" target="lib" /> 
-    <file src="..\Server\bin\Release\netcoreapp3.1\[Owner].[Module]s.Module.Server.dll" target="lib" /> 
-    <file src="..\Server\bin\Release\netcoreapp3.1\[Owner].[Module]s.Module.Server.pdb" target="lib" /> 
-    <file src="..\Shared\bin\Release\netstandard2.1\[Owner].[Module]s.Module.Shared.dll" target="lib" /> 
-    <file src="..\Shared\bin\Release\netstandard2.1\[Owner].[Module]s.Module.Shared.pdb" target="lib" /> 
+    <file src="..\Client\bin\Release\netstandard2.1\[Owner].[Module]s.Client.Oqtane.dll" target="lib" /> 
+    <file src="..\Client\bin\Release\netstandard2.1\[Owner].[Module]s.Client.Oqtane.pdb" target="lib" /> 
+    <file src="..\Server\bin\Release\netcoreapp3.1\[Owner].[Module]s.Server.Oqtane.dll" target="lib" /> 
+    <file src="..\Server\bin\Release\netcoreapp3.1\[Owner].[Module]s.Server.Oqtane.pdb" target="lib" /> 
+    <file src="..\Shared\bin\Release\netstandard2.1\[Owner].[Module]s.Shared.Oqtane.dll" target="lib" /> 
+    <file src="..\Shared\bin\Release\netstandard2.1\[Owner].[Module]s.Shared.Oqtane.pdb" target="lib" /> 
     <file src="..\wwwroot\**\*.*" target="wwwroot" /> 
   </files>
 </package>

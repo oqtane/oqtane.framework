@@ -30,7 +30,7 @@
             if (htmltext != null)
             {
                 content = htmltext.Content;
-                content = content.Replace(Constants.ContentUrl, ((PageState.Alias.Path == "") ? "/~" : PageState.Alias.Path) + Constants.ContentUrl);
+                content = content.Replace(Constants.ContentUrl, "/" + PageState.Alias.AliasId.ToString() + Constants.ContentUrl);
             }
         }
         catch (Exception ex)

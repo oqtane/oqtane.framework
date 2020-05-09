@@ -180,17 +180,17 @@ namespace Oqtane.Infrastructure
 
         private void FinishUpgrade()
         {
-            string folder = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
-
             // check if upgrade application exists
+            string folder = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
             if (folder == null || !File.Exists(Path.Combine(folder, "Oqtane.Upgrade.exe"))) return;
+
             // run upgrade application
             var process = new Process
             {
                 StartInfo =
                 {
                     FileName = Path.Combine(folder, "Oqtane.Upgrade.exe"),
-                    Arguments = "",
+                    Arguments = "\"" + _environment.ContentRootPath + "\" \"" + _environment.WebRootPath + "\"",
                     ErrorDialog = false,
                     UseShellExecute = false,
                     CreateNoWindow = true,

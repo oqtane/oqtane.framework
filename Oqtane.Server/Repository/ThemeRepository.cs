@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Oqtane.Models;
+using Oqtane.Shared;
 using Oqtane.Themes;
 
 namespace Oqtane.Repository
@@ -31,8 +32,7 @@ namespace Oqtane.Repository
             List<Theme> themes = new List<Theme>();
 
             // iterate through Oqtane theme assemblies
-            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies()
-                .Where(item => item.FullName.StartsWith("Oqtane.") || item.FullName.Contains(".Theme.")).ToArray();
+            var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
             foreach (Assembly assembly in assemblies)
             {
                 themes = LoadThemesFromAssembly(themes, assembly);
@@ -47,76 +47,77 @@ namespace Oqtane.Repository
             Type[] themeControlTypes = assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(IThemeControl))).ToArray();
             foreach (Type themeControlType in themeControlTypes)
             {
-                if (themeControlType.Name != "ThemeBase")
+                // Check if type should be ignored
+                if (themeControlType.Name == "ThemeBase"
+                    || themeControlType.IsGenericType
+                    || Attribute.IsDefined(themeControlType, typeof(OqtaneIgnoreAttribute))
+                ) continue;
+
+                string themeNamespace = themeControlType.Namespace;
+                string qualifiedModuleType = themeNamespace + ", " + themeControlType.Assembly.GetName().Name;
+
+                int index = themes.FindIndex(item => item.ThemeName == themeNamespace);
+                if (index == -1)
                 {
-                    string[] typename = themeControlType.AssemblyQualifiedName.Split(',').Select(item => item.Trim()).ToList().ToArray();
-                    string[] segments = typename[0].Split('.');
-                    Array.Resize(ref segments, segments.Length - 1);
-                    string @namespace = string.Join(".", segments);
-
-                    int index = themes.FindIndex(item => item.ThemeName == @namespace);
-                    if (index == -1)
-                    {
-                        // determine if this theme implements ITheme
-                        Type themetype = assembly.GetTypes()
-                            .Where(item => item.Namespace != null)
-                            .Where(item => item.Namespace.StartsWith(@namespace))
-                            .Where(item => item.GetInterfaces().Contains(typeof(ITheme))).FirstOrDefault();
-                        if (themetype != null)
-                        {
-                            var themeobject = Activator.CreateInstance(themetype);
-                            theme = (Theme)themetype.GetProperty("Theme").GetValue(themeobject);
-                        }
-                        else
-                        {
-                            theme = new Theme
-                            {
-                                Name = themeControlType.Name,
-                                Version = new Version(1, 0, 0).ToString()
-                            };
-                        }
-                        // set internal properties
-                        theme.ThemeName = @namespace;
-                        theme.ThemeControls = "";
-                        theme.PaneLayouts = "";
-                        theme.ContainerControls = "";
-                        theme.AssemblyName = assembly.FullName.Split(",")[0];
-                        themes.Add(theme);
-                        index = themes.FindIndex(item => item.ThemeName == @namespace);
-                    }
-                    theme = themes[index];
-                    theme.ThemeControls += (themeControlType.FullName + ", " + typename[1] + ";");
-
-                    // layouts
-                    Type[] layouttypes = assembly.GetTypes()
+                    // determine if this theme implements ITheme
+                    Type themetype = assembly.GetTypes()
                         .Where(item => item.Namespace != null)
-                        .Where(item => item.Namespace.StartsWith(@namespace))
-                        .Where(item => item.GetInterfaces().Contains(typeof(ILayoutControl))).ToArray();
-                    foreach (Type layouttype in layouttypes)
+                        .Where(item => item.Namespace.StartsWith(themeNamespace))
+                        .Where(item => item.GetInterfaces().Contains(typeof(ITheme))).FirstOrDefault();
+                    if (themetype != null)
                     {
-                        string panelayout = layouttype.FullName + ", " + typename[1] + ";";
-                        if (!theme.PaneLayouts.Contains(panelayout))
-                        {
-                            theme.PaneLayouts += panelayout;
-                        }
+                        var themeobject = Activator.CreateInstance(themetype);
+                        theme = (Theme)themetype.GetProperty("Theme").GetValue(themeobject);
                     }
-
-                    // containers
-                    Type[] containertypes = assembly.GetTypes()
-                        .Where(item => item.Namespace != null)
-                        .Where(item => item.Namespace.StartsWith(@namespace))
-                        .Where(item => item.GetInterfaces().Contains(typeof(IContainerControl))).ToArray();
-                    foreach (Type containertype in containertypes)
+                    else
                     {
-                        string container = containertype.FullName + ", " + typename[1] + ";";
-                        if (!theme.ContainerControls.Contains(container))
+                        theme = new Theme
                         {
-                            theme.ContainerControls += container;
-                        }
+                            Name = themeControlType.Name,
+                            Version = new Version(1, 0, 0).ToString()
+                        };
                     }
-
-                    themes[index] = theme;
+                    // set internal properties
+                    theme.ThemeName = themeNamespace;
+                    theme.ThemeControls = "";
+                    theme.PaneLayouts = "";
+                    theme.ContainerControls = "";
+                    theme.AssemblyName = assembly.FullName.Split(",")[0];
+                    themes.Add(theme);
+                    index = themes.FindIndex(item => item.ThemeName == themeNamespace);
                 }
+                theme = themes[index];
+                theme.ThemeControls += (themeControlType.FullName + ", " + themeControlType.Assembly.GetName().Name + ";");
+
+                // layouts
+                Type[] layouttypes = assembly.GetTypes()
+                    .Where(item => item.Namespace != null)
+                    .Where(item => item.Namespace.StartsWith(themeNamespace))
+                    .Where(item => item.GetInterfaces().Contains(typeof(ILayoutControl))).ToArray();
+                foreach (Type layouttype in layouttypes)
+                {
+                    string panelayout = layouttype.FullName + ", " + themeControlType.Assembly.GetName().Name + ";";
+                    if (!theme.PaneLayouts.Contains(panelayout))
+                    {
+                        theme.PaneLayouts += panelayout;
+                    }
+                }
+
+                // containers
+                Type[] containertypes = assembly.GetTypes()
+                    .Where(item => item.Namespace != null)
+                    .Where(item => item.Namespace.StartsWith(themeNamespace))
+                    .Where(item => item.GetInterfaces().Contains(typeof(IContainerControl))).ToArray();
+                foreach (Type containertype in containertypes)
+                {
+                    string container = containertype.FullName + ", " + themeControlType.Assembly.GetName().Name + ";";
+                    if (!theme.ContainerControls.Contains(container))
+                    {
+                        theme.ContainerControls += container;
+                    }
+                }
+
+                themes[index] = theme;
             }
             return themes;
         }
