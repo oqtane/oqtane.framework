@@ -47,6 +47,11 @@ body {
 }
 
 @media (max-width: 767px) {
+
+    .app-menu {
+        width: 100%
+    }
+
     .navbar {
         position: fixed;
         top: 60px;
@@ -67,8 +72,8 @@ body {
         margin-right: 25px;
     }
 
-    .container {
+    .content {
         position: relative;
-        top: 30px;
+        top: 60px;
     }
 }
