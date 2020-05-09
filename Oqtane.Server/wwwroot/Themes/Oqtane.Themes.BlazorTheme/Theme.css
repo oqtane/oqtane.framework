@@ -37,6 +37,10 @@
         top: -2px;
     }
 
+.app-menu {
+    width: 100%
+}
+
 .breadcrumb {
     margin-bottom: 0;
 }
@@ -159,7 +163,7 @@
     }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px) {    
     .breadcrumbs {
         position: fixed;
         top: 150px;
