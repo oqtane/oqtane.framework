@@ -194,7 +194,7 @@ namespace Oqtane.Controllers
                 CreateDirectory(folderPath);
                 string filename = url.Substring(url.LastIndexOf("/", StringComparison.Ordinal) + 1);
                 // check for allowable file extensions
-                if (Constants.UploadableFiles.Contains(Path.GetExtension(filename).Replace(".", "")))
+                if (Constants.UploadableFiles.Split(',').Contains(Path.GetExtension(filename).ToLower().Replace(".", "")))
                 {
                     try
                     {
@@ -317,7 +317,7 @@ namespace Oqtane.Controllers
                     }
 
                     // check for allowable file extensions
-                    if (!Constants.UploadableFiles.Contains(Path.GetExtension(filename)?.Replace(".", "")))
+                    if (!Constants.UploadableFiles.Split(',').Contains(Path.GetExtension(filename)?.ToLower().Replace(".", "")))
                     {
                         System.IO.File.Delete(Path.Combine(folder, filename + ".tmp"));
                     }
@@ -469,7 +469,7 @@ namespace Oqtane.Controllers
             file.ImageHeight = 0;
             file.ImageWidth = 0;
 
-            if (Constants.ImageFiles.Contains(file.Extension))
+            if (Constants.ImageFiles.Split(',').Contains(file.Extension.ToLower()))
             {
                 FileStream stream = new FileStream(filepath, FileMode.Open, FileAccess.Read);
                 using (var image = Image.FromStream(stream))
