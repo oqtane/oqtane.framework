@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Security;
@@ -187,14 +188,13 @@ namespace Oqtane
             services.AddTransient<ISqlRepository, SqlRepository>();
             services.AddTransient<IUpgradeManager, UpgradeManager>();
 
-            // load the external assemblies into the app domain
+            // load the external assemblies into the app domain, install services 
             services.AddOqtaneParts();
 
             services.AddMvc()
+                .AddNewtonsoftJson()
                 .AddOqtaneApplicationParts() // register any Controllers from custom modules
-                .AddNewtonsoftJson();
-
-
+                .ConfigureOqtaneMvc();       // any additional configuration from IStart classes.
 
             services.AddSwaggerGen(c =>
             {
@@ -217,14 +217,12 @@ namespace Oqtane
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseBlazorFrameworkFiles();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
@@ -237,6 +235,7 @@ namespace Oqtane
                 endpoints.MapControllers();
                 endpoints.MapFallbackToPage("/_Host");
             });
+            app.ConfigureOqtaneAssemblies(env);
         }
     }
 }

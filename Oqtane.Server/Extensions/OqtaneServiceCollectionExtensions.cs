@@ -53,11 +53,17 @@ namespace Microsoft.Extensions.DependencyInjection
                         services.AddSingleton(hostedServiceType, serviceType);
                     }
                 }
+                
+                var startUps = assembly.GetInstances<IServerStartup>();
+                foreach (var startup in startUps)
+                {
+                    startup.ConfigureServices(services);
+                }
             }
-
             return services;
         }
 
+        
         private static void LoadAssemblies()
         {
             var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);

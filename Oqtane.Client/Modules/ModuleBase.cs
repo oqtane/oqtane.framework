@@ -9,7 +9,7 @@ using Oqtane.UI;
 
 namespace Oqtane.Modules
 {
-    public class ModuleBase : ComponentBase, IModuleControl
+    public abstract class ModuleBase : ComponentBase, IModuleControl
     {
         private Logger _logger;
 

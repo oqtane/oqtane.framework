@@ -31,7 +31,24 @@ namespace System.Reflection
             }
 
             return assembly.GetTypes()
-                .Where(t => t.GetInterfaces().Contains(interfaceType));
+                //.Where(t => t.GetInterfaces().Contains(interfaceType));
+                .Where(x => interfaceType.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
+        }
+        
+        public static IEnumerable<T> GetInstances<T>(this Assembly assembly) where T : class
+        {
+            if (assembly is null)
+            {
+                throw new ArgumentNullException(nameof(assembly));
+            }
+            var type = typeof(T);
+            var list = assembly.GetTypes()
+                .Where(x => type.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract && !x.IsGenericType);
+
+            foreach (var type1 in list)
+            {
+                if (Activator.CreateInstance(type1) is T instance) yield return instance;
+            }
         }
 
         public static bool IsOqtaneAssembly(this Assembly assembly)
