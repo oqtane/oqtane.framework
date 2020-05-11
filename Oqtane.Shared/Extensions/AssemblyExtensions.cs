@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Oqtane.Services;
 using Oqtane.Shared;
 
 // ReSharper disable once CheckNamespace
@@ -35,6 +36,11 @@ namespace System.Reflection
                 .Where(x => interfaceType.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
         }
         
+        public static IEnumerable<Type> GetTypes<T>(this Assembly assembly)
+        {
+            return assembly.GetTypes(typeof(T));
+        }
+        
         public static IEnumerable<T> GetInstances<T>(this Assembly assembly) where T : class
         {
             if (assembly is null)
@@ -64,6 +70,11 @@ namespace System.Reflection
         public static IEnumerable<Assembly> GetOqtaneAssemblies(this AppDomain appDomain)
         {
             return appDomain.GetAssemblies().Where(a => a.IsOqtaneAssembly());
+        }
+        public static IEnumerable<Assembly> GetOqtaneClientAssemblies(this AppDomain appDomain)
+        {
+            return appDomain.GetOqtaneAssemblies()
+                .Where(a => a.GetTypes<IClientStartup>().Any());
         }
     }
 }
