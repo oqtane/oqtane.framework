@@ -35,7 +35,7 @@ namespace Oqtane.Modules
 
         public virtual string Actions { get { return ""; } }
 
-        public virtual bool UseAdminContainer { get { return true; } }
+        public virtual bool UseAdminContainer { get { return true; } } //false will suppress the default modal UI popup behavior and render the component in the page.
 
         // path method
 
