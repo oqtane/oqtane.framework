@@ -3,9 +3,8 @@
 
 @namespace [Owner].[Module]s.Modules
 @inherits ModuleBase
+@inject I[Module]Service [Module]Service
 @inject NavigationManager NavigationManager
-@inject HttpClient http
-@inject SiteState sitestate
 
 @if (_[Module]s == null)
 {
@@ -62,14 +61,12 @@ else
 <!-- The content above is for informational purposes only and can be safely removed -->
 
 @code {
-    I[Module]Service [Module]Service;
     List<[Module]> _[Module]s;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            [Module]Service = new [Module]Service(http, sitestate);
             _[Module]s = await [Module]Service.Get[Module]sAsync(ModuleState.ModuleId);
         }
         catch (Exception ex)
