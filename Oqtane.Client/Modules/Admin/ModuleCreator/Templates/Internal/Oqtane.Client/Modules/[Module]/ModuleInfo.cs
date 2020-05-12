@@ -10,7 +10,6 @@ namespace [Owner].[Module]s.Modules
             Name = "[Module]",
             Description = "[Module]",
             Version = "1.0.0",
-            Dependencies = "[Owner].[Module]s.Module.Shared",
             ServerManagerType = "[ServerManagerType]",
             ReleaseVersions = "1.0.0"
         };
