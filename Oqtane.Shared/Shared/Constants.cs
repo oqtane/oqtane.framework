@@ -43,5 +43,6 @@
 
         public const string ImageFiles = "jpg,jpeg,jpe,gif,bmp,png";
         public const string UploadableFiles = "jpg,jpeg,jpe,gif,bmp,png,mov,wmv,avi,mp4,mp3,doc,docx,xls,xlsx,ppt,pptx,pdf,txt,zip,nupkg";
+        public const string ReservedDevices = "CON,NUL,PRN,COM1,COM2,COM3,COM4,COM5,COM6,COM7,COM8,COM9,LPT1,LPT2,LPT3,LPT4,LPT5,LPT6,LPT7,LPT8,LPT9";
     }
 }

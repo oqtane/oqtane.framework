@@ -81,14 +81,26 @@ window.interop = {
             if (link.href !== url) {
                 link.setAttribute('href', url);
             }
-            if (type !== "" && link.type !== type) {
-                link.setAttribute('type', type);
+            if (type !== "") {
+                if (link.type !== type) {
+                    link.setAttribute('type', type);
+                }
+            } else {
+                link.removeAttribute('type');
             }
-            if (integrity !== "" && link.integrity !== integrity) {
-                link.setAttribute('integrity', integrity);
+            if (integrity !== "") {
+                if (link.integrity !== integrity) {
+                    link.setAttribute('integrity', integrity);
+                }
+            } else {
+                link.removeAttribute('integrity');
             }
-            if (crossorigin !== "" && link.crossOrigin !== crossorigin) {
-                link.setAttribute('crossorigin', crossorigin);
+            if (crossorigin !== "") {
+                if (link.crossOrigin !== crossorigin) {
+                    link.setAttribute('crossorigin', crossorigin);
+                }
+            } else {
+                link.removeAttribute('crossorigin');
             }
         }
     },
@@ -126,11 +138,19 @@ window.interop = {
                 if (script.src !== src) {
                     script.src = src;
                 }
-                if (integrity !== "" && script.integrity !== integrity) {
-                    script.setAttribute('integrity', integrity);
+                if (integrity !== "") {
+                    if (script.integrity !== integrity) {
+                        script.setAttribute('integrity', integrity);
+                    }
+                } else {
+                    script.removeAttribute('integrity');
                 }
-                if (crossorigin !== "" && script.crossorigin !== crossorigin) {
-                    script.setAttribute('crossorigin', crossorigin);
+                if (crossorigin !== "") {
+                    if (script.crossOrigin !== crossorigin) {
+                        script.setAttribute('crossorigin', crossorigin);
+                    }
+                } else {
+                    script.removeAttribute('crossorigin');
                 }
             }
             else {

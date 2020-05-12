@@ -16,6 +16,7 @@ using System.Net;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
+using Microsoft.AspNetCore.Routing.Constraints;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
@@ -396,12 +397,13 @@ namespace Oqtane.Controllers
         [HttpGet("download/{id}")]
         public IActionResult Download(int id)
         {
+            string errorpath = Path.Combine(GetFolderPath("images"), "error.png");
             Models.File file = _files.GetFile(id);
             if (file != null)
             {
                 if (_userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.Permissions))
                 {
-                    string filepath = Path.Combine(GetFolderPath(file.Folder) , file.Name);
+                    string filepath = Path.Combine(GetFolderPath(file.Folder), file.Name);
                     if (System.IO.File.Exists(filepath))
                     {
                         byte[] filebytes = System.IO.File.ReadAllBytes(filepath);
@@ -411,21 +413,24 @@ namespace Oqtane.Controllers
                     {
                         _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {FileId} {FilePath}", id, filepath);
                         HttpContext.Response.StatusCode = 404;
-                        return null;
+                        byte[] filebytes = System.IO.File.ReadAllBytes(errorpath);
+                        return File(filebytes, "application/octet-stream", file.Name);
                     }
                 }
                 else
                 {
                     _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access File {FileId}", id);
                     HttpContext.Response.StatusCode = 401;
-                    return null;
+                    byte[] filebytes = System.IO.File.ReadAllBytes(errorpath);
+                    return File(filebytes, "application/octet-stream", file.Name);
                 }
             }
             else
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Not Found {FileId}", id);
                 HttpContext.Response.StatusCode = 404;
-                return null;
+                byte[] filebytes = System.IO.File.ReadAllBytes(errorpath);
+                return File(filebytes, "application/octet-stream", "error.png");
             }
         }
 
