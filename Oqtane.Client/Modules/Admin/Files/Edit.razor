@@ -149,10 +149,16 @@
                 {
                     folder = await FolderService.AddFolderAsync(folder);
                 }
-
-                await FolderService.UpdateFolderOrderAsync(folder.SiteId, folder.FolderId, folder.ParentId);
-                await logger.LogInformation("Folder Saved {Folder}", folder);
-                NavigationManager.NavigateTo(NavigateUrl());
+                if (folder != null)
+                {
+                    await FolderService.UpdateFolderOrderAsync(folder.SiteId, folder.FolderId, folder.ParentId);
+                    await logger.LogInformation("Folder Saved {Folder}", folder);
+                    NavigationManager.NavigateTo(NavigateUrl());
+                }
+                else
+                {
+                    AddModuleMessage("An Error Was Encountered Saving The Folder", MessageType.Error);
+                }
             }
             else
             {
