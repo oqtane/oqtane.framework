@@ -4,9 +4,8 @@
 
 @namespace [Owner].[Module]s.Modules
 @inherits ModuleBase
+@inject I[Module]Service [Module]Service
 @inject NavigationManager NavigationManager
-@inject HttpClient http
-@inject SiteState sitestate
 
 <table class="table table-borderless">
     <tr>
@@ -31,7 +30,6 @@
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
     public override string Actions => "Add,Edit";
 
-    I[Module]Service [Module]Service;
     int _id;
     string _name;
     string _createdby;
@@ -43,7 +41,6 @@
     {
         try
         {
-            [Module]Service = new [Module]Service(http, sitestate);
             if (PageState.Action == "Edit")
             {
                 _id = Int32.Parse(PageState.QueryString["id"]);
