@@ -9,10 +9,10 @@
         <div class="container">
             <form>
                 <div class="form-group row">
-                    <div class="col-xl-3">
+                    <div class="col-sm-3">
                         <Label class="col-form-label" For="upload" HelpText="Upload the file you want">Upload: </Label>
                     </div>
-                    <div class="col-xl-9">
+                    <div class="col-sm-9">
                         <FileManager UploadMultiple="true" ShowFiles="false" FolderId="@_folderId.ToString()" />
                     </div>
                 </div>
@@ -28,18 +28,18 @@
             <div class="container">
                 <form>
                     <div class="form-group row">
-                        <div class="col-xl-3">
+                        <div class="col-sm-3">
                             <Label class="col-form-label" For="url" HelpText="Enter the url of the file you wish to download">Url: </Label>
                         </div>
-                        <div class="col-xl-9">
+                        <div class="col-sm-9">
                             <input id="url" class="form-control" @bind="@url" />
                         </div>
                     </div>
                     <div class="form-group row">
-                        <div class="col-xl-3">
+                        <div class="col-sm-3">
                             <Label class="col-form-label" For="folder" HelpText="Select the folder to save the file in">Folder: </Label>
                         </div>
-                        <div class="col-xl-9">
+                        <div class="col-sm-9">
                             <select id="folder" class="form-control" @bind="@_folderId">
                                 <option value="-1">&lt;Select Folder&gt;</option>
                                 @foreach (Folder folder in _folders)
