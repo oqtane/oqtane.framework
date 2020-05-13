@@ -18,7 +18,9 @@
                 </div>
             </form>
         </div>
-        <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+        <div class="container">
+            <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+        </div>
     </TabPanel>
     <TabPanel Name="Download" Heading="Download Files">
         @if (_folders != null)
