@@ -214,7 +214,8 @@ namespace Oqtane.Controllers
         private bool FolderPathValid(Folder folder)
         {
             // prevent folder path traversal and reserved devices
-            return (!folder.Name.Contains("\\") && !folder.Name.Contains("/") && !Constants.ReservedDevices.Split(',').Contains(folder.Name.ToUpper()));
+            return (folder.Name.IndexOfAny(@"<>:""/\|?*".ToCharArray()) == -1 && 
+                    !Constants.ReservedDevices.Split(',').Contains(folder.Name.ToUpper().Split('.')[0]));
         }
     }
 }
