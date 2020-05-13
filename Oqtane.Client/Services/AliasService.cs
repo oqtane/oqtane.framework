@@ -5,16 +5,21 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Net;
 using System;
-
+using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
     public class AliasService : ServiceBase, IAliasService
     {
-        
-        public AliasService(HttpClient http) :base(http) { }
 
-        private string Apiurl => CreateApiUrl("Alias");
+        private readonly SiteState _siteState;
+
+        public AliasService(HttpClient http, SiteState siteState) : base(http)
+        {
+            _siteState = siteState;
+        }
+
+        private string Apiurl => CreateApiUrl(_siteState.Alias, "Alias");
 
         public async Task<List<Alias>> GetAliasesAsync()
         {

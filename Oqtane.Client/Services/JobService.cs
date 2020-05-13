@@ -3,15 +3,21 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using System.Linq;
 using System.Collections.Generic;
+using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
     public class JobService : ServiceBase, IJobService
     {
-        public JobService(HttpClient http) : base(http) { }
+        private readonly SiteState _siteState;
 
-        private string Apiurl => CreateApiUrl("Job");
+        public JobService(HttpClient http, SiteState siteState) : base(http)
+        {
+            _siteState = siteState;
+        }
 
+        private string Apiurl => CreateApiUrl(_siteState.Alias, "Job");
+        
         public async Task<List<Job>> GetJobsAsync()
         {
             List<Job> jobs = await GetJsonAsync<List<Job>>(Apiurl);
