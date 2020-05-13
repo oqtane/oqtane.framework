@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Oqtane.Modules;
 using Oqtane.Services;
 using Oqtane.Shared;
+using Oqtane.Themes;
 
 // ReSharper disable once CheckNamespace
 namespace System.Reflection
@@ -74,7 +76,7 @@ namespace System.Reflection
         public static IEnumerable<Assembly> GetOqtaneClientAssemblies(this AppDomain appDomain)
         {
             return appDomain.GetOqtaneAssemblies()
-                .Where(a => a.GetTypes<IClientStartup>().Any());
+                .Where(a => a.GetTypes<IModuleControl>().Any() || a.GetTypes<IThemeControl>().Any() || a.GetTypes<IClientStartup>().Any());
         }
     }
 }
