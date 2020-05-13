@@ -9,7 +9,7 @@
     <br />
     <div class="table-responsive">
         <table class="table table-responsive">
-            <tbody>
+            <thead>
                 <tr>
                     <th scope="col">Role</th>
                     @foreach (PermissionString permission in _permissions)
@@ -17,6 +17,8 @@
                         <th scope="col">@permission.PermissionName</th>
                     }
                 </tr>
+            </thead>
+            <tbody>
                 @foreach (Role role in _roles)
                 {
                     <tr>
@@ -24,8 +26,8 @@
                         @foreach (PermissionString permission in _permissions)
                         {
                             var p = permission;
-                            <td>
-                                <TriStateCheckBox Value=@GetPermissionValue(p.Permissions, role.Name) Disabled=@GetPermissionDisabled(role.Name) OnChange="@(e => PermissionChanged(e, p.PermissionName, role.Name))" />
+                            <td>                      
+                                    <TriStateCheckBox Value=@GetPermissionValue(p.Permissions, role.Name) Disabled=@GetPermissionDisabled(role.Name) OnChange="@(e => PermissionChanged(e, p.PermissionName, role.Name))" />
                             </td>
                         }
                     </tr>
@@ -51,7 +53,7 @@
                     {
                         string userid = "[" + user.UserId.ToString() + "]";
                         <tr>
-                            <td>@user.DisplayName</td>
+                            <td scope="row">@user.DisplayName</td>
                             @foreach (PermissionString permission in _permissions)
                             {
                                 var p = permission;
