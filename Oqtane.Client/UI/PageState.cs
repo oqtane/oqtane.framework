@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using Oqtane.Models;
+using Oqtane.Shared;
 
 namespace Oqtane.UI
 {
     public class PageState
     {
+        private dynamic _bag;
         public Alias Alias { get; set; }
         public Site Site { get; set; }
         public List<Page> Pages { get; set; }
@@ -19,5 +21,7 @@ namespace Oqtane.UI
         public bool EditMode { get; set; }
         public DateTime LastSyncDate { get; set; }
         public Runtime Runtime { get; set; }
+
+        public dynamic Bag => _bag ?? (_bag = new DynamicDictionary());
     }
 }

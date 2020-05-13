@@ -6,6 +6,7 @@ namespace Oqtane.Models
 {
     public class Module : IAuditable
     {
+        private dynamic _bag;
         public int ModuleId { get; set; }
         public int SiteId { get; set; }
         public string ModuleDefinitionName { get; set; }
@@ -61,5 +62,11 @@ namespace Oqtane.Models
         public string Actions { get; set; }
         [NotMapped]
         public bool UseAdminContainer { get; set; }
+
+        [NotMapped]
+        public dynamic Bag
+        {
+            get => _bag ?? (_bag = new DynamicDictionary());
+        }
     }
 }
