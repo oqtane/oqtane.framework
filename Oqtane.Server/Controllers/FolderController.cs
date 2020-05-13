@@ -10,7 +10,6 @@ using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Security;
-using System.IO;
 
 namespace Oqtane.Controllers
 {
@@ -106,13 +105,23 @@ namespace Oqtane.Controllers
                 }
                 if (_userPermissions.IsAuthorized(User,PermissionNames.Edit, permissions))
                 {
-                    if (string.IsNullOrEmpty(folder.Path) && folder.ParentId != null)
+                    if (FolderPathValid(folder))
                     {
-                        Folder parent = _folders.GetFolder(folder.ParentId.Value);
-                        folder.Path = Utilities.PathCombine(parent.Path, folder.Name,"\\");
+                        if (string.IsNullOrEmpty(folder.Path) && folder.ParentId != null)
+                        {
+                            Folder parent = _folders.GetFolder(folder.ParentId.Value);
+                            folder.Path = Utilities.PathCombine(parent.Path, folder.Name);
+                        }
+                        folder.Path = Utilities.PathCombine(folder.Path, "\\");
+                        folder = _folders.AddFolder(folder);
+                        _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Added {Folder}", folder);
                     }
-                    folder = _folders.AddFolder(folder);
-                    _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Added {Folder}", folder);
+                    else
+                    {
+                        _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Name Not Valid {Folder}", folder);
+                        HttpContext.Response.StatusCode = 401;
+                        folder = null;
+                    }
                 }
                 else
                 {
@@ -131,13 +140,23 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Folder, folder.FolderId, PermissionNames.Edit))
             {
-                if (string.IsNullOrEmpty(folder.Path) && folder.ParentId != null)
+                if (FolderPathValid(folder))
                 {
-                    Folder parent = _folders.GetFolder(folder.ParentId.Value);
-                    folder.Path = Utilities.PathCombine(parent.Path, folder.Name,"\\");
+                    if (string.IsNullOrEmpty(folder.Path) && folder.ParentId != null)
+                    {
+                        Folder parent = _folders.GetFolder(folder.ParentId.Value);
+                        folder.Path = Utilities.PathCombine(parent.Path, folder.Name);
+                    }
+                    folder.Path = Utilities.PathCombine(folder.Path, "\\");
+                    folder = _folders.UpdateFolder(folder);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Update, "Folder Updated {Folder}", folder);
                 }
-                folder = _folders.UpdateFolder(folder);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Folder Updated {Folder}", folder);
+                else
+                {
+                    _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Name Not Valid {Folder}", folder);
+                    HttpContext.Response.StatusCode = 401;
+                    folder = null;
+                }
             }
             else
             {
@@ -190,6 +209,12 @@ namespace Oqtane.Controllers
                 _logger.Log(LogLevel.Error, this, LogFunction.Delete, "User Not Authorized To Delete Folder {FolderId}", id);
                 HttpContext.Response.StatusCode = 401;
             }
+        }
+
+        private bool FolderPathValid(Folder folder)
+        {
+            // prevent folder path traversal and reserved devices
+            return (!folder.Name.Contains("\\") && !folder.Name.Contains("/") && !Constants.ReservedDevices.Split(',').Contains(folder.Name.ToUpper()));
         }
     }
 }

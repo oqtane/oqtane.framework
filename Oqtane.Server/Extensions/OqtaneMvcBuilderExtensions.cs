@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Oqtane.Infrastructure;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
@@ -30,6 +31,22 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
                 }
             }
+
+            return mvcBuilder;
+        }
+
+
+        public static IMvcBuilder ConfigureOqtaneMvc(this IMvcBuilder mvcBuilder)
+        {
+            var startUps = AppDomain.CurrentDomain
+                .GetOqtaneAssemblies()
+                .SelectMany(x => x.GetInstances<IServerStartup>());
+
+            foreach (var startup in startUps)
+            {
+                startup.ConfigureMvc(mvcBuilder);
+            }
+
             return mvcBuilder;
         }
     }

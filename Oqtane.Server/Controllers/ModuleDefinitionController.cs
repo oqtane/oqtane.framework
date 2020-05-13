@@ -170,6 +170,16 @@ namespace Oqtane.Controllers
                 return null;
             }
         }
+        // GET api/<controller>/load/assembyname
+        [HttpGet("load")]
+        public List<string> Load()
+        {
+            var assemblies = AppDomain.CurrentDomain.GetOqtaneClientAssemblies();
+            var list = AppDomain.CurrentDomain.GetOqtaneClientAssemblies().Select(a => a.GetName().Name).ToList();
+            var deps = assemblies.SelectMany(a => a.GetReferencedAssemblies()).Distinct();
+            list.AddRange(deps.Where(a=>a.Name.EndsWith(".oqtane",StringComparison.OrdinalIgnoreCase)).Select(a=>a.Name));
+            return list;
+        }
 
         // POST api/<controller>?moduleid=x
         [HttpPost]

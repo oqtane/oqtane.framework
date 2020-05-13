@@ -1,21 +1,13 @@
 ﻿@using Oqtane.Modules.HtmlText.Services
-@using Oqtane.Modules.HtmlText.Models
 @namespace Oqtane.Modules.HtmlText
 @inherits ModuleBase
-@inject NavigationManager NavigationManager
-@inject HttpClient http
-@inject SiteState sitestate
+@inject IHtmlTextService HtmlTextService
 
 @((MarkupString)content)
 
 @if (PageState.EditMode)
 {
-    <br />
-}
-<ActionLink Action="Edit" />
-@if (PageState.EditMode)
-{
-    <br /><br />
+    <br /><ActionLink Action="Edit" /><br /><br />
 }
 
 @code {
@@ -25,8 +17,7 @@
     {
         try
         {
-            var htmltextservice = new HtmlTextService(http, sitestate);
-            var htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
+            var htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId);
             if (htmltext != null)
             {
                 content = htmltext.Content;

@@ -8,21 +8,23 @@ using Microsoft.Extensions.Hosting;
 using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Modules;
+using Oqtane.Services;
 using Oqtane.Shared;
+using Oqtane.UI;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class OqtaneServiceCollectionExtensions
     {
-        public static IServiceCollection AddOqtaneParts(this IServiceCollection services)
+        public static IServiceCollection AddOqtaneParts(this IServiceCollection services, Runtime runtime)
         {
             LoadAssemblies();
-            services.AddOqtaneServices();
+            services.AddOqtaneServices(runtime);
             return services;
         }
 
-        private static IServiceCollection AddOqtaneServices(this IServiceCollection services)
+        private static IServiceCollection AddOqtaneServices(this IServiceCollection services, Runtime runtime)
         {
             if (services is null)
             {
@@ -53,11 +55,24 @@ namespace Microsoft.Extensions.DependencyInjection
                         services.AddSingleton(hostedServiceType, serviceType);
                     }
                 }
+                
+                var startUps = assembly.GetInstances<IServerStartup>();
+                foreach (var startup in startUps)
+                {
+                    startup.ConfigureServices(services);
+                }
+               
+                if (runtime == Runtime.Server)
+                {
+                assembly.GetInstances<IClientStartup>()
+                    .ToList()
+                    .ForEach(x => x.ConfigureServices(services));
+                }
             }
-
             return services;
         }
 
+        
         private static void LoadAssemblies()
         {
             var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);

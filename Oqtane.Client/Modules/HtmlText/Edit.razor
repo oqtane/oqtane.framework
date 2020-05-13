@@ -3,9 +3,8 @@
 @using Oqtane.Modules.Controls
 @namespace Oqtane.Modules.HtmlText
 @inherits ModuleBase
+@inject IHtmlTextService HtmlTextService
 @inject NavigationManager NavigationManager
-@inject HttpClient http
-@inject SiteState sitestate
 
 @if (_content != null)
 {
@@ -14,7 +13,8 @@
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
     @if (!string.IsNullOrEmpty(_content))
     {
-        <br /><br />
+        <br />
+        <br />
         <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon"></AuditInfo>
     }
 }
@@ -35,8 +35,7 @@
     {
         try
         {
-            var htmltextservice = new HtmlTextService(http, sitestate);
-            var htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
+            var htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId);
             if (htmltext != null)
             {
                 _content = htmltext.Content;
@@ -65,19 +64,18 @@
 
         try
         {
-            var htmltextservice = new HtmlTextService(http, sitestate);
-            var htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
+            var htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId);
             if (htmltext != null)
             {
                 htmltext.Content = content;
-                await htmltextservice.UpdateHtmlTextAsync(htmltext);
+                await HtmlTextService.UpdateHtmlTextAsync(htmltext);
             }
             else
             {
                 htmltext = new HtmlTextInfo();
                 htmltext.ModuleId = ModuleState.ModuleId;
                 htmltext.Content = content;
-                await htmltextservice.AddHtmlTextAsync(htmltext);
+                await HtmlTextService.AddHtmlTextAsync(htmltext);
             }
 
             await logger.LogInformation("Html/Text Content Saved {HtmlText}", htmltext);
