@@ -3,49 +3,74 @@
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
 
-@if (PageState.Site.AllowRegistration)
-{
-    <AuthorizeView>
-        <Authorizing>
-            <text>...</text>
-        </Authorizing>
-        <Authorized>
-            <ModuleMessage Message="You Are Already Registered" Type="MessageType.Info" />            
-        </Authorized>
-        <NotAuthorized>
-            <ModuleMessage Message="Please Note That Registration Requires A Valid Email Address In Order To Verify Your Identity" Type="MessageType.Info" />
-
-            <div class="container">
-                <div class="form-group">
-                    <label for="Username" class="control-label">Username: </label>
-                    <input type="text" class="form-control" placeholder="Username" @bind="@_username" id="Username" />
+<div class="container">
+    @if (PageState.Site.AllowRegistration)
+    {
+        <AuthorizeView>
+            <Authorizing>
+                <text>...</text>
+            </Authorizing>
+            <Authorized>
+                <ModuleMessage Message="You Are Already Registered" Type="MessageType.Info" />
+            </Authorized>
+            <NotAuthorized>
+                <ModuleMessage Message="Please Note That Registration Requires A Valid Email Address In Order To Verify Your Identity" Type="MessageType.Info" />
+                <div class="container">
+                    <form>
+                        <div class="form-group row">
+                            <div class="col-xl-3">
+                                <label class="col-form-label" for="Username">Username: </label>
+                            </div>
+                            <div class="col-xl-9">
+                                <input type="text" class="form-control" placeholder="Username" @bind="@_username" id="Username" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-xl-3">
+                                <label class="col-form-label" for="Password">Password: </label>
+                            </div>
+                            <div class="col-xl-9">
+                                <input type="password" class="form-control" placeholder="Password" @bind="@_password" id="Password" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-xl-3">
+                                <label class="col-form-label" for="Confirm">Confirm Password: </label>
+                            </div>
+                            <div class="col-xl-9">
+                                <input type="password" class="form-control" placeholder="Password" @bind="@_confirm" id="Confirm" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-xl-3">
+                                <label class="col-form-label" for="Email">Email: </label>
+                            </div>
+                            <div class="col-xl-9">
+                                <input type="text" class="form-control" placeholder="Email" @bind="@_email" id="Email" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-xl-3">
+                                <label class="col-form-label" for="DisplayName">Full Name: </label>
+                            </div>
+                            <div class="col-xl-9">
+                                <input type="text" class="form-control" placeholder="Full Name" @bind="@_displayName" id="DisplayName" />
+                            </div>
+                        </div>
+                        <div class="container">
+                            <button type="button" class="btn btn-primary" @onclick="Register">Register</button>
+                            <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+                        </div>
+                    </form>
                 </div>
-                <div class="form-group">
-                    <label for="Password" class="control-label">Password: </label>
-                    <input type="password" class="form-control" placeholder="Password" @bind="@_password" id="Password" />
-                </div>
-                <div class="form-group">
-                    <label for="Confirm" class="control-label">Confirm Password: </label>
-                    <input type="password" class="form-control" placeholder="Password" @bind="@_confirm" id="Confirm" />
-                </div>
-                <div class="form-group">
-                    <label for="Email" class="control-label">Email: </label>
-                    <input type="text" class="form-control" placeholder="Email" @bind="@_email" id="Email" />
-                </div>
-                <div class="form-group">
-                    <label for="DisplayName" class="control-label">Full Name: </label>
-                    <input type="text" class="form-control" placeholder="Full Name" @bind="@_displayName" id="DisplayName" />
-                </div>
-                <button type="button" class="btn btn-primary" @onclick="Register">Register</button>
-                <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
-            </div>
-        </NotAuthorized>
-    </AuthorizeView>
-}
-else
-{
-    <ModuleMessage Message="Registration is Disabled For This Site" Type="MessageType.Info" />
-}
+            </NotAuthorized>
+        </AuthorizeView>
+    }
+    else
+    {
+        <ModuleMessage Message="Registration is Disabled For This Site" Type="MessageType.Info" />
+    }
+</div>
 
 @code {
     private string _username = string.Empty;

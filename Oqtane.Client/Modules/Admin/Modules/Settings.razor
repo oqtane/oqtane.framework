@@ -9,80 +9,88 @@
     <TabPanel Name="Settings" Heading="Module Settings">
         @if (_containers != null)
         {
-            <table class="table table-borderless">
-                <tr>
-                    <td>
-                        <Label For="title" HelpText="Enter the title of the module">Title: </Label>
-                    </td>
-                    <td>
-                        <input id="title" type="text" name="Title" class="form-control" @bind="@_title" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="container" HelpText="Select the module's container">Container: </Label>
-                    </td>
-                    <td>
-                        <select id="container" class="form-control" @bind="@_containerType">
-                            <option value="">&lt;Select Container&gt;</option>
-                            @foreach (KeyValuePair<string, string> container in _containers)
-                            {
-                                <option value="@container.Key">@container.Value</option>
-                            }
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="allpages" HelpText="Indicate if this module should be displayed on all pages">Display On All Pages? </Label>
-                    </td>
-                    <td>
-                        <select id="allpages" class="form-control" @bind="@_allPages">
-                            <option value="True">Yes</option>
-                            <option value="False">No</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="page" HelpText="The page that the module is on">Page: </Label>
-                    </td>
-                    <td>
-                        <select id="page" class="form-control" @bind="@_pageId">
-                            @foreach (Page p in PageState.Pages)
-                            {
-                                if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
+            <div class="container">
+                <form>
+                    <div class="form-group row">
+                        <div class="col-xl-3">
+                            <Label class="col-form-label" For="title" HelpText="Enter the title of the module">Title: </Label>
+                        </div>
+                        <div class="col-xl-9">
+                            <input id="title" type="text" name="Title" class="form-control" @bind="@_title" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-xl-3">
+                            <Label class="col-form-label" For="container" HelpText="Select the module's container">Container: </Label>
+                        </div>
+                        <div class="col-xl-9">
+                            <select id="container" class="custom-select" @bind="@_containerType">
+                                <option value="">&lt;Select Container&gt;</option>
+                                @foreach (KeyValuePair<string, string> container in _containers)
                                 {
-                                    <option value="@p.PageId">@(new string('-', p.Level * 2))@(p.Name)</option>
+                                    <option value="@container.Key">@container.Value</option>
                                 }
-                            }
-                        </select>
-                    </td>
-                </tr>
-            </table>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-xl-3">
+                            <Label class="col-form-label" For="allpages" HelpText="Indicate if this module should be displayed on all pages">Display On All Pages? </Label>
+                        </div>
+                        <div class="col-xl-9">
+                            <select id="allpages" class="custom-select" @bind="@_allPages">
+                                <option value="True">Yes</option>
+                                <option value="False">No</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-xl-3">
+                            <Label class="col-form-label" For="page" HelpText="The page that the module is on">Page: </Label>
+                        </div>
+                        <div class="col-xl-9">
+                            <select id="page" class="custom-select" @bind="@_pageId">
+                                @foreach (Page p in PageState.Pages)
+                                {
+                                    if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
+                                    {
+                                        <option value="@p.PageId">@(new string('-', p.Level * 2))@(p.Name)</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
         }
     </TabPanel>
     <TabPanel Name="Permissions">
         @if (_containers != null)
         {
-            <table class="table table-borderless">
-                <tr>
-                    <td>
-                        <PermissionGrid EntityName="@EntityNames.Module" PermissionNames="@_permissionNames" Permissions="@_permissions" @ref="_permissionGrid" />
-                    </td>
-                </tr>
-            </table>
+            <div class="container">
+                <form>
+                    <div class="form-group row">
+                        <div class="col-sm-12">
+                            <PermissionGrid EntityName="@EntityNames.Module" PermissionNames="@_permissionNames" Permissions="@_permissions" @ref="_permissionGrid" />
+                        </div>
+                    </div>
+                </form>
+            </div>
         }
     </TabPanel>
+
     @if (_settingsModuleType != null)
-    {
-        <TabPanel Name="ModuleSettings" Heading="@_settingstitle">
-            @DynamicComponent
-        </TabPanel>
+    {<div class="container">
+            <TabPanel Name="ModuleSettings" Heading="@_settingstitle">
+                @DynamicComponent
+            </TabPanel>
+        </div>
     }
 </TabStrip>
-<button type="button" class="btn btn-success" @onclick="SaveModule">Save</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+<div class="container">
+    <button type="button" class="btn btn-success" @onclick="SaveModule">Save</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+</div>
 
 @code {
     private Dictionary<string, string> _containers;

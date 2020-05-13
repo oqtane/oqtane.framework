@@ -7,32 +7,38 @@
 
 @if (_package != null)
 {
-<TabStrip>
-    <TabPanel Name="Download">
-        @if (_upgradeavailable)
-        {
-            <ModuleMessage Type="MessageType.Info" Message="Select The Upgrade Button To Install a New Framework Version"></ModuleMessage>
-            @("Framework") @_package.Version <button type="button" class="btn btn-success" @onclick=@(async () => await Download(Constants.PackageId, Constants.Version))>Upgrade</button>
-        }
-        else
-        {
-            <ModuleMessage Type="MessageType.Info" Message="Framework Is Already Up To Date"></ModuleMessage>
-        }
-    </TabPanel>
-    <TabPanel Name="Upload">
-        <table class="table table-borderless">
-            <tr>
-                <td>
-                    <Label HelpText="Upload a framework package and select Install to complete the installation">Framework: </Label>
-                </td>
-                <td>
-                    <FileManager Filter="nupkg" ShowFiles="false" Folder="Framework" />
-                </td>
-            </tr>
-        </table>
-        <button type="button" class="btn btn-success" @onclick="Upgrade">Install</button>
-    </TabPanel>
-</TabStrip>
+    <TabStrip>
+        <TabPanel Name="Download">
+            <div class="container">
+                @if (_upgradeavailable)
+                {
+                    <ModuleMessage Type="MessageType.Info" Message="Select The Upgrade Button To Install a New Framework Version"></ModuleMessage>
+                    @("Framework") @_package.Version <button type="button" class="btn btn-success" @onclick=@(async () => await Download(Constants.PackageId, Constants.Version))>Upgrade</button>
+                }
+                else
+                {
+                    <ModuleMessage Type="MessageType.Info" Message="Framework Is Already Up To Date"></ModuleMessage>
+                }
+            </div>
+        </TabPanel>
+        <TabPanel Name="Upload">
+            <div class="container">
+                <form>
+                    <div class="form-group row">
+                        <div class="col-sm-3">
+                            <Label class="col-form-label" HelpText="Upload a framework package and select Install to complete the installation">Framework: </Label>
+                        </div>
+                        <div class="col-sm-9">
+                            <FileManager Filter="nupkg" ShowFiles="false" Folder="Framework" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="container">
+                <button type="button" class="btn btn-success" @onclick="Upgrade">Install</button>
+            </div>
+        </TabPanel>
+    </TabStrip>
 }
 
 @code {

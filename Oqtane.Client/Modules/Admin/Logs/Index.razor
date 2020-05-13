@@ -4,70 +4,85 @@
 
 @if (_logs == null)
 {
-    <p><em>Loading...</em></p>
+    <div class="container">
+        <p><em>Loading...</em></p>
+    </div>
 }
 else
 {
-    <table class="table table-borderless">
-        <tr>
-            <td>
-                <label>Level: </label>
-                <select class="form-control" @onchange="(e => LevelChanged(e))">
-                    <option value="-">&lt;All Levels&gt;</option>
-                    <option value="Trace">Trace</option>
-                    <option value="Debug">Debug</option>
-                    <option value="Information">Information</option>
-                    <option value="Warning">Warning</option>
-                    <option value="Error">Error</option>
-                    <option value="Critical">Critical</option>
-                </select>
-            </td>
-            <td>
-                <label>Function: </label>
-                <select class="form-control" @onchange="(e => FunctionChanged(e))">
-                    <option value="-">&lt;All Functions&gt;</option>
-                    <option value="Create">Create</option>
-                    <option value="Read">Read</option>
-                    <option value="Update">Update</option>
-                    <option value="Delete">Delete</option>
-                    <option value="Security">Security</option>
-                    <option value="Other">Other</option>
-                </select>
-            </td>
-            <td>
-                <label>Rows: </label>
-                <select class="form-control" @onchange="(e => RowsChanged(e))">
-                    <option value="10">10</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                </select>
-            </td>
-        </tr>
-    </table>
-
-    @if (_logs.Any())
-    {
-        <Pager Items="@_logs">
-            <Header>
-                <th>&nbsp;</th>
-                <th>Date</th>
-                <th>Level</th>
-                <th>Feature</th>
-                <th>Function</th>
-            </Header>
-            <Row>
-                <td class="@GetClass(context.Function)"><ActionLink Action="Detail" Parameters="@($"id=" + context.LogId.ToString())" /></td>
-                <td class="@GetClass(context.Function)">@context.LogDate</td>
-                <td class="@GetClass(context.Function)">@context.Level</td>
-                <td class="@GetClass(context.Function)">@context.Feature</td>
-                <td class="@GetClass(context.Function)">@context.Function</td>
-            </Row>
-        </Pager>
-    }
-    else
-    {
-        <p><em>No Logs Match The Criteria Specified</em></p>
-    }
+    <div class="container">
+        <form>
+            <div class="form-group row">
+                <div class="col-xl-3">
+                    <label class="col-form-label">Level: </label>
+                </div>
+                <div class="col-xl-9">
+                    <select class="custom-select" @onchange="(e => LevelChanged(e))">
+                        <option value="-">&lt;All Levels&gt;</option>
+                        <option value="Trace">Trace</option>
+                        <option value="Debug">Debug</option>
+                        <option value="Information">Information</option>
+                        <option value="Warning">Warning</option>
+                        <option value="Error">Error</option>
+                        <option value="Critical">Critical</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-xl-3">
+                    <label class="col-form-label">Function: </label>
+                </div>
+                <div class="col-xl-9">
+                    <select class="custom-select" @onchange="(e => FunctionChanged(e))">
+                        <option value="-">&lt;All Functions&gt;</option>
+                        <option value="Create">Create</option>
+                        <option value="Read">Read</option>
+                        <option value="Update">Update</option>
+                        <option value="Delete">Delete</option>
+                        <option value="Security">Security</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-xl-3">
+                    <label class="col-form-label">Rows: </label>
+                </div>
+                <div class="col-xl-9">
+                    <select class="custom-select" @onchange="(e => RowsChanged(e))">
+                        <option value="10">10</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="container">
+        @if (_logs.Any())
+        {
+            <Pager Items="@_logs">
+                <Header>
+                    <th>&nbsp;</th>
+                    <th>Date</th>
+                    <th>Level</th>
+                    <th>Feature</th>
+                    <th>Function</th>
+                </Header>
+                <Row>
+                    <td class="@GetClass(context.Function)"><ActionLink Action="Detail" Parameters="@($"id=" + context.LogId.ToString())" /></td>
+                    <td class="@GetClass(context.Function)">@context.LogDate</td>
+                    <td class="@GetClass(context.Function)">@context.Level</td>
+                    <td class="@GetClass(context.Function)">@context.Feature</td>
+                    <td class="@GetClass(context.Function)">@context.Function</td>
+                </Row>
+            </Pager>
+        }
+        else
+        {
+            <p><em>No Logs Match The Criteria Specified</em></p>
+        }
+    </div>
 }
 
 @code {

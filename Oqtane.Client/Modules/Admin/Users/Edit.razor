@@ -5,115 +5,125 @@
 @inject IProfileService ProfileService
 @inject ISettingService SettingService
 
-@if (PageState.User != null && photofileid != -1)
-{
-    <img src="@(ContentUrl(photofileid))" alt="@displayname" style="max-width: 400px" class="rounded-circle mx-auto d-block">
-}
-else
-{
-    <br />
-}
-<TabStrip>
-    <TabPanel Name="Identity">
-        @if (profiles != null)
-        {
-            <table class="table table-borderless">
-                <tr>
-                    <td>
-                        <label class="control-label">Username: </label>
-                    </td>
-                    <td>
-                        <input class="form-control" @bind="@username" readonly />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label class="control-label">Password: </label>
-                    </td>
-                    <td>
-                        <input type="password" class="form-control" @bind="@password" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label class="control-label">Confirm Password: </label>
-                    </td>
-                    <td>
-                        <input type="password" class="form-control" @bind="@confirm" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label class="control-label">Email: </label>
-                    </td>
-                    <td>
-                        <input class="form-control" @bind="@email" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label class="control-label">Full Name: </label>
-                    </td>
-                    <td>
-                        <input class="form-control" @bind="@displayname" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label class="control-label">Photo: </label>
-                    </td>
-                    <td>
-                        <FileManager FileId="@photofileid.ToString()" @ref="filemanager" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label class="control-label">Is Deleted? </label>
-                    </td>
-                    <td>
-                        <select class="form-control" @bind="@isdeleted">
-                            <option value="True">Yes</option>
-                            <option value="False">No</option>
-                        </select>
-                    </td>
-                </tr>
-            </table>
-        }
-    </TabPanel>
-    <TabPanel Name="Profile">
-        @if (profiles != null)
-        {
-        <table class="table table-borderless">
-            @foreach (Profile profile in profiles)
+<div class="container">
+    @if (PageState.User != null && photofileid != -1)
+    {
+        <div class="container">
+            <img src="@(ContentUrl(photofileid))" alt="@displayname" style="max-width: 400px" class="rounded-circle mx-auto d-block">
+        </div>
+    }
+    else
+    {
+        <br />
+    }
+    <TabStrip>
+        <TabPanel Name="Identity">
+            @if (profiles != null)
             {
-                var p = profile;
-                if (p.Category != category)
-                {
-                    <tr>
-                        <th colspan="2" style="text-align: center;">
-                            @p.Category
-                        </th>
-                    </tr>
-                    category = p.Category;
-                }
-                <tr>
-                    <td>
-                        <label for="@p.Name" class="control-label">@p.Title: </label>
-                    </td>
-                    <td>
-                        <input class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" placeholder="@p.Description" @onchange="@(e => ProfileChanged(e, p.Name))" />
-                    </td>
-                </tr>
+                <div class="container">
+                    <form>
+                        <div class="form-group row">
+                            <div class="col-xl-3">
+                                <label class="col-form-label">Username: </label>
+                            </div>
+                            <div class="col-xl-9">
+                                <input class="form-control" @bind="@username" readonly />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-xl-3">
+                                <label class="col-form-label">Password: </label>
+                            </div>
+                            <div class="col-xl-9">
+                                <input type="password" class="form-control" @bind="@password" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-xl-3">
+                                <label class="col-form-label">Confirm Password: </label>
+                                <input type="password" class="form-control" @bind="@confirm" />
+                            </div>
+                            <div class="col-xl-9">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-xl-3">
+                                <label class="col-form-label">Email: </label>
+                            </div>
+                            <div class="col-xl-9">
+                                <input class="form-control" @bind="@email" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-xl-3">
+                                <label class="col-form-label">Full Name: </label>
+                            </div>
+                            <div class="col-xl-9">
+                                <input class="form-control" @bind="@displayname" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-xl-3">
+                                <label class="col-form-label">Photo: </label>
+                            </div>
+                            <div class="col-xl-9">
+                                <FileManager FileId="@photofileid.ToString()" @ref="filemanager" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-xl-3">
+                                <label class="col-form-label">Is Deleted? </label>
+                            </div>
+                            <div class="col-xl-9">
+                                <select class="custom-select" @bind="@isdeleted">
+                                    <option value="True">Yes</option>
+                                    <option value="False">No</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             }
-        </table>
-        }
-    </TabPanel>
-</TabStrip>
-
-<button type="button" class="btn btn-primary" @onclick="SaveUser">Save</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
-<br /><br />
-<AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>
+        </TabPanel>
+        <TabPanel Name="Profile">
+            @if (profiles != null)
+            {
+                <div class="container">
+                    <form>
+                        @foreach (Profile profile in profiles)
+                        {
+                            var p = profile;
+                            if (p.Category != category)
+                            {
+                                <div class="form-group" style="text-align: center;">
+                                    @p.Category
+                                </div>
+                                category = p.Category;
+                            }
+                            <div class="form-group row">
+                                <div class="col-xl-3">
+                                    <label class="col-form-label" for="@p.Name">@p.Title: </label>
+                                </div>
+                                <div class="col-xl-9">
+                                    <input class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" placeholder="@p.Description" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                </div>
+                            </div>
+                        }
+                    </form>
+                </div>
+            }
+        </TabPanel>
+    </TabStrip>
+</div>
+<div class="container">
+    <button type="button" class="btn btn-primary" @onclick="SaveUser">Save</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <br />
+    <br />
+</div>
+<div class="container">
+    <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>
+</div>
 
 @code {
     private int userid;

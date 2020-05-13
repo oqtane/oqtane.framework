@@ -3,52 +3,58 @@
 @inject IJobService JobService
 
 @if (_jobs == null)
-{
-    <p><em>Loading...</em></p>
+{<div class="container">
+        <p><em>Loading...</em></p>
+    </div>
 }
 else
 {
-    <ActionLink Action="Add" Text="Add Job" />
-    <ActionLink Action="Log" Class="btn btn-secondary" Text="View Logs" />
-    <button type="button" class="btn btn-secondary" @onclick="(async () => await Refresh())">Refresh</button>
-    <br /><br />
-
-    <Pager Items="@_jobs">
-        <Header>
-            <th>&nbsp;</th>
-            <th>&nbsp;</th>
-            <th>&nbsp;</th>
-            <th>Name</th>
-            <th>Status</th>
-            <th>Frequency</th>
-            <th>Next Execution</th>
-            <th>&nbsp;</th>
-        </Header>
-        <Row>
-            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.JobId.ToString())" /></td>
-            <td><ActionDialog Header="Delete Job" Message="@("Are You Sure You Wish To Delete This Job?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteJob(context))" /></td>
-            <td><ActionLink Action="Log" Class="btn btn-secondary" Parameters="@($"id=" + context.JobId.ToString())" /></td>
-            <td>@context.Name</td>
-            <td>@DisplayStatus(context.IsEnabled, context.IsExecuting)</td>
-            <td>@DisplayFrequency(context.Interval, context.Frequency)</td>
-            <td>@context.NextExecution</td>
-            <td>
-                @if (context.IsStarted)
-                {
-                    <button type="button" class="btn btn-danger" @onclick="(async () => await StopJob(context.JobId))">Stop</button>
-                }
-                else
-                {
-                    <button type="button" class="btn btn-success" @onclick="(async () => await StartJob(context.JobId))">Start</button>
-                }
-            </td>
-        </Row>
-    </Pager>
+    <div class="container">
+        <ActionLink Action="Add" Text="Add Job" />
+        <ActionLink Action="Log" Class="btn btn-secondary" Text="View Logs" />
+        <button type="button" class="btn btn-secondary" @onclick="(async () => await Refresh())">Refresh</button>
+        <br />
+        <br />
+    </div>
+    <div class="container">
+        <Pager Items="@_jobs">
+            <Header>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Frequency</th>
+                <th>Next Execution</th>
+                <th>&nbsp;</th>
+            </Header>
+            <Row>
+                <td><ActionLink Action="Edit" Parameters="@($"id=" + context.JobId.ToString())" /></td>
+                <td><ActionDialog Header="Delete Job" Message="@("Are You Sure You Wish To Delete This Job?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteJob(context))" /></td>
+                <td><ActionLink Action="Log" Class="btn btn-secondary" Parameters="@($"id=" + context.JobId.ToString())" /></td>
+                <td>@context.Name</td>
+                <td>@DisplayStatus(context.IsEnabled, context.IsExecuting)</td>
+                <td>@DisplayFrequency(context.Interval, context.Frequency)</td>
+                <td>@context.NextExecution</td>
+                <td>
+                    @if (context.IsStarted)
+                        {
+                        <button type="button" class="btn btn-danger" @onclick="(async () => await StopJob(context.JobId))">Stop</button>
+                        }
+                        else
+                        {
+                        <button type="button" class="btn btn-success" @onclick="(async () => await StartJob(context.JobId))">Start</button>
+                        }
+                    /**/
+                </td>
+            </Row>
+        </Pager>
+    </div>
 }
 
 @code {
     private List<Job> _jobs;
-    
+
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
 
     protected override async Task OnParametersSetAsync()
@@ -81,7 +87,7 @@ else
 
     private string DisplayFrequency(int interval, string frequency)
     {
-        var  result = "Every " + interval.ToString() + " ";
+        var result = "Every " + interval.ToString() + " ";
         switch (frequency)
         {
             case "m":
@@ -97,12 +103,12 @@ else
                 result += "Month";
                 break;
         }
-        
+
         if (interval > 1)
         {
             result += "s";
         }
-        
+
         return result;
     }
 

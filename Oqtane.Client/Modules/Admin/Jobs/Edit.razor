@@ -3,75 +3,80 @@
 @inject NavigationManager NavigationManager
 @inject IJobService JobService
 
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <Label For="name" HelpText="Enter the job name">Name: </Label>
-        </td>
-        <td>
-            <input id="name" class="form-control" @bind="@_name" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="type" HelpText="Enter the job type">Type: </Label>
-        </td>
-        <td>
-            <input id="type" class="form-control" @bind="@_jobType" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="enabled" HelpText="Select whether you want the job enabled or not">Enabled? </Label>
-        </td>
-        <td>
-            <select id="enabled" class="form-control" @bind="@_isEnabled">
-                <option value="True">Yes</option>
-                <option value="False">No</option>
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="runs-every" HelpText="Select how often you want the job to run">Runs Every: </Label>
-        </td>
-        <td>
-            <input id="runs-every" class="form-control" @bind="@_interval" />
-            <select id="runs-every" class="form-control" @bind="@_frequency">
-                <option value="m">Minute(s)</option>
-                <option value="H">Hour(s)</option>
-                <option value="d">Day(s)</option>
-                <option value="M">Month(s)</option>
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="starting" HelpText="What time do you want the job to start">Starting: </Label>
-        </td>
-        <td>
-            <input id="starting" class="form-control" @bind="@_startDate" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="ending" HelpText="When do you want the job to end">Ending: </Label>
-        </td>
-        <td>
-            <input id="ending" class="form-control" @bind="@_endDate" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="retention-log" HelpText="What items do you want in the retention log">Retention Log (Items): </Label>
-        </td>
-        <td>
-            <input id="retention-log" class="form-control" @bind="@_retentionHistory" />
-        </td>
-    </tr>
-</table>
-<button type="button" class="btn btn-success" @onclick="SaveJob">Save</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+<div class="container">
+    <form>
+        <div class="form-group row">
+            <div class="col-xl-3">
+                <Label class="col-form-label" For="name" HelpText="Enter the job name">Name: </Label>
+            </div>
+            <div class="col-xl-9">
+                <input id="name" class="form-control" @bind="@_name" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-xl-3">
+                <Label class="col-form-label" For="type" HelpText="Enter the job type">Type: </Label>
+            </div>
+            <div class="col-xl-9">
+                <input id="type" class="form-control" @bind="@_jobType" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-xl-3">
+                <Label class="col-form-label" For="enabled" HelpText="Select whether you want the job enabled or not">Enabled? </Label>
+            </div>
+            <div class="col-xl-9">
+                <select id="enabled" class="custom-select" @bind="@_isEnabled">
+                    <option value="True">Yes</option>
+                    <option value="False">No</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-xl-3">
+                <Label class="col-form-label" For="runs-every" HelpText="Select how often you want the job to run">Runs Every: </Label>
+            </div>
+            <div class="form-inline col-xl-9 ">
+                <input id="runs-every" class="form-control" @bind="@_interval" />
+                <select id="runs-every" class="custom-select" @bind="@_frequency">
+                    <option value="m">Minute(s)</option>
+                    <option value="H">Hour(s)</option>
+                    <option value="d">Day(s)</option>
+                    <option value="M">Month(s)</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-xl-3">
+                <Label class="col-form-label" For="starting" HelpText="What time do you want the job to start">Starting: </Label>
+            </div>
+            <div class="col-xl-9">
+                <input id="starting" class="form-control" @bind="@_startDate" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-xl-3">
+                <Label class="col-form-label" For="ending" HelpText="When do you want the job to end">Ending: </Label>
+            </div>
+            <div class="col-xl-9">
+                <input id="ending" class="form-control" @bind="@_endDate" />
+            </div>
+        </div>
+        <div class="form-group row">
+
+            <div class="col-xl-3">
+                <Label class="col-form-label" For="retention-log" HelpText="What items do you want in the retention log">Retention Log (Items): </Label>
+            </div>
+            <div class="col-xl-9">
+                <input id="retention-log" class="form-control" @bind="@_retentionHistory" />
+            </div>
+        </div>
+    </form>
+</div>
+<div class="container">
+    <button type="button" class="btn btn-success" @onclick="SaveJob">Save</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+</div>
 
 @code {
     private int _jobId;

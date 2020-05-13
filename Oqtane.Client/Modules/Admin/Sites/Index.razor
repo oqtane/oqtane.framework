@@ -6,24 +6,28 @@
 
 @if (_sites == null)
 {
-    <p><em>Loading...</em></p>
+    <div class="container">
+        <p><em>Loading...</em></p>
+    </div>
 }
 else
 {
-    <ActionLink Action="Add" Text="Add Site" />
+    <div class="container">
+        <ActionLink Action="Add" Text="Add Site" />
 
-    <Pager Items="@_sites">
-        <Header>
-            <th>&nbsp;</th>
-            <th>&nbsp;</th>
-            <th>Name</th>
-        </Header>
-        <Row>
-            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.AliasId.ToString())" /></td>
-            <td><ActionDialog Header="Delete Site" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Site?")" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteSite(context))" /></td>
-            <td><a href="@(_scheme + context.Name)">@context.Name</a></td>
-        </Row>
-    </Pager>
+        <Pager Items="@_sites">
+            <Header>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>Name</th>
+            </Header>
+            <Row>
+                <td><ActionLink Action="Edit" Parameters="@($"id=" + context.AliasId.ToString())" /></td>
+                <td><ActionDialog Header="Delete Site" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Site?")" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteSite(context))" /></td>
+                <td><a href="@(_scheme + context.Name)">@context.Name</a></td>
+            </Row>
+        </Pager>
+    </div>
 }
 
 @code {
@@ -57,13 +61,13 @@ else
                 SiteService.SetAlias(alias);
                 await SiteService.DeleteSiteAsync(alias.SiteId);
                 await Log(alias, LogLevel.Information, "", null, "Site Deleted {SiteId}", alias.SiteId);
-                
+
                 var aliases = await AliasService.GetAliasesAsync();
                 foreach (Alias a in aliases.Where(item => item.SiteId == alias.SiteId && item.TenantId == alias.TenantId))
                 {
                     await AliasService.DeleteAliasAsync(a.AliasId);
                 }
-                
+
                 NavigationManager.NavigateTo(NavigateUrl());
             }
             else

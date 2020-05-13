@@ -5,54 +5,60 @@
 
 @if (_folders != null)
 {
-    <table class="table table-borderless">
-        <tr>
-            <td>
-                <Label For="parent" HelpText="Select the parent folder">Parent: </Label>
-            </td>
-            <td>
-                <select id="parent" class="form-control" @bind="@_parentId">
-                    @if (PageState.QueryString.ContainsKey("id"))
-                    {
-                        <option value="-1">&lt;No Parent&gt;</option>
-                    }
-                    @foreach (Folder folder in _folders)
-                    {
-                        <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
-                    }
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label for="name" HelpText="Enter the file name">Name: </Label>
-            </td>
-            <td>
-                <input id="name" class="form-control" @bind="@_name" />
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2" align="center">
-                <Label For="permissions" HelpText="Select the permissions you want for the folder">Permissions: </Label>
-                <PermissionGrid EntityName="@EntityNames.Folder" PermissionNames="Browse,View,Edit" Permissions="@_permissions" @ref="_permissionGrid" />
-            </td>
-        </tr>
-    </table>
-    @if (!_isSystem)
-    {
-        <button type="button" class="btn btn-success" @onclick="SaveFolder">Save</button>
-    }
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
-    @if (!_isSystem && PageState.QueryString.ContainsKey("id"))
-    {
-        <button type="button" class="btn btn-danger" @onclick="DeleteFolder">Delete</button>
-    }
-    <br />
-    <br />
-    @if (PageState.QueryString.ContainsKey("id"))
-    {
-        <AuditInfo CreatedBy="@_createdBy" CreatedOn="@_createdOn" ModifiedBy="@_modifiedBy" ModifiedOn="@_modifiedOn"></AuditInfo>
-    }
+    <div class="container">
+        <form>
+            <div class="form-group row">
+                <div class="col-xl-3">
+                    <Label class="col-form-label" For="parent" HelpText="Select the parent folder">Parent: </Label>
+                </div>
+                <div class="col-xl-9">
+                    <select id="parent" class="form-control" @bind="@_parentId">
+                        @if (PageState.QueryString.ContainsKey("id"))
+                        {
+                            <option value="-1">&lt;No Parent&gt;</option>
+                        }
+                        @foreach (Folder folder in _folders)
+                        {
+                            <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-xl-3">
+                    <Label class="col-form-label" for="name" HelpText="Enter the file name">Name: </Label>
+                </div>
+                <div class="col-xl-9">
+                    <input id="name" class="form-control" @bind="@_name" />
+                </div>
+            </div>
+            <div class="container">
+                <div class="col-xl-3">
+                    <Label class="col-form-label" For="permissions" HelpText="Select the permissions you want for the folder">Permissions: </Label>
+                </div>
+                <div class="col-xl-9">
+                    <PermissionGrid EntityName="@EntityNames.Folder" PermissionNames="Browse,View,Edit" Permissions="@_permissions" @ref="_permissionGrid" />
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="container">
+        @if (!_isSystem)
+        {
+            <button type="button" class="btn btn-success" @onclick="SaveFolder">Save</button>
+        }
+        <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+        @if (!_isSystem && PageState.QueryString.ContainsKey("id"))
+        {
+            <button type="button" class="btn btn-danger" @onclick="DeleteFolder">Delete</button>
+        }
+        <br />
+        <br />
+        @if (PageState.QueryString.ContainsKey("id"))
+        {
+            <AuditInfo CreatedBy="@_createdBy" CreatedOn="@_createdOn" ModifiedBy="@_modifiedBy" ModifiedOn="@_modifiedOn"></AuditInfo>
+        }
+    </div>
 }
 
 @code {

@@ -8,194 +8,205 @@
     <TabPanel Name="Settings">
         @if (_themeList != null)
         {
-            <table class="table table-borderless">
-                <tr>
-                    <td>
-                        <Label For="Name" HelpText="Enter the page name">Name: </Label>
-                    </td>
-                    <td>
-                        <input id="Name" class="form-control" @bind="@_name" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="Parent" HelpText="Select the parent for the page in the site hierarchy">Parent: </Label>
-                    </td>
-                    <td>
-                        <select id="Parent" class="form-control" @onchange="(e => ParentChanged(e))">
-                            <option value="-1">&lt;Site Root&gt;</option>
-                            @foreach (Page page in _pageList)
-                            {
-                                if (page.PageId.ToString() == _parentid)
+            <div class="container">
+                <form>
+                    <div class="form-group row">
+                        <div class="col-xl-3">
+                            <Label class="col-form-label" For="Name" HelpText="Enter the page name">Name: </Label>
+                        </div>
+                        <div class="col-xl-9">
+                            <input id="Name" class="form-control" @bind="@_name" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-xl-3">
+                            <Label class="col-form-label" For="Parent" HelpText="Select the parent for the page in the site hierarchy">Parent: </Label>
+                        </div>
+                        <div class="col-xl-9">
+                            <select id="Parent" class="custom-select" @onchange="(e => ParentChanged(e))">
+                                <option value="-1">&lt;Site Root&gt;</option>
+                                @foreach (Page page in _pageList)
                                 {
-                                    <option value="@(page.PageId)" selected>@(new string('-', page.Level * 2))@(page.Name)</option>
-                                }
-                                else
-                                {
-                                    <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
-                                }
-                            }
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="Move" HelpText="Select the location where you would like the page to be moved in relation to other pages">Move: </Label>
-                    </td>
-                    <td>
-                        <select id="Move" class="form-control" @bind="@_insert">
-                            @if (_parentid == _currentparentid)
-                            {
-                                <option value="=">&lt;Maintain Current Location&gt;</option>
-                            }
-                            <option value="<<">To Beginning</option>
-                            @if (_children != null && _children.Count > 0)
-                            {
-                                <option value="<">Before</option>
-                                <option value=">">After</option>
-                            }
-                            <option value=">>">To End</option>
-                        </select>
-                        @if (_children != null && _children.Count > 0 && (_insert == "<" || _insert == ">"))
-                        {
-                            <select class="form-control" @bind="@_childid">
-                                <option value="-1">&lt;Select Page&gt;</option>
-                                @foreach (Page page in _children)
-                                {
-                                    <option value="@(page.PageId)">@(page.Name)</option>
-                                }
-                            </select>
-                        }
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="Navigation" HelpText="Select whether the page is part of the site navigation or hidden">Navigation? </Label>
-                    </td>
-                    <td>
-                        <select id="Navigation" class="form-control" @bind="@_isnavigation">
-                            <option value="True">Yes</option>
-                            <option value="False">No</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="Path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used.">Url Path: </Label>
-                    </td>
-                    <td>
-                        <input id="Path" class="form-control" @bind="@_path" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="Url" HelpText="Optionally enter a url which this page should redirect to when a user navigates to it">Redirect: </Label>
-                    </td>
-                    <td>
-                        <input id="Url" class="form-control" @bind="@_url" />
-                    </td>
-                </tr>
-            </table>
-            <Section Name="Appearance">
-                <table class="table table-borderless">
-                    <tr>
-                        <td>
-                            <Label For="Title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used.">Title: </Label>
-                        </td>
-                        <td>
-                            <input id="Title" class="form-control" @bind="@_title" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <Label For="Theme" HelpText="Select the theme for this page">Theme: </Label>
-                        </td>
-                        <td>
-                            <select id="Theme" class="form-control" @onchange="(e => ThemeChanged(e))">
-                                <option value="-">&lt;Select Theme&gt;</option>
-                                @foreach (KeyValuePair<string, string> item in _themes)
-                                {
-                                    if (item.Key == _themetype)
+                                    if (page.PageId.ToString() == _parentid)
                                     {
-                                        <option value="@item.Key" selected>@item.Value</option>
+                                        <option value="@(page.PageId)" selected>@(new string('-', page.Level * 2))@(page.Name)</option>
                                     }
                                     else
                                     {
-                                        <option value="@item.Key">@item.Value</option>
+                                        <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
                                     }
                                 }
                             </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <Label For="Layout" HelpText="Select a layout for the page (if the selected theme supports it)">Layout: </Label>
-                        </td>
-                        <td>
-                            <select id="Layout" class="form-control" @bind="@_layouttype">
-                                <option value="-">&lt;Select Layout&gt;</option>
-                                @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-xl-3">
+                            <Label class="col-form-label" For="Move" HelpText="Select the location where you would like the page to be moved in relation to other pages">Move: </Label>
+                        </div>
+                        <div class="col-xl-9">
+                            <select id="Move" class="custom-select" @bind="@_insert">
+                                @if (_parentid == _currentparentid)
                                 {
-                                    if (panelayout.Key == _layouttype)
-                                    {
-                                        <option value="@panelayout.Key" selected>@panelayout.Value</option>
-                                    }
-                                    else
-                                    {
-                                        <option value="@panelayout.Key">@panelayout.Value</option>
-                                    }
+                                    <option value="=">&lt;Maintain Current Location&gt;</option>
                                 }
+                                <option value="<<">To Beginning</option>
+                                @if (_children != null && _children.Count > 0)
+                                {
+                                    <option value="<">Before</option>
+                                    <option value=">">After</option>
+                                }
+                                <option value=">>">To End</option>
                             </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <Label For="Icon" HelpText="Optionally provide an icon for this page which will be displayed in the site navigation">Icon: </Label>
-                        </td>
-                        <td>
-                            <input id="Icon" class="form-control" @bind="@_icon" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <Label For="Default-Mode" HelpText="Select the default administration mode you want for this page">Default Mode? </Label>
-                        </td>
-                        <td>
-                            <select id="Default-Mode" class="form-control" @bind="@_mode">
-                                <option value="view">View Mode</option>
-                                <option value="edit">Edit Mode</option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <Label For="Personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content">Personalizable? </Label>
-                        </td>
-                        <td>
-                            <select id="Personalizable" class="form-control" @bind="@_ispersonalizable">
+                            @if (_children != null && _children.Count > 0 && (_insert == "<" || _insert == ">"))
+                            {
+                                <select class="custom-select" @bind="@_childid">
+                                    <option value="-1">&lt;Select Page&gt;</option>
+                                    @foreach (Page page in _children)
+                                    {
+                                        <option value="@(page.PageId)">@(page.Name)</option>
+                                    }
+                                </select>
+                            }
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-xl-3">
+                            <Label class="col-form-label" For="Navigation" HelpText="Select whether the page is part of the site navigation or hidden">Navigation? </Label>
+                        </div>
+                        <div class="col-xl-9">
+                            <select id="Navigation" class="custom-select" @bind="@_isnavigation">
                                 <option value="True">Yes</option>
                                 <option value="False">No</option>
                             </select>
-                        </td>
-                    </tr>
-                </table>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-xl-3">
+                            <Label class="col-form-label" For="Path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used.">Url Path: </Label>
+                        </div>
+                        <div class="col-xl-9">
+                            <input id="Path" class="form-control" @bind="@_path" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-xl-3">
+                            <Label class="col-form-label" For="Url" HelpText="Optionally enter a url which this page should redirect to when a user navigates to it">Redirect: </Label>
+                        </div>
+                        <div class="col-xl-9">
+                            <input id="Url" class="form-control" @bind="@_url" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <Section Name="Appearance">
+                <div class="container">
+                    <form>
+                        <div class="form-group row">
+                            <div class="col-xl-3">
+                                <Label class="col-form-label" For="Title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used.">Title: </Label>
+                            </div>
+                            <div class="col-xl-9">
+                                <input id="Title" class="form-control" @bind="@_title" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-xl-3">
+                                <Label class="col-form-label" For="Theme" HelpText="Select the theme for this page">Theme: </Label>
+                            </div>
+                            <div class="col-xl-9">
+                                <select id="Theme" class="custom-select" @onchange="(e => ThemeChanged(e))">
+                                    <option value="-">&lt;Select Theme&gt;</option>
+                                    @foreach (KeyValuePair<string, string> item in _themes)
+                                    {
+                                        if (item.Key == _themetype)
+                                        {
+                                            <option value="@item.Key" selected>@item.Value</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@item.Key">@item.Value</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-xl-3">
+                                <Label class="col-form-label" For="Layout" HelpText="Select a layout for the page (if the selected theme supports it)">Layout: </Label>
+                            </div>
+                            <div class="col-xl-9">
+                                <select id="Layout" class="custom-select" @bind="@_layouttype">
+                                    <option value="-">&lt;Select Layout&gt;</option>
+                                    @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
+                                    {
+                                        if (panelayout.Key == _layouttype)
+                                        {
+                                            <option value="@panelayout.Key" selected>@panelayout.Value</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@panelayout.Key">@panelayout.Value</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-xl-3">
+                                <Label class="col-form-label" For="Icon" HelpText="Optionally provide an icon for this page which will be displayed in the site navigation">Icon: </Label>
+                            </div>
+                            <div class="col-xl-9">
+                                <input id="Icon" class="form-control" @bind="@_icon" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-xl-3">
+                                <Label class="col-form-label" For="Default-Mode" HelpText="Select the default administration mode you want for this page">Default Mode? </Label>
+                            </div>
+                            <div class="col-xl-9">
+                                <select id="Default-Mode" class="custom-select" @bind="@_mode">
+                                    <option value="view">View Mode</option>
+                                    <option value="edit">Edit Mode</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+
+                            <div class="col-xl-3">
+                                <Label class="col-form-label" For="Personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content">Personalizable? </Label>
+                            </div>
+                            <div class="col-xl-9">
+                                <select id="Personalizable" class="custom-select" @bind="@_ispersonalizable">
+                                    <option value="True">Yes</option>
+                                    <option value="False">No</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </Section>
-            <br /><br />
-            <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
+            <div class="container">
+                <br /><br />
+                <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
+            </div>
         }
     </TabPanel>
     <TabPanel Name="Permissions">
-        <table class="table table-borderless">
-            <tr>
-                <td>
-                    <PermissionGrid EntityName="@EntityNames.Page" Permissions="@_permissions" @ref="_permissionGrid" />
-                </td>
-            </tr>
-        </table>
+        <div class="container">
+            <form>
+                <div class="form-group row">
+                    <div class="col-sm-12">
+                        <PermissionGrid EntityName="@EntityNames.Page" Permissions="@_permissions" @ref="_permissionGrid" />
+                    </div>
+                </div>
+            </form>
+        </div>
     </TabPanel>
 </TabStrip>
-<button type="button" class="btn btn-success" @onclick="SavePage">Save</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+<div class="container">
+    <button type="button" class="btn btn-success" @onclick="SavePage">Save</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+</div>
 
 @code {
     private Dictionary<string, string> _themes;
@@ -305,7 +316,7 @@
             _children = new List<Page>();
             if (_parentid == "-1")
             {
-                foreach(Page p in PageState.Pages.Where(item => item.ParentId == null))
+                foreach (Page p in PageState.Pages.Where(item => item.ParentId == null))
                 {
                     if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
                     {

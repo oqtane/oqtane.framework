@@ -5,68 +5,73 @@
 
 @if (userroles == null)
 {
-    <p><em>Loading...</em></p>
+    <div class="container">
+        <p><em>Loading...</em></p>
+    </div>
 }
 else
 {
-    <table class="table table-borderless">
-        <tr>
-            <td>
-                <Label For="role" HelpText="The role you are assigning users to">Role: </Label>
-            </td>
-            <td>
-                <input id="role" class="form-control" @bind="@name" disabled />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="user" HelpText="Select a user">User: </Label>
-            </td>
-            <td>
-                <select id="user" class="form-control" @bind="@userid">
-                    <option value="-1">&lt;Select User&gt;</option>
-                    @foreach (UserRole userrole in users)
-                    {
-                        <option value="@(userrole.UserId)">@userrole.User.DisplayName</option>
-                    }
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="effectiveDate" HelpText="The date that this role assignment is active">Effective Date: </Label>
-            </td>
-            <td>
-                <input id="effectiveDate" class="form-control" @bind="@effectivedate" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="expiryDate" HelpText="The date that this role assignment expires">Expiry Date: </Label>
-            </td>
-            <td>
-                <input id="expiryDate" class="form-control" @bind="@expirydate" />
-            </td>
-        </tr>
-    </table>
-    <button type="button" class="btn btn-success" @onclick="SaveUserRole">Save</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
-
-    <hr class="app-rule" />
-    <p align="center">
-        <Pager Items="@userroles">
-            <Header>
-                <th>Users</th>
-                <th>&nbsp;</th>
-            </Header>
-            <Row>
-                <td>@context.User.DisplayName</td>
-                <td>
-                    <button type="button" class="btn btn-danger" @onclick=@(async () => await DeleteUserRole(context.UserRoleId))>Delete</button>
-                </td>
-            </Row>
-        </Pager>
-    </p>
+    <div class="container">
+        <form>
+            <div class="form-group row">
+                <div class="col-xl-3">
+                    <Label class="col-form-label" For="role" HelpText="The role you are assigning users to">Role: </Label>
+                </div>
+                <div class="col-xl-9">
+                    <input id="role" class="form-control" @bind="@name" disabled />
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-xl-3">
+                    <Label class="col-form-label" For="user" HelpText="Select a user">User: </Label>
+                </div>
+                <div class="col-xl-9">
+                    <select id="user" class="form-control" @bind="@userid">
+                        <option value="-1">&lt;Select User&gt;</option>
+                        @foreach (UserRole userrole in users)
+                        {
+                            <option value="@(userrole.UserId)">@userrole.User.DisplayName</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-xl-3">
+                    <Label class="col-form-label" For="effectiveDate" HelpText="The date that this role assignment is active">Effective Date: </Label>
+                </div>
+                <div class="col-xl-9">
+                    <input id="effectiveDate" class="form-control" @bind="@effectivedate" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-xl-3">
+                    <Label class="col-form-label" For="expiryDate" HelpText="The date that this role assignment expires">Expiry Date: </Label>
+                </div>
+                <div class="col-xl-9">
+                    <input id="expiryDate" class="form-control" @bind="@expirydate" />
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="container">
+        <button type="button" class="btn btn-success" @onclick="SaveUserRole">Save</button>
+        <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+        <hr class="app-rule" />
+        <p>
+            <Pager Items="@userroles">
+                <Header>
+                    <th>Users</th>
+                    <th>&nbsp;</th>
+                </Header>
+                <Row>
+                    <td>@context.User.DisplayName</td>
+                    <td>
+                        <button type="button" class="btn btn-danger" @onclick=@(async () => await DeleteUserRole(context.UserRoleId))>Delete</button>
+                    </td>
+                </Row>
+            </Pager>
+        </p>
+    </div>
 }
 
 @code {

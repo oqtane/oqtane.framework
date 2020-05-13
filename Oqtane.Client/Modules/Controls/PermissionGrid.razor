@@ -1,5 +1,5 @@
 ﻿@namespace Oqtane.Modules.Controls
-@inherits ModuleBase       
+@inherits ModuleBase
 @attribute [OqtaneIgnore]
 @inject IRoleService RoleService
 @inject IUserService UserService
@@ -7,71 +7,79 @@
 @if (_permissions != null)
 {
     <br />
-    <table class="table" style="width: 50%; min-width: 250px;">
-        <tbody>
-            <tr>
-                <th>Role</th>
-                @foreach (PermissionString permission in _permissions)
-                {
-                    <th style="text-align: center;">@permission.PermissionName</th>
-                }
-            </tr>
-            @foreach (Role role in _roles)
-            {
-                <tr>
-                    <td>@role.Name</td>
-                    @foreach (PermissionString permission in _permissions)
-                    {
-                        var p = permission;
-                        <td style="text-align: center;">
-                            <TriStateCheckBox Value=@GetPermissionValue(p.Permissions, role.Name) Disabled=@GetPermissionDisabled(role.Name) OnChange="@(e => PermissionChanged(e, p.PermissionName, role.Name))" />
-                        </td>
-                    }
-                </tr>
-            }
-        </tbody>
-    </table>
-    @if (_users.Count != 0)
-    {
-        <table class="table" style="width: 50%; min-width: 250px;">
-            <thead>
-                <tr>
-                    <th>User</th>
-                    @foreach (PermissionString permission in _permissions)
-                    {
-                        <th style="text-align: center;">@permission.PermissionName</th>
-                    }
-                </tr>
-            </thead>
+    <div class="table-responsive">
+        <table class="table table-responsive">
             <tbody>
-                @foreach (User user in _users)
+                <tr>
+                    <th scope="col">Role</th>
+                    @foreach (PermissionString permission in _permissions)
+                    {
+                        <th scope="col">@permission.PermissionName</th>
+                    }
+                </tr>
+                @foreach (Role role in _roles)
                 {
-                    string userid = "[" + user.UserId.ToString() + "]";
                     <tr>
-                        <td>@user.DisplayName</td>
+                        <th scope="row">@role.Name</th>
                         @foreach (PermissionString permission in _permissions)
                         {
                             var p = permission;
-                            <td style="text-align: center;">
-                                <TriStateCheckBox Value=@GetPermissionValue(p.Permissions, userid) Disabled=false OnChange="@(e => PermissionChanged(e, p.PermissionName, userid))" />
+                            <td>
+                                <TriStateCheckBox Value=@GetPermissionValue(p.Permissions, role.Name) Disabled=@GetPermissionDisabled(role.Name) OnChange="@(e => PermissionChanged(e, p.PermissionName, role.Name))" />
                             </td>
                         }
                     </tr>
                 }
             </tbody>
         </table>
+    </div>
+    @if (_users.Count != 0)
+    {
+        <div class="table-responsive">
+            <table class="table table-responsive">
+                <thead>
+                    <tr>
+                        <th scope="col">User</th>
+                        @foreach (PermissionString permission in _permissions)
+                        {
+                            <th scope="col">@permission.PermissionName</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (User user in _users)
+                    {
+                        string userid = "[" + user.UserId.ToString() + "]";
+                        <tr>
+                            <td>@user.DisplayName</td>
+                            @foreach (PermissionString permission in _permissions)
+                            {
+                                var p = permission;
+                                <td>
+                                    <TriStateCheckBox Value=@GetPermissionValue(p.Permissions, userid) Disabled=false OnChange="@(e => PermissionChanged(e, p.PermissionName, userid))" />
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     }
-    <table class="table" style="width: 50%; min-width: 250px;">
-        <tbody>
-            <tr>
-                <td style="text-align: right;"><label for="Username" class="control-label">User: </label></td>
-                <td><input type="text" name="Username" class="form-control" placeholder="Enter Username" @bind="@_username" /></td>
-                <td style="text-align: left;"><button type="button" class="btn btn-primary" @onclick="AddUser">Add</button></td>
-            </tr>
-        </tbody>
-    </table>
-    <br />
-    <ModuleMessage Type="MessageType.Error" Message="@_message" />
+    <div class="table-responsive">
+        <table class="table table-responsive">
+            <tbody>
+                <tr>
+                    <td><label for="Username" class="control-label">User: </label></td>
+                    <td><input type="text" name="Username" class="form-control" placeholder="Enter Username" @bind="@_username" style="width: 100%; max-width: 280px; min-width: 140px;" /></td>
+                    <td><button type="button" class="btn btn-primary" @onclick="AddUser">Add</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="container">
+        <br />
+        <ModuleMessage Type="MessageType.Error" Message="@_message" />
+    </div>
 }
 
 @code {
@@ -106,13 +114,13 @@
         _roles.Insert(0, new Role { Name = Constants.AllUsersRole });
 
         _permissions = new List<PermissionString>();
-        
+
         foreach (string permissionname in _permissionnames.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
         {
             // initialize with admin role
             _permissions.Add(new PermissionString { PermissionName = permissionname, Permissions = Constants.AdminRole });
         }
-        
+
         if (!string.IsNullOrEmpty(Permissions))
         {
             // populate permissions
@@ -122,7 +130,7 @@
                 {
                     _permissions[_permissions.FindIndex(item => item.PermissionName == permissionstring.PermissionName)].Permissions = permissionstring.Permissions;
                 }
-                
+
                 if (permissionstring.Permissions.Contains("["))
                 {
                     foreach (string user in permissionstring.Permissions.Split(new char[] { '[' }, StringSplitOptions.RemoveEmptyEntries))
@@ -182,7 +190,7 @@
                 _message = "Username Does Not Exist";
             }
         }
-        
+
         _username = string.Empty;
     }
 
@@ -208,7 +216,7 @@
                 case null:
                     break; // permission not specified
             }
-            
+
             _permissions[_permissions.FindIndex(item => item.PermissionName == permissionName)].Permissions = string.Join(";", ids.ToArray());
         }
     }

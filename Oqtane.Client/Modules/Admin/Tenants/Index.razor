@@ -3,26 +3,27 @@
 @inject ITenantService TenantService
 @inject IAliasService AliasService
 
-@if (tenants == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <Pager Items="@tenants">
-        <Header>
-            <th>&nbsp;</th>
-            <th>&nbsp;</th>
-            <th>Name</th>
-        </Header>
-        <Row>
-            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.TenantId.ToString())" /></td>
-            <td><ActionDialog Header="Delete Tenant" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Tenant?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteTenant(context))" Disabled="@(context.Name == Constants.MasterTenant)" /></td>
-            <td>@context.Name</td>
-        </Row>
-    </Pager>
-
-}
+<div class="table-responsive">
+    @if (tenants == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <Pager Items="@tenants">
+            <Header>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>Name</th>
+            </Header>
+            <Row>
+                <td><ActionLink Action="Edit" Parameters="@($"id=" + context.TenantId.ToString())" /></td>
+                <td><ActionDialog Header="Delete Tenant" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Tenant?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteTenant(context))" Disabled="@(context.Name == Constants.MasterTenant)" /></td>
+                <td>@context.Name</td>
+            </Row>
+        </Pager>
+    }
+</div>
 
 @code {
     private List<Tenant> tenants;

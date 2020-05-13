@@ -3,37 +3,41 @@
 @inject NavigationManager NavigationManager
 @inject IRoleService RoleService
 
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <Label For="name" HelpText="Name Of The Role">Name:</Label>
-        </td>
-        <td>
-            <input id="name" class="form-control" @bind="@_name" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="description" HelpText="A Short Description Of The Role Which Describes Its Purpose">Description:</Label>
-        </td>
-        <td>
-            <textarea id="description" class="form-control" @bind="@_description" rows="5"></textarea>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="isautoassigned" HelpText="Indicates Whether Or Not New Users Are Automatically Assigned To This Role">Auto Assigned?</Label>
-        </td>
-        <td>
-            <select id="isautoassigned" class="form-control" @bind="@_isautoassigned">
-                <option value="True">Yes</option>
-                <option value="False">No</option>
-            </select>
-        </td>
-    </tr>
-</table>
-<button type="button" class="btn btn-success" @onclick="SaveRole">Save</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+<div class="container">
+    <form>
+        <div class="form-group row">
+            <div class="col-xl-3">
+                <Label class="col-form-label" For="name" HelpText="Name Of The Role">Name:</Label>
+            </div>
+            <div class="col-xl-9">
+                <input id="name" class="form-control" @bind="@_name" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-xl-3">
+                <Label class="col-form-label" For="description" HelpText="A Short Description Of The Role Which Describes Its Purpose">Description:</Label>
+            </div>
+            <div class="col-xl-9">
+                <textarea id="description" class="form-control" @bind="@_description" rows="5"></textarea>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-xl-3">
+                <Label class="col-form-label" For="isautoassigned" HelpText="Indicates Whether Or Not New Users Are Automatically Assigned To This Role">Auto Assigned?</Label>
+            </div>
+            <div class="col-xl-9">
+                <select id="isautoassigned" class="custom-select" @bind="@_isautoassigned">
+                    <option value="True">Yes</option>
+                    <option value="False">No</option>
+                </select>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="container">
+    <button type="button" class="btn btn-success" @onclick="SaveRole">Save</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+</div>
 
 @code {
     private int _roleid;

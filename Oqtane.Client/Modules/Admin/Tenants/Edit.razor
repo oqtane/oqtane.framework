@@ -3,34 +3,37 @@
 @inject NavigationManager NavigationManager
 @inject ITenantService TenantService
 
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <Label For="name" HelpText="The name of the tenant">Name: </Label>
-        </td>
-        <td>
-            @if (name == Constants.MasterTenant)
-            {
-                <input id="name" class="form-control" @bind="@name" readonly />
-            }
-            else
-            {
-                <input id="name" class="form-control" @bind="@name" />
-            }
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="connectionstring" HelpText="The database connection string">Connection String: </Label>
-        </td>
-        <td>
-            <textarea id="connectionstring" class="form-control" @bind="@connectionstring" rows="3" readonly></textarea>
-        </td>
-    </tr>
-
-</table>
-<button type="button" class="btn btn-success" @onclick="SaveTenant">Save</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+<div class="container">
+    <form>
+        <div class="form-group row">
+            <div class="col-xl-3">
+                <Label class="col-form-label" For="name" HelpText="The name of the tenant">Name: </Label>
+            </div>
+            <div class="col-xl-9">
+                @if (name == Constants.MasterTenant)
+                {
+                    <input id="name" class="form-control" @bind="@name" readonly />
+                }
+                else
+                {
+                    <input id="name" class="form-control" @bind="@name" />
+                }
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-xl-3">
+                <Label class="col-form-label" For="connectionstring" HelpText="The database connection string">Connection String: </Label>
+            </div>
+            <div class="col-xl-9">
+                <textarea id="connectionstring" class="form-control" @bind="@connectionstring" rows="3" readonly></textarea>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="container">
+    <button type="button" class="btn btn-success" @onclick="SaveTenant">Save</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+</div>
 
 @code {
     private int tenantid;
@@ -69,7 +72,7 @@
             {
                 tenant.Name = name;
                 tenant.DBConnectionString = connectionstring;
-                
+
                 await TenantService.UpdateTenantAsync(tenant);
                 await logger.LogInformation("Tenant Saved {TenantId}", tenantid);
 

@@ -4,20 +4,36 @@
 @inject IUserService UserService
 
 <div class="container">
-    <div class="form-group">
-        <label for="Username" class="control-label">Username: </label>
-        <input type="text" class="form-control" placeholder="Username" @bind="@_username" readonly id="Username"/>
-    </div>
-    <div class="form-group">
-        <label for="Password" class="control-label">Password: </label>
-        <input type="password" class="form-control" placeholder="Password" @bind="@_password" id="Password"/>
-    </div>
-    <div class="form-group">
-        <label for="Confirm" class="control-label">Confirm Password: </label>
-        <input type="password" class="form-control" placeholder="Password" @bind="@_confirm" id="Confirm"/>
-    </div>
-    <button type="button" class="btn btn-primary" @onclick="Reset">Reset Password</button>
-    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+    <form>
+        <div class="form-group row">
+            <div class="col-xl-3">
+                <label class="col-form-label" for="Username">Username: </label>
+            </div>
+            <div class="col-xl-9">
+                <input type="text" class="form-control" placeholder="Username" @bind="@_username" readonly id="Username" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-xl-3">
+                <label class="col-form-label" for="Password">Password: </label>
+            </div>
+            <div class="col-xl-9">
+                <input type="password" class="form-control" placeholder="Password" @bind="@_password" id="Password" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-xl-3">
+                <label class="col-form-label" for="Confirm">Confirm Password: </label>
+            </div>
+            <div class="col-xl-9">
+                <input type="password" class="form-control" placeholder="Password" @bind="@_confirm" id="Confirm" />
+            </div>
+        </div>
+        <div class="container">
+            <button type="button" class="btn btn-primary" @onclick="Reset">Reset Password</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+        </div>
+    </form>
 </div>
 
 @code {
@@ -34,7 +50,7 @@
             _username = PageState.QueryString["name"];
         }
         else
-        { 
+        {
             NavigationManager.NavigateTo(NavigateUrl(string.Empty));
         }
     }

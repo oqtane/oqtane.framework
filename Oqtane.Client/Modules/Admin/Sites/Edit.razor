@@ -8,98 +8,102 @@
 
 @if (_themes != null)
 {
-    <table class="table table-borderless">
-        <tr>
-            <td>
-                <Label For="name" HelpText="Enter the name of the site">Name: </Label>
-            </td>
-            <td>
-                <input id="name" class="form-control" @bind="@_name" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="tenant" HelpText="Enter the tenant for the site">Tenant: </Label>
-            </td>
-            <td>
-                <input id="tenant" class="form-control" @bind="@_tenant" readonly />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="alias" HelpText="Enter the alias for the server">Aliases: </Label>
-            </td>
-            <td>
-                <textarea id="alias" class="form-control" @bind="@_urls" rows="3" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="defaultTheme" HelpText="Select the default theme for the website">Default Theme: </Label>
-            </td>
-            <td>
-                <select id="defaultTheme" class="form-control" @onchange="(e => ThemeChanged(e))">
-                    <option value="">&lt;Select Theme&gt;</option>
-                    @foreach (KeyValuePair<string, string> item in _themes)
-                    {
-                        if (item.Key == _themetype)
+    <div class="container">
+        <form>
+            <div class="form-group row">
+                <div class="col-xl-3">
+                    <Label class="col-form-label" For="name" HelpText="Enter the name of the site">Name: </Label>
+                </div>
+                <div class="col-xl-9">
+                    <input id="name" class="form-control" @bind="@_name" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-xl-3">
+                    <Label class="col-form-label" For="tenant" HelpText="Enter the tenant for the site">Tenant: </Label>
+                </div>
+                <div class="col-xl-9">
+                    <input id="tenant" class="form-control" @bind="@_tenant" readonly />
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-xl-3">
+                    <Label class="col-form-label" For="alias" HelpText="Enter the alias for the server">Aliases: </Label>
+                </div>
+                <div class="col-xl-9">
+                    <textarea id="alias" class="form-control" @bind="@_urls" rows="3" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-xl-3">
+                    <Label class="col-form-label" For="defaultTheme" HelpText="Select the default theme for the website">Default Theme: </Label>
+                </div>
+                <div class="col-xl-9">
+                    <select id="defaultTheme" class="custom-select" @onchange="(e => ThemeChanged(e))">
+                        <option value="">&lt;Select Theme&gt;</option>
+                        @foreach (KeyValuePair<string, string> item in _themes)
                         {
-                            <option value="@item.Key" selected>@item.Value</option>
+                            if (item.Key == _themetype)
+                            {
+                                <option value="@item.Key" selected>@item.Value</option>
+                            }
+                            else
+                            {
+                                <option value="@item.Key">@item.Value</option>
+                            }
                         }
-                        else
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-xl-3">
+                    <Label class="col-form-label" For="defaultLayout" HelpText="Select the default layout for the site">Default Layout: </Label>
+                </div>
+                <div class="col-xl-9">
+                    <select id="defaultLayout" class="custom-select" @bind="@_layouttype">
+                        <option value="">&lt;Select Layout&gt;</option>
+                        @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
                         {
-                            <option value="@item.Key">@item.Value</option>
+                            <option value="@panelayout.Key">@panelayout.Value</option>
                         }
-                    }
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="defaultLayout" HelpText="Select the default layout for the site">Default Layout: </Label>
-            </td>
-            <td>
-                <select id="defaultLayout" class="form-control" @bind="@_layouttype">
-                    <option value="">&lt;Select Layout&gt;</option>
-                    @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
-                    {
-                        <option value="@panelayout.Key">@panelayout.Value</option>
-                    }
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="defaultContainer" HelpText="Select the default container for the site">Default Container: </Label>
-            </td>
-            <td>
-                <select id="defaultIdea" class="form-control" @bind="@_containertype">
-                    <option value="">&lt;Select Container&gt;</option>
-                    @foreach (KeyValuePair<string, string> container in _containers)
-                    {
-                        <option value="@container.Key">@container.Value</option>
-                    }
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="isDeleted" HelpText="Has this site been deleted?">Is Deleted? </Label>
-            </td>
-            <td>
-                <select id="isDeleted" class="form-control" @bind="@_isdeleted">
-                    <option value="True">Yes</option>
-                    <option value="False">No</option>
-                </select>
-            </td>
-        </tr>
-    </table>
-    <br />
-    <button type="button" class="btn btn-success" @onclick="SaveSite">Save</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
-    <br />
-    <br />
-    <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-xl-3">
+                    <Label class="col-form-label" For="defaultContainer" HelpText="Select the default container for the site">Default Container: </Label>
+                </div>
+                <div class="col-xl-9">
+                    <select id="defaultIdea" class="custom-select" @bind="@_containertype">
+                        <option value="">&lt;Select Container&gt;</option>
+                        @foreach (KeyValuePair<string, string> container in _containers)
+                        {
+                            <option value="@container.Key">@container.Value</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-xl-3">
+                    <Label class="col-form-label" For="isDeleted" HelpText="Has this site been deleted?">Is Deleted? </Label>
+                </div>
+                <div class="col-xl-9">
+                    <select id="isDeleted" class="custom-select" @bind="@_isdeleted">
+                        <option value="True">Yes</option>
+                        <option value="False">No</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="container">
+        <br />
+        <button type="button" class="btn btn-success" @onclick="SaveSite">Save</button>
+        <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+        <br />
+        <br />
+        <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
+    </div>
 }
 
 @code {
@@ -248,7 +252,7 @@
                             }
                         }
 
-                        await Log(_alias, LogLevel.Information,PermissionNames.Edit, null, "Site Saved {Site}", site);
+                        await Log(_alias, LogLevel.Information, PermissionNames.Edit, null, "Site Saved {Site}", site);
 
                         NavigationManager.NavigateTo(NavigateUrl());
                     }
@@ -269,4 +273,4 @@
             AddModuleMessage("Error Saving Site", MessageType.Error);
         }
     }
- }
+}
