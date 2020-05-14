@@ -23,17 +23,19 @@ namespace Oqtane.Controllers
         private readonly IModuleDefinitionRepository _moduleDefinitions;
         private readonly IModuleRepository _modules;
         private readonly ITenantRepository _tenants;
+        private readonly ISqlRepository _sql;
         private readonly IUserPermissions _userPermissions;
         private readonly IInstallationManager _installationManager;
         private readonly IWebHostEnvironment _environment;
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogManager _logger;
 
-        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, IModuleRepository modules,ITenantRepository tenants, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, IServiceProvider serviceProvider, ILogManager logger)
+        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, IModuleRepository modules,ITenantRepository tenants, ISqlRepository sql, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, IServiceProvider serviceProvider, ILogManager logger)
         {
             _moduleDefinitions = moduleDefinitions;
             _modules = modules;
             _tenants = tenants;
+            _sql = sql;
             _userPermissions = userPermissions;
             _installationManager = installationManager;
             _environment = environment;
@@ -99,57 +101,60 @@ namespace Oqtane.Controllers
         public void Delete(int id, int siteid)
         {
             ModuleDefinition moduledefinition = _moduleDefinitions.GetModuleDefinition(id, siteid);
-            if (moduledefinition != null)
+            if (moduledefinition != null )
             {
-                if (!string.IsNullOrEmpty(moduledefinition.ServerManagerType))
+                if (!string.IsNullOrEmpty(moduledefinition.ServerManagerType) && Utilities.GetAssemblyName(moduledefinition.ServerManagerType) != "Oqtane.Server")
                 {
                     Type moduletype = Type.GetType(moduledefinition.ServerManagerType);
-                    if (moduletype != null && moduletype.GetInterface("IInstallable") != null)
+
+                    foreach (Tenant tenant in _tenants.GetTenants())
                     {
-                        foreach (Tenant tenant in _tenants.GetTenants())
+                        try
                         {
-                            try
+                            if (moduletype.GetInterface("IInstallable") != null)
                             {
                                 var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
                                 ((IInstallable)moduleobject).Uninstall(tenant);
                             }
-                            catch
+                            else
                             {
-                                // an error occurred executing the uninstall
+                                _sql.ExecuteScript(tenant, moduletype.Assembly, Utilities.GetTypeName(moduledefinition.ModuleDefinitionName) + ".Uninstall.sql");
                             }
+                            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "{ModuleDefinitionName} Uninstalled For Tenant {Tenant}", moduledefinition.ModuleDefinitionName, tenant.Name);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.Log(LogLevel.Error, this, LogFunction.Delete, "Error Uninstalling {ModuleDefinitionName} For Tenant {Tenant} {Error}", moduledefinition.ModuleDefinitionName, tenant.Name, ex.Message);
                         }
                     }
-                }
-
-                // format root assembly name
-                string assemblyname = Utilities.GetAssemblyName(moduledefinition.ModuleDefinitionName);
-                if (assemblyname != "Oqtane.Client")
-                {
-                    assemblyname = assemblyname.Replace(".Client", "");
-
+                    
                     // clean up module static resource folder
-                    string folder = Path.Combine(_environment.WebRootPath, Path.Combine("Modules",assemblyname));
+                    string folder = Path.Combine(_environment.WebRootPath, Path.Combine("Modules", Utilities.GetTypeName(moduledefinition.ModuleDefinitionName)));
                     if (Directory.Exists(folder))
                     {
                         Directory.Delete(folder, true);
-                        _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Static Resources Removed For {AssemblynName}", assemblyname);
+                        _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Static Resources Removed For {ModuleDefinitionName}", moduledefinition.ModuleDefinitionName);
                     }
 
-                    // remove module assembly from /bin
+                    // get root assembly name ( note that this only works if modules follow a specific naming convention for their assemblies )
+                    string assemblyname = Utilities.GetAssemblyName(moduledefinition.ModuleDefinitionName).ToLower();
+                    assemblyname = assemblyname.Replace(".client", "").Replace(".oqtane", "");
+
+                    // remove module assemblies from /bin
                     string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
                     foreach (string file in Directory.EnumerateFiles(binfolder, assemblyname + "*.*"))
                     {
                         System.IO.File.Delete(file);
-                        _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Assembly Removed {Filename}", file);
+                        _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Assembly {Filename} Removed For {ModuleDefinitionName}", file, moduledefinition.ModuleDefinitionName);
                     }
+
+                    // remove module definition
+                    _moduleDefinitions.DeleteModuleDefinition(id, siteid);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Definition {ModuleDefinitionName} Deleted", moduledefinition.Name);
+
+                    // restart application
+                    _installationManager.RestartApplication();
                 }
-
-                // remove module definition
-                _moduleDefinitions.DeleteModuleDefinition(id, siteid);
-                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Definition Deleted {ModuleDefinitionName}", moduledefinition.Name);
-
-                // restart application
-                _installationManager.RestartApplication();
             }
         }
 
