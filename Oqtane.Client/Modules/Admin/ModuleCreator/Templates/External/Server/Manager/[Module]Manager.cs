@@ -23,12 +23,12 @@ namespace [Owner].[Module]s.Manager
 
         public bool Install(Tenant tenant, string version)
         {
-            return _sql.ExecuteScript(tenant, GetType().Assembly, "[Owner].[Module]." + version + ".sql");
+            return _sql.ExecuteScript(tenant, GetType().Assembly, "[Owner].[Module]s." + version + ".sql");
         }
 
         public bool Uninstall(Tenant tenant)
         {
-            return _sql.ExecuteScript(tenant, GetType().Assembly, "[Owner].[Module].Uninstall.sql");
+            return _sql.ExecuteScript(tenant, GetType().Assembly, "[Owner].[Module]s.Uninstall.sql");
         }
 
         public string ExportModule(Module module)
