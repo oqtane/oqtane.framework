@@ -49,43 +49,6 @@ namespace Oqtane.Services
             await DeleteAsync($"{Apiurl}/{moduleDefinitionId}?siteid={siteId}");
         }
 
-        public async Task LoadModuleDefinitionsAsync(int siteId, Runtime runtime)
-        {
-            // get list of modules from the server
-            List<ModuleDefinition> moduledefinitions = await GetModuleDefinitionsAsync(siteId);
-
-            // download assemblies to browser when running client-side Blazor
-            if (runtime == Runtime.WebAssembly)
-            {
-                // get list of loaded assemblies on the client ( in the client-side hosting module the browser client has its own app domain )
-                Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-
-                foreach (ModuleDefinition moduledefinition in moduledefinitions)
-                {
-                    // if a module has dependencies, check if they are loaded
-                    if (moduledefinition.Dependencies != "")
-                    {
-                        foreach (string dependency in moduledefinition.Dependencies.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
-                        {
-                            string assemblyname = dependency.Replace(".dll", "");
-                            if (assemblies.Where(item => item.FullName.StartsWith(assemblyname + ",")).FirstOrDefault() == null)
-                            {
-                                // download assembly from server and load
-                                var bytes = await _http.GetByteArrayAsync($"{Apiurl}/load/{assemblyname}.dll");
-                                Assembly.Load(bytes);
-                            }
-                        }
-                    }
-                    // check if the module assembly is loaded
-                    if (assemblies.Where(item => item.FullName.StartsWith(moduledefinition.AssemblyName + ",")).FirstOrDefault() == null)
-                    {
-                        // download assembly from server and load
-                        var bytes = await _http.GetByteArrayAsync($"{Apiurl}/load/{moduledefinition.AssemblyName}.dll");
-                        Assembly.Load(bytes);
-                    }
-                }
-            }
-        }
         public async Task CreateModuleDefinitionAsync(ModuleDefinition moduleDefinition, int moduleId)
         {
             await PostJsonAsync($"{Apiurl}?moduleid={moduleId.ToString()}", moduleDefinition);

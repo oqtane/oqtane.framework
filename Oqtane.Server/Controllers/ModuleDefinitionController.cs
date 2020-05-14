@@ -13,6 +13,7 @@ using Oqtane.Repository;
 using Oqtane.Security;
 using System;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
 namespace Oqtane.Controllers
@@ -27,10 +28,11 @@ namespace Oqtane.Controllers
         private readonly IUserPermissions _userPermissions;
         private readonly IInstallationManager _installationManager;
         private readonly IWebHostEnvironment _environment;
+        private readonly IConfigurationRoot _config;
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogManager _logger;
 
-        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, IModuleRepository modules,ITenantRepository tenants, ISqlRepository sql, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, IServiceProvider serviceProvider, ILogManager logger)
+        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, IModuleRepository modules,ITenantRepository tenants, ISqlRepository sql, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, IConfigurationRoot config, IServiceProvider serviceProvider, ILogManager logger)
         {
             _moduleDefinitions = moduleDefinitions;
             _modules = modules;
@@ -39,6 +41,7 @@ namespace Oqtane.Controllers
             _userPermissions = userPermissions;
             _installationManager = installationManager;
             _environment = environment;
+            _config = config;
             _serviceProvider = serviceProvider;
             _logger = logger;
         }
@@ -158,11 +161,26 @@ namespace Oqtane.Controllers
             }
         }
 
+        // GET api/<controller>/load
+        [HttpGet("load")]
+        public List<string> Load()
+        {
+            List<string> list = new List<string>();
+            if (_config.GetSection("Runtime").Value == "WebAssembly")
+            {
+                var assemblies = AppDomain.CurrentDomain.GetOqtaneClientAssemblies();
+                list = AppDomain.CurrentDomain.GetOqtaneClientAssemblies().Select(a => a.GetName().Name).ToList();
+                var deps = assemblies.SelectMany(a => a.GetReferencedAssemblies()).Distinct();
+                list.AddRange(deps.Where(a => a.Name.EndsWith(".oqtane", StringComparison.OrdinalIgnoreCase)).Select(a => a.Name));
+            }
+            return list;
+        }
+        
         // GET api/<controller>/load/assembyname
         [HttpGet("load/{assemblyname}")]
         public IActionResult Load(string assemblyname)
         {
-            if (Path.GetExtension(assemblyname).ToLower() == ".dll")
+            if (_config.GetSection("Runtime").Value == "WebAssembly" && Path.GetExtension(assemblyname).ToLower() == ".dll")
             {
                 string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
                 byte[] file = System.IO.File.ReadAllBytes(Path.Combine(binfolder, assemblyname));
@@ -174,16 +192,6 @@ namespace Oqtane.Controllers
                 HttpContext.Response.StatusCode = 401;
                 return null;
             }
-        }
-        // GET api/<controller>/load/assembyname
-        [HttpGet("load")]
-        public List<string> Load()
-        {
-            var assemblies = AppDomain.CurrentDomain.GetOqtaneClientAssemblies();
-            var list = AppDomain.CurrentDomain.GetOqtaneClientAssemblies().Select(a => a.GetName().Name).ToList();
-            var deps = assemblies.SelectMany(a => a.GetReferencedAssemblies()).Distinct();
-            list.AddRange(deps.Where(a=>a.Name.EndsWith(".oqtane",StringComparison.OrdinalIgnoreCase)).Select(a=>a.Name));
-            return list;
         }
 
         // POST api/<controller>?moduleid=x
