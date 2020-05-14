@@ -32,7 +32,7 @@ namespace Oqtane.Controllers
         public IEnumerable<Folder> Get(string siteid)
         {
             List<Folder> folders = new List<Folder>();
-            foreach(Folder folder in _folders.GetFolders(int.Parse(siteid)))
+            foreach (Folder folder in _folders.GetFolders(int.Parse(siteid)))
             {
                 if (_userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.Permissions))
                 {
@@ -84,7 +84,7 @@ namespace Oqtane.Controllers
                 return null;
             }
         }
-        
+
         // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = Constants.RegisteredRole)]
@@ -103,7 +103,7 @@ namespace Oqtane.Controllers
                         new Permission(PermissionNames.Edit, Constants.AdminRole, true),
                     }.EncodePermissions();
                 }
-                if (_userPermissions.IsAuthorized(User,PermissionNames.Edit, permissions))
+                if (_userPermissions.IsAuthorized(User, PermissionNames.Edit, permissions))
                 {
                     if (FolderPathValid(folder))
                     {
@@ -214,7 +214,9 @@ namespace Oqtane.Controllers
         private bool FolderPathValid(Folder folder)
         {
             // prevent folder path traversal and reserved devices
-            return (!folder.Name.Contains("\\") && !folder.Name.Contains("/") && !Constants.ReservedDevices.Split(',').Contains(folder.Name.ToUpper()));
+            return (folder.Name.IndexOfAny(Constants.InvalidFileNameChars) == -1 &&
+                    !Constants.InvalidFileNameEndingChars.Any(x => folder.Name.EndsWith(x)) &&
+                    !Constants.ReservedDevices.Split(',').Contains(folder.Name.ToUpper().Split('.')[0]));
         }
     }
 }
