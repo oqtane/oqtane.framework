@@ -1,7 +1,7 @@
 using Oqtane.Models;
 using Oqtane.Modules;
 
-namespace [Owner].[Module]s.Modules
+namespace [Owner].[Module]s
 {
     public class ModuleInfo : IModule
     {
