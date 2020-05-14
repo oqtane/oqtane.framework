@@ -11,7 +11,6 @@
 @inject IPageService PageService
 @inject IUserService UserService
 @inject IModuleService ModuleService
-@inject IModuleDefinitionService ModuleDefinitionService
 @inject ILogService LogService
 @implements IHandleAfterRender
 
@@ -157,7 +156,6 @@
 
             if (PageState == null || reload >= Reload.Site)
             {
-                await ModuleDefinitionService.LoadModuleDefinitionsAsync(site.SiteId, runtime);
                 pages = await PageService.GetPagesAsync(site.SiteId);
             }
             else
