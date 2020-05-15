@@ -101,7 +101,7 @@
                         </td>
                         <td>
                             <select id="Theme" class="form-control" @onchange="(e => ThemeChanged(e))">
-                                <option value="-">&lt;Select Theme&gt;</option>
+                                <option value="-">&lt;Inherit From Site&gt;</option>
                                 @foreach (KeyValuePair<string, string> item in _themes)
                                 {
                                     if (item.Key == _themetype)
@@ -122,7 +122,7 @@
                         </td>
                         <td>
                             <select id="Layout" class="form-control" @bind="@_layouttype">
-                                <option value="-">&lt;Select Layout&gt;</option>
+                                <option value="-">&lt;Inherit From Site&gt;</option>
                                 @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
                                 {
                                     if (panelayout.Key == _layouttype)
@@ -133,6 +133,20 @@
                                     {
                                         <option value="@panelayout.Key">@panelayout.Value</option>
                                     }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <Label For="defaultContainer" HelpText="Select the default container for the page">Default Container: </Label>
+                        </td>
+                        <td>
+                            <select id="defaultContainer" class="form-control" @bind="@_containertype">
+                                <option value="-">&lt;Inherit From Site&gt;</option>
+                                @foreach (KeyValuePair<string, string> container in _containers)
+                                {
+                                    <option value="@container.Key">@container.Value</option>
                                 }
                             </select>
                         </td>
@@ -187,6 +201,7 @@
 @code {
     private Dictionary<string, string> _themes;
     private Dictionary<string, string> _panelayouts;
+    private Dictionary<string, string> _containers = new Dictionary<string, string>();
     private List<Theme> _themeList;
     private List<Page> _pageList;
     private string _name;
@@ -202,6 +217,7 @@
     private string _mode = "view";
     private string _themetype = "-";
     private string _layouttype = "-";
+    private string _containertype = "-";
     private string _icon = string.Empty;
     private string _permissions = string.Empty;
     private PermissionGrid _permissionGrid;
@@ -216,11 +232,9 @@
             _pageList = PageState.Pages;
             _children = PageState.Pages.Where(item => item.ParentId == null).ToList();
 
-            _themetype = PageState.Site.DefaultThemeType;
-            _layouttype = PageState.Site.DefaultLayoutType;
-
             _themes = ThemeService.GetThemeTypes(_themeList);
             _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
+            _containers = ThemeService.GetContainerTypes(_themeList);
 
             _permissions = string.Empty;
         }
@@ -351,15 +365,19 @@
                 page.Url = _url;
                 page.EditMode = (_mode == "edit" ? true : false);
                 page.ThemeType = (_themetype != "-") ? _themetype : string.Empty;
-                page.LayoutType = (_layouttype != "-") ? _layouttype : string.Empty;
-                if (page.ThemeType == PageState.Site.DefaultThemeType)
+                if (!string.IsNullOrEmpty(page.ThemeType) && page.ThemeType == PageState.Site.DefaultThemeType)
                 {
                     page.ThemeType = string.Empty;
                 }
-
-                if (page.LayoutType == PageState.Site.DefaultLayoutType)
+                page.LayoutType = (_layouttype != "-") ? _layouttype : string.Empty;
+                if (!string.IsNullOrEmpty(page.LayoutType) && page.LayoutType == PageState.Site.DefaultLayoutType)
                 {
                     page.LayoutType = string.Empty;
+                }
+                page.DefaultContainerType = (_containertype != "-") ? _containertype : string.Empty;
+                if (!string.IsNullOrEmpty(page.DefaultContainerType) && page.DefaultContainerType == PageState.Site.DefaultContainerType)
+                {
+                    page.DefaultContainerType = string.Empty;
                 }
                 page.Icon = (_icon == null ? string.Empty : _icon);
                 page.Permissions = _permissionGrid.GetPermissions();
