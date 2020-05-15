@@ -413,8 +413,11 @@ namespace Oqtane.Controllers
                     {
                         _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {FileId} {FilePath}", id, filepath);
                         HttpContext.Response.StatusCode = 404;
-                        byte[] filebytes = System.IO.File.ReadAllBytes(errorpath);
-                        return File(filebytes, "application/octet-stream", file.Name);
+                        if (System.IO.File.Exists(errorpath))
+                        {
+                            byte[] filebytes = System.IO.File.ReadAllBytes(errorpath);
+                            return File(filebytes, "application/octet-stream", file.Name);
+                        }
                     }
                 }
                 else
@@ -432,6 +435,7 @@ namespace Oqtane.Controllers
                 byte[] filebytes = System.IO.File.ReadAllBytes(errorpath);
                 return File(filebytes, "application/octet-stream", "error.png");
             }
+            return null;
         }
 
         private string GetFolderPath(Folder folder)
