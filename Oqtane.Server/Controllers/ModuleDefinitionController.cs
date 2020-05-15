@@ -14,6 +14,8 @@ using Oqtane.Security;
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
+using System.Xml.Linq;
+using Microsoft.AspNetCore.Mvc.Formatters;
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
 namespace Oqtane.Controllers
@@ -208,13 +210,13 @@ namespace Oqtane.Controllers
                 if (moduleDefinition.Template == "internal")
                 {
                     rootPath = Utilities.PathCombine(rootFolder.FullName,"\\");
-                    moduleDefinition.ModuleDefinitionName = moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Modules, Oqtane.Client";
+                    moduleDefinition.ModuleDefinitionName = moduleDefinition.Owner + "." + moduleDefinition.Name + "s, Oqtane.Client";
                     moduleDefinition.ServerManagerType = moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Manager." + moduleDefinition.Name + "Manager, Oqtane.Server";
                 }
                 else
                 {
                     rootPath = Utilities.PathCombine(rootFolder.Parent.FullName , moduleDefinition.Owner + "." + moduleDefinition.Name + "s","\\");
-                    moduleDefinition.ModuleDefinitionName = moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Modules, " + moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Client.Oqtane";                    
+                    moduleDefinition.ModuleDefinitionName = moduleDefinition.Owner + "." + moduleDefinition.Name + "s, " + moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Client.Oqtane";                    
                     moduleDefinition.ServerManagerType = moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Manager." + moduleDefinition.Name + "Manager, " + moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Server.Oqtane";
                 }
 
@@ -227,7 +229,11 @@ namespace Oqtane.Controllers
 
                 if (moduleDefinition.Template == "internal")
                 {
-                     // need logic to add embedded scripts to Oqtane.Server.csproj - also you need to remove them on uninstall
+                    // add embedded resources to project
+                    List<string> resources = new List<string>();
+                    resources.Add(Utilities.PathCombine("Modules", moduleDefinition.Name, "Scripts", moduleDefinition.Owner + "." + moduleDefinition.Name + "s.1.0.0.sql"));
+                    resources.Add(Utilities.PathCombine("Modules", moduleDefinition.Name, "Scripts", moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Uninstall.sql"));
+                    EmbedResourceFiles(Utilities.PathCombine(rootPath, "Oqtane.Server", "Oqtane.Server.csproj"), resources);
                 }
 
                 _installationManager.RestartApplication();
@@ -275,6 +281,20 @@ namespace Oqtane.Controllers
                     ProcessTemplatesRecursively(folder, rootPath, rootFolder, templatePath, moduleDefinition);
                 }
             }
+        }
+
+        private void EmbedResourceFiles(string projectfile, List<string> resources)
+        {
+            XDocument project = XDocument.Load(projectfile);
+            var itemGroup = project.Descendants("ItemGroup").Descendants("EmbeddedResource").FirstOrDefault().Parent;
+            if (itemGroup != null)
+            {
+                foreach (var resource in resources)
+                {
+                    itemGroup.Add(new XElement("EmbeddedResource", new XAttribute("Include", resource)));
+                }
+            }
+            project.Save(projectfile);
         }
     }
 }
