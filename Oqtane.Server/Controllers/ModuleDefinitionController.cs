@@ -13,6 +13,9 @@ using Oqtane.Repository;
 using Oqtane.Security;
 using System;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
+using System.Xml.Linq;
+using Microsoft.AspNetCore.Mvc.Formatters;
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
 namespace Oqtane.Controllers
@@ -27,10 +30,11 @@ namespace Oqtane.Controllers
         private readonly IUserPermissions _userPermissions;
         private readonly IInstallationManager _installationManager;
         private readonly IWebHostEnvironment _environment;
+        private readonly IConfigurationRoot _config;
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogManager _logger;
 
-        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, IModuleRepository modules,ITenantRepository tenants, ISqlRepository sql, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, IServiceProvider serviceProvider, ILogManager logger)
+        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, IModuleRepository modules,ITenantRepository tenants, ISqlRepository sql, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, IConfigurationRoot config, IServiceProvider serviceProvider, ILogManager logger)
         {
             _moduleDefinitions = moduleDefinitions;
             _modules = modules;
@@ -39,6 +43,7 @@ namespace Oqtane.Controllers
             _userPermissions = userPermissions;
             _installationManager = installationManager;
             _environment = environment;
+            _config = config;
             _serviceProvider = serviceProvider;
             _logger = logger;
         }
@@ -158,11 +163,26 @@ namespace Oqtane.Controllers
             }
         }
 
+        // GET api/<controller>/load
+        [HttpGet("load")]
+        public List<string> Load()
+        {
+            List<string> list = new List<string>();
+            if (_config.GetSection("Runtime").Value == "WebAssembly")
+            {
+                var assemblies = AppDomain.CurrentDomain.GetOqtaneClientAssemblies();
+                list = AppDomain.CurrentDomain.GetOqtaneClientAssemblies().Select(a => a.GetName().Name).ToList();
+                var deps = assemblies.SelectMany(a => a.GetReferencedAssemblies()).Distinct();
+                list.AddRange(deps.Where(a => a.Name.EndsWith(".oqtane", StringComparison.OrdinalIgnoreCase)).Select(a => a.Name));
+            }
+            return list;
+        }
+        
         // GET api/<controller>/load/assembyname
         [HttpGet("load/{assemblyname}")]
         public IActionResult Load(string assemblyname)
         {
-            if (Path.GetExtension(assemblyname).ToLower() == ".dll")
+            if (_config.GetSection("Runtime").Value == "WebAssembly" && Path.GetExtension(assemblyname).ToLower() == ".dll")
             {
                 string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
                 byte[] file = System.IO.File.ReadAllBytes(Path.Combine(binfolder, assemblyname));
@@ -174,16 +194,6 @@ namespace Oqtane.Controllers
                 HttpContext.Response.StatusCode = 401;
                 return null;
             }
-        }
-        // GET api/<controller>/load/assembyname
-        [HttpGet("load")]
-        public List<string> Load()
-        {
-            var assemblies = AppDomain.CurrentDomain.GetOqtaneClientAssemblies();
-            var list = AppDomain.CurrentDomain.GetOqtaneClientAssemblies().Select(a => a.GetName().Name).ToList();
-            var deps = assemblies.SelectMany(a => a.GetReferencedAssemblies()).Distinct();
-            list.AddRange(deps.Where(a=>a.Name.EndsWith(".oqtane",StringComparison.OrdinalIgnoreCase)).Select(a=>a.Name));
-            return list;
         }
 
         // POST api/<controller>?moduleid=x
@@ -200,13 +210,13 @@ namespace Oqtane.Controllers
                 if (moduleDefinition.Template == "internal")
                 {
                     rootPath = Utilities.PathCombine(rootFolder.FullName,"\\");
-                    moduleDefinition.ModuleDefinitionName = moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Modules, Oqtane.Client";
+                    moduleDefinition.ModuleDefinitionName = moduleDefinition.Owner + "." + moduleDefinition.Name + "s, Oqtane.Client";
                     moduleDefinition.ServerManagerType = moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Manager." + moduleDefinition.Name + "Manager, Oqtane.Server";
                 }
                 else
                 {
                     rootPath = Utilities.PathCombine(rootFolder.Parent.FullName , moduleDefinition.Owner + "." + moduleDefinition.Name + "s","\\");
-                    moduleDefinition.ModuleDefinitionName = moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Modules, " + moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Client.Oqtane";                    
+                    moduleDefinition.ModuleDefinitionName = moduleDefinition.Owner + "." + moduleDefinition.Name + "s, " + moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Client.Oqtane";                    
                     moduleDefinition.ServerManagerType = moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Manager." + moduleDefinition.Name + "Manager, " + moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Server.Oqtane";
                 }
 
@@ -219,7 +229,11 @@ namespace Oqtane.Controllers
 
                 if (moduleDefinition.Template == "internal")
                 {
-                     // need logic to add embedded scripts to Oqtane.Server.csproj - also you need to remove them on uninstall
+                    // add embedded resources to project
+                    List<string> resources = new List<string>();
+                    resources.Add(Utilities.PathCombine("Modules", moduleDefinition.Name, "Scripts", moduleDefinition.Owner + "." + moduleDefinition.Name + "s.1.0.0.sql"));
+                    resources.Add(Utilities.PathCombine("Modules", moduleDefinition.Name, "Scripts", moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Uninstall.sql"));
+                    EmbedResourceFiles(Utilities.PathCombine(rootPath, "Oqtane.Server", "Oqtane.Server.csproj"), resources);
                 }
 
                 _installationManager.RestartApplication();
@@ -267,6 +281,20 @@ namespace Oqtane.Controllers
                     ProcessTemplatesRecursively(folder, rootPath, rootFolder, templatePath, moduleDefinition);
                 }
             }
+        }
+
+        private void EmbedResourceFiles(string projectfile, List<string> resources)
+        {
+            XDocument project = XDocument.Load(projectfile);
+            var itemGroup = project.Descendants("ItemGroup").Descendants("EmbeddedResource").FirstOrDefault().Parent;
+            if (itemGroup != null)
+            {
+                foreach (var resource in resources)
+                {
+                    itemGroup.Add(new XElement("EmbeddedResource", new XAttribute("Include", resource)));
+                }
+            }
+            project.Save(projectfile);
         }
     }
 }

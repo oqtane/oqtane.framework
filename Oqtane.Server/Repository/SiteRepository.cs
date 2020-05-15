@@ -757,6 +757,7 @@ namespace Oqtane.Repository
                     EditMode = pagetemplate.EditMode,
                     ThemeType = "",
                     LayoutType = "",
+                    DefaultContainerType = "",
                     Icon = pagetemplate.Icon,
                     Permissions = pagetemplate.PagePermissions,
                     IsPersonalizable = pagetemplate.IsPersonalizable,

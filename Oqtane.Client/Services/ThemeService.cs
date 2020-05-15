@@ -23,33 +23,6 @@ namespace Oqtane.Services
         public async Task<List<Theme>> GetThemesAsync()
         {
             List<Theme> themes = await GetJsonAsync<List<Theme>>(Apiurl);
-
-            // get list of loaded assemblies
-            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-
-            foreach (Theme theme in themes)
-            {
-                if (theme.Dependencies != "")
-                {
-                    foreach (string dependency in theme.Dependencies.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        string assemblyname = dependency.Replace(".dll", "");
-                        if (assemblies.Where(item => item.FullName.StartsWith(assemblyname + ",")).FirstOrDefault() == null)
-                        {
-                            // download assembly from server and load
-                            var bytes = await _http.GetByteArrayAsync($"{Apiurl}/load/{assemblyname}.dll");
-                            Assembly.Load(bytes);
-                        }
-                    }
-                }
-                if (assemblies.Where(item => item.FullName.StartsWith(theme.AssemblyName + ",")).FirstOrDefault() == null)
-                {
-                    // download assembly from server and load
-                    var bytes = await _http.GetByteArrayAsync($"{Apiurl}/load/{theme.AssemblyName}.dll");
-                    Assembly.Load(bytes);
-                }
-            }
-
             return themes.OrderBy(item => item.Name).ToList();
         }
 

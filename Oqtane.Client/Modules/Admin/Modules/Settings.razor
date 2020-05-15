@@ -24,7 +24,7 @@
                     </td>
                     <td>
                         <select id="container" class="form-control" @bind="@_containerType">
-                            <option value="">&lt;Select Container&gt;</option>
+                            <option value="-">&lt;Inherit From Page Or Site&gt;</option>
                             @foreach (KeyValuePair<string, string> container in _containers)
                             {
                                 <option value="@container.Key">@container.Value</option>
@@ -107,6 +107,14 @@
         _title = ModuleState.Title;
         _containers = ThemeService.GetContainerTypes(await ThemeService.GetThemesAsync());
         _containerType = ModuleState.ContainerType;
+        if (!string.IsNullOrEmpty(PageState.Page.DefaultContainerType) && _containerType == PageState.Page.DefaultContainerType)
+        {
+            _containerType = "-";
+        }
+        if (_containerType == PageState.Site.DefaultContainerType)
+        {
+            _containerType = "-";
+        }
         _allPages = ModuleState.AllPages.ToString();
         _permissions = ModuleState.Permissions;
         _permissionNames = ModuleState.ModuleDefinition.PermissionNames;
@@ -136,7 +144,15 @@
         var pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
         pagemodule.PageId = int.Parse(_pageId);
         pagemodule.Title = _title;
-        pagemodule.ContainerType = _containerType;
+        pagemodule.ContainerType = (_containerType != "-") ? _containerType : string.Empty;
+        if (!string.IsNullOrEmpty(pagemodule.ContainerType) && pagemodule.ContainerType == PageState.Page.DefaultContainerType)
+        {
+            pagemodule.ContainerType = string.Empty;
+        }
+        if (!string.IsNullOrEmpty(pagemodule.ContainerType) && pagemodule.ContainerType == PageState.Site.DefaultContainerType)
+        {
+            pagemodule.ContainerType = string.Empty;
+        }
         await PageModuleService.UpdatePageModuleAsync(pagemodule);
         await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
 

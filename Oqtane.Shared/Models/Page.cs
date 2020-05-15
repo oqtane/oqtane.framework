@@ -15,6 +15,7 @@ namespace Oqtane.Models
         public string Url { get; set; }
         public string ThemeType { get; set; }
         public string LayoutType { get; set; }
+        public string DefaultContainerType { get; set; }
         public string Icon { get; set; }
         public bool IsNavigation { get; set; }
         public bool EditMode { get; set; }
