@@ -27,5 +27,6 @@
     <file src="..\Shared\bin\Release\netstandard2.1\[Owner].[Module]s.Shared.Oqtane.dll" target="lib" /> 
     <file src="..\Shared\bin\Release\netstandard2.1\[Owner].[Module]s.Shared.Oqtane.pdb" target="lib" /> 
     <file src="..\wwwroot\**\*.*" target="wwwroot" /> 
+    <file src="..\content\**\*.*" target="content" /> 
   </files>
 </package>
