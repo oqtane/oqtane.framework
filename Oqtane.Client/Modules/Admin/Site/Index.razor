@@ -39,7 +39,7 @@
                 <Label For="logo" HelpText="Upload a logo for the site">Logo: </Label>
             </td>
             <td>
-                <FileManager FileId="@_logofileid.ToString()" Filter="@Constants.ImageFiles" @ref="_logofilemanager" />
+                <FileManager FileId="@_logofileid" Filter="@Constants.ImageFiles" @ref="_logofilemanager" />
             </td>
         </tr>
         <tr>
@@ -47,7 +47,7 @@
                 <Label For="favicon" HelpText="Select Your default icon">Favicon: </Label>
             </td>
             <td>
-                <FileManager FileId="@_faviconfileid.ToString()" Filter="ico" @ref="_faviconfilemanager" />
+                <FileManager FileId="@_faviconfileid" Filter="ico" @ref="_faviconfilemanager" />
             </td>
         </tr>
         <tr>
@@ -185,7 +185,7 @@
                     <Label For="appIcon" HelpText="Include an application icon for your PWA. It should be a PNG which is 192 X 192 pixels in dimension.">App Icon: </Label>
                 </td>
                 <td>
-                    <FileManager FileId="@_pwaappiconfileid.ToString()" Filter="png" @ref="_pwaappiconfilemanager" />
+                    <FileManager FileId="@_pwaappiconfileid" Filter="png" @ref="_pwaappiconfilemanager" />
                 </td>
             </tr>
             <tr>
@@ -193,7 +193,7 @@
                     <Label For="splashIcon" HelpText="Include a splash icon for your PWA. It should be a PNG which is 512 X 512 pixels in dimension.">Splash Icon: </Label>
                 </td>
                 <td>
-                    <FileManager FileId="@_pwasplashiconfileid.ToString()" Filter="png" @ref="_pwasplashiconfilemanager" />
+                    <FileManager FileId="@_pwasplashiconfileid" Filter="png" @ref="_pwasplashiconfilemanager" />
                 </td>
             </tr>
         </table>
