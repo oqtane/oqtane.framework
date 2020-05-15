@@ -166,6 +166,7 @@ namespace Oqtane.Controllers
                 page.EditMode = false;
                 page.ThemeType = parent.ThemeType;
                 page.LayoutType = parent.LayoutType;
+                page.DefaultContainerType = parent.DefaultContainerType;
                 page.Icon = parent.Icon;
                 page.Permissions = new List<Permission> {
                     new Permission(PermissionNames.View, userid, true),
