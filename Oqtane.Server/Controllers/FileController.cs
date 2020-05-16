@@ -189,41 +189,54 @@ namespace Oqtane.Controllers
         {
             Models.File file = null;
             Folder folder = _folders.GetFolder(int.Parse(folderid));
-            if (folder != null && _userPermissions.IsAuthorized(User, PermissionNames.Edit, folder.Permissions))
-            {
-                string folderPath = GetFolderPath(folder);
-                CreateDirectory(folderPath);
-                string filename = url.Substring(url.LastIndexOf("/", StringComparison.Ordinal) + 1);
-                // check for allowable file extensions
-                if (Constants.UploadableFiles.Split(',').Contains(Path.GetExtension(filename).ToLower().Replace(".", "")))
-                {
-                    try
-                    {
-                        var client = new WebClient();
-                        string targetPath = Path.Combine(folderPath, filename);
-                        // remove file if it already exists
-                        if (System.IO.File.Exists(targetPath))
-                        {
-                            System.IO.File.Delete(targetPath);
-                        }
 
-                        client.DownloadFile(url, targetPath);
-                        _files.AddFile(CreateFile(filename, folder.FolderId, targetPath));
-                    }
-                    catch
-                    {
-                        _logger.Log(LogLevel.Error, this, LogFunction.Create, "File Could Not Be Downloaded From Url {Url}", url);
-                    }
-                }
-                else
-                {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Create, "File Could Not Be Downloaded From Url Due To Its File Extension {Url}", url);
-                }
-            }
-            else
+            if (folder == null || !_userPermissions.IsAuthorized(User, PermissionNames.Edit, folder.Permissions))
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Download File {Url} {FolderId}", url, folderid);
+                _logger.Log(LogLevel.Error, this, LogFunction.Create,
+                    "User Not Authorized To Download File {Url} {FolderId}", url, folderid);
                 HttpContext.Response.StatusCode = 401;
+                return file;
+            }
+
+            string folderPath = GetFolderPath(folder);
+            CreateDirectory(folderPath);
+
+            string filename = url.Substring(url.LastIndexOf("/", StringComparison.Ordinal) + 1);
+            // check for allowable file extensions
+            if (!Constants.UploadableFiles.Split(',')
+                .Contains(Path.GetExtension(filename).ToLower().Replace(".", "")))
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Create,
+                    "File Could Not Be Downloaded From Url Due To Its File Extension {Url}", url);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
+                return file;
+            }
+
+            if (!filename.IsPathOrFileValid())
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Create,
+                    $"File Could Not Be Downloaded From Url Due To Its File Name Not Allowed {url}");
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
+                return file;
+            }
+
+            try
+            {
+                var client = new WebClient();
+                string targetPath = Path.Combine(folderPath, filename);
+                // remove file if it already exists
+                if (System.IO.File.Exists(targetPath))
+                {
+                    System.IO.File.Delete(targetPath);
+                }
+
+                client.DownloadFile(url, targetPath);
+                file = _files.AddFile(CreateFile(filename, folder.FolderId, targetPath));
+            }
+            catch
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Create,
+                    "File Could Not Be Downloaded From Url {Url}", url);
             }
 
             return file;
@@ -233,45 +246,55 @@ namespace Oqtane.Controllers
         [HttpPost("upload")]
         public async Task UploadFile(string folder, IFormFile file)
         {
-            if (file.Length > 0)
+            if (file.Length <= 0)
             {
-                string folderPath = "";
+                return;
+            }
 
-                if (int.TryParse(folder, out int folderId))
+            if (!file.FileName.IsPathOrFileValid())
+            {
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
+                return;
+            }
+            
+            string folderPath = "";
+
+            if (int.TryParse(folder, out int folderId))
+            {
+                Folder virtualFolder = _folders.GetFolder(folderId);
+                if (virtualFolder != null &&
+                    _userPermissions.IsAuthorized(User, PermissionNames.Edit, virtualFolder.Permissions))
                 {
-                    Folder virtualFolder = _folders.GetFolder(folderId);
-                    if (virtualFolder != null && _userPermissions.IsAuthorized(User, PermissionNames.Edit, virtualFolder.Permissions))
-                    {
-                        folderPath = GetFolderPath(virtualFolder);
-                    }
+                    folderPath = GetFolderPath(virtualFolder);
                 }
-                else
+            }
+            else
+            {
+                if (User.IsInRole(Constants.HostRole))
                 {
-                    if (User.IsInRole(Constants.HostRole))
-                    {
-                        folderPath = GetFolderPath(folder);
-                    }
+                    folderPath = GetFolderPath(folder);
+                }
+            }
+
+            if (folderPath != "")
+            {
+                CreateDirectory(folderPath);
+                using (var stream = new FileStream(Path.Combine(folderPath, file.FileName), FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
                 }
 
-                if (folderPath != "")
+                string upload = await MergeFile(folderPath, file.FileName);
+                if (upload != "" && folderId != -1)
                 {
-                    CreateDirectory(folderPath);
-                    using (var stream = new FileStream(Path.Combine(folderPath, file.FileName), FileMode.Create))
-                    {
-                        await file.CopyToAsync(stream);
-                    }
-
-                    string upload = await MergeFile(folderPath, file.FileName);
-                    if (upload != "" && folderId != -1)
-                    {
-                        _files.AddFile(CreateFile(upload, folderId, Path.Combine(folderPath, upload)));
-                    }
+                    _files.AddFile(CreateFile(upload, folderId, Path.Combine(folderPath, upload)));
                 }
-                else
-                {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Upload File {Folder} {File}", folder, file);
-                    HttpContext.Response.StatusCode = 401;
-                }
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Create,
+                    "User Not Authorized To Upload File {Folder} {File}", folder, file);
+                HttpContext.Response.StatusCode = 401;
             }
         }
 

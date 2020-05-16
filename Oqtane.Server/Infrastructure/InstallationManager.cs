@@ -28,7 +28,7 @@ namespace Oqtane.Infrastructure
         {
             var webRootPath = _environment.WebRootPath;
             
-            var install = UnpackPackages(folders, webRootPath);
+            var install = InstallPackages(folders, webRootPath);
 
             if (install && restart)
             {
@@ -36,7 +36,7 @@ namespace Oqtane.Infrastructure
             }
         }
 
-        public static bool UnpackPackages(string folders, string webRootPath)
+        public static bool InstallPackages(string folders, string webRootPath)
         {
             bool install = false;
             string binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
@@ -44,14 +44,12 @@ namespace Oqtane.Infrastructure
             foreach (string folder in folders.Split(','))
             {
                 string sourceFolder = Path.Combine(webRootPath, folder);
-
-                // create folder if it does not exist
                 if (!Directory.Exists(sourceFolder))
                 {
                     Directory.CreateDirectory(sourceFolder);
                 }
 
-                // iterate through packages
+                // iterate through Nuget packages in source folder
                 foreach (string packagename in Directory.GetFiles(sourceFolder, "*.nupkg"))
                 {
                     string name = Path.GetFileNameWithoutExtension(packagename);
@@ -89,28 +87,32 @@ namespace Oqtane.Infrastructure
                             // deploy to appropriate locations
                             foreach (ZipArchiveEntry entry in archive.Entries)
                             {
+                                string foldername = Path.GetDirectoryName(entry.FullName).Split('\\')[0];
                                 string filename = Path.GetFileName(entry.FullName);
-                                switch (Path.GetExtension(filename).ToLower())
+
+                                switch (foldername)
                                 {
-                                    case ".pdb":
-                                    case ".dll":
+                                    case "lib":
                                         if (binFolder != null) entry.ExtractToFile(Path.Combine(binFolder, filename), true);
                                         break;
-                                    case ".png":
-                                    case ".jpg":
-                                    case ".jpeg":
-                                    case ".gif":
-                                    case ".svg":
-                                    case ".js":
-                                    case ".css":
-                                        string entryPath = Utilities.PathCombine(entry.FullName.Replace("wwwroot", name).Split('/'));
-                                        filename = Path.Combine(sourceFolder, entryPath);
+                                    case "wwwroot":
+                                        filename = Path.Combine(sourceFolder, Utilities.PathCombine(entry.FullName.Replace("wwwroot", name).Split('/')));
                                         if (!Directory.Exists(Path.GetDirectoryName(filename)))
                                         {
                                             Directory.CreateDirectory(Path.GetDirectoryName(filename));
                                         }
-
                                         entry.ExtractToFile(filename, true);
+                                        break;
+                                    case "content":
+                                        if (Path.GetDirectoryName(entry.FullName) != "content") // assets must be in subfolders
+                                        {
+                                            filename = Path.Combine(webRootPath, Utilities.PathCombine(entry.FullName.Replace("content", "").Split('/')));
+                                            if (!Directory.Exists(Path.GetDirectoryName(filename)))
+                                            {
+                                                Directory.CreateDirectory(Path.GetDirectoryName(filename));
+                                            }
+                                            entry.ExtractToFile(filename, true);
+                                        }
                                         break;
                                 }
                             }
