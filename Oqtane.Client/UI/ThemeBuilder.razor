@@ -31,7 +31,7 @@
             switch (resource.ResourceType)
             {
                 case ResourceType.Stylesheet:
-                    await interop.IncludeLink("app-resource" + index.ToString("00"), "stylesheet", resource.Url, "text/css", resource.Integrity, resource.CrossOrigin);
+                    await interop.IncludeLink("app-resource" + index.ToString("00"), "stylesheet", resource.Url, "text/css", resource.Integrity??"", resource.CrossOrigin??"");
                     break;
                 case ResourceType.Script:
                     break;
