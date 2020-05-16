@@ -105,7 +105,7 @@ namespace Oqtane.Controllers
                 }
                 if (_userPermissions.IsAuthorized(User, PermissionNames.Edit, permissions))
                 {
-                    if (FolderPathValid(folder))
+                    if (folder.IsPathValid())
                     {
                         if (string.IsNullOrEmpty(folder.Path) && folder.ParentId != null)
                         {
@@ -140,7 +140,7 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Folder, folder.FolderId, PermissionNames.Edit))
             {
-                if (FolderPathValid(folder))
+                if (folder.IsPathValid())
                 {
                     if (string.IsNullOrEmpty(folder.Path) && folder.ParentId != null)
                     {
@@ -209,14 +209,6 @@ namespace Oqtane.Controllers
                 _logger.Log(LogLevel.Error, this, LogFunction.Delete, "User Not Authorized To Delete Folder {FolderId}", id);
                 HttpContext.Response.StatusCode = 401;
             }
-        }
-
-        private bool FolderPathValid(Folder folder)
-        {
-            // prevent folder path traversal and reserved devices
-            return (folder.Name.IndexOfAny(Constants.InvalidFileNameChars) == -1 &&
-                    !Constants.InvalidFileNameEndingChars.Any(x => folder.Name.EndsWith(x)) &&
-                    !Constants.ReservedDevices.Split(',').Contains(folder.Name.ToUpper().Split('.')[0]));
         }
     }
 }

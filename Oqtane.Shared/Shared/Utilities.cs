@@ -2,8 +2,10 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using File = Oqtane.Models.File;
 
 namespace Oqtane.Shared
 {
@@ -253,6 +255,23 @@ namespace Oqtane.Shared
             }
             
             return Path.Combine(segments).TrimEnd(); 
+        }
+
+        public static bool IsPathValid(this Folder folder)
+        {
+            return IsPathOrFileValid(folder.Name);
+        }
+
+        public static bool IsFileValid(this File file)
+        {
+            return IsPathOrFileValid(file.Name);
+        }
+
+        public static bool IsPathOrFileValid(this string name)
+        {
+            return (name.IndexOfAny(Constants.InvalidFileNameChars) == -1 &&
+                    !Constants.InvalidFileNameEndingChars.Any(name.EndsWith) &&
+                    !Constants.ReservedDevices.Split(',').Contains(name.ToUpper().Split('.')[0]));
         }
     }
 }
