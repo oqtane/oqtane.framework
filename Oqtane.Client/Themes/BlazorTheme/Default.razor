@@ -1,26 +1,35 @@
 ﻿@namespace Oqtane.Themes.BlazorTheme
 @inherits ThemeBase
 
+<link href="css/quill/quill1.3.6.bubble.css" rel="stylesheet"/>
+<link href="css/quill/quill1.3.6.snow.css" rel="stylesheet"/>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link href="css/app.css" rel="stylesheet"/>
+<link href="Themes/Oqtane.Themes.BlazorTheme/Theme.css" rel="stylesheet"/>
+
+
 <div class="breadcrumbs">
-    <Breadcrumbs />
+    <Breadcrumbs/>
 </div>
 
 <div class="sidebar">
     <nav class="navbar">
-        <Logo /><Menu Orientation="Vertical" />
+        <Logo/><Menu Orientation="Vertical"/>
     </nav>
 </div>
 
 <div class="main">
     <div class="top-row px-4">
-        <div class="ml-md-auto"><UserProfile /> <Login /> <ControlPanel /></div>
+        <div class="ml-md-auto">
+            <UserProfile/> <Login/> <ControlPanel/>
+        </div>
     </div>
     <div class="container">
         <div class="row px-4">
-            <Pane Name="Content" />
+            <Pane Name="Content"/>
         </div>
         <div class="row px-4">
-            <Pane Name="Admin" />
+            <Pane Name="Admin"/>
         </div>
     </div>
 </div>
@@ -30,7 +39,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        await IncludeCSS("Theme.css");
+       // await IncludeCSS("Theme.css");
     }
 
 }
