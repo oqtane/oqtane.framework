@@ -160,6 +160,15 @@ window.interop = {
             }
         }
     },
+    removeElementsById: function (prefix, first, last) {
+        var elements = document.querySelectorAll('[id^=' + prefix + ']');
+        for (var i = elements.length - 1; i >= 0; i--) {
+            var element = elements[i];
+            if (element.id.startsWith(prefix) && (first === '' || element.id >= first) && (last === '' || element.id <= last)) {
+                element.parentNode.removeChild(element);
+            }
+        }
+    },
     getElementByName: function (name) {
         var elements = document.getElementsByName(name);
         if (elements.length) {

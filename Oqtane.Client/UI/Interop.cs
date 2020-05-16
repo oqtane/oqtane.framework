@@ -118,6 +118,22 @@ namespace Oqtane.UI
             }
         }
 
+        public Task RemoveElementsById(string prefix, string first, string last)
+        {
+            try
+            {
+                _jsRuntime.InvokeAsync<string>(
+                    "interop.removeElementsById",
+                    prefix, first, last);
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
+        }
+
+
         public ValueTask<string> GetElementByName(string name)
         {
             try

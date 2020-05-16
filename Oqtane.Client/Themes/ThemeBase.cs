@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Oqtane.Models;
 using Oqtane.Shared;
 using Oqtane.UI;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Oqtane.Themes
@@ -14,6 +16,7 @@ namespace Oqtane.Themes
         [CascadingParameter]
         protected PageState PageState { get; set; }
         public virtual string Panes { get; set; }
+        public virtual List<Resource> Resources { get; set; }
 
         public string ThemePath()
         {
