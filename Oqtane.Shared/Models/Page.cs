@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Models
@@ -32,6 +33,8 @@ namespace Oqtane.Models
 
         [NotMapped]
         public string Panes { get; set; }
+        [NotMapped]
+        public List<Resource> Resources { get; set; }
         [NotMapped]
         public string Permissions { get; set; }
         [NotMapped]

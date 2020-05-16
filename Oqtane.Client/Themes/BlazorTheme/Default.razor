@@ -28,9 +28,19 @@
 @code {
     public override string Panes => "Content";
 
+    public override List<Resource> Resources
+    {
+        get
+        {
+            List<Resource> resources = new List<Resource>();
+            resources.Add(new Resource { ResourceType = ResourceType.Stylesheet, Url = "Themes/" + GetType().Namespace + "/Theme.css", Integrity = "", CrossOrigin = "" });
+            return resources;
+        }
+    }
+
     protected override async Task OnParametersSetAsync()
     {
-        await IncludeCSS("Theme.css");
+        //await IncludeCSS("Theme.css");
     }
 
 }

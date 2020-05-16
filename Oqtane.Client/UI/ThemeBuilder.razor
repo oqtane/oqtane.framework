@@ -12,6 +12,8 @@
     protected override async Task OnParametersSetAsync()
     {
         var interop = new Interop(JsRuntime);
+
+        // set page title
         if (!string.IsNullOrEmpty(PageState.Page.Title))
         {
             await interop.UpdateTitle(PageState.Page.Title);
@@ -20,10 +22,30 @@
         {
             await interop.UpdateTitle(PageState.Site.Name + " - " + PageState.Page.Name);
         }
+
+        // manage page resources- they cannot be removed first and then added because the browser will "flash" and result in a poor user experience - they need to be updated
+        int index = 0;
+        foreach (Resource resource in PageState.Page.Resources)
+        {
+            index += 1;
+            switch (resource.ResourceType)
+            {
+                case ResourceType.Stylesheet:
+                    await interop.IncludeLink("app-resource" + index.ToString("00"), "stylesheet", resource.Url, "text/css", resource.Integrity, resource.CrossOrigin);
+                    break;
+                case ResourceType.Script:
+                    break;
+            }
+        }
+        // remove any page resources references which are no longer required for this page
+        await interop.RemoveElementsById("app-resource", "app-resource" + (index + 1).ToString("00"), "");
+
+        // add favicon
         if (PageState.Site.FaviconFileId != null)
         {
             await interop.IncludeLink("fav-icon", "shortcut icon", Utilities.ContentUrl(PageState.Alias, PageState.Site.FaviconFileId.Value), "image/x-icon", "", "");
         }
+        // add PWA support
         if (PageState.Site.PwaIsEnabled)
         {
             await InitializePwa(interop);

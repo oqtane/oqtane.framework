@@ -355,19 +355,30 @@
                 page.ThemeType = site.DefaultThemeType;
                 page.LayoutType = site.DefaultLayoutType;
             }
-            Type type;
+
+            page.Resources = new List<Resource>();
+
+            Type themetype = Type.GetType(page.ThemeType);
+            var themeobject = Activator.CreateInstance(themetype);
+            if (themeobject != null)
+            {
+                page.Panes = (string)themetype.GetProperty("Panes").GetValue(themeobject, null);
+                var resources = (List<Resource>)themetype.GetProperty("Resources").GetValue(themeobject, null);
+                if (resources != null)
+                {
+                    page.Resources.AddRange(resources);
+                }
+            }
 
             if (!string.IsNullOrEmpty(page.LayoutType))
             {
-                type = Type.GetType(page.LayoutType);
+                themetype = Type.GetType(page.LayoutType);
+                themeobject = Activator.CreateInstance(themetype);
+                if (themeobject != null)
+                {
+                    page.Panes = (string)themetype.GetProperty("Panes").GetValue(themeobject, null);
+                }
             }
-            else
-            {
-                type = Type.GetType(page.ThemeType);
-            }
-
-            var property = type.GetProperty("Panes");
-            page.Panes = (string)property.GetValue(Activator.CreateInstance(type), null);
         }
         catch
         {
