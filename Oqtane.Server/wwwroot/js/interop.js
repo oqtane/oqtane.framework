@@ -62,10 +62,10 @@ window.interop = {
                 link.id = id;
             }
             link.rel = rel;
-            link.href = url;
             if (type !== "") {
                 link.type = type;
             }
+            link.href = url;
             if (integrity !== "") {
                 link.integrity = integrity;
             }
@@ -78,15 +78,17 @@ window.interop = {
             if (link.rel !== rel) {
                 link.setAttribute('rel', rel);
             }
-            if (link.href !== url) {
-                link.setAttribute('href', url);
-            }
             if (type !== "") {
                 if (link.type !== type) {
                     link.setAttribute('type', type);
                 }
             } else {
                 link.removeAttribute('type');
+            }
+            if (link.href !== url) {
+                link.removeAttribute('integrity');
+                link.removeAttribute('crossorigin');
+                link.setAttribute('href', url);
             }
             if (integrity !== "") {
                 if (link.integrity !== integrity) {
@@ -136,6 +138,8 @@ window.interop = {
         else {
             if (src !== "") {
                 if (script.src !== src) {
+                    script.removeAttribute('integrity');
+                    script.removeAttribute('crossorigin');
                     script.src = src;
                 }
                 if (integrity !== "") {
