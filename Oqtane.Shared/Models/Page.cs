@@ -32,7 +32,7 @@ namespace Oqtane.Models
         public bool IsDeleted { get; set; }
 
         [NotMapped]
-        public string Panes { get; set; }
+        public List<string> Panes { get; set; }
         [NotMapped]
         public List<Resource> Resources { get; set; }
         [NotMapped]

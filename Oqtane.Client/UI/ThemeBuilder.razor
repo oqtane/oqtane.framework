@@ -23,22 +23,26 @@
             await interop.UpdateTitle(PageState.Site.Name + " - " + PageState.Page.Name);
         }
 
-        // manage page resources- they cannot be removed first and then added because the browser will "flash" and result in a poor user experience - they need to be updated
-        int index = 0;
+        // update page resources
+        int stylesheet = 0;
+        int script = 0;
         foreach (Resource resource in PageState.Page.Resources)
         {
-            index += 1;
             switch (resource.ResourceType)
             {
                 case ResourceType.Stylesheet:
-                    await interop.IncludeLink("app-resource" + index.ToString("00"), "stylesheet", resource.Url, "text/css", resource.Integrity, resource.CrossOrigin);
+                    stylesheet += 1;
+                    await interop.IncludeLink("app-stylesheet" + stylesheet.ToString("00"), "stylesheet", resource.Url, "text/css", resource.Integrity ?? "", resource.CrossOrigin ?? "");
                     break;
                 case ResourceType.Script:
+                    script += 1;
+                    await interop.IncludeScript("app-script" + script.ToString("00"), resource.Url, "", "body", resource.Integrity ?? "", resource.CrossOrigin ?? "");
                     break;
             }
         }
         // remove any page resources references which are no longer required for this page
-        await interop.RemoveElementsById("app-resource", "app-resource" + (index + 1).ToString("00"), "");
+        await interop.RemoveElementsById("app-stylesheet", "app-stylesheet" + (stylesheet + 1).ToString("00"), "");
+        await interop.RemoveElementsById("app-script", "app-script" + (script + 1).ToString("00"), "");
 
         // add favicon
         if (PageState.Site.FaviconFileId != null)

@@ -25,7 +25,7 @@
         {
             List<Resource> resources = new List<Resource>();
             resources.Add(new Resource { ResourceType = ResourceType.Stylesheet, Url = "https://stackpath.bootstrapcdn.com/bootswatch/4.4.1/cyborg/bootstrap.min.css", Integrity = "sha384-l7xaoY0cJM4h9xh1RfazbgJVUZvdtyLWPueWNtLAphf/UbBgOVzqbOTogxPwYLHM", CrossOrigin = "anonymous" });
-            resources.Add(new Resource { ResourceType = ResourceType.Stylesheet, Url = "Themes/" + GetType().Namespace + "/Theme.css", Integrity = "", CrossOrigin = "" });
+            resources.Add(new Resource { ResourceType = ResourceType.Stylesheet, Url = ThemePath() + "Theme.css", Integrity = "", CrossOrigin = "" });
             return resources;
         }
     }

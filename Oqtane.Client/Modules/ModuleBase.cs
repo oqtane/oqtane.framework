@@ -6,6 +6,7 @@ using Oqtane.Services;
 using System;
 using Oqtane.Enums;
 using Oqtane.UI;
+using System.Collections.Generic;
 
 namespace Oqtane.Modules
 {
@@ -36,6 +37,9 @@ namespace Oqtane.Modules
         public virtual string Actions { get { return ""; } }
 
         public virtual bool UseAdminContainer { get { return true; } }
+
+        public virtual List<Resource> Resources { get; set; }
+
 
         // path method
 
