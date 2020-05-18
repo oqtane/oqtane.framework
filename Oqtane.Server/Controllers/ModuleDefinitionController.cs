@@ -15,8 +15,6 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using System.Xml.Linq;
-using Microsoft.AspNetCore.Mvc.Formatters;
-// ReSharper disable StringIndexOfIsCultureSpecific.1
 
 namespace Oqtane.Controllers
 {
@@ -160,39 +158,6 @@ namespace Oqtane.Controllers
                     // restart application
                     _installationManager.RestartApplication();
                 }
-            }
-        }
-
-        // GET api/<controller>/load
-        [HttpGet("load")]
-        public List<string> Load()
-        {
-            List<string> list = new List<string>();
-            if (_config.GetSection("Runtime").Value == "WebAssembly")
-            {
-                var assemblies = AppDomain.CurrentDomain.GetOqtaneClientAssemblies();
-                list = AppDomain.CurrentDomain.GetOqtaneClientAssemblies().Select(a => a.GetName().Name).ToList();
-                var deps = assemblies.SelectMany(a => a.GetReferencedAssemblies()).Distinct();
-                list.AddRange(deps.Where(a => a.Name.EndsWith(".oqtane", StringComparison.OrdinalIgnoreCase)).Select(a => a.Name));
-            }
-            return list;
-        }
-        
-        // GET api/<controller>/load/assembyname
-        [HttpGet("load/{assemblyname}")]
-        public IActionResult Load(string assemblyname)
-        {
-            if (_config.GetSection("Runtime").Value == "WebAssembly" && Path.GetExtension(assemblyname).ToLower() == ".dll")
-            {
-                string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-                byte[] file = System.IO.File.ReadAllBytes(Path.Combine(binfolder, assemblyname));
-                return File(file, "application/octet-stream", assemblyname);
-            }
-            else
-            {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Download Assembly {Assembly}", assemblyname);
-                HttpContext.Response.StatusCode = 401;
-                return null;
             }
         }
 

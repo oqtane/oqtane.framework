@@ -92,6 +92,13 @@ namespace Oqtane.Infrastructure
 
                                 switch (foldername)
                                 {
+                                    case "":
+                                        if (filename.EndsWith(".nuspec"))
+                                        {
+                                            filename = Path.Combine(sourceFolder, name);
+                                            entry.ExtractToFile(filename, true);
+                                        }
+                                        break;
                                     case "lib":
                                         if (binFolder != null) entry.ExtractToFile(Path.Combine(binFolder, filename), true);
                                         break;

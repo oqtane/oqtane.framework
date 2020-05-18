@@ -76,7 +76,8 @@ namespace System.Reflection
         public static IEnumerable<Assembly> GetOqtaneClientAssemblies(this AppDomain appDomain)
         {
             return appDomain.GetOqtaneAssemblies()
-                .Where(a => a.GetTypes<IModuleControl>().Any() || a.GetTypes<IThemeControl>().Any() || a.GetTypes<IClientStartup>().Any());
+                .Where(a => a.GetTypes<IModuleControl>().Any() || a.GetTypes<IThemeControl>().Any() || a.GetTypes<IClientStartup>().Any())
+                .Where(a => Utilities.GetFullTypeName(a.GetName().Name) != "Oqtane.Client");
         }
     }
 }

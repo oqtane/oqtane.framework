@@ -12,6 +12,8 @@ using Oqtane.Modules;
 using Oqtane.Shared;
 using Oqtane.Providers;
 using Microsoft.AspNetCore.Components.Authorization;
+using System.IO.Compression;
+using System.IO;
 
 namespace Oqtane.Client
 {
@@ -90,15 +92,50 @@ namespace Oqtane.Client
 
         private static async Task LoadClientAssemblies(HttpClient http)
         {
-            var list = await http.GetFromJsonAsync<List<string>>($"/~/api/ModuleDefinition/load");
-            // get list of loaded assemblies on the client ( in the client-side hosting module the browser client has its own app domain )
-            var assemblyList = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.GetName().Name).ToList();
-            foreach (var name in list)
+            // get list of loaded assemblies on the client 
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.GetName().Name).ToList();
+
+            // get assemblies from server and load into client app domain
+            var zip = await http.GetByteArrayAsync($"/~/api/Installation/load");
+
+            // asemblies and debug symbols are packaged in a zip file
+            using (ZipArchive archive = new ZipArchive(new MemoryStream(zip)))
             {
-                if (assemblyList.Contains(name)) continue;
-                // download assembly from server and load
-                var bytes = await http.GetByteArrayAsync($"/~/api/ModuleDefinition/load/{name}.dll");
-                Assembly.Load(bytes);
+                Dictionary<string, byte[]> dlls = new Dictionary<string, byte[]>();
+                Dictionary<string, byte[]> pdbs = new Dictionary<string, byte[]>();
+
+                foreach (ZipArchiveEntry entry in archive.Entries)
+                {
+                    if (!assemblies.Contains(Path.GetFileNameWithoutExtension(entry.Name)))
+                    {
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            entry.Open().CopyTo(memoryStream);
+                            byte[] file = memoryStream.ToArray();
+                            switch (Path.GetExtension(entry.Name))
+                            {
+                                case ".dll":
+                                    dlls.Add(entry.Name, file);
+                                    break;
+                                case ".pdb":
+                                    pdbs.Add(entry.Name, file);
+                                    break;
+                            }
+                        }
+                    }
+                }
+
+                foreach (var item in dlls)
+                {
+                    if (pdbs.ContainsKey(item.Key))
+                    {
+                        Assembly.Load(item.Value, pdbs[item.Key]);
+                    }
+                    else
+                    {
+                        Assembly.Load(item.Value);
+                    }
+                }
             }
         }
     }
