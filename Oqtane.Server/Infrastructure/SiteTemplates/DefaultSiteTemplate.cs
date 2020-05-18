@@ -56,7 +56,7 @@ namespace Oqtane.SiteTemplates
                             new Permission(PermissionNames.Edit, Constants.AdminRole, true)
                         }.EncodePermissions(),
                         Content = "<p><a href=\"https://www.oqtane.org\" target=\"_new\">Oqtane</a> is an open source <b>modular application framework</b> built from the ground up using modern .NET Core technology. It leverages the revolutionary new Blazor component model to create a <b>fully dynamic</b> web development experience which can be executed on a client or server. Whether you are looking for a platform to <b>accelerate your web development</b> efforts, or simply interested in exploring the anatomy of a large-scale Blazor application, Oqtane provides a solid foundation based on proven enterprise architectural principles.</p>" +
-                        "<p align=\"center\"><a href=\"https://www.oqtane.org\" target=\"_new\"><img class=\"img-fluid\" src=\"oqtane.png\"></a></p><p align=\"center\"><a class=\"btn btn-primary\" href=\"https://www.oqtane.org/Community\" target=\"_new\">Join Our Community</a>&nbsp;&nbsp;<a class=\"btn btn-primary\" href=\"https://github.com/oqtane/oqtane.framework\" target=\"_new\">Clone Our Repo</a></p>" +
+                        "<p align=\"center\"><a href=\"https://www.oqtane.org\" target=\"_new\"><img class=\"img-fluid\" src=\"oqtane-white.png\"></a></p><p align=\"center\"><a class=\"btn btn-primary\" href=\"https://www.oqtane.org/Community\" target=\"_new\">Join Our Community</a>&nbsp;&nbsp;<a class=\"btn btn-primary\" href=\"https://github.com/oqtane/oqtane.framework\" target=\"_new\">Clone Our Repo</a></p>" +
                         "<p><a href=\"https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor\" target=\"_new\">Blazor</a> is a single-page app framework that lets you build interactive web applications using C# instead of JavaScript. Client-side Blazor relies on WebAssembly, an open web standard that does not require plugins or code transpilation in order to run natively in a web browser. Server-side Blazor uses SignalR to host your application on a web server and provide a responsive and robust debugging experience. Blazor applications works in all modern web browsers, including mobile browsers.</p>" +
                         "<p>Blazor is a feature of <a href=\"https://dotnet.microsoft.com/apps/aspnet\" target=\"_new\">ASP.NET Core 3</a>, the popular cross platform web development framework from Microsoft that extends the <a href=\"https://dotnet.microsoft.com/learn/dotnet/what-is-dotnet\" target=\"_new\" >.NET developer platform</a> with tools and libraries for building web apps.</p>"
                     },
@@ -132,16 +132,16 @@ namespace Oqtane.SiteTemplates
                 }
             });
 
-            if (System.IO.File.Exists(Path.Combine(_environment.WebRootPath, "images", "logo.png")))
+            if (System.IO.File.Exists(Path.Combine(_environment.WebRootPath, "images", "logo-white.png")))
             {
                 string folderpath = Utilities.PathCombine(_environment.ContentRootPath, "Content", "Tenants", site.TenantId.ToString(), "Sites", site.SiteId.ToString(),"\\");
                 System.IO.Directory.CreateDirectory(folderpath);
-                if (!System.IO.File.Exists(Path.Combine(folderpath, "logo.png")))
+                if (!System.IO.File.Exists(Path.Combine(folderpath, "logo-white.png")))
                 {
-                    System.IO.File.Copy(Path.Combine(_environment.WebRootPath, "images", "logo.png"), Path.Combine(folderpath, "logo.png"));
+                    System.IO.File.Copy(Path.Combine(_environment.WebRootPath, "images", "logo-white.png"), Path.Combine(folderpath, "logo-white.png"));
                 }
                 Folder folder = _folderRepository.GetFolder(site.SiteId, "");
-                Oqtane.Models.File file = _fileRepository.AddFile(new Oqtane.Models.File { FolderId = folder.FolderId, Name = "logo.png", Extension = "png", Size = 8192, ImageHeight = 80, ImageWidth = 250 });
+                Oqtane.Models.File file = _fileRepository.AddFile(new Oqtane.Models.File { FolderId = folder.FolderId, Name = "logo-white.png", Extension = "png", Size = 8192, ImageHeight = 80, ImageWidth = 250 });
                 site.LogoFileId = file.FileId;
                 _siteRepository.UpdateSite(site);
             }
