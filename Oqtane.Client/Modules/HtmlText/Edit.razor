@@ -24,21 +24,16 @@
 
     public override string Title => "Edit Html/Text";
 
-    public override List<Resource> Resources
+    public override List<Resource> Resources => new List<Resource>()
     {
-        get
-        {
-            List<Resource> resources = new List<Resource>();
-            resources.Add(new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css", Integrity = "", CrossOrigin = "" });
-            // the following resources should be declared in the RichTextEditor component however the framework currently only supports resource management for modules and themes
-            resources.Add(new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill1.3.6.bubble.css", Integrity = "", CrossOrigin = "" });
-            resources.Add(new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill1.3.6.snow.css", Integrity = "", CrossOrigin = "" });
-            resources.Add(new Resource { ResourceType = ResourceType.Script, Url = "js/quill1.3.6.min.js", Integrity = "", CrossOrigin = "" });
-            resources.Add(new Resource { ResourceType = ResourceType.Script, Url = "js/quill-blot-formatter.min.js", Integrity = "", CrossOrigin = "" });
-            resources.Add(new Resource { ResourceType = ResourceType.Script, Url = "js/quill-interop.js", Integrity = "", CrossOrigin = "" });
-            return resources;
-        }
-    }
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" },
+        // the following resources should be declared in the RichTextEditor component however the framework currently only supports resource management for modules and themes
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill1.3.6.bubble.css" },
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill1.3.6.snow.css" },
+        new Resource { ResourceType = ResourceType.Script, Url = "js/quill1.3.6.min.js" },
+        new Resource { ResourceType = ResourceType.Script, Url = "js/quill-blot-formatter.min.js" },
+        new Resource { ResourceType = ResourceType.Script, Url = "js/quill-interop.js" }
+    };
 
     private RichTextEditor RichTextEditorHtml;
     private string _content = null;
