@@ -11,15 +11,10 @@
 }
 
 @code {
-    public override List<Resource> Resources
+    public override List<Resource> Resources => new List<Resource>()
     {
-        get
-        {
-            List<Resource> resources = new List<Resource>();
-            resources.Add(new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css", Integrity = "", CrossOrigin = "" });
-            return resources;
-        }
-    }
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" }
+    };
 
     private string content = "";
 
