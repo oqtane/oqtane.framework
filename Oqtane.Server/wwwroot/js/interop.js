@@ -62,10 +62,10 @@ window.interop = {
                 link.id = id;
             }
             link.rel = rel;
-            link.href = url;
             if (type !== "") {
                 link.type = type;
             }
+            link.href = url;
             if (integrity !== "") {
                 link.integrity = integrity;
             }
@@ -78,15 +78,17 @@ window.interop = {
             if (link.rel !== rel) {
                 link.setAttribute('rel', rel);
             }
-            if (link.href !== url) {
-                link.setAttribute('href', url);
-            }
             if (type !== "") {
                 if (link.type !== type) {
                     link.setAttribute('type', type);
                 }
             } else {
                 link.removeAttribute('type');
+            }
+            if (link.href !== url) {
+                link.removeAttribute('integrity');
+                link.removeAttribute('crossorigin');
+                link.setAttribute('href', url);
             }
             if (integrity !== "") {
                 if (link.integrity !== integrity) {
@@ -136,6 +138,8 @@ window.interop = {
         else {
             if (src !== "") {
                 if (script.src !== src) {
+                    script.removeAttribute('integrity');
+                    script.removeAttribute('crossorigin');
                     script.src = src;
                 }
                 if (integrity !== "") {
@@ -157,6 +161,15 @@ window.interop = {
                 if (script.innerHTML !== content) {
                     script.innerHTML = content;
                 }
+            }
+        }
+    },
+    removeElementsById: function (prefix, first, last) {
+        var elements = document.querySelectorAll('[id^=' + prefix + ']');
+        for (var i = elements.length - 1; i >= 0; i--) {
+            var element = elements[i];
+            if (element.id.startsWith(prefix) && (first === '' || element.id >= first) && (last === '' || element.id <= last)) {
+                element.parentNode.removeChild(element);
             }
         }
     },
@@ -251,53 +264,5 @@ window.interop = {
                 request.send(data);
             }
         }
-    },
-    createQuill: function (
-        quillElement, toolBar, readOnly,
-        placeholder, theme, debugLevel) {
-
-        Quill.register('modules/blotFormatter', QuillBlotFormatter.default);
-
-        var options = {
-            debug: debugLevel,
-            modules: {
-                toolbar: toolBar,
-                blotFormatter: {}
-            },
-            placeholder: placeholder,
-            readOnly: readOnly,
-            theme: theme
-        };
-
-        new Quill(quillElement, options);
-    },
-    getQuillContent: function (editorElement) {
-        return JSON.stringify(editorElement.__quill.getContents());
-    },
-    getQuillText: function (editorElement) {
-        return editorElement.__quill.getText();
-    },
-    getQuillHTML: function (editorElement) {
-        return editorElement.__quill.root.innerHTML;
-    },
-    loadQuillContent: function (editorElement, editorContent) {
-        return editorElement.__quill.root.innerHTML = editorContent;
-    },
-    enableQuillEditor: function (editorElement, mode) {
-        editorElement.__quill.enable(mode);
-    },
-    insertQuillImage: function (quillElement, imageURL) {
-        var Delta = Quill.import('delta');
-        editorIndex = 0;
-
-        if (quillElement.__quill.getSelection() !== null) {
-            editorIndex = quillElement.__quill.getSelection().index;
-        }
-
-        return quillElement.__quill.updateContents(
-            new Delta()
-                .retain(editorIndex)
-                .insert({ image: imageURL },
-                    { alt: imageURL }));
     }
 };

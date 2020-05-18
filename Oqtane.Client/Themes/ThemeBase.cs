@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Oqtane.Models;
 using Oqtane.Shared;
 using Oqtane.UI;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Oqtane.Themes
@@ -11,31 +13,21 @@ namespace Oqtane.Themes
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
 
+        // optional interface properties
+
         [CascadingParameter]
         protected PageState PageState { get; set; }
         public virtual string Panes { get; set; }
+        public virtual List<Resource> Resources { get; set; }
+
+        // path method
 
         public string ThemePath()
         {
             return "Themes/" + GetType().Namespace + "/";
         }
 
-        public async Task IncludeCSS(string Url)
-        {
-            if (!Url.StartsWith("http"))
-            {
-                Url = ThemePath() + Url;
-            }
-            var interop = new Interop(JSRuntime);
-            await interop.IncludeCSS("Theme", Url);
-        }
-
-        public async Task LoadBootstrapTheme(string url, string integrity = null)
-        {
-            var interop = new Interop(JSRuntime);
-            string crossorigin = string.IsNullOrEmpty(integrity) ? string.Empty : "anonymous";
-            await interop.IncludeLink("bootstrap", "stylesheet", url, "text/css", integrity, crossorigin);
-        }
+        // url methods
 
         public string NavigateUrl()
         {

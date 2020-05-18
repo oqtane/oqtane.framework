@@ -20,16 +20,27 @@
 }
 
 @code {
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
+
+    public override string Title => "Edit Html/Text";
+
+    public override List<Resource> Resources => new List<Resource>()
+    {
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" },
+        // the following resources should be declared in the RichTextEditor component however the framework currently only supports resource management for modules and themes
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill1.3.6.bubble.css" },
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill1.3.6.snow.css" },
+        new Resource { ResourceType = ResourceType.Script, Url = "js/quill1.3.6.min.js" },
+        new Resource { ResourceType = ResourceType.Script, Url = "js/quill-blot-formatter.min.js" },
+        new Resource { ResourceType = ResourceType.Script, Url = "js/quill-interop.js" }
+    };
+
     private RichTextEditor RichTextEditorHtml;
     private string _content = null;
     private string _createdby;
     private DateTime _createdon;
     private string _modifiedby;
     private DateTime _modifiedon;
-
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
-
-    public override string Title => "Edit Html/Text";
 
     protected override async Task OnInitializedAsync()
     {
