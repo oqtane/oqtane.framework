@@ -149,7 +149,7 @@
                         <label for="Pane" class="control-label">Pane: </label>
                         <select class="form-control" @bind="@_pane">
                             <option value="">&lt;Select Pane&gt;</option>
-                            @foreach (string pane in PageState.Page.Panes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                            @foreach (string pane in PageState.Page.Panes)
                             {
                                 <option value="@pane">@pane Pane</option>
                             }
@@ -275,7 +275,7 @@
                 }
             }
 
-            var panes = PageState.Page.Panes.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
+            var panes = PageState.Page.Panes;
             _pane = panes.Count() == 1 ? panes.SingleOrDefault() : "";
             var themes = await ThemeService.GetThemesAsync();
             _containers = ThemeService.GetContainerTypes(themes);

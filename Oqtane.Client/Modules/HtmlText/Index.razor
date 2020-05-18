@@ -11,6 +11,16 @@
 }
 
 @code {
+    public override List<Resource> Resources
+    {
+        get
+        {
+            List<Resource> resources = new List<Resource>();
+            resources.Add(new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css", Integrity = "", CrossOrigin = "" });
+            return resources;
+        }
+    }
+
     private string content = "";
 
     protected override async Task OnParametersSetAsync()

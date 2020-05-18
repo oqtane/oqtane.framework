@@ -33,7 +33,7 @@
         get
         {
             List<Resource> resources = new List<Resource>();
-            resources.Add(new Resource { ResourceType = ResourceType.Stylesheet, Url = "Themes/" + GetType().Namespace + "/Theme.css", Integrity = "", CrossOrigin = "" });
+            resources.Add(new Resource { ResourceType = ResourceType.Stylesheet, Url = ThemePath() + "Theme.css", Integrity = "", CrossOrigin = "" });
             return resources;
         }
     }
