@@ -92,33 +92,19 @@ namespace Oqtane.Infrastructure
 
                                 switch (foldername)
                                 {
-                                    case "":
-                                        if (filename.EndsWith(".nuspec"))
-                                        {
-                                            filename = Path.Combine(sourceFolder, name);
-                                            entry.ExtractToFile(filename, true);
-                                        }
-                                        break;
                                     case "lib":
-                                        if (binFolder != null) entry.ExtractToFile(Path.Combine(binFolder, filename), true);
+                                        filename = Path.Combine(binFolder, filename);
+                                        ExtractFile(entry, filename);
                                         break;
                                     case "wwwroot":
                                         filename = Path.Combine(sourceFolder, Utilities.PathCombine(entry.FullName.Replace("wwwroot", name).Split('/')));
-                                        if (!Directory.Exists(Path.GetDirectoryName(filename)))
-                                        {
-                                            Directory.CreateDirectory(Path.GetDirectoryName(filename));
-                                        }
-                                        entry.ExtractToFile(filename, true);
+                                        ExtractFile(entry, filename);
                                         break;
                                     case "content":
                                         if (Path.GetDirectoryName(entry.FullName) != "content") // assets must be in subfolders
                                         {
                                             filename = Path.Combine(webRootPath, Utilities.PathCombine(entry.FullName.Replace("content", "").Split('/')));
-                                            if (!Directory.Exists(Path.GetDirectoryName(filename)))
-                                            {
-                                                Directory.CreateDirectory(Path.GetDirectoryName(filename));
-                                            }
-                                            entry.ExtractToFile(filename, true);
+                                            ExtractFile(entry, filename);
                                         }
                                         break;
                                 }
@@ -133,6 +119,15 @@ namespace Oqtane.Infrastructure
             }
 
             return install;
+        }
+
+        private static void ExtractFile(ZipArchiveEntry entry, string filename)
+        {
+            if (!Directory.Exists(Path.GetDirectoryName(filename)))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(filename));
+            }
+            entry.ExtractToFile(filename, true);
         }
 
         public void UpgradeFramework()

@@ -62,7 +62,8 @@ else
 - Repository\[Module]Respository.cs - implements repository interface methods for data access using EF Core<br />
 - Repository\[Module]Context.cs - provides a DB Context for data access<br />
 - Scripts\[Owner].[Module]s.1.0.0.sql - database schema definition script<br />
-- Scripts\[Owner].[Module]s.Uninstall.sql - database uninstall script<br /><br />
+- Scripts\[Owner].[Module]s.Uninstall.sql - database uninstall script<br />
+- wwwroot\Module.css - module style sheet<br /><br />
 [RootPath]Shared\<br />
 - [Owner].[Module]s.csproj - shared project<br />
 - Models\[Module].cs - model definition<br /><br />
@@ -70,6 +71,11 @@ else
 <!-- The content above is for informational purposes only and can be safely removed -->
 
 @code {
+    public override List<Resource> Resources => new List<Resource>()
+    {
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" }
+    };
+
     List<[Module]> _[Module]s;
 
     protected override async Task OnInitializedAsync()
