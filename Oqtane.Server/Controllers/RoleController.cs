@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Oqtane.Enums;
-using Oqtane.Models;
-using Oqtane.Shared;
 using Oqtane.Infrastructure;
+using Oqtane.Models;
 using Oqtane.Repository;
+using Oqtane.Shared;
 
 namespace Oqtane.Controllers
 {
@@ -40,27 +40,37 @@ namespace Oqtane.Controllers
         // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = Constants.AdminRole)]
-        public Role Post([FromBody] Role role)
+        public IActionResult Post([FromBody] Role role)
         {
             if (ModelState.IsValid)
             {
+                role.Description = role.Description ?? string.Empty;
                 role = _roles.AddRole(role);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Role Added {Role}", role);
+                return Ok(role);
             }
-            return role;
+            else
+            {
+                return BadRequest(ModelState);
+            }
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Roles = Constants.AdminRole)]
-        public Role Put(int id, [FromBody] Role role)
+        public IActionResult Put(int id, [FromBody] Role role)
         {
             if (ModelState.IsValid)
             {
+                role.Description = role.Description ?? string.Empty;
                 role = _roles.UpdateRole(role);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Role Updated {Role}", role);
+                return Ok(role);
             }
-            return role;
+            else
+            {
+                return BadRequest(ModelState);
+            }
         }
 
         // DELETE api/<controller>/5
