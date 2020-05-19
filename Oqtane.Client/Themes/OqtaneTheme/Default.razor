@@ -21,7 +21,9 @@
 
     public override List<Resource> Resources => new List<Resource>()
     {
-        new Resource { ResourceType = ResourceType.Stylesheet, Url = "https://stackpath.bootstrapcdn.com/bootswatch/4.4.1/cyborg/bootstrap.min.css", Integrity = "sha384-l7xaoY0cJM4h9xh1RfazbgJVUZvdtyLWPueWNtLAphf/UbBgOVzqbOTogxPwYLHM", CrossOrigin = "anonymous" },
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = ThemePath() + "BootswatchCyborg.css" },
+        // remote stylesheets can be linked using the format below, however we want the default theme to display properly in local development scenarios where an Internet connection is not available
+        //new Resource { ResourceType = ResourceType.Stylesheet, Url = "https://stackpath.bootstrapcdn.com/bootswatch/4.4.1/cyborg/bootstrap.min.css", Integrity = "sha384-l7xaoY0cJM4h9xh1RfazbgJVUZvdtyLWPueWNtLAphf/UbBgOVzqbOTogxPwYLHM", CrossOrigin = "anonymous" },
         new Resource { ResourceType = ResourceType.Stylesheet, Url = ThemePath() + "Theme.css" }
     };
 
