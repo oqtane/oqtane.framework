@@ -179,7 +179,7 @@
             // extract admin route elements from path
             var segments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             int result;
-            // check if path has moduleid and control specification ie. page/moduleid/control/
+            // check if path has moduleid and action specification ie. pagename/moduleid/action/
             if (segments.Length >= 2 && int.TryParse(segments[segments.Length - 2], out result))
             {
                 action = segments[segments.Length - 1];
@@ -188,7 +188,7 @@
             }
             else
             {
-                // check if path has only moduleid specification ie. page/moduleid/
+                // check if path has moduleid specification ie. pagename/moduleid/
                 if (segments.Length >= 1 && int.TryParse(segments[segments.Length - 1], out result))
                 {
                     moduleid = result;
@@ -388,7 +388,7 @@
         return page;
     }
 
-    private (Page Page, List<Module> Modules) ProcessModules(Page page, List<Module> modules, int moduleid, string control, string defaultcontainertype)
+    private (Page Page, List<Module> Modules) ProcessModules(Page page, List<Module> modules, int moduleid, string action, string defaultcontainertype)
     {
         var paneindex = new Dictionary<string, int>();
         foreach (Module module in modules)
@@ -405,20 +405,20 @@
                     typename = Constants.ErrorModule;
                 }
 
-                if (module.ModuleId == moduleid && control != "")
+                if (module.ModuleId == moduleid && action != "")
                 {
                     // check if the module defines custom routes
                     if (module.ModuleDefinition.ControlTypeRoutes != "")
                     {
                         foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
                         {
-                            if (route.StartsWith(control + "="))
+                            if (route.StartsWith(action + "="))
                             {
-                                typename = route.Replace(control + "=", "");
+                                typename = route.Replace(action + "=", "");
                             }
                         }
                     }
-                    module.ModuleType = typename.Replace(Constants.ActionToken, control);
+                    module.ModuleType = typename.Replace(Constants.ActionToken, action);
                 }
                 else
                 {
@@ -427,10 +427,10 @@
 
                 // get additional metadata from IModuleControl interface
                 typename = module.ModuleType;
-                if (Constants.DefaultModuleActions.Contains(control))
+                if (Constants.DefaultModuleActions.Contains(action))
                 {
                     // core framework module action components
-                    typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, control);
+                    typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, action);
                 }
                 Type moduletype = Type.GetType(typename);
 
@@ -445,7 +445,7 @@
                     page.Resources = ManagePageResources(page.Resources, moduleobject.Resources);
 
                     // additional metadata needed for admin components
-                    if (module.ModuleId == moduleid && control != "")
+                    if (module.ModuleId == moduleid && action != "")
                     {
                         module.SecurityAccessLevel = moduleobject.SecurityAccessLevel;
                         module.ControlTitle = moduleobject.Title;
