@@ -21,5 +21,7 @@
     <file src="..\Oqtane.Server\bin\Release\netcoreapp3.1\Oqtane.Server.dll" target="lib" /> 
     <file src="..\Oqtane.Shared\bin\Release\netstandard2.1\Oqtane.Shared.dll" target="lib" /> 
     <file src="..\Oqtane.Server\bin\Release\netcoreapp3.1\Oqtane.Upgrade.dll" target="lib" /> 
+    <file src="..\Oqtane.Server\bin\Release\netcoreapp3.1\Oqtane.Upgrade.dll" target="lib" /> 
+    <file src="..\Oqtane.Server\wwwroot\**\*.*" target="wwwroot" /> 
   </files>
 </package>
