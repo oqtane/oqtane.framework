@@ -59,7 +59,7 @@ Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalke
 
 Install Wizard:
 
-![Installer](https://github.com/oqtane/framework/blob/master/installer.png?raw=true "Installer")
+![Installer](https://github.com/oqtane/framework/blob/master/screenshots/Installer.png?raw=true "Installer")
 
 Default view after installation:
 
@@ -88,3 +88,8 @@ Control panel for adding, editing, and deleting pages as well as adding new modu
 Admin dashboard for accessing the variuous administrative features of the framework:
 
 ![Admin Dashboard](https://github.com/oqtane/framework/blob/master/screenshots/screenshot6.png?raw=true "Admin Dashboard")
+
+Responsive design mobile view:
+
+![Mobile View](https://github.com/oqtane/framework/blob/master/screenshots/screenshot7.png?raw=true "Mobile View")
+
