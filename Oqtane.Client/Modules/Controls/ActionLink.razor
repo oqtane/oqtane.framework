@@ -101,8 +101,8 @@
                 var moduleType = Type.GetType(typename);
                 if (moduleType != null)
                 {
-                    var moduleobject = Activator.CreateInstance(moduleType);
-                    security = (SecurityAccessLevel)moduleType.GetProperty("SecurityAccessLevel").GetValue(moduleobject, null);
+                    var moduleobject = Activator.CreateInstance(moduleType) as IModuleControl;
+                    security = moduleobject.SecurityAccessLevel;
                 }
                 else
                 {

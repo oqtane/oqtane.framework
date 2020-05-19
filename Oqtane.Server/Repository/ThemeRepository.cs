@@ -66,8 +66,8 @@ namespace Oqtane.Repository
                         .Where(item => item.GetInterfaces().Contains(typeof(ITheme))).FirstOrDefault();
                     if (themetype != null)
                     {
-                        var themeobject = Activator.CreateInstance(themetype);
-                        theme = (Theme)themetype.GetProperty("Theme").GetValue(themeobject);
+                        var themeobject = Activator.CreateInstance(themetype) as ITheme;
+                        theme = themeobject.Theme;
                     }
                     else
                     {

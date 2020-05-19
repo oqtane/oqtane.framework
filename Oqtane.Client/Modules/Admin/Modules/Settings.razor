@@ -123,8 +123,8 @@
         _settingsModuleType = Type.GetType(ModuleState.ModuleType);
         if (_settingsModuleType != null)
         {
-            var moduleobject = Activator.CreateInstance(_settingsModuleType);
-            _settingstitle = (string)_settingsModuleType.GetProperty("Title").GetValue(moduleobject, null);
+            var moduleobject = Activator.CreateInstance(_settingsModuleType) as IModuleControl;
+            _settingstitle = moduleobject.Title;
             if (string.IsNullOrEmpty(_settingstitle))
             {
                 _settingstitle = "Other Settings";
