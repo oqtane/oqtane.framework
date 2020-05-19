@@ -32,7 +32,7 @@ V.Next ( still in the process of being prioritized )
 - [ ] JwT token authentication ( possibly using IdentityServer )
 - [ ] Optional Encryption for Settings Values 
 
-V1 (MVP) 
+V1.0.0 (MVP) 
 - [x] Multi-Tenant ( Shared Database & Isolated Database ) 
 - [x] Modular Architecture / Headless API
 - [x] Dynamic Page Compositing Model / Site & Page Management
