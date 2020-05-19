@@ -361,21 +361,20 @@
 
             string panes = "";
             Type themetype = Type.GetType(page.ThemeType);
-            var themeobject = Activator.CreateInstance(themetype);
+            var themeobject = Activator.CreateInstance(themetype) as IThemeControl;
             if (themeobject != null)
             {
-                panes = (string)themetype.GetProperty("Panes").GetValue(themeobject, null);
-                var resources = (List<Resource>)themetype.GetProperty("Resources").GetValue(themeobject, null);
-                page.Resources = ManagePageResources(page.Resources, resources);
+                panes = themeobject.Panes;
+                page.Resources = ManagePageResources(page.Resources, themeobject.Resources);
             }
 
             if (!string.IsNullOrEmpty(page.LayoutType))
             {
-                themetype = Type.GetType(page.LayoutType);
-                themeobject = Activator.CreateInstance(themetype);
-                if (themeobject != null)
+                Type layouttype = Type.GetType(page.LayoutType);
+                var layoutobject = Activator.CreateInstance(layouttype) as ILayoutControl;
+                if (layoutobject != null)
                 {
-                    panes = (string)themetype.GetProperty("Panes").GetValue(themeobject, null);
+                    panes = layoutobject.Panes;
                 }
             }
 
@@ -434,19 +433,24 @@
                     typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, control);
                 }
                 Type moduletype = Type.GetType(typename);
-                if (moduletype != null)
+
+                // ensure component implements IModuleControl
+                if (moduletype != null && !moduletype.GetInterfaces().Contains(typeof(IModuleControl)))
                 {
-                    var moduleobject = Activator.CreateInstance(moduletype);
-                    var resources = (List<Resource>)moduletype.GetProperty("Resources").GetValue(moduleobject, null);
-                    page.Resources = ManagePageResources(page.Resources, resources);
+                    module.ModuleType = "";
+                }
+                if (moduletype != null && module.ModuleType != "")
+                {
+                    var moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
+                    page.Resources = ManagePageResources(page.Resources, moduleobject.Resources);
 
                     // additional metadata needed for admin components
                     if (module.ModuleId == moduleid && control != "")
                     {
-                        module.SecurityAccessLevel = (SecurityAccessLevel)moduletype.GetProperty("SecurityAccessLevel").GetValue(moduleobject, null);
-                        module.ControlTitle = (string)moduletype.GetProperty("Title").GetValue(moduleobject);
-                        module.Actions = (string)moduletype.GetProperty("Actions").GetValue(moduleobject);
-                        module.UseAdminContainer = (bool)moduletype.GetProperty("UseAdminContainer").GetValue(moduleobject);
+                        module.SecurityAccessLevel = moduleobject.SecurityAccessLevel;
+                        module.ControlTitle = moduleobject.Title;
+                        module.Actions = moduleobject.Actions;
+                        module.UseAdminContainer = moduleobject.UseAdminContainer;
                     }
                 }
 
