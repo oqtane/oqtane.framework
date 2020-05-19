@@ -10,25 +10,13 @@ using [Owner].[Module]s.Repository;
 
 namespace [Owner].[Module]s.Manager
 {
-    public class [Module]Manager : IInstallable, IPortable
+    public class [Module]Manager : IPortable
     {
         private I[Module]Repository _[Module]s;
-        private ISqlRepository _sql;
 
-        public [Module]Manager(I[Module]Repository [Module]s, ISqlRepository sql)
+        public [Module]Manager(I[Module]Repository [Module]s)
         {
             _[Module]s = [Module]s;
-            _sql = sql;
-        }
-
-        public bool Install(Tenant tenant, string version)
-        {
-            return _sql.ExecuteScript(tenant, GetType().Assembly, "[Owner].[Module]s." + version + ".sql");
-        }
-
-        public bool Uninstall(Tenant tenant)
-        {
-            return _sql.ExecuteScript(tenant, GetType().Assembly, "[Owner].[Module]s.Uninstall.sql");
         }
 
         public string ExportModule(Module module)
