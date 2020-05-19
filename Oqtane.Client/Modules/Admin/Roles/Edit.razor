@@ -1,45 +1,49 @@
-﻿@namespace Oqtane.Modules.Admin.Roles
+﻿@using Microsoft.AspNetCore.Components.Forms
+@namespace Oqtane.Modules.Admin.Roles
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IRoleService RoleService
 
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <Label For="name" HelpText="Name Of The Role">Name:</Label>
-        </td>
-        <td>
-            <input id="name" class="form-control" @bind="@_name" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="description" HelpText="A Short Description Of The Role Which Describes Its Purpose">Description:</Label>
-        </td>
-        <td>
-            <textarea id="description" class="form-control" @bind="@_description" rows="5"></textarea>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="isautoassigned" HelpText="Indicates Whether Or Not New Users Are Automatically Assigned To This Role">Auto Assigned?</Label>
-        </td>
-        <td>
-            <select id="isautoassigned" class="form-control" @bind="@_isautoassigned">
-                <option value="True">Yes</option>
-                <option value="False">No</option>
-            </select>
-        </td>
-    </tr>
-</table>
-<button type="button" class="btn btn-success" @onclick="SaveRole">Save</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+<EditForm Model="@_role" OnValidSubmit="@SaveRole">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <table class="table table-borderless">
+        <tr>
+            <td>
+                <Label For="name" HelpText="Name of the role">Name:</Label>
+            </td>
+            <td>
+                <InputText id="name" class="form-control" @bind-Value="@_role.Name" maxLength="256" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="description" HelpText="A short description of the role which describes its purpose">Description:</Label>
+            </td>
+            <td>
+                <InputTextArea id="description" class="form-control" @bind-Value="@_role.Description" rows="5" maxLength="256"></InputTextArea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="isautoassigned" HelpText="Indicates whether or not new users are automatically assigned to this role">Auto Assigned?</Label>
+            </td>
+            <td>
+                <select id="isautoassigned" class="form-control" @bind="@_isAutoAssigned">
+                    <option value="True">Yes</option>
+                    <option value="False">No</option>
+                </select>
+            </td>
+        </tr>
+    </table>
+    <button type="submit" class="btn btn-success">Save</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+</EditForm>
 
 @code {
-    private int _roleid;
-    private string _name = string.Empty;
-    private string _description = string.Empty;
-    private string _isautoassigned = "False";
+    private int _roledId;
+    private Role _role;
+    private string _isAutoAssigned = "False";
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
@@ -47,39 +51,38 @@
     {
         try
         {
-            _roleid = Int32.Parse(PageState.QueryString["id"]);
-            var role = await RoleService.GetRoleAsync(_roleid);
-            if (role != null)
+            _roledId = Int32.Parse(PageState.QueryString["id"]);
+            _role = await RoleService.GetRoleAsync(_roledId);
+            if (_role != null)
             {
-                _name = role.Name;
-                _description = role.Description;
-                _isautoassigned = role.IsAutoAssigned.ToString();
+                _isAutoAssigned = _role.IsAutoAssigned.ToString();
+            }
+            else
+            {
+                _role = new Role();
             }
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading Role {RoleId} {Error}", _roleid, ex.Message);
+            await logger.LogError(ex, "Error Loading Role {RoleId} {Error}", _roledId, ex.Message);
             AddModuleMessage("Error Loading Role", MessageType.Error);
         }
     }
 
     private async Task SaveRole()
     {
-        var role = await RoleService.GetRoleAsync(_roleid);
-        role.Name = _name;
-        role.Description = _description;
-        role.IsAutoAssigned = (_isautoassigned != null && Boolean.Parse(_isautoassigned));
-        role.IsSystem = false;
+        _role.Description = _role.Description ?? string.Empty;
+        _role.IsAutoAssigned = (_isAutoAssigned != null && Boolean.Parse(_isAutoAssigned));
 
         try
         {
-            role = await RoleService.UpdateRoleAsync(role);
-            await logger.LogInformation("Role Saved {Role}", role);
+            _role = await RoleService.UpdateRoleAsync(_role);
+            await logger.LogInformation("Role Saved {Role}", _role);
             NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Saving Role {Role} {Error}", role, ex.Message);
+            await logger.LogError(ex, "Error Saving Role {Role} {Error}", _role, ex.Message);
             AddModuleMessage("Error Saving Role", MessageType.Error);
         }
     }
