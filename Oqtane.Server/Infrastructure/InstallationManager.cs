@@ -52,10 +52,6 @@ namespace Oqtane.Infrastructure
                 // iterate through Nuget packages in source folder
                 foreach (string packagename in Directory.GetFiles(sourceFolder, "*.nupkg"))
                 {
-                    string name = Path.GetFileNameWithoutExtension(packagename);
-                    string[] segments = name?.Split('.');
-                    if (segments != null) name = string.Join('.', segments, 0, segments.Length - 3);
-
                     // iterate through files
                     using (ZipArchive archive = ZipFile.OpenRead(packagename))
                     {
@@ -84,6 +80,15 @@ namespace Oqtane.Infrastructure
                         // if compatible with framework version
                         if (frameworkversion == "" || Version.Parse(Constants.Version).CompareTo(Version.Parse(frameworkversion)) >= 0)
                         {
+                            string name = "";
+                            if (folder != "Framework")
+                            {
+                                // module and theme packages must be in form of name.1.0.0.nupkg
+                                name = Path.GetFileNameWithoutExtension(packagename);
+                                string[] segments = name?.Split('.');
+                                if (segments != null) name = string.Join('.', segments, 0, segments.Length - 3);
+                            }
+
                             // deploy to appropriate locations
                             foreach (ZipArchiveEntry entry in archive.Entries)
                             {

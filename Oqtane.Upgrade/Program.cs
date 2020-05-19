@@ -14,8 +14,9 @@ namespace Oqtane.Upgrade
             if (args.Length == 2)
             {
                 string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-                string rootfolder = args[0];
-                string deployfolder = Path.Combine(args[1], "Framework");
+                string contentrootfolder = args[0];
+                string webrootfolder = args[1];
+                string deployfolder = Path.Combine(webrootfolder, "Framework");
 
                 if (Directory.Exists(deployfolder))
                 {
@@ -29,9 +30,9 @@ namespace Oqtane.Upgrade
                     if (packagename != "")
                     {
                         // take the app offline
-                        if (File.Exists(Path.Combine(rootfolder, "app_offline.bak")))
+                        if (File.Exists(Path.Combine(webrootfolder, "app_offline.bak")))
                         {
-                            File.Move(Path.Combine(rootfolder, "app_offline.bak"), Path.Combine(rootfolder, "app_offline.htm"));
+                            File.Move(Path.Combine(webrootfolder, "app_offline.bak"), Path.Combine(contentrootfolder, "app_offline.htm"));
                         }
 
                         // get list of files in package
@@ -116,9 +117,9 @@ namespace Oqtane.Upgrade
                         }
 
                         // bring the app back online
-                        if (File.Exists(Path.Combine(rootfolder, "app_offline.htm")))
+                        if (File.Exists(Path.Combine(contentrootfolder, "app_offline.htm")))
                         {
-                            File.Move(Path.Combine(rootfolder, "app_offline.htm"), Path.Combine(rootfolder, "app_offline.bak"));
+                            File.Delete(Path.Combine(contentrootfolder, "app_offline.htm"));
                         }
                     }
                 }
