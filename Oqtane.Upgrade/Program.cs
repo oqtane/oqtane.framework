@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Reflection;
@@ -10,6 +11,11 @@ namespace Oqtane.Upgrade
     {
         static void Main(string[] args)
         {
+            // for testing purposes set Oqtane.Upgrade as startup project and modify values below
+            //Array.Resize(ref args, 2);
+            //args[0] = @"C:\yourpath\oqtane.framework\Oqtane.Server";
+            //args[1] = @"C:\yourpath\oqtane.framework\Oqtane.Server\wwwroot";
+
             // requires 2 arguments - the contentrootpath and the webrootpath of the site
             if (args.Length == 2)
             {
@@ -32,7 +38,7 @@ namespace Oqtane.Upgrade
                         // take the app offline
                         if (File.Exists(Path.Combine(webrootfolder, "app_offline.bak")))
                         {
-                            File.Move(Path.Combine(webrootfolder, "app_offline.bak"), Path.Combine(contentrootfolder, "app_offline.htm"));
+                            File.Copy(Path.Combine(webrootfolder, "app_offline.bak"), Path.Combine(contentrootfolder, "app_offline.htm"), true);
                         }
 
                         // get list of files in package
@@ -41,26 +47,29 @@ namespace Oqtane.Upgrade
                         {
                             foreach (ZipArchiveEntry entry in archive.Entries)
                             {
-                                if (Path.GetExtension(entry.FullName) == ".dll")
+                                switch (Path.GetDirectoryName(entry.FullName).Split('\\')[0])
                                 {
-                                    files.Add(Path.GetFileName(entry.FullName));
+                                    case "lib":
+                                        files.Add(Path.Combine(binfolder, Path.GetFileName(entry.FullName)));
+                                        break;
+                                    case "wwwroot":
+                                        files.Add(Path.Combine(webrootfolder, entry.FullName.Replace("wwwroot/", "").Replace("/","\\")));
+                                        break;
                                 }
                             }
                         }
 
                         // ensure files are not locked
-                        string filename;
-                        if (CanAccessFiles(files, binfolder))
+                        if (CanAccessFiles(files))
                         {
                             // create backup
                             foreach (string file in files)
                             {
-                                filename = Path.Combine(binfolder, Path.GetFileName(file));
-                                if (File.Exists(filename.Replace(".dll", ".bak")))
+                                if (File.Exists(file + ".bak"))
                                 {
-                                    File.Delete(filename.Replace(".dll", ".bak"));
+                                    File.Delete(file + ".bak");
                                 }
-                                File.Move(filename, filename.Replace(".dll", ".bak"));
+                                File.Move(file, file + ".bak");
                             }
 
                             // extract files
@@ -71,10 +80,19 @@ namespace Oqtane.Upgrade
                                 {
                                     foreach (ZipArchiveEntry entry in archive.Entries)
                                     {
-                                        filename = Path.GetFileName(entry.FullName);
+                                        string filename = "";
+                                        switch (Path.GetDirectoryName(entry.FullName).Split('\\')[0])
+                                        {
+                                            case "lib":
+                                                filename = Path.Combine(binfolder, Path.GetFileName(entry.FullName));
+                                                break;
+                                            case "wwwroot":
+                                                filename = Path.Combine(webrootfolder, entry.FullName.Replace("wwwroot/", "").Replace("/", "\\"));
+                                                break;
+                                        }
                                         if (files.Contains(filename))
                                         {
-                                            entry.ExtractToFile(Path.Combine(binfolder, filename), true);
+                                            entry.ExtractToFile(filename, true);
                                         }
                                     }
                                 }
@@ -91,29 +109,27 @@ namespace Oqtane.Upgrade
                                 // clean up backup
                                 foreach (string file in files)
                                 {
-                                    filename = Path.Combine(binfolder, Path.GetFileName(file));
-                                    if (File.Exists(filename.Replace(".dll", ".bak")))
+                                    if (File.Exists(file + ".bak"))
                                     {
-                                        File.Delete(filename.Replace(".dll", ".bak"));
+                                        File.Delete(file + ".bak");
                                     }
                                 }
+
+                                // delete package
+                                File.Delete(packagename);
                             }
                             else
                             {
                                 // restore on failure
                                 foreach (string file in files)
                                 {
-                                    filename = Path.Combine(binfolder, Path.GetFileName(file));
-                                    if (File.Exists(filename))
+                                    if (File.Exists(file))
                                     {
-                                        File.Delete(filename);
+                                        File.Delete(file);
                                     }
-                                    File.Move(filename.Replace(".dll", ".bak"), filename);
+                                    File.Move(file + ".bak", file);
                                 }
                             }
-
-                            // delete package
-                            File.Delete(packagename);
                         }
 
                         // bring the app back online
@@ -126,7 +142,7 @@ namespace Oqtane.Upgrade
             }
         }
 
-        private static bool CanAccessFiles(List<string> files, string folder)
+        private static bool CanAccessFiles(List<string> files)
         {
             // ensure files are not locked by another process - the shutdownTimeLimit defines the duration for app shutdown
             bool canAccess = true;
@@ -134,7 +150,7 @@ namespace Oqtane.Upgrade
             int i = 0;
             while (i < (files.Count - 1) && canAccess)
             {
-                string filepath = Path.Combine(folder, Path.GetFileName(files[i]));
+                string filepath = files[i];
                 int attempts = 0;
                 bool locked = true;
                 // try up to 30 times
