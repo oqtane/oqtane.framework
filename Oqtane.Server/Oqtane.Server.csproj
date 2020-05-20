@@ -17,6 +17,11 @@
     <RootNamespace>Oqtane</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="wwwroot\Modules\Templates\**" />
+    <Content Remove="wwwroot\Modules\Templates\**" />
+    <EmbeddedResource Remove="wwwroot\Modules\Templates\**" />
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="Scripts\Master.0.9.0.sql" />
     <EmbeddedResource Include="Scripts\Tenant.0.9.0.sql" />
     <EmbeddedResource Include="Scripts\Tenant.0.9.1.sql" />
