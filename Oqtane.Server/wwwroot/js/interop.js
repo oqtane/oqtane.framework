@@ -49,6 +49,14 @@ window.interop = {
         }
     },
     includeLink: function (id, rel, url, type, integrity, crossorigin) {
+        var getAbsoluteUrl = function (url) {
+            var a = document.createElement('a');
+            getAbsoluteUrl = function (url) {
+                a.href = url;
+                return a.href;
+            }
+            return getAbsoluteUrl(url);
+        }
         var link;
         if (id !== "") {
             link = document.getElementById(id);
@@ -85,7 +93,7 @@ window.interop = {
             } else {
                 link.removeAttribute('type');
             }
-            if (link.href !== url) {
+            if (link.href !== getAbsoluteUrl(url)) {
                 link.removeAttribute('integrity');
                 link.removeAttribute('crossorigin');
                 link.setAttribute('href', url);
