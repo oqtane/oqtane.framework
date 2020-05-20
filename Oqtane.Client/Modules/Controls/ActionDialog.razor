@@ -62,9 +62,9 @@
     [Parameter]
     public string Class { get; set; } // optional
 
-	[Parameter]
-	public bool Disabled { get; set; } // optional
-	
+    [Parameter]
+    public bool Disabled { get; set; } // optional
+
     [Parameter]
     public string EditMode { get; set; } // optional - specifies if a user must be in edit mode to see the action - default is true
 
@@ -109,8 +109,8 @@
                 Type moduleType = Type.GetType(typename);
                 if (moduleType != null)
                 {
-                    var moduleobject = Activator.CreateInstance(moduleType);
-                    security = (SecurityAccessLevel)moduleType.GetProperty("SecurityAccessLevel").GetValue(moduleobject, null);
+                    var moduleobject = Activator.CreateInstance(moduleType) as IModuleControl;
+                    security = moduleobject.SecurityAccessLevel;
                 }
                 else
                 {

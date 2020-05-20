@@ -15,8 +15,6 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using System.Xml.Linq;
-using Microsoft.AspNetCore.Mvc.Formatters;
-// ReSharper disable StringIndexOfIsCultureSpecific.1
 
 namespace Oqtane.Controllers
 {
@@ -163,39 +161,6 @@ namespace Oqtane.Controllers
             }
         }
 
-        // GET api/<controller>/load
-        [HttpGet("load")]
-        public List<string> Load()
-        {
-            List<string> list = new List<string>();
-            if (_config.GetSection("Runtime").Value == "WebAssembly")
-            {
-                var assemblies = AppDomain.CurrentDomain.GetOqtaneClientAssemblies();
-                list = AppDomain.CurrentDomain.GetOqtaneClientAssemblies().Select(a => a.GetName().Name).ToList();
-                var deps = assemblies.SelectMany(a => a.GetReferencedAssemblies()).Distinct();
-                list.AddRange(deps.Where(a => a.Name.EndsWith(".oqtane", StringComparison.OrdinalIgnoreCase)).Select(a => a.Name));
-            }
-            return list;
-        }
-        
-        // GET api/<controller>/load/assembyname
-        [HttpGet("load/{assemblyname}")]
-        public IActionResult Load(string assemblyname)
-        {
-            if (_config.GetSection("Runtime").Value == "WebAssembly" && Path.GetExtension(assemblyname).ToLower() == ".dll")
-            {
-                string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-                byte[] file = System.IO.File.ReadAllBytes(Path.Combine(binfolder, assemblyname));
-                return File(file, "application/octet-stream", assemblyname);
-            }
-            else
-            {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Download Assembly {Assembly}", assemblyname);
-                HttpContext.Response.StatusCode = 401;
-                return null;
-            }
-        }
-
         // POST api/<controller>?moduleid=x
         [HttpPost]
         [Authorize(Roles = Constants.HostRole)]
@@ -231,8 +196,8 @@ namespace Oqtane.Controllers
                 {
                     // add embedded resources to project
                     List<string> resources = new List<string>();
-                    resources.Add(Utilities.PathCombine("Modules", moduleDefinition.Owner + "." + moduleDefinition.Name, "Scripts", moduleDefinition.Owner + "." + moduleDefinition.Name + "s.1.0.0.sql"));
-                    resources.Add(Utilities.PathCombine("Modules", moduleDefinition.Owner + "." + moduleDefinition.Name, "Scripts", moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Uninstall.sql"));
+                    resources.Add(Utilities.PathCombine("Modules", moduleDefinition.Owner + "." + moduleDefinition.Name + "s", "Scripts", moduleDefinition.Owner + "." + moduleDefinition.Name + "s.1.0.0.sql"));
+                    resources.Add(Utilities.PathCombine("Modules", moduleDefinition.Owner + "." + moduleDefinition.Name + "s", "Scripts", moduleDefinition.Owner + "." + moduleDefinition.Name + "s.Uninstall.sql"));
                     EmbedResourceFiles(Utilities.PathCombine(rootPath, "Oqtane.Server", "Oqtane.Server.csproj"), resources);
                 }
 

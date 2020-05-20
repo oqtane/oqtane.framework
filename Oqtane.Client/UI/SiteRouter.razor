@@ -179,7 +179,7 @@
             // extract admin route elements from path
             var segments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             int result;
-            // check if path has moduleid and control specification ie. page/moduleid/control/
+            // check if path has moduleid and action specification ie. pagename/moduleid/action/
             if (segments.Length >= 2 && int.TryParse(segments[segments.Length - 2], out result))
             {
                 action = segments[segments.Length - 1];
@@ -188,7 +188,7 @@
             }
             else
             {
-                // check if path has only moduleid specification ie. page/moduleid/
+                // check if path has moduleid specification ie. pagename/moduleid/
                 if (segments.Length >= 1 && int.TryParse(segments[segments.Length - 1], out result))
                 {
                     moduleid = result;
@@ -361,21 +361,20 @@
 
             string panes = "";
             Type themetype = Type.GetType(page.ThemeType);
-            var themeobject = Activator.CreateInstance(themetype);
+            var themeobject = Activator.CreateInstance(themetype) as IThemeControl;
             if (themeobject != null)
             {
-                panes = (string)themetype.GetProperty("Panes").GetValue(themeobject, null);
-                var resources = (List<Resource>)themetype.GetProperty("Resources").GetValue(themeobject, null);
-                page.Resources = ManagePageResources(page.Resources, resources);
+                panes = themeobject.Panes;
+                page.Resources = ManagePageResources(page.Resources, themeobject.Resources);
             }
 
             if (!string.IsNullOrEmpty(page.LayoutType))
             {
-                themetype = Type.GetType(page.LayoutType);
-                themeobject = Activator.CreateInstance(themetype);
-                if (themeobject != null)
+                Type layouttype = Type.GetType(page.LayoutType);
+                var layoutobject = Activator.CreateInstance(layouttype) as ILayoutControl;
+                if (layoutobject != null)
                 {
-                    panes = (string)themetype.GetProperty("Panes").GetValue(themeobject, null);
+                    panes = layoutobject.Panes;
                 }
             }
 
@@ -389,7 +388,7 @@
         return page;
     }
 
-    private (Page Page, List<Module> Modules) ProcessModules(Page page, List<Module> modules, int moduleid, string control, string defaultcontainertype)
+    private (Page Page, List<Module> Modules) ProcessModules(Page page, List<Module> modules, int moduleid, string action, string defaultcontainertype)
     {
         var paneindex = new Dictionary<string, int>();
         foreach (Module module in modules)
@@ -406,20 +405,20 @@
                     typename = Constants.ErrorModule;
                 }
 
-                if (module.ModuleId == moduleid && control != "")
+                if (module.ModuleId == moduleid && action != "")
                 {
                     // check if the module defines custom routes
                     if (module.ModuleDefinition.ControlTypeRoutes != "")
                     {
                         foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
                         {
-                            if (route.StartsWith(control + "="))
+                            if (route.StartsWith(action + "="))
                             {
-                                typename = route.Replace(control + "=", "");
+                                typename = route.Replace(action + "=", "");
                             }
                         }
                     }
-                    module.ModuleType = typename.Replace(Constants.ActionToken, control);
+                    module.ModuleType = typename.Replace(Constants.ActionToken, action);
                 }
                 else
                 {
@@ -428,25 +427,30 @@
 
                 // get additional metadata from IModuleControl interface
                 typename = module.ModuleType;
-                if (Constants.DefaultModuleActions.Contains(control))
+                if (Constants.DefaultModuleActions.Contains(action))
                 {
                     // core framework module action components
-                    typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, control);
+                    typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, action);
                 }
                 Type moduletype = Type.GetType(typename);
-                if (moduletype != null)
+
+                // ensure component implements IModuleControl
+                if (moduletype != null && !moduletype.GetInterfaces().Contains(typeof(IModuleControl)))
                 {
-                    var moduleobject = Activator.CreateInstance(moduletype);
-                    var resources = (List<Resource>)moduletype.GetProperty("Resources").GetValue(moduleobject, null);
-                    page.Resources = ManagePageResources(page.Resources, resources);
+                    module.ModuleType = "";
+                }
+                if (moduletype != null && module.ModuleType != "")
+                {
+                    var moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
+                    page.Resources = ManagePageResources(page.Resources, moduleobject.Resources);
 
                     // additional metadata needed for admin components
-                    if (module.ModuleId == moduleid && control != "")
+                    if (module.ModuleId == moduleid && action != "")
                     {
-                        module.SecurityAccessLevel = (SecurityAccessLevel)moduletype.GetProperty("SecurityAccessLevel").GetValue(moduleobject, null);
-                        module.ControlTitle = (string)moduletype.GetProperty("Title").GetValue(moduleobject);
-                        module.Actions = (string)moduletype.GetProperty("Actions").GetValue(moduleobject);
-                        module.UseAdminContainer = (bool)moduletype.GetProperty("UseAdminContainer").GetValue(moduleobject);
+                        module.SecurityAccessLevel = moduleobject.SecurityAccessLevel;
+                        module.ControlTitle = moduleobject.Title;
+                        module.Actions = moduleobject.Actions;
+                        module.UseAdminContainer = moduleobject.UseAdminContainer;
                     }
                 }
 

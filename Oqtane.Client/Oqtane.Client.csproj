@@ -6,7 +6,7 @@
     <LangVersion>7.3</LangVersion>
     <RazorLangVersion>3.0</RazorLangVersion>
     <Configurations>Debug;Release</Configurations>
-    <Version>0.9.1</Version>
+    <Version>1.0.0</Version>
     <Product>Oqtane</Product>
     <Authors>Shaun Walker</Authors>
     <Company>.NET Foundation</Company>
@@ -27,10 +27,11 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="3.2.0-rc1.20223.4" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Build" Version="3.2.0-rc1.20223.4" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="3.1.2" />
-    <PackageReference Include="System.Net.Http.Json" Version="3.2.0-rc1.20217.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="3.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Build" Version="3.2.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="3.2.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="3.1.4" />
+    <PackageReference Include="System.Net.Http.Json" Version="3.2.0" />
   </ItemGroup>
 
   <ItemGroup>

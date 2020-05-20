@@ -65,7 +65,7 @@ namespace Oqtane.Controllers
                     {
                         foreach (string file in Directory.GetFiles(folder))
                         {
-                            files.Add(new Models.File {Name = Path.GetFileName(file), Extension = Path.GetExtension(file)?.Replace(".", "")});
+                            files.Add(new Models.File { Name = Path.GetFileName(file), Extension = Path.GetExtension(file)?.Replace(".", "") });
                         }
                     }
                 }
@@ -256,7 +256,7 @@ namespace Oqtane.Controllers
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
                 return;
             }
-            
+
             string folderPath = "";
 
             if (int.TryParse(folder, out int folderId))
@@ -306,7 +306,8 @@ namespace Oqtane.Controllers
             string token = ".part_";
             string parts = Path.GetExtension(filename)?.Replace(token, ""); // returns "x_y"    
             int totalparts = int.Parse(parts?.Substring(parts.IndexOf("_") + 1));
-            filename = filename?.Substring(0, filename.IndexOf(token)); // base filename
+
+            filename = Path.GetFileNameWithoutExtension(filename); // base filename
             string[] fileParts = Directory.GetFiles(folder, filename + token + "*"); // list of all file parts
 
             // if all of the file parts exist ( note that file parts can arrive out of order )
@@ -363,13 +364,15 @@ namespace Oqtane.Controllers
             }
 
             // clean up file parts which are more than 2 hours old ( which can happen if a prior file upload failed )
-            fileParts = Directory.GetFiles(folder, "*" + token + "*");
-            foreach (string filepart in fileParts)
+            var cleanupFiles = Directory.EnumerateFiles(folder, "*" + token + "*")
+                .Where(f => Path.GetExtension(f).StartsWith(token));
+
+            foreach (var file in cleanupFiles)
             {
-                DateTime createddate = System.IO.File.GetCreationTime(filepart).ToUniversalTime();
-                if (createddate < DateTime.UtcNow.AddHours(-2))
+                var createdDate = System.IO.File.GetCreationTime(file).ToUniversalTime();
+                if (createdDate < DateTime.UtcNow.AddHours(-2))
                 {
-                    System.IO.File.Delete(filepart);
+                    System.IO.File.Delete(file);
                 }
             }
 
@@ -480,7 +483,7 @@ namespace Oqtane.Controllers
                 string[] folders = folderpath.Split(separators, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string folder in folders)
                 {
-                    path = Utilities.PathCombine(path, folder,"\\");
+                    path = Utilities.PathCombine(path, folder, "\\");
                     if (!Directory.Exists(path))
                     {
                         Directory.CreateDirectory(path);
@@ -497,7 +500,7 @@ namespace Oqtane.Controllers
 
             FileInfo fileinfo = new FileInfo(filepath);
             file.Extension = fileinfo.Extension.ToLower().Replace(".", "");
-            file.Size = (int) fileinfo.Length;
+            file.Size = (int)fileinfo.Length;
             file.ImageHeight = 0;
             file.ImageWidth = 0;
 

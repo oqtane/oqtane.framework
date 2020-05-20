@@ -213,8 +213,8 @@ namespace Oqtane.Repository
                     if (moduletype != null)
                     {
                         // get property values from IModule
-                        var moduleobject = Activator.CreateInstance(moduletype);
-                        moduledefinition = (ModuleDefinition) moduletype.GetProperty("ModuleDefinition").GetValue(moduleobject);
+                        var moduleobject = Activator.CreateInstance(moduletype) as IModule;
+                        moduledefinition = moduleobject.ModuleDefinition;
                     }
                     else
                     {
@@ -261,8 +261,8 @@ namespace Oqtane.Repository
 
                 moduledefinition = moduledefinitions[index];
                 // actions
-                var modulecontrolobject = Activator.CreateInstance(modulecontroltype);
-                string actions = (string) modulecontroltype.GetProperty("Actions")?.GetValue(modulecontrolobject);
+                var modulecontrolobject = Activator.CreateInstance(modulecontroltype) as IModuleControl;
+                string actions = modulecontrolobject.Actions;
                 if (!string.IsNullOrEmpty(actions))
                 {
                     foreach (string action in actions.Split(','))

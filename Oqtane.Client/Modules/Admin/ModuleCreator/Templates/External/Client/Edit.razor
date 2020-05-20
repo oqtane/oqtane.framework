@@ -28,7 +28,13 @@
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
+
     public override string Actions => "Add,Edit";
+
+    public override List<Resource> Resources => new List<Resource>()
+    {
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" }
+    };
 
     int _id;
     string _name;

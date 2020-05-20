@@ -51,7 +51,7 @@ namespace Oqtane.Services
 
         public async Task CreateModuleDefinitionAsync(ModuleDefinition moduleDefinition, int moduleId)
         {
-            await PostJsonAsync($"{Apiurl}?moduleid={moduleId.ToString()}", moduleDefinition);
+            await PostJsonAsync($"{Apiurl}?moduleid={moduleId}", moduleDefinition);
         }
     }
 }

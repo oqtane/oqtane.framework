@@ -52,10 +52,6 @@ namespace Oqtane.Infrastructure
                 // iterate through Nuget packages in source folder
                 foreach (string packagename in Directory.GetFiles(sourceFolder, "*.nupkg"))
                 {
-                    string name = Path.GetFileNameWithoutExtension(packagename);
-                    string[] segments = name?.Split('.');
-                    if (segments != null) name = string.Join('.', segments, 0, segments.Length - 3);
-
                     // iterate through files
                     using (ZipArchive archive = ZipFile.OpenRead(packagename))
                     {
@@ -84,6 +80,11 @@ namespace Oqtane.Infrastructure
                         // if compatible with framework version
                         if (frameworkversion == "" || Version.Parse(Constants.Version).CompareTo(Version.Parse(frameworkversion)) >= 0)
                         {
+                            // module and theme packages must be in form of name.1.0.0.nupkg
+                            string name = Path.GetFileNameWithoutExtension(packagename);
+                            string[] segments = name?.Split('.');
+                            if (segments != null) name = string.Join('.', segments, 0, segments.Length - 3);
+
                             // deploy to appropriate locations
                             foreach (ZipArchiveEntry entry in archive.Entries)
                             {
@@ -93,25 +94,18 @@ namespace Oqtane.Infrastructure
                                 switch (foldername)
                                 {
                                     case "lib":
-                                        if (binFolder != null) entry.ExtractToFile(Path.Combine(binFolder, filename), true);
+                                        filename = Path.Combine(binFolder, filename);
+                                        ExtractFile(entry, filename);
                                         break;
                                     case "wwwroot":
                                         filename = Path.Combine(sourceFolder, Utilities.PathCombine(entry.FullName.Replace("wwwroot", name).Split('/')));
-                                        if (!Directory.Exists(Path.GetDirectoryName(filename)))
-                                        {
-                                            Directory.CreateDirectory(Path.GetDirectoryName(filename));
-                                        }
-                                        entry.ExtractToFile(filename, true);
+                                        ExtractFile(entry, filename);
                                         break;
                                     case "content":
                                         if (Path.GetDirectoryName(entry.FullName) != "content") // assets must be in subfolders
                                         {
                                             filename = Path.Combine(webRootPath, Utilities.PathCombine(entry.FullName.Replace("content", "").Split('/')));
-                                            if (!Directory.Exists(Path.GetDirectoryName(filename)))
-                                            {
-                                                Directory.CreateDirectory(Path.GetDirectoryName(filename));
-                                            }
-                                            entry.ExtractToFile(filename, true);
+                                            ExtractFile(entry, filename);
                                         }
                                         break;
                                 }
@@ -126,6 +120,15 @@ namespace Oqtane.Infrastructure
             }
 
             return install;
+        }
+
+        private static void ExtractFile(ZipArchiveEntry entry, string filename)
+        {
+            if (!Directory.Exists(Path.GetDirectoryName(filename)))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(filename));
+            }
+            entry.ExtractToFile(filename, true);
         }
 
         public void UpgradeFramework()
