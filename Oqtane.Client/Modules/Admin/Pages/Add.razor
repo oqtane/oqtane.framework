@@ -385,10 +385,19 @@
                 page.UserId = null;
 
                 page = await PageService.AddPageAsync(page);
-                await PageService.UpdatePageOrderAsync(page.SiteId, page.PageId, page.ParentId);
 
-                await logger.LogInformation("Page Added {Page}", page);
-                NavigationManager.NavigateTo(NavigateUrl(page.Path));
+                if (page == null)
+                {
+                    AddModuleMessage("An error occurred", MessageType.Error);
+
+                }
+                else
+                {
+                    await PageService.UpdatePageOrderAsync(page.SiteId, page.PageId, page.ParentId);
+
+                    await logger.LogInformation("Page Added {Page}", page);
+                    NavigationManager.NavigateTo(NavigateUrl(page.Path));
+                }
             }
             else
             {
