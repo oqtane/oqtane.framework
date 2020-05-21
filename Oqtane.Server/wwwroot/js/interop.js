@@ -49,14 +49,6 @@ window.interop = {
         }
     },
     includeLink: function (id, rel, url, type, integrity, crossorigin) {
-        var getAbsoluteUrl = function (url) {
-            var a = document.createElement('a');
-            getAbsoluteUrl = function (url) {
-                a.href = url;
-                return a.href;
-            }
-            return getAbsoluteUrl(url);
-        }
         var link;
         if (id !== "") {
             link = document.getElementById(id);
@@ -93,7 +85,7 @@ window.interop = {
             } else {
                 link.removeAttribute('type');
             }
-            if (link.href !== getAbsoluteUrl(url)) {
+            if (link.href !== this.getAbsoluteUrl(url)) {
                 link.removeAttribute('integrity');
                 link.removeAttribute('crossorigin');
                 link.setAttribute('href', url);
@@ -145,7 +137,7 @@ window.interop = {
         }
         else {
             if (src !== "") {
-                if (script.src !== src) {
+                if (script.src !== this.getAbsoluteUrl(src)) {
                     script.removeAttribute('integrity');
                     script.removeAttribute('crossorigin');
                     script.src = src;
@@ -171,6 +163,14 @@ window.interop = {
                 }
             }
         }
+    },
+    getAbsoluteUrl : function (url) {
+        var a = document.createElement('a');
+        getAbsoluteUrl = function (url) {
+            a.href = url;
+            return a.href;
+        }
+        return getAbsoluteUrl(url);
     },
     removeElementsById: function (prefix, first, last) {
         var elements = document.querySelectorAll('[id^=' + prefix + ']');
