@@ -12,6 +12,8 @@
     protected override async Task OnParametersSetAsync()
     {
         var interop = new Interop(JsRuntime);
+
+        // set page title
         if (!string.IsNullOrEmpty(PageState.Page.Title))
         {
             await interop.UpdateTitle(PageState.Page.Title);
@@ -20,10 +22,34 @@
         {
             await interop.UpdateTitle(PageState.Site.Name + " - " + PageState.Page.Name);
         }
+
+        // update page resources
+        int stylesheet = 0;
+        int script = 0;
+        foreach (Resource resource in PageState.Page.Resources)
+        {
+            switch (resource.ResourceType)
+            {
+                case ResourceType.Stylesheet:
+                    stylesheet += 1;
+                    await interop.IncludeLink("app-stylesheet" + stylesheet.ToString("00"), "stylesheet", resource.Url, "text/css", resource.Integrity ?? "", resource.CrossOrigin ?? "");
+                    break;
+                case ResourceType.Script:
+                    script += 1;
+                    await interop.IncludeScript("app-script" + script.ToString("00"), resource.Url, "", "body", resource.Integrity ?? "", resource.CrossOrigin ?? "");
+                    break;
+            }
+        }
+        // remove any page resources references which are no longer required for this page
+        await interop.RemoveElementsById("app-stylesheet", "app-stylesheet" + (stylesheet + 1).ToString("00"), "");
+        await interop.RemoveElementsById("app-script", "app-script" + (script + 1).ToString("00"), "");
+
+        // add favicon
         if (PageState.Site.FaviconFileId != null)
         {
             await interop.IncludeLink("fav-icon", "shortcut icon", Utilities.ContentUrl(PageState.Alias, PageState.Site.FaviconFileId.Value), "image/x-icon", "", "");
         }
+        // add PWA support
         if (PageState.Site.PwaIsEnabled)
         {
             await InitializePwa(interop);

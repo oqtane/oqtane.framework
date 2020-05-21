@@ -4,12 +4,16 @@ using System.Threading.Tasks;
 using Oqtane.Services;
 using System.Reflection;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Json;
 using Oqtane.Modules;
 using Oqtane.Shared;
 using Oqtane.Providers;
 using Microsoft.AspNetCore.Components.Authorization;
+using System.IO.Compression;
+using System.IO;
 
 namespace Oqtane.Client
 {
@@ -19,10 +23,9 @@ namespace Oqtane.Client
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
+            HttpClient httpClient = new HttpClient {BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)};
 
-            builder.Services.AddSingleton(
-                new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) }
-            );
+            builder.Services.AddSingleton(httpClient);
             builder.Services.AddOptions();
 
             // register auth services
@@ -57,14 +60,16 @@ namespace Oqtane.Client
             builder.Services.AddScoped<ISqlService, SqlService>();
             builder.Services.AddScoped<ISystemService, SystemService>();
 
+            await LoadClientAssemblies(httpClient);
+
             // dynamically register module contexts and repository services
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach (Assembly assembly in assemblies)
             {
-                Type[] implementationtypes = assembly.GetTypes()
-                    .Where(item => item.GetInterfaces().Contains(typeof(IService)))
-                    .ToArray();
-                foreach (Type implementationtype in implementationtypes)
+                var implementationTypes = assembly.GetTypes()
+                    .Where(item => item.GetInterfaces().Contains(typeof(IService)));
+
+                foreach (Type implementationtype in implementationTypes)
                 {
                     Type servicetype = Type.GetType(implementationtype.AssemblyQualifiedName.Replace(implementationtype.Name, "I" + implementationtype.Name));
                     if (servicetype != null)
@@ -76,9 +81,62 @@ namespace Oqtane.Client
                         builder.Services.AddScoped(implementationtype, implementationtype); // no interface defined for service
                     }
                 }
+
+                assembly.GetInstances<IClientStartup>()
+                    .ToList()
+                    .ForEach(x => x.ConfigureServices(builder.Services));
             }
 
             await builder.Build().RunAsync();
+        }
+
+        private static async Task LoadClientAssemblies(HttpClient http)
+        {
+            // get list of loaded assemblies on the client 
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.GetName().Name).ToList();
+
+            // get assemblies from server and load into client app domain
+            var zip = await http.GetByteArrayAsync($"/~/api/Installation/load");
+
+            // asemblies and debug symbols are packaged in a zip file
+            using (ZipArchive archive = new ZipArchive(new MemoryStream(zip)))
+            {
+                Dictionary<string, byte[]> dlls = new Dictionary<string, byte[]>();
+                Dictionary<string, byte[]> pdbs = new Dictionary<string, byte[]>();
+
+                foreach (ZipArchiveEntry entry in archive.Entries)
+                {
+                    if (!assemblies.Contains(Path.GetFileNameWithoutExtension(entry.Name)))
+                    {
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            entry.Open().CopyTo(memoryStream);
+                            byte[] file = memoryStream.ToArray();
+                            switch (Path.GetExtension(entry.Name))
+                            {
+                                case ".dll":
+                                    dlls.Add(entry.Name, file);
+                                    break;
+                                case ".pdb":
+                                    pdbs.Add(entry.Name, file);
+                                    break;
+                            }
+                        }
+                    }
+                }
+
+                foreach (var item in dlls)
+                {
+                    if (pdbs.ContainsKey(item.Key))
+                    {
+                        Assembly.Load(item.Value, pdbs[item.Key]);
+                    }
+                    else
+                    {
+                        Assembly.Load(item.Value);
+                    }
+                }
+            }
         }
     }
 }

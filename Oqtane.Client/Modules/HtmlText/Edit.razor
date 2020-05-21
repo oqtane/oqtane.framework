@@ -3,115 +3,62 @@
 @using Oqtane.Modules.Controls
 @namespace Oqtane.Modules.HtmlText
 @inherits ModuleBase
+@inject IHtmlTextService HtmlTextService
 @inject NavigationManager NavigationManager
-@inject HttpClient http
-@inject SiteState sitestate
 
-<div class="row" style="margin-bottom: 50px;">
-    <div class="col @_visibleText">
-        <textarea class="form-control" @bind="@content" rows="10"></textarea>
-    </div>
-
-    <div class="col @_visibleRich">
-        <RichTextEditor @ref="@RichTextEditorHtml">
-            <ToolbarContent>
-                <select class="ql-header">
-                    <option selected=""></option>
-                    <option value="1"></option>
-                    <option value="2"></option>
-                    <option value="3"></option>
-                    <option value="4"></option>
-                    <option value="5"></option>
-                </select>
-                <span class="ql-formats">
-                    <button class="ql-bold"></button>
-                    <button class="ql-italic"></button>
-                    <button class="ql-underline"></button>
-                    <button class="ql-strike"></button>
-                </span>
-                <span class="ql-formats">
-                    <select class="ql-color"></select>
-                    <select class="ql-background"></select>
-                </span>
-                <span class="ql-formats">
-                    <button class="ql-list" value="ordered"></button>
-                    <button class="ql-list" value="bullet"></button>
-                </span>
-                <span class="ql-formats">
-                    <button class="ql-link"></button>
-                </span>
-            </ToolbarContent>
-        </RichTextEditor>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col">
-        @if (!RichTextEditorMode)
-        {
-            <button type="button" class="btn btn-secondary" @onclick="RichTextEditor">Rich Text Editor</button>
-        }
-        else
-        {
-            <button type="button" class="btn btn-secondary" @onclick="RawHtmlEditor">Raw HTML Editor</button>
-        }
-        <button type="button" class="btn btn-success" @onclick="SaveContent">Save</button>        
-        <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col">
-        <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
-    </div>
-</div>
+@if (_content != null)
+{
+    <RichTextEditor Content="@_content" @ref="@RichTextEditorHtml"></RichTextEditor>
+    <button type="button" class="btn btn-success" @onclick="SaveContent">Save</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    @if (!string.IsNullOrEmpty(_content))
+    {
+        <br />
+        <br />
+        <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon"></AuditInfo>
+    }
+}
 
 @code {
-    private string _visibleText = "d-none";
-    private string _visibleRich;
-    private bool _richTextEditorMode;
-    private RichTextEditor RichTextEditorHtml;
-    private string content;
-    private string createdby;
-    private DateTime createdon;
-    private string modifiedby;
-    private DateTime modifiedon;
-
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
 
     public override string Title => "Edit Html/Text";
 
-    public bool RichTextEditorMode
+    public override List<Resource> Resources => new List<Resource>()
     {
-        get => _richTextEditorMode;
-        set
-        {
-            _richTextEditorMode = value;
-            
-            if (_richTextEditorMode)
-            {
-                _visibleText = "d-none";
-                _visibleRich = string.Empty;
-            }
-            else
-            {
-                _visibleText = string.Empty;
-                _visibleRich = "d-none";
-            }
-        }
-    }
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" },
+        // the following resources should be declared in the RichTextEditor component however the framework currently only supports resource management for modules and themes
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill1.3.6.bubble.css" },
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill1.3.6.snow.css" },
+        new Resource { ResourceType = ResourceType.Script, Url = "js/quill1.3.6.min.js" },
+        new Resource { ResourceType = ResourceType.Script, Url = "js/quill-blot-formatter.min.js" },
+        new Resource { ResourceType = ResourceType.Script, Url = "js/quill-interop.js" }
+    };
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private RichTextEditor RichTextEditorHtml;
+    private string _content = null;
+    private string _createdby;
+    private DateTime _createdon;
+    private string _modifiedby;
+    private DateTime _modifiedon;
+
+    protected override async Task OnInitializedAsync()
     {
         try
         {
-            if (firstRender)
+            var htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId);
+            if (htmltext != null)
             {
-                if (content == null)
-                {
-                    RichTextEditorMode = true;
-                    await LoadText();
-                }
+                _content = htmltext.Content;
+                _content = _content.Replace(Constants.ContentUrl, "/" + PageState.Alias.AliasId.ToString() + Constants.ContentUrl);
+                _createdby = htmltext.CreatedBy;
+                _createdon = htmltext.CreatedOn;
+                _modifiedby = htmltext.ModifiedBy;
+                _modifiedon = htmltext.ModifiedOn;
+            }
+            else
+            {
+                _content = string.Empty;
             }
         }
         catch (Exception ex)
@@ -121,66 +68,27 @@
         }
     }
 
-    private async Task LoadText()
-    {
-        var htmltextservice = new HtmlTextService(http, sitestate);
-        var htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
-        if (htmltext != null)
-        {
-            content = htmltext.Content;
-            createdby = htmltext.CreatedBy;
-            createdon = htmltext.CreatedOn;
-            modifiedby = htmltext.ModifiedBy;
-            modifiedon = htmltext.ModifiedOn;
-
-            if (RichTextEditorMode)
-            {
-                await RichTextEditorHtml.LoadContent(content);
-                StateHasChanged();
-            }
-        }
-    }
-
-    private async Task RichTextEditor()
-    {
-        RichTextEditorMode = true;
-        await RichTextEditorHtml.LoadContent(content);
-        StateHasChanged();
-    }
-
-    private async Task RawHtmlEditor()
-    {
-        content = await this.RichTextEditorHtml.GetHtml();
-        RichTextEditorMode = false;
-        StateHasChanged();
-    }
-
     private async Task SaveContent()
     {
-        if (RichTextEditorMode)
-        {
-            content = await RichTextEditorHtml.GetHtml();
-        }
-
-        content = content.Replace(((PageState.Alias.Path == string.Empty) ? "/~" : PageState.Alias.Path) + Constants.ContentUrl, Constants.ContentUrl);
+        string content = await RichTextEditorHtml.GetHtml();
+        content = content.Replace("/" + PageState.Alias.AliasId.ToString() + Constants.ContentUrl, Constants.ContentUrl);
 
         try
         {
-            var htmltextservice = new HtmlTextService(http, sitestate);
-            var htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
+            var htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId);
             if (htmltext != null)
             {
                 htmltext.Content = content;
-                await htmltextservice.UpdateHtmlTextAsync(htmltext);
+                await HtmlTextService.UpdateHtmlTextAsync(htmltext);
             }
             else
             {
                 htmltext = new HtmlTextInfo();
                 htmltext.ModuleId = ModuleState.ModuleId;
                 htmltext.Content = content;
-                await htmltextservice.AddHtmlTextAsync(htmltext);
+                await HtmlTextService.AddHtmlTextAsync(htmltext);
             }
-            
+
             await logger.LogInformation("Html/Text Content Saved {HtmlText}", htmltext);
             NavigationManager.NavigateTo(NavigateUrl());
         }
@@ -190,5 +98,4 @@
             AddModuleMessage("Error Saving Content", MessageType.Error);
         }
     }
-
 }

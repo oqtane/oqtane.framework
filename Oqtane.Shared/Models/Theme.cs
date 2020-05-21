@@ -1,4 +1,6 @@
-﻿namespace Oqtane.Models
+﻿using System.Collections.Generic;
+
+namespace Oqtane.Models
 {
     public class Theme
     {

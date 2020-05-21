@@ -112,7 +112,7 @@
                         </td>
                         <td>
                             <select id="Theme" class="form-control" @onchange="(e => ThemeChanged(e))">
-                                <option value="-">&lt;Select Theme&gt;</option>
+                                <option value="-">&lt;Inherit From Site&gt;</option>
                                 @foreach (KeyValuePair<string, string> item in _themes)
                                 {
                                     if (item.Key == _themetype)
@@ -133,7 +133,7 @@
                         </td>
                         <td>
                             <select id="Layout" class="form-control" @bind="@_layouttype">
-                                <option value="-">&lt;Select Layout&gt;</option>
+                                <option value="-">&lt;Inherit From Site&gt;</option>
                                 @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
                                 {
                                     if (panelayout.Key == _layouttype)
@@ -144,6 +144,20 @@
                                     {
                                         <option value="@panelayout.Key">@panelayout.Value</option>
                                     }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <Label For="defaultContainer" HelpText="Select the default container for the page">Default Container: </Label>
+                        </td>
+                        <td>
+                            <select id="defaultContainer" class="form-control" @bind="@_containertype">
+                                <option value="-">&lt;Inherit From Site&gt;</option>
+                                @foreach (KeyValuePair<string, string> container in _containers)
+                                {
+                                    <option value="@container.Key">@container.Value</option>
                                 }
                             </select>
                         </td>
@@ -200,6 +214,7 @@
 @code {
     private Dictionary<string, string> _themes;
     private Dictionary<string, string> _panelayouts;
+    private Dictionary<string, string> _containers = new Dictionary<string, string>();
     private List<Theme> _themeList;
     private List<Page> _pageList;
     private int _pageId;
@@ -217,6 +232,7 @@
     private string _mode;
     private string _themetype = "-";
     private string _layouttype = "-";
+    private string _containertype = "-";
     private string _icon;
     private string _permissions;
     private string _createdby;
@@ -241,6 +257,7 @@
             _children = PageState.Pages.Where(item => item.ParentId == null).ToList();
 
             _themes = ThemeService.GetThemeTypes(_themeList);
+            _containers = ThemeService.GetContainerTypes(_themeList);
 
             _pageId = Int32.Parse(PageState.QueryString["id"]);
             var page = PageState.Pages.FirstOrDefault(item => item.PageId == _pageId);
@@ -270,15 +287,20 @@
                 _ispersonalizable = page.IsPersonalizable.ToString();
                 _mode = (page.EditMode) ? "edit" : "view";
                 _themetype = page.ThemeType;
-                _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
-                _layouttype = page.LayoutType;
                 if (_themetype == PageState.Site.DefaultThemeType)
                 {
                     _themetype = "-";
                 }
+                _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
+                _layouttype = page.LayoutType;
                 if (_layouttype == PageState.Site.DefaultLayoutType)
                 {
                     _layouttype = "-";
+                }
+                _containertype = page.DefaultContainerType;
+                if (string.IsNullOrEmpty(_containertype))
+                {
+                    _containertype = "-";
                 }
                 _icon = page.Icon;
                 _permissions = page.Permissions;
@@ -426,14 +448,19 @@
                 page.Url = _url;
                 page.EditMode = (_mode == "edit");
                 page.ThemeType = (_themetype != "-") ? _themetype : string.Empty;
-                page.LayoutType = (_layouttype != "-") ? _layouttype : string.Empty;
-                if (page.ThemeType == PageState.Site.DefaultThemeType)
+                if (!string.IsNullOrEmpty(page.ThemeType) && page.ThemeType == PageState.Site.DefaultThemeType)
                 {
                     page.ThemeType = string.Empty;
                 }
-                if (page.LayoutType == PageState.Site.DefaultLayoutType)
+                page.LayoutType = (_layouttype != "-") ? _layouttype : string.Empty;
+                if (!string.IsNullOrEmpty(page.LayoutType) && page.LayoutType == PageState.Site.DefaultLayoutType)
                 {
                     page.LayoutType = string.Empty;
+                }
+                page.DefaultContainerType = (_containertype != "-") ? _containertype : string.Empty;
+                if (!string.IsNullOrEmpty(page.DefaultContainerType) && page.DefaultContainerType == PageState.Site.DefaultContainerType)
+                {
+                    page.DefaultContainerType = string.Empty;
                 }
                 page.Icon = _icon ?? string.Empty;
                 page.Permissions = _permissionGrid.GetPermissions();

@@ -28,7 +28,7 @@ namespace Oqtane.Infrastructure
         {
             var webRootPath = _environment.WebRootPath;
             
-            var install = UnpackPackages(folders, webRootPath);
+            var install = InstallPackages(folders, webRootPath);
 
             if (install && restart)
             {
@@ -36,7 +36,7 @@ namespace Oqtane.Infrastructure
             }
         }
 
-        public static bool UnpackPackages(string folders, string webRootPath)
+        public static bool InstallPackages(string folders, string webRootPath)
         {
             bool install = false;
             string binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
@@ -44,20 +44,14 @@ namespace Oqtane.Infrastructure
             foreach (string folder in folders.Split(','))
             {
                 string sourceFolder = Path.Combine(webRootPath, folder);
-
-                // create folder if it does not exist
                 if (!Directory.Exists(sourceFolder))
                 {
                     Directory.CreateDirectory(sourceFolder);
                 }
 
-                // iterate through packages
+                // iterate through Nuget packages in source folder
                 foreach (string packagename in Directory.GetFiles(sourceFolder, "*.nupkg"))
                 {
-                    string name = Path.GetFileNameWithoutExtension(packagename);
-                    string[] segments = name?.Split('.');
-                    if (segments != null) name = string.Join('.', segments, 0, segments.Length - 3);
-
                     // iterate through files
                     using (ZipArchive archive = ZipFile.OpenRead(packagename))
                     {
@@ -86,31 +80,33 @@ namespace Oqtane.Infrastructure
                         // if compatible with framework version
                         if (frameworkversion == "" || Version.Parse(Constants.Version).CompareTo(Version.Parse(frameworkversion)) >= 0)
                         {
+                            // module and theme packages must be in form of name.1.0.0.nupkg
+                            string name = Path.GetFileNameWithoutExtension(packagename);
+                            string[] segments = name?.Split('.');
+                            if (segments != null) name = string.Join('.', segments, 0, segments.Length - 3);
+
                             // deploy to appropriate locations
                             foreach (ZipArchiveEntry entry in archive.Entries)
                             {
+                                string foldername = Path.GetDirectoryName(entry.FullName).Split('\\')[0];
                                 string filename = Path.GetFileName(entry.FullName);
-                                switch (Path.GetExtension(filename).ToLower())
-                                {
-                                    case ".pdb":
-                                    case ".dll":
-                                        if (binFolder != null) entry.ExtractToFile(Path.Combine(binFolder, filename), true);
-                                        break;
-                                    case ".png":
-                                    case ".jpg":
-                                    case ".jpeg":
-                                    case ".gif":
-                                    case ".svg":
-                                    case ".js":
-                                    case ".css":
-                                        string entryPath = Utilities.PathCombine(entry.FullName.Replace("wwwroot", name).Split('/'));
-                                        filename = Path.Combine(sourceFolder, entryPath);
-                                        if (!Directory.Exists(Path.GetDirectoryName(filename)))
-                                        {
-                                            Directory.CreateDirectory(Path.GetDirectoryName(filename));
-                                        }
 
-                                        entry.ExtractToFile(filename, true);
+                                switch (foldername)
+                                {
+                                    case "lib":
+                                        filename = Path.Combine(binFolder, filename);
+                                        ExtractFile(entry, filename);
+                                        break;
+                                    case "wwwroot":
+                                        filename = Path.Combine(sourceFolder, Utilities.PathCombine(entry.FullName.Replace("wwwroot", name).Split('/')));
+                                        ExtractFile(entry, filename);
+                                        break;
+                                    case "content":
+                                        if (Path.GetDirectoryName(entry.FullName) != "content") // assets must be in subfolders
+                                        {
+                                            filename = Path.Combine(webRootPath, Utilities.PathCombine(entry.FullName.Replace("content", "").Split('/')));
+                                            ExtractFile(entry, filename);
+                                        }
                                         break;
                                 }
                             }
@@ -124,6 +120,15 @@ namespace Oqtane.Infrastructure
             }
 
             return install;
+        }
+
+        private static void ExtractFile(ZipArchiveEntry entry, string filename)
+        {
+            if (!Directory.Exists(Path.GetDirectoryName(filename)))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(filename));
+            }
+            entry.ExtractToFile(filename, true);
         }
 
         public void UpgradeFramework()
@@ -180,17 +185,17 @@ namespace Oqtane.Infrastructure
 
         private void FinishUpgrade()
         {
-            string folder = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
-
             // check if upgrade application exists
+            string folder = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
             if (folder == null || !File.Exists(Path.Combine(folder, "Oqtane.Upgrade.exe"))) return;
+
             // run upgrade application
             var process = new Process
             {
                 StartInfo =
                 {
                     FileName = Path.Combine(folder, "Oqtane.Upgrade.exe"),
-                    Arguments = "",
+                    Arguments = "\"" + _environment.ContentRootPath + "\" \"" + _environment.WebRootPath + "\"",
                     ErrorDialog = false,
                     UseShellExecute = false,
                     CreateNoWindow = true,

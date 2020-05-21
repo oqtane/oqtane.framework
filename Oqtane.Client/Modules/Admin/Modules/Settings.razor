@@ -24,11 +24,22 @@
                     </td>
                     <td>
                         <select id="container" class="form-control" @bind="@_containerType">
-                            <option value="">&lt;Select Container&gt;</option>
+                            <option value="-">&lt;Inherit From Page Or Site&gt;</option>
                             @foreach (KeyValuePair<string, string> container in _containers)
                             {
                                 <option value="@container.Key">@container.Value</option>
                             }
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="allpages" HelpText="Indicate if this module should be displayed on all pages">Display On All Pages? </Label>
+                    </td>
+                    <td>
+                        <select id="allpages" class="form-control" @bind="@_allPages">
+                            <option value="True">Yes</option>
+                            <option value="False">No</option>
                         </select>
                     </td>
                 </tr>
@@ -77,6 +88,7 @@
     private Dictionary<string, string> _containers;
     private string _title;
     private string _containerType;
+    private string _allPages = "false";
     private string _permissionNames = "";
     private string _permissions;
     private string _pageId;
@@ -95,6 +107,15 @@
         _title = ModuleState.Title;
         _containers = ThemeService.GetContainerTypes(await ThemeService.GetThemesAsync());
         _containerType = ModuleState.ContainerType;
+        if (!string.IsNullOrEmpty(PageState.Page.DefaultContainerType) && _containerType == PageState.Page.DefaultContainerType)
+        {
+            _containerType = "-";
+        }
+        if (_containerType == PageState.Site.DefaultContainerType)
+        {
+            _containerType = "-";
+        }
+        _allPages = ModuleState.AllPages.ToString();
         _permissions = ModuleState.Permissions;
         _permissionNames = ModuleState.ModuleDefinition.PermissionNames;
         _pageId = ModuleState.PageId.ToString();
@@ -102,8 +123,8 @@
         _settingsModuleType = Type.GetType(ModuleState.ModuleType);
         if (_settingsModuleType != null)
         {
-            var moduleobject = Activator.CreateInstance(_settingsModuleType);
-            _settingstitle = (string)_settingsModuleType.GetProperty("Title").GetValue(moduleobject, null);
+            var moduleobject = Activator.CreateInstance(_settingsModuleType) as IModuleControl;
+            _settingstitle = moduleobject.Title;
             if (string.IsNullOrEmpty(_settingstitle))
             {
                 _settingstitle = "Other Settings";
@@ -120,17 +141,25 @@
 
     private async Task SaveModule()
     {
-        var module = ModuleState;
-        module.Permissions = _permissionGrid.GetPermissions();
-        await ModuleService.UpdateModuleAsync(module);
-
         var pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
         pagemodule.PageId = int.Parse(_pageId);
         pagemodule.Title = _title;
-        pagemodule.ContainerType = _containerType;
-
+        pagemodule.ContainerType = (_containerType != "-") ? _containerType : string.Empty;
+        if (!string.IsNullOrEmpty(pagemodule.ContainerType) && pagemodule.ContainerType == PageState.Page.DefaultContainerType)
+        {
+            pagemodule.ContainerType = string.Empty;
+        }
+        if (!string.IsNullOrEmpty(pagemodule.ContainerType) && pagemodule.ContainerType == PageState.Site.DefaultContainerType)
+        {
+            pagemodule.ContainerType = string.Empty;
+        }
         await PageModuleService.UpdatePageModuleAsync(pagemodule);
         await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
+
+        var module = ModuleState;
+        module.AllPages = bool.Parse(_allPages);
+        module.Permissions = _permissionGrid.GetPermissions();
+        await ModuleService.UpdateModuleAsync(module);
 
         if (_settingsModuleType != null)
         {

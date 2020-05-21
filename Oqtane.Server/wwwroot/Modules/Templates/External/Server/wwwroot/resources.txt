@@ -1,0 +1,1 @@
+This is the location where static resources such as images, style sheets, or scripts for this module will be located. Static assets can be organized in subfolders. When the module package is deployed the assets will be extracted under the web root in a folder that matches the module namespace.

@@ -7,15 +7,7 @@
 
 <div class="sidebar">
     <nav class="navbar">
-        <Logo />
-        <button class="navbar-toggler" aria-expanded="false" aria-controls="navbarSupportedContent"
-                aria-label="Toggle navigation" type="button" data-toggle="collapse"
-                data-target="#navbarSupportedContent">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <Menu Orientation="Vertical" />
-        </div>
+        <Logo /><Menu Orientation="Vertical" />
     </nav>
 </div>
 
@@ -36,9 +28,8 @@
 @code {
     public override string Panes => "Content";
 
-    protected override async Task OnParametersSetAsync()
+    public override List<Resource> Resources => new List<Resource>()
     {
-        await IncludeCSS("Theme.css");
-    }
-
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = ThemePath() + "Theme.css" }
+    };
 }

@@ -1,6 +1,6 @@
 ﻿@namespace Oqtane.Themes.Controls
-@using Oqtane.Enums
-@inherits ThemeControlBase
+@inherits ThemeControlBase     
+@attribute [OqtaneIgnore]
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject IModuleDefinitionService ModuleDefinitionService
@@ -16,7 +16,7 @@
 
         <div class="@CardClass">
             <div class="@HeaderClass">
-                Control Panel
+                <span class="font-weight-bold">Control Panel</span>
                 <button type="button" class="close" @onclick="HideControlPanel" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -149,7 +149,7 @@
                         <label for="Pane" class="control-label">Pane: </label>
                         <select class="form-control" @bind="@_pane">
                             <option value="">&lt;Select Pane&gt;</option>
-                            @foreach (string pane in PageState.Page.Panes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                            @foreach (string pane in PageState.Page.Panes)
                             {
                                 <option value="@pane">@pane Pane</option>
                             }
@@ -245,17 +245,17 @@
     {
         if (string.IsNullOrEmpty(ButtonClass))
         {
-            ButtonClass = "btn-outline-primary";
+            ButtonClass = "btn-outline-secondary";
         }
 
         if (string.IsNullOrEmpty(CardClass))
         {
-            CardClass = "card bg-secondary mb-3";
+            CardClass = "card border-secondary mb-3";
         }
 
         if (string.IsNullOrEmpty(HeaderClass))
         {
-            HeaderClass = "card-header text-white";
+            HeaderClass = "card-header";
         }
 
         if (string.IsNullOrEmpty(BodyClass))
@@ -275,7 +275,7 @@
                 }
             }
 
-            var panes = PageState.Page.Panes.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
+            var panes = PageState.Page.Panes;
             _pane = panes.Count() == 1 ? panes.SingleOrDefault() : "";
             var themes = await ThemeService.GetThemesAsync();
             _containers = ThemeService.GetContainerTypes(themes);
@@ -361,6 +361,7 @@
                     module.SiteId = PageState.Site.SiteId;
                     module.PageId = PageState.Page.PageId;
                     module.ModuleDefinitionName = _moduleDefinitionName;
+                    module.AllPages = false;
                     module.Permissions = PageState.Page.Permissions;
                     module = await ModuleService.AddModuleAsync(module);
                     _moduleId = module.ModuleId.ToString();

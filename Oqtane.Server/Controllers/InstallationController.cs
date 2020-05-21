@@ -4,6 +4,11 @@ using Microsoft.Extensions.Configuration;
 using Oqtane.Models;
 using Oqtane.Shared;
 using Oqtane.Infrastructure;
+using System;
+using System.IO;
+using System.Reflection;
+using System.Linq;
+using System.IO.Compression;
 
 namespace Oqtane.Controllers
 {
@@ -54,6 +59,57 @@ namespace Oqtane.Controllers
             var installation = new Installation {Success = true, Message = ""};
             _installationManager.UpgradeFramework();
             return installation;
+        }
+
+        // GET api/<controller>/load
+        [HttpGet("load")]
+        public IActionResult Load()
+        {
+            if (_config.GetSection("Runtime").Value == "WebAssembly")
+            {
+                // get list of assemblies which should be downloaded to browser
+                var assemblies = AppDomain.CurrentDomain.GetOqtaneClientAssemblies();
+                var list = assemblies.Select(a => a.GetName().Name).ToList();
+                var deps = assemblies.SelectMany(a => a.GetReferencedAssemblies()).Distinct();
+                list.AddRange(deps.Where(a => a.Name.EndsWith(".oqtane", StringComparison.OrdinalIgnoreCase)).Select(a => a.Name));
+
+                // create zip file containing assemblies and debug symbols
+                string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                byte[] zipfile;
+                using (var memoryStream = new MemoryStream())
+                {
+                    using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+                    {
+                        ZipArchiveEntry entry;
+                        foreach (string file in list)
+                        {
+                            entry = archive.CreateEntry(file + ".dll");
+                            using (var filestream = new FileStream(Path.Combine(binfolder, file + ".dll"), FileMode.Open, FileAccess.Read))
+                            using (var entrystream = entry.Open())
+                            {
+                                filestream.CopyTo(entrystream);
+                            }
+
+                            if (System.IO.File.Exists(Path.Combine(binfolder, file + ".pdb")))
+                            {
+                                entry = archive.CreateEntry(file + ".pdb");
+                                using (var filestream = new FileStream(Path.Combine(binfolder, file + ".pdb"), FileMode.Open, FileAccess.Read))
+                                using (var entrystream = entry.Open())
+                                {
+                                    filestream.CopyTo(entrystream);
+                                }
+                            }
+                        }
+                    }
+                    zipfile = memoryStream.ToArray();
+                }
+                return File(zipfile, "application/octet-stream", "oqtane.zip");
+            }
+            else
+            {
+                HttpContext.Response.StatusCode = 401;
+                return null;
+            }
         }
     }
 }

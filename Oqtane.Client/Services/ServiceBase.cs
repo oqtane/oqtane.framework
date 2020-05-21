@@ -82,7 +82,6 @@ namespace Oqtane.Services
                 var result = await response.Content.ReadFromJsonAsync<TResult>();
                 return result;
             }
-
             return default;
         }
 
@@ -121,6 +120,8 @@ namespace Oqtane.Services
             if (response.StatusCode != HttpStatusCode.NoContent && response.StatusCode != HttpStatusCode.NotFound)
             {
                 //TODO: Log errors here
+                
+                Console.WriteLine($"Request: {response.RequestMessage.RequestUri}");
                 Console.WriteLine($"Response status: {response.StatusCode} {response.ReasonPhrase}");
             }
 
@@ -134,13 +135,13 @@ namespace Oqtane.Services
             //TODO Missing content JSON validation 
         }
 
-        // create an API Url which is tenant agnostic ( for use with entities in the MasterDB )
+        // create an API Url which is tenant agnostic ( for use during installation )
         public string CreateApiUrl(string serviceName)
         {
             return CreateApiUrl(null, serviceName);
         }
 
-        // create an API Url which is tenant aware ( for use with entities in the TenantDB )
+        // create an API Url which is tenant aware ( for use with repositories )
         public string CreateApiUrl(Alias alias, string serviceName)
         {
             string apiurl = "/";

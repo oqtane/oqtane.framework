@@ -14,11 +14,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Services;
-using Oqtane.Shared; 
+using Oqtane.Shared;
+using Oqtane.UI;
 
 namespace Oqtane
 {
@@ -26,6 +28,7 @@ namespace Oqtane
     {
         public IConfigurationRoot Configuration { get; }
         private string _webRoot;
+        private Runtime _runtime;
         
         public Startup(IWebHostEnvironment env)
         {
@@ -33,6 +36,9 @@ namespace Oqtane
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             Configuration = builder.Build();
+
+             _runtime = (Configuration.GetSection("Runtime").Value == "WebAssembly") ? Runtime.WebAssembly : Runtime.Server;
+
             _webRoot = env.WebRootPath;              
             AppDomain.CurrentDomain.SetData("DataDirectory", Path.Combine(env.ContentRootPath, "Data"));
         }
@@ -41,7 +47,7 @@ namespace Oqtane
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().AddNewtonsoftJson();
+            
             services.AddServerSideBlazor();
 
             // setup HttpClient for server side in a client side compatible fashion ( with auth cookie )
@@ -157,7 +163,7 @@ namespace Oqtane
             services.AddSingleton<IDatabaseManager, DatabaseManager>();
 
             // install any modules or themes ( this needs to occur BEFORE the assemblies are loaded into the app domain )
-            InstallationManager.UnpackPackages("Modules,Themes", _webRoot);
+            InstallationManager.InstallPackages("Modules,Themes", _webRoot);
 
             // register transient scoped core services
             services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
@@ -187,17 +193,13 @@ namespace Oqtane
             services.AddTransient<ISqlRepository, SqlRepository>();
             services.AddTransient<IUpgradeManager, UpgradeManager>();
 
-            // load the external assemblies into the app domain
-            services.AddOqtaneModules();
-            services.AddOqtaneThemes();
-            services.AddOqtaneSiteTemplates();
+            // load the external assemblies into the app domain, install services 
+            services.AddOqtaneParts(_runtime);
 
             services.AddMvc()
+                .AddNewtonsoftJson()
                 .AddOqtaneApplicationParts() // register any Controllers from custom modules
-                .AddNewtonsoftJson();
-
-            services.AddOqtaneServices();
-            services.AddOqtaneHostedServices();
+                .ConfigureOqtaneMvc();       // any additional configuration from IStart classes.
 
             services.AddSwaggerGen(c =>
             {
@@ -220,14 +222,12 @@ namespace Oqtane
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseBlazorFrameworkFiles();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
@@ -240,6 +240,7 @@ namespace Oqtane
                 endpoints.MapControllers();
                 endpoints.MapFallbackToPage("/_Host");
             });
+            app.ConfigureOqtaneAssemblies(env);
         }
     }
 }

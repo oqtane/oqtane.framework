@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Oqtane.Infrastructure;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
@@ -16,10 +18,11 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             // load MVC application parts from module assemblies
-            foreach (var assembly in OqtaneServiceCollectionExtensions.GetOqtaneModuleAssemblies())
+            var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
+            foreach (var assembly in assemblies)
             {
                 // check if assembly contains MVC Controllers
-                if (assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(Controller))).ToArray().Length > 0)
+                if (assembly.GetTypes().Any(t => t.IsSubclassOf(typeof(Controller))))
                 {
                     var partFactory = ApplicationPartFactory.GetApplicationPartFactory(assembly);
                     foreach (var part in partFactory.GetApplicationParts(assembly))
@@ -28,6 +31,22 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
                 }
             }
+
+            return mvcBuilder;
+        }
+
+
+        public static IMvcBuilder ConfigureOqtaneMvc(this IMvcBuilder mvcBuilder)
+        {
+            var startUps = AppDomain.CurrentDomain
+                .GetOqtaneAssemblies()
+                .SelectMany(x => x.GetInstances<IServerStartup>());
+
+            foreach (var startup in startUps)
+            {
+                startup.ConfigureMvc(mvcBuilder);
+            }
+
             return mvcBuilder;
         }
     }

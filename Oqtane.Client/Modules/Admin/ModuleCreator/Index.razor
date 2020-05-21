@@ -3,53 +3,66 @@
 @inject NavigationManager NavigationManager
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject IModuleService ModuleService
+@inject ISystemService SystemService
 
-    <table class="table table-borderless">
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <Label For="owner" HelpText="Enter the name of the organization who is developing this module. It should not contain spaces or punctuation.">Owner Name: </Label>
+        </td>
+        <td>
+            <input id="owner" class="form-control" @bind="@_owner" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="module" HelpText="Enter a name for this module. It should be in singular form (ie. Car) and not contain spaces or punctuation.">Module Name: </Label>
+        </td>
+        <td>
+            <input id="module" class="form-control" @bind="@_module" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="description" HelpText="Enter s short description for the module">Description: </Label>
+        </td>
+        <td>
+            <textarea id="description" class="form-control" @bind="@_description" rows="3"></textarea>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="template" HelpText="Select a module template. Internal modules are created inside of the Oqtane solution. External modules are created outside of the Oqtane solution.">Template: </Label>
+        </td>
+        <td>
+            <select id="template" class="form-control" @onchange="(e => TemplateChanged(e))">
+                <option value="-">&lt;Select Template&gt;</option>
+                <option value="internal">Internal</option>
+                <option value="external">External</option>
+            </select>
+        </td>
+    </tr>
+    @if (!string.IsNullOrEmpty(_location))
+    {
         <tr>
             <td>
-                <Label For="owner" HelpText="Enter the name of the organization who is developing this module. It should not contain spaces or punctuation.">Owner Name: </Label>
+                <Label For="location" HelpText="Location where the module will be created">Location: </Label>
             </td>
             <td>
-                <input id="owner" class="form-control" @bind="@_owner" />
+                <input id="module" class="form-control" @bind="@_location" readonly />
             </td>
         </tr>
-        <tr>
-            <td>
-                <Label For="module" HelpText="Enter a name for this module. It should be in singular form (ie. Car) and not contain spaces or punctuation.">Module Name: </Label>
-            </td>
-            <td>
-                <input id="module" class="form-control" @bind="@_module" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="description" HelpText="Enter s short description for the module">Description: </Label>
-            </td>
-            <td>
-                <textarea id="description" class="form-control" @bind="@_description" rows="3"></textarea>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="template" HelpText="Select a module template. Internal modules are created inside of the Oqtane solution. External modules are created outside of the Oqtane solution.">Template: </Label>
-            </td>
-            <td>
-                <select id="template" class="form-control" @bind="@_template">
-                    <option value="">&lt;Select Template&gt;</option>
-                    <option value="internal">Internal</option>
-                    <option value="external">External</option>
-                </select>
-            </td>
-        </tr>
-    </table>
+    }
+</table>
 
 <button type="button" class="btn btn-success" @onclick="CreateModule">Create Module</button>
 
-@code {    
+@code {
     private string _owner = string.Empty;
     private string _module = string.Empty;
     private string _description = string.Empty;
-    private string _template = string.Empty;
+    private string _template = "-";
+    private string _location = string.Empty;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
@@ -62,9 +75,9 @@
     {
         try
         {
-            if (!string.IsNullOrEmpty(_owner) && !string.IsNullOrEmpty(_module) && !string.IsNullOrEmpty(_template))
+            if (!string.IsNullOrEmpty(_owner) && !string.IsNullOrEmpty(_module) && _template != "-")
             {
-                var moduleDefinition = new ModuleDefinition { Owner = _owner.Replace(" ",""), Name = _module.Replace(" ", ""), Description = _description, Template = _template };
+                var moduleDefinition = new ModuleDefinition { Owner = _owner.Replace(" ", ""), Name = _module.Replace(" ", ""), Description = _description, Template = _template };
                 await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition, ModuleState.ModuleId);
             }
             else
@@ -75,6 +88,37 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Creating Module");
+        }
+    }
+
+    private async void TemplateChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            _location = string.Empty;
+            _template = (string)e.Value;
+            if (_template != "-")
+            {
+                Dictionary<string, string> systeminfo = await SystemService.GetSystemInfoAsync();
+                if (systeminfo != null)
+                {
+                    string[] path = systeminfo["serverpath"].Split('\\');
+                    if (_template == "internal")
+                    {
+                        _location = string.Join("\\", path, 0, path.Length - 1) + "\\Oqtane.Client\\Modules\\" + _owner + "." + _module + "s";
+                    }
+                    else
+                    {
+                        _location = string.Join("\\", path, 0, path.Length - 2) + "\\" + _owner + "." + _module + "s";
+                    }
+                }
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Getting System Info {Error}", ex.Message);
+            AddModuleMessage("Error Getting System Info", MessageType.Error);
         }
     }
 }

@@ -332,10 +332,13 @@ namespace Oqtane.Infrastructure
             using (var scope = _serviceScopeFactory.CreateScope())
             {
                 var moduledefinitions = scope.ServiceProvider.GetRequiredService<IModuleDefinitionRepository>();
+                var sql = scope.ServiceProvider.GetRequiredService<ISqlRepository>();
                 foreach (var moduledefinition in moduledefinitions.GetModuleDefinitions())
                 {
-                    if (!string.IsNullOrEmpty(moduledefinition.ServerManagerType) && !string.IsNullOrEmpty(moduledefinition.ReleaseVersions))
+                    if (!string.IsNullOrEmpty(moduledefinition.ReleaseVersions) && !string.IsNullOrEmpty(moduledefinition.ServerManagerType))
                     {
+                        Type moduletype = Type.GetType(moduledefinition.ServerManagerType);
+
                         string[] versions = moduledefinition.ReleaseVersions.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                         using (var db = new InstallationContext(NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey))))
                         {
@@ -351,18 +354,21 @@ namespace Oqtane.Infrastructure
                                     if (index == -1) index = 0;
                                     for (int i = index; i < versions.Length; i++)
                                     {
-                                        Type moduletype = Type.GetType(moduledefinition.ServerManagerType);
-                                        if (moduletype != null && moduletype.GetInterface("IInstallable") != null)
+                                        try
                                         {
-                                            try
+                                            if (moduletype.GetInterface("IInstallable") != null)
                                             {
                                                 var moduleobject = ActivatorUtilities.CreateInstance(scope.ServiceProvider, moduletype);
-                                                ((IInstallable)moduleobject).Install(tenant, versions[i]);
+                                                    ((IInstallable)moduleobject).Install(tenant, versions[i]);
                                             }
-                                            catch (Exception ex)
+                                            else
                                             {
-                                                result.Message = "An Error Occurred Installing " + moduledefinition.Name + " - " + ex.Message.ToString();
+                                                sql.ExecuteScript(tenant, moduletype.Assembly, Utilities.GetTypeName(moduledefinition.ModuleDefinitionName) + "." + versions[i] + ".sql");
                                             }
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            result.Message = "An Error Occurred Installing " + moduledefinition.Name + " Version " + versions[i] + " - " + ex.Message.ToString();
                                         }
                                     }
                                 }
