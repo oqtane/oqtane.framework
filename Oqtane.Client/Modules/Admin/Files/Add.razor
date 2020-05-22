@@ -1,4 +1,5 @@
 ﻿@namespace Oqtane.Modules.Admin.Files
+@using System.IO
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IFileService FileService
@@ -12,7 +13,7 @@
                     <Label For="upload" HelpText="Upload the file you want">Upload: </Label>
                 </td>
                 <td>
-                    <FileManager UploadMultiple="true" ShowFiles="false" FolderId="@_folderId.ToString()" />
+                    <FileManager UploadMultiple="true" ShowFiles="false" FolderId="@_folderId" />
                 </td>
             </tr>
         </table>
@@ -70,18 +71,32 @@
 
     private async Task Download()
     {
+        if (url == string.Empty || _folderId == -1)
+        {
+            AddModuleMessage("You Must Enter A Url And Select A Folder", MessageType.Warning);
+            return;
+        }
+
+        var filename = url.Substring(url.LastIndexOf("/", StringComparison.Ordinal) + 1);
+
+        if (!Constants.UploadableFiles.Split(',')
+                .Contains(Path.GetExtension(filename).ToLower().Replace(".", "")))
+            {
+                AddModuleMessage("File Could Not Be Downloaded From Url Due To Its File Extension", MessageType.Warning);
+                return ;
+            }
+
+        if (!filename.IsPathOrFileValid())
+        {
+            AddModuleMessage("You Must Enter A Url With A Valid File Name", MessageType.Warning);
+            return;
+        }
+
         try
         {
-            if (url != string.Empty && _folderId != -1)
-            {
-                await FileService.UploadFileAsync(url, _folderId);
-                await logger.LogInformation("File Downloaded Successfully From Url {Url}", url);
-                AddModuleMessage("File Downloaded Successfully From Url", MessageType.Success);
-            }
-            else
-            {
-                AddModuleMessage("You Must Enter A Url And Select A Folder", MessageType.Warning);
-            }
+            await FileService.UploadFileAsync(url, _folderId);
+            await logger.LogInformation("File Downloaded Successfully From Url {Url}", url);
+            AddModuleMessage("File Downloaded Successfully From Url", MessageType.Success);
         }
         catch (Exception ex)
         {

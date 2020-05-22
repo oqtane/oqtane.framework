@@ -37,6 +37,10 @@
         top: -2px;
     }
 
+.app-menu {
+    width: 100%
+}
+
 .breadcrumb {
     margin-bottom: 0;
 }
@@ -83,6 +87,7 @@
 
 .navbar-toggler {
     background-color: rgba(255, 255, 255, 0.1);
+    margin-left: auto;
 }
 
 @media (max-width: 767.98px) {
@@ -94,6 +99,12 @@
 @media (min-width: 768px) {
     app {
         flex-direction: row;
+    }
+
+    .app-logo {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .breadcrumbs {
@@ -159,6 +170,12 @@
 }
 
 @media (max-width: 767px) {
+    .app-logo {
+        height: 80px;
+        display: flex;
+        align-items: center;
+    }
+
     .breadcrumbs {
         position: fixed;
         top: 150px;

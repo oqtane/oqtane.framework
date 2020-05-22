@@ -1,5 +1,7 @@
 ﻿@namespace Oqtane.Modules.Controls
 @inherits ModuleBase
+
+@attribute [OqtaneIgnore]
 @inject IFolderService FolderService
 @inject IFileService FileService
 @inject IJSRuntime JsRuntime
@@ -9,33 +11,36 @@
     <div id="@Id" class="container-fluid px-0">
         <div class="row">
             <div class="col">
-                <div>
-                    <select class="form-control" @onchange="(e => FolderChanged(e))">
-                        @if (string.IsNullOrEmpty(Folder))
-                        {
-                            <option value="-1">&lt;Select Folder&gt;</option>
-                        }
-                        @foreach (Folder folder in _folders)
-                        {
-                            if (folder.FolderId == _folderid)
+                @if (ShowFolders || FolderId <= 0)
+                {
+                    <div>
+                        <select class="form-control" @onchange="(e => FolderChanged(e))">
+                            @if (string.IsNullOrEmpty(Folder))
                             {
-                                <option value="@(folder.FolderId)" selected>@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                                <option value="-1">&lt;Select Folder&gt;</option>
                             }
-                            else
+                            @foreach (Folder folder in _folders)
                             {
-                                <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                                if (folder.FolderId == FolderId)
+                                {
+                                    <option value="@(folder.FolderId)" selected>@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                                }
+                                else
+                                {
+                                    <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                                }
                             }
-                        }
-                    </select>
-                </div>
-                @if (_showfiles)
+                        </select>
+                    </div>
+                }
+                @if (ShowFiles)
                 {
                     <div>
                         <select class="form-control" @onchange="(e => FileChanged(e))">
                             <option value="-1">&lt;Select File&gt;</option>
                             @foreach (File file in _files)
                             {
-                                if (file.FileId == _fileid)
+                                if (file.FileId == FileId)
                                 {
                                     <option value="@(file.FileId)" selected>@(file.Name)</option>
                                 }
@@ -47,33 +52,33 @@
                         </select>
                     </div>
                 }
-                @if (_haseditpermission)
+                @if (ShowUpload && _haseditpermission)
                 {
                     <div>
-                        @if (_uploadmultiple)
+                        @if (UploadMultiple)
                         {
-                            <input type="file" id="@_fileinputid" name="file" accept="@_filter" multiple />
+                            <input type="file" id="@_fileinputid" name="file" accept="@_filter" multiple/>
                         }
                         else
                         {
-                            <input type="file" id="@_fileinputid" name="file" accept="@_filter" />
+                            <input type="file" id="@_fileinputid" name="file" accept="@_filter"/>
                         }
                         <span id="@_progressinfoid"></span><progress id="@_progressbarid" style="width: 150px; visibility: hidden;"></progress>
                         <span class="float-right">
-                        <button type="button" class="btn btn-success" @onclick="UploadFile">Upload</button>
-                        @if (_showfiles && GetFileId() != -1)
-                        {
-                            <button type="button" class="btn btn-danger" @onclick="DeleteFile">Delete</button>
-                        }
+                            <button type="button" class="btn btn-success" @onclick="UploadFile">Upload</button>
+                            @if (_showfiles && GetFileId() != -1)
+                            {
+                                <button type="button" class="btn btn-danger" @onclick="DeleteFile">Delete</button>
+                            }
                         </span>
                     </div>
-                    @((MarkupString)_message)
                 }
+                @((MarkupString) _message)
             </div>
             @if (_image != string.Empty)
             {
                 <div class="col-auto">
-                    @((MarkupString)_image)
+                    @((MarkupString) _image)
                 </div>
             }
         </div>
@@ -83,15 +88,12 @@
 @code {
     private string _id;
     private List<Folder> _folders;
-    private int _folderid = -1;
     private List<File> _files = new List<File>();
-    private int _fileid = -1;
     private bool _showfiles = true;
     private string _fileinputid = string.Empty;
     private string _progressinfoid = string.Empty;
     private string _progressbarid = string.Empty;
     private string _filter = "*";
-    private bool _uploadmultiple = false;
     private bool _haseditpermission = false;
     private string _message = string.Empty;
     private string _image = string.Empty;
@@ -104,19 +106,25 @@
     public string Folder { get; set; } // optional - for setting a specific folder by default
 
     [Parameter]
-    public string FolderId { get; set; } // optional - for setting a specific folderid by default
+    public int FolderId { get; set; } = -1; // optional - for setting a specific folderid by default
 
     [Parameter]
-    public string ShowFiles { get; set; } // optional - for indicating whether a list of files should be displayed - default is true
+    public bool ShowFiles { get; set; } = true; // optional - for indicating whether a list of files should be displayed - default is true
 
     [Parameter]
-    public string FileId { get; set; } // optional - for setting a specific file by default
+    public bool ShowUpload { get; set; } = true; // optional - for indicating whether a Upload controls should be displayed - default is true
+
+    [Parameter]
+    public bool ShowFolders { get; set; } = true; // optional - for indicating whether a list of folders should be displayed - default is true
+
+    [Parameter]
+    public int FileId { get; set; } = -1; // optional - for setting a specific file by default
 
     [Parameter]
     public string Filter { get; set; } // optional - comma delimited list of file types that can be selected or uploaded ie. "jpg,gif"
 
     [Parameter]
-    public string UploadMultiple { get; set; } // optional - enable multiple file uploads - default false
+    public bool UploadMultiple { get; set; } = false; // optional - enable multiple file uploads - default false
 
     protected override async Task OnInitializedAsync()
     {
@@ -128,56 +136,39 @@
         if (!string.IsNullOrEmpty(Folder))
         {
             _folders = new List<Folder> {new Folder {FolderId = -1, Name = Folder}};
-            _folderid = -1;
+            FolderId = -1;
         }
         else
         {
             _folders = await FolderService.GetFoldersAsync(ModuleState.SiteId);
-            if (!string.IsNullOrEmpty(FolderId))
-            {
-                _folderid = int.Parse(FolderId);
-            }
         }
 
-        if (!string.IsNullOrEmpty(FileId))
+        if (FileId != -1)
         {
-            _fileid = int.Parse(FileId);
-            if (_fileid != -1)
+            File file = await FileService.GetFileAsync(FileId);
+            if (file != null)
             {
-                File file = await FileService.GetFileAsync(int.Parse(FileId));
-                if (file != null)
-                {
-                    _folderid = file.FolderId;
-                }
-                else
-                {
-                    _fileid = -1; // file does not exist
-                }
+                FolderId = file.FolderId;
             }
-            await SetImage();
+            else
+            {
+                FileId = -1; // file does not exist
+            }
         }
-        if (!string.IsNullOrEmpty(ShowFiles))
-        {
-            _showfiles = bool.Parse(ShowFiles);
-        }
+        await SetImage();
 
         if (!string.IsNullOrEmpty(Filter))
         {
-            _filter = "." + Filter.Replace(",",",.");
+            _filter = "." + Filter.Replace(",", ",.");
         }
 
         await GetFiles();
 
-        // create unique id for component
+    // create unique id for component
         _guid = Guid.NewGuid().ToString("N");
         _fileinputid = _guid + "FileInput";
         _progressinfoid = _guid + "ProgressInfo";
         _progressbarid = _guid + "ProgressBar";
-
-        if (!string.IsNullOrEmpty(UploadMultiple))
-        {
-            _uploadmultiple = bool.Parse(UploadMultiple);
-        }
     }
 
     private async Task GetFiles()
@@ -190,11 +181,11 @@
         }
         else
         {
-            Folder folder = _folders.FirstOrDefault(item => item.FolderId == _folderid);
+            Folder folder = _folders.FirstOrDefault(item => item.FolderId == FolderId);
             if (folder != null)
             {
-                _haseditpermission = UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, folder.Permissions);
-                _files = await FileService.GetFilesAsync(_folderid);
+                _haseditpermission = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, folder.Permissions);
+                _files = await FileService.GetFilesAsync(FolderId);
             }
             else
             {
@@ -221,9 +212,9 @@
         _message = string.Empty;
         try
         {
-            _folderid = int.Parse((string)e.Value);
+            FolderId = int.Parse((string) e.Value);
             await GetFiles();
-            _fileid = -1;
+            FileId = -1;
             _image = string.Empty;
             StateHasChanged();
         }
@@ -237,7 +228,7 @@
     private async Task FileChanged(ChangeEventArgs e)
     {
         _message = string.Empty;
-        _fileid = int.Parse((string)e.Value);
+        FileId = int.Parse((string) e.Value);
 
         await SetImage();
         StateHasChanged();
@@ -246,21 +237,21 @@
     private async Task SetImage()
     {
         _image = string.Empty;
-        if (_fileid != -1)
+        if (FileId != -1)
         {
-            File file = await FileService.GetFileAsync(_fileid);
+            File file = await FileService.GetFileAsync(FileId);
             if (file != null && file.ImageHeight != 0 && file.ImageWidth != 0)
             {
                 var maxwidth = 200;
                 var maxheight = 200;
 
-                var ratioX = (double)maxwidth / (double)file.ImageWidth;
-                var ratioY = (double)maxheight / (double)file.ImageHeight;
+                var ratioX = (double) maxwidth / (double) file.ImageWidth;
+                var ratioY = (double) maxheight / (double) file.ImageHeight;
                 var ratio = ratioX < ratioY ? ratioX : ratioY;
 
-                _image = "<img src=\"" + ContentUrl(_fileid) + "\" alt=\"" + file.Name +
-                    "\" width=\"" + Convert.ToInt32(file.ImageWidth * ratio).ToString() +
-                    "\" height=\"" + Convert.ToInt32(file.ImageHeight * ratio).ToString() + "\" />";
+                _image = "<img src=\"" + ContentUrl(FileId) + "\" alt=\"" + file.Name +
+                         "\" width=\"" + Convert.ToInt32(file.ImageWidth * ratio).ToString() +
+                         "\" height=\"" + Convert.ToInt32(file.ImageHeight * ratio).ToString() + "\" />";
             }
         }
     }
@@ -280,7 +271,7 @@
                 }
                 else
                 {
-                    result = await FileService.UploadFilesAsync(_folderid, upload, _guid);
+                    result = await FileService.UploadFilesAsync(FolderId, upload, _guid);
                 }
 
                 if (result == string.Empty)
@@ -294,7 +285,7 @@
                         var file = _files.Where(item => item.Name == upload[0]).FirstOrDefault();
                         if (file != null)
                         {
-                            _fileid = file.FileId;
+                            FileId = file.FileId;
                             await SetImage();
                         }
                     }
@@ -324,21 +315,21 @@
 
         try
         {
-            await FileService.DeleteFileAsync(_fileid);
-            await logger.LogInformation("File Deleted {File}", _fileid);
+            await FileService.DeleteFileAsync(FileId);
+            await logger.LogInformation("File Deleted {File}", FileId);
             _message = "<br /><div class=\"alert alert-success\" role=\"alert\">File Deleted</div>";
             await GetFiles();
-            _fileid = -1;
+            FileId = -1;
             await SetImage();
             StateHasChanged();
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Deleting File {File} {Error}", _fileid, ex.Message);
+            await logger.LogError(ex, "Error Deleting File {File} {Error}", FileId, ex.Message);
             _message = "<br /><div class=\"alert alert-danger\" role=\"alert\">Error Deleting File</div>";
         }
     }
 
-    public int GetFileId() => _fileid;
+    public int GetFileId() => FileId;
 
 }

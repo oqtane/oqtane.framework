@@ -8,7 +8,7 @@ using Oqtane.Shared;
 
 namespace Oqtane.Modules.HtmlText.Services
 {
-    public class HtmlTextService : ServiceBase, IHtmlTextService
+    public class HtmlTextService : ServiceBase, IHtmlTextService, IService
     {        
         private readonly SiteState _siteState;
 

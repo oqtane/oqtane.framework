@@ -1,12 +1,14 @@
 ﻿@namespace Oqtane.Themes.Controls
 @inherits MenuBase
+@attribute [OqtaneIgnore]
 @if (MenuPages.Any())
 {
-    <div class="app-menu">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#Menu" aria-controls="Menu" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="app-menu-toggler">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#Menu" aria-controls="Menu" aria-expanded="false" aria-label="Toggle Navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-
+    </span>
+    <div class="app-menu">
         <div class="collapse navbar-collapse" id="Menu">
             <ul class="navbar-nav mr-auto">
                 @foreach (var p in MenuPages)

@@ -1,28 +1,82 @@
 ﻿@namespace Oqtane.Modules.Controls
 @inherits ModuleBase
+@attribute [OqtaneIgnore]
 @inject IJSRuntime JsRuntime
 
-@if (_filemanagervisible)
-{
-    <FileManager @ref="_fileManager" Filter="@Constants.ImageFiles" />
-    @((MarkupString)_message)
-    <br />
-}
-<div class="row justify-content-center">
-    <button type="button" class="btn btn-success" @onclick="InsertImage">Insert Image</button>
-    @if (_filemanagervisible)
-    {
-        @((MarkupString)"&nbsp;&nbsp;")
-        <button type="button" class="btn btn-secondary" @onclick="CloseFileManager">Close</button>
-    }
-</div>
-<div class="row">
-    <div class ="col">
-        <div @ref="@_toolBar">
-            @ToolbarContent
-        </div>
-        <div @ref="@_editorElement">
-        </div>
+<div class="row" style="margin-bottom: 50px;">
+    <div class="col">
+        <TabStrip>
+            <TabPanel Name="Rich" Heading="Rich Text Editor">
+                @if (_filemanagervisible)
+                {
+                    <FileManager @ref="_fileManager" Filter="@Constants.ImageFiles" />
+                    @((MarkupString)_message)
+                    <br />
+                }
+                <div class="row justify-content-center" style="margin-bottom: 20px;">
+                    <button type="button" class="btn btn-secondary" @onclick="RefreshRichText">Synchronize Content</button>&nbsp;&nbsp;
+                    <button type="button" class="btn btn-primary" @onclick="InsertImage">Insert Image</button>
+                    @if (_filemanagervisible)
+                    {
+                        @((MarkupString)"&nbsp;&nbsp;")
+                        <button type="button" class="btn btn-secondary" @onclick="CloseFileManager">Close</button>
+                    }
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div @ref="@_toolBar">
+                            @if (ToolbarContent != null)
+                            {
+                                @ToolbarContent
+                            }
+                            else
+                            {
+                                <select class="ql-header">
+                                    <option selected=""></option>
+                                    <option value="1"></option>
+                                    <option value="2"></option>
+                                    <option value="3"></option>
+                                    <option value="4"></option>
+                                    <option value="5"></option>
+                                </select>
+                                <span class="ql-formats">
+                                    <button class="ql-bold"></button>
+                                    <button class="ql-italic"></button>
+                                    <button class="ql-underline"></button>
+                                    <button class="ql-strike"></button>
+                                </span>
+                                <span class="ql-formats">
+                                    <select class="ql-color"></select>
+                                    <select class="ql-background"></select>
+                                </span>
+                                <span class="ql-formats">
+                                    <button class="ql-list" value="ordered"></button>
+                                    <button class="ql-list" value="bullet"></button>
+                                </span>
+                                <span class="ql-formats">
+                                    <button class="ql-link"></button>
+                                </span>
+                            }
+                        </div>
+                        <div @ref="@_editorElement">
+                        </div>
+                    </div>
+                </div>
+            </TabPanel>
+            <TabPanel Name="Raw" Heading="Raw HTML Editor">
+                <div class="row justify-content-center" style="margin-bottom: 20px;">
+                    <button type="button" class="btn btn-secondary" @onclick="RefreshRawHtml">Synchronize Content</button>
+                </div>
+                @if (ReadOnly)
+                {
+                    <textarea class="form-control" placeholder="@Placeholder" @bind="@_content" rows="10" readonly></textarea>
+                }
+                else
+                {
+                    <textarea class="form-control" placeholder="@Placeholder" @bind="@_content" rows="10"></textarea>
+                }
+            </TabPanel>
+        </TabStrip>
     </div>
 </div>
 
@@ -31,10 +85,12 @@
     private ElementReference _toolBar;
     private bool _filemanagervisible = false;
     private FileManager _fileManager;
+    private string _content = string.Empty;
+    private string _original = string.Empty;
     private string _message = string.Empty;
 
     [Parameter]
-    public RenderFragment ToolbarContent { get; set; }
+    public string Content { get; set; }
 
     [Parameter]
     public bool ReadOnly { get; set; } = false;
@@ -42,60 +98,78 @@
     [Parameter]
     public string Placeholder { get; set; } = "Enter Your Content...";
 
+    // parameters only applicable to rich text editor
+    [Parameter]
+    public RenderFragment ToolbarContent { get; set; }
+
     [Parameter]
     public string Theme { get; set; } = "snow";
 
     [Parameter]
     public string DebugLevel { get; set; } = "info";
 
+    protected override void OnInitialized()
+    {
+        _content = Content; // raw HTML
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await RichTextEditorInterop.CreateEditor(
-                JsRuntime,
+            var interop = new RichTextEditorInterop(JsRuntime);
+
+            await interop.CreateEditor(
                 _editorElement,
                 _toolBar,
                 ReadOnly,
                 Placeholder,
                 Theme,
                 DebugLevel);
+
+            await interop.LoadEditorContent(_editorElement, Content);
+
+            // preserve a copy of the rich text content ( Quill sanitizes content so we need to retrieve it from the editor )
+            _original = await interop.GetHtml(_editorElement);
         }
     }
 
-    public async Task<string> GetText()
+    public void CloseFileManager()
     {
-        return await RichTextEditorInterop.GetText(
-            JsRuntime,
-            _editorElement);
+        _filemanagervisible = false;
+        _message = string.Empty;
+        StateHasChanged();
+    }
+
+    public async Task RefreshRichText()
+    {
+        var interop = new RichTextEditorInterop(JsRuntime);
+        await interop.LoadEditorContent(_editorElement, _content);
+    }
+
+    public async Task RefreshRawHtml()
+    {
+        var interop = new RichTextEditorInterop(JsRuntime);
+        _content = await interop.GetHtml(_editorElement);
+        StateHasChanged();
     }
 
     public async Task<string> GetHtml()
     {
-        return await RichTextEditorInterop.GetHtml(
-            JsRuntime,
-            _editorElement);
-    }
+        // get rich text content
+        var interop = new RichTextEditorInterop(JsRuntime);
+        string content = await interop.GetHtml(_editorElement);
 
-    public async Task<string> GetContent()
-    {
-        return await RichTextEditorInterop.GetContent(
-            JsRuntime,
-            _editorElement);
-    }
-
-    public async Task LoadContent(string content)
-    {
-        await RichTextEditorInterop.LoadEditorContent(
-            JsRuntime,
-            _editorElement, content);
-    }
-
-    public async Task EnableEditor(bool mode)
-    {
-        await RichTextEditorInterop.EnableEditor(
-            JsRuntime,
-            _editorElement, mode);
+        if (_original != content)
+        {
+            // rich text content has changed - return it
+            return content;
+        }
+        else
+        {
+            // return raw html content
+            return _content;
+        }
     }
 
     public async Task InsertImage()
@@ -105,9 +179,8 @@
             var fileid = _fileManager.GetFileId();
             if (fileid != -1)
             {
-                await RichTextEditorInterop.InsertImage(
-                    JsRuntime,
-                    _editorElement, ContentUrl(fileid));
+                var interop = new RichTextEditorInterop(JsRuntime);
+                await interop.InsertImage(_editorElement, ContentUrl(fileid));
                 _filemanagervisible = false;
                 _message = string.Empty;
             }
@@ -121,16 +194,25 @@
             _filemanagervisible = true;
             _message = string.Empty;
         }
-        
         StateHasChanged();
     }
 
-    public void CloseFileManager()
+    // other rich text editor methods which can be used by developers
+    public async Task<string> GetText()
     {
-        _filemanagervisible = false;
-        _message = string.Empty;
-        
-        StateHasChanged();
+        var interop = new RichTextEditorInterop(JsRuntime);
+        return await interop.GetText(_editorElement);
     }
 
+    public async Task<string> GetContent()
+    {
+        var interop = new RichTextEditorInterop(JsRuntime);
+        return await interop.GetContent(_editorElement);
+    }
+
+    public async Task EnableEditor(bool mode)
+    {
+        var interop = new RichTextEditorInterop(JsRuntime);
+        await interop.EnableEditor(_editorElement, mode);
+    }
 }

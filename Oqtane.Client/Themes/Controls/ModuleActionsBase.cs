@@ -60,7 +60,7 @@ namespace Oqtane.Themes.Controls
                     actionList.Add(new ActionViewModel {Name = "Move To Bottom", Action = async (s, m) => await MoveBottom(s, m)});
                 }
 
-                foreach (string pane in PageState.Page.Panes.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries))
+                foreach (string pane in PageState.Page.Panes)
                 {
                     if (pane != ModuleState.Pane)
                     {

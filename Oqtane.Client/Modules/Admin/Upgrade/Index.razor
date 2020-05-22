@@ -11,29 +11,27 @@
     <TabPanel Name="Download">
         @if (_upgradeavailable)
         {
-            <ModuleMessage Type="MessageType.Info" Message="Download a new version of the framework. Once you are ready click Install to complete the installation."></ModuleMessage>
-            @("Framework") @_package.Version <button type="button" class="btn btn-success" @onclick=@(async () => await Download(Constants.PackageId, Constants.Version))>Download</button>
+            <ModuleMessage Type="MessageType.Info" Message="Select The Upgrade Button To Install a New Framework Version"></ModuleMessage>
+            @("Framework") @_package.Version <button type="button" class="btn btn-success" @onclick=@(async () => await Download(Constants.PackageId, Constants.Version))>Upgrade</button>
         }
         else
         {
             <ModuleMessage Type="MessageType.Info" Message="Framework Is Already Up To Date"></ModuleMessage>
         }
     </TabPanel>
-    @if (_upgradeavailable)
-    {
     <TabPanel Name="Upload">
         <table class="table table-borderless">
             <tr>
                 <td>
-                    <Label HelpText="Upload a new framework package. Once it is uploaded click Install to complete the installation.">Framework: </Label>
+                    <Label HelpText="Upload a framework package and select Install to complete the installation">Framework: </Label>
                 </td>
                 <td>
-                    <FileManager Filter="nupkg" ShowFiles="false" Folder="Framework" />
+                    <FileManager Filter="nupkg" Folder="Framework" />
                 </td>
             </tr>
         </table>
+        <button type="button" class="btn btn-success" @onclick="Upgrade">Install</button>
     </TabPanel>
-    }
 </TabStrip>
 }
 

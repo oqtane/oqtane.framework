@@ -25,7 +25,7 @@
         </tr>
         <tr>
             <td>
-                <Label for="name" HelpText="Enter the file name">Name: </Label>
+                <Label for="name" HelpText="Enter the folder name">Name: </Label>
             </td>
             <td>
                 <input id="name" class="form-control" @bind="@_name" />
@@ -112,51 +112,63 @@
 
     private async Task SaveFolder()
     {
+        if (_name == string.Empty || _parentId == -1)
+        {
+            AddModuleMessage("Folders Must Have A Parent And A Name", MessageType.Warning);
+            return;
+        }
+
+        if (!_name.IsPathOrFileValid())
+        {
+            AddModuleMessage("Folder Name Not Valid.", MessageType.Warning);
+            return;
+        }
+        
         try
         {
-            if (_name != string.Empty && _parentId != -1)
+            Folder folder;
+            if (_folderId != -1)
             {
-                Folder folder;
-                if (_folderId != -1)
-                {
-                    folder = await FolderService.GetFolderAsync(_folderId);
-                }
-                else
-                {
-                    folder = new Folder();
-                }
+                folder = await FolderService.GetFolderAsync(_folderId);
+            }
+            else
+            {
+                folder = new Folder();
+            }
 
-                folder.SiteId = PageState.Site.SiteId;
+            folder.SiteId = PageState.Site.SiteId;
 
-                if (_parentId == -1)
-                {
-                    folder.ParentId = null;
-                }
-                else
-                {
-                    folder.ParentId = _parentId;
-                }
+            if (_parentId == -1)
+            {
+                folder.ParentId = null;
+            }
+            else
+            {
+                folder.ParentId = _parentId;
+            }
 
-                folder.Name = _name;
-                folder.IsSystem = _isSystem;
-                folder.Permissions = _permissionGrid.GetPermissions();
+            folder.Name = _name;
+            folder.IsSystem = _isSystem;
+            folder.Permissions = _permissionGrid.GetPermissions();
 
-                if (_folderId != -1)
-                {
-                    folder = await FolderService.UpdateFolderAsync(folder);
-                }
-                else
-                {
-                    folder = await FolderService.AddFolderAsync(folder);
-                }
+            if (_folderId != -1)
+            {
+                folder = await FolderService.UpdateFolderAsync(folder);
+            }
+            else
+            {
+                folder = await FolderService.AddFolderAsync(folder);
+            }
 
+            if (folder != null)
+            {
                 await FolderService.UpdateFolderOrderAsync(folder.SiteId, folder.FolderId, folder.ParentId);
                 await logger.LogInformation("Folder Saved {Folder}", folder);
                 NavigationManager.NavigateTo(NavigateUrl());
             }
             else
             {
-                AddModuleMessage("Folders Must Have A Parent And A Name", MessageType.Warning);
+                AddModuleMessage("An Error Was Encountered Saving The Folder", MessageType.Error);
             }
         }
         catch (Exception ex)

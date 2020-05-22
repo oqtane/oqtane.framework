@@ -10,7 +10,6 @@ using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Security;
-using System.IO;
 
 namespace Oqtane.Controllers
 {
@@ -33,7 +32,7 @@ namespace Oqtane.Controllers
         public IEnumerable<Folder> Get(string siteid)
         {
             List<Folder> folders = new List<Folder>();
-            foreach(Folder folder in _folders.GetFolders(int.Parse(siteid)))
+            foreach (Folder folder in _folders.GetFolders(int.Parse(siteid)))
             {
                 if (_userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.Permissions))
                 {
@@ -85,7 +84,7 @@ namespace Oqtane.Controllers
                 return null;
             }
         }
-        
+
         // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = Constants.RegisteredRole)]
@@ -104,15 +103,25 @@ namespace Oqtane.Controllers
                         new Permission(PermissionNames.Edit, Constants.AdminRole, true),
                     }.EncodePermissions();
                 }
-                if (_userPermissions.IsAuthorized(User,PermissionNames.Edit, permissions))
+                if (_userPermissions.IsAuthorized(User, PermissionNames.Edit, permissions))
                 {
-                    if (string.IsNullOrEmpty(folder.Path) && folder.ParentId != null)
+                    if (folder.IsPathValid())
                     {
-                        Folder parent = _folders.GetFolder(folder.ParentId.Value);
-                        folder.Path = Utilities.PathCombine(parent.Path, folder.Name,"\\");
+                        if (string.IsNullOrEmpty(folder.Path) && folder.ParentId != null)
+                        {
+                            Folder parent = _folders.GetFolder(folder.ParentId.Value);
+                            folder.Path = Utilities.PathCombine(parent.Path, folder.Name);
+                        }
+                        folder.Path = Utilities.PathCombine(folder.Path, "\\");
+                        folder = _folders.AddFolder(folder);
+                        _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Added {Folder}", folder);
                     }
-                    folder = _folders.AddFolder(folder);
-                    _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Added {Folder}", folder);
+                    else
+                    {
+                        _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Name Not Valid {Folder}", folder);
+                        HttpContext.Response.StatusCode = 401;
+                        folder = null;
+                    }
                 }
                 else
                 {
@@ -131,13 +140,23 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Folder, folder.FolderId, PermissionNames.Edit))
             {
-                if (string.IsNullOrEmpty(folder.Path) && folder.ParentId != null)
+                if (folder.IsPathValid())
                 {
-                    Folder parent = _folders.GetFolder(folder.ParentId.Value);
-                    folder.Path = Utilities.PathCombine(parent.Path, folder.Name,"\\");
+                    if (string.IsNullOrEmpty(folder.Path) && folder.ParentId != null)
+                    {
+                        Folder parent = _folders.GetFolder(folder.ParentId.Value);
+                        folder.Path = Utilities.PathCombine(parent.Path, folder.Name);
+                    }
+                    folder.Path = Utilities.PathCombine(folder.Path, "\\");
+                    folder = _folders.UpdateFolder(folder);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Update, "Folder Updated {Folder}", folder);
                 }
-                folder = _folders.UpdateFolder(folder);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Folder Updated {Folder}", folder);
+                else
+                {
+                    _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Name Not Valid {Folder}", folder);
+                    HttpContext.Response.StatusCode = 401;
+                    folder = null;
+                }
             }
             else
             {
