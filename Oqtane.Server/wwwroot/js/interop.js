@@ -128,6 +128,7 @@ window.interop = {
             else {
                 script.innerHTML = content;
             }
+            script.async = false;
             if (location === 'head') {
                 document.head.appendChild(script);
             }
