@@ -125,15 +125,18 @@
 </div>
 
 @code {
+
+    private const string Pw = "Password1";
+
     private string _databaseType = "LocalDB";
-    private string _serverName = "(LocalDb)\\MSSQLLocalDB";
+    private string _serverName = "127.0.0.1,1433";
     private string _databaseName = "Oqtane-" + DateTime.UtcNow.ToString("yyyyMMddHHmm");
-    private string _username = "";
-    private string _password = "";
+    private string _username = "sa";
+    private string _password = Pw;
     private string _hostUsername = Constants.HostUser;
-    private string _hostPassword = "";
-    private string _confirmPassword = "";
-    private string _hostEmail = "";
+    private string _hostPassword = Pw;
+    private string _confirmPassword = Pw;
+    private string _hostEmail = "email@example.com";
     private string _message = "";
     private string _integratedSecurityDisplay = "display: none;";
     private string _loadingDisplay = "display: none;";
