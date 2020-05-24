@@ -1,4 +1,6 @@
-window.interop = {
+window.interop || (window.interop = {});
+
+let interopQuill = {
     createQuill: function (
         quillElement, toolBar, readOnly,
         placeholder, theme, debugLevel) {
@@ -48,3 +50,5 @@ window.interop = {
                     { alt: imageURL }));
     }
 };
+
+interop = { ...interop, ...interopQuill };

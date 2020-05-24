@@ -1,4 +1,6 @@
-window.interop = {
+window.interop || (window.interop = {});
+
+let interopOqtane = {
     setCookie: function (name, value, days) {
         var d = new Date();
         d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
@@ -274,3 +276,5 @@ window.interop = {
         }
     }
 };
+
+interop = { ...interop, ...interopOqtane };
