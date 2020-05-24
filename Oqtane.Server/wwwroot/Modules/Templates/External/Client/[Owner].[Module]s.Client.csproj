@@ -15,6 +15,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="3.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Build" Version="3.2.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="3.2.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="3.1.4" />
     <PackageReference Include="System.Net.Http.Json" Version="3.2.0" />
   </ItemGroup>
 
@@ -23,12 +25,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Oqtane.Client">
-      <HintPath>..\..\[RootFolder]\Oqtane.Client\bin\Debug\netstandard2.1\Oqtane.Client.dll</HintPath>
-    </Reference>
-    <Reference Include="Oqtane.Shared">
-      <HintPath>..\..\[RootFolder]\Oqtane.Client\bin\Debug\netstandard2.1\Oqtane.Shared.dll</HintPath>
-    </Reference>
+    <PackageReference Include="Oqtane.Client" Version="1.0.0" />
+    <PackageReference Include="Oqtane.Shared" Version="1.0.0" />
   </ItemGroup>
 
   <PropertyGroup>

@@ -170,7 +170,7 @@ namespace Oqtane.Controllers
             {
                 string rootPath;
                 DirectoryInfo rootFolder = Directory.GetParent(_environment.ContentRootPath);
-                string templatePath = Utilities.PathCombine(rootFolder.FullName, "Oqtane.Client", "Modules", "Admin", "ModuleCreator", "Templates",moduleDefinition.Template,"\\");
+                string templatePath = Utilities.PathCombine(_environment.WebRootPath, "Modules", "Templates", moduleDefinition.Template,"\\");
 
                 if (moduleDefinition.Template == "internal")
                 {
