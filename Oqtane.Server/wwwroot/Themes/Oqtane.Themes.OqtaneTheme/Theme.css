@@ -12,8 +12,8 @@ body {
 }
 
 .app-menu .nav-item {
-    font-size: 0.9rem;
-    padding-bottom: 0.5rem;
+    font-size: 1rem;
+    padding-bottom: -0.5rem;
 }
 
 .app-menu .nav-item a {
