@@ -12,13 +12,13 @@
                 <label  class="control-label">@title: </label>
             </td>
             <td>
-                <select class="form-control" readonly @bind="userid">
+                <select class="form-control" @bind="userid" disabled>
                     <option value="-1">&lt;System&gt;</option>
                     @if (userroles != null)
                     {
                         foreach (UserRole userrole in userroles)
                         {
-                            <option value="@userrole.UserId">@userrole.User.DisplayName</option>
+                            <option value="@userrole.UserId"  readonly>@userrole.User.DisplayName</option>
                         }
                     }
                 </select>
@@ -29,7 +29,7 @@
                 <label  class="control-label">Subject: </label>
             </td>
             <td>
-                <input class="form-control" @bind="@subject" />
+                <input class="form-control" @bind="@subject" readonly />
             </td>
         </tr>
         @if (title == "From")
@@ -39,7 +39,7 @@
                     <label  class="control-label">Date: </label>
                 </td>
                 <td>
-                    <input class="form-control" @bind="@createdon" />
+                    <input class="form-control" @bind="@createdon"  readonly />
                 </td>
             </tr>
         }
@@ -48,7 +48,7 @@
                 <label  class="control-label">Message: </label>
             </td>
             <td>
-                <textarea class="form-control" @bind="@body" rows="5" />
+                <textarea class="form-control" @bind="@body" rows="5"  readonly />
             </td>
         </tr>
     </table>
