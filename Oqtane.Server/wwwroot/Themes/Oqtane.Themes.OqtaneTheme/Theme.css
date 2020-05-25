@@ -46,6 +46,10 @@ body {
     margin-left: auto;
 }
 
+div.app-moduleactions a.dropdown-toggle, div.app-moduleactions div.dropdown-menu {
+    color:#ffffff;
+}
+
 @media (max-width: 767px) {
 
     .app-menu {
