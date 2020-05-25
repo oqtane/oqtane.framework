@@ -56,7 +56,6 @@
             </td>
             <td>
                 <select id="defaultTheme" class="form-control" @onchange="(e => ThemeChanged(e))">
-                    <option value="">&lt;Select Theme&gt;</option>
                     @foreach (KeyValuePair<string, string> item in _themes)
                     {
                         if (item.Key == _themetype)
@@ -77,7 +76,6 @@
             </td>
             <td>
                 <select id="defaultLayout" class="form-control" @bind="@_layouttype">
-                    <option value="">&lt;Select Layout&gt;</option>
                     @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
                     {
                         <option value="@panelayout.Key">@panelayout.Value</option>
@@ -91,7 +89,6 @@
             </td>
             <td>
                 <select id="defaultContainer" class="form-control" @bind="@_containertype">
-                    <option value="">&lt;Select Container&gt;</option>
                     @foreach (KeyValuePair<string, string> container in _containers)
                     {
                         <option value="@container.Key">@container.Value</option>
