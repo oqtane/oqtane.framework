@@ -66,7 +66,7 @@ namespace Oqtane.Infrastructure
                         {
                             MailMessage mailMessage = new MailMessage();
                             mailMessage.From = new MailAddress(settings["SMTPUsername"], site.Name);
-
+                            mailMessage.Subject = notification.Subject;
                             if (notification.FromUserId != null)
                             {
                                 mailMessage.Body = "From: " + notification.FromUser.DisplayName + "<" + notification.FromUser.Email + ">" + "\n";

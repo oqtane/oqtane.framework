@@ -1,1 +1,0 @@
-This is the location where static resources for third party libraries should be located ( the third party library assemblies will be included in the /lib folder ). They should be placed in subfolders which match the naming convention of the third party library. When the module package is deployed the static resource subfolders will be extracted under the web root.
