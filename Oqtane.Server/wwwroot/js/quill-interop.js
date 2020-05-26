@@ -1,4 +1,6 @@
-window.interop = {
+var Oqtane = Oqtane || {};
+
+Oqtane.RichTextEditor = {
     createQuill: function (
         quillElement, toolBar, readOnly,
         placeholder, theme, debugLevel) {
