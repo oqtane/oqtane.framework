@@ -173,7 +173,7 @@
 
             if (alias.Path != "")
             {
-                path = path.Replace(alias.Path + "/", "");
+                path = path.Substring(alias.Path.Length + 1);
             }
 
             // extract admin route elements from path

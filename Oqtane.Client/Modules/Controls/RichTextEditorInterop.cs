@@ -4,10 +4,16 @@ using System.Threading.Tasks;
 
 namespace Oqtane.Modules.Controls
 {
-    public static class RichTextEditorInterop
+    public class RichTextEditorInterop
     {
-        internal static ValueTask<object> CreateEditor(
-            IJSRuntime jsRuntime,
+        private readonly IJSRuntime _jsRuntime;
+
+        public RichTextEditorInterop(IJSRuntime jsRuntime)
+        {
+            _jsRuntime = jsRuntime;
+        }
+
+        public Task CreateEditor(
             ElementReference quillElement,
             ElementReference toolbar,
             bool readOnly,
@@ -15,66 +21,104 @@ namespace Oqtane.Modules.Controls
             string theme,
             string debugLevel)
         {
-            return jsRuntime.InvokeAsync<object>(
-                "interop.createQuill",
-                quillElement, toolbar, readOnly,
-                placeholder, theme, debugLevel);
+            try
+            {
+                _jsRuntime.InvokeAsync<object>(
+                    "Oqtane.RichTextEditor.createQuill",
+                    quillElement, toolbar, readOnly,
+                    placeholder, theme, debugLevel);
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
         }
 
-        internal static ValueTask<string> GetText(
-            IJSRuntime jsRuntime,
-            ElementReference quillElement)
+        public ValueTask<string> GetText(ElementReference quillElement)
         {
-            return jsRuntime.InvokeAsync<string>(
-                "interop.getQuillText",
-                quillElement);
+            try
+            {
+                return _jsRuntime.InvokeAsync<string>(
+                    "Oqtane.RichTextEditor.getQuillText",
+                    quillElement);
+            }
+            catch
+            {
+                return new ValueTask<string>(Task.FromResult(string.Empty));
+            }
         }
 
-        internal static ValueTask<string> GetHtml(
-            IJSRuntime jsRuntime,
-            ElementReference quillElement)
+        public ValueTask<string> GetHtml(ElementReference quillElement)
         {
-            return jsRuntime.InvokeAsync<string>(
-                "interop.getQuillHTML",
-                quillElement);
+            try
+            {
+                return _jsRuntime.InvokeAsync<string>(
+                    "Oqtane.RichTextEditor.getQuillHTML",
+                    quillElement);
+            }
+            catch
+            {
+                return new ValueTask<string>(Task.FromResult(string.Empty));
+            }
         }
 
-        internal static ValueTask<string> GetContent(
-            IJSRuntime jsRuntime,
-            ElementReference quillElement)
+        public ValueTask<string> GetContent(ElementReference quillElement)
         {
-            return jsRuntime.InvokeAsync<string>(
-                "interop.getQuillContent",
-                quillElement);
+            try
+            {
+                return _jsRuntime.InvokeAsync<string>(
+                    "Oqtane.RichTextEditor.getQuillContent",
+                    quillElement);
+            }
+            catch
+            {
+                return new ValueTask<string>(Task.FromResult(string.Empty));
+            }
         }
 
-        internal static ValueTask<object> LoadEditorContent(
-            IJSRuntime jsRuntime,
-            ElementReference quillElement,
-            string content)
+        public Task LoadEditorContent(ElementReference quillElement, string content)
         {
-            return jsRuntime.InvokeAsync<object>(
-                "interop.loadQuillContent",
-                quillElement, content);
+            try
+            {
+                _jsRuntime.InvokeAsync<object>(
+                    "Oqtane.RichTextEditor.loadQuillContent",
+                    quillElement, content);
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
         }
 
-        internal static ValueTask<object> EnableEditor(
-            IJSRuntime jsRuntime,
-            ElementReference quillElement,
-            bool mode)
+        public Task EnableEditor(ElementReference quillElement, bool mode)
         {
-            return jsRuntime.InvokeAsync<object>(
-                "interop.enableQuillEditor", quillElement, mode);
+            try
+            {
+                _jsRuntime.InvokeAsync<object>(
+                    "Oqtane.RichTextEditor.enableQuillEditor", quillElement, mode);
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
         }
 
-        internal static ValueTask<object> InsertImage(
-            IJSRuntime jsRuntime,
-            ElementReference quillElement,
-            string imageUrl)
+        public Task InsertImage(ElementReference quillElement, string imageUrl)
         {
-            return jsRuntime.InvokeAsync<object>(
-                "interop.insertQuillImage",
-                quillElement, imageUrl);
+            try
+            {
+                _jsRuntime.InvokeAsync<object>(
+                    "Oqtane.RichTextEditor.insertQuillImage",
+                    quillElement, imageUrl);
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
         }
     }
 }

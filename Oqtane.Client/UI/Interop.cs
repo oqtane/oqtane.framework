@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
-using System;
+﻿using Microsoft.JSInterop;
 using System.Threading.Tasks;
 
 namespace Oqtane.UI
@@ -18,8 +16,8 @@ namespace Oqtane.UI
         {
             try
             {
-                _jsRuntime.InvokeAsync<string>(
-                "interop.setCookie",
+                _jsRuntime.InvokeAsync<object>(
+                "Oqtane.Interop.setCookie",
                 name, value, days);
                 return Task.CompletedTask;
             }
@@ -34,7 +32,7 @@ namespace Oqtane.UI
             try
             {
                 return _jsRuntime.InvokeAsync<string>(
-                    "interop.getCookie",
+                    "Oqtane.Interop.getCookie",
                     name);
             }
             catch
@@ -47,8 +45,8 @@ namespace Oqtane.UI
         {
             try
             {
-                _jsRuntime.InvokeAsync<string>(
-                    "interop.updateTitle",
+                _jsRuntime.InvokeAsync<object>(
+                    "Oqtane.Interop.updateTitle",
                     title);
                 return Task.CompletedTask;
             }
@@ -62,8 +60,8 @@ namespace Oqtane.UI
         {
             try
             {
-                _jsRuntime.InvokeAsync<string>(
-                    "interop.includeMeta",
+                _jsRuntime.InvokeAsync<object>(
+                    "Oqtane.Interop.includeMeta",
                     id, attribute, name, content);
                 return Task.CompletedTask;
             }
@@ -77,8 +75,8 @@ namespace Oqtane.UI
         {
             try
             {
-                _jsRuntime.InvokeAsync<string>(
-                    "interop.includeLink",
+                _jsRuntime.InvokeAsync<object>(
+                    "Oqtane.Interop.includeLink",
                     id, rel, url, type, integrity, crossorigin);
                 return Task.CompletedTask;
             }
@@ -92,8 +90,8 @@ namespace Oqtane.UI
         {
             try
             {
-                _jsRuntime.InvokeAsync<string>(
-                    "interop.includeScript",
+                _jsRuntime.InvokeAsync<object>(
+                    "Oqtane.Interop.includeScript",
                     id, src, content, location, integrity, crossorigin);
                 return Task.CompletedTask;
             }
@@ -107,8 +105,8 @@ namespace Oqtane.UI
         {
             try
             {
-                _jsRuntime.InvokeAsync<string>(
-                    "interop.includeLink",
+                _jsRuntime.InvokeAsync<object>(
+                    "Oqtane.Interop.includeLink",
                     id, "stylesheet", url, "text/css");
                 return Task.CompletedTask;
             }
@@ -122,8 +120,8 @@ namespace Oqtane.UI
         {
             try
             {
-                _jsRuntime.InvokeAsync<string>(
-                    "interop.removeElementsById",
+                _jsRuntime.InvokeAsync<object>(
+                    "Oqtane.Interop.removeElementsById",
                     prefix, first, last);
                 return Task.CompletedTask;
             }
@@ -139,7 +137,7 @@ namespace Oqtane.UI
             try
             {
                 return _jsRuntime.InvokeAsync<string>(
-                    "interop.getElementByName",
+                    "Oqtane.Interop.getElementByName",
                     name);
             }
             catch
@@ -152,8 +150,8 @@ namespace Oqtane.UI
         {
             try
             {
-                _jsRuntime.InvokeAsync<string>(
-                "interop.submitForm",
+                _jsRuntime.InvokeAsync<object>(
+                "Oqtane.Interop.submitForm",
                 path, fields);
                 return Task.CompletedTask;
             }
@@ -168,7 +166,7 @@ namespace Oqtane.UI
             try
             {
                 return _jsRuntime.InvokeAsync<string[]>(
-                    "interop.getFiles",
+                    "Oqtane.Interop.getFiles",
                     id);
             }
             catch
@@ -181,8 +179,8 @@ namespace Oqtane.UI
         {
             try
             {
-                _jsRuntime.InvokeAsync<string>(
-                "interop.uploadFiles",
+                _jsRuntime.InvokeAsync<object>(
+                "Oqtane.Interop.uploadFiles",
                 posturl, folder, id);
                 return Task.CompletedTask;
             }

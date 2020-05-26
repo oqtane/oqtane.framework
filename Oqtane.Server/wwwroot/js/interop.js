@@ -1,4 +1,6 @@
-window.interop = {
+var Oqtane = Oqtane || {};
+
+Oqtane.Interop = {
     setCookie: function (name, value, days) {
         var d = new Date();
         d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
@@ -128,6 +130,7 @@ window.interop = {
             else {
                 script.innerHTML = content;
             }
+            script.async = false;
             if (location === 'head') {
                 document.head.appendChild(script);
             }
