@@ -1,4 +1,5 @@
 ﻿using Microsoft.JSInterop;
+using Oqtane.Models;
 using System.Threading.Tasks;
 
 namespace Oqtane.UI
@@ -56,13 +57,13 @@ namespace Oqtane.UI
             }
         }
 
-        public Task IncludeMeta(string id, string attribute, string name, string content)
+        public Task IncludeMeta(string id, string attribute, string name, string content, string key)
         {
             try
             {
                 _jsRuntime.InvokeAsync<object>(
                     "Oqtane.Interop.includeMeta",
-                    id, attribute, name, content);
+                    id, attribute, name, content, key);
                 return Task.CompletedTask;
             }
             catch
@@ -71,13 +72,13 @@ namespace Oqtane.UI
             }
         }
 
-        public Task IncludeLink(string id, string rel, string url, string type, string integrity, string crossorigin)
+        public Task IncludeLink(string id, string rel, string href, string type, string integrity, string crossorigin, string key)
         {
             try
             {
                 _jsRuntime.InvokeAsync<object>(
                     "Oqtane.Interop.includeLink",
-                    id, rel, url, type, integrity, crossorigin);
+                    id, rel, href, type, integrity, crossorigin, key);
                 return Task.CompletedTask;
             }
             catch
@@ -86,13 +87,28 @@ namespace Oqtane.UI
             }
         }
 
-        public Task IncludeScript(string id, string src, string content, string location, string integrity, string crossorigin)
+        public Task IncludeLinks(object[] links)
+        {
+            try
+            {
+                _jsRuntime.InvokeAsync<object>(
+                    "Oqtane.Interop.includeLinks", 
+                    (object) links);
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
+        }
+
+        public Task IncludeScript(string id, string src, string integrity, string crossorigin, string content, string location, string key)
         {
             try
             {
                 _jsRuntime.InvokeAsync<object>(
                     "Oqtane.Interop.includeScript",
-                    id, src, content, location, integrity, crossorigin);
+                    id, src, integrity, crossorigin, content, location, key);
                 return Task.CompletedTask;
             }
             catch
@@ -101,13 +117,13 @@ namespace Oqtane.UI
             }
         }
 
-        public Task IncludeCSS(string id, string url)
+        public Task IncludeScripts(object[] scripts)
         {
             try
             {
                 _jsRuntime.InvokeAsync<object>(
-                    "Oqtane.Interop.includeLink",
-                    id, "stylesheet", url, "text/css");
+                    "Oqtane.Interop.includeScripts",
+                    (object)scripts);
                 return Task.CompletedTask;
             }
             catch
@@ -130,7 +146,6 @@ namespace Oqtane.UI
                 return Task.CompletedTask;
             }
         }
-
 
         public ValueTask<string> GetElementByName(string name)
         {
