@@ -12,7 +12,7 @@
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
     <iconUrl>https://www.oqtane.org/Portals/0/icon.jpg</iconUrl>
-    <tags>oqtane framework</tags>
+    <tags>oqtane</tags>
     <releaseNotes>Initial Release</releaseNotes>
     <summary>A modular application framework for Blazor</summary>
   </metadata>
