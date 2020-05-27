@@ -126,7 +126,9 @@ else
                     </Row>
                     <Detail>
                         <td colspan="2"></td>
-                        <td colspan="3">@(context.Body.Length > 100 ? context.Body.Substring(0, 100) : context.Body)</td>
+                        <td colspan="3">
+                            <textarea class="form-control" @bind="@context.Body" rows="1" readonly />
+                        </td>
                     </Detail>
                 </Pager>
             }
@@ -149,7 +151,9 @@ else
                     </Row>
                     <Detail>
                         <td colspan="2"></td>
-                        <td colspan="3">@(context.Body.Length > 100 ? context.Body.Substring(0, 100) : context.Body)</td>
+                        <td colspan="3">
+                            <textarea class="form-control" @bind="@context.Body" rows="1" readonly />
+                        </td>
                     </Detail>
                 </Pager>
             }
