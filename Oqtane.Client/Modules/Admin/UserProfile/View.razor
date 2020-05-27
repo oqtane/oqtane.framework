@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Modules.Admin.UserProfile
+@namespace Oqtane.Modules.Admin.UserProfile
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IUserRoleService UserRoleService
@@ -9,7 +9,7 @@
     <table class="table table-borderless">
         <tr>
             <td>
-                <label  class="control-label">@title: </label>
+                <label class="control-label">@title: </label>
             </td>
             <td>
                 <select class="form-control" @bind="userid" disabled>
@@ -18,40 +18,66 @@
                     {
                         foreach (UserRole userrole in userroles)
                         {
-                            <option value="@userrole.UserId"  readonly>@userrole.User.DisplayName</option>
+                            <option value="@userrole.UserId">@userrole.User.DisplayName</option>
                         }
                     }
                 </select>
             </td>
         </tr>
+
         <tr>
             <td>
-                <label  class="control-label">Subject: </label>
+                <label class="control-label">Subject: </label>
             </td>
-            <td>
-                <input class="form-control" @bind="@subject" readonly />
-            </td>
+            @if (title == "From")
+            {
+                <td>
+                    <input class="form-control" @bind="@subject" readonly />
+                </td>
+            }
+            @if (title == "To")
+            {
+                <td>
+                    <input class="form-control" @bind="@subject" />
+                </td>
+            }
         </tr>
         @if (title == "From")
         {
             <tr>
                 <td>
-                    <label  class="control-label">Date: </label>
+                    <label class="control-label">Date: </label>
                 </td>
                 <td>
-                    <input class="form-control" @bind="@createdon"  readonly />
+                    <input class="form-control" @bind="@createdon" readonly />
                 </td>
             </tr>
         }
-        <tr>
-            <td>
-                <label  class="control-label">Message: </label>
-            </td>
-            <td>
-                <textarea class="form-control" @bind="@body" rows="5"  readonly />
-            </td>
-        </tr>
+        @if (title == "From")
+        {
+            <tr>
+                <td>
+                    <label class="control-label">Message: </label>
+                </td>
+                <td>
+                    <textarea class="form-control" @bind="@body" rows="5" readonly />
+                </td>
+            </tr>
+        }
+        @if (title == "To")
+        {
+            <tr>
+                <td>
+                    <label class="control-label">Message: </label>
+                </td>
+                <td>
+                    <textarea class="form-control" @bind="@body" rows="5" />
+                </td>
+            </tr>
+        }
     </table>
+
+
     @if (reply != string.Empty)
     {
         <button type="button" class="btn btn-primary" @onclick="Send">Send</button>
@@ -66,7 +92,19 @@
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
     <br />
     <br />
-    <p>@reply</p>
+    @if (title == "To")
+    {
+        <table class="table table-borderless">
+            <tr>
+                <td>
+                    <label class="control-label">Original Message: </label>
+                </td>
+                <td>
+                    <textarea class="form-control" @bind="@reply" rows="5" readonly />
+                </td>
+            </tr>
+        </table>
+    }
 }
 
 @code {
@@ -76,6 +114,7 @@
     private string userid = "-1";
     private string subject = string.Empty;
     private string createdon = string.Empty;
+
     private string body = string.Empty;
     private string reply = string.Empty;
 
@@ -110,7 +149,7 @@
                         userid = notification.ToUserId.ToString();
                     }
                 }
-                
+
                 subject = notification.Subject;
                 createdon = notification.CreatedOn.ToString();
                 body = notification.Body;
@@ -126,8 +165,12 @@
     private void Reply()
     {
         title = "To";
-        subject = "RE: " + subject;
+        if (!subject.Contains("RE:"))
+        {
+            subject = "RE: " + subject;
+        }
         reply = body;
+        body = "\n\n-----------------------------\nSent: " + createdon + "\nSubject: " + subject + "\n\n" + body;
         StateHasChanged();
     }
 
