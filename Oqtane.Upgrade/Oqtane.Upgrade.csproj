@@ -15,6 +15,7 @@
     <RepositoryType>Git</RepositoryType>
     <PackageReleaseNotes>Not for production use.</PackageReleaseNotes>
     <RootNamespace>Oqtane</RootNamespace>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
