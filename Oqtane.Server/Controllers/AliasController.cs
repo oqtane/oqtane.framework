@@ -47,7 +47,7 @@ namespace Oqtane.Controllers
         }
 
         // GET api/<controller>/name/xxx?sync=yyyyMMddHHmmssfff
-        [HttpGet("name/{name}")]
+        [HttpGet("name/{**name}")]
         public Alias Get(string name, string sync)
         {
             List<Alias> aliases = _aliases.GetAliases().ToList(); // cached
