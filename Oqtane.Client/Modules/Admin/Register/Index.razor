@@ -3,71 +3,87 @@
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
 
-@if  (Message != "")
+@if (PageState.Site.AllowRegistration)
 {
-    <ModuleMessage Message="@Message" Type="MessageType.Info" />
+    <AuthorizeView>
+        <Authorizing>
+            <text>...</text>
+        </Authorizing>
+        <Authorized>
+            <ModuleMessage Message="You Are Already Registered" Type="MessageType.Info" />            
+        </Authorized>
+        <NotAuthorized>
+            <ModuleMessage Message="Please Note That Registration Requires A Valid Email Address In Order To Verify Your Identity" Type="MessageType.Info" />
+
+            <div class="container">
+                <div class="form-group">
+                    <label for="Username" class="control-label">Username: </label>
+                    <input type="text" class="form-control" placeholder="Username" @bind="@_username" id="Username" />
+                </div>
+                <div class="form-group">
+                    <label for="Password" class="control-label">Password: </label>
+                    <input type="password" class="form-control" placeholder="Password" @bind="@_password" id="Password" />
+                </div>
+                <div class="form-group">
+                    <label for="Confirm" class="control-label">Confirm Password: </label>
+                    <input type="password" class="form-control" placeholder="Password" @bind="@_confirm" id="Confirm" />
+                </div>
+                <div class="form-group">
+                    <label for="Email" class="control-label">Email: </label>
+                    <input type="text" class="form-control" placeholder="Email" @bind="@_email" id="Email" />
+                </div>
+                <div class="form-group">
+                    <label for="DisplayName" class="control-label">Full Name: </label>
+                    <input type="text" class="form-control" placeholder="Full Name" @bind="@_displayName" id="DisplayName" />
+                </div>
+                <button type="button" class="btn btn-primary" @onclick="Register">Register</button>
+                <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+            </div>
+        </NotAuthorized>
+    </AuthorizeView>
+}
+else
+{
+    <ModuleMessage Message="Registration is Disabled For This Site" Type="MessageType.Info" />
 }
 
-<div class="container">
-    <div class="form-group">
-        <label for="Username" class="control-label">Username: </label>
-        <input type="text" class="form-control" placeholder="Username" @bind="@Username" />
-    </div>
-    <div class="form-group">
-        <label for="Password" class="control-label">Password: </label>
-        <input type="password" class="form-control" placeholder="Password" @bind="@Password" />
-    </div>
-    <div class="form-group">
-        <label for="Password" class="control-label">Confirm Password: </label>
-        <input type="password" class="form-control" placeholder="Password" @bind="@Confirm" />
-    </div>
-    <div class="form-group">
-        <label for="Username" class="control-label">Email: </label>
-        <input type="text" class="form-control" placeholder="Email" @bind="@Email" />
-    </div>
-    <div class="form-group">
-        <label for="DisplayName" class="control-label">Full Name: </label>
-        <input type="text" class="form-control" placeholder="Full Name" @bind="@DisplayName" />
-    </div>
-    <button type="button" class="btn btn-primary" @onclick="Register">Register</button>
-    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
-</div>
-
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Anonymous; } }
+    private string _username = string.Empty;
+    private string _password = string.Empty;
+    private string _confirm = string.Empty;
+    private string _email = string.Empty;
+    private string _displayName = string.Empty;
 
-    string Message = "Please Note That Registration Requires A Valid Email Address In Order To Verify Your Identity";
-    string Username = "";
-    string Password = "";
-    string Confirm = "";
-    string Email = "";
-    string DisplayName = "";
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
 
     private async Task Register()
     {
         try
         {
-            Message = "";
-            if (Username != "" && Password != "" && Confirm != "" && Email != "")
+            bool _isEmailValid = Utilities.IsValidEmail(_email);
+
+            if (_username != "" && _password != "" && _confirm != "" && _isEmailValid)
             {
-                if (Password == Confirm)
+                if (_password == _confirm)
                 {
-                    User user = new User();
-                    user.SiteId = PageState.Site.SiteId;
-                    user.Username = Username;
-                    user.DisplayName = (DisplayName == "" ? Username : DisplayName);
-                    user.Email = Email;
-                    user.Password = Password;
+                    var user = new User
+                    {
+                        SiteId = PageState.Site.SiteId,
+                        Username = _username,
+                        DisplayName = (_displayName == string.Empty ? _username : _displayName),
+                        Email = _email,
+                        Password = _password
+                    };
                     user = await UserService.AddUserAsync(user);
 
                     if (user != null)
                     {
-                        await logger.LogInformation("User Created {Username} {Email}", Username, Email);
+                        await logger.LogInformation("User Created {Username} {Email}", _username, _email);
                         AddModuleMessage("User Account Created. Please Check Your Email For Verification Instructions.", MessageType.Info);
                     }
                     else
                     {
-                        await logger.LogError("Error Adding User {Username} {Email}", Username, Email);
+                        await logger.LogError("Error Adding User {Username} {Email}", _username, _email);
                         AddModuleMessage("Error Adding User. Please Ensure Password Meets Complexity Requirements And Username Is Not Already In Use.", MessageType.Error);
                     }
                 }
@@ -83,13 +99,13 @@
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Adding User {Username} {Email} {Error}", Username, Email, ex.Message);
+            await logger.LogError(ex, "Error Adding User {Username} {Email} {Error}", _username, _email, ex.Message);
             AddModuleMessage("Error Adding User", MessageType.Error);
         }
     }
 
     private void Cancel()
     {
-        NavigationManager.NavigateTo(NavigateUrl(""));
+        NavigationManager.NavigateTo(NavigateUrl(string.Empty));
     }
 }

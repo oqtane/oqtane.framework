@@ -1,35 +1,35 @@
 ﻿@namespace Oqtane.Modules.Admin.Login
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
-@inject IJSRuntime jsRuntime
+@inject IJSRuntime JsRuntime
 @inject IUserService UserService
 @inject IServiceProvider ServiceProvider
 
-@if (Message != "")
+@if (_message != string.Empty)
 {
-    <ModuleMessage Message="@Message" Type="@Type" />
+    <ModuleMessage Message="@_message" Type="@_type" />
 }
 <AuthorizeView>
     <Authorizing>
         <text>...</text>
     </Authorizing>
     <Authorized>
-        You are already logged in
+        <ModuleMessage Message="You Are Already Logged In" Type="MessageType.Info" />
     </Authorized>
     <NotAuthorized>
         <div class="container">
             <div class="form-group">
                 <label for="Username" class="control-label">Username: </label>
-                <input type="text" name="Username" class="form-control" placeholder="Username" @bind="@Username" />
+                <input type="text" name="Username" class="form-control" placeholder="Username" @bind="@_username" id="Username" />
             </div>
             <div class="form-group">
                 <label for="Password" class="control-label">Password: </label>
-                <input type="password" name="Password" class="form-control" placeholder="Password" @bind="@Password" />
+                <input type="password" name="Password" class="form-control" placeholder="Password" @bind="@_password" id="Password" />
             </div>
             <div class="form-group">
                 <div class="form-check form-check-inline">
                     <label class="form-check-label" for="Remember">Remember Me?</label>&nbsp;
-                    <input type="checkbox" class="form-check-input" name="Remember" @bind="@Remember" />
+                    <input type="checkbox" class="form-check-input" name="Remember" @bind="@_remember" id="Remember" />
                 </div>
             </div>
             <button type="button" class="btn btn-primary" @onclick="Login">Login</button>
@@ -41,87 +41,90 @@
 </AuthorizeView>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Anonymous; } }
+    private string _returnUrl = string.Empty;
+    private string _message = string.Empty;
+    private MessageType _type = MessageType.Info;
+    private string _username = string.Empty;
+    private string _password = string.Empty;
+    private bool _remember = false;
 
-    string ReturnUrl = "";
-    public string Message = "";
-    public MessageType Type = MessageType.Info;
-    public string Username = "";
-    public string Password = "";
-    public bool Remember = false;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
 
     protected override async Task OnInitializedAsync()
     {
         if (PageState.QueryString.ContainsKey("returnurl"))
         {
-            ReturnUrl = PageState.QueryString["returnurl"];
+            _returnUrl = PageState.QueryString["returnurl"];
         }
+        
         if (PageState.QueryString.ContainsKey("name"))
         {
-            Username = PageState.QueryString["name"];
+            _username = PageState.QueryString["name"];
         }
+        
         if (PageState.QueryString.ContainsKey("token"))
         {
-            User user = new User();
+            var user = new User();
             user.SiteId = PageState.Site.SiteId;
-            user.Username = Username;
+            user.Username = _username;
             user = await UserService.VerifyEmailAsync(user, PageState.QueryString["token"]);
 
             if (user != null)
             {
-                Message = "User Account Verified Successfully. You Can Now Login With Your Username And Password Below.";
+                _message = "User Account Verified Successfully. You Can Now Login With Your Username And Password Below.";
             }
             else
             {
-                Message = "User Account Could Not Be Verified. Please Contact Your Administrator For Further Instructions.";
-                Type = MessageType.Warning;
+                _message = "User Account Could Not Be Verified. Please Contact Your Administrator For Further Instructions.";
+                _type = MessageType.Warning;
             }
         }
     }
 
     private async Task Login()
     {
-        var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
-        if (authstateprovider == null)
+        if (PageState.Runtime == Runtime.Server)
         {
             // server-side Blazor
-            User user = new User();
+            var user = new User();
             user.SiteId = PageState.Site.SiteId;
-            user.Username = Username;
-            user.Password = Password;
+            user.Username = _username;
+            user.Password = _password;
             user = await UserService.LoginUserAsync(user, false, false);
+            
             if (user.IsAuthenticated)
             {
-                await logger.LogInformation("Login Successful For Username {Username}", Username);
+                await logger.LogInformation("Login Successful For Username {Username}", _username);
                 // complete the login on the server so that the cookies are set correctly on SignalR
-                var interop = new Interop(jsRuntime);
+                var interop = new Interop(JsRuntime);
                 string antiforgerytoken = await interop.GetElementByName("__RequestVerificationToken");
-                var fields = new { __RequestVerificationToken = antiforgerytoken, username = Username, password = Password, remember = Remember, returnurl = ReturnUrl };
-                await interop.SubmitForm("/pages/login/", fields);
+                var fields = new { __RequestVerificationToken = antiforgerytoken, username = _username, password = _password, remember = _remember, returnurl = _returnUrl };
+                await interop.SubmitForm($"/{PageState.Alias.AliasId}/pages/login/", fields);
             }
             else
             {
-                await logger.LogInformation("Login Failed For Username {Username}", Username);
+                await logger.LogInformation("Login Failed For Username {Username}", _username);
                 AddModuleMessage("Login Failed. Please Remember That Passwords Are Case Sensitive And User Accounts Require Email Verification When They Initially Created.", MessageType.Error);
             }
         }
         else
         {
             // client-side Blazor
-            User user = new User();
+            var user = new User();
             user.SiteId = PageState.Site.SiteId;
-            user.Username = Username;
-            user.Password = Password;
-            user = await UserService.LoginUserAsync(user, true, Remember);
+            user.Username = _username;
+            user.Password = _password;
+            user = await UserService.LoginUserAsync(user, true, _remember);
             if (user.IsAuthenticated)
             {
-                await logger.LogInformation("Login Successful For Username {Username}", Username);
+                await logger.LogInformation("Login Successful For Username {Username}", _username);
+                var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
                 authstateprovider.NotifyAuthenticationChanged();
-                NavigationManager.NavigateTo(NavigateUrl(ReturnUrl, Reload.Site));
+                NavigationManager.NavigateTo(NavigateUrl(_returnUrl, "reload"));
             }
             else
             {
-                await logger.LogInformation("Login Failed For Username {Username}", Username);
+                await logger.LogInformation("Login Failed For Username {Username}", _username);
                 AddModuleMessage("Login Failed. Please Remember That Passwords Are Case Sensitive And User Accounts Require Verification When They Are Initially Created So You May Wish To Check Your Email.", MessageType.Error);
             }
         }
@@ -129,29 +132,30 @@
 
     private void Cancel()
     {
-        NavigationManager.NavigateTo(ReturnUrl);
+        NavigationManager.NavigateTo(_returnUrl);
     }
 
     private async Task Forgot()
     {
-        if (Username != "")
+        if (_username != string.Empty)
         {
-            User user = await UserService.GetUserAsync(Username, PageState.Site.SiteId);
+            var user = await UserService.GetUserAsync(_username, PageState.Site.SiteId);
             if (user != null)
             {
                 await UserService.ForgotPasswordAsync(user);
-                Message = "Please Check The Email Address Associated To Your User Account For A Password Reset Notification";
+                _message = "Please Check The Email Address Associated To Your User Account For A Password Reset Notification";
             }
             else
             {
-                Message = "User Does Not Exist";
-                Type = MessageType.Warning;
+                _message = "User Does Not Exist";
+                _type = MessageType.Warning;
             }
         }
         else
         {
-            Message = "Please Enter The Username Related To Your Account And Then Select The Forgot Password Option Again";
+            _message = "Please Enter The Username Related To Your Account And Then Select The Forgot Password Option Again";
         }
+        
         StateHasChanged();
     }
-    }
+}

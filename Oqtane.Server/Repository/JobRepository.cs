@@ -1,49 +1,59 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using Oqtane.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
+using Microsoft.Extensions.Caching.Memory;
+using Oqtane.Models;
 
 namespace Oqtane.Repository
 {
     public class JobRepository : IJobRepository
     {
-        private MasterDBContext db;
+        private MasterDBContext _db;
+        private readonly IMemoryCache _cache;
 
-        public JobRepository(MasterDBContext context)
+        public JobRepository(MasterDBContext context, IMemoryCache cache)
         {
-            db = context;
+            _db = context;
+            _cache = cache;
         }
 
         public IEnumerable<Job> GetJobs()
         {
-            return db.Job.ToList();
+            return _cache.GetOrCreate("jobs", entry =>
+            {
+                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+                return _db.Job.ToList();
+            });
         }
 
-        public Job AddJob(Job Job)
+        public Job AddJob(Job job)
         {
-            db.Job.Add(Job);
-            db.SaveChanges();
-            return Job;
+            _db.Job.Add(job);
+            _db.SaveChanges();
+            _cache.Remove("jobs");
+            return job;
         }
 
-        public Job UpdateJob(Job Job)
+        public Job UpdateJob(Job job)
         {
-            db.Entry(Job).State = EntityState.Modified;
-            db.SaveChanges();
-            return Job;
+            _db.Entry(job).State = EntityState.Modified;
+            _db.SaveChanges();
+            _cache.Remove("jobs");
+            return job;
         }
 
-        public Job GetJob(int JobId)
+        public Job GetJob(int jobId)
         {
-            return db.Job.Find(JobId);
+            return _db.Job.Find(jobId);
         }
 
-        public void DeleteJob(int JobId)
+        public void DeleteJob(int jobId)
         {
-            Job Job = db.Job.Find(JobId);
-            db.Job.Remove(Job);
-            db.SaveChanges();
+            Job job = _db.Job.Find(jobId);
+            _db.Job.Remove(job);
+            _db.SaveChanges();
+            _cache.Remove("jobs");
         }
     }
 }

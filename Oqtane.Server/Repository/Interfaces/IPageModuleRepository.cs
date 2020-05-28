@@ -5,12 +5,12 @@ namespace Oqtane.Repository
 {
     public interface IPageModuleRepository
     {
-        IEnumerable<PageModule> GetPageModules();
-        IEnumerable<PageModule> GetPageModules(int SiteId);
-        PageModule AddPageModule(PageModule PageModule);
-        PageModule UpdatePageModule(PageModule PageModule);
-        PageModule GetPageModule(int PageModuleId);
-        PageModule GetPageModule(int PageId, int ModuleId);
-        void DeletePageModule(int PageModuleId);
+        IEnumerable<PageModule> GetPageModules(int siteId);
+        IEnumerable<PageModule> GetPageModules(int pageId, string pane);
+        PageModule AddPageModule(PageModule pageModule);
+        PageModule UpdatePageModule(PageModule pageModule);
+        PageModule GetPageModule(int pageModuleId);
+        PageModule GetPageModule(int pageId, int moduleId);
+        void DeletePageModule(int pageModuleId);
     }
 }

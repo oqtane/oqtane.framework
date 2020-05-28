@@ -1,65 +1,66 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Oqtane.Repository;
 using Oqtane.Models;
 using System.Collections.Generic;
+using Oqtane.Enums;
 using Oqtane.Shared;
 using Oqtane.Infrastructure;
+using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
-    [Route("{site}/api/[controller]")]
+    [Route("{alias}/api/[controller]")]
     public class TenantController : Controller
     {
-        private readonly ITenantRepository Tenants;
-        private readonly ILogManager logger;
+        private readonly ITenantRepository _tenants;
+        private readonly ILogManager _logger;
 
-        public TenantController(ITenantRepository Tenants, ILogManager logger)
+        public TenantController(ITenantRepository tenants, ILogManager logger)
         {
-            this.Tenants = Tenants;
-            this.logger = logger;
+            _tenants = tenants;
+            _logger = logger;
         }
 
         // GET: api/<controller>
         [HttpGet]
-        [Authorize(Roles = Constants.HostRole)]
+        [Authorize(Roles = Constants.AdminRole)]
         public IEnumerable<Tenant> Get()
         {
-            return Tenants.GetTenants();
+            return _tenants.GetTenants();
         }
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
-        [Authorize(Roles = Constants.HostRole)]
+        [Authorize(Roles = Constants.AdminRole)]
         public Tenant Get(int id)
         {
-            return Tenants.GetTenant(id);
+            return _tenants.GetTenant(id);
         }
 
         // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = Constants.HostRole)]
-        public Tenant Post([FromBody] Tenant Tenant)
+        public Tenant Post([FromBody] Tenant tenant)
         {
             if (ModelState.IsValid)
             {
-                Tenant = Tenants.AddTenant(Tenant);
-                logger.Log(LogLevel.Information, this, LogFunction.Create, "Tenant Added {TenantId}", Tenant.TenantId);
+                tenant = _tenants.AddTenant(tenant);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Tenant Added {TenantId}", tenant.TenantId);
             }
-            return Tenant;
+            return tenant;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Roles = Constants.HostRole)]
-        public Tenant Put(int id, [FromBody] Tenant Tenant)
+        public Tenant Put(int id, [FromBody] Tenant tenant)
         {
             if (ModelState.IsValid)
             {
-                Tenant = Tenants.UpdateTenant(Tenant);
-                logger.Log(LogLevel.Information, this, LogFunction.Update, "Tenant Updated {TenantId}", Tenant.TenantId);
+                tenant = _tenants.UpdateTenant(tenant);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Tenant Updated {TenantId}", tenant.TenantId);
             }
-            return Tenant;
+            return tenant;
         }
 
         // DELETE api/<controller>/5
@@ -67,8 +68,8 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.HostRole)]
         public void Delete(int id)
         {
-            Tenants.DeleteTenant(id);
-            logger.Log(LogLevel.Information, this, LogFunction.Delete, "Tenant Deleted {TenantId}", id);
+            _tenants.DeleteTenant(id);
+            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Tenant Deleted {TenantId}", id);
         }
     }
 }

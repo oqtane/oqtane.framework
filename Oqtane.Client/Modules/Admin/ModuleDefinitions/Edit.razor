@@ -3,62 +3,152 @@
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject NavigationManager NavigationManager
 
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Name: </label>
-        </td>
-        <td>
-            <input class="form-control" @bind="@name" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Permissions: </label>
-        </td>
-        <td>
-            <PermissionGrid EntityName="ModuleDefinition" PermissionNames="Utilize" Permissions="@permissions" @ref="permissiongrid" />
-        </td>
-    </tr>
-</table>
+<TabStrip>
+    <TabPanel Name="Definition">
+        <table class="table table-borderless">
+            <tr>
+                <td>
+                    <Label For="name" HelpText="The name of the module">Name: </Label>
+                </td>
+                <td>
+                    <input id="name" class="form-control" @bind="@_name" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Label For="description" HelpText="The description of the module">Description: </Label>
+                </td>
+                <td>
+                    <textarea id="description" class="form-control" @bind="@_description" rows="2"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Label For="categories" HelpText="Comma delimited list of module categories">Categories: </Label>
+                </td>
+                <td>
+                    <input id="categories" class="form-control" @bind="@_categories" />
+                </td>
+            </tr>
+        </table>
+        <Section Name="Information">
+            <table class="table table-borderless">
+                <tr>
+                    <td>
+                        <Label For="moduledefinitionname" HelpText="The internal name of the module">Internal Name: </Label>
+                    </td>
+                    <td>
+                        <input id="moduledefinitionname" class="form-control" @bind="@_moduledefinitionname" disabled />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="version" HelpText="The version of the module">Version: </Label>
+                    </td>
+                    <td>
+                        <input id="version" class="form-control" @bind="@_version" disabled />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="owner" HelpText="The owner or creator of the module">Owner: </Label>
+                    </td>
+                    <td>
+                        <input id="owner" class="form-control" @bind="@_owner" disabled />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="url" HelpText="The reference url of the module">Reference Url: </Label>
+                    </td>
+                    <td>
+                        <input id="url" class="form-control" @bind="@_url" disabled />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="contact" HelpText="The contact for the module">Contact: </Label>
+                    </td>
+                    <td>
+                        <input id="contact" class="form-control" @bind="@_contact" disabled />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="license" HelpText="The license of the module">License: </Label>
+                    </td>
+                    <td>
+                        <textarea id="license" class="form-control" @bind="@_license" rows="5" disabled></textarea>
+                    </td>
+                </tr>
+            </table>
+        </Section>
+    </TabPanel>
+    <TabPanel Name="Permissions">
+        <table class="table table-borderless">
+            <tr>
+                <td>
+                    <PermissionGrid EntityName="@EntityNames.ModuleDefinition" PermissionNames="@PermissionNames.Utilize" Permissions="@_permissions" @ref="_permissionGrid" />
+                </td>
+            </tr>
+        </table>
+    </TabPanel>
+</TabStrip>
 <button type="button" class="btn btn-success" @onclick="SaveModuleDefinition">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
-<br />
-<br />
-<AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
+<br /><br />
+<AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon"></AuditInfo>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+    private int _moduleDefinitionId;
+    private string _name;
+    private string _version;
+    private string _categories;
+    private string _moduledefinitionname = "";
+    private string _description = "";
+    private string _owner = "";
+    private string _url = "";
+    private string _contact = "";
+    private string _license = "";
+    private string _permissions;
+    private string _createdby;
+    private DateTime _createdon;
+    private string _modifiedby;
+    private DateTime _modifiedon;
 
-    int ModuleDefinitionId;
-    string name;
-    string permissions;
-    string createdby;
-    DateTime createdon;
-    string modifiedby;
-    DateTime modifiedon;
+#pragma warning disable 649
+    private PermissionGrid _permissionGrid;
+#pragma warning restore 649
 
-    PermissionGrid permissiongrid;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            ModuleDefinitionId = Int32.Parse(PageState.QueryString["id"]);
-            ModuleDefinition moduledefinition = PageState.ModuleDefinitions.Where(item => item.ModuleDefinitionId == ModuleDefinitionId).FirstOrDefault();
-            if (moduledefinition != null)
+            _moduleDefinitionId = Int32.Parse(PageState.QueryString["id"]);
+            var moduleDefinition = await ModuleDefinitionService.GetModuleDefinitionAsync(_moduleDefinitionId, ModuleState.SiteId);
+            if (moduleDefinition != null)
             {
-                name = moduledefinition.Name;
-                permissions = moduledefinition.Permissions;
-                createdby = moduledefinition.CreatedBy;
-                createdon = moduledefinition.CreatedOn;
-                modifiedby = moduledefinition.ModifiedBy;
-                modifiedon = moduledefinition.ModifiedOn;
+                _name = moduleDefinition.Name;
+                _version = moduleDefinition.Version;
+                _categories = moduleDefinition.Categories;
+                _moduledefinitionname = moduleDefinition.ModuleDefinitionName;
+                _description = moduleDefinition.Description;
+                _owner = moduleDefinition.Owner;
+                _url = moduleDefinition.Url;
+                _contact = moduleDefinition.Contact;
+                _license = moduleDefinition.License;
+                _permissions = moduleDefinition.Permissions;
+                _createdby = moduleDefinition.CreatedBy;
+                _createdon = moduleDefinition.CreatedOn;
+                _modifiedby = moduleDefinition.ModifiedBy;
+                _modifiedon = moduleDefinition.ModifiedOn;
             }
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading ModuleDefinition {ModuleDefinitionId} {Error}", ModuleDefinitionId, ex.Message);
+            await logger.LogError(ex, "Error Loading ModuleDefinition {ModuleDefinitionId} {Error}", _moduleDefinitionId, ex.Message);
             AddModuleMessage("Error Loading Module", MessageType.Error);
         }
     }
@@ -67,15 +157,27 @@
     {
         try
         {
-            ModuleDefinition moduledefinition = PageState.ModuleDefinitions.Where(item => item.ModuleDefinitionId == ModuleDefinitionId).FirstOrDefault();
-            moduledefinition.Permissions = permissiongrid.GetPermissions();
+            var moduledefinition = await ModuleDefinitionService.GetModuleDefinitionAsync(_moduleDefinitionId, ModuleState.SiteId);
+            if (moduledefinition.Name != _name)
+            {
+                moduledefinition.Name = _name;
+            }
+            if (moduledefinition.Description != _description)
+            {
+                moduledefinition.Description = _description;
+            }
+            if (moduledefinition.Categories != _categories)
+            {
+                moduledefinition.Categories = _categories;
+            }
+            moduledefinition.Permissions = _permissionGrid.GetPermissions();
             await ModuleDefinitionService.UpdateModuleDefinitionAsync(moduledefinition);
             await logger.LogInformation("ModuleDefinition Saved {ModuleDefinition}", moduledefinition);
-            NavigationManager.NavigateTo(NavigateUrl(Reload.Site));
+            NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Saving ModuleDefinition {ModuleDefinitionId} {Error}", ModuleDefinitionId, ex.Message);
+            await logger.LogError(ex, "Error Saving ModuleDefinition {ModuleDefinitionId} {Error}", _moduleDefinitionId, ex.Message);
             AddModuleMessage("Error Saving Module", MessageType.Error);
         }
     }

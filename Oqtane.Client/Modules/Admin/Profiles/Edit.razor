@@ -6,66 +6,66 @@
     <table class="table table-borderless">
         <tr>
             <td>
-                <label for="Name" class="control-label">Name: </label>
+                <Label For="name" HelpText="The name of this field">Name: </Label>
             </td>
             <td>
-                <input class="form-control" @bind="@name" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="Name" class="control-label">Title: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@title" />
+                <input id="name" class="form-control" @bind="@_name" />
             </td>
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Description: </label>
+                <Label For="title" HelpText="The title of the field">Title: </Label>
             </td>
             <td>
-                <textarea class="form-control" @bind="@description" rows="5" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="Name" class="control-label">Category: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@category" />
+                <input id="title" class="form-control" @bind="@_title" />
             </td>
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Order: </label>
+                <Label For="description" HelpText="What the profile field is">Description: </Label>
             </td>
             <td>
-                <input class="form-control" @bind="@vieworder" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="Name" class="control-label">Length: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@maxlength" />
+                <textarea id="description" class="form-control" @bind="@_description" rows="5"></textarea>
             </td>
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Default Value: </label>
+                <Label For="category" HelpText="What larger category does this field belong to">Category: </Label>
             </td>
             <td>
-                <input class="form-control" @bind="@defaultvalue" />
+                <input id="category" class="form-control" @bind="@_category" />
             </td>
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Required? </label>
+                <Label For="order" HelpText="What place is this field in a larger category list">Order: </Label>
             </td>
             <td>
-                <select class="form-control" @bind="@isrequired">
+                <input id="order" class="form-control" @bind="@_vieworder" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="length" HelpText="What is the max amount of characters should this field accept">Length: </Label>
+            </td>
+            <td>
+                <input id="length" class="form-control" @bind="@_maxlength" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="defaultVal" HelpText="What value do you want this field to start with">Default Value: </Label>
+            </td>
+            <td>
+                <input id="defaultVal" class="form-control" @bind="@_defaultvalue" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="required" HelpText="Is a user required to input something into this field?">Required? </Label>
+            </td>
+            <td>
+                <select id="required" class="form-control" @bind="@_isrequired">
                     <option value="True">Yes</option>
                     <option value="False">No</option>
                 </select>
@@ -73,10 +73,10 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Private? </label>
+                <Label For="private" HelpText="Is this field private?">Private? </Label>
             </td>
             <td>
-                <select class="form-control" @bind="@isprivate">
+                <select id="private" class="form-control" @bind="@_isprivate">
                     <option value="True">Yes</option>
                     <option value="False">No</option>
                 </select>
@@ -87,19 +87,20 @@
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
-    public override string Actions { get { return "Add,Edit"; } }
+    private int _profileid = -1;
+    private string _name = string.Empty;
+    private string _title = string.Empty;
+    private string _description = string.Empty;
+    private string _category = string.Empty;
+    private string _vieworder = "0";
+    private string _maxlength = "0";
+    private string _defaultvalue = string.Empty;
+    private string _isrequired = "False";
+    private string _isprivate = "False";
 
-    int profileid = -1;
-    string name = "";
-    string title = "";
-    string description = "";
-    string category = "";
-    string vieworder = "0";
-    string maxlength = "0";
-    string defaultvalue = "";
-    string isrequired = "False";
-    string isprivate = "False";
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+
+    public override string Actions => "Add,Edit";
 
     protected override async Task OnInitializedAsync()
     {
@@ -107,25 +108,25 @@
         {
             if (PageState.QueryString.ContainsKey("id"))
             {
-                profileid = Int32.Parse(PageState.QueryString["id"]);
-                Profile profile = await ProfileService.GetProfileAsync(profileid);
+                _profileid = Int32.Parse(PageState.QueryString["id"]);
+                var profile = await ProfileService.GetProfileAsync(_profileid);
                 if (profile != null)
                 {
-                    name = profile.Name;
-                    title = profile.Title;
-                    description = profile.Description;
-                    category = profile.Category;
-                    vieworder = profile.ViewOrder.ToString();
-                    maxlength = profile.MaxLength.ToString();
-                    defaultvalue = profile.DefaultValue;
-                    isrequired = profile.IsRequired.ToString();
-                    isprivate = profile.IsPrivate.ToString();
+                    _name = profile.Name;
+                    _title = profile.Title;
+                    _description = profile.Description;
+                    _category = profile.Category;
+                    _vieworder = profile.ViewOrder.ToString();
+                    _maxlength = profile.MaxLength.ToString();
+                    _defaultvalue = profile.DefaultValue;
+                    _isrequired = profile.IsRequired.ToString();
+                    _isprivate = profile.IsPrivate.ToString();
                 }
             }
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading Profile {ProfileId} {Error}", profileid, ex.Message);
+            await logger.LogError(ex, "Error Loading Profile {ProfileId} {Error}", _profileid, ex.Message);
             AddModuleMessage("Error Loading Profile", MessageType.Error);
         }
     }
@@ -135,30 +136,38 @@
         try
         {
             Profile profile;
-            if (profileid != -1)
+            if (_profileid != -1)
             {
-                profile = await ProfileService.GetProfileAsync(profileid);
+                profile = await ProfileService.GetProfileAsync(_profileid);
             }
             else
             {
                 profile = new Profile();
             }
-            profile.Name = name;
-            profile.Title = title;
-            profile.Description = description;
-            profile.Category = category;
-            profile.ViewOrder = int.Parse(vieworder);
-            profile.MaxLength = int.Parse(maxlength);
-            profile.DefaultValue = defaultvalue;
-            profile.IsRequired = (isrequired == null ? false : Boolean.Parse(isrequired));
-            profile.IsPrivate = (isprivate == null ? false : Boolean.Parse(isprivate));
-            profile = await ProfileService.UpdateProfileAsync(profile);
+
+            profile.Name = _name;
+            profile.Title = _title;
+            profile.Description = _description;
+            profile.Category = _category;
+            profile.ViewOrder = int.Parse(_vieworder);
+            profile.MaxLength = int.Parse(_maxlength);
+            profile.DefaultValue = _defaultvalue;
+            profile.IsRequired = (_isrequired == null ? false : Boolean.Parse(_isrequired));
+            profile.IsPrivate = (_isprivate == null ? false : Boolean.Parse(_isprivate));
+            if (_profileid != -1)
+            {
+                profile = await ProfileService.UpdateProfileAsync(profile);
+            }else
+            {
+                profile = await ProfileService.AddProfileAsync(profile);
+            }
+
             await logger.LogInformation("Profile Saved {Profile}", profile);
             NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Saving Profile {ProfleId} {Error}", profileid, ex.Message);
+            await logger.LogError(ex, "Error Saving Profile {ProfleId} {Error}", _profileid, ex.Message);
             AddModuleMessage("Error Saving Profile", MessageType.Error);
         }
     }

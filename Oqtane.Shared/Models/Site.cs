@@ -8,11 +8,15 @@ namespace Oqtane.Models
         public int SiteId { get; set; }
         public int TenantId { get; set; }
         public string Name { get; set; }
-        public string Logo { get; set; }
+        public int? LogoFileId { get; set; }
+        public int? FaviconFileId { get; set; }
         public string DefaultThemeType { get; set; }
         public string DefaultLayoutType { get; set; }
         public string DefaultContainerType { get; set; }
-
+        public bool PwaIsEnabled { get; set; }
+        public int? PwaAppIconFileId { get; set; }
+        public int? PwaSplashIconFileId { get; set; }
+        public bool AllowRegistration { get; set; }
 
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
@@ -23,21 +27,6 @@ namespace Oqtane.Models
         public bool IsDeleted { get; set; }
 
         [NotMapped]
-        public string TenantRootPath
-        {
-            get
-            {
-                return "Tenants/" + TenantId.ToString() + "/";
-            }
-        }
-
-        [NotMapped]
-        public string SiteRootPath
-        {
-            get
-            {
-                return "Tenants/" + TenantId.ToString() + "/Sites/" + SiteId.ToString() + "/";
-            }
-        }
+        public string SiteTemplateType { get; set; }
     }
 }

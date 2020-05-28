@@ -1,62 +1,64 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using Oqtane.Extensions;
 using Oqtane.Models;
+using Oqtane.Shared;
 
 namespace Oqtane.Repository
 {
     public class FileRepository : IFileRepository
     {
-        private TenantDBContext db;
-        private readonly IPermissionRepository Permissions;
+        private TenantDBContext _db;
+        private readonly IPermissionRepository _permissions;
 
-        public FileRepository(TenantDBContext context, IPermissionRepository Permissions)
+        public FileRepository(TenantDBContext context, IPermissionRepository permissions)
         {
-            db = context;
-            this.Permissions = Permissions;
+            _db = context;
+            _permissions = permissions;
         }
 
-        public IEnumerable<File> GetFiles(int FolderId)
+        public IEnumerable<File> GetFiles(int folderId)
         {
-            IEnumerable<Permission> permissions = Permissions.GetPermissions("Folder", FolderId);
-            IEnumerable<File> files = db.File.Where(item => item.FolderId == FolderId);
+            IEnumerable<Permission> permissions = _permissions.GetPermissions(EntityNames.Folder, folderId).ToList();
+            IEnumerable<File> files = _db.File.Where(item => item.FolderId == folderId).Include(item => item.Folder);
             foreach (File file in files)
             {
-                file.Folder.Permissions = Permissions.EncodePermissions(FolderId, permissions);
+                file.Folder.Permissions = permissions.EncodePermissions();
             }
             return files;
         }
 
-        public File AddFile(File File)
+        public File AddFile(File file)
         {
-            db.File.Add(File);
-            db.SaveChanges();
-            return File;
+            _db.File.Add(file);
+            _db.SaveChanges();
+            return file;
         }
 
-        public File UpdateFile(File File)
+        public File UpdateFile(File file)
         {
-            db.Entry(File).State = EntityState.Modified;
-            db.SaveChanges();
-            return File;
+            _db.Entry(file).State = EntityState.Modified;
+            _db.SaveChanges();
+            return file;
         }
 
-        public File GetFile(int FileId)
+        public File GetFile(int fileId)
         {
-            File file = db.File.Find(FileId);
+            File file = _db.File.Where(item => item.FileId == fileId).Include(item => item.Folder).FirstOrDefault();
             if (file != null)
             {
-                IEnumerable<Permission> permissions = Permissions.GetPermissions("Folder", file.FolderId);
-                file.Folder.Permissions = Permissions.EncodePermissions(file.FolderId, permissions);
+                IEnumerable<Permission> permissions = _permissions.GetPermissions(EntityNames.Folder, file.FolderId).ToList();
+                file.Folder.Permissions = permissions.EncodePermissions();
             }
             return file;
         }
 
-        public void DeleteFile(int FileId)
+        public void DeleteFile(int fileId)
         {
-            File File = db.File.Find(FileId);
-            db.File.Remove(File);
-            db.SaveChanges();
+            File file = _db.File.Find(fileId);
+            _db.File.Remove(file);
+            _db.SaveChanges();
         }
     }
 }

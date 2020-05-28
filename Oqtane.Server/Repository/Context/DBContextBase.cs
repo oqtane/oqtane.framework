@@ -1,40 +1,30 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System;
+using System.Linq;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
-using System;
-using System.Linq;
 
 namespace Oqtane.Repository
 {
     public class DBContextBase :  IdentityUserContext<IdentityUser> 
     {
-        private Tenant tenant;
-        private IHttpContextAccessor accessor;
+        private Tenant _tenant;
+        private IHttpContextAccessor _accessor;
 
-        public DBContextBase(ITenantResolver TenantResolver, IHttpContextAccessor accessor)
+        public DBContextBase(ITenantResolver tenantResolver, IHttpContextAccessor accessor)
         {
-            tenant = TenantResolver.GetTenant();
-            this.accessor = accessor;
+            _tenant = tenantResolver.GetTenant();
+            _accessor = accessor;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(tenant.DBConnectionString
-                    .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory").ToString())
+            optionsBuilder.UseSqlServer(_tenant.DBConnectionString
+                    .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString())
             );
             base.OnConfiguring(optionsBuilder);
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
-            if (tenant.DBSchema != "")
-            {
-                modelBuilder.HasDefaultSchema(tenant.DBSchema);
-            }
         }
 
         public override int SaveChanges()
@@ -42,9 +32,9 @@ namespace Oqtane.Repository
             ChangeTracker.DetectChanges();
 
             string username = "";
-            if (accessor.HttpContext != null && accessor.HttpContext.User.Identity.Name != null)
+            if (_accessor.HttpContext != null && _accessor.HttpContext.User.Identity.Name != null)
             {
-                username = accessor.HttpContext.User.Identity.Name;
+                username = _accessor.HttpContext.User.Identity.Name;
             }
             DateTime date = DateTime.UtcNow;
 
@@ -53,7 +43,7 @@ namespace Oqtane.Repository
 
             foreach(var item in created)
             {
-                if (item.Entity is IAuditable entity)
+                if (item.Entity is IAuditable)
                 {
                     item.CurrentValues[nameof(IAuditable.CreatedBy)] = username;
                     item.CurrentValues[nameof(IAuditable.CreatedOn)] = date;
@@ -65,13 +55,13 @@ namespace Oqtane.Repository
 
             foreach (var item in modified)
             {
-                if (item.Entity is IAuditable entity)
+                if (item.Entity is IAuditable)
                 {
                     item.CurrentValues[nameof(IAuditable.ModifiedBy)] = username;
                     item.CurrentValues[nameof(IAuditable.ModifiedOn)] = date;
                 }
 
-                if (item.Entity is IDeletable deleted && item.State != EntityState.Added)
+                if (item.Entity is IDeletable && item.State != EntityState.Added)
                 {
                     if ((bool)item.CurrentValues[nameof(IDeletable.IsDeleted)]
                         && !item.GetDatabaseValues().GetValue<bool>(nameof(IDeletable.IsDeleted)))

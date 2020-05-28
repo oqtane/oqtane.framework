@@ -4,9 +4,9 @@
 @inject IUserService UserService
 
 <div class="row">
-    @foreach (var p in pages)
+    @foreach (var p in _pages)
     {
-        if (UserSecurity.IsAuthorized(PageState.User, "View", p.Permissions))
+        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
         {
             string url = NavigateUrl(p.Path);
             <div class="col-md-2 mx-auto text-center">
@@ -19,13 +19,13 @@
 </div>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
-
-    List<Page> pages;
+    private List<Page> _pages;
+    
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override void OnInitialized()
     {
-        Page admin = PageState.Pages.Where(item => item.Path == "admin").FirstOrDefault();
-        pages = PageState.Pages.Where(item => item.ParentId == admin.PageId).ToList();
+        var admin = PageState.Pages.FirstOrDefault(item => item.Path == "admin");
+        _pages = PageState.Pages.Where(item => item.ParentId == admin?.PageId).ToList();
     }
 }

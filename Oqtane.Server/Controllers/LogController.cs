@@ -1,24 +1,24 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Oqtane.Models;
 using System.Collections.Generic;
-using Oqtane.Repository;
-using Oqtane.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
+using Oqtane.Infrastructure;
+using Oqtane.Repository;
 using Oqtane.Shared;
 
 namespace Oqtane.Controllers
 {
 
-    [Route("{site}/api/[controller]")]
+    [Route("{alias}/api/[controller]")]
     public class LogController : Controller
     {
-        private readonly ILogManager Logger;
-        private readonly ILogRepository Logs;
+        private readonly ILogManager _logger;
+        private readonly ILogRepository _logs;
 
-        public LogController(ILogManager Logger, ILogRepository Logs)
+        public LogController(ILogManager logger, ILogRepository logs)
         {
-            this.Logger = Logger;
-            this.Logs = Logs;
+            _logger = logger;
+            _logs = logs;
         }
 
         // GET: api/<controller>?siteid=x&level=y&function=z&rows=50
@@ -26,7 +26,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.AdminRole)]
         public IEnumerable<Log> Get(string siteid, string level, string function, string rows)
         {
-            return Logs.GetLogs(int.Parse(siteid), level, function, int.Parse(rows));
+            return _logs.GetLogs(int.Parse(siteid), level, function, int.Parse(rows));
         }
 
         // GET api/<controller>/5
@@ -34,16 +34,16 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.AdminRole)]
         public Log Get(int id)
         {
-            return Logs.GetLog(id);
+            return _logs.GetLog(id);
         }
 
         // POST api/<controller>
         [HttpPost]
-        public void Post([FromBody] Log Log)
+        public void Post([FromBody] Log log)
         {
             if (ModelState.IsValid)
             {
-                Logger.Log(Log);
+                _logger.Log(log);
             }
         }
     }

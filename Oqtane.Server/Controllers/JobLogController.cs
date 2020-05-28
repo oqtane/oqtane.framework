@@ -1,23 +1,24 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Oqtane.Repository;
+using Oqtane.Enums;
 using Oqtane.Models;
 using Oqtane.Shared;
 using Oqtane.Infrastructure;
+using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
-    [Route("{site}/api/[controller]")]
+    [Route("{alias}/api/[controller]")]
     public class JobLogController : Controller
     {
-        private readonly IJobLogRepository JobLogs;
-        private readonly ILogManager logger;
+        private readonly IJobLogRepository _jobLogs;
+        private readonly ILogManager _logger;
 
-        public JobLogController(IJobLogRepository JobLogs, ILogManager logger)
+        public JobLogController(IJobLogRepository jobLogs, ILogManager logger)
         {
-            this.JobLogs = JobLogs;
-            this.logger = logger;
+            _jobLogs = jobLogs;
+            _logger = logger;
         }
 
         // GET: api/<controller>
@@ -25,7 +26,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.HostRole)]
         public IEnumerable<JobLog> Get()
         {
-            return JobLogs.GetJobLogs();
+            return _jobLogs.GetJobLogs();
         }
 
         // GET api/<controller>/5
@@ -33,33 +34,33 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.HostRole)]
         public JobLog Get(int id)
         {
-            return JobLogs.GetJobLog(id);
+            return _jobLogs.GetJobLog(id);
         }
 
         // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = Constants.HostRole)]
-        public JobLog Post([FromBody] JobLog JobLog)
+        public JobLog Post([FromBody] JobLog jobLog)
         {
             if (ModelState.IsValid)
             {
-                JobLog = JobLogs.AddJobLog(JobLog);
-                logger.Log(LogLevel.Information, this, LogFunction.Create, "Job Log Added {JobLog}", JobLog);
+                jobLog = _jobLogs.AddJobLog(jobLog);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Job Log Added {JobLog}", jobLog);
             }
-            return JobLog;
+            return jobLog;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Roles = Constants.HostRole)]
-        public JobLog Put(int id, [FromBody] JobLog JobLog)
+        public JobLog Put(int id, [FromBody] JobLog jobLog)
         {
             if (ModelState.IsValid)
             {
-                JobLog = JobLogs.UpdateJobLog(JobLog);
-                logger.Log(LogLevel.Information, this, LogFunction.Update, "Job Log Updated {JobLog}", JobLog);
+                jobLog = _jobLogs.UpdateJobLog(jobLog);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Job Log Updated {JobLog}", jobLog);
             }
-            return JobLog;
+            return jobLog;
         }
 
         // DELETE api/<controller>/5
@@ -67,8 +68,8 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.HostRole)]
         public void Delete(int id)
         {
-            JobLogs.DeleteJobLog(id);
-            logger.Log(LogLevel.Information, this, LogFunction.Delete, "Job Log Deleted {JobLogId}", id);
+            _jobLogs.DeleteJobLog(id);
+            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Job Log Deleted {JobLogId}", id);
         }
     }
 }

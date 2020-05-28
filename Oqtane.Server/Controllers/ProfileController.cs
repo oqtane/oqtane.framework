@@ -1,70 +1,64 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Oqtane.Repository;
+using Oqtane.Enums;
 using Oqtane.Models;
 using Oqtane.Shared;
 using Oqtane.Infrastructure;
+using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
-    [Route("{site}/api/[controller]")]
+    [Route("{alias}/api/[controller]")]
     public class ProfileController : Controller
     {
-        private readonly IProfileRepository Profiles;
-        private readonly ILogManager logger;
+        private readonly IProfileRepository _profiles;
+        private readonly ILogManager _logger;
 
-        public ProfileController(IProfileRepository Profiles, ILogManager logger)
+        public ProfileController(IProfileRepository profiles, ILogManager logger)
         {
-            this.Profiles = Profiles;
-            this.logger = logger;
+            _profiles = profiles;
+            _logger = logger;
         }
 
         // GET: api/<controller>?siteid=x
         [HttpGet]
         public IEnumerable<Profile> Get(string siteid)
         {
-            if (siteid == "")
-            {
-                return Profiles.GetProfiles();
-            }
-            else
-            {
-                return Profiles.GetProfiles(int.Parse(siteid));
-            }
+            return _profiles.GetProfiles(int.Parse(siteid));
         }
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
         public Profile Get(int id)
         {
-            return Profiles.GetProfile(id);
+            return _profiles.GetProfile(id);
         }
 
         // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = Constants.AdminRole)]
-        public Profile Post([FromBody] Profile Profile)
+        public Profile Post([FromBody] Profile profile)
         {
             if (ModelState.IsValid)
             {
-                Profile = Profiles.AddProfile(Profile);
-                logger.Log(LogLevel.Information, this, LogFunction.Create, "Profile Added {Profile}", Profile);
+                profile = _profiles.AddProfile(profile);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Profile Added {Profile}", profile);
             }
-            return Profile;
+            return profile;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Roles = Constants.AdminRole)]
-        public Profile Put(int id, [FromBody] Profile Profile)
+        public Profile Put(int id, [FromBody] Profile profile)
         {
             if (ModelState.IsValid)
             {
-                Profile = Profiles.UpdateProfile(Profile);
-                logger.Log(LogLevel.Information, this, LogFunction.Update, "Profile Updated {Profile}", Profile);
+                profile = _profiles.UpdateProfile(profile);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Profile Updated {Profile}", profile);
             }
-            return Profile;
+            return profile;
         }
 
         // DELETE api/<controller>/5
@@ -72,8 +66,8 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.AdminRole)]
         public void Delete(int id)
         {
-            Profiles.DeleteProfile(id);
-            logger.Log(LogLevel.Information, this, LogFunction.Delete, "Profile Deleted {ProfileId}", id);
+            _profiles.DeleteProfile(id);
+            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Profile Deleted {ProfileId}", id);
         }
     }
 }

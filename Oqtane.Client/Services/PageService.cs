@@ -2,96 +2,120 @@
 using System.Threading.Tasks;
 using System.Linq;
 using System.Net.Http;
-using Microsoft.AspNetCore.Components;
 using System.Collections.Generic;
 using Oqtane.Shared;
 using System;
+using System.Net;
 
 namespace Oqtane.Services
 {
     public class PageService : ServiceBase, IPageService
     {
-        private readonly HttpClient http;
-        private readonly SiteState sitestate;
-        private readonly NavigationManager NavigationManager;
+        
+        private readonly SiteState _siteState;
 
-        public PageService(HttpClient http, SiteState sitestate, NavigationManager NavigationManager)
+        public PageService(HttpClient http, SiteState siteState) : base(http)
         {
-            this.http = http;
-            this.sitestate = sitestate;
-            this.NavigationManager = NavigationManager;
+            
+            _siteState = siteState;
         }
 
-        private string apiurl
-        {
-            get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "Page"); }
-        }
+        private string Apiurl => CreateApiUrl(_siteState.Alias, "Page");
 
-        public async Task<List<Page>> GetPagesAsync(int SiteId)
+        public async Task<List<Page>> GetPagesAsync(int siteId)
         {
-            List<Page> pages = await http.GetJsonAsync<List<Page>>(apiurl + "?siteid=" + SiteId.ToString());
+            List<Page> pages = await GetJsonAsync<List<Page>>($"{Apiurl}?siteid={siteId}");
             pages = GetPagesHierarchy(pages);
             return pages;
         }
 
-        public async Task<Page> GetPageAsync(int PageId)
+        public async Task<Page> GetPageAsync(int pageId)
         {
-            return await http.GetJsonAsync<Page>(apiurl + "/" + PageId.ToString());
+            return await GetJsonAsync<Page>($"{Apiurl}/{pageId}");
         }
 
-        public async Task<Page> GetPageAsync(int PageId, int UserId)
+        public async Task<Page> GetPageAsync(int pageId, int userId)
         {
-            return await http.GetJsonAsync<Page>(apiurl + "/" + PageId.ToString() + "?userid=" + UserId.ToString());
+            return await GetJsonAsync<Page>($"{Apiurl}/{pageId}?userid={userId}");
         }
 
-        public async Task<Page> AddPageAsync(Page Page)
+        public async Task<Page> GetPageAsync(string path, int siteId)
         {
-            return await http.PostJsonAsync<Page>(apiurl, Page);
+            try
+            {
+                return await GetJsonAsync<Page>($"{Apiurl}/path/{siteId}?path={WebUtility.UrlEncode(path)}");
+            }
+            catch
+            {
+                return null;
+            }
         }
 
-        public async Task<Page> UpdatePageAsync(Page Page)
+        public async Task<Page> AddPageAsync(Page page)
         {
-            return await http.PutJsonAsync<Page>(apiurl + "/" + Page.PageId.ToString(), Page);
+            return await PostJsonAsync<Page>(Apiurl, page);
         }
 
-        public async Task UpdatePageOrderAsync(int SiteId, int PageId, int? ParentId)
+        public async Task<Page> AddPageAsync(int pageId, int userId)
         {
-            await http.PutJsonAsync(apiurl + "/?siteid=" + SiteId.ToString() + "&pageid=" + PageId.ToString() + "&parentid=" + ((ParentId == null) ? "" : ParentId.ToString()), null);
+            return await PostJsonAsync<Page>($"{Apiurl}/{pageId}?userid={userId}", null);
         }
 
-        public async Task DeletePageAsync(int PageId)
+        public async Task<Page> UpdatePageAsync(Page page)
         {
-            await http.DeleteAsync(apiurl + "/" + PageId.ToString());
+            return await PutJsonAsync<Page>($"{Apiurl}/{page.PageId}", page);
         }
 
-        private static List<Page> GetPagesHierarchy(List<Page> Pages)
+        public async Task UpdatePageOrderAsync(int siteId, int pageId, int? parentId)
+        {
+            var parent = parentId == null
+                ? string.Empty
+                : parentId.ToString();
+            await PutAsync($"{Apiurl}/?siteid={siteId}&pageid={pageId}&parentid={parent}");
+        }
+
+        public async Task DeletePageAsync(int pageId)
+        {
+            await DeleteAsync($"{Apiurl}/{pageId}");
+        }
+
+        private static List<Page> GetPagesHierarchy(List<Page> pages)
         {
             List<Page> hierarchy = new List<Page>();
-            Action<List<Page>, Page> GetPath = null;
-            GetPath = (List<Page> pages, Page page) =>
+            Action<List<Page>, Page> getPath = null;
+            getPath = (pageList, page) =>
             {
                 IEnumerable<Page> children;
                 int level;
                 if (page == null)
                 {
                     level = -1;
-                    children = Pages.Where(item => item.ParentId == null);
+                    children = pages.Where(item => item.ParentId == null);
                 }
                 else
                 {
                     level = page.Level;
-                    children = Pages.Where(item => item.ParentId == page.PageId);
+                    children = pages.Where(item => item.ParentId == page.PageId);
                 }
                 foreach (Page child in children)
                 {
                     child.Level = level + 1;
-                    child.HasChildren = Pages.Where(item => item.ParentId == child.PageId).Any();
+                    child.HasChildren = pages.Any(item => item.ParentId == child.PageId);
                     hierarchy.Add(child);
-                    GetPath(pages, child);
+                    getPath(pageList, child);
                 }
             };
-            Pages = Pages.OrderBy(item => item.Order).ToList();
-            GetPath(Pages, null);
+            pages = pages.OrderBy(item => item.Order).ToList();
+            getPath(pages, null);
+
+            // add any non-hierarchical items to the end of the list
+            foreach (Page page in pages)
+            {
+                if (hierarchy.Find(item => item.PageId == page.PageId) == null)
+                {
+                    hierarchy.Add(page);
+                }
+            }
             return hierarchy;
         }
     }

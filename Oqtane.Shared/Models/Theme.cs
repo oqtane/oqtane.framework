@@ -1,7 +1,20 @@
-﻿namespace Oqtane.Models
+﻿using System.Collections.Generic;
+
+namespace Oqtane.Models
 {
     public class Theme
     {
+        public Theme()
+        {
+            Name = "";
+            Version = "";
+            Owner = "";
+            Url = "";
+            Contact = "";
+            License = "";
+            Dependencies = "";
+        }
+
         public string ThemeName { get; set; }
         public string Name { get; set; }
         public string Version { get; set; }

@@ -4,7 +4,7 @@
 @inject IAliasService AliasService
 @inject ISiteService SiteService
 
-@if (sites == null)
+@if (_sites == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -12,7 +12,7 @@ else
 {
     <ActionLink Action="Add" Text="Add Site" />
 
-    <Pager Items="@sites">
+    <Pager Items="@_sites">
         <Header>
             <th>&nbsp;</th>
             <th>&nbsp;</th>
@@ -20,44 +20,60 @@ else
         </Header>
         <Row>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.AliasId.ToString())" /></td>
-            <td><ActionDialog Header="Delete Site" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Site?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteSite(context))" /></td>
-            <td><a href="@(scheme + context.Name)">@context.Name</a></td>
+            <td><ActionDialog Header="Delete Site" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Site?")" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteSite(context))" /></td>
+            <td><a href="@(_scheme + context.Name)">@context.Name</a></td>
         </Row>
     </Pager>
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+    private List<Alias> _sites;
+    private string _scheme;
 
-    List<Alias> sites;
-    string scheme;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
-        Uri uri = new Uri(NavigationManager.Uri);
-        scheme = uri.Scheme + "://";
+        var uri = new Uri(NavigationManager.Uri);
+        _scheme = uri.Scheme + "://";
 
-        sites = new List<Alias>();
-        foreach (Alias alias in PageState.Aliases.OrderBy(item => item.Name))
+        var aliases = await AliasService.GetAliasesAsync();
+        _sites = new List<Alias>();
+        foreach (Alias alias in aliases)
         {
-            if (!sites.Exists(item => item.TenantId == alias.TenantId && item.SiteId == alias.SiteId))
+            if (!_sites.Exists(item => item.TenantId == alias.TenantId && item.SiteId == alias.SiteId))
             {
-                sites.Add(alias);
+                _sites.Add(alias);
             }
         }
     }
 
-    private async Task DeleteSite(Alias Alias)
+    private async Task DeleteSite(Alias alias)
     {
         try
         {
-            await SiteService.DeleteSiteAsync(Alias.SiteId, Alias);
-            await logger.LogInformation("Sited Deleted {Alias}", Alias);
-            StateHasChanged();
+            if (alias.SiteId != PageState.Site.SiteId || alias.TenantId != PageState.Site.TenantId)
+            {
+                SiteService.SetAlias(alias);
+                await SiteService.DeleteSiteAsync(alias.SiteId);
+                await Log(alias, LogLevel.Information, "", null, "Site Deleted {SiteId}", alias.SiteId);
+                
+                var aliases = await AliasService.GetAliasesAsync();
+                foreach (Alias a in aliases.Where(item => item.SiteId == alias.SiteId && item.TenantId == alias.TenantId))
+                {
+                    await AliasService.DeleteAliasAsync(a.AliasId);
+                }
+                
+                NavigationManager.NavigateTo(NavigateUrl());
+            }
+            else
+            {
+                AddModuleMessage("You Can Not Delete The Current Site", MessageType.Warning);
+            }
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Deleting Site {Error}", ex.Message);
+            await Log(alias, LogLevel.Error, "", ex, "Error Deleting Site {SiteId} {Error}", alias.SiteId, ex.Message);
             AddModuleMessage("Error Deleting Site", MessageType.Error);
         }
     }

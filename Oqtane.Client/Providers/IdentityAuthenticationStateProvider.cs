@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -13,23 +15,23 @@ namespace Oqtane.Providers
 {
     public class IdentityAuthenticationStateProvider : AuthenticationStateProvider
     {
-        private readonly NavigationManager NavigationManager;
-        private readonly SiteState sitestate;
-        private readonly IServiceProvider provider;
+        private readonly NavigationManager _navigationManager;
+        private readonly SiteState _siteState;
+        private readonly IServiceProvider _serviceProvider;
 
-        public IdentityAuthenticationStateProvider(NavigationManager NavigationManager, SiteState sitestate, IServiceProvider provider)
+        public IdentityAuthenticationStateProvider(NavigationManager navigationManager, SiteState siteState, IServiceProvider serviceProvider)
         {
-            this.NavigationManager = NavigationManager;
-            this.sitestate = sitestate;
-            this.provider = provider;
+            _navigationManager = navigationManager;
+            _siteState = siteState;
+            _serviceProvider = serviceProvider;
         }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             // get HttpClient lazily from IServiceProvider as you cannot use standard dependency injection due to the AuthenticationStateProvider being initialized prior to NavigationManager ( https://github.com/aspnet/AspNetCore/issues/11867 )
-            var http = provider.GetRequiredService<HttpClient>();
-            string apiurl = ServiceBase.CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "User") + "/authenticate";
-            User user = await http.GetJsonAsync<User>(apiurl);
+            var http = _serviceProvider.GetRequiredService<HttpClient>();
+            string apiurl = "/~/api/User/authenticate";
+            User user = await http.GetFromJsonAsync<User>(apiurl);
 
             ClaimsIdentity identity = new ClaimsIdentity();
             if (user.IsAuthenticated)
@@ -37,7 +39,7 @@ namespace Oqtane.Providers
                 identity = new ClaimsIdentity("Identity.Application");
                 identity.AddClaim(new Claim(ClaimTypes.Name, user.Username));
                 identity.AddClaim(new Claim(ClaimTypes.PrimarySid, user.UserId.ToString()));
-                foreach (string role in user.Roles.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (string role in user.Roles.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
                 {
                     identity.AddClaim(new Claim(ClaimTypes.Role, role));
                 }

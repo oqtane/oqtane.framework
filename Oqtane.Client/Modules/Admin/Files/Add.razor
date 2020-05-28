@@ -1,56 +1,107 @@
 ﻿@namespace Oqtane.Modules.Admin.Files
+@using System.IO
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IFileService FileService
+@inject IFolderService FolderService
 
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Files: </label>
-        </td>
-        <td>
-            <FileUpload Multiple="true" @ref="fileupload"></FileUpload>
-        </td>
-    </tr>
-</table>
-<button type="button" class="btn btn-primary" @onclick="UploadFile">Upload</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+<TabStrip>
+    <TabPanel Name="Upload" Heading="Upload Files">
+        <table class="table table-borderless">
+            <tr>
+                <td>
+                    <Label For="upload" HelpText="Upload the file you want">Upload: </Label>
+                </td>
+                <td>
+                    <FileManager UploadMultiple="true" ShowFiles="false" FolderId="@_folderId" />
+                </td>
+            </tr>
+        </table>
+        <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    </TabPanel>
+    <TabPanel Name="Download" Heading="Download Files">
+        @if (_folders != null)
+        {
+            <table class="table table-borderless">
+                <tr>
+                    <td>
+                        <Label For="url" HelpText="Enter the url of the file you wish to download">Url: </Label>
+                    </td>
+                    <td>
+                        <input id="url" class="form-control" @bind="@url" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="folder" HelpText="Select the folder to save the file in">Folder: </Label>
+                    </td>
+                    <td>
+                        <select id="folder" class="form-control" @bind="@_folderId">
+                            <option value="-1">&lt;Select Folder&gt;</option>
+                            @foreach (Folder folder in _folders)
+                            {
+                                <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                            }
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            <button type="button" class="btn btn-success" @onclick="Download">Download</button>
+            <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+        }
+    </TabPanel>
+</TabStrip>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+    private string url = string.Empty;
+    private List<Folder> _folders;
+    private int _folderId = -1;
 
-    FileUpload fileupload;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-    private async Task UploadFile()
+    protected override async Task OnInitializedAsync()
     {
-        string[] files = await fileupload.GetFiles();
-        if (files.Length > 0)
-        {
-            try
-            {
-                ShowProgressIndicator();
+        _folders = await FolderService.GetFoldersAsync(ModuleState.SiteId);
 
-                string result = await FileService.UploadFilesAsync(PageState.Site.SiteRootPath, files, "");
-                if (result == "")
-                {
-                    await logger.LogInformation("Files Uploaded Successfully");
-                    AddModuleMessage("Files Uploaded Successfully", MessageType.Success);
-                }
-                else
-                {
-                    await logger.LogError("Upload Failed For {Files}", result.Replace(",",", "));
-                    AddModuleMessage("Upload Failed For " + result.Replace(",",", ") + ". This Could Be Due To A Network Error Or Because A File Type Is Restricted.", MessageType.Error);
-                }
-            }
-            catch (Exception ex)
-            {
-                await logger.LogError(ex, "Upload Failed {Error}", ex.Message);
-                AddModuleMessage("Upload Failed. " + ex.Message, MessageType.Error);
-            }
-        }
-        else
+        if (PageState.QueryString.ContainsKey("id"))
         {
-            AddModuleMessage("You Must Select Some Files To Upload", MessageType.Warning);
+            _folderId = int.Parse(PageState.QueryString["id"]);
+        }
+    }
+
+    private async Task Download()
+    {
+        if (url == string.Empty || _folderId == -1)
+        {
+            AddModuleMessage("You Must Enter A Url And Select A Folder", MessageType.Warning);
+            return;
+        }
+
+        var filename = url.Substring(url.LastIndexOf("/", StringComparison.Ordinal) + 1);
+
+        if (!Constants.UploadableFiles.Split(',')
+                .Contains(Path.GetExtension(filename).ToLower().Replace(".", "")))
+            {
+                AddModuleMessage("File Could Not Be Downloaded From Url Due To Its File Extension", MessageType.Warning);
+                return ;
+            }
+
+        if (!filename.IsPathOrFileValid())
+        {
+            AddModuleMessage("You Must Enter A Url With A Valid File Name", MessageType.Warning);
+            return;
+        }
+
+        try
+        {
+            await FileService.UploadFileAsync(url, _folderId);
+            await logger.LogInformation("File Downloaded Successfully From Url {Url}", url);
+            AddModuleMessage("File Downloaded Successfully From Url", MessageType.Success);
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Downloading File From Url {Url} {Error}", url, ex.Message);
+            AddModuleMessage("Error Downloading File From Url. Please Verify That The Url Is Valid.", MessageType.Error);
         }
     }
 }

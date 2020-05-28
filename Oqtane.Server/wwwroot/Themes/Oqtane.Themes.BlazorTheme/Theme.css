@@ -1,4 +1,8 @@
-﻿
+﻿.breadcrumbs {
+    background-color: #e6e6e6;
+    border-bottom: 1px solid #d6d5d5;
+}
+
 .top-row {
     height: 3.5rem;
     display: flex;
@@ -22,8 +26,8 @@
         background-color: rgba(0,0,0,0.4);
     }
 
-    .sidebar .navbar-brand {
-        font-size: 1.1rem;
+    .sidebar .navbar-toggler .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3e%3cpath stroke='rgba(255, 255, 255, 0.5)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
     }
 
     .sidebar .oi {
@@ -32,6 +36,18 @@
         vertical-align: text-top;
         top: -2px;
     }
+
+.app-menu {
+    width: 100%
+}
+
+.breadcrumb {
+    margin-bottom: 0;
+}
+
+.app-controlpanel {
+    z-index: 9999;
+}
 
 .app-menu .nav-item {
     font-size: 0.9rem;
@@ -71,6 +87,7 @@
 
 .navbar-toggler {
     background-color: rgba(255, 255, 255, 0.1);
+    margin-left: auto;
 }
 
 @media (max-width: 767.98px) {
@@ -84,17 +101,31 @@
         flex-direction: row;
     }
 
+    .app-logo {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .breadcrumbs {
+        position: fixed;
+        left: 275px;
+        top: 0;
+        z-index: 3
+    }
+
     .sidebar {
         width: 250px;
         height: 100vh;
         position: sticky;
         top: 0;
+        z-index: 1
     }
 
     .main .top-row {
         position: sticky;
         top: 0;
-        z-index: 9999;
+        z-index: 2
     }
 
     .main > div {
@@ -109,6 +140,10 @@
     .sidebar .collapse {
         /* Never collapse the sidebar for wide screens */
         display: block;
+    }
+
+    .main > .container {
+        margin-top: 30px;
     }
 }
 
@@ -133,3 +168,47 @@
         -webkit-transform: scaleY(1.0);
     }
 }
+
+@media (max-width: 767px) {
+    .app-logo {
+        height: 80px;
+        display: flex;
+        align-items: center;
+    }
+
+    .breadcrumbs {
+        position: fixed;
+        top: 150px;
+        width: 100%;
+        left: 0;
+        z-index: 1;
+    }
+
+    .sidebar {
+        margin-top: 3.5rem;
+        position: fixed;
+        width: 100%;
+        z-index: 2;
+    }
+
+    .main .top-row {
+        z-index: 2;
+    }
+
+    .main > .top-row.px-4 {
+        display: flex;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+
+    .ml-md-auto {
+        margin-left: auto;
+    }
+
+    .main > .container {
+        margin-top: 200px;
+    }
+}
+

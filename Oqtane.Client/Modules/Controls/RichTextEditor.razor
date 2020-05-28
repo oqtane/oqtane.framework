@@ -1,91 +1,218 @@
 ﻿@namespace Oqtane.Modules.Controls
 @inherits ModuleBase
-@inject IJSRuntime JSRuntime
+@attribute [OqtaneIgnore]
+@inject IJSRuntime JsRuntime
 
-<div @ref="@ToolBar">
-    @ToolbarContent
-</div>
-<div @ref="@EditorElement">
+<div class="row" style="margin-bottom: 50px;">
+    <div class="col">
+        <TabStrip>
+            <TabPanel Name="Rich" Heading="Rich Text Editor">
+                @if (_filemanagervisible)
+                {
+                    <FileManager @ref="_fileManager" Filter="@Constants.ImageFiles" />
+                    @((MarkupString)_message)
+                    <br />
+                }
+                <div class="row justify-content-center" style="margin-bottom: 20px;">
+                    <button type="button" class="btn btn-secondary" @onclick="RefreshRichText">Synchronize Content</button>&nbsp;&nbsp;
+                    <button type="button" class="btn btn-primary" @onclick="InsertImage">Insert Image</button>
+                    @if (_filemanagervisible)
+                    {
+                        @((MarkupString)"&nbsp;&nbsp;")
+                        <button type="button" class="btn btn-secondary" @onclick="CloseFileManager">Close</button>
+                    }
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div @ref="@_toolBar">
+                            @if (ToolbarContent != null)
+                            {
+                                @ToolbarContent
+                            }
+                            else
+                            {
+                                <select class="ql-header">
+                                    <option selected=""></option>
+                                    <option value="1"></option>
+                                    <option value="2"></option>
+                                    <option value="3"></option>
+                                    <option value="4"></option>
+                                    <option value="5"></option>
+                                </select>
+                                <span class="ql-formats">
+                                    <button class="ql-bold"></button>
+                                    <button class="ql-italic"></button>
+                                    <button class="ql-underline"></button>
+                                    <button class="ql-strike"></button>
+                                </span>
+                                <span class="ql-formats">
+                                    <select class="ql-color"></select>
+                                    <select class="ql-background"></select>
+                                </span>
+                                <span class="ql-formats">
+                                    <button class="ql-list" value="ordered"></button>
+                                    <button class="ql-list" value="bullet"></button>
+                                </span>
+                                <span class="ql-formats">
+                                    <button class="ql-link"></button>
+                                </span>
+                            }
+                        </div>
+                        <div @ref="@_editorElement">
+                        </div>
+                    </div>
+                </div>
+            </TabPanel>
+            <TabPanel Name="Raw" Heading="Raw HTML Editor">
+                <div class="row justify-content-center" style="margin-bottom: 20px;">
+                    <button type="button" class="btn btn-secondary" @onclick="RefreshRawHtml">Synchronize Content</button>
+                </div>
+                @if (ReadOnly)
+                {
+                    <textarea class="form-control" placeholder="@Placeholder" @bind="@_content" rows="10" readonly></textarea>
+                }
+                else
+                {
+                    <textarea class="form-control" placeholder="@Placeholder" @bind="@_content" rows="10"></textarea>
+                }
+            </TabPanel>
+        </TabStrip>
+    </div>
 </div>
 
 @code {
+    private ElementReference _editorElement;
+    private ElementReference _toolBar;
+    private bool _filemanagervisible = false;
+    private FileManager _fileManager;
+    private string _content = string.Empty;
+    private string _original = string.Empty;
+    private string _message = string.Empty;
+
+    [Parameter]
+    public string Content { get; set; }
+
+    [Parameter]
+    public bool ReadOnly { get; set; } = false;
+
+    [Parameter]
+    public string Placeholder { get; set; } = "Enter Your Content...";
+
+    // parameters only applicable to rich text editor
     [Parameter]
     public RenderFragment ToolbarContent { get; set; }
 
     [Parameter]
-    public bool ReadOnly { get; set; }
-        = false;
+    public string Theme { get; set; } = "snow";
 
     [Parameter]
-    public string Placeholder { get; set; }
-        = "Compose an epic...";
+    public string DebugLevel { get; set; } = "info";
 
-    [Parameter]
-    public string Theme { get; set; }
-        = "snow";
+    protected override void OnInitialized()
+    {
+        _content = Content; // raw HTML
+    }
 
-    [Parameter]
-    public string DebugLevel { get; set; }
-        = "info";
-
-    private ElementReference EditorElement;
-    private ElementReference ToolBar;
-
-    protected override async Task
-        OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await RichTextEditorInterop.CreateEditor(
-                JSRuntime,
-                EditorElement,
-                ToolBar,
+            var interop = new RichTextEditorInterop(JsRuntime);
+
+            await interop.CreateEditor(
+                _editorElement,
+                _toolBar,
                 ReadOnly,
                 Placeholder,
                 Theme,
                 DebugLevel);
+
+            await interop.LoadEditorContent(_editorElement, Content);
+
+            // preserve a copy of the rich text content ( Quill sanitizes content so we need to retrieve it from the editor )
+            _original = await interop.GetHtml(_editorElement);
         }
     }
 
-    public async Task<string> GetText()
+    public void CloseFileManager()
     {
-        return await RichTextEditorInterop.GetText(
-            JSRuntime,
-            EditorElement);
+        _filemanagervisible = false;
+        _message = string.Empty;
+        StateHasChanged();
     }
 
-    public async Task<string> GetHTML()
+    public async Task RefreshRichText()
     {
-        return await RichTextEditorInterop.GetHTML(
-            JSRuntime,
-            EditorElement);
+        var interop = new RichTextEditorInterop(JsRuntime);
+        await interop.LoadEditorContent(_editorElement, _content);
+    }
+
+    public async Task RefreshRawHtml()
+    {
+        var interop = new RichTextEditorInterop(JsRuntime);
+        _content = await interop.GetHtml(_editorElement);
+        StateHasChanged();
+    }
+
+    public async Task<string> GetHtml()
+    {
+        // get rich text content
+        var interop = new RichTextEditorInterop(JsRuntime);
+        string content = await interop.GetHtml(_editorElement);
+
+        if (_original != content)
+        {
+            // rich text content has changed - return it
+            return content;
+        }
+        else
+        {
+            // return raw html content
+            return _content;
+        }
+    }
+
+    public async Task InsertImage()
+    {
+        if (_filemanagervisible)
+        {
+            var fileid = _fileManager.GetFileId();
+            if (fileid != -1)
+            {
+                var interop = new RichTextEditorInterop(JsRuntime);
+                await interop.InsertImage(_editorElement, ContentUrl(fileid));
+                _filemanagervisible = false;
+                _message = string.Empty;
+            }
+            else
+            {
+                _message = "<br /><div class=\"alert alert-warning\" role=\"alert\">You Must Select An Image To Insert</div>";
+            }
+        }
+        else
+        {
+            _filemanagervisible = true;
+            _message = string.Empty;
+        }
+        StateHasChanged();
+    }
+
+    // other rich text editor methods which can be used by developers
+    public async Task<string> GetText()
+    {
+        var interop = new RichTextEditorInterop(JsRuntime);
+        return await interop.GetText(_editorElement);
     }
 
     public async Task<string> GetContent()
     {
-        return await RichTextEditorInterop.GetContent(
-            JSRuntime,
-            EditorElement);
-    }
-
-    public async Task LoadContent(string Content)
-    {
-        await RichTextEditorInterop.LoadEditorContent(
-            JSRuntime,
-            EditorElement, Content);
+        var interop = new RichTextEditorInterop(JsRuntime);
+        return await interop.GetContent(_editorElement);
     }
 
     public async Task EnableEditor(bool mode)
     {
-        await RichTextEditorInterop.EnableEditor(
-            JSRuntime,
-            EditorElement, mode);
-    }
-
-    public async Task InsertImage(string ImageURL)
-    {
-        await RichTextEditorInterop.InsertImage(
-            JSRuntime,
-            EditorElement, ImageURL);
+        var interop = new RichTextEditorInterop(JsRuntime);
+        await interop.EnableEditor(_editorElement, mode);
     }
 }

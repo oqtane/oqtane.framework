@@ -2,91 +2,112 @@
 using System.Threading.Tasks;
 using System.Linq;
 using System.Net.Http;
-using Microsoft.AspNetCore.Components;
 using System.Collections.Generic;
 using Oqtane.Shared;
 using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Net;
 
 namespace Oqtane.Services
 {
     public class FolderService : ServiceBase, IFolderService
     {
-        private readonly HttpClient http;
-        private readonly SiteState sitestate;
-        private readonly NavigationManager NavigationManager;
+        private readonly SiteState _siteState;
 
-        public FolderService(HttpClient http, SiteState sitestate, NavigationManager NavigationManager)
+        public FolderService(HttpClient http, SiteState siteState) : base(http)
         {
-            this.http = http;
-            this.sitestate = sitestate;
-            this.NavigationManager = NavigationManager;
+            _siteState = siteState;
         }
 
-        private string apiurl
-        {
-            get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "Folder"); }
-        }
+        private string ApiUrl => CreateApiUrl(_siteState.Alias, "Folder");
 
-        public async Task<List<Folder>> GetFoldersAsync(int SiteId)
+        public async Task<List<Folder>> GetFoldersAsync(int siteId)
         {
-            List<Folder> folders = await http.GetJsonAsync<List<Folder>>(apiurl + "?siteid=" + SiteId.ToString());
+            List<Folder> folders = await GetJsonAsync<List<Folder>>($"{ApiUrl}?siteid={siteId}");
             folders = GetFoldersHierarchy(folders);
             return folders;
         }
 
-        public async Task<Folder> GetFolderAsync(int FolderId)
+        public async Task<Folder> GetFolderAsync(int folderId)
         {
-            return await http.GetJsonAsync<Folder>(apiurl + "/" + FolderId.ToString());
+            return await GetJsonAsync<Folder>($"{ApiUrl}/{folderId}");
         }
 
-        public async Task<Folder> AddFolderAsync(Folder Folder)
+        public async Task<Folder> GetFolderAsync(int siteId, [NotNull] string folderPath)
         {
-            return await http.PostJsonAsync<Folder>(apiurl, Folder);
+            if (!(folderPath.EndsWith(System.IO.Path.DirectorySeparatorChar) || folderPath.EndsWith(System.IO.Path.AltDirectorySeparatorChar)))
+            {
+                folderPath = Utilities.PathCombine(folderPath, "\\");
+            }
+            
+            var path = WebUtility.UrlEncode(folderPath);
+            
+            return await GetJsonAsync<Folder>($"{ApiUrl}/{siteId}/{path}");
         }
 
-        public async Task<Folder> UpdateFolderAsync(Folder Folder)
+        public async Task<Folder> AddFolderAsync(Folder folder)
         {
-            return await http.PutJsonAsync<Folder>(apiurl + "/" + Folder.FolderId.ToString(), Folder);
+            return await PostJsonAsync<Folder>(ApiUrl, folder);
         }
 
-        public async Task UpdateFolderOrderAsync(int SiteId, int FolderId, int? ParentId)
+        public async Task<Folder> UpdateFolderAsync(Folder folder)
         {
-            await http.PutJsonAsync(apiurl + "/?siteid=" + SiteId.ToString() + "&folderid=" + FolderId.ToString() + "&parentid=" + ((ParentId == null) ? "" : ParentId.ToString()), null);
+            return await PutJsonAsync<Folder>($"{ApiUrl}/{folder.FolderId}", folder);
         }
 
-        public async Task DeleteFolderAsync(int FolderId)
+        public async Task UpdateFolderOrderAsync(int siteId, int folderId, int? parentId)
         {
-            await http.DeleteAsync(apiurl + "/" + FolderId.ToString());
+            var parent = parentId == null
+                ? string.Empty
+                : parentId.ToString();
+            await PutAsync($"{ApiUrl}/?siteid={siteId}&folderid={folderId}&parentid={parent}");
         }
 
-        private static List<Folder> GetFoldersHierarchy(List<Folder> Folders)
+        public async Task DeleteFolderAsync(int folderId)
+        {
+            await DeleteAsync($"{ApiUrl}/{folderId}");
+        }
+
+        private static List<Folder> GetFoldersHierarchy(List<Folder> folders)
         {
             List<Folder> hierarchy = new List<Folder>();
-            Action<List<Folder>, Folder> GetPath = null;
-            GetPath = (List<Folder> folders, Folder folder) =>
+            Action<List<Folder>, Folder> getPath = null;
+            var folders1 = folders;
+            getPath = (folderList, folder) =>
             {
                 IEnumerable<Folder> children;
                 int level;
                 if (folder == null)
                 {
                     level = -1;
-                    children = Folders.Where(item => item.ParentId == null);
+                    children = folders1.Where(item => item.ParentId == null);
                 }
                 else
                 {
                     level = folder.Level;
-                    children = Folders.Where(item => item.ParentId == folder.FolderId);
+                    children = folders1.Where(item => item.ParentId == folder.FolderId);
                 }
+
                 foreach (Folder child in children)
                 {
                     child.Level = level + 1;
-                    child.HasChildren = Folders.Where(item => item.ParentId == child.FolderId).Any();
+                    child.HasChildren = folders1.Any(item => item.ParentId == child.FolderId);
                     hierarchy.Add(child);
-                    GetPath(folders, child);
+                    if (getPath != null) getPath(folderList, child);
                 }
             };
-            Folders = Folders.OrderBy(item => item.Order).ToList();
-            GetPath(Folders, null);
+            folders = folders.OrderBy(item => item.Order).ToList();
+            getPath(folders, null);
+
+            // add any non-hierarchical items to the end of the list
+            foreach (Folder folder in folders)
+            {
+                if (hierarchy.Find(item => item.FolderId == folder.FolderId) == null)
+                {
+                    hierarchy.Add(folder);
+                }
+            }
+
             return hierarchy;
         }
     }

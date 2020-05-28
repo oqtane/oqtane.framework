@@ -1,0 +1,44 @@
+﻿@namespace Oqtane.UI
+
+<CascadingValue Value="@_moduleState">
+    @DynamicComponent
+</CascadingValue>
+
+@code {
+    private Module _moduleState;
+
+    [CascadingParameter]
+    protected PageState PageState { get; set; }
+
+    [Parameter]
+    public Module Module { get; set; }
+
+    RenderFragment DynamicComponent { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        _moduleState = Module; // passed in from Pane component
+        string container = _moduleState.ContainerType;
+        if (PageState.ModuleId != -1 && PageState.Action != "" && _moduleState.UseAdminContainer)
+        {
+            container = Constants.DefaultAdminContainer;
+        }
+
+        DynamicComponent = builder =>
+        {
+            Type containerType = Type.GetType(container);
+            if (containerType != null)
+            {
+                builder.OpenComponent(0, containerType);
+                builder.CloseComponent();
+            }
+            else
+            {
+            // container does not exist with type specified
+            builder.OpenComponent(0, Type.GetType(Constants.ModuleMessageComponent));
+                builder.AddAttribute(1, "Message", "Error Loading Module Container " + container);
+                builder.CloseComponent();
+            }
+        };
+    }
+}

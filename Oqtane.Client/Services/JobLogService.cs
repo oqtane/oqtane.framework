@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Linq;
-using Microsoft.AspNetCore.Components;
 using System.Collections.Generic;
 using Oqtane.Shared;
 
@@ -10,45 +9,38 @@ namespace Oqtane.Services
 {
     public class JobLogService : ServiceBase, IJobLogService
     {
-        private readonly HttpClient http;
-        private readonly SiteState sitestate;
-        private readonly NavigationManager NavigationManager;
+        private readonly SiteState _siteState;
 
-        public JobLogService(HttpClient http, SiteState sitestate, NavigationManager NavigationManager)
+        public JobLogService(HttpClient http, SiteState siteState) : base(http)
         {
-            this.http = http;
-            this.sitestate = sitestate;
-            this.NavigationManager = NavigationManager;
+            _siteState = siteState;
         }
 
-        private string apiurl
-        {
-            get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "JobLog"); }
-        }
+        private string Apiurl => CreateApiUrl(_siteState.Alias, "JobLog");
 
         public async Task<List<JobLog>> GetJobLogsAsync()
         {
-            List<JobLog> Joblogs = await http.GetJsonAsync<List<JobLog>>(apiurl);
-            return Joblogs.OrderBy(item => item.StartDate).ToList();
+            List<JobLog> joblogs = await GetJsonAsync<List<JobLog>>(Apiurl);
+            return joblogs.OrderBy(item => item.StartDate).ToList();
         }
 
-        public async Task<JobLog> GetJobLogAsync(int JobLogId)
+        public async Task<JobLog> GetJobLogAsync(int jobLogId)
         {
-            return await http.GetJsonAsync<JobLog>(apiurl + "/" + JobLogId.ToString());
+            return await GetJsonAsync<JobLog>($"{Apiurl}/{jobLogId}");
         }
 
-        public async Task<JobLog> AddJobLogAsync(JobLog Joblog)
+        public async Task<JobLog> AddJobLogAsync(JobLog joblog)
         {
-            return await http.PostJsonAsync<JobLog>(apiurl, Joblog);
+            return await PostJsonAsync<JobLog>(Apiurl, joblog);
         }
 
-        public async Task<JobLog> UpdateJobLogAsync(JobLog Joblog)
+        public async Task<JobLog> UpdateJobLogAsync(JobLog joblog)
         {
-            return await http.PutJsonAsync<JobLog>(apiurl + "/" + Joblog.JobLogId.ToString(), Joblog);
+            return await PutJsonAsync<JobLog>($"{Apiurl}/{joblog.JobLogId}", joblog);
         }
-        public async Task DeleteJobLogAsync(int JobLogId)
+        public async Task DeleteJobLogAsync(int jobLogId)
         {
-            await http.DeleteAsync(apiurl + "/" + JobLogId.ToString());
+            await DeleteAsync($"{Apiurl}/{jobLogId}");
         }
     }
 }

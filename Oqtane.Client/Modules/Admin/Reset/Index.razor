@@ -6,36 +6,36 @@
 <div class="container">
     <div class="form-group">
         <label for="Username" class="control-label">Username: </label>
-        <input type="text" class="form-control" placeholder="Username" @bind="@Username" readonly />
+        <input type="text" class="form-control" placeholder="Username" @bind="@_username" readonly id="Username"/>
     </div>
     <div class="form-group">
         <label for="Password" class="control-label">Password: </label>
-        <input type="password" class="form-control" placeholder="Password" @bind="@Password" />
+        <input type="password" class="form-control" placeholder="Password" @bind="@_password" id="Password"/>
     </div>
     <div class="form-group">
-        <label for="Password" class="control-label">Confirm Password: </label>
-        <input type="password" class="form-control" placeholder="Password" @bind="@Confirm" />
+        <label for="Confirm" class="control-label">Confirm Password: </label>
+        <input type="password" class="form-control" placeholder="Password" @bind="@_confirm" id="Confirm"/>
     </div>
     <button type="button" class="btn btn-primary" @onclick="Reset">Reset Password</button>
     <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
 </div>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Anonymous; } }
+    private string _username = string.Empty;
+    private string _password = string.Empty;
+    private string _confirm = string.Empty;
 
-    string Username = "";
-    string Password = "";
-    string Confirm = "";
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
 
     protected override void OnInitialized()
     {
         if (PageState.QueryString.ContainsKey("name") && PageState.QueryString.ContainsKey("token"))
         {
-            Username = PageState.QueryString["name"];
+            _username = PageState.QueryString["name"];
         }
         else
         { 
-            NavigationManager.NavigateTo(NavigateUrl(""));
+            NavigationManager.NavigateTo(NavigateUrl(string.Empty));
         }
     }
 
@@ -43,24 +43,26 @@
     {
         try
         {
-            if (Username != "" && Password != "" && Confirm != "")
+            if (_username != string.Empty && _password != string.Empty && _confirm != string.Empty)
             {
-                if (Password == Confirm)
+                if (_password == _confirm)
                 {
-                    User user = new User();
-                    user.SiteId = PageState.Site.SiteId;
-                    user.Username = Username;
-                    user.Password = Password;
+                    var user = new User
+                    {
+                        SiteId = PageState.Site.SiteId,
+                        Username = _username,
+                        Password = _password
+                    };
                     user = await UserService.ResetPasswordAsync(user, PageState.QueryString["token"]);
 
                     if (user != null)
                     {
-                        await logger.LogInformation("User Password Reset {Username}", Username);
+                        await logger.LogInformation("User Password Reset {Username}", _username);
                         NavigationManager.NavigateTo(NavigateUrl("login"));
                     }
                     else
                     {
-                        await logger.LogError("Error Resetting User Password {Username}", Username);
+                        await logger.LogError("Error Resetting User Password {Username}", _username);
                         AddModuleMessage("Error Resetting User Password. Please Ensure Password Meets Complexity Requirements.", MessageType.Error);
                     }
                 }
@@ -76,13 +78,13 @@
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Resetting User Password {Username} {Error}", Username, ex.Message);
+            await logger.LogError(ex, "Error Resetting User Password {Username} {Error}", _username, ex.Message);
             AddModuleMessage("Error Resetting User Password", MessageType.Error);
         }
     }
 
     private void Cancel()
     {
-        NavigationManager.NavigateTo(NavigateUrl(""));
+        NavigationManager.NavigateTo(NavigateUrl(string.Empty));
     }
 }

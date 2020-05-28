@@ -9,10 +9,10 @@
     <table class="table table-borderless">
         <tr>
             <td>
-                <label for="Name" class="control-label">To: </label>
+                <Label  For="to" HelpText="Select the user it is going to">To: </Label>
             </td>
             <td>
-                <select class="form-control"  @bind="@userid">
+                <select id="to" class="form-control"  @bind="@userid">
                     <option value="-1">&lt;Select User&gt;</option>
                     @if (userroles != null)
                     {
@@ -26,18 +26,18 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Subject: </label>
+                <Label For="subject" HelpText="Enter the subject of the message">Subject: </Label>
             </td>
             <td>
-                <input class="form-control" @bind="@subject" />
+                <input id="subject" class="form-control" @bind="@subject" />
             </td>
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Message: </label>
+                <Label For="message" HelpText="Enter the message">Message: </Label>
             </td>
             <td>
-                <textarea class="form-control" @bind="@body" rows="5" />
+                <textarea id="message" class="form-control" @bind="@body" rows="5" />
             </td>
         </tr>
     </table>
@@ -46,13 +46,14 @@
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.View; } }
-    public override string Title { get { return "Send Notification"; } }
+    private List<UserRole> userroles;
+    private string userid = "-1";
+    private string subject = "";
+    private string body = "";
 
-    List<UserRole> userroles;
-    string userid = "-1";
-    string subject = "";
-    string body = "";
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
+
+    public override string Title => "Send Notification";
 
     protected override async Task OnInitializedAsync()
     {
@@ -71,7 +72,7 @@
 
     private async Task Send()
     {
-        Notification notification = new Notification();
+        var notification = new Notification();
         try
         {
             notification.SiteId = PageState.Site.SiteId;
@@ -81,7 +82,7 @@
             notification.Subject = subject;
             notification.Body = body;
             notification.ParentId = null;
-            notification.CreatedOn = DateTime.Now;
+            notification.CreatedOn = DateTime.UtcNow;
             notification.IsDelivered = false;
             notification.DeliveredOn = null;
 

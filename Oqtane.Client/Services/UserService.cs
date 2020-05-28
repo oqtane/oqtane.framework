@@ -1,106 +1,70 @@
 ﻿using Oqtane.Shared;
 using Oqtane.Models;
-using System;
-using System.Linq;
 using System.Net.Http;
-using Microsoft.AspNetCore.Components;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 
 namespace Oqtane.Services
 {
     public class UserService : ServiceBase, IUserService
     {
-        private readonly HttpClient http;
-        private readonly SiteState sitestate;
-        private readonly NavigationManager NavigationManager;
+        private readonly SiteState _siteState;
 
-        public UserService(HttpClient http, SiteState sitestate, NavigationManager NavigationManager)
+        public UserService(HttpClient http, SiteState siteState) : base(http)
         {
-            this.http = http;
-            this.sitestate = sitestate;
-            this.NavigationManager = NavigationManager;
+            _siteState = siteState;
         }
 
-        private string apiurl
+        private string Apiurl => CreateApiUrl(_siteState.Alias, "User");
+
+        public async Task<User> GetUserAsync(int userId, int siteId)
         {
-            get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "User"); }
+            return await GetJsonAsync<User>($"{Apiurl}/{userId}?siteid={siteId}");
         }
 
-        public async Task<List<User>> GetUsersAsync()
+        public async Task<User> GetUserAsync(string username, int siteId)
         {
-            List<User> users = await http.GetJsonAsync<List<User>>(apiurl);
-            return users.OrderBy(item => item.DisplayName).ToList();
+            return await GetJsonAsync<User>($"{Apiurl}/name/{username}?siteid={siteId}");
         }
 
-        public async Task<User> GetUserAsync(int UserId, int SiteId)
+        public async Task<User> AddUserAsync(User user)
         {
-            return await http.GetJsonAsync<User>(apiurl + "/" + UserId.ToString() + "?siteid=" + SiteId.ToString());
+            return await PostJsonAsync<User>(Apiurl, user);
         }
 
-        public async Task<User> GetUserAsync(string Username, int SiteId)
+        public async Task<User> UpdateUserAsync(User user)
         {
-            return await http.GetJsonAsync<User>(apiurl + "/name/" + Username + "?siteid=" + SiteId.ToString());
+            return await PutJsonAsync<User>($"{Apiurl}/{user.UserId}", user);
         }
 
-        public async Task<User> AddUserAsync(User User)
+        public async Task DeleteUserAsync(int userId)
         {
-            try
-            {
-                return await http.PostJsonAsync<User>(apiurl, User);
-            }
-            catch
-            {
-                return null;
-            }
+            await DeleteAsync($"{Apiurl}/{userId}");
         }
 
-        public async Task<User> AddUserAsync(User User, Alias Alias)
+        public async Task<User> LoginUserAsync(User user, bool setCookie, bool isPersistent)
         {
-            try
-            {
-                return await http.PostJsonAsync<User>(CreateApiUrl(Alias, NavigationManager.Uri, "User"), User);
-            }
-            catch
-            {
-                return null;
-            }
+            return await PostJsonAsync<User>($"{Apiurl}/login?setcookie={setCookie}&persistent={isPersistent}", user);
         }
 
-        public async Task<User> UpdateUserAsync(User User)
-        {
-            return await http.PutJsonAsync<User>(apiurl + "/" + User.UserId.ToString(), User);
-        }
-        public async Task DeleteUserAsync(int UserId)
-        {
-            await http.DeleteAsync(apiurl + "/" + UserId.ToString());
-        }
-
-        public async Task<User> LoginUserAsync(User User, bool SetCookie, bool IsPersistent)
-        {
-            return await http.PostJsonAsync<User>(apiurl + "/login?setcookie=" + SetCookie.ToString() + "&persistent=" + IsPersistent.ToString(), User);
-        }
-
-        public async Task LogoutUserAsync(User User)
+        public async Task LogoutUserAsync(User user)
         {
             // best practices recommend post is preferrable to get for logout
-            await http.PostJsonAsync(apiurl + "/logout", User); 
+            await PostJsonAsync($"{Apiurl}/logout", user);
         }
 
-        public async Task<User> VerifyEmailAsync(User User, string Token)
+        public async Task<User> VerifyEmailAsync(User user, string token)
         {
-            return await http.PostJsonAsync<User>(apiurl + "/verify?token=" + Token, User);
+            return await PostJsonAsync<User>($"{Apiurl}/verify?token={token}", user);
         }
 
-        public async Task ForgotPasswordAsync(User User)
+        public async Task ForgotPasswordAsync(User user)
         {
-            await http.PostJsonAsync(apiurl + "/forgot", User);
+            await PostJsonAsync($"{Apiurl}/forgot", user);
         }
 
-        public async Task<User> ResetPasswordAsync(User User, string Token)
+        public async Task<User> ResetPasswordAsync(User user, string token)
         {
-            return await http.PostJsonAsync<User>(apiurl + "/reset?token=" + Token, User);
+            return await PostJsonAsync<User>($"{Apiurl}/reset?token={token}", user);
         }
-
     }
 }

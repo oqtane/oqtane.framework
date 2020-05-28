@@ -1,21 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Oqtane.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Oqtane.Models;
+using Oqtane.Shared;
 
 namespace Oqtane.Repository
 {
     public class TenantRepository : ITenantRepository
     {
-        private MasterDBContext db;
+        private MasterDBContext _db;
         private readonly IMemoryCache _cache;
 
         public TenantRepository(MasterDBContext context, IMemoryCache cache)
         {
-            db = context;
+            _db = context;
             _cache = cache;
         }
 
@@ -24,36 +24,47 @@ namespace Oqtane.Repository
             return _cache.GetOrCreate("tenants", entry =>
             {
                 entry.SlidingExpiration = TimeSpan.FromMinutes(30);
-                return db.Tenant.ToList();
+                return _db.Tenant.ToList();
             });
         }
 
-        public Tenant AddTenant(Tenant Tenant)
+        public Tenant AddTenant(Tenant tenant)
         {
-            db.Tenant.Add(Tenant);
-            db.SaveChanges();
+            _db.Tenant.Add(tenant);
+            _db.SaveChanges();
             _cache.Remove("tenants");
-            return Tenant;
+            return tenant;
         }
 
-        public Tenant UpdateTenant(Tenant Tenant)
+        public Tenant UpdateTenant(Tenant tenant)
         {
-            db.Entry(Tenant).State = EntityState.Modified;
-            db.SaveChanges();
+            var oldTenant =_db.Tenant.AsNoTracking().FirstOrDefault(t=> t.TenantId == tenant.TenantId);
+            
+            if (oldTenant != null && (oldTenant.Name.Equals(Constants.MasterTenant, StringComparison.OrdinalIgnoreCase) && !oldTenant.Name.Equals(tenant.Name)))
+            {
+                throw new InvalidOperationException("Unable to rename the master tenant.");
+            }
+            
+            _db.Entry(tenant).State = EntityState.Modified;
+            _db.SaveChanges();
             _cache.Remove("tenants");
-            return Tenant;
+            return tenant;
         }
 
-        public Tenant GetTenant(int TenantId)
+        public Tenant GetTenant(int tenantId)
         {
-            return db.Tenant.Find(TenantId);
+            return _db.Tenant.Find(tenantId);
         }
 
-        public void DeleteTenant(int TenantId)
-        { 
-            Tenant tenant = db.Tenant.Find(TenantId);
-            db.Tenant.Remove(tenant);
-            db.SaveChanges();
+        public void DeleteTenant(int tenantId)
+        {
+            var tenant = GetTenant(tenantId);
+            if (tenant != null && !tenant.Name.Equals(Constants.MasterTenant, StringComparison.OrdinalIgnoreCase))
+            {
+                _db.Tenant.Remove(tenant);
+                _db.SaveChanges();
+            }
+
             _cache.Remove("tenants");
         }
     }

@@ -13,13 +13,13 @@ namespace Oqtane.Infrastructure
 {
     public abstract class HostedServiceBase : IHostedService, IDisposable
     {
-        private Task ExecutingTask;
-        private readonly CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
-        private readonly IServiceScopeFactory ServiceScopeFactory;
+        private Task _executingTask;
+        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        public HostedServiceBase(IServiceScopeFactory ServiceScopeFactory)
+        public HostedServiceBase(IServiceScopeFactory serviceScopeFactory)
         {
-            this.ServiceScopeFactory = ServiceScopeFactory;
+            _serviceScopeFactory = serviceScopeFactory;
         }
 
         // abstract method must be overridden
@@ -31,46 +31,46 @@ namespace Oqtane.Infrastructure
             {
                 while (!stoppingToken.IsCancellationRequested)
                 {
-                    using (var scope = ServiceScopeFactory.CreateScope())
+                    using (var scope = _serviceScopeFactory.CreateScope())
                     {
                         // get name of job
-                        string JobType = Utilities.GetFullTypeName(this.GetType().AssemblyQualifiedName);
+                        string jobType = Utilities.GetFullTypeName(GetType().AssemblyQualifiedName);
 
                         // load jobs and find current job
-                        IJobRepository Jobs = scope.ServiceProvider.GetRequiredService<IJobRepository>();
-                        Job Job = Jobs.GetJobs().Where(item => item.JobType == JobType).FirstOrDefault();
-                        if (Job != null && Job.IsEnabled && !Job.IsExecuting)
+                        IJobRepository jobs = scope.ServiceProvider.GetRequiredService<IJobRepository>();
+                        Job job = jobs.GetJobs().Where(item => item.JobType == jobType).FirstOrDefault();
+                        if (job != null && job.IsEnabled && !job.IsExecuting)
                         {
                             // set next execution date
-                            if (Job.NextExecution == null)
+                            if (job.NextExecution == null)
                             {
-                                if (Job.StartDate != null)
+                                if (job.StartDate != null)
                                 {
-                                    Job.NextExecution = Job.StartDate;
+                                    job.NextExecution = job.StartDate;
                                 }
                                 else
                                 {
-                                    Job.NextExecution = DateTime.Now;
+                                    job.NextExecution = DateTime.UtcNow;
                                 }
                             }
 
                             // determine if the job should be run
-                            if (Job.NextExecution <= DateTime.Now && (Job.EndDate == null || Job.EndDate >= DateTime.Now))
+                            if (job.NextExecution <= DateTime.UtcNow && (job.EndDate == null || job.EndDate >= DateTime.UtcNow))
                             {
-                                IJobLogRepository JobLogs = scope.ServiceProvider.GetRequiredService<IJobLogRepository>();
+                                IJobLogRepository jobLogs = scope.ServiceProvider.GetRequiredService<IJobLogRepository>();
 
                                 // create a job log entry
                                 JobLog log = new JobLog();
-                                log.JobId = Job.JobId;
-                                log.StartDate = DateTime.Now;
+                                log.JobId = job.JobId;
+                                log.StartDate = DateTime.UtcNow;
                                 log.FinishDate = null;
                                 log.Succeeded = false;
                                 log.Notes = "";
-                                log = JobLogs.AddJobLog(log);
+                                log = jobLogs.AddJobLog(log);
 
                                 // update the job to indicate it is running
-                                Job.IsExecuting = true;
-                                Jobs.UpdateJob(Job);
+                                job.IsExecuting = true;
+                                jobs.UpdateJob(job);
 
                                 // execute the job
                                 try
@@ -85,20 +85,20 @@ namespace Oqtane.Infrastructure
                                 }
 
                                 // update the job log
-                                log.FinishDate = DateTime.Now;
-                                JobLogs.UpdateJobLog(log);
+                                log.FinishDate = DateTime.UtcNow;
+                                jobLogs.UpdateJobLog(log);
 
                                 // update the job
-                                Job.NextExecution = CalculateNextExecution(Job.NextExecution.Value, Job.Frequency, Job.Interval);
-                                Job.IsExecuting = false;
-                                Jobs.UpdateJob(Job);
+                                job.NextExecution = CalculateNextExecution(job.NextExecution.Value, job.Frequency, job.Interval);
+                                job.IsExecuting = false;
+                                jobs.UpdateJob(job);
 
                                 // trim the job log
-                                List<JobLog> logs = JobLogs.GetJobLogs().Where(item => item.JobId == Job.JobId)
+                                List<JobLog> logs = jobLogs.GetJobLogs().Where(item => item.JobId == job.JobId)
                                     .OrderByDescending(item => item.JobLogId).ToList();
-                                for (int i = logs.Count; i > Job.RetentionHistory; i--)
+                                for (int i = logs.Count; i > job.RetentionHistory; i--)
                                 {
-                                    JobLogs.DeleteJobLog(logs[i - 1].JobLogId);
+                                    jobLogs.DeleteJobLog(logs[i - 1].JobLogId);
                                 }
                             }
                         }
@@ -115,28 +115,28 @@ namespace Oqtane.Infrastructure
 
         }
 
-        private DateTime CalculateNextExecution(DateTime NextExecution, string Frequency, int Interval)
+        private DateTime CalculateNextExecution(DateTime nextExecution, string frequency, int interval)
         {
-            switch (Frequency)
+            switch (frequency)
             {
                 case "m": // minutes
-                    NextExecution = NextExecution.AddMinutes(Interval);
+                    nextExecution = nextExecution.AddMinutes(interval);
                     break;
                 case "H": // hours
-                    NextExecution = NextExecution.AddHours(Interval);
+                    nextExecution = nextExecution.AddHours(interval);
                     break;
                 case "d": // days
-                    NextExecution = NextExecution.AddDays(Interval);
+                    nextExecution = nextExecution.AddDays(interval);
                     break;
                 case "M": // months
-                    NextExecution = NextExecution.AddMonths(Interval);
+                    nextExecution = nextExecution.AddMonths(interval);
                     break;
             }
-            if (NextExecution < DateTime.Now)
+            if (nextExecution < DateTime.UtcNow)
             {
-                NextExecution = DateTime.Now;
+                nextExecution = DateTime.UtcNow;
             }
-            return NextExecution;
+            return nextExecution;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -144,16 +144,16 @@ namespace Oqtane.Infrastructure
             try
             {
                 // set IsExecuting to false in case this job was forcefully terminated previously 
-                using (var scope = ServiceScopeFactory.CreateScope())
+                using (var scope = _serviceScopeFactory.CreateScope())
                 {
-                    string JobType = Utilities.GetFullTypeName(this.GetType().AssemblyQualifiedName);
-                    IJobRepository Jobs = scope.ServiceProvider.GetRequiredService<IJobRepository>();
-                    Job Job = Jobs.GetJobs().Where(item => item.JobType == JobType).FirstOrDefault();
-                    if (Job != null)
+                    string jobType = Utilities.GetFullTypeName(GetType().AssemblyQualifiedName);
+                    IJobRepository jobs = scope.ServiceProvider.GetRequiredService<IJobRepository>();
+                    Job job = jobs.GetJobs().Where(item => item.JobType == jobType).FirstOrDefault();
+                    if (job != null)
                     {
-                        Job.IsStarted = true;
-                        Job.IsExecuting = false;
-                        Jobs.UpdateJob(Job);
+                        job.IsStarted = true;
+                        job.IsExecuting = false;
+                        jobs.UpdateJob(job);
                     }
                 }
             }
@@ -162,36 +162,36 @@ namespace Oqtane.Infrastructure
                 // can occur during the initial installation as there is no DBContext
             }
 
-            ExecutingTask = ExecuteAsync(CancellationTokenSource.Token);
+            _executingTask = ExecuteAsync(_cancellationTokenSource.Token);
 
-            if (ExecutingTask.IsCompleted)
+            if (_executingTask.IsCompleted)
             {
-                return ExecutingTask;
+                return _executingTask;
             }
 
             return Task.CompletedTask;
         }
 
-        public async Task StopAsync(CancellationToken CancellationToken)
+        public async Task StopAsync(CancellationToken cancellationToken)
         {
-            if (ExecutingTask == null)
+            if (_executingTask == null)
             {
                 return;
             }
 
             try
             {
-                CancellationTokenSource.Cancel();
+                _cancellationTokenSource.Cancel();
             }
             finally
             {
-                await Task.WhenAny(ExecutingTask, Task.Delay(Timeout.Infinite, CancellationToken));
+                await Task.WhenAny(_executingTask, Task.Delay(Timeout.Infinite, cancellationToken));
             }
         }
 
         public void Dispose()
         {
-            CancellationTokenSource.Cancel();
+            _cancellationTokenSource.Cancel();
         }
     }
 }

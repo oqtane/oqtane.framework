@@ -9,6 +9,9 @@ namespace Oqtane.Models
         public string Username { get; set; }
         public string DisplayName { get; set; }
         public string Email { get; set; }
+        public int? PhotoFileId { get; set; }
+        public DateTime? LastLoginOn { get; set; }
+        public string LastIPAddress { get; set; }
 
         [NotMapped]
         public int SiteId { get; set; }

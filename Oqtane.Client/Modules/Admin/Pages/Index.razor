@@ -22,20 +22,21 @@
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-    private async Task DeletePage(Page Page)
+    private async Task DeletePage(Page page)
     {
         try
         {
-            Page.IsDeleted = true;
-            await PageService.UpdatePageAsync(Page);
-            await logger.LogInformation("Page Deleted {Page}", Page);
-            NavigationManager.NavigateTo(NavigateUrl("admin/pages", Reload.Site));
+            page.IsDeleted = true;
+            
+            await PageService.UpdatePageAsync(page);
+            await logger.LogInformation("Page Deleted {Page}", page);
+            NavigationManager.NavigateTo(NavigateUrl("admin/pages"));
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Deleting Page {Page} {Error}", Page, ex.Message);
+            await logger.LogError(ex, "Error Deleting Page {Page} {Error}", page, ex.Message);
             AddModuleMessage("Error Deleting Page", MessageType.Error);
         }
     }

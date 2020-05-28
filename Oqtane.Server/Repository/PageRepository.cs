@@ -1,96 +1,98 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using Oqtane.Extensions;
 using Oqtane.Models;
+using Oqtane.Shared;
 
 namespace Oqtane.Repository
 {
     public class PageRepository : IPageRepository
     {
-        private TenantDBContext db;
-        private readonly IPermissionRepository Permissions;
-        private readonly IPageModuleRepository PageModules;
+        private TenantDBContext _db;
+        private readonly IPermissionRepository _permissions;
+        private readonly IPageModuleRepository _pageModules;
 
-        public PageRepository(TenantDBContext context, IPermissionRepository Permissions, IPageModuleRepository PageModules)
+        public PageRepository(TenantDBContext context, IPermissionRepository permissions, IPageModuleRepository pageModules)
         {
-            db = context;
-            this.Permissions = Permissions;
-            this.PageModules = PageModules;
+            _db = context;
+            _permissions = permissions;
+            _pageModules = pageModules;
         }
 
-        public IEnumerable<Page> GetPages()
+        public IEnumerable<Page> GetPages(int siteId)
         {
-            return db.Page.ToList();
-        }
-
-        public IEnumerable<Page> GetPages(int SiteId)
-        {
-            IEnumerable<Permission> permissions = Permissions.GetPermissions(SiteId, "Page").ToList();
-            IEnumerable<Page> pages = db.Page.Where(item => item.SiteId == SiteId && item.UserId == null);
+            IEnumerable<Permission> permissions = _permissions.GetPermissions(siteId, EntityNames.Page).ToList();
+            IEnumerable<Page> pages = _db.Page.Where(item => item.SiteId == siteId && item.UserId == null);
             foreach(Page page in pages)
             {
-                page.Permissions = Permissions.EncodePermissions(page.PageId, permissions);
+                page.Permissions = permissions.Where(item => item.EntityId == page.PageId).EncodePermissions();
             }
             return pages;
         }
 
-        public Page AddPage(Page Page)
+        public Page AddPage(Page page)
         {
-            db.Page.Add(Page);
-            db.SaveChanges();
-            Permissions.UpdatePermissions(Page.SiteId, "Page", Page.PageId, Page.Permissions);
-            return Page;
+            _db.Page.Add(page);
+            _db.SaveChanges();
+            _permissions.UpdatePermissions(page.SiteId, EntityNames.Page, page.PageId, page.Permissions);
+            return page;
         }
 
-        public Page UpdatePage(Page Page)
+        public Page UpdatePage(Page page)
         {
-            db.Entry(Page).State = EntityState.Modified;
-            db.SaveChanges();
-            Permissions.UpdatePermissions(Page.SiteId, "Page", Page.PageId, Page.Permissions);
-            return Page;
+            _db.Entry(page).State = EntityState.Modified;
+            _db.SaveChanges();
+            _permissions.UpdatePermissions(page.SiteId, EntityNames.Page, page.PageId, page.Permissions);
+            return page;
         }
 
-        public Page GetPage(int PageId)
+        public Page GetPage(int pageId)
         {
-            Page page = db.Page.Find(PageId);
+            Page page = _db.Page.Find(pageId);
             if (page != null)
             {
-                IEnumerable<Permission> permissions = Permissions.GetPermissions("Page", page.PageId);
-                page.Permissions = Permissions.EncodePermissions(page.PageId, permissions);
+                page.Permissions = _permissions.GetPermissionString(EntityNames.Page, page.PageId);
             }
             return page;
         }
 
-        public Page GetPage(int PageId, int UserId)
+        public Page GetPage(int pageId, int userId)
         {
-            Page page = db.Page.Find(PageId);
+            Page page = _db.Page.Find(pageId);
             if (page != null)
             {
-                Page personalized = db.Page.Where(item => item.SiteId == page.SiteId && item.Path == page.Path && item.UserId == UserId).FirstOrDefault();
+                Page personalized = _db.Page.FirstOrDefault(item => item.SiteId == page.SiteId && item.Path == page.Path && item.UserId == userId);
                 if (personalized != null)
                 {
                     page = personalized;
                 }
-                if (page != null)
-                {
-                    IEnumerable<Permission> permissions = Permissions.GetPermissions("Page", page.PageId);
-                    page.Permissions = Permissions.EncodePermissions(page.PageId, permissions);
-                }
+                page.Permissions = _permissions.GetPermissionString(EntityNames.Page, page.PageId);
             }
             return page;
         }
 
-        public void DeletePage(int PageId)
+        public Page GetPage(string path, int siteId)
         {
-            Page Page = db.Page.Find(PageId);
-            Permissions.DeletePermissions(Page.SiteId, "Page", PageId);
-            IEnumerable<PageModule> pageModules = db.PageModule.Where(item => item.PageId == PageId).ToList();
+            Page page = _db.Page.FirstOrDefault(item => item.Path == path && item.SiteId == siteId);
+            if (page != null)
+            {
+                page.Permissions = _permissions.GetPermissionString(EntityNames.Page, page.PageId);
+            }
+            return page;
+        }
+
+        public void DeletePage(int pageId)
+        {
+            Page page = _db.Page.Find(pageId);
+            _permissions.DeletePermissions(page.SiteId, EntityNames.Page, pageId);
+            IEnumerable<PageModule> pageModules = _db.PageModule.Where(item => item.PageId == pageId).ToList();
             foreach (var pageModule in pageModules)
             {
-                PageModules.DeletePageModule(pageModule.PageModuleId);
+                _pageModules.DeletePageModule(pageModule.PageModuleId);
             }
-            db.Page.Remove(Page);
-            db.SaveChanges();
+            _db.Page.Remove(page);
+            _db.SaveChanges();
         }
     }
 }

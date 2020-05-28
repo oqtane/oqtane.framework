@@ -1,4 +1,5 @@
 ﻿using Oqtane.Models;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -8,12 +9,14 @@ namespace Oqtane.Services
     {
         Task<List<Alias>> GetAliasesAsync();
 
-        Task<Alias> GetAliasAsync(int AliasId);
+        Task<Alias> GetAliasAsync(int aliasId);
 
-        Task<Alias> AddAliasAsync(Alias Alias);
+        Task<Alias> GetAliasAsync(string url, DateTime lastSyncDate);
 
-        Task<Alias> UpdateAliasAsync(Alias Alias);
+        Task<Alias> AddAliasAsync(Alias alias);
 
-        Task DeleteAliasAsync(int AliasId);
+        Task<Alias> UpdateAliasAsync(Alias alias);
+
+        Task DeleteAliasAsync(int aliasId);
     }
 }

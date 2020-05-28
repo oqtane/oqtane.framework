@@ -1,7 +1,6 @@
 ﻿using Oqtane.Models;
 using System.Threading.Tasks;
 using System.Net.Http;
-using Microsoft.AspNetCore.Components;
 using Oqtane.Shared;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,46 +9,40 @@ namespace Oqtane.Services
 {
     public class NotificationService : ServiceBase, INotificationService
     {
-        private readonly HttpClient http;
-        private readonly SiteState sitestate;
-        private readonly NavigationManager NavigationManager;
+        private readonly SiteState _siteState;
 
-        public NotificationService(HttpClient http, SiteState sitestate, NavigationManager NavigationManager)
+        public NotificationService(HttpClient http, SiteState siteState) : base(http)
         {
-            this.http = http;
-            this.sitestate = sitestate;
-            this.NavigationManager = NavigationManager;
+            _siteState = siteState;
         }
 
-        private string apiurl
+        private string Apiurl => CreateApiUrl(_siteState.Alias, "Notification");
+
+        public async Task<List<Notification>> GetNotificationsAsync(int siteId, string direction, int userId)
         {
-            get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "Notification"); }
+            var notifications = await GetJsonAsync<List<Notification>>($"{Apiurl}?siteid={siteId}&direction={direction.ToLower()}&userid={userId}");
+
+            return notifications.OrderByDescending(item => item.CreatedOn).ToList();
         }
 
-        public async Task<List<Notification>> GetNotificationsAsync(int SiteId, string Direction, int UserId)
+        public async Task<Notification> GetNotificationAsync(int notificationId)
         {
-            string querystring = "?siteid=" + SiteId.ToString() + "&direction=" + Direction.ToLower() + "&userid=" + UserId.ToString();
-            List<Notification> Notifications = await http.GetJsonAsync<List<Notification>>(apiurl + querystring);
-            return Notifications.OrderByDescending(item => item.CreatedOn).ToList();
+            return await GetJsonAsync<Notification>($"{Apiurl}/{notificationId}");
         }
 
-        public async Task<Notification> GetNotificationAsync(int NotificationId)
+        public async Task<Notification> AddNotificationAsync(Notification notification)
         {
-            return await http.GetJsonAsync<Notification>(apiurl + "/" + NotificationId.ToString());
+            return await PostJsonAsync<Notification>(Apiurl, notification);
         }
 
-        public async Task<Notification> AddNotificationAsync(Notification Notification)
+        public async Task<Notification> UpdateNotificationAsync(Notification notification)
         {
-            return await http.PostJsonAsync<Notification>(apiurl, Notification);
+            return await PutJsonAsync<Notification>($"{Apiurl}/{notification.NotificationId}", notification);
         }
 
-        public async Task<Notification> UpdateNotificationAsync(Notification Notification)
+        public async Task DeleteNotificationAsync(int notificationId)
         {
-            return await http.PutJsonAsync<Notification>(apiurl + "/" + Notification.NotificationId.ToString(), Notification);
-        }
-        public async Task DeleteNotificationAsync(int NotificationId)
-        {
-            await http.DeleteAsync(apiurl + "/" + NotificationId.ToString());
+            await DeleteAsync($"{Apiurl}/{notificationId}");
         }
     }
 }

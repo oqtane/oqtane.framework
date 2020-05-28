@@ -2,56 +2,56 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Oqtane.Repository;
 using Oqtane.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Security.Claims;
 using Oqtane.Shared;
-using Oqtane.Infrastructure;
 using System;
-using Microsoft.AspNetCore.Http;
 using System.Net;
+using Oqtane.Enums;
+using Oqtane.Infrastructure;
+using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
-    [Route("{site}/api/[controller]")]
+    [Route("{alias}/api/[controller]")]
     public class UserController : Controller
     {
-        private readonly IUserRepository Users;
-        private readonly IRoleRepository Roles;
-        private readonly IUserRoleRepository UserRoles;
-        private readonly UserManager<IdentityUser> IdentityUserManager;
-        private readonly SignInManager<IdentityUser> IdentitySignInManager;
-        private readonly ITenantResolver Tenants;
-        private readonly INotificationRepository Notifications;
-        private readonly ILogManager logger;
+        private readonly IUserRepository _users;
+        private readonly IRoleRepository _roles;
+        private readonly IUserRoleRepository _userRoles;
+        private readonly UserManager<IdentityUser> _identityUserManager;
+        private readonly SignInManager<IdentityUser> _identitySignInManager;
+        private readonly ITenantResolver _tenants;
+        private readonly INotificationRepository _notifications;
+        private readonly IFolderRepository _folders;
+        private readonly ISyncManager _syncManager;
+        private readonly ISiteRepository _sites;
+        private readonly ILogManager _logger;
 
-        public UserController(IUserRepository Users, IRoleRepository Roles, IUserRoleRepository UserRoles, UserManager<IdentityUser> IdentityUserManager, SignInManager<IdentityUser> IdentitySignInManager, ITenantResolver Tenants, INotificationRepository Notifications, ILogManager logger)
+        public UserController(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantResolver tenants, INotificationRepository notifications, IFolderRepository folders, ISyncManager syncManager, ISiteRepository sites, ILogManager logger)
         {
-            this.Users = Users;
-            this.Roles = Roles;
-            this.UserRoles = UserRoles;
-            this.IdentityUserManager = IdentityUserManager;
-            this.IdentitySignInManager = IdentitySignInManager;
-            this.Tenants = Tenants;
-            this.Notifications = Notifications;
-            this.logger = logger;
-        }
-
-        // GET: api/<controller>?siteid=x
-        [HttpGet]
-        public IEnumerable<User> Get()
-        {
-            return Users.GetUsers();
+            _users = users;
+            _roles = roles;
+            _userRoles = userRoles;
+            _identityUserManager = identityUserManager;
+            _identitySignInManager = identitySignInManager;
+            _tenants = tenants;
+            _folders = folders;
+            _notifications = notifications;
+            _syncManager = syncManager;
+            _sites = sites;
+            _logger = logger;
         }
 
         // GET api/<controller>/5?siteid=x
         [HttpGet("{id}")]
+        [Authorize]
         public User Get(int id, string siteid)
         {
-            User user = Users.GetUser(id);
+            User user = _users.GetUser(id);
             if (user != null)
             {
                 user.SiteId = int.Parse(siteid);
@@ -64,7 +64,7 @@ namespace Oqtane.Controllers
         [HttpGet("name/{name}")]
         public User Get(string name, string siteid)
         {
-            User user = Users.GetUser(name);
+            User user = _users.GetUser(name);
             if (user != null)
             {
                 user.SiteId = int.Parse(siteid);
@@ -75,112 +75,167 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        public async Task<User> Post([FromBody] User User)
+        public async Task<User> Post([FromBody] User user)
         {
-            User user = null;
-
             if (ModelState.IsValid)
             {
-                bool verified = true;
-                // users created by non-administrators must be verified
-                if (!base.User.IsInRole(Constants.AdminRole) && User.Username != Constants.HostUser)
-                {
-                    verified = false;
-                }
+                var newUser = await CreateUser(user);
+                return newUser;
+            }
 
-                IdentityUser identityuser = await IdentityUserManager.FindByNameAsync(User.Username);
+            return null;
+        }
+
+        //TODO shoud be moved to another layer
+        private async Task<User> CreateUser(User user)
+        {
+            User newUser = null;
+
+            bool verified;
+            bool allowregistration;
+            if (user.Username == Constants.HostUser || User.IsInRole(Constants.AdminRole))
+            {
+                verified = true;
+                allowregistration = true;
+            }
+            else
+            {
+                verified = false;
+                allowregistration = _sites.GetSite(user.SiteId).AllowRegistration;
+            }
+
+            if (allowregistration)
+            {
+                IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
                 if (identityuser == null)
                 {
                     identityuser = new IdentityUser();
-                    identityuser.UserName = User.Username;
-                    identityuser.Email = User.Email;
+                    identityuser.UserName = user.Username;
+                    identityuser.Email = user.Email;
                     identityuser.EmailConfirmed = verified;
-                    var result = await IdentityUserManager.CreateAsync(identityuser, User.Password);
+                    var result = await _identityUserManager.CreateAsync(identityuser, user.Password);
                     if (result.Succeeded)
                     {
-                        user = Users.AddUser(User);
+                        user.LastLoginOn = null;
+                        user.LastIPAddress = "";
+                        newUser = _users.AddUser(user);
                         if (!verified)
                         {
                             Notification notification = new Notification();
-                            notification.SiteId = User.SiteId;
+                            notification.SiteId = user.SiteId;
                             notification.FromUserId = null;
-                            notification.ToUserId = user.UserId;
+                            notification.ToUserId = newUser.UserId;
                             notification.ToEmail = "";
                             notification.Subject = "User Account Verification";
-                            string token = await IdentityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
-                            string url = HttpContext.Request.Scheme + "://" + Tenants.GetAlias().Name + "/login?name=" + User.Username + "&token=" + WebUtility.UrlEncode(token);
-                            notification.Body = "Dear " + User.DisplayName + ",\n\nIn Order To Complete The Registration Of Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
+                            string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
+                            string url = HttpContext.Request.Scheme + "://" + _tenants.GetAlias().Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
+                            notification.Body = "Dear " + user.DisplayName + ",\n\nIn Order To Complete The Registration Of Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
                             notification.ParentId = null;
-                            notification.CreatedOn = DateTime.Now;
+                            notification.CreatedOn = DateTime.UtcNow;
                             notification.IsDelivered = false;
                             notification.DeliveredOn = null;
-                            Notifications.AddNotification(notification);
+                            _notifications.AddNotification(notification);
                         }
 
                         // assign to host role if this is the host user ( initial installation )
-                        if (User.Username == Constants.HostUser)
+                        if (user.Username == Constants.HostUser)
                         {
-                            int hostroleid = Roles.GetRoles(User.SiteId, true).Where(item => item.Name == Constants.HostRole).FirstOrDefault().RoleId;
+                            int hostroleid = _roles.GetRoles(user.SiteId, true).Where(item => item.Name == Constants.HostRole).FirstOrDefault().RoleId;
                             UserRole userrole = new UserRole();
-                            userrole.UserId = user.UserId;
+                            userrole.UserId = newUser.UserId;
                             userrole.RoleId = hostroleid;
                             userrole.EffectiveDate = null;
                             userrole.ExpiryDate = null;
-                            UserRoles.AddUserRole(userrole);
+                            _userRoles.AddUserRole(userrole);
+                        }
+
+                        // add folder for user
+                        Folder folder = _folders.GetFolder(user.SiteId, Utilities.PathCombine("Users","\\"));
+                        if (folder != null)
+                        {
+                            _folders.AddFolder(new Folder
+                            {
+                                SiteId = folder.SiteId,
+                                ParentId = folder.FolderId,
+                                Name = "My Folder",
+                                Path = Utilities.PathCombine(folder.Path, newUser.UserId.ToString(),"\\"),
+                                Order = 1,
+                                IsSystem = true,
+                                Permissions = "[{\"PermissionName\":\"Browse\",\"Permissions\":\"[" + newUser.UserId.ToString() + "]\"},{\"PermissionName\":\"View\",\"Permissions\":\"All Users\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"[" +
+                                              newUser.UserId.ToString() + "]\"}]"
+                            });
                         }
                     }
                 }
                 else
                 {
-                    var result = await IdentitySignInManager.CheckPasswordSignInAsync(identityuser, User.Password, false);
+                    var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, user.Password, false);
                     if (result.Succeeded)
                     {
-                        user = Users.GetUser(User.Username);
+                        newUser = _users.GetUser(user.Username);
                     }
                 }
 
-                if (user != null && User.Username != Constants.HostUser)
+                if (newUser != null && user.Username != Constants.HostUser)
                 {
                     // add auto assigned roles to user for site
-                    List<Role> roles = Roles.GetRoles(User.SiteId).Where(item => item.IsAutoAssigned == true).ToList();
+                    List<Role> roles = _roles.GetRoles(user.SiteId).Where(item => item.IsAutoAssigned).ToList();
                     foreach (Role role in roles)
                     {
                         UserRole userrole = new UserRole();
-                        userrole.UserId = user.UserId;
+                        userrole.UserId = newUser.UserId;
                         userrole.RoleId = role.RoleId;
                         userrole.EffectiveDate = null;
                         userrole.ExpiryDate = null;
-                        UserRoles.AddUserRole(userrole);
+                        _userRoles.AddUserRole(userrole);
                     }
                 }
-                user.Password = ""; // remove sensitive information
-                logger.Log(LogLevel.Information, this, LogFunction.Create, "User Added {User}", user);
+
+                if (newUser != null)
+                {
+                    newUser.Password = ""; // remove sensitive information
+                    _logger.Log(user.SiteId, LogLevel.Information, this, LogFunction.Create, "User Added {User}", newUser);
+                }
+            }
+            else
+            {
+                _logger.Log(user.SiteId, LogLevel.Error, this, LogFunction.Create, "User Registration Is Not Enabled For Site. User Was Not Added {User}", user);
             }
 
-            return user;
+            return newUser;
         }
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize]
-        public async Task<User> Put(int id, [FromBody] User User)
+        public async Task<User> Put(int id, [FromBody] User user)
         {
             if (ModelState.IsValid)
             {
-                if (User.Password != "")
+                if (User.IsInRole(Constants.AdminRole) || User.Identity.Name == user.Username)
                 {
-                    IdentityUser identityuser = await IdentityUserManager.FindByNameAsync(User.Username);
-                    if (identityuser != null)
+                    if (user.Password != "")
                     {
-                        identityuser.PasswordHash = IdentityUserManager.PasswordHasher.HashPassword(identityuser, User.Password);
-                        await IdentityUserManager.UpdateAsync(identityuser);
+                        IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
+                        if (identityuser != null)
+                        {
+                            identityuser.PasswordHash = _identityUserManager.PasswordHasher.HashPassword(identityuser, user.Password);
+                            await _identityUserManager.UpdateAsync(identityuser);
+                        }
                     }
+                    user = _users.UpdateUser(user);
+                    _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.User, user.UserId);
+                    user.Password = ""; // remove sensitive information
+                    _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Updated {User}", user);
                 }
-                User = Users.UpdateUser(User);
-                User.Password = ""; // remove sensitive information
-                logger.Log(LogLevel.Information, this, LogFunction.Update, "User Updated {User}", User);
+                else
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update User {User}", user);
+                    HttpContext.Response.StatusCode = 401;
+                    user = null;
+                }
             }
-            return User;
+            return user;
         }
 
         // DELETE api/<controller>/5?siteid=x
@@ -188,183 +243,189 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.AdminRole)]
         public async Task Delete(int id)
         {
-            IdentityUser identityuser = await IdentityUserManager.FindByNameAsync(Users.GetUser(id).Username);
+            IdentityUser identityuser = await _identityUserManager.FindByNameAsync(_users.GetUser(id).Username);
             
             if (identityuser != null)
             {
-                var result = await IdentityUserManager.DeleteAsync(identityuser);
+                var result = await _identityUserManager.DeleteAsync(identityuser);
 
                 if (result != null)
                 {
-                    Users.DeleteUser(id);
-                    logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Deleted {UserId}", id);
+                    _users.DeleteUser(id);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Deleted {UserId}", id);
                 }
             }
         }
 
         // POST api/<controller>/login
         [HttpPost("login")]
-        public async Task<User> Login([FromBody] User User, bool SetCookie, bool IsPersistent)
+        public async Task<User> Login([FromBody] User user, bool setCookie, bool isPersistent)
         {
-            User user = new Models.User { Username = User.Username, IsAuthenticated = false };
+            User loginUser = new User { Username = user.Username, IsAuthenticated = false };
 
             if (ModelState.IsValid)
             {
-                IdentityUser identityuser = await IdentityUserManager.FindByNameAsync(User.Username);
+                IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
                 if (identityuser != null)
                 {
-                    var result = await IdentitySignInManager.CheckPasswordSignInAsync(identityuser, User.Password, false);
+                    var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, user.Password, false);
                     if (result.Succeeded)
                     {
-                        user = Users.GetUser(identityuser.UserName);
-                        if (user != null)
+                        loginUser = _users.GetUser(identityuser.UserName);
+                        if (loginUser != null)
                         {
                             if (identityuser.EmailConfirmed)
                             {
-                                user.IsAuthenticated = true;
-                                logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful {Username}", User.Username);
-                                if (SetCookie)
+                                loginUser.IsAuthenticated = true;
+                                loginUser.LastLoginOn = DateTime.UtcNow;
+                                loginUser.LastIPAddress = HttpContext.Connection.RemoteIpAddress.ToString();
+                                _users.UpdateUser(loginUser);
+                                _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful {Username}", user.Username);
+                                if (setCookie)
                                 {
-                                    await IdentitySignInManager.SignInAsync(identityuser, IsPersistent);
+                                    await _identitySignInManager.SignInAsync(identityuser, isPersistent);
                                 }
                             }
                             else
                             {
-                                logger.Log(LogLevel.Information, this, LogFunction.Security, "User Not Verified {Username}", User.Username);
+                                _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Not Verified {Username}", user.Username);
                             }
                         }
                     }
                     else
                     {
-                        logger.Log(LogLevel.Error, this, LogFunction.Security, "User Login Failed {Username}", User.Username);
+                        _logger.Log(LogLevel.Error, this, LogFunction.Security, "User Login Failed {Username}", user.Username);
                     }
                 }
             }
 
-            return user;
+            return loginUser;
         }
 
         // POST api/<controller>/logout
         [HttpPost("logout")]
         [Authorize]
-        public async Task Logout([FromBody] User User)
+        public async Task Logout([FromBody] User user)
         {
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
-            logger.Log(LogLevel.Information, this, LogFunction.Security, "User Logout {Username}", User.Username);
+            _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Logout {Username}", (user != null) ? user.Username : "");
         }
 
         // POST api/<controller>/verify
         [HttpPost("verify")]
-        public async Task<User> Verify([FromBody] User User, string token)
+        public async Task<User> Verify([FromBody] User user, string token)
         {
             if (ModelState.IsValid)
             {
-                IdentityUser identityuser = await IdentityUserManager.FindByNameAsync(User.Username);
+                IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
                 if (identityuser != null)
                 {
-                    var result = await IdentityUserManager.ConfirmEmailAsync(identityuser, token);
+                    var result = await _identityUserManager.ConfirmEmailAsync(identityuser, token);
                     if (result.Succeeded)
                     {
-                        logger.Log(LogLevel.Information, this, LogFunction.Security, "Email Verified For {Username}", User.Username);
+                        _logger.Log(LogLevel.Information, this, LogFunction.Security, "Email Verified For {Username}", user.Username);
                     }
                     else
                     {
-                        logger.Log(LogLevel.Error, this, LogFunction.Security, "Email Verification Failed For {Username}", User.Username);
-                        User = null;
+                        _logger.Log(LogLevel.Error, this, LogFunction.Security, "Email Verification Failed For {Username}", user.Username);
+                        user = null;
                     }
                 }
                 else
                 {
-                    logger.Log(LogLevel.Error, this, LogFunction.Security, "Email Verification Failed For {Username}", User.Username);
-                    User = null;
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Email Verification Failed For {Username}", user.Username);
+                    user = null;
                 }
             }
-            return User;
+            return user;
         }
         
         // POST api/<controller>/forgot
         [HttpPost("forgot")]
-        public async Task Forgot([FromBody] User User)
+        public async Task Forgot([FromBody] User user)
         {
             if (ModelState.IsValid)
             {
-                IdentityUser identityuser = await IdentityUserManager.FindByNameAsync(User.Username);
+                IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
                 if (identityuser != null)
                 {
                     Notification notification = new Notification();
-                    notification.SiteId = User.SiteId;
+                    notification.SiteId = user.SiteId;
                     notification.FromUserId = null;
-                    notification.ToUserId = User.UserId;
+                    notification.ToUserId = user.UserId;
                     notification.ToEmail = "";
                     notification.Subject = "User Password Reset";
-                    string token = await IdentityUserManager.GeneratePasswordResetTokenAsync(identityuser);
-                    string url = HttpContext.Request.Scheme + "://" + Tenants.GetAlias().Name + "/reset?name=" + User.Username + "&token=" + WebUtility.UrlEncode(token);
-                    notification.Body = "Dear " + User.DisplayName + ",\n\nPlease Click The Link Displayed Below To Reset Your Password:\n\n" + url + "\n\nThank You!";
+                    string token = await _identityUserManager.GeneratePasswordResetTokenAsync(identityuser);
+                    string url = HttpContext.Request.Scheme + "://" + _tenants.GetAlias().Name + "/reset?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
+                    notification.Body = "Dear " + user.DisplayName + ",\n\nPlease Click The Link Displayed Below To Reset Your Password:\n\n" + url + "\n\nThank You!";
                     notification.ParentId = null;
-                    notification.CreatedOn = DateTime.Now;
+                    notification.CreatedOn = DateTime.UtcNow;
                     notification.IsDelivered = false;
                     notification.DeliveredOn = null;
-                    Notifications.AddNotification(notification);
-                    logger.Log(LogLevel.Information, this, LogFunction.Security, "Password Reset Notification Sent For {Username}", User.Username);
+                    _notifications.AddNotification(notification);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "Password Reset Notification Sent For {Username}", user.Username);
                 }
                 else
                 {
-                    logger.Log(LogLevel.Error, this, LogFunction.Security, "Password Reset Notification Failed For {Username}", User.Username);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Password Reset Notification Failed For {Username}", user.Username);
                 }
             }
         }
 
         // POST api/<controller>/reset
         [HttpPost("reset")]
-        public async Task<User> Reset([FromBody] User User, string token)
+        public async Task<User> Reset([FromBody] User user, string token)
         {
             if (ModelState.IsValid)
             {
-                IdentityUser identityuser = await IdentityUserManager.FindByNameAsync(User.Username);
+                IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
                 if (identityuser != null && !string.IsNullOrEmpty(token))
                 {
-                    var result = await IdentityUserManager.ResetPasswordAsync(identityuser, token, User.Password);
+                    var result = await _identityUserManager.ResetPasswordAsync(identityuser, token, user.Password);
                     if (result.Succeeded)
                     {
-                        logger.Log(LogLevel.Information, this, LogFunction.Security, "Password Reset For {Username}", User.Username);
-                        User.Password = "";
+                        _logger.Log(LogLevel.Information, this, LogFunction.Security, "Password Reset For {Username}", user.Username);
+                        user.Password = "";
                     }
                     else
                     {
-                        logger.Log(LogLevel.Error, this, LogFunction.Security, "Password Reset Failed For {Username}", User.Username);
-                        User = null;
+                        _logger.Log(LogLevel.Error, this, LogFunction.Security, "Password Reset Failed For {Username}", user.Username);
+                        user = null;
                     }
                 }
                 else
                 {
-                    logger.Log(LogLevel.Error, this, LogFunction.Security, "Password Reset Failed For {Username}", User.Username);
-                    User = null;
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Password Reset Failed For {Username}", user.Username);
+                    user = null;
                 }
             }
-            return User;
+            return user;
         }
 
         // GET api/<controller>/current
         [HttpGet("authenticate")]
         public User Authenticate()
         {
-            User user = new User();
-            user.Username = User.Identity.Name;
-            user.IsAuthenticated = User.Identity.IsAuthenticated;
-            string roles = "";
-            foreach (var claim in User.Claims.Where(item => item.Type == ClaimTypes.Role))
+            User user = new User { IsAuthenticated = User.Identity.IsAuthenticated, Username = "", UserId = -1, Roles = "" };            
+            if (user.IsAuthenticated)
             {
-                roles += claim.Value + ";";
+                user.Username = User.Identity.Name;
+                user.UserId = int.Parse(User.Claims.First(item => item.Type == ClaimTypes.PrimarySid).Value);
+                string roles = "";
+                foreach (var claim in User.Claims.Where(item => item.Type == ClaimTypes.Role))
+                {
+                    roles += claim.Value + ";";
+                }
+                if (roles != "") roles = ";" + roles;
+                user.Roles = roles;
             }
-            if (roles != "") roles = ";" + roles;
-            user.Roles = roles;
             return user;
         }
 
-        private string GetUserRoles(int UserId, int SiteId)
+        private string GetUserRoles(int userId, int siteId)
         {
             string roles = "";
-            List<UserRole> userroles = UserRoles.GetUserRoles(UserId, SiteId).ToList();
+            List<UserRole> userroles = _userRoles.GetUserRoles(userId, siteId).ToList();
             foreach (UserRole userrole in userroles)
             {
                 roles += userrole.Role.Name + ";";

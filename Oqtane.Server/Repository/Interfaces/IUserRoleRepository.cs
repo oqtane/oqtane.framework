@@ -5,12 +5,11 @@ namespace Oqtane.Repository
 {
     public interface IUserRoleRepository
     {
-        IEnumerable<UserRole> GetUserRoles();
-        IEnumerable<UserRole> GetUserRoles(int SiteId);
-        IEnumerable<UserRole> GetUserRoles(int UserId, int SiteId);
-        UserRole AddUserRole(UserRole UserRole);
-        UserRole UpdateUserRole(UserRole UserRole);
-        UserRole GetUserRole(int UserRoleId);
-        void DeleteUserRole(int UserRoleId);
+        IEnumerable<UserRole> GetUserRoles(int siteId);
+        IEnumerable<UserRole> GetUserRoles(int userId, int siteId);
+        UserRole AddUserRole(UserRole userRole);
+        UserRole UpdateUserRole(UserRole userRole);
+        UserRole GetUserRole(int userRoleId);
+        void DeleteUserRole(int userRoleId);
     }
 }

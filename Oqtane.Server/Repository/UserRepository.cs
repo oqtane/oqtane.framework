@@ -1,53 +1,53 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
 {
     public class UserRepository : IUserRepository
     {
-        private TenantDBContext db;
+        private TenantDBContext _db;
 
         public UserRepository(TenantDBContext context)
         {
-            db = context;
+            _db = context;
         }
             
         public IEnumerable<User> GetUsers()
         {
-            return db.User;
+            return _db.User;
         }
 
         public User AddUser(User user)
         {
-            db.User.Add(user);
-            db.SaveChanges();
+            _db.User.Add(user);
+            _db.SaveChanges();
             return user;
         }
 
         public User UpdateUser(User user)
         {
-            db.Entry(user).State = EntityState.Modified;
-            db.SaveChanges();
+            _db.Entry(user).State = EntityState.Modified;
+            _db.SaveChanges();
             return user;
         }
 
         public User GetUser(int userId)
         {
-            return db.User.Find(userId);
+            return _db.User.Find(userId);
         }
 
-        public User GetUser(string Username)
+        public User GetUser(string username)
         {
-            return db.User.Where(item => item.Username == Username).FirstOrDefault();
+            return _db.User.Where(item => item.Username == username).FirstOrDefault();
         }
 
         public void DeleteUser(int userId)
         {
-            User user = db.User.Find(userId);
-            db.User.Remove(user);
-            db.SaveChanges();
+            User user = _db.User.Find(userId);
+            _db.User.Remove(user);
+            _db.SaveChanges();
         }
     }
 }

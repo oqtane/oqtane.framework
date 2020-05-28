@@ -1,7 +1,8 @@
 ﻿@page "/"
 @namespace Oqtane.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-@using Oqtane.Client
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
 
 <!DOCTYPE html>
 <html>
@@ -10,22 +11,30 @@
     <meta name="viewport" content="width=device-width">
     <title>Oqtane</title>
     <base href="~/" />
-    <link href="css/quill/quill1.3.6.bubble.css" rel="stylesheet" />
-    <link href="css/quill/quill1.3.6.snow.css" rel="stylesheet" />
+    <link id="app-favicon" rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+    <!-- stub the PWA manifest but defer the assignment of href -->
+    <link id="app-manifest" rel="manifest" />
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <link href="css/app.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
     @(Html.AntiForgeryToken())
-    <app>@(await Html.RenderComponentAsync<App>(RenderMode.Server))</app>
+    <app>
+        <component type="typeof(Oqtane.App)" render-mode="Server" />
+    </app>
 
-    <script src="js/site.js"></script>
     <script src="js/interop.js"></script>
-    <script src="js/quill1.3.6.min.js"></script>
-    <script src="js/quill-blot-formatter.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-    <script src="_framework/blazor.server.js"></script>
+
+    @if (Configuration.GetSection("Runtime").Value == "WebAssembly")
+    {
+        <script src="_framework/blazor.webassembly.js"></script>
+    }
+    else
+    {
+        <script src="_framework/blazor.server.js"></script>
+    }
 </body>
 </html>

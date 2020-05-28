@@ -2,52 +2,84 @@
 using System;
 using Oqtane.Models;
 using System.Text.Json;
-using Oqtane.Repository;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
 using System.Collections.Generic;
+using Oqtane.Enums;
+using Oqtane.Repository;
+using Oqtane.Security;
+// ReSharper disable StringIndexOfIsCultureSpecific.2
+// ReSharper disable StringIndexOfIsCultureSpecific.1
 
 namespace Oqtane.Infrastructure
 {
     public class LogManager : ILogManager
     {
-        private readonly ILogRepository Logs;
-        private readonly ITenantResolver TenantResolver;
-        private readonly IConfigurationRoot Config;
-        private readonly IHttpContextAccessor Accessor;
+        private readonly ILogRepository _logs;
+        private readonly ITenantResolver _tenantResolver;
+        private readonly IConfigurationRoot _config;
+        private readonly IUserPermissions _userPermissions;
+        private readonly IHttpContextAccessor _accessor;
 
-        public LogManager(ILogRepository Logs, ITenantResolver TenantResolver, IConfigurationRoot Config, IHttpContextAccessor Accessor)
+        public LogManager(ILogRepository logs, ITenantResolver tenantResolver, IConfigurationRoot config, IUserPermissions userPermissions, IHttpContextAccessor accessor)
         {
-            this.Logs = Logs;
-            this.TenantResolver = TenantResolver;
-            this.Config = Config;
-            this.Accessor = Accessor;
+            _logs = logs;
+            _tenantResolver = tenantResolver;
+            _config = config;
+            _userPermissions = userPermissions;
+            _accessor = accessor;
         }
 
-        public void Log(LogLevel Level, object Class, LogFunction Function, string Message, params object[] Args)
+        public void Log(LogLevel level, object @class, LogFunction function, string message, params object[] args)
         {
-            Log(Level, Class.GetType().AssemblyQualifiedName, Function, null, Message, Args);
+            Log(-1, level, @class.GetType().AssemblyQualifiedName, function, null, message, args);
         }
 
-        public void Log(LogLevel Level, object Class, LogFunction Function, Exception Exception, string Message, params object[] Args)
+        public void Log(LogLevel level, object @class, LogFunction function, Exception exception, string message, params object[] args)
         {
-            Alias alias = TenantResolver.GetAlias();
+            Log(-1, level, @class.GetType().AssemblyQualifiedName, function, exception, message, args);
+        }
+
+        public void Log(int siteId, LogLevel level, object @class, LogFunction function, string message, params object[] args)
+        {
+            Log(siteId, level, @class.GetType().AssemblyQualifiedName, function, null, message, args);
+        }
+
+        public void Log(int siteId, LogLevel level, object @class, LogFunction function, Exception exception, string message, params object[] args)
+        {
             Log log = new Log();
-            log.SiteId = alias.SiteId;
+            if (siteId == -1)
+            {
+                log.SiteId = null;
+                Alias alias = _tenantResolver.GetAlias();
+                if (alias != null)
+                {
+                    log.SiteId = alias.SiteId;
+                }
+            }
+            else
+            {
+                log.SiteId = siteId;
+            }
             log.PageId = null;
             log.ModuleId = null;
-            if (Accessor.HttpContext.User.FindFirst(ClaimTypes.PrimarySid) != null)
+            log.UserId = null;
+            User user = _userPermissions.GetUser();
+            if (user != null)
             {
-                log.UserId = int.Parse(Accessor.HttpContext.User.FindFirst(ClaimTypes.PrimarySid).Value);
+                log.UserId = user.UserId;
             }
-            HttpRequest request = Accessor.HttpContext.Request;
-            if (request != null)
+            log.Url = "";
+            if (_accessor.HttpContext != null)
             {
-                log.Url = request.Scheme.ToString() + "://" + request.Host.ToString() + request.Path.ToString() + request.QueryString.ToString();
+                HttpRequest request = _accessor.HttpContext.Request;
+                if (request != null)
+                {
+                    log.Url = $"{request.Scheme}://{request.Host}{request.Path}{request.QueryString}";
+                }
             }
 
-            Type type = Type.GetType(Class.ToString());
+            Type type = Type.GetType(@class.ToString());
             if (type != null)
             {
                 log.Category = type.AssemblyQualifiedName;
@@ -55,20 +87,20 @@ namespace Oqtane.Infrastructure
             }
             else
             {
-                log.Category = Class.ToString();
+                log.Category = @class.ToString();
                 log.Feature = log.Category;
             }
-            log.Function = Enum.GetName(typeof(LogFunction), Function);
-            log.Level = Enum.GetName(typeof(LogLevel), Level);
-            if (Exception != null)
+            log.Function = Enum.GetName(typeof(LogFunction), function);
+            log.Level = Enum.GetName(typeof(LogLevel), level);
+            if (exception != null)
             {
-                log.Exception = Exception.ToString();
+                log.Exception = exception.ToString();
             }
-            log.Message = Message;
+            log.Message = message;
             log.MessageTemplate = "";
             try
             {
-                log.Properties = JsonSerializer.Serialize(Args);
+                log.Properties = JsonSerializer.Serialize(args);
             }
             catch // serialization error occurred
             {
@@ -77,72 +109,86 @@ namespace Oqtane.Infrastructure
             Log(log);
         }
 
-        public void Log(Log Log)
+        public void Log(Log log)
         {
             LogLevel minlevel = LogLevel.Information;
-            var section = Config.GetSection("Logging:LogLevel:Default");
+            var section = _config.GetSection("Logging:LogLevel:Default");
             if (section.Exists())
             {
-                minlevel = Enum.Parse<LogLevel>(Config.GetSection("Logging:LogLevel:Default").ToString());
+                minlevel = Enum.Parse<LogLevel>(section.Value);
             }
 
-            if (Enum.Parse<LogLevel>(Log.Level) >= minlevel)
+            if (Enum.Parse<LogLevel>(log.Level) >= minlevel)
             {
-                Log.LogDate = DateTime.UtcNow;
-                Log.Server = Environment.MachineName;
-                Log.MessageTemplate = Log.Message;
-                Log = ProcessStructuredLog(Log);
-                Logs.AddLog(Log);
+                log.LogDate = DateTime.UtcNow;
+                log.Server = Environment.MachineName;
+                log.MessageTemplate = log.Message;
+                log = ProcessStructuredLog(log);
+                try
+                {
+                    _logs.AddLog(log);
+                }
+                catch
+                {
+                    // an error occurred writing to the database
+                }
             }
         }
 
-        private Log ProcessStructuredLog(Log Log)
+        private Log ProcessStructuredLog(Log log)
         {
-            string message = Log.Message;
-            string properties = "";
-            if (!string.IsNullOrEmpty(message) && message.Contains("{") && message.Contains("}") && !string.IsNullOrEmpty(Log.Properties))
+            try
             {
-                // get the named holes in the message and replace values
-                object[] values = JsonSerializer.Deserialize<object[]>(Log.Properties);
-                List<string> names = new List<string>();
-                int index = message.IndexOf("{");
-                while (index != -1)
+                string message = log.Message;
+                string properties = "";
+                if (!string.IsNullOrEmpty(message) && message.Contains("{") && message.Contains("}") && !string.IsNullOrEmpty(log.Properties))
                 {
-                    if (message.IndexOf("}", index) != -1)
+                    // get the named holes in the message and replace values
+                    object[] values = JsonSerializer.Deserialize<object[]>(log.Properties);
+                    List<string> names = new List<string>();
+                    int index = message.IndexOf("{");
+                    while (index != -1)
                     {
-                        names.Add(message.Substring(index + 1, message.IndexOf("}", index) - index - 1));
-                        if (values.Length > (names.Count - 1))
+                        if (message.IndexOf("}", index) != -1)
                         {
-                            if (values[names.Count - 1] == null)
+                            names.Add(message.Substring(index + 1, message.IndexOf("}", index) - index - 1));
+                            if (values.Length > (names.Count - 1))
                             {
-                                message = message.Replace("{" + names[names.Count - 1] + "}", "null");
-                            }
-                            else
-                            {
-                                message = message.Replace("{" + names[names.Count - 1] + "}", values[names.Count - 1].ToString());
+                                if (values[names.Count - 1] == null)
+                                {
+                                    message = message.Replace("{" + names[names.Count - 1] + "}", "null");
+                                }
+                                else
+                                {
+                                    message = message.Replace("{" + names[names.Count - 1] + "}", values[names.Count - 1].ToString());
+                                }
                             }
                         }
+                        index = message.IndexOf("{", index + 1);
                     }
-                    index = message.IndexOf("{", index + 1);
-                }
-                // rebuild properties into dictionary
-                Dictionary<string, object> propertydictionary = new Dictionary<string, object>();
-                for (int i = 0; i < values.Length; i++)
-                {
-                    if (i < names.Count)
+                    // rebuild properties into dictionary
+                    Dictionary<string, object> propertyDictionary = new Dictionary<string, object>();
+                    for (int i = 0; i < values.Length; i++)
                     {
-                        propertydictionary.Add(names[i], values[i]);
+                        if (i < names.Count)
+                        {
+                            propertyDictionary.Add(names[i], values[i]);
+                        }
+                        else
+                        {
+                            propertyDictionary.Add("Property" + i.ToString(), values[i]);
+                        }
                     }
-                    else
-                    {
-                        propertydictionary.Add("Property" + i.ToString(), values[i]);
-                    }
+                    properties = JsonSerializer.Serialize(propertyDictionary);
                 }
-                properties = JsonSerializer.Serialize(propertydictionary);
+                log.Message = message;
+                log.Properties = properties;
             }
-            Log.Message = message;
-            Log.Properties = properties;
-            return Log;
+            catch
+            {
+                log.Properties = "";
+            }
+            return log;
         }
     }
 }

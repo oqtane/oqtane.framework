@@ -1,0 +1,81 @@
+﻿@namespace Oqtane.Modules.Admin.SystemInfo
+@inherits ModuleBase
+@inject ISystemService SystemService
+
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <Label For="version" HelpText="Framework Version">Framework Version: </Label>
+        </td>
+        <td>
+            <input id="version" class="form-control" @bind="@_version" readonly />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="runtime" HelpText="Blazor Runtime (Server or WebAssembly)">Blazor Runtime: </Label>
+        </td>
+        <td>
+            <input id="runtime" class="form-control" @bind="@_runtime" readonly />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="clrversion" HelpText="Common Language Runtime Version">CLR Version: </Label>
+        </td>
+        <td>
+            <input id="clrversion" class="form-control" @bind="@_clrversion" readonly />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="osversion" HelpText="Operating System Version">OS Version: </Label>
+        </td>
+        <td>
+            <input id="osversion" class="form-control" @bind="@_osversion" readonly />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="serverpath" HelpText="Server Path">Server Path: </Label>
+        </td>
+        <td>
+            <input id="serverpath" class="form-control" @bind="@_serverpath" readonly />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="servertime" HelpText="Server Time">Server Time: </Label>
+        </td>
+        <td>
+            <input id="servertime" class="form-control" @bind="@_servertime" readonly />
+        </td>
+    </tr>
+</table>
+<a class="btn btn-primary" href="swagger/index.html" target="_new">Access Framework API</a>
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+
+    private string _version = string.Empty;
+    private string _runtime = string.Empty;
+    private string _clrversion = string.Empty;
+    private string _osversion = string.Empty;
+    private string _serverpath = string.Empty;
+    private string _servertime = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _version = Constants.Version;
+        _runtime = PageState.Runtime.ToString();
+
+        Dictionary<string, string> systeminfo = await SystemService.GetSystemInfoAsync();
+        if (systeminfo != null)
+        {
+            _clrversion = systeminfo["clrversion"];
+            _osversion = systeminfo["osversion"];
+            _serverpath = systeminfo["serverpath"];
+            _servertime = systeminfo["servertime"];
+        }
+    }
+}

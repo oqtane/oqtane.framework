@@ -9,21 +9,21 @@ namespace Oqtane.Security
 {
     public class UserSecurity
     {
-        public static List<PermissionString> GetPermissionStrings(string PermissionStrings)
+        public static List<PermissionString> GetPermissionStrings(string permissionStrings)
         {
-            return JsonSerializer.Deserialize<List<PermissionString>>(PermissionStrings);
+            return JsonSerializer.Deserialize<List<PermissionString>>(permissionStrings);
         }
 
-        public static string SetPermissionStrings(List<PermissionString> PermissionStrings)
+        public static string SetPermissionStrings(List<PermissionString> permissionStrings)
         {
-            return JsonSerializer.Serialize(PermissionStrings);
+            return JsonSerializer.Serialize(permissionStrings);
         }
 
-        public static string GetPermissions(string PermissionName, string PermissionStrings)
+        public static string GetPermissions(string permissionName, string permissionStrings)
         {
             string permissions = "";
-            List<PermissionString> permissionstrings = JsonSerializer.Deserialize<List<PermissionString>>(PermissionStrings);
-            PermissionString permissionstring = permissionstrings.Where(item => item.PermissionName == PermissionName).FirstOrDefault();
+            List<PermissionString> permissionstrings = JsonSerializer.Deserialize<List<PermissionString>>(permissionStrings);
+            PermissionString permissionstring = permissionstrings.FirstOrDefault(item => item.PermissionName == permissionName);
             if (permissionstring != null)
             {
                 permissions = permissionstring.Permissions;
@@ -31,68 +31,68 @@ namespace Oqtane.Security
             return permissions;
         }
 
-        public static bool IsAuthorized(User User, string PermissionName, string PermissionStrings)
+        public static bool IsAuthorized(User user, string permissionName, string permissionStrings)
         {
-            return IsAuthorized(User, GetPermissions(PermissionName, PermissionStrings));
+            return IsAuthorized(user, GetPermissions(permissionName, permissionStrings));
         }
 
         // permissions are stored in the format "!rolename1;![userid1];rolename2;rolename3;[userid2];[userid3]" where "!" designates Deny permissions
-        public static bool IsAuthorized(User User, string Permissions)
+        public static bool IsAuthorized(User user, string permissions)
         {
             bool authorized = false;
-            if (Permissions != "")
+            if (permissions != "")
             {
-                if (User == null)
+                if (user == null)
                 {
-                    authorized =  IsAuthorized(-1, "", Permissions); // user is not authenticated but may have access to resource
+                    authorized =  IsAuthorized(-1, "", permissions); // user is not authenticated but may have access to resource
                 }
                 else
                 {
-                    authorized = IsAuthorized(User.UserId, User.Roles, Permissions);
+                    authorized = IsAuthorized(user.UserId, user.Roles, permissions);
                 }
 
             }
             return authorized;
         }
 
-        private static bool IsAuthorized(int UserId, string Roles, string Permissions)
+        private static bool IsAuthorized(int userId, string roles, string permissions)
         {
-            bool IsAuthorized = false;
+            bool isAuthorized = false;
 
-            if (Permissions != null)
+            if (permissions != null)
             {
-                foreach (string permission in Permissions.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (string permission in permissions.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    bool? allowed = VerifyPermission(UserId, Roles, permission);
+                    bool? allowed = VerifyPermission(userId, roles, permission);
                     if (allowed.HasValue)
                     {
-                        IsAuthorized = allowed.Value;
+                        isAuthorized = allowed.Value;
                         break;
                     }
                 }
             }
 
-            return IsAuthorized;
+            return isAuthorized;
         }
 
-        private static bool? VerifyPermission(int UserId, string Roles, string Permission)
+        private static bool? VerifyPermission(int userId, string roles, string permission)
         {
             bool? allowed = null;
             //permissions strings are encoded with deny permissions at the beginning and grant permissions at the end for optimal performance
-            if (!String.IsNullOrEmpty(Permission))
+            if (!String.IsNullOrEmpty(permission))
             {
                 // deny permission
-                if (Permission.StartsWith("!"))
+                if (permission.StartsWith("!"))
                 {
-                    string denyRole = Permission.Replace("!", "");
-                    if (denyRole == Constants.AllUsersRole || IsAllowed(UserId, Roles, denyRole))
+                    string denyRole = permission.Replace("!", "");
+                    if (denyRole == Constants.AllUsersRole || IsAllowed(userId, roles, denyRole))
                     {
                         allowed = false;
                     }
                 }
                 else // grant permission
                 {
-                    if (Permission == Constants.AllUsersRole || IsAllowed(UserId, Roles, Permission))
+                    if (permission == Constants.AllUsersRole || IsAllowed(userId, roles, permission))
                     {
                         allowed = true;
                     }
@@ -101,16 +101,16 @@ namespace Oqtane.Security
             return allowed;
         }
 
-        private static bool IsAllowed(int UserId, string Roles, string Permission)
+        private static bool IsAllowed(int userId, string roles, string permission)
         {
-            if ("[" + UserId + "]" == Permission)
+            if ("[" + userId + "]" == permission)
             {
                 return true;
             }
 
-            if (Roles != null)
+            if (roles != null)
             {
-                return Roles.IndexOf(";" + Permission + ";") != -1;
+                return roles.IndexOf(";" + permission + ";") != -1;
             }
             return false;
         }

@@ -1,40 +1,71 @@
 ﻿@namespace Oqtane.Modules.Admin.Files
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
+@inject IFolderService FolderService
 @inject IFileService FileService
 
-@if (Files == null)
+@if (_files != null)
 {
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <ActionLink Action="Add" Text="Add Files" />
-
-    <Pager Items="@Files">
+    <table class="table table-borderless">
+        <tr>
+            <td>
+                <label  class="control-label">Folder: </label>
+            </td>
+            <td>
+                <select class="form-control" @onchange="(e => FolderChanged(e))">
+                    @foreach (Folder folder in _folders)
+                    {
+                        <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                    }
+                </select>
+            </td>
+            <td>
+                <ActionLink Action="Edit" Text="Edit Folder" Class="btn btn-secondary" Parameters="@($"id=" + _folderId.ToString())" />&nbsp;
+                <ActionLink Action="Edit" Text="Add Folder" Class="btn btn-secondary" />&nbsp;
+                <ActionLink Action="Add" Text="Upload Files" Parameters="@($"id=" + _folderId.ToString())" />
+            </td>
+        </tr>
+    </table>
+    <Pager Items="@_files">
         <Header>
             <th>&nbsp;</th>
             <th>Name</th>
+            <th>Modified</th>
+            <th>Type</th>
+            <th>Size</th>
         </Header>
         <Row>
-            <td><ActionDialog Header="Delete File" Message="@("Are You Sure You Wish To Delete " + context + "?")" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteFile(context))" /></td>
-            <td><a href="@(uri.Scheme + "://" + uri.Authority + "/" + PageState.Site.SiteRootPath + context)" target="_new">@context</a></td>
+            <td><ActionDialog Header="Delete File" Message="@("Are You Sure You Wish To Delete " + context.Name + "?")" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteFile(context))" /></td>
+            <td><a href="@(ContentUrl(context.FileId))" target="_new">@context.Name</a></td>
+            <td>@context.ModifiedOn</td>
+            <td>@context.Extension.ToUpper() File</td>
+            <td>@(context.Size / 1000) KB</td>
         </Row>
     </Pager>
+    @if (_files.Count == 0)
+    {
+        <div class="text-center">No Files Exist In Selected Folder</div>
+    }
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+    private List<Folder> _folders;
+    private int _folderId = -1;
+    private List<File> _files;
 
-    List<string> Files;
-    Uri uri;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override async Task OnParametersSetAsync()
     {
         try
         {
-            Files = await FileService.GetFilesAsync(PageState.Site.SiteRootPath);
-            uri = new Uri(NavigationManager.Uri);
+            _folders = await FolderService.GetFoldersAsync(PageState.Site.SiteId);
+            
+            if (_folderId == -1 && _folders.Count > 0)
+            {
+                _folderId = _folders[0].FolderId;
+                await GetFiles();
+            }
         }
         catch (Exception ex)
         {
@@ -43,19 +74,40 @@ else
         }
     }
 
-    private async Task DeleteFile(string filename)
+    private async Task GetFiles()
+    {
+        _files = await FileService.GetFilesAsync(_folderId);
+    }
+
+    private async void FolderChanged(ChangeEventArgs e)
     {
         try
         {
-            await FileService.DeleteFileAsync(PageState.Site.SiteRootPath, filename);
-            Files = await FileService.GetFilesAsync(PageState.Site.SiteRootPath);
-            await logger.LogInformation("File Deleted {File}", filename);
-            AddModuleMessage("File " + filename + " Deleted", MessageType.Success);
+            _folderId = int.Parse((string)e.Value);
+            await GetFiles();
+            StateHasChanged();
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Deleting File {File} {Error}", filename, ex.Message);
-            AddModuleMessage("Error Deleting File " + filename, MessageType.Error);
+            await logger.LogError(ex, "Error Loading Files {Error}", ex.Message);
+            AddModuleMessage("Error Loading Files", MessageType.Error);
+        }
+    }
+
+    private async Task DeleteFile(File file)
+    {
+        try
+        {
+            await FileService.DeleteFileAsync(file.FileId);
+            await logger.LogInformation("File Deleted {File}", file.Name);
+            AddModuleMessage("File " + file.Name + " Deleted", MessageType.Success);
+            await GetFiles();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting File {File} {Error}", file.Name, ex.Message);
+            AddModuleMessage("Error Deleting File " + file.Name, MessageType.Error);
         }
     }
 }

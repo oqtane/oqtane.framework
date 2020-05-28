@@ -3,9 +3,12 @@
 
 <main role="main">
     <nav class="navbar navbar-expand-md navbar-dark bg-primary fixed-top">
-        <Logo /><Menu Orientation="Horizontal" /><div class="ml-md-auto"><UserProfile /> <Login /> <ControlPanel ButtonClass="btn-outline-secondary" CardClass="bg-light" /></div>
+        <Logo /><Menu Orientation="Horizontal" />
+        <div class="controls ml-md-auto">
+            <div class="controls-group"><UserProfile /> <Login /> <ControlPanel /></div>
+        </div>
     </nav>
-    <div class="container">
+    <div class="content container">
         <PaneLayout />
         <div class="row px-4">
             <Pane Name="Admin" />
@@ -14,10 +17,14 @@
 </main>
 
 @code {
-    public override string Panes { get { return ""; } }
+    public override string Panes => string.Empty;
 
-    protected override async Task OnParametersSetAsync()
+    public override List<Resource> Resources => new List<Resource>()
     {
-        await IncludeCSS("Theme.css");
-    }
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = ThemePath() + "BootswatchCyborg.css" },
+        // remote stylesheets can be linked using the format below, however we want the default theme to display properly in local development scenarios where an Internet connection is not available
+        //new Resource { ResourceType = ResourceType.Stylesheet, Url = "https://stackpath.bootstrapcdn.com/bootswatch/4.4.1/cyborg/bootstrap.min.css", Integrity = "sha384-l7xaoY0cJM4h9xh1RfazbgJVUZvdtyLWPueWNtLAphf/UbBgOVzqbOTogxPwYLHM", CrossOrigin = "anonymous" },
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = ThemePath() + "Theme.css" }
+    };
+
 }

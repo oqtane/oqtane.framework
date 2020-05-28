@@ -1,0 +1,19 @@
+﻿@namespace Oqtane.Modules.Admin.Error
+@inherits ModuleBase
+@inject IModuleService ModuleService
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Module module = await ModuleService.GetModuleAsync(ModuleState.ModuleId);
+        if (UserSecurity.IsAuthorized(PageState.User, Constants.HostRole))
+        {
+            string message = "A Problem Was Encountered Loading Module " + module.ModuleDefinitionName;
+            AddModuleMessage(message, MessageType.Error);
+        }
+        
+        await logger.LogCritical("Error Loading Module {Module}", module);
+    }
+}

@@ -1,8 +1,12 @@
 ﻿@namespace Oqtane.Modules.Controls
 
-<img src="@src" title="@title" disabled=@Disabled @onclick="SetValue" />
+<img src="@_src" title="@_title" @onclick="SetValue" />
 
 @code {
+    private bool? _value = null;
+    private string _title;
+    private string _src = string.Empty;
+
     [Parameter]
     public bool? Value { get; set; }
 
@@ -12,51 +16,52 @@
     [Parameter]
     public Action<bool?> OnChange { get; set; }
 
-    bool? value = null;
-    string title;
-    string src = "";
-
     protected override void OnInitialized()
     {
-        value = Value;
+        _value = Value;
         SetImage();
     }
 
     private void SetValue()
     {
-        switch (value)
+        if (!Disabled)
         {
-            case true:
-                value = false;
-                break;
-            case false:
-                value = null;
-                break;
-            case null:
-                value = true;
-                break;
+            switch (_value)
+            {
+                case true:
+                    _value = false;
+                    break;
+                case false:
+                    _value = null;
+                    break;
+                case null:
+                    _value = true;
+                    break;
+            }
+            
+            SetImage();
+            OnChange(_value);
         }
-        SetImage();
-        OnChange(value);
     }
 
     private void SetImage()
     {
-        switch (value)
+        switch (_value)
         {
             case true:
-                src = "images/checked.png";
-                title = "Permission Granted";
+                _src = "images/checked.png";
+                _title = "Permission Granted";
                 break;
             case false:
-                src = "images/unchecked.png";
-                title = "Permission Denied";
+                _src = "images/unchecked.png";
+                _title = "Permission Denied";
                 break;
             case null:
-                src = "images/null.png";
-                title = "";
+                _src = "images/null.png";
+                _title = string.Empty;
                 break;
         }
+
         StateHasChanged();
     }
 }

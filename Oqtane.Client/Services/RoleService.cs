@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Linq;
-using Microsoft.AspNetCore.Components;
 using System.Collections.Generic;
 using Oqtane.Shared;
 
@@ -10,51 +9,40 @@ namespace Oqtane.Services
 {
     public class RoleService : ServiceBase, IRoleService
     {
-        private readonly HttpClient http;
-        private readonly SiteState sitestate;
-        private readonly NavigationManager NavigationManager;
+        
+        private readonly SiteState _siteState;
 
-        public RoleService(HttpClient http, SiteState sitestate, NavigationManager NavigationManager)
+        public RoleService(HttpClient http, SiteState siteState) : base(http)
         {
-            this.http = http;
-            this.sitestate = sitestate;
-            this.NavigationManager = NavigationManager;
+            
+            _siteState = siteState;
         }
 
-        private string apiurl
+        private string Apiurl => CreateApiUrl(_siteState.Alias, "Role");
+
+        public async Task<List<Role>> GetRolesAsync(int siteId)
         {
-            get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "Role"); }
+            List<Role> roles = await GetJsonAsync<List<Role>>($"{Apiurl}?siteid={siteId}");
+            return roles.OrderBy(item => item.Name).ToList();
         }
 
-        public async Task<List<Role>> GetRolesAsync()
+        public async Task<Role> GetRoleAsync(int roleId)
         {
-            List<Role> Roles = await http.GetJsonAsync<List<Role>>(apiurl);
-            return Roles.OrderBy(item => item.Name).ToList();
+            return await GetJsonAsync<Role>($"{Apiurl}/{roleId}");
         }
 
-        public async Task<List<Role>> GetRolesAsync(int SiteId)
+        public async Task<Role> AddRoleAsync(Role role)
         {
-            List<Role> Roles = await http.GetJsonAsync<List<Role>>(apiurl + "?siteid=" + SiteId.ToString());
-            return Roles.OrderBy(item => item.Name).ToList();
+            return await PostJsonAsync<Role>(Apiurl, role);
         }
 
-        public async Task<Role> GetRoleAsync(int RoleId)
+        public async Task<Role> UpdateRoleAsync(Role role)
         {
-            return await http.GetJsonAsync<Role>(apiurl + "/" + RoleId.ToString());
+            return await PutJsonAsync<Role>($"{Apiurl}/{role.RoleId}", role);
         }
-
-        public async Task<Role> AddRoleAsync(Role Role)
+        public async Task DeleteRoleAsync(int roleId)
         {
-            return await http.PostJsonAsync<Role>(apiurl, Role);
-        }
-
-        public async Task<Role> UpdateRoleAsync(Role Role)
-        {
-            return await http.PutJsonAsync<Role>(apiurl + "/" + Role.RoleId.ToString(), Role);
-        }
-        public async Task DeleteRoleAsync(int RoleId)
-        {
-            await http.DeleteAsync(apiurl + "/" + RoleId.ToString());
+            await DeleteAsync($"{Apiurl}/{roleId}");
         }
     }
 }

@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>[Owner].[Module]s</id>
+    <version>1.0.0</version>
+    <authors>[Owner]</authors>
+    <owners>[Owner]</owners>
+    <title>[Module]s</title>
+    <description>[Module]s</description>
+    <copyright>[Owner]</copyright>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
+    <iconUrl>https://www.oqtane.org/Portals/0/icon.jpg</iconUrl>
+    <tags>oqtane module</tags>
+    <releaseNotes></releaseNotes>
+    <summary></summary>
+    <dependencies>
+      <dependency id="Oqtane.Framework" version="[FrameworkVersion]" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\Client\bin\Release\netstandard2.1\[Owner].[Module]s.Client.Oqtane.dll" target="lib\netstandard2.1" /> 
+    <file src="..\Client\bin\Release\netstandard2.1\[Owner].[Module]s.Client.Oqtane.pdb" target="lib\netstandard2.1" /> 
+    <file src="..\Server\bin\Release\netcoreapp3.1\[Owner].[Module]s.Server.Oqtane.dll" target="lib\netcoreapp3.1" /> 
+    <file src="..\Server\bin\Release\netcoreapp3.1\[Owner].[Module]s.Server.Oqtane.pdb" target="lib\netcoreapp3.1" /> 
+    <file src="..\Shared\bin\Release\netstandard2.1\[Owner].[Module]s.Shared.Oqtane.dll" target="lib\netstandard2.1" /> 
+    <file src="..\Shared\bin\Release\netstandard2.1\[Owner].[Module]s.Shared.Oqtane.pdb" target="lib\netstandard2.1" /> 
+    <file src="..\Server\wwwroot\**\*.*" target="wwwroot" /> 
+  </files>
+</package>

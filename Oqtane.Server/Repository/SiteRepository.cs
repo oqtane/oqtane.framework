@@ -1,180 +1,745 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using Oqtane.Models;
-using Oqtane.Shared;
-using System;
-using System.Reflection;
-using Oqtane.Modules;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Oqtane.Extensions;
+using Oqtane.Infrastructure;
+using Oqtane.Models;
+using Oqtane.Modules;
+using Oqtane.Shared;
+using Module = Oqtane.Models.Module;
 
 namespace Oqtane.Repository
 {
     public class SiteRepository : ISiteRepository
     {
-        private readonly TenantDBContext db;
-        private readonly IRoleRepository RoleRepository;
-        private readonly IProfileRepository ProfileRepository;
-        private readonly IPageRepository PageRepository;
-        private readonly IModuleRepository ModuleRepository;
-        private readonly IPageModuleRepository PageModuleRepository;
-        private readonly IModuleDefinitionRepository ModuleDefinitionRepository;
-        private readonly IServiceProvider ServiceProvider;
-        private readonly List<PageTemplate> SiteTemplate;
+        private readonly TenantDBContext _db;
+        private readonly IRoleRepository _roleRepository;
+        private readonly IProfileRepository _profileRepository;
+        private readonly IFolderRepository _folderRepository;
+        private readonly IPageRepository _pageRepository;
+        private readonly IModuleRepository _moduleRepository;
+        private readonly IPageModuleRepository _pageModuleRepository;
+        private readonly IModuleDefinitionRepository _moduleDefinitionRepository;
 
-        public SiteRepository(TenantDBContext context, IRoleRepository RoleRepository, IProfileRepository ProfileRepository, IPageRepository PageRepository, IModuleRepository ModuleRepository, IPageModuleRepository PageModuleRepository, IModuleDefinitionRepository ModuleDefinitionRepository, IServiceProvider ServiceProvider)
+        private readonly IServiceProvider _serviceProvider;
+
+        private readonly IConfigurationRoot _config;
+
+        public SiteRepository(TenantDBContext context, IRoleRepository roleRepository, IProfileRepository profileRepository, IFolderRepository folderRepository, IPageRepository pageRepository,
+            IModuleRepository moduleRepository, IPageModuleRepository pageModuleRepository, IModuleDefinitionRepository moduleDefinitionRepository, IServiceProvider serviceProvider,
+            IConfigurationRoot config)
         {
-            db = context;
-            this.RoleRepository = RoleRepository;
-            this.ProfileRepository = ProfileRepository;
-            this.PageRepository = PageRepository;
-            this.ModuleRepository = ModuleRepository;
-            this.PageModuleRepository = PageModuleRepository;
-            this.ModuleDefinitionRepository = ModuleDefinitionRepository;
-            this.ServiceProvider = ServiceProvider;
+            _db = context;
+            _roleRepository = roleRepository;
+            _profileRepository = profileRepository;
+            _folderRepository = folderRepository;
+            _pageRepository = pageRepository;
+            _moduleRepository = moduleRepository;
+            _pageModuleRepository = pageModuleRepository;
+            _moduleDefinitionRepository = moduleDefinitionRepository;
+            _serviceProvider = serviceProvider;
+            _config = config;
+        }
 
-            // define the default site template
-            SiteTemplate = new List<PageTemplate>();
-            SiteTemplate.Add(new PageTemplate { Name = "Home", Parent = "", Path = "", Icon = "home", IsNavigation = true, IsPersonalizable = false, EditMode = false, PagePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"All Users;Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", PageTemplateModules = new List<PageTemplateModule> {
-                new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Welcome To Oqtane...", Pane = "Content", ModulePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"All Users;Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]",  
-                    Content = "<p><a href=\"https://www.oqtane.org\" target=\"_new\">Oqtane</a> is an open source <b>modular application framework</b> built from the ground up using modern .NET Core technology. It leverages the revolutionary new Blazor component model to create a <b>fully dynamic</b> web development experience which can be executed on a client or server. Whether you are looking for a platform to <b>accelerate your web development</b> efforts, or simply interested in exploring the anatomy of a large-scale Blazor application, Oqtane provides a solid foundation based on proven enterprise architectural principles.</p>" +
-                    "<p align=\"center\"><a href=\"https://www.oqtane.org\" target=\"_new\"><img src=\"oqtane.png\"></a><br /><br /><a class=\"btn btn-primary\" href=\"https://www.oqtane.org/Community\" target=\"_new\">Join Our Community</a>&nbsp;&nbsp;<a class=\"btn btn-primary\" href=\"https://github.com/oqtane/oqtane.framework\" target=\"_new\">Clone Our Repo</a><br /><br /></p>" +
-                    "<p><a href=\"https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor\" target=\"_new\">Blazor</a> is a single-page app framework that lets you build interactive web applications using C# instead of JavaScript. Client-side Blazor relies on WebAssembly, an open web standard that does not require plugins or code transpilation in order to run natively in a web browser. Server-side Blazor uses SignalR to host your application on a web server and provide a responsive and robust debugging experience. Blazor applications works in all modern web browsers, including mobile browsers.</p>" +
-                    "<p>Blazor is a feature of <a href=\"https://dotnet.microsoft.com/apps/aspnet\" target=\"_new\">ASP.NET Core 3.0</a>, the popular cross platform web development framework from Microsoft that extends the <a href=\"https://dotnet.microsoft.com/learn/dotnet/what-is-dotnet\" target=\"_new\" >.NET developer platform</a> with tools and libraries for building web apps.</p>"
-                },
-                new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "MIT License", Pane = "Content", ModulePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"All Users;Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]",  
-                    Content = "<p>Copyright (c) 2019 .NET Foundation</p>" +
-                    "<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>" +
-                    "<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>" +
-                    "<p>THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>"
+        private List<PageTemplate> CreateAdminPages(List<PageTemplate> pageTemplates = null)
+        {
+            if (pageTemplates == null) pageTemplates = new List<PageTemplate>();
+
+            // user pages
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Login",
+                Parent = "",
+                Path = "login",
+                Icon = Icons.LockLocked,
+                IsNavigation = false,
+                IsPersonalizable = false,
+                EditMode = false,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, Constants.AdminRole, true),
+                    new Permission(PermissionNames.View, Constants.AllUsersRole, true),
+                    new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Login.Index).ToModuleDefinitionName(), Title = "User Login", Pane = "Content",
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, Constants.AdminRole, true),
+                            new Permission(PermissionNames.View, Constants.AllUsersRole, true),
+                            new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
                 }
-            }
-            }); 
-            SiteTemplate.Add(new PageTemplate { Name = "My Page", Parent = "", Path = "portal", Icon = "target", IsNavigation = true, IsPersonalizable = true, EditMode = false, PagePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"All Users;Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", PageTemplateModules = new List<PageTemplateModule> {
-                new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "My Page", Pane = "Content", ModulePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"All Users;Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]",  
-                    Content = "<p>Oqtane offers native support for user personalized pages. If a page is identified as personalizable by the site administrator in the page settings, when an authenticated user visits the page they will see an edit button at the top right corner of the page next to their username. When they click this button the sytem will create a new version of the page and allow them to edit the page content.</p>"
+            });
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Register",
+                Parent = "",
+                Path = "register",
+                Icon = Icons.Person,
+                IsNavigation = false,
+                IsPersonalizable = false,
+                EditMode = false,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, Constants.AdminRole, true),
+                    new Permission(PermissionNames.View, Constants.AllUsersRole, true),
+                    new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Register.Index).ToModuleDefinitionName(), Title = "User Registration", Pane = "Content",
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, Constants.AdminRole, true),
+                            new Permission(PermissionNames.View, Constants.AllUsersRole, true),
+                            new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
                 }
-            }
-            }); 
-            SiteTemplate.Add(new PageTemplate { Name = "Admin", Parent = "", Path = "admin", Icon = "", IsNavigation = false, IsPersonalizable = false, EditMode = true, PagePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", PageTemplateModules = new List<PageTemplateModule> {
-                new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.Dashboard, Oqtane.Client", Title = "Admin Dashboard", Pane = "Content", ModulePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", Content = "" }
-            }});
-            SiteTemplate.Add(new PageTemplate { Name = "Site Management", Parent = "Admin", Path = "admin/sites", Icon = "globe", IsNavigation = false, IsPersonalizable = false, EditMode = true, PagePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", PageTemplateModules = new List<PageTemplateModule> {
-                new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.Sites, Oqtane.Client", Title = "Site Management", Pane = "Content", ModulePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", Content = "" }
-            }});
-            SiteTemplate.Add(new PageTemplate { Name = "Page Management", Parent = "Admin", Path = "admin/pages", Icon = "layers", IsNavigation = false, IsPersonalizable = false, EditMode = true, PagePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", PageTemplateModules = new List<PageTemplateModule> {
-                new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.Pages, Oqtane.Client", Title = "Page Management", Pane = "Content", ModulePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", Content = "" }
-            }});
-            SiteTemplate.Add(new PageTemplate { Name = "User Management", Parent = "Admin", Path = "admin/users", Icon = "people", IsNavigation = false, IsPersonalizable = false, EditMode = true, PagePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", PageTemplateModules = new List<PageTemplateModule> {
-                new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.Users, Oqtane.Client", Title = "User Management", Pane = "Content", ModulePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", Content = "" }
-            }});
-            SiteTemplate.Add(new PageTemplate { Name = "Profile Management", Parent = "Admin", Path = "admin/profiles", Icon = "person", IsNavigation = false, IsPersonalizable = false, EditMode = true, PagePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", PageTemplateModules = new List<PageTemplateModule> {
-                new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.Profiles, Oqtane.Client", Title = "Profile Management", Pane = "Content", ModulePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", Content = "" }
-            }});
-            SiteTemplate.Add(new PageTemplate { Name = "Role Management", Parent = "Admin", Path = "admin/roles", Icon = "lock-locked", IsNavigation = false, IsPersonalizable = false, EditMode = true, PagePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", PageTemplateModules = new List<PageTemplateModule> {
-                new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.Roles, Oqtane.Client", Title = "Role Management", Pane = "Content", ModulePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", Content = "" }
-            }});
-            SiteTemplate.Add(new PageTemplate { Name = "Event Log", Parent = "Admin", Path = "admin/log", Icon = "magnifying-glass", IsNavigation = false, IsPersonalizable = false, EditMode = true, PagePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", PageTemplateModules = new List<PageTemplateModule> {
-                new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.Logs, Oqtane.Client", Title = "Event Log", Pane = "Content", ModulePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", Content = "" }
-            }});
-            SiteTemplate.Add(new PageTemplate { Name = "File Management", Parent = "Admin", Path = "admin/files", Icon = "file", IsNavigation = false, IsPersonalizable = false, EditMode = true, PagePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", PageTemplateModules = new List<PageTemplateModule> {
-                new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.Files, Oqtane.Client", Title = "File Management", Pane = "Content", ModulePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", Content = "" }
-            }});
-            SiteTemplate.Add(new PageTemplate { Name = "Recycle Bin", Parent = "Admin", Path = "admin/recyclebin", Icon = "trash", IsNavigation = false, IsPersonalizable = false, EditMode = true, PagePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", PageTemplateModules = new List<PageTemplateModule> {
-                new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.RecycleBin, Oqtane.Client", Title = "Recycle Bin", Pane = "Content", ModulePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", Content = "" }
-            }});
-            SiteTemplate.Add(new PageTemplate { Name = "Tenant Management", Parent = "Admin", Path = "admin/tenants", Icon = "list", IsNavigation = false, IsPersonalizable = false, EditMode = true, PagePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", PageTemplateModules = new List<PageTemplateModule> {
-                new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.Tenants, Oqtane.Client", Title = "Tenant Management", Pane = "Content", ModulePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", Content = "" }
-            }});
-            SiteTemplate.Add(new PageTemplate { Name = "Module Management", Parent = "Admin", Path = "admin/modules", Icon = "browser", IsNavigation = false, IsPersonalizable = false, EditMode = true, PagePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", PageTemplateModules = new List<PageTemplateModule> {
-                new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.ModuleDefinitions, Oqtane.Client", Title = "Module Management", Pane = "Content", ModulePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", Content = "" }
-            }});
-            SiteTemplate.Add(new PageTemplate { Name = "Theme Management", Parent = "Admin", Path = "admin/themes", Icon = "brush", IsNavigation = false, IsPersonalizable = false, EditMode = true, PagePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", PageTemplateModules = new List<PageTemplateModule> {
-                new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.Themes, Oqtane.Client", Title = "Theme Management", Pane = "Content", ModulePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", Content = "" }
-            }});
-            SiteTemplate.Add(new PageTemplate { Name = "Scheduled Jobs", Parent = "Admin", Path = "admin/jobs", Icon = "timer", IsNavigation = false, IsPersonalizable = false, EditMode = true, PagePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", PageTemplateModules = new List<PageTemplateModule> {
-                new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.Jobs, Oqtane.Client", Title = "Scheduled Jobs", Pane = "Content", ModulePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", Content = "" }
-            }});
-            SiteTemplate.Add(new PageTemplate { Name = "Upgrade Service", Parent = "Admin", Path = "admin/upgrade", Icon = "aperture", IsNavigation = false, IsPersonalizable = false, EditMode = true, PagePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", PageTemplateModules = new List<PageTemplateModule> {
-                new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.Upgrade, Oqtane.Client", Title = "Upgrade Service", Pane = "Content", ModulePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", Content = "" }
-            }});
-            SiteTemplate.Add(new PageTemplate { Name = "Login", Parent = "", Path = "login", Icon = "lock-locked", IsNavigation = false, IsPersonalizable = false, EditMode = false, PagePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"All Users;Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", PageTemplateModules = new List<PageTemplateModule> {
-                new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.Login, Oqtane.Client", Title = "User Login", Pane = "Content", ModulePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"All Users;Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", Content = "" }
-            }});
-            SiteTemplate.Add(new PageTemplate { Name = "Register", Parent = "", Path = "register", Icon = "person", IsNavigation = false, IsPersonalizable = false, EditMode = false, PagePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"All Users;Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", PageTemplateModules = new List<PageTemplateModule> {
-                new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.Register, Oqtane.Client", Title = "User Registration", Pane = "Content", ModulePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"All Users;Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", Content = "" }
-            }});
-            SiteTemplate.Add(new PageTemplate { Name = "Reset", Parent = "", Path = "reset", Icon = "person", IsNavigation = false, IsPersonalizable = false, EditMode = false, PagePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"All Users;Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", PageTemplateModules = new List<PageTemplateModule> {
-                new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.Reset, Oqtane.Client", Title = "Password Reset", Pane = "Content", ModulePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"All Users;Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", Content = "" }
-            }});
-            SiteTemplate.Add(new PageTemplate { Name = "Profile", Parent = "", Path = "profile", Icon = "person", IsNavigation = false, IsPersonalizable = false, EditMode = false, PagePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"All Users;Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", PageTemplateModules = new List<PageTemplateModule> {
-                new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.UserProfile, Oqtane.Client", Title = "User Profile", Pane = "Content", ModulePermissions = "[{\"PermissionName\":\"View\",\"Permissions\":\"All Users;Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]", Content = "" }
-            }});
+            });
+
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Reset",
+                Parent = "",
+                Path = "reset",
+                Icon = Icons.Person,
+                IsNavigation = false,
+                IsPersonalizable = false,
+                EditMode = false,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, Constants.AdminRole, true),
+                    new Permission(PermissionNames.View, Constants.AllUsersRole, true),
+                    new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Reset.Index).ToModuleDefinitionName(), Title = "Password Reset", Pane = "Content",
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, Constants.AdminRole, true),
+                            new Permission(PermissionNames.View, Constants.AllUsersRole, true),
+                            new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            });
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Profile",
+                Parent = "",
+                Path = "profile",
+                Icon = Icons.Person,
+                IsNavigation = false,
+                IsPersonalizable = false,
+                EditMode = false,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, Constants.AdminRole, true),
+                    new Permission(PermissionNames.View, Constants.RegisteredRole, true),
+                    new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.UserProfile.Index).ToModuleDefinitionName(), Title = "User Profile", Pane = "Content",
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, Constants.AdminRole, true),
+                            new Permission(PermissionNames.View, Constants.RegisteredRole, true),
+                            new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            });
+            
+            // admin pages
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Admin", Parent = "", Path = "admin", Icon = "", IsNavigation = false, IsPersonalizable = false, EditMode = true,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, Constants.AdminRole, true),
+                    new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Dashboard.Index).ToModuleDefinitionName(), Title = "Admin Dashboard", Pane = "Content",
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, Constants.AdminRole, true),
+                            new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            });
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Site Settings",
+                Parent = "Admin",
+                Path = "admin/site",
+                Icon = Icons.Home,
+                IsNavigation = false,
+                IsPersonalizable = false,
+                EditMode = true,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, Constants.AdminRole, true),
+                    new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Site.Index).ToModuleDefinitionName(), Title = "Site Settings", Pane = "Content",
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, Constants.AdminRole, true),
+                            new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            });
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Page Management",
+                Parent = "Admin",
+                Path = "admin/pages",
+                Icon = Icons.Layers,
+                IsNavigation = false,
+                IsPersonalizable = false,
+                EditMode = true,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, Constants.AdminRole, true),
+                    new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Pages.Index).ToModuleDefinitionName(), Title = "Page Management", Pane = "Content",
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, Constants.AdminRole, true),
+                            new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            });
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "User Management",
+                Parent = "Admin",
+                Path = "admin/users",
+                Icon = Icons.People,
+                IsNavigation = false,
+                IsPersonalizable = false,
+                EditMode = true,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, Constants.AdminRole, true),
+                    new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Users.Index).ToModuleDefinitionName(), Title = "User Management", Pane = "Content",
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, Constants.AdminRole, true),
+                            new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            });
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Profile Management",
+                Parent = "Admin",
+                Path = "admin/profiles",
+                Icon = Icons.Person,
+                IsNavigation = false,
+                IsPersonalizable = false,
+                EditMode = true,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, Constants.AdminRole, true),
+                    new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Profiles.Index).ToModuleDefinitionName(), Title = "Profile Management", Pane = "Content",
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, Constants.AdminRole, true),
+                            new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            });
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Role Management",
+                Parent = "Admin",
+                Path = "admin/roles",
+                Icon = Icons.LockLocked,
+                IsNavigation = false,
+                IsPersonalizable = false,
+                EditMode = true,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, Constants.AdminRole, true),
+                    new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Roles.Index).ToModuleDefinitionName(), Title = "Role Management", Pane = "Content",
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, Constants.AdminRole, true),
+                            new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            });
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "File Management",
+                Parent = "Admin",
+                Path = "admin/files",
+                Icon = Icons.File,
+                IsNavigation = false,
+                IsPersonalizable = false,
+                EditMode = true,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, Constants.AdminRole, true),
+                    new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Files.Index).ToModuleDefinitionName(), Title = "File Management", Pane = "Content",
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, Constants.AdminRole, true),
+                            new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            });
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Recycle Bin",
+                Parent = "Admin",
+                Path = "admin/recyclebin",
+                Icon = Icons.Trash,
+                IsNavigation = false,
+                IsPersonalizable = false,
+                EditMode = true,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, Constants.AdminRole, true),
+                    new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.RecycleBin.Index).ToModuleDefinitionName(), Title = "Recycle Bin", Pane = "Content",
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, Constants.AdminRole, true),
+                            new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            });
+
+            // host pages
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Event Log",
+                Parent = "Admin",
+                Path = "admin/log",
+                Icon = Icons.MagnifyingGlass,
+                IsNavigation = false,
+                IsPersonalizable = false,
+                EditMode = true,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, Constants.HostRole, true),
+                    new Permission(PermissionNames.Edit, Constants.HostRole, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Logs.Index).ToModuleDefinitionName(), Title = "Event Log", Pane = "Content",
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, Constants.HostRole, true),
+                            new Permission(PermissionNames.Edit, Constants.HostRole, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            }); pageTemplates.Add(new PageTemplate
+            {
+                Name = "Tenant Management",
+                Parent = "Admin",
+                Path = "admin/tenants",
+                Icon = Icons.List,
+                IsNavigation = false,
+                IsPersonalizable = false,
+                EditMode = true,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, Constants.HostRole, true),
+                    new Permission(PermissionNames.Edit, Constants.HostRole, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Tenants.Index).ToModuleDefinitionName(), Title = "Tenant Management", Pane = "Content",
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, Constants.HostRole, true),
+                            new Permission(PermissionNames.Edit, Constants.HostRole, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            });
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Site Management", Parent = "Admin", Path = "admin/sites", Icon = Icons.Globe, IsNavigation = false, IsPersonalizable = false, EditMode = true,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, Constants.HostRole, true),
+                    new Permission(PermissionNames.Edit, Constants.HostRole, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Sites.Index).ToModuleDefinitionName(), Title = "Site Management", Pane = "Content",
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, Constants.HostRole, true),
+                            new Permission(PermissionNames.Edit, Constants.HostRole, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            });
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Module Management", Parent = "Admin", Path = "admin/modules", Icon = Icons.Browser, IsNavigation = false, IsPersonalizable = false, EditMode = true,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, Constants.HostRole, true),
+                    new Permission(PermissionNames.Edit, Constants.HostRole, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.ModuleDefinitions.Index).ToModuleDefinitionName(), Title = "Module Management", Pane = "Content",
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, Constants.HostRole, true),
+                            new Permission(PermissionNames.Edit, Constants.HostRole, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            });
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Theme Management", Parent = "Admin", Path = "admin/themes", Icon = Icons.Brush, IsNavigation = false, IsPersonalizable = false, EditMode = true,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, Constants.HostRole, true),
+                    new Permission(PermissionNames.Edit, Constants.HostRole, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Themes.Index).ToModuleDefinitionName(), Title = "Theme Management", Pane = "Content",
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, Constants.HostRole, true),
+                            new Permission(PermissionNames.Edit, Constants.HostRole, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            });
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Scheduled Jobs", Parent = "Admin", Path = "admin/jobs", Icon = Icons.Timer, IsNavigation = false, IsPersonalizable = false, EditMode = true,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, Constants.HostRole, true),
+                    new Permission(PermissionNames.Edit, Constants.HostRole, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Jobs.Index).ToModuleDefinitionName(), Title = "Scheduled Jobs", Pane = "Content",
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, Constants.HostRole, true),
+                            new Permission(PermissionNames.Edit, Constants.HostRole, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            });
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Sql Management",
+                Parent = "Admin",
+                Path = "admin/sql",
+                Icon = "spreadsheet",
+                IsNavigation = false,
+                IsPersonalizable = false,
+                EditMode = true,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, Constants.HostRole, true),
+                    new Permission(PermissionNames.Edit, Constants.HostRole, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Sql.Index).ToModuleDefinitionName(), Title = "Sql Management", Pane = "Content",
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, Constants.HostRole, true),
+                            new Permission(PermissionNames.Edit, Constants.HostRole, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            });
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "System Info",
+                Parent = "Admin",
+                Path = "admin/system",
+                Icon = "medical-cross",
+                IsNavigation = false,
+                IsPersonalizable = false,
+                EditMode = true,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, Constants.HostRole, true),
+                    new Permission(PermissionNames.Edit, Constants.HostRole, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.SystemInfo.Index).ToModuleDefinitionName(), Title = "System Info", Pane = "Content",
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, Constants.HostRole, true),
+                            new Permission(PermissionNames.Edit, Constants.HostRole, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            });
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "System Update", Parent = "Admin", Path = "admin/update", Icon = Icons.Aperture, IsNavigation = false, IsPersonalizable = false, EditMode = true,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, Constants.HostRole, true),
+                    new Permission(PermissionNames.Edit, Constants.HostRole, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Upgrade.Index).ToModuleDefinitionName(), Title = "System Update", Pane = "Content",
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, Constants.HostRole, true),
+                            new Permission(PermissionNames.Edit, Constants.HostRole, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            });
+
+            return pageTemplates;
         }
 
         public IEnumerable<Site> GetSites()
         {
-            return db.Site;
+            return _db.Site;
         }
 
-        public Site AddSite(Site Site)
+        public Site AddSite(Site site)
         {
-            db.Site.Add(Site);
-            db.SaveChanges();
-            CreateSite(Site);
-            return Site;
+            
+            _db.Site.Add(site);
+            _db.SaveChanges();
+            CreateSite(site);
+            return site;
         }
 
-        public Site UpdateSite(Site Site)
+        public Site UpdateSite(Site site)
         {
-            db.Entry(Site).State = EntityState.Modified;
-            db.SaveChanges();
-            return Site;
+            _db.Entry(site).State = EntityState.Modified;
+            _db.SaveChanges();
+            return site;
         }
 
         public Site GetSite(int siteId)
         {
-            return db.Site.Find(siteId);
+            return _db.Site.Find(siteId);
         }
 
         public void DeleteSite(int siteId)
         {
-            Site site = db.Site.Find(siteId);
-            db.Site.Remove(site);
-            db.SaveChanges();
+            var site = _db.Site.Find(siteId);
+            _db.Site.Remove(site);
+            _db.SaveChanges();
         }
 
         private void CreateSite(Site site)
         {
-            List<Role> roles = RoleRepository.GetRoles(site.SiteId, true).ToList();
+            // create default entities for site
+            List<Role> roles = _roleRepository.GetRoles(site.SiteId, true).ToList();
             if (!roles.Where(item => item.Name == Constants.AllUsersRole).Any())
             {
-                RoleRepository.AddRole(new Role { SiteId = null, Name = Constants.AllUsersRole, Description = "All Users", IsAutoAssigned = false, IsSystem = true });
+                _roleRepository.AddRole(new Role {SiteId = null, Name = Constants.AllUsersRole, Description = "All Users", IsAutoAssigned = false, IsSystem = true});
             }
+
             if (!roles.Where(item => item.Name == Constants.HostRole).Any())
             {
-                RoleRepository.AddRole(new Role { SiteId = null, Name = Constants.HostRole, Description = "Application Administrators", IsAutoAssigned = false, IsSystem = true });
+                _roleRepository.AddRole(new Role {SiteId = null, Name = Constants.HostRole, Description = "Application Administrators", IsAutoAssigned = false, IsSystem = true});
             }
 
-            RoleRepository.AddRole(new Role { SiteId = site.SiteId, Name = Constants.RegisteredRole, Description = "Registered Users", IsAutoAssigned = true, IsSystem = true });
-            RoleRepository.AddRole(new Role { SiteId = site.SiteId, Name = Constants.AdminRole, Description = "Site Administrators", IsAutoAssigned = false, IsSystem = true });
+            _roleRepository.AddRole(new Role {SiteId = site.SiteId, Name = Constants.RegisteredRole, Description = "Registered Users", IsAutoAssigned = true, IsSystem = true});
+            _roleRepository.AddRole(new Role {SiteId = site.SiteId, Name = Constants.AdminRole, Description = "Site Administrators", IsAutoAssigned = false, IsSystem = true});
 
-            ProfileRepository.AddProfile(new Profile { SiteId = site.SiteId, Name = "FirstName", Title = "First Name", Description = "Your First Or Given Name", Category = "Name", ViewOrder = 1, MaxLength = 50, DefaultValue = "", IsRequired = true, IsPrivate = false });
-            ProfileRepository.AddProfile(new Profile { SiteId = site.SiteId, Name = "LastName", Title = "Last Name", Description = "Your Last Or Family Name", Category = "Name", ViewOrder =  2, MaxLength = 50, DefaultValue = "", IsRequired = true, IsPrivate = false });
-            ProfileRepository.AddProfile(new Profile { SiteId = site.SiteId, Name = "Street", Title = "Street", Description = "Street Or Building Address", Category = "Address", ViewOrder = 3, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false });
-            ProfileRepository.AddProfile(new Profile { SiteId = site.SiteId, Name = "City", Title = "City", Description = "City", Category = "Address", ViewOrder = 4, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false }); 
-            ProfileRepository.AddProfile(new Profile { SiteId = site.SiteId, Name = "Region", Title = "Region", Description = "State Or Province", Category = "Address", ViewOrder = 5, MaxLength = 50, DefaultValue = "", IsRequired  = false, IsPrivate = false });
-            ProfileRepository.AddProfile(new Profile { SiteId = site.SiteId, Name = "Country", Title = "Country", Description = "Country", Category = "Address", ViewOrder = 6, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false });
-            ProfileRepository.AddProfile(new Profile { SiteId = site.SiteId, Name = "PostalCode", Title = "Postal Code", Description = "Postal Code Or Zip Code", Category = "Address", ViewOrder = 7, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false });
-            ProfileRepository.AddProfile(new Profile { SiteId = site.SiteId, Name = "Phone", Title = "Phone Number", Description = "Phone Number", Category = "Contact", ViewOrder = 8, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false });
+            _profileRepository.AddProfile(new Profile
+                {SiteId = site.SiteId, Name = "FirstName", Title = "First Name", Description = "Your First Or Given Name", Category = "Name", ViewOrder = 1, MaxLength = 50, DefaultValue = "", IsRequired = true, IsPrivate = false});
+            _profileRepository.AddProfile(new Profile
+                {SiteId = site.SiteId, Name = "LastName", Title = "Last Name", Description = "Your Last Or Family Name", Category = "Name", ViewOrder = 2, MaxLength = 50, DefaultValue = "", IsRequired = true, IsPrivate = false});
+            _profileRepository.AddProfile(new Profile
+                {SiteId = site.SiteId, Name = "Street", Title = "Street", Description = "Street Or Building Address", Category = "Address", ViewOrder = 3, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false});
+            _profileRepository.AddProfile(
+                new Profile {SiteId = site.SiteId, Name = "City", Title = "City", Description = "City", Category = "Address", ViewOrder = 4, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false});
+            _profileRepository.AddProfile(new Profile
+                {SiteId = site.SiteId, Name = "Region", Title = "Region", Description = "State Or Province", Category = "Address", ViewOrder = 5, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false});
+            _profileRepository.AddProfile(new Profile
+                {SiteId = site.SiteId, Name = "Country", Title = "Country", Description = "Country", Category = "Address", ViewOrder = 6, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false});
+            _profileRepository.AddProfile(new Profile
+                {SiteId = site.SiteId, Name = "PostalCode", Title = "Postal Code", Description = "Postal Code Or Zip Code", Category = "Address", ViewOrder = 7, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false});
+            _profileRepository.AddProfile(new Profile
+                {SiteId = site.SiteId, Name = "Phone", Title = "Phone Number", Description = "Phone Number", Category = "Contact", ViewOrder = 8, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false});
 
-            List<ModuleDefinition> moduledefinitions = ModuleDefinitionRepository.GetModuleDefinitions(site.SiteId).ToList();
-            foreach (PageTemplate pagetemplate in SiteTemplate)
+            Folder folder = _folderRepository.AddFolder(new Folder
+            {
+                SiteId = site.SiteId, ParentId = null, Name = "Root", Path = "", Order = 1, IsSystem = true,
+                Permissions = "[{\"PermissionName\":\"Browse\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"View\",\"Permissions\":\"All Users\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]"
+            });
+            _folderRepository.AddFolder(new Folder
+            {
+                SiteId = site.SiteId, ParentId = folder.FolderId, Name = "Users", Path = Utilities.PathCombine("Users","\\"), Order = 1, IsSystem = true,
+                Permissions = "[{\"PermissionName\":\"Browse\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]"
+            });
+
+            // process site template first
+            if (string.IsNullOrEmpty(site.SiteTemplateType))
+            {
+                var section = _config.GetSection("Installation:SiteTemplate");
+                if (section.Exists())
+                {
+                    if(string.IsNullOrEmpty(section.Value)){
+                        site.SiteTemplateType = Constants.DefaultSiteTemplate;
+                    }
+                    else
+                    {
+                        site.SiteTemplateType = section.Value;
+                    }                    
+                }
+                else
+                {
+                    site.SiteTemplateType = Constants.DefaultSiteTemplate;
+                }
+            }
+
+            Type siteTemplateType = Type.GetType(site.SiteTemplateType);
+            if (siteTemplateType != null)
+            {
+                var siteTemplateObject = ActivatorUtilities.CreateInstance(_serviceProvider, siteTemplateType);
+                List<PageTemplate> pageTemplates = ((ISiteTemplate) siteTemplateObject).CreateSite(site);
+                if (pageTemplates != null && pageTemplates.Count > 0)
+                {
+                    CreatePages(site, pageTemplates);
+                }
+            }
+
+            // create admin pages
+            CreatePages(site, CreateAdminPages());
+        }
+
+        public void CreatePages(Site site, List<PageTemplate> pageTemplates)
+        {
+            List<ModuleDefinition> moduledefinitions = _moduleDefinitionRepository.GetModuleDefinitions(site.SiteId).ToList();
+            foreach (PageTemplate pagetemplate in pageTemplates)
             {
                 int? parentid = null;
                 if (pagetemplate.Parent != "")
                 {
-                    List<Page> pages = PageRepository.GetPages(site.SiteId).ToList();
+                    List<Page> pages = _pageRepository.GetPages(site.SiteId).ToList();
                     Page parent = pages.Where(item => item.Name == pagetemplate.Parent).FirstOrDefault();
                     parentid = parent.PageId;
                 }
@@ -184,48 +749,51 @@ namespace Oqtane.Repository
                     SiteId = site.SiteId,
                     ParentId = parentid,
                     Name = pagetemplate.Name,
+                    Title = "",
                     Path = pagetemplate.Path,
                     Order = 1,
+                    Url = "",
                     IsNavigation = pagetemplate.IsNavigation,
                     EditMode = pagetemplate.EditMode,
                     ThemeType = "",
                     LayoutType = "",
+                    DefaultContainerType = "",
                     Icon = pagetemplate.Icon,
                     Permissions = pagetemplate.PagePermissions,
                     IsPersonalizable = pagetemplate.IsPersonalizable,
                     UserId = null
                 };
-                page = PageRepository.AddPage(page);
+                page = _pageRepository.AddPage(page);
 
-                foreach(PageTemplateModule pagetemplatemodule in pagetemplate.PageTemplateModules)
+                foreach (PageTemplateModule pagetemplatemodule in pagetemplate.PageTemplateModules)
                 {
                     if (pagetemplatemodule.ModuleDefinitionName != "")
                     {
                         ModuleDefinition moduledefinition = moduledefinitions.Where(item => item.ModuleDefinitionName == pagetemplatemodule.ModuleDefinitionName).FirstOrDefault();
                         if (moduledefinition != null)
                         {
-                            Models.Module module = new Models.Module
+                            Module module = new Module
                             {
                                 SiteId = site.SiteId,
                                 ModuleDefinitionName = pagetemplatemodule.ModuleDefinitionName,
+                                AllPages = false,
                                 Permissions = pagetemplatemodule.ModulePermissions,
                             };
-                            module = ModuleRepository.AddModule(module);
+                            module = _moduleRepository.AddModule(module);
 
-                            if (pagetemplatemodule.Content != "" && moduledefinition.ServerAssemblyName != "")
+                            if (pagetemplatemodule.Content != "" && moduledefinition.ServerManagerType!= "")
                             {
-                                Assembly assembly = AppDomain.CurrentDomain.GetAssemblies()
-                                    .Where(item => item.FullName.StartsWith(moduledefinition.ServerAssemblyName)).FirstOrDefault();
-                                if (assembly != null)
+                                Type moduletype = Type.GetType(moduledefinition.ServerManagerType);
+                                if (moduletype != null && moduletype.GetInterface("IPortable") != null)
                                 {
-                                    Type moduletype = assembly.GetTypes()
-                                        .Where(item => item.Namespace != null)
-                                        .Where(item => item.Namespace.StartsWith(moduledefinition.ModuleDefinitionName.Substring(0, moduledefinition.ModuleDefinitionName.IndexOf(","))))
-                                        .Where(item => item.GetInterfaces().Contains(typeof(IPortable))).FirstOrDefault();
-                                    if (moduletype != null)
+                                    try
                                     {
-                                        var moduleobject = ActivatorUtilities.CreateInstance(ServiceProvider, moduletype);
+                                        var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
                                         ((IPortable)moduleobject).ImportModule(module, pagetemplatemodule.Content, moduledefinition.Version);
+                                    }
+                                    catch
+                                    {
+                                        // error in IPortable implementation
                                     }
                                 }
                             }
@@ -239,9 +807,8 @@ namespace Oqtane.Repository
                                 Order = 1,
                                 ContainerType = ""
                             };
-                            PageModuleRepository.AddPageModule(pagemodule);
+                            _pageModuleRepository.AddPageModule(pagemodule);
                         }
-
                     }
                 }
             }

@@ -7,6 +7,10 @@ namespace Oqtane.Models
         public int FileId { get; set; }
         public int FolderId { get; set; }
         public string Name { get; set; }
+        public string Extension { get; set; }
+        public int Size { get; set; }
+        public int ImageHeight { get; set; }
+        public int ImageWidth { get; set; }
 
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }

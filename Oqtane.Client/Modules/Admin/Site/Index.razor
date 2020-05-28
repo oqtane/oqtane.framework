@@ -1,0 +1,451 @@
+﻿@namespace Oqtane.Modules.Admin.Site
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject ISiteService SiteService
+@inject ITenantService TenantService
+@inject IAliasService AliasService
+@inject IThemeService  ThemeService
+@inject ISettingService  SettingService
+
+@if (_themes != null)
+{
+    <table class="table table-borderless">
+        <tr>
+            <td>
+                <Label For="name" HelpText="Enter the site name">Name: </Label>
+            </td>
+            <td>
+                <input id="name" class="form-control" @bind="@_name" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="tenant" HelpText="Enter the tenant for the site">Tenant: </Label>
+            </td>
+            <td>
+                <input id="tenant" class="form-control" @bind="@_tenant" readonly />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="alias" HelpText="Enter the alias for the server">Aliases: </Label>
+            </td>
+            <td>
+                <textarea id="alias" class="form-control" @bind="@_urls" rows="3"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="logo" HelpText="Upload a logo for the site">Logo: </Label>
+            </td>
+            <td>
+                <FileManager FileId="@_logofileid" Filter="@Constants.ImageFiles" @ref="_logofilemanager" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="favicon" HelpText="Select Your default icon">Favicon: </Label>
+            </td>
+            <td>
+                <FileManager FileId="@_faviconfileid" Filter="ico" @ref="_faviconfilemanager" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="defaultTheme" HelpText="Select the sites default theme">Default Theme: </Label>
+            </td>
+            <td>
+                <select id="defaultTheme" class="form-control" @onchange="(e => ThemeChanged(e))">
+                    <option value="">&lt;Select Theme&gt;</option>
+                    @foreach (KeyValuePair<string, string> item in _themes)
+                    {
+                        if (item.Key == _themetype)
+                        {
+                            <option value="@item.Key" selected>@item.Value</option>
+                        }
+                        else
+                        {
+                            <option value="@item.Key">@item.Value</option>
+                        }
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="defaultLayout" HelpText="Select the sites default layout">Default Layout: </Label>
+            </td>
+            <td>
+                <select id="defaultLayout" class="form-control" @bind="@_layouttype">
+                    <option value="">&lt;Select Layout&gt;</option>
+                    @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
+                    {
+                        <option value="@panelayout.Key">@panelayout.Value</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="defaultContainer" HelpText="Select the default container for the site">Default Container: </Label>
+            </td>
+            <td>
+                <select id="defaultContainer" class="form-control" @bind="@_containertype">
+                    <option value="">&lt;Select Container&gt;</option>
+                    @foreach (KeyValuePair<string, string> container in _containers)
+                    {
+                        <option value="@container.Key">@container.Value</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="allowRegister" HelpText="Do you want the users to be able to register for an account on the site">Allow User Registration? </Label>
+            </td>
+            <td>
+                <select id="allowRegister" class="form-control" @bind="@_allowregistration">
+                    <option value="True">Yes</option>
+                    <option value="False">No</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="isDeleted" HelpText="Is this site deleted?">Is Deleted? </Label>
+            </td>
+            <td>
+                <select id="isDeleted" class="form-control" @bind="@_isdeleted">
+                    <option value="True">Yes</option>
+                    <option value="False">No</option>
+                </select>
+            </td>
+        </tr>
+    </table>
+
+    <Section Name="SMTP" Heading="SMTP Settings">
+        <table class="table table-borderless">
+            <tr>
+                <td>
+                    <Label For="host" HelpText="Enter the host name of the server">Host: </Label>
+                </td>
+                <td>
+                    <input id="host" class="form-control" @bind="@_smtphost" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Label For="port" HelpText="Enter the port number for the server">Port: </Label>
+                </td>
+                <td>
+                    <input id="port" class="form-control" @bind="@_smtpport" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Label For="enabledSSl" HelpText="Specifiy if SSL is enabled for your server">SSL Enabled: </Label>
+                </td>
+                <td>
+                    <input id="enabledSSl" class="form-control" @bind="@_smtpssl" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Label For="username" HelpText="Enter the username for the server">Username: </Label>
+                </td>
+                <td>
+                    <input id="username" class="form-control" @bind="@_smtpusername" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Label For="password" HelpText="Enter the password for the server">Password: </Label>
+                </td>
+                <td>
+                    <input id="password" type="password" class="form-control" @bind="@_smtppassword" />
+                </td>
+            </tr>
+        </table>
+    </Section>
+    <Section Name="PWA" Heading="Progressive Web Application Settings">
+        <table class="table table-borderless">
+            <tr>
+                <td>
+                    <Label For="isEnabled" HelpText="Select whether you would like this site to be available as a Progressive Web Application (PWA)">Is Enabled? </Label>
+                </td>
+                <td>
+                    <select id="isEnabled" class="form-control" @bind="@_pwaisenabled">
+                        <option value="True">Yes</option>
+                        <option value="False">No</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Label For="appIcon" HelpText="Include an application icon for your PWA. It should be a PNG which is 192 X 192 pixels in dimension.">App Icon: </Label>
+                </td>
+                <td>
+                    <FileManager FileId="@_pwaappiconfileid" Filter="png" @ref="_pwaappiconfilemanager" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Label For="splashIcon" HelpText="Include a splash icon for your PWA. It should be a PNG which is 512 X 512 pixels in dimension.">Splash Icon: </Label>
+                </td>
+                <td>
+                    <FileManager FileId="@_pwasplashiconfileid" Filter="png" @ref="_pwasplashiconfilemanager" />
+                </td>
+            </tr>
+        </table>
+    </Section>
+
+    <br />
+    <button type="button" class="btn btn-success" @onclick="SaveSite">Save</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <br />
+    <br />
+    <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
+}
+
+@code {
+    private Dictionary<string, string> _themes;
+    private Dictionary<string, string> _panelayouts;
+    private Dictionary<string, string> _containers;
+    private List<Theme> _themeList;
+    private string _name = string.Empty;
+    private List<Tenant> _tenantList;
+    private string _tenant = string.Empty;
+    private List<Alias> _aliasList;
+    private string _urls = string.Empty;
+    private int _logofileid = -1;
+    private FileManager _logofilemanager;
+    private int _faviconfileid = -1;
+    private FileManager _faviconfilemanager;
+    private string _themetype;
+    private string _layouttype;
+    private string _containertype;
+    private string _allowregistration;
+    private string _smtphost = string.Empty;
+    private string _smtpport = string.Empty;
+    private string _smtpssl = string.Empty;
+    private string _smtpusername = string.Empty;
+    private string _smtppassword = string.Empty;
+    private string _pwaisenabled;
+    private int _pwaappiconfileid = -1;
+    private FileManager _pwaappiconfilemanager;
+    private int _pwasplashiconfileid = -1;
+    private FileManager _pwasplashiconfilemanager;
+    private string _createdby;
+    private DateTime _createdon;
+    private string _modifiedby;
+    private DateTime _modifiedon;
+    private string _deletedby;
+    private DateTime? _deletedon;
+    private string _isdeleted;
+
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _themeList = await ThemeService.GetThemesAsync();
+            _aliasList = await AliasService.GetAliasesAsync();
+            Site site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
+            if (site != null)
+            {
+                _name = site.Name;
+                _tenantList = await TenantService.GetTenantsAsync();
+                _tenant = _tenantList.Find(item => item.TenantId == site.TenantId).Name;
+                foreach (Alias alias in _aliasList.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
+                {
+                    _urls += alias.Name + "\n";
+                }
+                if (site.LogoFileId != null)
+                {
+                    _logofileid = site.LogoFileId.Value;
+                }
+
+                if (site.FaviconFileId != null)
+                {
+                    _faviconfileid = site.FaviconFileId.Value;
+                }
+
+                _themetype = site.DefaultThemeType;
+                _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
+                _layouttype = site.DefaultLayoutType;
+                _containertype = site.DefaultContainerType;
+                _allowregistration = site.AllowRegistration.ToString();
+
+                var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
+                _smtphost = SettingService.GetSetting(settings, "SMTPHost", string.Empty);
+                _smtpport = SettingService.GetSetting(settings, "SMTPPort", string.Empty);
+                _smtpssl = SettingService.GetSetting(settings, "SMTPSSL", string.Empty);
+                _smtpusername = SettingService.GetSetting(settings, "SMTPUsername", string.Empty);
+                _smtppassword = SettingService.GetSetting(settings, "SMTPPassword", string.Empty);
+
+                _pwaisenabled = site.PwaIsEnabled.ToString();
+
+                if (site.PwaAppIconFileId != null)
+                {
+                    _pwaappiconfileid = site.PwaAppIconFileId.Value;
+                }
+
+                if (site.PwaSplashIconFileId != null)
+                {
+                    _pwasplashiconfileid = site.PwaSplashIconFileId.Value;
+                }
+
+                _pwaisenabled = site.PwaIsEnabled.ToString();
+                if (site.PwaAppIconFileId != null)
+                {
+                    _pwaappiconfileid = site.PwaAppIconFileId.Value;
+                }
+                if (site.PwaSplashIconFileId != null)
+                {
+                    _pwasplashiconfileid = site.PwaSplashIconFileId.Value;
+                }
+
+                _createdby = site.CreatedBy;
+                _createdon = site.CreatedOn;
+                _modifiedby = site.ModifiedBy;
+                _modifiedon = site.ModifiedOn;
+                _deletedby = site.DeletedBy;
+                _deletedon = site.DeletedOn;
+                _isdeleted = site.IsDeleted.ToString();
+            }
+
+            _themes = ThemeService.GetThemeTypes(_themeList);
+            _containers = ThemeService.GetContainerTypes(_themeList);
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+
+    private async void ThemeChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            _themetype = (string)e.Value;
+            if (_themetype != string.Empty)
+            {
+                _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
+            }
+            else
+            {
+                _panelayouts = new Dictionary<string, string>();
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", _themetype, ex.Message);
+            AddModuleMessage("Error Loading Pane Layouts For Theme", MessageType.Error);
+        }
+    }
+
+    private async Task SaveSite()
+    {
+        try
+        {
+            if (_name != string.Empty && _urls != string.Empty && !string.IsNullOrEmpty(_themetype) && (_panelayouts.Count == 0 || !string.IsNullOrEmpty(_layouttype)) && !string.IsNullOrEmpty(_containertype))
+            {
+                var unique = true;
+                foreach (string name in _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    if (_aliasList.Exists(item => item.Name == name && item.SiteId != PageState.Alias.SiteId && item.TenantId != PageState.Alias.TenantId))
+                    {
+                        unique = false;
+                    }
+                }
+
+                if (unique)
+                {
+                    var site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
+                    if (site != null)
+                    {
+                        site.Name = _name;
+                        site.LogoFileId = null;
+                        var logofileid = _logofilemanager.GetFileId();
+                        if (logofileid != -1)
+                        {
+                            site.LogoFileId = logofileid;
+                        }
+
+                        site.DefaultThemeType = _themetype;
+                        site.DefaultLayoutType = (_layouttype == null ? string.Empty : _layouttype);
+                        site.DefaultContainerType = _containertype;
+                        site.AllowRegistration = (_allowregistration == null ? true : Boolean.Parse(_allowregistration));
+                        site.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));
+
+                        site.PwaIsEnabled = (_pwaisenabled == null ? true : Boolean.Parse(_pwaisenabled));
+
+                        var pwaappiconfileid = _pwaappiconfilemanager.GetFileId();
+                        if (pwaappiconfileid != -1)
+                        {
+                            site.PwaAppIconFileId = pwaappiconfileid;
+                        }
+
+                        var pwasplashiconfileid = _pwasplashiconfilemanager.GetFileId();
+                        if (pwasplashiconfileid != -1)
+                        {
+                            site.PwaSplashIconFileId = pwasplashiconfileid;
+                        }
+
+                        site = await SiteService.UpdateSiteAsync(site);
+
+                        _urls = _urls.Replace("\n", ",");
+                        var names = _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        foreach (Alias alias in _aliasList.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
+                        {
+                            if (!names.Contains(alias.Name))
+                            {
+                                await AliasService.DeleteAliasAsync(alias.AliasId);
+                            }
+                        }
+
+                        foreach (string name in names)
+                        {
+                            if (!_aliasList.Exists(item => item.Name == name))
+                            {
+                                Alias alias = new Alias();
+                                alias.Name = name;
+                                alias.TenantId = site.TenantId;
+                                alias.SiteId = site.SiteId;
+                                await AliasService.AddAliasAsync(alias);
+                            }
+                        }
+
+                        var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
+                        SettingService.SetSetting(settings, "SMTPHost", _smtphost);
+                        SettingService.SetSetting(settings, "SMTPPort", _smtpport);
+                        SettingService.SetSetting(settings, "SMTPSSL", _smtpssl);
+                        SettingService.SetSetting(settings, "SMTPUsername", _smtpusername);
+                        SettingService.SetSetting(settings, "SMTPPassword", _smtppassword);
+                        await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
+
+                        await logger.LogInformation("Site Saved {Site}", site);
+
+                        NavigationManager.NavigateTo(NavigateUrl());
+                    }
+                }
+                else
+                {
+                    AddModuleMessage("An Alias Specified Has Already Been Used For Another Site", MessageType.Warning);
+                }
+            }
+            else
+            {
+                AddModuleMessage("You Must Provide A Site Name, Alias, And Default Theme/Container", MessageType.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Saving Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
+            AddModuleMessage("Error Saving Site", MessageType.Error);
+        }
+    }
+}

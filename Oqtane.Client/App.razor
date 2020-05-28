@@ -1,8 +1,8 @@
 ﻿@inject IInstallationService InstallationService
 
-@if (Initialized)
+@if (_initialized)
 {
-    @if (!Installed)
+    @if (!_installed)
     {
         <Installer />
     }
@@ -17,20 +17,21 @@
 }
 
 @code {
-    private bool Initialized = false;
-    private bool Installed = false;
+    private bool _initialized;
+    private bool _installed;
+
     private PageState PageState { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
-        var response = await InstallationService.IsInstalled();
-        Installed = response.Success;
-        Initialized = true;
+        var installation = await InstallationService.IsInstalled();
+        _installed = installation.Success;
+        _initialized = true;
     }
 
-    private void ChangeState(PageState pagestate)
+    private void ChangeState(PageState pageState)
     {
-        PageState = pagestate;
+        PageState = pageState;
         StateHasChanged();
     }
 }

@@ -1,29 +1,32 @@
 ﻿@using Oqtane.Modules.HtmlText.Services
-@using Oqtane.Modules.HtmlText.Models
 @namespace Oqtane.Modules.HtmlText
 @inherits ModuleBase
-@inject NavigationManager NavigationManager
-@inject HttpClient http
-@inject SiteState sitestate
+@inject IHtmlTextService HtmlTextService
 
 @((MarkupString)content)
 
-<br />
-<ActionLink Action="Edit" />
-<br /><br />
+@if (PageState.EditMode)
+{
+    <br /><ActionLink Action="Edit" /><br /><br />
+}
 
 @code {
-    string content;
+    public override List<Resource> Resources => new List<Resource>()
+    {
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" }
+    };
+
+    private string content = "";
 
     protected override async Task OnParametersSetAsync()
     {
         try
         {
-            HtmlTextService htmltextservice = new HtmlTextService(http, sitestate, NavigationManager);
-            HtmlTextInfo htmltext = await htmltextservice.GetHtmlTextAsync(ModuleState.ModuleId);
+            var htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId);
             if (htmltext != null)
             {
                 content = htmltext.Content;
+                content = content.Replace(Constants.ContentUrl, "/" + PageState.Alias.AliasId.ToString() + Constants.ContentUrl);
             }
         }
         catch (Exception ex)

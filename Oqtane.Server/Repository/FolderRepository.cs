@@ -1,70 +1,76 @@
-﻿using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using Oqtane.Extensions;
 using Oqtane.Models;
+using Oqtane.Shared;
 
 namespace Oqtane.Repository
 {
     public class FolderRepository : IFolderRepository
     {
-        private TenantDBContext db;
-        private readonly IPermissionRepository Permissions;
+        private TenantDBContext _db;
+        private readonly IPermissionRepository _permissions;
 
-        public FolderRepository(TenantDBContext context, IPermissionRepository Permissions)
+        public FolderRepository(TenantDBContext context, IPermissionRepository permissions)
         {
-            db = context;
-            this.Permissions = Permissions;
+            _db = context;
+            _permissions = permissions;
         }
 
-        public IEnumerable<Folder> GetFolders()
+        public IEnumerable<Folder> GetFolders(int siteId)
         {
-            return db.Folder.ToList();
-        }
-
-        public IEnumerable<Folder> GetFolders(int SiteId)
-        {
-            IEnumerable<Permission> permissions = Permissions.GetPermissions(SiteId, "Folder").ToList();
-            IEnumerable<Folder> folders = db.Folder.Where(item => item.SiteId == SiteId);
+            IEnumerable<Permission> permissions = _permissions.GetPermissions(siteId, EntityNames.Folder).ToList();
+            IEnumerable<Folder> folders = _db.Folder.Where(item => item.SiteId == siteId);
             foreach(Folder folder in folders)
             {
-                folder.Permissions = Permissions.EncodePermissions(folder.FolderId, permissions);
+                folder.Permissions = permissions.Where(item => item.EntityId == folder.FolderId).EncodePermissions();
             }
             return folders;
         }
 
-        public Folder AddFolder(Folder Folder)
+        public Folder AddFolder(Folder folder)
         {
-            db.Folder.Add(Folder);
-            db.SaveChanges();
-            Permissions.UpdatePermissions(Folder.SiteId, "Folder", Folder.FolderId, Folder.Permissions);
-            return Folder;
+            _db.Folder.Add(folder);
+            _db.SaveChanges();
+            _permissions.UpdatePermissions(folder.SiteId, EntityNames.Folder, folder.FolderId, folder.Permissions);
+            return folder;
         }
 
-        public Folder UpdateFolder(Folder Folder)
+        public Folder UpdateFolder(Folder folder)
         {
-            db.Entry(Folder).State = EntityState.Modified;
-            db.SaveChanges();
-            Permissions.UpdatePermissions(Folder.SiteId, "Folder", Folder.FolderId, Folder.Permissions);
-            return Folder;
+            _db.Entry(folder).State = EntityState.Modified;
+            _db.SaveChanges();
+            _permissions.UpdatePermissions(folder.SiteId, EntityNames.Folder, folder.FolderId, folder.Permissions);
+            return folder;
         }
 
-        public Folder GetFolder(int FolderId)
+        public Folder GetFolder(int folderId)
         {
-            Folder folder = db.Folder.Find(FolderId);
+            Folder folder = _db.Folder.Find(folderId);
             if (folder != null)
             {
-                IEnumerable<Permission> permissions = Permissions.GetPermissions("Folder", folder.FolderId);
-                folder.Permissions = Permissions.EncodePermissions(folder.FolderId, permissions);
+                folder.Permissions = _permissions.GetPermissionString(EntityNames.Folder, folder.FolderId);
             }
             return folder;
         }
 
-        public void DeleteFolder(int FolderId)
+        public Folder GetFolder(int siteId, string path)
         {
-            Folder Folder = db.Folder.Find(FolderId);
-            Permissions.DeletePermissions(Folder.SiteId, "Folder", FolderId);
-            db.Folder.Remove(Folder);
-            db.SaveChanges();
+            Folder folder = _db.Folder.Where(item => item.SiteId == siteId && item.Path == path).FirstOrDefault();
+            if (folder != null)
+            {
+                folder.Permissions = _permissions.GetPermissionString(EntityNames.Folder, folder.FolderId);
+            }
+            return folder;
+        }
+
+        public void DeleteFolder(int folderId)
+        {
+            Folder folder = _db.Folder.Find(folderId);
+            _permissions.DeletePermissions(folder.SiteId, EntityNames.Folder, folderId);
+            _db.Folder.Remove(folder);
+            _db.SaveChanges();
         }
     }
 }

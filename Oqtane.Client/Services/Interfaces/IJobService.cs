@@ -8,16 +8,16 @@ namespace Oqtane.Services
     {
         Task<List<Job>> GetJobsAsync();
 
-        Task<Job> GetJobAsync(int JobId);
+        Task<Job> GetJobAsync(int jobId);
 
-        Task<Job> AddJobAsync(Job Job);
+        Task<Job> AddJobAsync(Job job);
 
-        Task<Job> UpdateJobAsync(Job Job);
+        Task<Job> UpdateJobAsync(Job job);
 
-        Task DeleteJobAsync(int JobId);
+        Task DeleteJobAsync(int jobId);
 
-        Task StartJobAsync(int JobId);
+        Task StartJobAsync(int jobId);
 
-        Task StopJobAsync(int JobId);
+        Task StopJobAsync(int jobId);
     }
 }

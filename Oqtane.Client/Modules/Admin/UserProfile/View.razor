@@ -9,7 +9,7 @@
     <table class="table table-borderless">
         <tr>
             <td>
-                <label for="Name" class="control-label">@title: </label>
+                <label  class="control-label">@title: </label>
             </td>
             <td>
                 <select class="form-control" readonly @bind="userid">
@@ -26,7 +26,7 @@
         </tr>
         <tr>
             <td>
-                <label for="Name" class="control-label">Subject: </label>
+                <label  class="control-label">Subject: </label>
             </td>
             <td>
                 <input class="form-control" @bind="@subject" />
@@ -36,7 +36,7 @@
         {
             <tr>
                 <td>
-                    <label for="Name" class="control-label">Date: </label>
+                    <label  class="control-label">Date: </label>
                 </td>
                 <td>
                     <input class="form-control" @bind="@createdon" />
@@ -45,14 +45,14 @@
         }
         <tr>
             <td>
-                <label for="Name" class="control-label">Message: </label>
+                <label  class="control-label">Message: </label>
             </td>
             <td>
                 <textarea class="form-control" @bind="@body" rows="5" />
             </td>
         </tr>
     </table>
-    @if (reply != "")
+    @if (reply != string.Empty)
     {
         <button type="button" class="btn btn-primary" @onclick="Send">Send</button>
     }
@@ -70,17 +70,17 @@
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.View; } }
-    public override string Title { get { return "View Notification"; } }
+    private int notificationid;
+    private string title = string.Empty;
+    private List<UserRole> userroles;
+    private string userid = "-1";
+    private string subject = string.Empty;
+    private string createdon = string.Empty;
+    private string body = string.Empty;
+    private string reply = string.Empty;
 
-    int notificationid;
-    string title = "";
-    List<UserRole> userroles;
-    string userid = "-1";
-    string subject = "";
-    string createdon = "";
-    string body = "";
-    string reply = "";
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
+    public override string Title => "View Notification";
 
     protected override async Task OnInitializedAsync()
     {
@@ -110,6 +110,7 @@
                         userid = notification.ToUserId.ToString();
                     }
                 }
+                
                 subject = notification.Subject;
                 createdon = notification.CreatedOn.ToString();
                 body = notification.Body;
@@ -132,15 +133,15 @@
 
     private async Task Send()
     {
-        Notification notification = new Notification();
+        var notification = new Notification();
         notification.SiteId = PageState.Site.SiteId;
         notification.FromUserId = PageState.User.UserId;
         notification.ToUserId = int.Parse(userid);
-        notification.ToEmail = "";
+        notification.ToEmail = string.Empty;
         notification.Subject = subject;
         notification.Body = body;
         notification.ParentId = notificationid;
-        notification.CreatedOn = DateTime.Now;
+        notification.CreatedOn = DateTime.UtcNow;
         notification.IsDelivered = false;
         notification.DeliveredOn = null;
 

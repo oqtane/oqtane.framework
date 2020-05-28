@@ -1,60 +1,56 @@
-﻿using System.Globalization;
+﻿using Oqtane.Models;
+using System;
+using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
+using File = Oqtane.Models.File;
 
 namespace Oqtane.Shared
 {
-    public class Utilities
+    public static class Utilities
     {
-        public static string NavigateUrl(string alias, string path, string parameters, Reload reload)
+        public static string ToModuleDefinitionName(this Type type)
         {
-            string url = "";
-            if (alias != "")
+            if (type == null) return null;
+            var assemblyFullName = type.Assembly.FullName;
+            var assemblyName = assemblyFullName.Substring(0,  assemblyFullName.IndexOf(",", StringComparison.Ordinal));
+            return $"{type.Namespace}, {assemblyName}";
+        }
+
+        public static string NavigateUrl(string alias, string path, string parameters)
+        {
+            var uriBuilder = new UriBuilder
             {
-                url += alias + "/";
-            }
-            if (path != "" && path != "/")
-            {
-                url += path + "/";
-            }
-            if (url.EndsWith("/"))
-            {
-                url = url.Substring(0, url.Length - 1);
-            }
-            if (!string.IsNullOrEmpty(parameters))
-            {
-                url += "?" + parameters;
-            }
-            if (reload != Reload.None)
-            {
-                url += ((string.IsNullOrEmpty(parameters)) ? "?" : "&") + "reload=" + ((int)reload).ToString();
-            }
-            if (!url.StartsWith("/"))
-            {
-                url = "/" + url;
-            }
-            return url;
+                Path = !string.IsNullOrEmpty(alias)
+                ? (!string.IsNullOrEmpty(path)) 
+                    ? $"{alias}/{path}" 
+                    : $"{alias}"
+                : $"{path}",
+                Query = parameters
+            };
+
+            return uriBuilder.Uri.PathAndQuery;
         }
 
         public static string EditUrl(string alias, string path, int moduleid, string action, string parameters)
         {
-            string url = NavigateUrl(alias, path, "", Reload.None);
-            if (url == "/") url = "";
             if (moduleid != -1)
             {
-                url += "/" + moduleid.ToString();
+                path += $"/{moduleid}";
+                if (!string.IsNullOrEmpty(action))
+                {
+                    path += $"/{action}";
+                }
             }
-            if (moduleid != -1 && action != "")
-            {
-                url += "/" + action;
-            }
-            if (!string.IsNullOrEmpty(parameters))
-            {
-                url += "?" + parameters;
-            }
-            if (!url.StartsWith("/"))
-            {
-                url = "/" + url;
-            }
+            return NavigateUrl(alias, path, parameters);
+        }
+
+        public static string ContentUrl(Alias alias, int fileid)
+        {
+            string url = (alias == null) ? "/~" : "/" + alias.AliasId;
+            url += Constants.ContentUrl + fileid.ToString();
             return url;
         }
 
@@ -79,6 +75,19 @@ namespace Oqtane.Shared
             else
             {
                 return fullyqualifiedtypename;
+            }
+        }
+
+        public static string GetAssemblyName(string fullyqualifiedtypename)
+        {
+            fullyqualifiedtypename = GetFullTypeName(fullyqualifiedtypename);
+            if (fullyqualifiedtypename.Contains(","))
+            {
+                return fullyqualifiedtypename.Substring(fullyqualifiedtypename.IndexOf(",") + 1).Trim();
+            }
+            else
+            {
+                return "";
             }
         }
 
@@ -220,6 +229,49 @@ namespace Oqtane.Shared
             {
                 return "";
             }
+        }
+
+        public static bool IsValidEmail(string email)
+        {
+            if (string.IsNullOrEmpty(email)) return false;
+
+            return Regex.IsMatch(email,
+                  @"^(?("")("".+?(?<!\\)""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" +
+                  @"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-0-9a-z]*[0-9a-z]*\.)+[a-z0-9][\-a-z0-9]{0,22}[a-z0-9]))$",
+                  RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(250));
+        }
+
+        public static string PathCombine(params string[] segments)
+        {
+            var separators = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
+
+            for (int i =1;i < segments.Length; i++){
+                if(Path.IsPathRooted(segments[i])){
+                    segments[i] = segments[i].TrimStart(separators);
+                    if(String.IsNullOrEmpty(segments[i])){
+                        segments[i]=" ";
+                    }
+                }
+            }
+            
+            return Path.Combine(segments).TrimEnd(); 
+        }
+
+        public static bool IsPathValid(this Folder folder)
+        {
+            return IsPathOrFileValid(folder.Name);
+        }
+
+        public static bool IsFileValid(this File file)
+        {
+            return IsPathOrFileValid(file.Name);
+        }
+
+        public static bool IsPathOrFileValid(this string name)
+        {
+            return (name.IndexOfAny(Constants.InvalidFileNameChars) == -1 &&
+                    !Constants.InvalidFileNameEndingChars.Any(name.EndsWith) &&
+                    !Constants.ReservedDevices.Split(',').Contains(name.ToUpper().Split('.')[0]));
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Oqtane.Shared;
+using Oqtane.UI;
 
 namespace Oqtane.Themes
 {
@@ -11,7 +12,7 @@ namespace Oqtane.Themes
 
         public string LayoutPath()
         {
-            return "Themes/" + this.GetType().Namespace + "/";
+            return "Themes/" + GetType().Namespace + "/";
         }
 
     }

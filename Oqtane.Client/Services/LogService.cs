@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Oqtane.Enums;
 using Oqtane.Models;
 using Oqtane.Shared;
 
@@ -11,40 +12,50 @@ namespace Oqtane.Services
 {
     public class LogService : ServiceBase, ILogService
     {
-        private readonly HttpClient http;
-        private readonly SiteState sitestate;
-        private readonly NavigationManager NavigationManager;
+        
+        private readonly SiteState _siteState;
+        private readonly NavigationManager _navigationManager;
 
-        public LogService(HttpClient http, SiteState sitestate, NavigationManager NavigationManager)
+        public LogService(HttpClient http, SiteState siteState, NavigationManager navigationManager) : base(http)
         {
-            this.http = http;
-            this.sitestate = sitestate;
-            this.NavigationManager = NavigationManager;
+            
+            _siteState = siteState;
+            _navigationManager = navigationManager;
         }
 
-        private string apiurl
+        private string Apiurl => CreateApiUrl(_siteState.Alias, "Log");
+
+        public async Task<List<Log>> GetLogsAsync(int siteId, string level, string function, int rows)
         {
-            get { return CreateApiUrl(sitestate.Alias, NavigationManager.Uri, "Log"); }
+            return await GetJsonAsync<List<Log>>($"{Apiurl}?siteid={siteId}&level={level}&function={function}&rows={rows}");
         }
 
-        public async Task<List<Log>> GetLogsAsync(int SiteId, string Level, string Function, int Rows)
+        public async Task<Log> GetLogAsync(int logId)
         {
-            return await http.GetJsonAsync<List<Log>>(apiurl + "?siteid=" + SiteId.ToString() + "&level=" + Level + "&function=" + Function + "&rows=" + Rows.ToString());
+            return await GetJsonAsync<Log>($"{Apiurl}/{logId}");
         }
 
-        public async Task<Log> GetLogAsync(int LogId)
+        public async Task Log(int? pageId, int? moduleId, int? userId, string category, string feature, LogFunction function, LogLevel level, Exception exception, string message, params object[] args)
         {
-            return await http.GetJsonAsync<Log>(apiurl + "/" + LogId.ToString());
+            await Log(null, pageId, moduleId, userId, category, feature, function, level, exception, message, args);
         }
 
-        public async Task Log(int? PageId, int? ModuleId, int? UserId, string category, string feature, LogFunction function, LogLevel level, Exception exception, string message, params object[] args)
+        public async Task Log(Alias alias, int? pageId, int? moduleId, int? userId, string category, string feature, LogFunction function, LogLevel level, Exception exception, string message, params object[] args)
         {
             Log log = new Log();
-            log.SiteId = sitestate.Alias.SiteId;
-            log.PageId = PageId;
-            log.ModuleId = ModuleId;
-            log.UserId = UserId;
-            log.Url = NavigationManager.Uri;
+            if (alias == null)
+            {
+                log.SiteId = _siteState.Alias.SiteId;
+            }
+            else
+            {
+                base.Alias = alias;
+                log.SiteId = alias.SiteId;
+            }
+            log.PageId = pageId;
+            log.ModuleId = moduleId;
+            log.UserId = userId;
+            log.Url = _navigationManager.Uri;
             log.Category = category;
             log.Feature = feature;
             log.Function = Enum.GetName(typeof(LogFunction), function);
@@ -56,7 +67,7 @@ namespace Oqtane.Services
             log.Message = message;
             log.MessageTemplate = "";
             log.Properties = JsonSerializer.Serialize(args);
-            await http.PostJsonAsync(apiurl, log);
+            await PostJsonAsync(Apiurl, log);
         }
     }
 }

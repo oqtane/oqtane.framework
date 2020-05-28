@@ -1,66 +1,64 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
 {
     public class NotificationRepository : INotificationRepository
     {
-        private TenantDBContext db;
+        private TenantDBContext _db;
 
         public NotificationRepository(TenantDBContext context)
         {
-            db = context;
+            _db = context;
         }
             
-        public IEnumerable<Notification> GetNotifications(int SiteId, int FromUserId, int ToUserId)
+        public IEnumerable<Notification> GetNotifications(int siteId, int fromUserId, int toUserId)
         {
-            if (ToUserId == -1 && FromUserId == -1)
+            if (toUserId == -1 && fromUserId == -1)
             {
-                return db.Notification
-                    .Where(item => item.SiteId == SiteId)
+                return _db.Notification
+                    .Where(item => item.SiteId == siteId)
                     .Where(item => item.IsDelivered == false)
                     .Include(item => item.FromUser)
                     .Include(item => item.ToUser)
                     .ToList();
             }
-            else
-            {
-                return db.Notification
-                    .Where(item => item.SiteId == SiteId)
-                    .Where(item => item.ToUserId == ToUserId || ToUserId == -1)
-                    .Where(item => item.FromUserId == FromUserId || FromUserId == -1)
-                    .Include(item => item.FromUser)
-                    .Include(item => item.ToUser)
-                    .ToList();
-            }
+
+            return _db.Notification
+                .Where(item => item.SiteId == siteId)
+                .Where(item => item.ToUserId == toUserId || toUserId == -1)
+                .Where(item => item.FromUserId == fromUserId || fromUserId == -1)
+                .Include(item => item.FromUser)
+                .Include(item => item.ToUser)
+                .ToList();
         }
 
-        public Notification AddNotification(Notification Notification)
+        public Notification AddNotification(Notification notification)
         {
-            db.Notification.Add(Notification);
-            db.SaveChanges();
-            return Notification;
+            _db.Notification.Add(notification);
+            _db.SaveChanges();
+            return notification;
         }
 
-        public Notification UpdateNotification(Notification Notification)
+        public Notification UpdateNotification(Notification notification)
         {
-            db.Entry(Notification).State = EntityState.Modified;
-            db.SaveChanges();
-            return Notification;
+            _db.Entry(notification).State = EntityState.Modified;
+            _db.SaveChanges();
+            return notification;
         }
 
-        public Notification GetNotification(int NotificationId)
+        public Notification GetNotification(int notificationId)
         {
-            return db.Notification.Find(NotificationId);
+            return _db.Notification.Find(notificationId);
         }
 
-        public void DeleteNotification(int NotificationId)
+        public void DeleteNotification(int notificationId)
         {
-            Notification Notification = db.Notification.Find(NotificationId);
-            db.Notification.Remove(Notification);
-            db.SaveChanges();
+            Notification notification = _db.Notification.Find(notificationId);
+            _db.Notification.Remove(notification);
+            _db.SaveChanges();
         }
     }
 

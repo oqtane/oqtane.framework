@@ -1,4 +1,6 @@
-window.interop = {
+var Oqtane = Oqtane || {};
+
+Oqtane.Interop = {
     setCookie: function (name, value, days) {
         var d = new Date();
         d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
@@ -20,28 +22,201 @@ window.interop = {
         }
         return "";
     },
+    updateTitle: function (title) {
+        if (document.title !== title) {
+            document.title = title;
+        }
+    },
+    includeMeta: function (id, attribute, name, content, key) {
+        var meta;
+        if (id !== "" && key === "id") {
+            meta = document.getElementById(id);
+        }
+        else {
+            meta = document.querySelector("meta[" + attribute + "=\"" + CSS.escape(name) + "\"]");
+        }
+        if (meta === null) {
+            meta = document.createElement("meta");
+            meta.setAttribute(attribute, name);
+            if (id !== "") {
+                meta.id = id;
+            }
+            meta.content = content;
+            document.head.appendChild(meta);
+        }
+        else {
+            if (meta.content !== content) {
+                meta.setAttribute("content", content);
+            }
+        }
+    },
+    includeLink: function (id, rel, href, type, integrity, crossorigin, key) {
+        var link;
+        if (id !== "" && key === "id") {
+            link = document.getElementById(id);
+        }
+        else {
+            link = document.querySelector("link[href=\"" + CSS.escape(href) + "\"]");
+        }
+        if (link === null) {
+            link = document.createElement("link");
+            if (id !== "") {
+                link.id = id;
+            }
+            link.rel = rel;
+            if (type !== "") {
+                link.type = type;
+            }
+            link.href = href;
+            if (integrity !== "") {
+                link.integrity = integrity;
+            }
+            if (crossorigin !== "") {
+                link.crossOrigin = crossorigin;
+            }
+            document.head.appendChild(link);
+        }
+        else {
+            if (link.rel !== rel) {
+                link.setAttribute('rel', rel);
+            }
+            if (type !== "") {
+                if (link.type !== type) {
+                    link.setAttribute('type', type);
+                }
+            } else {
+                link.removeAttribute('type');
+            }
+            if (link.href !== this.getAbsoluteUrl(href)) {
+                link.removeAttribute('integrity');
+                link.removeAttribute('crossorigin');
+                link.setAttribute('href', href);
+            }
+            if (integrity !== "") {
+                if (link.integrity !== integrity) {
+                    link.setAttribute('integrity', integrity);
+                }
+            } else {
+                link.removeAttribute('integrity');
+            }
+            if (crossorigin !== "") {
+                if (link.crossOrigin !== crossorigin) {
+                    link.setAttribute('crossorigin', crossorigin);
+                }
+            } else {
+                link.removeAttribute('crossorigin');
+            }
+        }
+    },
+    includeLinks: function (links) {
+        for (let i = 0; i < links.length; i++) {
+            this.includeLink(links[i].id, links[i].rel, links[i].href, links[i].type, links[i].integrity, links[i].crossorigin, links[i].key);
+        }
+    },
+    includeScript: function (id, src, integrity, crossorigin, content, location, key) {
+        var script;
+        if (id !== "" && key === "id") {
+            script = document.getElementById(id);
+        }
+        else {
+            script = document.querySelector("script[src=\"" + CSS.escape(src) + "\"]");
+        }
+        if (script === null) {
+            script = document.createElement("script");
+            if (id !== "") {
+                script.id = id;
+            }
+            if (src !== "") {
+                script.src = src;
+                if (integrity !== "") {
+                    script.integrity = integrity;
+                }
+                if (crossorigin !== "") {
+                    script.crossorigin = crossorigin;
+                }
+            }
+            else {
+                script.innerHTML = content;
+            }
+            script.async = false;
+            this.loadScript(script, location)
+                .then(() => {
+                    console.log(src + ' loaded');
+                })
+                .catch(() => {
+                    console.error(src + ' failed');
+                });
+        }
+        else {
+            if (src !== "") {
+                if (script.src !== this.getAbsoluteUrl(src)) {
+                    script.removeAttribute('integrity');
+                    script.removeAttribute('crossorigin');
+                    script.src = src;
+                }
+                if (integrity !== "") {
+                    if (script.integrity !== integrity) {
+                        script.setAttribute('integrity', integrity);
+                    }
+                } else {
+                    script.removeAttribute('integrity');
+                }
+                if (crossorigin !== "") {
+                    if (script.crossOrigin !== crossorigin) {
+                        script.setAttribute('crossorigin', crossorigin);
+                    }
+                } else {
+                    script.removeAttribute('crossorigin');
+                }
+            }
+            else {
+                if (script.innerHTML !== content) {
+                    script.innerHTML = content;
+                }
+            }
+        }
+    },
+    loadScript: function (script, location) {
+        if (location === 'head') {
+            document.head.appendChild(script);
+        }
+        if (location === 'body') {
+            document.body.appendChild(script);
+        }
+
+        return new Promise((res, rej) => {
+            script.onload = res();
+            script.onerror = rej();
+        });
+    },
+    includeScripts: function (scripts) {
+        for (let i = 0; i < scripts.length; i++) {
+            this.includeScript(scripts[i].id, scripts[i].src, scripts[i].integrity, scripts[i].crossorigin, scripts[i].content, scripts[i].location, scripts[i].key);
+        }
+    },
+    getAbsoluteUrl: function (url) {
+        var a = document.createElement('a');
+        getAbsoluteUrl = function (url) {
+            a.href = url;
+            return a.href;
+        }
+        return getAbsoluteUrl(url);
+    },
+    removeElementsById: function (prefix, first, last) {
+        var elements = document.querySelectorAll('[id^=' + prefix + ']');
+        for (var i = elements.length - 1; i >= 0; i--) {
+            var element = elements[i];
+            if (element.id.startsWith(prefix) && (first === '' || element.id >= first) && (last === '' || element.id <= last)) {
+                element.parentNode.removeChild(element);
+            }
+        }
+    },
     getElementByName: function (name) {
         var elements = document.getElementsByName(name);
         if (elements.length) {
             return elements[0].value;
         } else {
             return "";
-        }
-    },
-    includeCSS: function (id, url) {
-        var link = document.getElementById(id);
-        if (link === null) {
-            link = document.createElement("link");
-            link.id = id;
-            link.type = "text/css";
-            link.rel = "stylesheet";
-            link.href = url;
-            document.head.appendChild(link);
-        }
-        else {
-            if (link.href !== url) {
-                link.setAttribute('href', url);
-            }
         }
     },
     submitForm: function (path, fields) {
@@ -62,9 +237,9 @@ window.interop = {
         document.body.appendChild(form);
         form.submit();
     },
-    getFiles: function (name) {
+    getFiles: function (id) {
         var files = [];
-        var fileinput = document.getElementById(name);
+        var fileinput = document.getElementById(id);
         if (fileinput !== null) {
             for (var i = 0; i < fileinput.files.length; i++) {
                 files.push(fileinput.files[i].name);
@@ -72,10 +247,10 @@ window.interop = {
         }
         return files;
     },
-    uploadFiles: function (posturl, folder, name) {
-        var files = document.getElementById(name + 'FileInput').files;
-        var progressinfo = document.getElementById(name + 'ProgressInfo');
-        var progressbar = document.getElementById(name + 'ProgressBar');
+    uploadFiles: function (posturl, folder, id) {
+        var files = document.getElementById(id + 'FileInput').files;
+        var progressinfo = document.getElementById(id + 'ProgressInfo');
+        var progressbar = document.getElementById(id + 'ProgressBar');
         var filename = '';
 
         for (var i = 0; i < files.length; i++) {
@@ -127,53 +302,5 @@ window.interop = {
                 request.send(data);
             }
         }
-    },
-    createQuill: function (
-        quillElement, toolBar, readOnly,
-        placeholder, theme, debugLevel) {
-
-        Quill.register('modules/blotFormatter', QuillBlotFormatter.default);
-
-        var options = {
-            debug: debugLevel,
-            modules: {
-                toolbar: toolBar,
-                blotFormatter: {}
-            },
-            placeholder: placeholder,
-            readOnly: readOnly,
-            theme: theme
-        };
-
-        new Quill(quillElement, options);
-    },
-    getQuillContent: function (editorElement) {
-        return JSON.stringify(editorElement.__quill.getContents());
-    },
-    getQuillText: function (editorElement) {
-        return editorElement.__quill.getText();
-    },
-    getQuillHTML: function (editorElement) {
-        return editorElement.__quill.root.innerHTML;
-    },
-    loadQuillContent: function (editorElement, editorContent) {
-        return editorElement.__quill.root.innerHTML = editorContent;
-    },
-    enableQuillEditor: function (editorElement, mode) {
-        editorElement.__quill.enable(mode);
-    },
-    insertQuillImage: function (quillElement, imageURL) {
-        var Delta = Quill.import('delta');
-        editorIndex = 0;
-
-        if (quillElement.__quill.getSelection() !== null) {
-            editorIndex = quillElement.__quill.getSelection().index;
-        }
-
-        return quillElement.__quill.updateContents(
-            new Delta()
-                .retain(editorIndex)
-                .insert({ image: imageURL },
-                    { alt: imageURL }));
     }
 };

@@ -1,13 +1,16 @@
-﻿using Oqtane.Models;
+﻿using System;
+using Oqtane.Enums;
+using Oqtane.Models;
 using Oqtane.Shared;
-using System;
 
 namespace Oqtane.Infrastructure
 {
     public interface ILogManager
     {
-        void Log(LogLevel Level, object Class, LogFunction Function, string Message, params object[] Args);
-        void Log(LogLevel Level, object Class, LogFunction Function, Exception Exception, string Message, params object[] Args);
-        void Log(Log Log);
+        void Log(LogLevel level, object @class, LogFunction function, string message, params object[] args);
+        void Log(LogLevel level, object @class, LogFunction function, Exception exception, string message, params object[] args);
+        void Log(int siteId, LogLevel level, object @class, LogFunction function, string message, params object[] args);
+        void Log(int siteId, LogLevel level, object @class, LogFunction function, Exception exception, string message, params object[] args);
+        void Log(Log log);
     }
 }

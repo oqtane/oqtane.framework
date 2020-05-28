@@ -1,4 +1,5 @@
 ﻿@namespace Oqtane.Modules.Admin.Logs
+@using System.Globalization
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject ILogService LogService
@@ -9,198 +10,202 @@
     <table class="table table-borderless">
         <tr>
             <td>
-                <label class="control-label">Date/Time: </label>
+                <Label For="dateTime" HelpText="The date and time of this log">Date/Time: </Label>
             </td>
             <td>
-                <input class="form-control" @bind="@logdate" disabled />
+                <input id="dateTime" class="form-control" @bind="@_logDate" readonly />
             </td>
         </tr>
         <tr>
             <td>
-                <label class="control-label">Level: </label>
+                <Label For="level" HelpText="The level of this log">Level: </Label>
             </td>
             <td>
-                <input class="form-control" @bind="@level" disabled />
+                <input id="level" class="form-control" @bind="@_level" readonly />
             </td>
         </tr>
         <tr>
             <td>
-                <label class="control-label">Feature: </label>
+                <Label For="feature" HelpText="The feature that was affected">Feature: </Label>
             </td>
             <td>
-                <input class="form-control" @bind="@feature" disabled />
+                <input id="feature" class="form-control" @bind="@_feature" readonly />
             </td>
         </tr>
         <tr>
             <td>
-                <label class="control-label">Function: </label>
+                <Label For="function" HelpText="The function that was performed">Function: </Label>
             </td>
             <td>
-                <input class="form-control" @bind="@function" disabled />
+                <input id="function" class="form-control" @bind="@_function" readonly />
             </td>
         </tr>
         <tr>
             <td>
-                <label class="control-label">Category: </label>
+                <Label For="category" HelpText="The categories that were affected">Category: </Label>
             </td>
             <td>
-                <input class="form-control" @bind="@category" disabled />
+                <input id="category" class="form-control" @bind="@_category" readonly />
             </td>
         </tr>
-        @if (pagename != "")
+        @if (_pageName != string.Empty)
         {
             <tr>
                 <td>
-                    <label class="control-label">Page: </label>
+                    <Label For="page" HelpText="The page that was affected">Page: </Label>
                 </td>
                 <td>
-                    <input class="form-control" @bind="@pagename" disabled />
+                    <input id="page" class="form-control" @bind="@_pageName" readonly />
                 </td>
             </tr>
         }
-        @if (moduletitle != "")
+        @if (_moduleTitle != string.Empty)
         {
             <tr>
                 <td>
-                    <label class="control-label">Module: </label>
+                    <Label For="module" HelpText="The module that was affected">Module: </Label>
                 </td>
                 <td>
-                    <input class="form-control" @bind="@moduletitle" disabled />
+                    <input id="module" class="form-control" @bind="@_moduleTitle" readonly />
                 </td>
             </tr>
         }
-        @if (username != "")
+        @if (_username != string.Empty)
         {
             <tr>
                 <td>
-                    <label class="control-label">User: </label>
+                    <Label For="user" HelpText="The user that caused this log">User: </Label>
                 </td>
                 <td>
-                    <input class="form-control" @bind="@username" disabled />
-                </td>
-            </tr>
-        }
-        <tr>
-            <td>
-                <label class="control-label">Url: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@url" disabled />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label class="control-label">Template: </label>
-            </td>
-            <td>
-                <input class="form-control" @bind="@template" disabled />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label class="control-label">Message: </label>
-            </td>
-            <td>
-                <textarea class="form-control" @bind="@message" rows="5" disabled />
-            </td>
-        </tr>
-        @if (!string.IsNullOrEmpty(exception))
-        {
-            <tr>
-                <td>
-                    <label class="control-label">Exception: </label>
-                </td>
-                <td>
-                    <textarea class="form-control" @bind="@exception" rows="5" disabled />
+                    <input id="user" class="form-control" @bind="@_username" readonly />
                 </td>
             </tr>
         }
         <tr>
             <td>
-                <label class="control-label">Properties: </label>
+                <Label For="url" HelpText="The url the log comes from">Url: </Label>
             </td>
             <td>
-                <textarea class="form-control" @bind="@properties" rows="5" disabled />
+                <input id="url" class="form-control" @bind="@_url" readonly />
             </td>
         </tr>
         <tr>
             <td>
-                <label class="control-label">Server: </label>
+                <Label For="template" HelpText="What the log is about">Template: </Label>
             </td>
             <td>
-                <input class="form-control" @bind="@server" disabled />
+                <input id="template" class="form-control" @bind="@_template" readonly />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="message" HelpText="The message that the system generated"class="control-label">Message: </Label>
+            </td>
+            <td>
+                <textarea id="message" class="form-control" @bind="@_message" rows="5" readonly></textarea>
+            </td>
+        </tr>
+        @if (!string.IsNullOrEmpty(_exception))
+        {
+            <tr>
+                <td>
+                    <Label For="exception" HelpText="The exceptions generated by the system">Exception: </Label>
+                </td>
+                <td>
+                    <textarea id="exception" class="form-control" @bind="@_exception" rows="5" readonly></textarea>
+                </td>
+            </tr>
+        }
+        <tr>
+            <td>
+                <Label For="properties" HelpText="The properties that were affected">Properties: </Label>
+            </td>
+            <td>
+                <textarea id="properties" class="form-control" @bind="@_properties" rows="5" readonly></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="server" HelpText="The server that was affected">Server: </Label>
+            </td>
+            <td>
+                <input id="server" class="form-control" @bind="@_server" readonly />
             </td>
         </tr>
     </table>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+    private int _logId;
+    private string _logDate = string.Empty;
+    private string _level = string.Empty;
+    private string _feature = string.Empty;
+    private string _function = string.Empty;
+    private string _category = string.Empty;
+    private string _pageName = string.Empty;
+    private string _moduleTitle = string.Empty;
+    private string _username = string.Empty;
+    private string _url = string.Empty;
+    private string _template = string.Empty;
+    private string _message = string.Empty;
+    private string _exception = string.Empty;
+    private string _properties = string.Empty;
+    private string _server = string.Empty;
 
-    int logid;
-    string logdate = "";
-    string level = "";
-    string feature = "";
-    string function = "";
-    string category = "";
-    string pagename = "";
-    string moduletitle = "";
-    string username = "";
-    string url = "";
-    string template = "";
-    string message = "";
-    string exception = "";
-    string properties = "";
-    string server = "";
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            logid = Int32.Parse(PageState.QueryString["id"]);
-            Log log = await LogService.GetLogAsync(logid);
+            _logId = Int32.Parse(PageState.QueryString["id"]);
+            var log = await LogService.GetLogAsync(_logId);
             if (log != null)
             {
-                logdate = log.LogDate.ToString();
-                level = log.Level;
-                feature = log.Feature;
-                function = log.Function;
-                category = log.Category;
+                _logDate = log.LogDate.ToString(CultureInfo.CurrentCulture);
+                _level = log.Level;
+                _feature = log.Feature;
+                _function = log.Function;
+                _category = log.Category;
+                
                 if (log.PageId != null)
                 {
-                    Page page = await PageService.GetPageAsync(log.PageId.Value);
+                    var page = await PageService.GetPageAsync(log.PageId.Value);
                     if (page != null)
                     {
-                        pagename = page.Name;
+                        _pageName = page.Name;
                     }
                 }
+                
                 if (log.PageId != null && log.ModuleId != null)
                 {
-                    PageModule pagemodule = await PageModuleService.GetPageModuleAsync(log.PageId.Value, log.ModuleId.Value);
+                    var pagemodule = await PageModuleService.GetPageModuleAsync(log.PageId.Value, log.ModuleId.Value);
                     if (pagemodule != null)
                     {
-                        moduletitle = pagemodule.Title;
+                        _moduleTitle = pagemodule.Title;
                     }
                 }
+                
                 if (log.UserId != null)
                 {
-                    User user = await UserService.GetUserAsync(log.UserId.Value, PageState.Site.SiteId);
+                    var user = await UserService.GetUserAsync(log.UserId.Value, PageState.Site.SiteId);
                     if (user != null)
                     {
-                        username = user.Username;
+                        _username = user.Username;
                     }
                 }
-                url = log.Url;
-                template = log.MessageTemplate;
-                message = log.Message;
-                exception = log.Exception;
-                properties = log.Properties;
-                server = log.Server;
+                
+                _url = log.Url;
+                _template = log.MessageTemplate;
+                _message = log.Message;
+                _exception = log.Exception;
+                _properties = log.Properties;
+                _server = log.Server;
             }
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading Log {LogId} {Error}", logid, ex.Message);
+            await logger.LogError(ex, "Error Loading Log {LogId} {Error}", _logId, ex.Message);
             AddModuleMessage("Error Loading Log", MessageType.Error);
         }
     }

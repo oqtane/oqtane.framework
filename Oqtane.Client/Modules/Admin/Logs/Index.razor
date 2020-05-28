@@ -2,72 +2,81 @@
 @inherits ModuleBase
 @inject ILogService LogService
 
-@if (Logs == null)
+@if (_logs == null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
-    <div class="form-group">
-        <label>Level: </label>
-        <select class="form-control" @onchange="(e => LevelChanged(e))">
-            <option value="-">&lt;All Levels&gt;</option>
-            <option value="Trace">Trace</option>
-            <option value="Debug">Debug</option>
-            <option value="Information">Information</option>
-            <option value="Warning">Warning</option>
-            <option value="Error">Error</option>
-            <option value="Critical">Critical</option>
-        </select>
-        <label>Function: </label>
-        <select class="form-control" @onchange="(e => FunctionChanged(e))">
-            <option value="-">&lt;All Functions&gt;</option>
-            <option value="Create">Create</option>
-            <option value="Read">Read</option>
-            <option value="Update">Update</option>
-            <option value="Delete">Delete</option>
-            <option value="Security">Security</option>
-            <option value="Other">Other</option>
-        </select>
-        <label>Rows: </label>
-        <select class="form-control" @onchange="(e => RowsChanged(e))">
-            <option value="10">10</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-        </select>
-    </div>
-    @if (Logs.Any())
+    <table class="table table-borderless">
+        <tr>
+            <td>
+                <label>Level: </label>
+                <select class="form-control" @onchange="(e => LevelChanged(e))">
+                    <option value="-">&lt;All Levels&gt;</option>
+                    <option value="Trace">Trace</option>
+                    <option value="Debug">Debug</option>
+                    <option value="Information">Information</option>
+                    <option value="Warning">Warning</option>
+                    <option value="Error">Error</option>
+                    <option value="Critical">Critical</option>
+                </select>
+            </td>
+            <td>
+                <label>Function: </label>
+                <select class="form-control" @onchange="(e => FunctionChanged(e))">
+                    <option value="-">&lt;All Functions&gt;</option>
+                    <option value="Create">Create</option>
+                    <option value="Read">Read</option>
+                    <option value="Update">Update</option>
+                    <option value="Delete">Delete</option>
+                    <option value="Security">Security</option>
+                    <option value="Other">Other</option>
+                </select>
+            </td>
+            <td>
+                <label>Rows: </label>
+                <select class="form-control" @onchange="(e => RowsChanged(e))">
+                    <option value="10">10</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </td>
+        </tr>
+    </table>
+
+    @if (_logs.Any())
     {
-    <Pager Items="@Logs">
-        <Header>
-            <th>&nbsp;</th>
-            <th>Date</th>
-            <th>Level</th>
-            <th>Feature</th>
-            <th>Function</th>
-        </Header>
-        <Row>
-            <td class="@GetClass(context.Function)"><ActionLink Action="Detail" Parameters="@($"id=" + context.LogId.ToString())" /></td>
-            <td class="@GetClass(context.Function)">@context.LogDate</td>
-            <td class="@GetClass(context.Function)">@context.Level</td>
-            <td class="@GetClass(context.Function)">@context.Feature</td>
-            <td class="@GetClass(context.Function)">@context.Function</td>
-        </Row>
-    </Pager>
+        <Pager Items="@_logs">
+            <Header>
+                <th>&nbsp;</th>
+                <th>Date</th>
+                <th>Level</th>
+                <th>Feature</th>
+                <th>Function</th>
+            </Header>
+            <Row>
+                <td class="@GetClass(context.Function)"><ActionLink Action="Detail" Parameters="@($"id=" + context.LogId.ToString())" /></td>
+                <td class="@GetClass(context.Function)">@context.LogDate</td>
+                <td class="@GetClass(context.Function)">@context.Level</td>
+                <td class="@GetClass(context.Function)">@context.Feature</td>
+                <td class="@GetClass(context.Function)">@context.Function</td>
+            </Row>
+        </Pager>
     }
     else
     {
-    <p><em>No Logs Match The Criteria Specified</em></p>
+        <p><em>No Logs Match The Criteria Specified</em></p>
     }
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+    private string _level = "-";
+    private string _function = "-";
+    private string _rows = "10";
+    private List<Log> _logs;
 
-    string level = "-";
-    string function = "-";
-    string rows = "10";
-    List<Log> Logs;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnInitializedAsync()
     {
@@ -86,7 +95,7 @@ else
     {
         try
         {
-            level = (string)e.Value;
+            _level = (string)e.Value;
             await GetLogs();
             StateHasChanged();
         }
@@ -101,7 +110,7 @@ else
     {
         try
         {
-            function = (string)e.Value;
+            _function = (string)e.Value;
             await GetLogs();
             StateHasChanged();
         }
@@ -117,7 +126,7 @@ else
     {
         try
         {
-            rows = (string)e.Value;
+            _rows = (string)e.Value;
             await GetLogs();
             StateHasChanged();
         }
@@ -130,12 +139,12 @@ else
 
     private async Task GetLogs()
     {
-        Logs = await LogService.GetLogsAsync(PageState.Site.SiteId, ((level == "-") ? "" : level), ((function == "-") ? "" : function), int.Parse(rows));
+        _logs = await LogService.GetLogsAsync(PageState.Site.SiteId, ((_level == "-") ? string.Empty : _level), ((_function == "-") ? string.Empty : _function), int.Parse(_rows));
     }
 
     private string GetClass(string function)
     {
-        string classname = "";
+        string classname = string.Empty;
         switch (function)
         {
             case "Create":
@@ -154,7 +163,7 @@ else
                 classname = "table-secondary";
                 break;
             default:
-                classname = "";
+                classname = string.Empty;
                 break;
         }
         return classname;

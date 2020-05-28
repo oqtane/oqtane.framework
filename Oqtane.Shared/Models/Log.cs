@@ -1,12 +1,11 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Models
 {
     public class Log
     {
         public int LogId { get; set; }
-        public int SiteId { get; set; }
+        public int? SiteId { get; set; }
         public DateTime LogDate { get; set; }
         public int? PageId { get; set; }
         public int? ModuleId { get; set; }

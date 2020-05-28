@@ -3,67 +3,71 @@ using Microsoft.AspNetCore.Authorization;
 using Oqtane.Modules.HtmlText.Models;
 using Oqtane.Modules.HtmlText.Repository;
 using Microsoft.AspNetCore.Http;
-using Oqtane.Infrastructure;
 using Oqtane.Shared;
 using System;
+using System.Collections.Generic;
+using Oqtane.Enums;
+using Oqtane.Infrastructure;
 
 namespace Oqtane.Modules.HtmlText.Controllers
 {
-    [Route("{site}/api/[controller]")]
+    [Route("{alias}/api/[controller]")]
     public class HtmlTextController : Controller
     {
-        private readonly IHtmlTextRepository htmltext;
-        private readonly ILogManager logger;
-        private int EntityId = -1; // passed as a querystring parameter for authorization and used for validation
+        private readonly IHtmlTextRepository _htmlText;
+        private readonly ILogManager _logger;
+        private int _entityId = -1; // passed as a querystring parameter for authorization and used for validation
 
-        public HtmlTextController(IHtmlTextRepository HtmlText, ILogManager logger, IHttpContextAccessor HttpContextAccessor)
+        public HtmlTextController(IHtmlTextRepository htmlText, ILogManager logger, IHttpContextAccessor httpContextAccessor)
         {
-            htmltext = HtmlText;
-            this.logger = logger;
-            if (HttpContextAccessor.HttpContext.Request.Query.ContainsKey("entityid"))
+            _htmlText = htmlText;
+            _logger = logger;
+            if (httpContextAccessor.HttpContext.Request.Query.ContainsKey("entityid"))
             {
-                EntityId = int.Parse(HttpContextAccessor.HttpContext.Request.Query["entityid"]);
+                _entityId = int.Parse(httpContextAccessor.HttpContext.Request.Query["entityid"]);
             }
         }
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
         [Authorize(Policy = "ViewModule")]
-        public HtmlTextInfo Get(int id)
+        public List<HtmlTextInfo> Get(int id)
         {
+            var list = new List<HtmlTextInfo>();
             try
             {
-                HtmlTextInfo HtmlText = null;
-                if (EntityId == id)
+                HtmlTextInfo htmlText = null;
+                if (_entityId == id)
                 {
-                    HtmlText = htmltext.GetHtmlText(id);
+                    htmlText = _htmlText.GetHtmlText(id);
+                    list.Add(htmlText);
                 }
-                return HtmlText;
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, this, LogFunction.Read, ex, "Get Error {Error}", ex.Message);
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, ex, "Get Error {Error}", ex.Message);
                 throw;
             }
+            return list;
         }
 
         // POST api/<controller>
         [HttpPost]
         [Authorize(Policy = "EditModule")]
-        public HtmlTextInfo Post([FromBody] HtmlTextInfo HtmlText)
+        public HtmlTextInfo Post([FromBody] HtmlTextInfo htmlText)
         {
             try
             {
-                if (ModelState.IsValid && HtmlText.ModuleId == EntityId)
+                if (ModelState.IsValid && htmlText.ModuleId == _entityId)
                 {
-                    HtmlText = htmltext.AddHtmlText(HtmlText);
-                    logger.Log(LogLevel.Information, this, LogFunction.Create, "Html/Text Added {HtmlText}", HtmlText);
+                    htmlText = _htmlText.AddHtmlText(htmlText);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Create, "Html/Text Added {HtmlText}", htmlText);
                 }
-                return HtmlText;
+                return htmlText;
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, this, LogFunction.Create, ex, "Post Error {Error}", ex.Message);
+                _logger.Log(LogLevel.Error, this, LogFunction.Create, ex, "Post Error {Error}", ex.Message);
                 throw;
             }
         }
@@ -71,20 +75,20 @@ namespace Oqtane.Modules.HtmlText.Controllers
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Policy = "EditModule")]
-        public HtmlTextInfo Put(int id, [FromBody] HtmlTextInfo HtmlText)
+        public HtmlTextInfo Put(int id, [FromBody] HtmlTextInfo htmlText)
         {
             try
             {
-                if (ModelState.IsValid && HtmlText.ModuleId == EntityId)
+                if (ModelState.IsValid && htmlText.ModuleId == _entityId)
                 {
-                    HtmlText = htmltext.UpdateHtmlText(HtmlText);
-                    logger.Log(LogLevel.Information, this, LogFunction.Update, "Html/Text Updated {HtmlText}", HtmlText);
+                    htmlText = _htmlText.UpdateHtmlText(htmlText);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Update, "Html/Text Updated {HtmlText}", htmlText);
                 }
-                return HtmlText;
+                return htmlText;
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, this, LogFunction.Update, ex, "Put Error {Error}", ex.Message);
+                _logger.Log(LogLevel.Error, this, LogFunction.Update, ex, "Put Error {Error}", ex.Message);
                 throw;
             }
         }
@@ -96,15 +100,15 @@ namespace Oqtane.Modules.HtmlText.Controllers
         {
             try
             {
-                if (id == EntityId)
+                if (id == _entityId)
                 {
-                    htmltext.DeleteHtmlText(id);
-                    logger.Log(LogLevel.Information, this, LogFunction.Delete, "Html/Text Deleted {HtmlTextId}", id);
+                    _htmlText.DeleteHtmlText(id);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Html/Text Deleted {HtmlTextId}", id);
                 }
             }
             catch (Exception ex)
             {
-                logger.Log(LogLevel.Error, this, LogFunction.Delete, ex, "Delete Error {Error}", ex.Message);
+                _logger.Log(LogLevel.Error, this, LogFunction.Delete, ex, "Delete Error {Error}", ex.Message);
                 throw;
             }
         }

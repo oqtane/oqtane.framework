@@ -1,51 +1,51 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Oqtane.Models;
 using Microsoft.EntityFrameworkCore;
+using Oqtane.Models;
 
 namespace Oqtane.Repository
 {
     public class JobLogRepository : IJobLogRepository
     {
-        private MasterDBContext db;
+        private MasterDBContext _db;
 
         public JobLogRepository(MasterDBContext context)
         {
-            db = context;
+            _db = context;
         }
 
         public IEnumerable<JobLog> GetJobLogs()
         {
-            return db.JobLog
+            return _db.JobLog
                 .Include(item => item.Job) // eager load jobs
                 .ToList();
         }
 
-        public JobLog AddJobLog(JobLog JobLog)
+        public JobLog AddJobLog(JobLog jobLog)
         {
-            db.JobLog.Add(JobLog);
-            db.SaveChanges();
-            return JobLog;
+            _db.JobLog.Add(jobLog);
+            _db.SaveChanges();
+            return jobLog;
         }
 
-        public JobLog UpdateJobLog(JobLog JobLog)
+        public JobLog UpdateJobLog(JobLog jobLog)
         {
-            db.Entry(JobLog).State = EntityState.Modified;
-            db.SaveChanges();
-            return JobLog;
+            _db.Entry(jobLog).State = EntityState.Modified;
+            _db.SaveChanges();
+            return jobLog;
         }
 
-        public JobLog GetJobLog(int JobLogId)
+        public JobLog GetJobLog(int jobLogId)
         {
-            return db.JobLog.Include(item => item.Job) // eager load job
-                .SingleOrDefault(item => item.JobLogId == JobLogId); 
+            return _db.JobLog.Include(item => item.Job) // eager load job
+                .SingleOrDefault(item => item.JobLogId == jobLogId); 
         }
 
-        public void DeleteJobLog(int JobLogId)
+        public void DeleteJobLog(int jobLogId)
         {
-            JobLog Joblog = db.JobLog.Find(JobLogId);
-            db.JobLog.Remove(Joblog);
-            db.SaveChanges();
+            JobLog joblog = _db.JobLog.Find(jobLogId);
+            _db.JobLog.Remove(joblog);
+            _db.SaveChanges();
         }
     }
 }

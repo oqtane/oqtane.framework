@@ -2,7 +2,7 @@
 @inherits ModuleBase
 @inject IProfileService ProfileService
 
-@if (Profiles == null)
+@if (_profiles == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -10,7 +10,7 @@ else
 {
     <ActionLink Action="Add" Security="SecurityAccessLevel.Admin" Text="Add Profile" />
 
-    <Pager Items="@Profiles">
+    <Pager Items="@_profiles">
         <Header>
             <th>&nbsp;</th>
             <th>&nbsp;</th>
@@ -25,26 +25,26 @@ else
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Admin; } }
+    private List<Profile> _profiles;
 
-    List<Profile> Profiles;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override async Task OnInitializedAsync()
     {
-        Profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
+        _profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
     }
 
-    private async Task DeleteProfile(int ProfileId)
+    private async Task DeleteProfile(int profileId)
     {
         try
         {
-            await ProfileService.DeleteProfileAsync(ProfileId);
-            await logger.LogInformation("Profile Deleted {ProfileId}", ProfileId);
+            await ProfileService.DeleteProfileAsync(profileId);
+            await logger.LogInformation("Profile Deleted {ProfileId}", profileId);
             AddModuleMessage("Profile Deleted", MessageType.Success);
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Deleting Profile {ProfileId} {Error}", ProfileId, ex.Message);
+            await logger.LogError(ex, "Error Deleting Profile {ProfileId} {Error}", profileId, ex.Message);
             AddModuleMessage("Error Deleting Profile", MessageType.Error);
         }
     }

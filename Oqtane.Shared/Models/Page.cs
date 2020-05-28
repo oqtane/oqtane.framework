@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Models
@@ -9,10 +10,13 @@ namespace Oqtane.Models
         public int SiteId { get; set; }
         public int? ParentId { get; set; }
         public string Name { get; set; }
+        public string Title { get; set; }
         public string Path { get; set; }
         public int Order { get; set; }
+        public string Url { get; set; }
         public string ThemeType { get; set; }
         public string LayoutType { get; set; }
+        public string DefaultContainerType { get; set; }
         public string Icon { get; set; }
         public bool IsNavigation { get; set; }
         public bool EditMode { get; set; }
@@ -28,7 +32,9 @@ namespace Oqtane.Models
         public bool IsDeleted { get; set; }
 
         [NotMapped]
-        public string Panes { get; set; }
+        public List<string> Panes { get; set; }
+        [NotMapped]
+        public List<Resource> Resources { get; set; }
         [NotMapped]
         public string Permissions { get; set; }
         [NotMapped]

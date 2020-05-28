@@ -1,53 +1,48 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
 {
     public class ProfileRepository : IProfileRepository
     {
-        private TenantDBContext db;
+        private TenantDBContext _db;
 
         public ProfileRepository(TenantDBContext context)
         {
-            db = context;
+            _db = context;
         }
             
-        public IEnumerable<Profile> GetProfiles()
+        public IEnumerable<Profile> GetProfiles(int siteId)
         {
-            return db.Profile;
+            return _db.Profile.Where(item => item.SiteId == siteId || item.SiteId == null);
         }
 
-        public IEnumerable<Profile> GetProfiles(int SiteId)
+        public Profile AddProfile(Profile profile)
         {
-            return db.Profile.Where(item => item.SiteId == SiteId || item.SiteId == null);
+            _db.Profile.Add(profile);
+            _db.SaveChanges();
+            return profile;
         }
 
-        public Profile AddProfile(Profile Profile)
+        public Profile UpdateProfile(Profile profile)
         {
-            db.Profile.Add(Profile);
-            db.SaveChanges();
-            return Profile;
+            _db.Entry(profile).State = EntityState.Modified;
+            _db.SaveChanges();
+            return profile;
         }
 
-        public Profile UpdateProfile(Profile Profile)
+        public Profile GetProfile(int profileId)
         {
-            db.Entry(Profile).State = EntityState.Modified;
-            db.SaveChanges();
-            return Profile;
+            return _db.Profile.Find(profileId);
         }
 
-        public Profile GetProfile(int ProfileId)
+        public void DeleteProfile(int profileId)
         {
-            return db.Profile.Find(ProfileId);
-        }
-
-        public void DeleteProfile(int ProfileId)
-        {
-            Profile Profile = db.Profile.Find(ProfileId);
-            db.Profile.Remove(Profile);
-            db.SaveChanges();
+            Profile profile = _db.Profile.Find(profileId);
+            _db.Profile.Remove(profile);
+            _db.SaveChanges();
         }
     }
 }

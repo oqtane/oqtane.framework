@@ -2,13 +2,13 @@
 @inherits ModuleBase
 @inject IJobLogService JobLogService
 
-@if (JobLogs == null)
+@if (_jobLogs == null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
-<Pager Items="@JobLogs">
+<Pager Items="@_jobLogs">
     <Header>
         <th>Name</th>
         <th>Status</th>
@@ -28,30 +28,32 @@ else
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
-
-    List<JobLog> JobLogs;
+    private List<JobLog> _jobLogs;
+    
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnParametersSetAsync()
     {
-        JobLogs = await JobLogService.GetJobLogsAsync();
+        _jobLogs = await JobLogService.GetJobLogsAsync();
+        
         if (PageState.QueryString.ContainsKey("id"))
         {
-            JobLogs = JobLogs.Where(item => item.JobId == Int32.Parse(PageState.QueryString["id"])).ToList();
+            _jobLogs = _jobLogs.Where(item => item.JobId == Int32.Parse(PageState.QueryString["id"])).ToList();
         }
-        JobLogs = JobLogs.OrderByDescending(item => item.JobLogId).ToList();
+        
+        _jobLogs = _jobLogs.OrderByDescending(item => item.JobLogId).ToList();
     }
 
-    private string DisplayStatus(bool IsExecuting, bool? Succeeded)
+    private string DisplayStatus(bool isExecuting, bool? succeeded)
     {
-        string status = "";
-        if (IsExecuting)
+        var status = string.Empty;
+        if (isExecuting)
         {
             status = "Executing";
         }
         else
         {
-            if (Succeeded.Value)
+            if (succeeded != null && succeeded.Value)
             {
                 status = "Succeeded";
             }
@@ -60,6 +62,7 @@ else
                 status = "Failed";
             }
         }
+        
         return status;
     }
 }

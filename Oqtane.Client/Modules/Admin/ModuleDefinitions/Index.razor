@@ -4,7 +4,7 @@
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject IPackageService PackageService
 
-@if (moduledefinitions == null)
+@if (_moduleDefinitions == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -12,7 +12,7 @@ else
 {
     <ActionLink Action="Add" Text="Install Module" />
 
-    <Pager Items="@moduledefinitions">
+    <Pager Items="@_moduleDefinitions">
         <Header>
             <th>&nbsp;</th>
             <th>&nbsp;</th>
@@ -41,17 +41,17 @@ else
 }
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
+    private List<ModuleDefinition> _moduleDefinitions;
+    private List<Package> _packages;
 
-    List<ModuleDefinition> moduledefinitions;
-    List<Package> packages;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
-            packages = await PackageService.GetPackagesAsync("module");
+            _moduleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
+            _packages = await PackageService.GetPackagesAsync("module");
         }
         catch (Exception ex)
         {
@@ -62,12 +62,13 @@ else
 
     private bool UpgradeAvailable(string moduledefinitionname, string version)
     {
-        bool upgradeavailable = false;
-        Package package = packages.Where(item => item.PackageId == Utilities.GetTypeName(moduledefinitionname)).FirstOrDefault();
+        var upgradeavailable = false;
+        var package = _packages.Where(item => item.PackageId == Utilities.GetTypeName(moduledefinitionname)).FirstOrDefault();
         if (package != null)
         {
             upgradeavailable = (Version.Parse(package.Version).CompareTo(Version.Parse(version)) > 0);
         }
+        
         return upgradeavailable;
     }
 
@@ -78,7 +79,7 @@ else
             await PackageService.DownloadPackageAsync(moduledefinitionname, version, "Modules");
             await ModuleDefinitionService.InstallModuleDefinitionsAsync();
             await logger.LogInformation("Module Downloaded {ModuleDefinitionName} {Version}", moduledefinitionname, version);
-            NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
+            NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {
@@ -87,17 +88,17 @@ else
         }
   }
 
-    private async Task DeleteModule(ModuleDefinition ModuleDefinition)
+    private async Task DeleteModule(ModuleDefinition moduleDefinition)
     {
         try
         {
-            await ModuleDefinitionService.DeleteModuleDefinitionAsync(ModuleDefinition.ModuleDefinitionId, ModuleDefinition.SiteId);
-            await logger.LogInformation("Module Deleted {ModuleDefinition}", ModuleDefinition);
-            NavigationManager.NavigateTo(NavigateUrl(Reload.Application));
+            await ModuleDefinitionService.DeleteModuleDefinitionAsync(moduleDefinition.ModuleDefinitionId, moduleDefinition.SiteId);
+            await logger.LogInformation("Module Deleted {ModuleDefinition}", moduleDefinition);
+            NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Deleting Module {ModuleDefinition} {Error}", ModuleDefinition, ex.Message);
+            await logger.LogError(ex, "Error Deleting Module {ModuleDefinition} {Error}", moduleDefinition, ex.Message);
             AddModuleMessage("Error Deleting Module", MessageType.Error);
         }
     }

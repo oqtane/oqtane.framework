@@ -1,59 +1,54 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
 {
     public class RoleRepository : IRoleRepository
     {
-        private TenantDBContext db;
+        private TenantDBContext _db;
 
         public RoleRepository(TenantDBContext context)
         {
-            db = context;
+            _db = context;
         }
             
-        public IEnumerable<Role> GetRoles()
+        public IEnumerable<Role> GetRoles(int siteId)
         {
-            return db.Role;
+            return _db.Role.Where(item => item.SiteId == siteId);
         }
 
-        public IEnumerable<Role> GetRoles(int SiteId)
+        public IEnumerable<Role> GetRoles(int siteId, bool includeGlobalRoles)
         {
-            return db.Role.Where(item => item.SiteId == SiteId);
-        }
-
-        public IEnumerable<Role> GetRoles(int SiteId, bool IncludeGlobalRoles)
-        {
-            return db.Role.Where(item => item.SiteId == SiteId || item.SiteId == null);
+            return _db.Role.Where(item => item.SiteId == siteId || item.SiteId == null);
         }
 
 
-        public Role AddRole(Role Role)
+        public Role AddRole(Role role)
         {
-            db.Role.Add(Role);
-            db.SaveChanges();
-            return Role;
+            _db.Role.Add(role);
+            _db.SaveChanges();
+            return role;
         }
 
-        public Role UpdateRole(Role Role)
+        public Role UpdateRole(Role role)
         {
-            db.Entry(Role).State = EntityState.Modified;
-            db.SaveChanges();
-            return Role;
+            _db.Entry(role).State = EntityState.Modified;
+            _db.SaveChanges();
+            return role;
         }
 
-        public Role GetRole(int RoleId)
+        public Role GetRole(int roleId)
         {
-            return db.Role.Find(RoleId);
+            return _db.Role.Find(roleId);
         }
 
-        public void DeleteRole(int RoleId)
+        public void DeleteRole(int roleId)
         {
-            Role Role = db.Role.Find(RoleId);
-            db.Role.Remove(Role);
-            db.SaveChanges();
+            Role role = _db.Role.Find(roleId);
+            _db.Role.Remove(role);
+            _db.SaveChanges();
         }
     }
 }

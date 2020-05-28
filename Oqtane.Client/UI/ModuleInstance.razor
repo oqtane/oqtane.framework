@@ -1,0 +1,80 @@
+﻿@namespace Oqtane.UI
+
+<ModuleMessage Message="@_message" Type="MessageType.Error" />
+<CascadingValue Value="this">
+    <ModuleMessage @ref="ModuleMessage" />
+    @DynamicComponent
+</CascadingValue>
+@if (_progressindicator)
+{
+    <div class="app-progress-indicator"></div>
+}
+
+@code {
+    private string _message;
+    private bool _progressindicator = false;
+
+    [CascadingParameter]
+    protected PageState PageState { get; set; }
+
+    [CascadingParameter]
+    private Module ModuleState { get; set; }
+
+    private ModuleMessage ModuleMessage { get; set; }
+
+    private RenderFragment DynamicComponent { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        DynamicComponent = builder =>
+        {
+            string typename = ModuleState.ModuleType;
+            // check for core module actions component
+            if (Constants.DefaultModuleActions.Contains(PageState.Action))
+            {
+                typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, PageState.Action);
+            }
+
+            Type moduleType = null;
+            if (typename != null)
+            {
+                moduleType = Type.GetType(typename);
+
+                if (moduleType != null)
+                {
+                    builder.OpenComponent(0, moduleType);
+                    builder.CloseComponent();
+                }
+                else
+                {
+                    // module does not exist with typename specified
+                    _message = "Module Does Not Have A Component Named " + Utilities.GetTypeNameLastSegment(typename, 0) + ".razor";
+                }
+            }
+            else
+            {
+                _message = "Something is wrong with moduletype";
+            }
+
+        };
+    }
+
+    public void AddModuleMessage(string message, MessageType type)
+    {
+        _progressindicator = false;
+        StateHasChanged();
+        ModuleMessage.SetModuleMessage(message, type);
+    }
+
+    public void ShowProgressIndicator()
+    {
+        _progressindicator = true;
+        StateHasChanged();
+    }
+
+    public void HideProgressIndicator()
+    {
+        _progressindicator = false;
+        StateHasChanged();
+    }
+}

@@ -1,38 +1,42 @@
 ﻿@namespace Oqtane.Modules.Controls
-@inherits ModuleBase
+@inherits ModuleBase      
+@attribute [OqtaneIgnore]
 
-@if (!string.IsNullOrEmpty(message))
+@if (!string.IsNullOrEmpty(_message))
 {
-    <div class="@classname" role="alert">@message</div>
+    <div class="@_classname" role="alert">@_message</div>
     <br />
 }
 
 @code {
+    private string _message = string.Empty;
+    private string _classname = "alert alert-danger";
+
     [Parameter]
     public string Message { get; set; }
 
     [Parameter]
     public MessageType Type { get; set; }
 
-    string message = "";
-    string classname = "alert alert-danger";
-
     protected override void OnParametersSet()
     {
-        message = Message;
-        classname = GetMessageType(Type);
+        if (!string.IsNullOrEmpty(Message))
+        {
+            _message = Message;
+            _classname = GetMessageType(Type);
+        }
     }
 
     public void SetModuleMessage(string message, MessageType type)
     {
-        this.message = message;
-        classname = GetMessageType(type);
+        _message = message;
+        _classname = GetMessageType(type);
         StateHasChanged();
     }
 
     private string GetMessageType(MessageType type)
     {
-        string classname = "";
+        var classname = string.Empty;
         switch (type)
         {
             case MessageType.Success:
@@ -48,6 +52,7 @@
                 classname = "alert alert-danger";
                 break;
         }
+        
         return classname;
     }
 }

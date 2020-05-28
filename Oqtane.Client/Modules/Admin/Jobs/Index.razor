@@ -2,7 +2,7 @@
 @inherits ModuleBase
 @inject IJobService JobService
 
-@if (Jobs == null)
+@if (_jobs == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -13,7 +13,7 @@ else
     <button type="button" class="btn btn-secondary" @onclick="(async () => await Refresh())">Refresh</button>
     <br /><br />
 
-    <Pager Items="@Jobs">
+    <Pager Items="@_jobs">
         <Header>
             <th>&nbsp;</th>
             <th>&nbsp;</th>
@@ -47,25 +47,25 @@ else
 }
 
 @code {
+    private List<Job> _jobs;
+    
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
-
-    List<Job> Jobs;
 
     protected override async Task OnParametersSetAsync()
     {
-        Jobs = await JobService.GetJobsAsync();
+        _jobs = await JobService.GetJobsAsync();
     }
 
-    private string DisplayStatus(bool IsEnabled, bool IsExecuting)
+    private string DisplayStatus(bool isEnabled, bool isExecuting)
     {
-        string status = "";
-        if (!IsEnabled)
+        var status = string.Empty;
+        if (!isEnabled)
         {
             status = "Disabled";
         }
         else
         {
-            if (IsExecuting)
+            if (isExecuting)
             {
                 status = "Executing";
             }
@@ -79,59 +79,61 @@ else
     }
 
 
-    private string DisplayFrequency(int Interval, string Frequency)
+    private string DisplayFrequency(int interval, string frequency)
     {
-        string frequency = "Every " + Interval.ToString() + " ";
-        switch (Frequency)
+        var  result = "Every " + interval.ToString() + " ";
+        switch (frequency)
         {
             case "m":
-                frequency += "Minute";
+                result += "Minute";
                 break;
             case "H":
-                frequency += "Hour";
+                result += "Hour";
                 break;
             case "d":
-                frequency += "Day";
+                result += "Day";
                 break;
             case "M":
-                frequency += "Month";
+                result += "Month";
                 break;
         }
-        if (Interval > 1)
+        
+        if (interval > 1)
         {
-            frequency += "s";
+            result += "s";
         }
-        return frequency;
+        
+        return result;
     }
 
-    private async Task DeleteJob(Job Job)
+    private async Task DeleteJob(Job job)
     {
         try
         {
-            await JobService.DeleteJobAsync(Job.JobId);
-            await logger.LogInformation("Job Deleted {Job}", Job);
+            await JobService.DeleteJobAsync(job.JobId);
+            await logger.LogInformation("Job Deleted {Job}", job);
             StateHasChanged();
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Deleting Job {Job} {Error}", Job, ex.Message);
+            await logger.LogError(ex, "Error Deleting Job {Job} {Error}", job, ex.Message);
             AddModuleMessage("Error Deleting Job", MessageType.Error);
         }
     }
 
-    private async Task StartJob(int JobId)
+    private async Task StartJob(int jobId)
     {
-        await JobService.StartJobAsync(JobId);
+        await JobService.StartJobAsync(jobId);
     }
 
-    private async Task StopJob(int JobId)
+    private async Task StopJob(int jobId)
     {
-        await JobService.StopJobAsync(JobId);
+        await JobService.StopJobAsync(jobId);
     }
 
     private async Task Refresh()
     {
-        Jobs = await JobService.GetJobsAsync();
+        _jobs = await JobService.GetJobsAsync();
         StateHasChanged();
     }
 }

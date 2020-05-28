@@ -1,33 +1,28 @@
 ﻿using Oqtane.Models;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Oqtane.Services
 {
     public interface IUserService
     {
-        Task<List<User>> GetUsersAsync();
+        Task<User> GetUserAsync(int userId, int siteId);
 
-        Task<User> GetUserAsync(int UserId, int SiteId);
+        Task<User> GetUserAsync(string username, int siteId);
 
-        Task<User> GetUserAsync(string Username, int SiteId);
+        Task<User> AddUserAsync(User user);
 
-        Task<User> AddUserAsync(User User);
+        Task<User> UpdateUserAsync(User user);
 
-        Task<User> AddUserAsync(User User, Alias alias);
+        Task DeleteUserAsync(int userId);
 
-        Task<User> UpdateUserAsync(User User);
+        Task<User> LoginUserAsync(User user, bool setCookie, bool isPersistent);
 
-        Task DeleteUserAsync(int UserId);
+        Task LogoutUserAsync(User user);
 
-        Task<User> LoginUserAsync(User User, bool SetCookie, bool IsPersistent);
+        Task<User> VerifyEmailAsync(User user, string token);
 
-        Task LogoutUserAsync(User User);
+        Task ForgotPasswordAsync(User user);
 
-        Task<User> VerifyEmailAsync(User User, string Token);
-
-        Task ForgotPasswordAsync(User User);
-
-        Task<User> ResetPasswordAsync(User User, string Token);
+        Task<User> ResetPasswordAsync(User user, string token);
     }
 }
