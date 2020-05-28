@@ -9,7 +9,11 @@
 }
 else
 {
-    <ActionLink Action="Add" Text="Add User" />
+    <ActionLink Action="Add" Text="Add User"/>
+
+    <div class="d-flex p-1">
+            <input class="form-control mr-4" @bind="@search"/><button class="btn btn-outline-primary ml-1" @onclick="OnSearch">Search</button>
+    </div>
 
     <Pager Items="@userroles">
         <Header>
@@ -28,15 +32,31 @@ else
 }
 
 @code {
+    private List<UserRole> allroles;
     private List<UserRole> userroles;
+    private string search;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override async Task OnInitializedAsync()
     {
-        userroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
-        userroles = userroles.Where(item => item.Role.Name == Constants.RegisteredRole).ToList();
+        allroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
+        userroles = allroles.Where(item => item.Role.Name == Constants.RegisteredRole).ToList();
     }
+
+    private void OnSearch()
+    {
+        userroles = allroles
+            .Where(item => item.Role.Name == Constants.RegisteredRole &&
+                           (
+                               item.User.Username.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                               item.User.Email.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                               item.User.DisplayName.Contains(search, StringComparison.OrdinalIgnoreCase)
+                               )
+            )
+            .ToList();
+    }
+
 
     private async Task DeleteUser(UserRole UserRole)
     {
