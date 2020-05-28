@@ -16,7 +16,7 @@
                     if (p.PageId == PageState.Page.PageId)
                     {
                         <li class="nav-item active">
-                            <a class="nav-link" href="@NavigateUrl(p.Path)">
+                            <a class="nav-link" href="@GetUrl(p)" target="@GetTarget(p)" >
                                 @if (p.Icon != string.Empty)
                                 {
                                     <span class="oi oi-@p.Icon" aria-hidden="true"></span>
@@ -28,7 +28,7 @@
                     else
                     {
                         <li class="nav-item">
-                            <a class="nav-link" href="@NavigateUrl(p.Path)">
+                            <a class="nav-link" href="@GetUrl(p)"  target="@GetTarget(p)" >
                                 @if (p.Icon != string.Empty)
                                 {
                                     <span class="oi oi-@p.Icon" aria-hidden="true"></span>
