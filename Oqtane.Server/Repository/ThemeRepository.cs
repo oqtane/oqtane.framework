@@ -54,16 +54,26 @@ namespace Oqtane.Repository
                 ) continue;
 
                 string themeNamespace = themeControlType.Namespace;
-                string qualifiedModuleType = themeNamespace + ", " + themeControlType.Assembly.GetName().Name;
+                // 2dm disabled - not used anywhere in code
+                //string qualifiedModuleType = themeNamespace + ", " + themeControlType.Assembly.GetName().Name;
 
                 int index = themes.FindIndex(item => item.ThemeName == themeNamespace);
+
+                // Find all types in the assembly which have the same namespace-root as the theme file
+                // Check with "." in the end to 
+                List<Type> typesInTheme = assembly.GetTypes()
+                    .Where(item => item.Namespace != null)
+                    // Namespace must be the same or start with "xxx." to ensure that
+                    // similar namespaces like "MyTheme" and "MyTheme2" don't match in StartsWith(...)
+                    .Where(item => item.Namespace == themeNamespace 
+                                   || item.Namespace.StartsWith(themeNamespace + "."))
+                    .ToList();
+
                 if (index == -1)
                 {
                     // determine if this theme implements ITheme
-                    Type themetype = assembly.GetTypes()
-                        .Where(item => item.Namespace != null)
-                        .Where(item => item.Namespace.StartsWith(themeNamespace))
-                        .Where(item => item.GetInterfaces().Contains(typeof(ITheme))).FirstOrDefault();
+                    Type themetype = typesInTheme
+                        .FirstOrDefault(item => item.GetInterfaces().Contains(typeof(ITheme)));
                     if (themetype != null)
                     {
                         var themeobject = Activator.CreateInstance(themetype) as ITheme;
@@ -90,9 +100,7 @@ namespace Oqtane.Repository
                 theme.ThemeControls += (themeControlType.FullName + ", " + themeControlType.Assembly.GetName().Name + ";");
 
                 // layouts
-                Type[] layouttypes = assembly.GetTypes()
-                    .Where(item => item.Namespace != null)
-                    .Where(item => item.Namespace.StartsWith(themeNamespace))
+                Type[] layouttypes = typesInTheme
                     .Where(item => item.GetInterfaces().Contains(typeof(ILayoutControl))).ToArray();
                 foreach (Type layouttype in layouttypes)
                 {
@@ -104,9 +112,7 @@ namespace Oqtane.Repository
                 }
 
                 // containers
-                Type[] containertypes = assembly.GetTypes()
-                    .Where(item => item.Namespace != null)
-                    .Where(item => item.Namespace.StartsWith(themeNamespace))
+                Type[] containertypes = typesInTheme
                     .Where(item => item.GetInterfaces().Contains(typeof(IContainerControl))).ToArray();
                 foreach (Type containertype in containertypes)
                 {
