@@ -11,13 +11,13 @@
                 if (p.PageId == PageState.Page.PageId)
                 {
                     <li class="breadcrumb-item active">
-                        <a href="@NavigateUrl(p.Path)">@p.Name</a>
+                        <a href="@NavigateUrl(p.Path)">@(string.IsNullOrEmpty(p.Title)?p.Name:p.Title)</a>
                     </li>
                 }
                 else
                 {
                     <li class="breadcrumb-item">
-                        <a href="@NavigateUrl(p.Path)">@p.Name</a>
+                        <a href="@NavigateUrl(p.Path)">@(string.IsNullOrEmpty(p.Title)?p.Name:p.Title)</a>
                     </li>
                 }
             }

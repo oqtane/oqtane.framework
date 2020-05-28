@@ -24,7 +24,7 @@
                             {
                                 <span class="oi oi-@p.Icon" aria-hidden="true"></span>
                             }
-                            @p.Name
+                            @(string.IsNullOrEmpty(p.Title)?p.Name:p.Title)
                         </a>
                     </li>
                 }

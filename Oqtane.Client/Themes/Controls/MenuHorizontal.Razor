@@ -21,7 +21,7 @@
                                 {
                                     <span class="oi oi-@p.Icon" aria-hidden="true"></span>
                                 }
-                                @p.Name<span class="sr-only">(current)</span>
+                               @(string.IsNullOrEmpty(p.Title)?p.Name:p.Title)<span class="sr-only">(current)</span>
                             </a>
                         </li>
                     }
@@ -33,7 +33,7 @@
                                 {
                                     <span class="oi oi-@p.Icon" aria-hidden="true"></span>
                                 }
-                                @p.Name
+                                @(string.IsNullOrEmpty(p.Title)?p.Name:p.Title)
                             </a>
                         </li>
                     }
