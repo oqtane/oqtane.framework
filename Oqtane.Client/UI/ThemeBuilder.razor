@@ -13,6 +13,13 @@
     {
         var interop = new Interop(JsRuntime);
 
+        // handle page redirection
+        if (!string.IsNullOrEmpty(PageState.Page.Url))
+        {
+            NavigationManager.NavigateTo(PageState.Page.Url);
+            return;
+        }
+
         // set page title
         if (!string.IsNullOrEmpty(PageState.Page.Title))
         {
