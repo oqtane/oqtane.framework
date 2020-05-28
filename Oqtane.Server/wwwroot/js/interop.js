@@ -45,6 +45,9 @@ Oqtane.Interop = {
             document.head.appendChild(meta);
         }
         else {
+            if (id !== "") {
+                meta.setAttribute("id", id);
+            }
             if (meta.content !== content) {
                 meta.setAttribute("content", content);
             }
@@ -77,6 +80,9 @@ Oqtane.Interop = {
             document.head.appendChild(link);
         }
         else {
+            if (link.id !== id) {
+                link.setAttribute('id', id);
+            }
             if (link.rel !== rel) {
                 link.setAttribute('rel', rel);
             }
@@ -148,6 +154,9 @@ Oqtane.Interop = {
                 });
         }
         else {
+            if (script.id !== id) {
+                script.setAttribute('id', id);
+            }
             if (src !== "") {
                 if (script.src !== this.getAbsoluteUrl(src)) {
                     script.removeAttribute('integrity');
