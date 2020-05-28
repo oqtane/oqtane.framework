@@ -1,5 +1,6 @@
 ﻿using Oqtane.Models;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace Oqtane.Shared
         {
             if (type == null) return null;
             var assemblyFullName = type.Assembly.FullName;
-            var assemblyName = assemblyFullName.Substring(0,  assemblyFullName.IndexOf(",", StringComparison.Ordinal));
+            var assemblyName = assemblyFullName.Substring(0, assemblyFullName.IndexOf(",", StringComparison.Ordinal));
             return $"{type.Namespace}, {assemblyName}";
         }
 
@@ -24,10 +25,10 @@ namespace Oqtane.Shared
             var uriBuilder = new UriBuilder
             {
                 Path = !string.IsNullOrEmpty(alias)
-                ? (!string.IsNullOrEmpty(path)) 
-                    ? $"{alias}/{path}" 
-                    : $"{alias}"
-                : $"{path}",
+                    ? (!string.IsNullOrEmpty(path))
+                        ? $"{alias}/{path}"
+                        : $"{alias}"
+                    : $"{path}",
                 Query = parameters
             };
 
@@ -44,6 +45,7 @@ namespace Oqtane.Shared
                     path += $"/{action}";
                 }
             }
+
             return NavigateUrl(alias, path, parameters);
         }
 
@@ -98,6 +100,7 @@ namespace Oqtane.Shared
                 // remove assembly if fully qualified type
                 typename = typename.Substring(0, typename.IndexOf(","));
             }
+
             // segment 0 is the last segment, segment 1 is the second to last segment, etc...
             string[] segments = typename.Split('.');
             string name = "";
@@ -105,6 +108,7 @@ namespace Oqtane.Shared
             {
                 name = segments[segments.Length - (segment + 1)];
             }
+
             return name;
         }
 
@@ -142,11 +146,14 @@ namespace Oqtane.Shared
                                 stringBuilder.Append('-');
                                 prevdash = true;
                             }
+
                             break;
                     }
                 }
+
                 result = stringBuilder.ToString().Trim('-');
             }
+
             return result;
         }
 
@@ -236,25 +243,28 @@ namespace Oqtane.Shared
             if (string.IsNullOrEmpty(email)) return false;
 
             return Regex.IsMatch(email,
-                  @"^(?("")("".+?(?<!\\)""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" +
-                  @"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-0-9a-z]*[0-9a-z]*\.)+[a-z0-9][\-a-z0-9]{0,22}[a-z0-9]))$",
-                  RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(250));
+                @"^(?("")("".+?(?<!\\)""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" +
+                @"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-0-9a-z]*[0-9a-z]*\.)+[a-z0-9][\-a-z0-9]{0,22}[a-z0-9]))$",
+                RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(250));
         }
 
         public static string PathCombine(params string[] segments)
         {
-            var separators = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
+            var separators = new char[] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar};
 
-            for (int i =1;i < segments.Length; i++){
-                if(Path.IsPathRooted(segments[i])){
+            for (int i = 1; i < segments.Length; i++)
+            {
+                if (Path.IsPathRooted(segments[i]))
+                {
                     segments[i] = segments[i].TrimStart(separators);
-                    if(String.IsNullOrEmpty(segments[i])){
-                        segments[i]=" ";
+                    if (String.IsNullOrEmpty(segments[i]))
+                    {
+                        segments[i] = " ";
                     }
                 }
             }
-            
-            return Path.Combine(segments).TrimEnd(); 
+
+            return Path.Combine(segments).TrimEnd();
         }
 
         public static bool IsPathValid(this Folder folder)
@@ -272,6 +282,55 @@ namespace Oqtane.Shared
             return (name.IndexOfAny(Constants.InvalidFileNameChars) == -1 &&
                     !Constants.InvalidFileNameEndingChars.Any(name.EndsWith) &&
                     !Constants.ReservedDevices.Split(',').Contains(name.ToUpper().Split('.')[0]));
+        }
+
+
+        public static bool TryGetQueryValue(
+            this Uri uri,
+            string key,
+            out string value,
+            string defaultValue = null)
+        {
+            value = defaultValue;
+            string query = uri.Query;
+            return !string.IsNullOrEmpty(query) && Utilities.ParseQueryString(query).TryGetValue(key, out value);
+        }
+
+        public static bool TryGetQueryValueInt(
+            this Uri uri,
+            string key,
+            out int value,
+            int defaultValue = 0)
+        {
+            value = defaultValue;
+            string s;
+            return uri.TryGetQueryValue(key, out s, (string) null) && int.TryParse(s, out value);
+        }
+
+        public static Dictionary<string, string> ParseQueryString(string query)
+        {
+            Dictionary<string, string> dictionary = new Dictionary<string, string>();
+            if (!string.IsNullOrEmpty(query))
+            {
+                query = query.Substring(1);
+                string str = query;
+                char[] separator = new char[1] {'&'};
+                foreach (string key in str.Split(separator, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    if (key != "")
+                    {
+                        if (key.Contains("="))
+                        {
+                            string[] strArray = key.Split('=', StringSplitOptions.None);
+                            dictionary.Add(strArray[0], strArray[1]);
+                        }
+                        else
+                            dictionary.Add(key, "true");
+                    }
+                }
+            }
+
+            return dictionary;
         }
     }
 }
