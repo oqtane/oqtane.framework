@@ -55,20 +55,26 @@ else
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading Modules {Error}", ex.Message);
-            AddModuleMessage("Error Loading Modules", MessageType.Error);
+            if (_moduleDefinitions == null)
+            {
+                await logger.LogError(ex, "Error Loading Modules {Error}", ex.Message);
+                AddModuleMessage("Error Loading Modules", MessageType.Error);
+            }
         }
     }
 
     private bool UpgradeAvailable(string moduledefinitionname, string version)
     {
         var upgradeavailable = false;
-        var package = _packages.Where(item => item.PackageId == Utilities.GetTypeName(moduledefinitionname)).FirstOrDefault();
-        if (package != null)
+        if (_packages != null)
         {
-            upgradeavailable = (Version.Parse(package.Version).CompareTo(Version.Parse(version)) > 0);
+            var package = _packages.Where(item => item.PackageId == Utilities.GetTypeName(moduledefinitionname)).FirstOrDefault();
+            if (package != null)
+            {
+                upgradeavailable = (Version.Parse(package.Version).CompareTo(Version.Parse(version)) > 0);
+            }
+
         }
-        
         return upgradeavailable;
     }
 
@@ -86,7 +92,7 @@ else
             await logger.LogError(ex, "Error Downloading Module {ModuleDefinitionName} {Version} {Error}", moduledefinitionname, version, ex.Message);
             AddModuleMessage("Error Downloading Module", MessageType.Error);
         }
-  }
+    }
 
     private async Task DeleteModule(ModuleDefinition moduleDefinition)
     {
