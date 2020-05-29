@@ -195,7 +195,7 @@ namespace Oqtane.Repository
                 if (modulecontroltype.Name == "ModuleBase"
                     || modulecontroltype.IsGenericType
                     || modulecontroltype.IsAbstract
-                    || Attribute.IsDefined(modulecontroltype, typeof(OqtaneIgnoreAttribute))
+                    || modulecontroltype.IsOqtaneIgnore()
                 ) continue;
 
                 string moduleNamespace = modulecontroltype.Namespace;

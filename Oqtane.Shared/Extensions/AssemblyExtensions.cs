@@ -79,5 +79,10 @@ namespace System.Reflection
                 .Where(a => a.GetTypes<IModuleControl>().Any() || a.GetTypes<IThemeControl>().Any() || a.GetTypes<IClientStartup>().Any())
                 .Where(a => Utilities.GetFullTypeName(a.GetName().Name) != "Oqtane.Client");
         }
+
+        public static bool IsOqtaneIgnore(this Type type)
+        {
+            return Attribute.IsDefined(type, typeof(OqtaneIgnoreAttribute));
+        }
     }
 }
