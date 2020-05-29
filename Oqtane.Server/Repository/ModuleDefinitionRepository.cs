@@ -188,6 +188,7 @@ namespace Oqtane.Repository
         private List<ModuleDefinition> LoadModuleDefinitionsFromAssembly(List<ModuleDefinition> moduledefinitions, Assembly assembly)
         {
             ModuleDefinition moduledefinition;
+
             Type[] modulecontroltypes = assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(IModuleControl))).ToArray();
             foreach (Type modulecontroltype in modulecontroltypes)
             {
@@ -198,8 +199,8 @@ namespace Oqtane.Repository
                     || modulecontroltype.IsOqtaneIgnore()
                 ) continue;
 
-                string moduleNamespace = modulecontroltype.Namespace;
-                string qualifiedModuleType = moduleNamespace  + ", " + modulecontroltype.Assembly.GetName().Name;
+                // create namespace root typename
+                string qualifiedModuleType = modulecontroltype.Namespace + ", " + modulecontroltype.Assembly.GetName().Name;
 
                 int index = moduledefinitions.FindIndex(item => item.ModuleDefinitionName == qualifiedModuleType);
                 if (index == -1)
@@ -208,7 +209,7 @@ namespace Oqtane.Repository
                     Type moduletype = assembly
                         .GetTypes()
                         .Where(item => item.Namespace != null)
-                        .Where(item => item.Namespace.StartsWith(moduleNamespace))
+                        .Where(item => item.Namespace == modulecontroltype.Namespace || item.Namespace.StartsWith(modulecontroltype.Namespace + "."))
                         .FirstOrDefault(item => item.GetInterfaces().Contains(typeof(IModule)));
                     if (moduletype != null)
                     {
@@ -221,8 +222,8 @@ namespace Oqtane.Repository
                         // set default property values
                         moduledefinition = new ModuleDefinition
                         {
-                            Name = moduleNamespace.Substring(moduleNamespace.LastIndexOf(".") + 1),
-                            Description = "Manage " + moduleNamespace.Substring(moduleNamespace.LastIndexOf(".") + 1),
+                            Name = Utilities.GetTypeNameLastSegment(modulecontroltype.Namespace, 0),
+                            Description = "Manage " + Utilities.GetTypeNameLastSegment(modulecontroltype.Namespace, 0),
                             Categories = ((qualifiedModuleType.StartsWith("Oqtane.Modules.Admin.")) ? "Admin" : "")
                         };
                     }
@@ -230,7 +231,7 @@ namespace Oqtane.Repository
                     // set internal properties
                     moduledefinition.ModuleDefinitionName = qualifiedModuleType;
                     moduledefinition.Version = ""; // will be populated from database
-                    moduledefinition.ControlTypeTemplate = moduleNamespace + "." + Constants.ActionToken + ", " + modulecontroltype.Assembly.GetName().Name;
+                    moduledefinition.ControlTypeTemplate = modulecontroltype.Namespace + "." + Constants.ActionToken + ", " + modulecontroltype.Assembly.GetName().Name;
                     moduledefinition.AssemblyName = assembly.GetName().Name;
 
                     if (string.IsNullOrEmpty(moduledefinition.Categories))
