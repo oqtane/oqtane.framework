@@ -50,6 +50,7 @@ namespace Oqtane.Repository
                 // Check if type should be ignored
                 if (themeControlType.Name == "ThemeBase"
                     || themeControlType.IsGenericType
+                    || themeControlType.IsAbstract
                     || themeControlType.IsOqtaneIgnore()
                 ) continue;
 
@@ -62,7 +63,7 @@ namespace Oqtane.Repository
                 // Find all types in the assembly which have the same namespace-root as the theme file
                 // Check with "." in the end to 
                 List<Type> typesInTheme = assembly.GetTypes()
-                    .Where(item=>!item.IsOqtaneIgnore()) 
+                    .Where(item=>!item.IsOqtaneIgnore() && !item.IsAbstract && !item.IsGenericType) 
                     .Where(item => item.Namespace != null)
                     // Namespace must be the same or start with "xxx." to ensure that
                     // similar namespaces like "MyTheme" and "MyTheme2" don't match in StartsWith(...)
