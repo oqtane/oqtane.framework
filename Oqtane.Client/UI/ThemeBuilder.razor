@@ -13,6 +13,13 @@
     {
         var interop = new Interop(JsRuntime);
 
+        // handle page redirection
+        if (!string.IsNullOrEmpty(PageState.Page.Url))
+        {
+            NavigationManager.NavigateTo(PageState.Page.Url);
+            return;
+        }
+
         // set page title
         if (!string.IsNullOrEmpty(PageState.Page.Title))
         {
@@ -24,6 +31,7 @@
         }
 
         // include page resources
+        string batch = DateTime.Now.ToString("yyyyMMddHHmmssfff");
         var links = new List<object>();
         var scripts = new List<object>();
         foreach (Resource resource in PageState.Page.Resources)
@@ -31,18 +39,18 @@
             switch (resource.ResourceType)
             {
                 case ResourceType.Stylesheet:
-                    links.Add(new { id = "app-stylesheet" + links.Count.ToString("00"), rel = "stylesheet", href = resource.Url, type = "text/css", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", key = "" });
+                    links.Add(new { id = "app-stylesheet-" + batch + "-" + (links.Count + 1).ToString("00"), rel = "stylesheet", href = resource.Url, type = "text/css", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", key = "" });
                     break;
                 case ResourceType.Script:
-                    scripts.Add(new { id = "app-script" + scripts.Count.ToString("00"), src = resource.Url, integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", content = "", location = "body", key = "" });
+                    scripts.Add(new { id = "app-script-" + batch + "-" + (scripts.Count + 1).ToString("00"), src = resource.Url, integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", content = "", location = "body", key = "" });
                     break;
             }
         }
         await interop.IncludeLinks(links.ToArray());
         await interop.IncludeScripts(scripts.ToArray());
         // remove any page resource references which are no longer required for this page
-        await interop.RemoveElementsById("app-stylesheet", "app-stylesheet" + links.Count.ToString("00"), "");
-        await interop.RemoveElementsById("app-script", "app-script" + scripts.Count.ToString("00"), "");
+        await interop.RemoveElementsById("app-stylesheet", "", "app-stylesheet-" + batch + "-00");
+        await interop.RemoveElementsById("app-script", "", "app-script-" + batch + "-00");
 
         // add favicon
         if (PageState.Site.FaviconFileId != null)
