@@ -50,10 +50,7 @@ namespace Oqtane.Repository
             foreach (Type themeControlType in themeControlTypes)
             {
                 // Check if type should be ignored
-                if (themeControlType.Name == "ThemeBase"
-                    || themeControlType.IsGenericType
-                    || themeControlType.IsAbstract
-                    || themeControlType.IsOqtaneIgnore()
+                if (themeControlType.IsOqtaneIgnore()
                 ) continue;
 
                 // create namespace root typename

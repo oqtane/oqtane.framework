@@ -193,11 +193,7 @@ namespace Oqtane.Repository
             foreach (Type modulecontroltype in modulecontroltypes)
             {
                 // Check if type should be ignored
-                if (modulecontroltype.Name == "ModuleBase"
-                    || modulecontroltype.IsGenericType
-                    || modulecontroltype.IsAbstract
-                    || modulecontroltype.IsOqtaneIgnore()
-                ) continue;
+                if (modulecontroltype.IsOqtaneIgnore()) continue;
 
                 // create namespace root typename
                 string qualifiedModuleType = modulecontroltype.Namespace + ", " + modulecontroltype.Assembly.GetName().Name;

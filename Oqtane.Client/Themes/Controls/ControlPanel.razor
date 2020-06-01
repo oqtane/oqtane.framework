@@ -145,18 +145,20 @@
                         <input type="text" name="Title" class="form-control" @bind="@Title"/>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col text-center">
-                        <label for="Pane" class="control-label">Pane: </label>
-                        <select class="form-control" @bind="@Pane">
-                            <option value="">&lt;Select Pane&gt;</option>
-                            @foreach (string pane in PageState.Page.Panes)
-                            {
-                                <option value="@pane">@pane Pane</option>
-                            }
-                        </select>
+                @if (_pane.Length > 1)
+                {
+                    <div class="row">
+                        <div class="col text-center">
+                            <label for="Pane" class="control-label">Pane: </label>
+                            <select class="form-control" @bind="@Pane">
+                                @foreach (string pane in PageState.Page.Panes)
+                                {
+                                    <option value="@pane">@pane Pane</option>
+                                }
+                            </select>
+                        </div>
                     </div>
-                </div>
+                }
                 <div class="row">
                     <div class="col text-center">
                         <label for="Container" class="control-label">Container: </label>
@@ -244,47 +246,41 @@
         }
     }
 
+    protected string Pane
+    {
+        get => _pane;
+        private set
+        {
+            if (_pane != value)
+            {
+                _pane = value;
+                _ = UpdateSettingsAsync();
+            }
+        }
+    }
+
+
     protected string Description { get; private set; } = "";
-    protected string Pane { get; private set; } = "";
+
     protected string Title { get; private set; } = "";
     protected string ContainerType { get; private set; } = "";
     protected string Message { get; private set; } = "";
 
     [Parameter]
-    public string ButtonClass { get; set; }
+    public string ButtonClass { get; set; } = "btn-outline-secondary";
 
     [Parameter]
-    public string CardClass { get; set; }
+    public string CardClass { get; set; } = "card border-secondary mb-3";
 
     [Parameter]
-    public string HeaderClass { get; set; }
+    public string HeaderClass { get; set; } = "card-header";
 
     [Parameter]
-    public string BodyClass { get; set; }
+    public string BodyClass { get; set; } = "card-body";
 
 
     protected override async Task OnInitializedAsync()
     {
-        if (string.IsNullOrEmpty(ButtonClass))
-        {
-            ButtonClass = "btn-outline-secondary";
-        }
-
-        if (string.IsNullOrEmpty(CardClass))
-        {
-            CardClass = "card border-secondary mb-3";
-        }
-
-        if (string.IsNullOrEmpty(HeaderClass))
-        {
-            HeaderClass = "card-header";
-        }
-
-        if (string.IsNullOrEmpty(BodyClass))
-        {
-            BodyClass = "card-body";
-        }
-
         if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions))
         {
             _pages?.Clear();
@@ -298,15 +294,11 @@
             }
             await LoadSettingsAsync();
 
-            var panes = PageState.Page.Panes;
-            Pane = panes.Count() == 1 ? panes.SingleOrDefault() : "";
             var themes = await ThemeService.GetThemesAsync();
             _containers = ThemeService.GetContainerControls(themes, PageState.Page.ThemeType);
             ContainerType = PageState.Site.DefaultContainerType;
-
             _allModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
             _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(Category)).ToList();
-
             _categories = _allModuleDefinitions.SelectMany(m => m.Categories.Split(',')).Distinct().ToList();
         }
     }
@@ -526,18 +518,24 @@
         }
     }
 
-    private string settingName = "CP-category";
+    private string settingCategory = "CP-category";
+    private string settingPane = "CP-pane";
+    private string _pane = "";
 
     private async Task LoadSettingsAsync()
     {
         Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
-        _category = SettingService.GetSetting(settings, settingName, "Common");
+        _category = SettingService.GetSetting(settings, settingCategory, "Common");
+        var pane = SettingService.GetSetting(settings, settingPane, "");
+        _pane = PageState.Page.Panes.Contains(pane) ? pane : PageState.Page.Panes.FirstOrDefault();
     }
 
     private async Task UpdateSettingsAsync()
     {
         Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
-        SettingService.SetSetting(settings, settingName, _category);
+        SettingService.SetSetting(settings, settingCategory, _category);
+        SettingService.SetSetting(settings, settingPane, _pane);
         await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
     }
+
 }
