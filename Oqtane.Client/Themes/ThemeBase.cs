@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Oqtane.Themes
 {
-    public class ThemeBase : ComponentBase, IThemeControl
+    public abstract class ThemeBase : ComponentBase, IThemeControl
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }

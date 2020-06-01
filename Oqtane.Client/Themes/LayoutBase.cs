@@ -4,7 +4,7 @@ using Oqtane.UI;
 
 namespace Oqtane.Themes
 {
-    public class LayoutBase : ComponentBase, ILayoutControl
+    public abstract class LayoutBase : ComponentBase, ILayoutControl
     {
         [CascadingParameter]
         protected PageState PageState { get; set; }
