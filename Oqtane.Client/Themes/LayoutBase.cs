@@ -8,6 +8,8 @@ namespace Oqtane.Themes
     {
         [CascadingParameter]
         protected PageState PageState { get; set; }
+        public virtual string Name { get; set; }
+        public virtual string Thumbnail { get; set; }
         public virtual string Panes { get; set; }
 
         public string LayoutPath()
