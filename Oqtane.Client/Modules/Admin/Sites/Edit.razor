@@ -177,7 +177,7 @@
         try
         {
             _themetype = (string)e.Value;
-            if (_themetype != string.Empty)
+            if (_themetype != "-")
             {
                 _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
                 _containers = ThemeService.GetContainerTypes(_themeList, _themetype);
