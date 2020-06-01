@@ -87,26 +87,41 @@ namespace Oqtane.Repository
                     }
                     // set internal properties
                     theme.ThemeName = qualifiedThemeType;
-                    theme.ThemeControls = "";
-                    theme.PaneLayouts = "";
-                    theme.ContainerControls = "";
+                    theme.Themes = new List<ThemeControl>();
+                    theme.Layouts = new List<ThemeControl>();
+                    theme.Containers = new List<ThemeControl>();
                     theme.AssemblyName = assembly.FullName.Split(",")[0];
                     themes.Add(theme);
                     index = themes.FindIndex(item => item.ThemeName == qualifiedThemeType);
                 }
                 theme = themes[index];
-                theme.ThemeControls += (themeControlType.FullName + ", " + themeControlType.Assembly.GetName().Name + ";");
+
+                var themecontrolobject = Activator.CreateInstance(themeControlType) as IThemeControl;
+                theme.Themes.Add(
+                    new ThemeControl
+                    {
+                        TypeName = themeControlType.FullName + ", " + themeControlType.Assembly.GetName().Name,
+                        Name = theme.Name + " - " + ((string.IsNullOrEmpty(themecontrolobject.Name)) ? Utilities.GetTypeNameLastSegment(themeControlType.FullName, 0) : themecontrolobject.Name),
+                        Thumbnail = themecontrolobject.Thumbnail,
+                        Panes = themecontrolobject.Panes
+                    }
+                );
 
                 // layouts
                 Type[] layouttypes = themeTypes
                     .Where(item => item.GetInterfaces().Contains(typeof(ILayoutControl))).ToArray();
                 foreach (Type layouttype in layouttypes)
                 {
-                    string panelayout = layouttype.FullName + ", " + themeControlType.Assembly.GetName().Name + ";";
-                    if (!theme.PaneLayouts.Contains(panelayout))
-                    {
-                        theme.PaneLayouts += panelayout;
-                    }
+                    var layoutobject = Activator.CreateInstance(layouttype) as ILayoutControl;
+                    theme.Layouts.Add(
+                        new ThemeControl
+                        {
+                            TypeName = layouttype.FullName + ", " + themeControlType.Assembly.GetName().Name,
+                            Name = (string.IsNullOrEmpty(layoutobject.Name)) ? Utilities.GetTypeNameLastSegment(layouttype.FullName, 0) : layoutobject.Name,
+                            Thumbnail = layoutobject.Thumbnail,
+                            Panes = layoutobject.Panes
+                        }
+                    );
                 }
 
                 // containers
@@ -114,11 +129,16 @@ namespace Oqtane.Repository
                     .Where(item => item.GetInterfaces().Contains(typeof(IContainerControl))).ToArray();
                 foreach (Type containertype in containertypes)
                 {
-                    string container = containertype.FullName + ", " + themeControlType.Assembly.GetName().Name + ";";
-                    if (!theme.ContainerControls.Contains(container))
-                    {
-                        theme.ContainerControls += container;
-                    }
+                    var containerobject = Activator.CreateInstance(containertype) as IContainerControl;
+                    theme.Containers.Add(
+                        new ThemeControl
+                        {
+                            TypeName = containertype.FullName + ", " + themeControlType.Assembly.GetName().Name,
+                            Name = (string.IsNullOrEmpty(containerobject.Name)) ? Utilities.GetTypeNameLastSegment(containertype.FullName, 0) : containerobject.Name,
+                            Thumbnail = containerobject.Thumbnail,
+                            Panes = ""
+                        }
+                    );
                 }
 
                 themes[index] = theme;

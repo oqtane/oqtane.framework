@@ -163,9 +163,9 @@
                     <div class="col text-center">
                         <label for="Container" class="control-label">Container: </label>
                         <select class="form-control" @bind="@ContainerType">
-                            @foreach (KeyValuePair<string, string> container in _containers)
+                            @foreach (var container in _containers)
                             {
-                                <option value="@container.Key">@container.Value</option>
+                                <option value="@container.TypeName">@container.Name</option>
                             }
                         </select>
                     </div>
@@ -220,7 +220,7 @@
     private List<ModuleDefinition> _moduleDefinitions;
     private List<Page> _pages = new List<Page>();
     private List<Module> _modules = new List<Module>();
-    private Dictionary<string, string> _containers = new Dictionary<string, string>();
+    private List<ThemeControl> _containers = new List<ThemeControl>();
     private string _display = "display: none;";
     private string _category = "Common";
 
@@ -295,7 +295,7 @@
             await LoadSettingsAsync();
 
             var themes = await ThemeService.GetThemesAsync();
-            _containers = ThemeService.GetContainerTypes(themes, PageState.Page.ThemeType);
+            _containers = ThemeService.GetContainerControls(themes, PageState.Page.ThemeType);
             ContainerType = PageState.Site.DefaultContainerType;
             _allModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
             _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(Category)).ToList();

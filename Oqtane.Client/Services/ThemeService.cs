@@ -26,49 +26,21 @@ namespace Oqtane.Services
             return themes.OrderBy(item => item.Name).ToList();
         }
 
-        public Dictionary<string, string> GetThemeTypes(List<Theme> themes)
+        public List<ThemeControl> GetThemeControls(List<Theme> themes)
         {
-            var selectableThemes = new Dictionary<string, string>();
-            foreach (Theme theme in themes)
-            {
-                foreach (string themecontrol in theme.ThemeControls.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
-                {
-                    selectableThemes.Add(themecontrol, theme.Name + " - " + Utilities.GetTypeNameLastSegment(themecontrol, 0));
-                }
-            }
-            return selectableThemes;
+            return themes.SelectMany(item => item.Themes).ToList();
         }
 
-        public Dictionary<string, string> GetPaneLayoutTypes(List<Theme> themes, string themeName)
+        public List<ThemeControl> GetLayoutControls(List<Theme> themes, string themeName)
         {
-            var selectablePaneLayouts = new Dictionary<string, string>();
-            foreach (Theme theme in themes)
-            {
-                if (Utilities.GetTypeName(themeName).StartsWith(Utilities.GetTypeName(theme.ThemeName)))
-                {
-                    foreach (string panelayout in theme.PaneLayouts.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        selectablePaneLayouts.Add(panelayout, theme.Name + " - " + @Utilities.GetTypeNameLastSegment(panelayout, 0));
-                    }
-                }
-            }
-            return selectablePaneLayouts;
+            return themes.Where(item => Utilities.GetTypeName(themeName).StartsWith(Utilities.GetTypeName(item.ThemeName)))
+                .SelectMany(item => item.Layouts).ToList();
         }
 
-        public Dictionary<string, string> GetContainerTypes(List<Theme> themes, string themeName)
+        public List<ThemeControl> GetContainerControls(List<Theme> themes, string themeName)
         {
-            var selectableContainers = new Dictionary<string, string>();
-            foreach (Theme theme in themes)
-            {
-                if (Utilities.GetTypeName(themeName).StartsWith(Utilities.GetTypeName(theme.ThemeName)))
-                {
-                    foreach (string container in theme.ContainerControls.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        selectableContainers.Add(container, theme.Name + " - " + @Utilities.GetTypeNameLastSegment(container, 0));
-                    }
-                }
-            }
-            return selectableContainers;
+            return themes.Where(item => Utilities.GetTypeName(themeName).StartsWith(Utilities.GetTypeName(item.ThemeName)))
+                .SelectMany(item => item.Containers).ToList();
         }
 
         public async Task InstallThemesAsync()
