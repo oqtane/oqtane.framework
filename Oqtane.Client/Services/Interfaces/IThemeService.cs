@@ -9,7 +9,7 @@ namespace Oqtane.Services
         Task<List<Theme>> GetThemesAsync();
         Dictionary<string, string> GetThemeTypes(List<Theme> themes);
         Dictionary<string, string> GetPaneLayoutTypes(List<Theme> themes, string themeName);
-        Dictionary<string, string> GetContainerTypes(List<Theme> themes);
+        Dictionary<string, string> GetContainerTypes(List<Theme> themes, string themeName);
         Task InstallThemesAsync();
         Task DeleteThemeAsync(string themeName);
     }

@@ -301,7 +301,7 @@
             var panes = PageState.Page.Panes;
             Pane = panes.Count() == 1 ? panes.SingleOrDefault() : "";
             var themes = await ThemeService.GetThemesAsync();
-            _containers = ThemeService.GetContainerTypes(themes);
+            _containers = ThemeService.GetContainerTypes(themes, PageState.Page.ThemeType);
             ContainerType = PageState.Site.DefaultContainerType;
 
             _allModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
