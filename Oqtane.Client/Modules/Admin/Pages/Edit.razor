@@ -127,27 +127,30 @@
                             </select>
                         </td>
                     </tr>
-                    <tr>
-                        <td>
-                            <Label For="Layout" HelpText="Select a layout for the page (if the selected theme supports it)">Layout: </Label>
-                        </td>
-                        <td>
-                            <select id="Layout" class="form-control" @bind="@_layouttype">
-                                <option value="-">&lt;Inherit From Site&gt;</option>
-                                @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
-                                {
-                                    if (panelayout.Key == _layouttype)
+                    @if (_panelayouts.Count > 0)
+                    {
+                        <tr>
+                            <td>
+                                <Label For="Layout" HelpText="Select a layout for the page (if the selected theme supports it)">Layout: </Label>
+                            </td>
+                            <td>
+                                <select id="Layout" class="form-control" @bind="@_layouttype">
+                                    <option value="-">&lt;Inherit From Site&gt;</option>
+                                    @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
                                     {
-                                        <option value="@panelayout.Key" selected>@panelayout.Value</option>
+                                        if (panelayout.Key == _layouttype)
+                                        {
+                                            <option value="@panelayout.Key" selected>@panelayout.Value</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@panelayout.Key">@panelayout.Value</option>
+                                        }
                                     }
-                                    else
-                                    {
-                                        <option value="@panelayout.Key">@panelayout.Value</option>
-                                    }
-                                }
-                            </select>
-                        </td>
-                    </tr>
+                                </select>
+                            </td>
+                        </tr>
+                    }
                     <tr>
                         <td>
                             <Label For="defaultContainer" HelpText="Select the default container for the page">Default Container: </Label>
@@ -212,8 +215,8 @@
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
 @code {
-    private Dictionary<string, string> _themes;
-    private Dictionary<string, string> _panelayouts;
+    private Dictionary<string, string> _themes = new Dictionary<string, string>();
+    private Dictionary<string, string> _panelayouts = new Dictionary<string, string>();
     private Dictionary<string, string> _containers = new Dictionary<string, string>();
     private List<Theme> _themeList;
     private List<Page> _pageList;
@@ -257,7 +260,6 @@
             _children = PageState.Pages.Where(item => item.ParentId == null).ToList();
 
             _themes = ThemeService.GetThemeTypes(_themeList);
-            _containers = ThemeService.GetContainerTypes(_themeList);
 
             _pageId = Int32.Parse(PageState.QueryString["id"]);
             var page = PageState.Pages.FirstOrDefault(item => item.PageId == _pageId);
@@ -291,12 +293,13 @@
                 {
                     _themetype = "-";
                 }
-                _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
+                _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, page.ThemeType);
                 _layouttype = page.LayoutType;
                 if (_layouttype == PageState.Site.DefaultLayoutType)
                 {
                     _layouttype = "-";
                 }
+                _containers = ThemeService.GetContainerTypes(_themeList, page.ThemeType);
                 _containertype = page.DefaultContainerType;
                 if (string.IsNullOrEmpty(_containertype))
                 {
@@ -370,11 +373,15 @@
             if (_themetype != "-")
             {
                 _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
+                _containers = ThemeService.GetContainerTypes(_themeList, _themetype);
             }
             else
             {
                 _panelayouts = new Dictionary<string, string>();
+                _containers = new Dictionary<string, string>();
             }
+            _layouttype = "-";
+            _containertype = "-";
             StateHasChanged();
         }
         catch (Exception ex)

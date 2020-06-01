@@ -105,7 +105,7 @@
     protected override async Task OnInitializedAsync()
     {
         _title = ModuleState.Title;
-        _containers = ThemeService.GetContainerTypes(await ThemeService.GetThemesAsync());
+        _containers = ThemeService.GetContainerTypes(await ThemeService.GetThemesAsync(), PageState.Page.ThemeType);
         _containerType = ModuleState.ContainerType;
         if (!string.IsNullOrEmpty(PageState.Page.DefaultContainerType) && _containerType == PageState.Page.DefaultContainerType)
         {

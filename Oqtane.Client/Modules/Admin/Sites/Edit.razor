@@ -39,7 +39,7 @@
             </td>
             <td>
                 <select id="defaultTheme" class="form-control" @onchange="(e => ThemeChanged(e))">
-                    <option value="">&lt;Select Theme&gt;</option>
+                    <option value="-">&lt;Select Theme&gt;</option>
                     @foreach (KeyValuePair<string, string> item in _themes)
                     {
                         if (item.Key == _themetype)
@@ -54,27 +54,30 @@
                 </select>
             </td>
         </tr>
-        <tr>
-            <td>
-                <Label For="defaultLayout" HelpText="Select the default layout for the site">Default Layout: </Label>
-            </td>
-            <td>
-                <select id="defaultLayout" class="form-control" @bind="@_layouttype">
-                    <option value="">&lt;Select Layout&gt;</option>
-                    @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
-                    {
-                        <option value="@panelayout.Key">@panelayout.Value</option>
-                    }
-                </select>
-            </td>
-        </tr>
+        @if (_panelayouts.Count > 0)
+        {
+            <tr>
+                <td>
+                    <Label For="defaultLayout" HelpText="Select the default layout for the site">Default Layout: </Label>
+                </td>
+                <td>
+                    <select id="defaultLayout" class="form-control" @bind="@_layouttype">
+                        <option value="-">&lt;Select Layout&gt;</option>
+                        @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
+                        {
+                            <option value="@panelayout.Key">@panelayout.Value</option>
+                        }
+                    </select>
+                </td>
+            </tr>
+        }
         <tr>
             <td>
                 <Label For="defaultContainer" HelpText="Select the default container for the site">Default Container: </Label>
             </td>
             <td>
                 <select id="defaultIdea" class="form-control" @bind="@_containertype">
-                    <option value="">&lt;Select Container&gt;</option>
+                    <option value="-">&lt;Select Container&gt;</option>
                     @foreach (KeyValuePair<string, string> container in _containers)
                     {
                         <option value="@container.Key">@container.Value</option>
@@ -103,9 +106,9 @@
 }
 
 @code {
-    private Dictionary<string, string> _themes;
-    private Dictionary<string, string> _panelayouts;
-    private Dictionary<string, string> _containers;
+    private Dictionary<string, string> _themes = new Dictionary<string, string>();
+    private Dictionary<string, string> _panelayouts = new Dictionary<string, string>();
+    private Dictionary<string, string> _containers = new Dictionary<string, string>();
     private Alias _alias;
     private List<Theme> _themeList;
     private string _name = string.Empty;
@@ -147,9 +150,11 @@
                     _urls += alias.Name + "\n";
                 }
 
+                _themes = ThemeService.GetThemeTypes(_themeList);
                 _themetype = site.DefaultThemeType;
                 _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
                 _layouttype = site.DefaultLayoutType;
+                _containers = ThemeService.GetContainerTypes(_themeList, _themetype);
                 _containertype = site.DefaultContainerType;
                 _createdby = site.CreatedBy;
                 _createdon = site.CreatedOn;
@@ -159,9 +164,6 @@
                 _deletedon = site.DeletedOn;
                 _isdeleted = site.IsDeleted.ToString();
             }
-
-            _themes = ThemeService.GetThemeTypes(_themeList);
-            _containers = ThemeService.GetContainerTypes(_themeList);
         }
         catch (Exception ex)
         {
@@ -178,12 +180,15 @@
             if (_themetype != string.Empty)
             {
                 _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
+                _containers = ThemeService.GetContainerTypes(_themeList, _themetype);
             }
             else
             {
                 _panelayouts = new Dictionary<string, string>();
+                _containers = new Dictionary<string, string>();
             }
-
+            _layouttype = "-";
+            _containertype = "-";
             StateHasChanged();
         }
         catch (Exception ex)
@@ -197,7 +202,7 @@
     {
         try
         {
-            if (_name != string.Empty && _urls != string.Empty && !string.IsNullOrEmpty(_themetype) && (_panelayouts.Count == 0 || !string.IsNullOrEmpty(_layouttype)) && !string.IsNullOrEmpty(_containertype))
+            if (_name != string.Empty && _urls != string.Empty && _themetype != "-" && (_panelayouts.Count == 0 || _layouttype != "-") && _containertype != "-")
             {
                 var unique = true;
                 foreach (string name in _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))

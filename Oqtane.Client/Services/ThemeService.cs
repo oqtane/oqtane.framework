@@ -43,8 +43,8 @@ namespace Oqtane.Services
         {
             var selectablePaneLayouts = new Dictionary<string, string>();
             foreach (Theme theme in themes)
-            { 
-                if (themeName.StartsWith(theme.ThemeName))
+            {
+                if (Utilities.GetTypeName(themeName).StartsWith(Utilities.GetTypeName(theme.ThemeName)))
                 {
                     foreach (string panelayout in theme.PaneLayouts.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
                     {
@@ -55,14 +55,17 @@ namespace Oqtane.Services
             return selectablePaneLayouts;
         }
 
-        public Dictionary<string, string> GetContainerTypes(List<Theme> themes)
+        public Dictionary<string, string> GetContainerTypes(List<Theme> themes, string themeName)
         {
             var selectableContainers = new Dictionary<string, string>();
             foreach (Theme theme in themes)
             {
-                foreach (string container in theme.ContainerControls.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                if (Utilities.GetTypeName(themeName).StartsWith(Utilities.GetTypeName(theme.ThemeName)))
                 {
-                    selectableContainers.Add(container, theme.Name + " - " + @Utilities.GetTypeNameLastSegment(container, 0));
+                    foreach (string container in theme.ContainerControls.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        selectableContainers.Add(container, theme.Name + " - " + @Utilities.GetTypeNameLastSegment(container, 0));
+                    }
                 }
             }
             return selectableContainers;
