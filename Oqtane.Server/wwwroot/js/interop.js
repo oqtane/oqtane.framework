@@ -138,7 +138,7 @@ Oqtane.Interop = {
                     script.integrity = integrity;
                 }
                 if (crossorigin !== "") {
-                    script.crossorigin = crossorigin;
+                    script.crossOrigin = crossorigin;
                 }
             }
             else {
