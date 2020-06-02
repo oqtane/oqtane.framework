@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject IPackageService PackageService
+@inject IJSRuntime JsRuntime
 
 @if (_moduleDefinitions == null)
 {
@@ -24,17 +25,17 @@ else
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ModuleDefinitionId.ToString())" /></td>
             <td>
                 @if (context.AssemblyName != "Oqtane.Client")
-                {
+                    {
                     <ActionDialog Header="Delete Module" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Module?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" />
-                }
+                    }
             </td>
             <td>@context.Name</td>
             <td>@context.Version</td>
             <td>
                 @if (UpgradeAvailable(context.ModuleDefinitionName, context.Version))
-                {
+                    {
                     <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadModule(context.ModuleDefinitionName, context.Version))>Upgrade</button>
-                }
+                    }
             </td>
         </Row>
     </Pager>
@@ -83,9 +84,11 @@ else
         try
         {
             await PackageService.DownloadPackageAsync(moduledefinitionname, version, "Modules");
-            await ModuleDefinitionService.InstallModuleDefinitionsAsync();
             await logger.LogInformation("Module Downloaded {ModuleDefinitionName} {Version}", moduledefinitionname, version);
-            NavigationManager.NavigateTo(NavigateUrl());
+            ShowProgressIndicator();
+            var interop = new Interop(JsRuntime);
+            await interop.RedirectBrowser(NavigateUrl(), 3);
+            await ModuleDefinitionService.InstallModuleDefinitionsAsync();
         }
         catch (Exception ex)
         {
@@ -98,9 +101,10 @@ else
     {
         try
         {
+            ShowProgressIndicator();
+            var interop = new Interop(JsRuntime);
+            await interop.RedirectBrowser(NavigateUrl(), 3);
             await ModuleDefinitionService.DeleteModuleDefinitionAsync(moduleDefinition.ModuleDefinitionId, moduleDefinition.SiteId);
-            await logger.LogInformation("Module Deleted {ModuleDefinition}", moduleDefinition);
-            NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {

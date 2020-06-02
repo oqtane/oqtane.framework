@@ -311,5 +311,15 @@ Oqtane.Interop = {
                 request.send(data);
             }
         }
+    },
+    refreshBrowser: function (reload, wait) {
+        setInterval(function () {
+            window.location.reload(reload);
+        }, wait * 1000);
+    },
+    redirectBrowser: function (url, wait) {
+        setInterval(function () {
+            window.location.href = url;
+        }, wait * 1000);
     }
 };
