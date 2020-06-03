@@ -202,13 +202,16 @@
         }
     </TabPanel>
     <TabPanel Name="Permissions">
-        <table class="table table-borderless">
-            <tr>
-                <td>
-                    <PermissionGrid EntityName="@EntityNames.Page" Permissions="@_permissions" @ref="_permissionGrid" />
-                </td>
-            </tr>
-        </table>
+        @if (_permissions != null)
+        {
+            <table class="table table-borderless">
+                <tr>
+                    <td>
+                        <PermissionGrid EntityName="@EntityNames.Page" Permissions="@_permissions" @ref="_permissionGrid" />
+                    </td>
+                </tr>
+            </table>
+        }
     </TabPanel>
 </TabStrip>
 <button type="button" class="btn btn-success" @onclick="SavePage">Save</button>
@@ -237,7 +240,7 @@
     private string _layouttype = "-";
     private string _containertype = "-";
     private string _icon;
-    private string _permissions;
+    private string _permissions = null;
     private string _createdby;
     private DateTime _createdon;
     private string _modifiedby;

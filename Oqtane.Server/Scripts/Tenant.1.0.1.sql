@@ -31,3 +31,9 @@ CREATE UNIQUE NONCLUSTERED INDEX IX_File ON [dbo].[File]
 	[Name]
 	) ON [PRIMARY]
 GO
+
+ALTER TABLE [dbo].[Notification] ADD
+	[FromDisplayName] [nvarchar](50) NULL,
+	[FromEmail] [nvarchar](256) NULL,
+	[ToDisplayName] [nvarchar](50) NULL
+GO

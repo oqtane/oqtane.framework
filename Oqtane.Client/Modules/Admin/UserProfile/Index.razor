@@ -120,7 +120,7 @@ else
                     <Row>
                         <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" /></td>
                         <td><ActionDialog Header="Delete Notification" Message="@("Are You Sure You Wish To Delete This Notification?")" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" /></td>
-                        <td>@(context.FromUser == null ? "System" : context.FromUser.DisplayName)</td>
+                        <td>@context.FromDisplayName</td>
                         <td>@context.Subject</td>
                         <td>@context.CreatedOn</td>
                     </Row>
@@ -143,7 +143,7 @@ else
                     <Row>
                         <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" /></td>
                         <td><ActionDialog Header="Delete Notification" Message="@("Are You Sure You Wish To Delete This Notification?")" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" /></td>
-                        <td>@(context.ToUser == null ? context.ToEmail : context.ToUser.DisplayName)</td>
+                        <td>@context.ToDisplayName</td>
                         <td>@context.Subject</td>
                         <td>@context.CreatedOn</td>
                     </Row>

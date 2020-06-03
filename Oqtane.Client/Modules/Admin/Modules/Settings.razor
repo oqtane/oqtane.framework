@@ -63,7 +63,7 @@
         }
     </TabPanel>
     <TabPanel Name="Permissions">
-        @if (_containers != null)
+        @if (_permissions != null)
         {
             <table class="table table-borderless">
                 <tr>
@@ -90,7 +90,7 @@
     private string _containerType;
     private string _allPages = "false";
     private string _permissionNames = "";
-    private string _permissions;
+    private string _permissions = null;
     private string _pageId;
     private PermissionGrid _permissionGrid;
     private Type _settingsModuleType;
