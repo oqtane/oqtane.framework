@@ -90,7 +90,7 @@
         // parse querystring
         var querystring = ParseQueryString(uri.Query);
 
-        // the reload parameter is used during user login/logout
+        // the reload parameter is used to reload the PageState
         if (querystring.ContainsKey("reload"))
         {
             reload = Reload.Site;
