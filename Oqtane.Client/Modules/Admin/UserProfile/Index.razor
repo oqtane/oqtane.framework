@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Modules.Admin.UserProfile
+@namespace Oqtane.Modules.Admin.UserProfile
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
@@ -8,166 +8,171 @@
 
 @if (PageState.User != null && photofileid != -1)
 {
-    <img src="@(ContentUrl(photofileid))" alt="@displayname" style="max-width: 400px" class="rounded-circle mx-auto d-block">
-}
+<img src="@(ContentUrl(photofileid))" alt="@displayname" style="max-width: 400px" class="rounded-circle mx-auto d-block">
+ }
 else
 {
-    <br />
+<br />
 }
 <TabStrip>
     <TabPanel Name="Identity">
         @if (PageState.User != null)
         {
-            <table class="table table-borderless">
-                <tr>
-                    <td>
-                        <label for="Name" class="control-label">Username: </label>
-                    </td>
-                    <td>
-                        <input class="form-control" @bind="@username" readonly />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label for="Name" class="control-label">Password: </label>
-                    </td>
-                    <td>
-                        <input type="password" class="form-control" @bind="@password" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label for="Name" class="control-label">Confirm Password: </label>
-                    </td>
-                    <td>
-                        <input type="password" class="form-control" @bind="@confirm" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label for="Name" class="control-label">Email: </label>
-                    </td>
-                    <td>
-                        <input class="form-control" @bind="@email" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label for="Name" class="control-label">Full Name: </label>
-                    </td>
-                    <td>
-                        <input class="form-control" @bind="@displayname" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label for="Name" class="control-label">Photo: </label>
-                    </td>
-                    <td>
-                        <FileManager FileId="@photofileid" @ref="filemanager" />
-                    </td>
-                </tr>
-            </table>
-            <button type="button" class="btn btn-primary" @onclick="Save">Save</button>
-            <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
-        }
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Username: </label>
+        </td>
+        <td>
+            <input class="form-control" @bind="@username" readonly />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Password: </label>
+        </td>
+        <td>
+            <input type="password" class="form-control" @bind="@password" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Confirm Password: </label>
+        </td>
+        <td>
+            <input type="password" class="form-control" @bind="@confirm" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Email: </label>
+        </td>
+        <td>
+            <input class="form-control" @bind="@email" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Full Name: </label>
+        </td>
+        <td>
+            <input class="form-control" @bind="@displayname" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Name" class="control-label">Photo: </label>
+        </td>
+        <td>
+            <FileManager FileId="@photofileid" @ref="filemanager" />
+        </td>
+    </tr>
+</table>
+                        <button type="button" class="btn btn-primary" @onclick="Save">Save</button>
+                                                <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>}
     </TabPanel>
     <TabPanel Name="Profile">
         @if (profiles != null)
         {
-            <table class="table table-borderless">
-                @foreach (Profile profile in profiles)
-                {
-                    var p = profile;
-                    if (p.Category != category)
-                    {
-                        <tr>
-                            <th colspan="2" style="text-align: center;">
-                                @p.Category
-                            </th>
-                        </tr>
-                        category = p.Category;
-                    }
-                    <tr>
-                        <td>
-                            <label for="@p.Name" class="control-label">@p.Title: </label>
-                        </td>
-                        <td>
-                            <input class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" placeholder="@p.Description" @onchange="@(e => ProfileChanged(e, p.Name))" />
-                        </td>
-                    </tr>
-                }
-            </table>
-            <button type="button" class="btn btn-primary" @onclick="Save">Save</button>
-            <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
-        }
+<table class="table table-borderless">
+    @foreach (Profile profile in profiles)
+    {
+        var p = profile;
+        if (p.Category != category)
+        {
+<tr>
+    <th colspan="2" style="text-align: center;">
+        @p.Category
+    </th>
+</tr>
+ category = p.Category;
+}
+<tr>
+    <td>
+        <label for="@p.Name" class="control-label">@p.Title: </label>
+    </td>
+    <td>
+        <input class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" placeholder="@p.Description" @onchange="@(e => ProfileChanged(e, p.Name))" />
+    </td>
+</tr>
+}
+</table>
+                        <button type="button" class="btn btn-primary" @onclick="Save">Save</button>
+                                                <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>}
     </TabPanel>
     <TabPanel Name="Notifications">
         @if (notifications != null)
         {
-            <ActionLink Action="Add" Text="Send Notification" Security="SecurityAccessLevel.View" EditMode="false" />
-            <br /><br />
-            @if (filter == "to")
-            {
-                <Pager Items="@notifications">
-                    <Header>
-                        <th>&nbsp;</th>
-                        <th>&nbsp;</th>
-                        <th>From</th>
-                        <th>Subject</th>
-                        <th>Received</th>
-                    </Header>
-                    <Row>
-                        <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" /></td>
-                        <td><ActionDialog Header="Delete Notification" Message="@("Are You Sure You Wish To Delete This Notification?")" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" /></td>
-                        <td>@(context.FromUser == null ? "System" : context.FromUser.DisplayName)</td>
-                        <td>@context.Subject</td>
-                        <td>@context.CreatedOn</td>
-                    </Row>
-                    <Detail>
-                        <td colspan="2"></td>
-                        <td colspan="3">
-                            <textarea class="form-control" @bind="@context.Body" rows="1" readonly />
-                        </td>
-                    </Detail>
-                </Pager>
-            }
-            else
-            {
-                <Pager Items="@notifications">
-                    <Header>
-                        <th>&nbsp;</th>
-                        <th>&nbsp;</th>
-                        <th>To</th>
-                        <th>Subject</th>
-                        <th>Sent</th>
-                    </Header>
-                    <Row>
-                        <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" /></td>
-                        <td><ActionDialog Header="Delete Notification" Message="@("Are You Sure You Wish To Delete This Notification?")" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" /></td>
-                        <td>@(context.ToUser == null ? context.ToEmail : context.ToUser.DisplayName)</td>
-                        <td>@context.Subject</td>
-                        <td>@context.CreatedOn</td>
-                    </Row>
-                    <Detail>
-                        <td colspan="2"></td>
-                        <td colspan="3">
-                            <textarea class="form-control" @bind="@context.Body" rows="1" readonly />
-                        </td>
-                    </Detail>
-                </Pager>
-            }
-            <br /><hr />
-            <select class="form-control" @onchange="(e => FilterChanged(e))">
-                <option value="to">Inbox</option>
-                <option value="from">Sent Items</option>
-            </select>
-        }
+<ActionLink Action="Add" Text="Send Notification" Security="SecurityAccessLevel.View" EditMode="false" />
+                        <br /><br />
+                                                @if (filter == "to")
+                                                {
+                        <Pager Items="@notifications">
+                            <Header>
+                                <th>&nbsp;</th>
+                                <th>&nbsp;</th>
+                                <th>From</th>
+                                <th>Subject</th>
+                                <th>Received</th>
+                            </Header>
+                            <Row>
+                                <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" /></td>
+                                <td><ActionDialog Header="Delete Notification" Message="@("Are You Sure You Wish To Delete This Notification?")" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" /></td>
+                                <td>@(context.FromUser == null ? "System" : context.FromUser.DisplayName)</td>
+                                <td>@context.Subject</td>
+                                <td>@context.CreatedOn</td>
+                            </Row>
+                            <Detail>
+                                <td colspan="2"></td>
+                                <td colspan="3">
+                                    @{ string input = "---";
+                                                if (context.Body.Contains(input))
+                                                {
+                                                    context.Body = context.Body.Split(input)[0];
+                                                } }
+                                    @(context.Body.Length > 100 ? (context.Body.Substring(0, 100) + "...") : context.Body)
+
+                                </td>
+                            </Detail>
+                        </Pager> }
+                    else
+                    {
+<Pager Items="@notifications">
+    <Header>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
+        <th>To</th>
+        <th>Subject</th>
+        <th>Sent</th>
+    </Header>
+    <Row>
+        <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" /></td>
+        <td><ActionDialog Header="Delete Notification" Message="@("Are You Sure You Wish To Delete This Notification?")" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" /></td>
+        <td>@(context.ToUser == null ? context.ToEmail : context.ToUser.DisplayName)</td>
+        <td>@context.Subject</td>
+        <td>@context.CreatedOn</td>
+    </Row>
+    <Detail>
+        <td colspan="2"></td>
+        <td colspan="3">
+            @{ string input = "---";
+                        if (context.Body.Contains(input))
+                        {
+                            context.Body = context.Body.Split(input)[0];
+                        } }
+            @(context.Body.Length > 100 ? (context.Body.Substring(0, 100) + "...") : context.Body)
+        </td>
+    </Detail>
+</Pager>}
+                                                                        <br /><hr />
+                                                                                                <select class="form-control" @onchange="(e => FilterChanged(e))">
+                                                                                                    <option value="to">Inbox</option>
+                                                                                                    <option value="from">Sent Items</option>
+                                                                                                </select>}
     </TabPanel>
 </TabStrip>
 
-@code {
-    private string username = string.Empty;
+@code { private string username = string.Empty;
     private string password = string.Empty;
     private string confirm = string.Empty;
     private string email = string.Empty;
@@ -307,6 +312,4 @@ else
 
         await LoadNotificationsAsync();
         StateHasChanged();
-    }
-
-}
+    } }
