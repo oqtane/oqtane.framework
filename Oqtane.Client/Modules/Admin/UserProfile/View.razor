@@ -1,315 +1,192 @@
 @namespace Oqtane.Modules.Admin.UserProfile
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
-@inject IUserService UserService
-@inject IProfileService ProfileService
-@inject ISettingService SettingService
+@inject IUserRoleService UserRoleService
 @inject INotificationService NotificationService
 
-@if (PageState.User != null && photofileid != -1)
+@if (PageState.User != null)
 {
-<img src="@(ContentUrl(photofileid))" alt="@displayname" style="max-width: 400px" class="rounded-circle mx-auto d-block">
- }
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <label class="control-label">@title: </label>
+        </td>
+        <td>
+            <select class="form-control" @bind="userid" disabled>
+                <option value="-1">&lt;System&gt;</option>
+                @if (userroles != null)
+                {
+                    foreach (UserRole userrole in userroles)
+                    {
+<option value="@userrole.UserId">@userrole.User.DisplayName</option>}
+                }
+            </select>
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+            <label class="control-label">Subject: </label>
+        </td>
+        @if (title == "From")
+        {
+<td>
+    <input class="form-control" @bind="@subject" readonly />
+</td>}
+        @if (title == "To")
+        {
+<td>
+    <input class="form-control" @bind="@subject" />
+</td>}
+    </tr>
+    @if (title == "From")
+    {
+<tr>
+    <td>
+        <label class="control-label">Date: </label>
+    </td>
+    <td>
+        <input class="form-control" @bind="@createdon" readonly />
+    </td>
+</tr>}
+    @if (title == "From")
+    {
+<tr>
+    <td>
+        <label class="control-label">Message: </label>
+    </td>
+    <td>
+        <textarea class="form-control" @bind="@body" rows="5" readonly />
+    </td>
+</tr>}
+    @if (title == "To")
+    {
+<tr>
+    <td>
+        <label class="control-label">Message: </label>
+    </td>
+    <td>
+        <textarea class="form-control" @bind="@body" rows="5" />
+    </td>
+</tr>}
+</table>
+
+
+                @if (reply != string.Empty)
+                {
+<button type="button" class="btn btn-primary" @onclick="Send">Send</button> }
 else
 {
-<br />
+if (title == "From")
+{
+<button type="button" class="btn btn-primary" @onclick="Reply">Reply</button>}
 }
-<TabStrip>
-    <TabPanel Name="Identity">
-        @if (PageState.User != null)
-        {
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Username: </label>
-        </td>
-        <td>
-            <input class="form-control" @bind="@username" readonly />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Password: </label>
-        </td>
-        <td>
-            <input type="password" class="form-control" @bind="@password" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Confirm Password: </label>
-        </td>
-        <td>
-            <input type="password" class="form-control" @bind="@confirm" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Email: </label>
-        </td>
-        <td>
-            <input class="form-control" @bind="@email" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Full Name: </label>
-        </td>
-        <td>
-            <input class="form-control" @bind="@displayname" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label for="Name" class="control-label">Photo: </label>
-        </td>
-        <td>
-            <FileManager FileId="@photofileid" @ref="filemanager" />
-        </td>
-    </tr>
-</table>
-                        <button type="button" class="btn btn-primary" @onclick="Save">Save</button>
-                                                <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>}
-    </TabPanel>
-    <TabPanel Name="Profile">
-        @if (profiles != null)
-        {
-<table class="table table-borderless">
-    @foreach (Profile profile in profiles)
-    {
-        var p = profile;
-        if (p.Category != category)
-        {
-<tr>
-    <th colspan="2" style="text-align: center;">
-        @p.Category
-    </th>
-</tr>
- category = p.Category;
-}
-<tr>
-    <td>
-        <label for="@p.Name" class="control-label">@p.Title: </label>
-    </td>
-    <td>
-        <input class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" placeholder="@p.Description" @onchange="@(e => ProfileChanged(e, p.Name))" />
-    </td>
-</tr>
-}
-</table>
-                        <button type="button" class="btn btn-primary" @onclick="Save">Save</button>
-                                                <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>}
-    </TabPanel>
-    <TabPanel Name="Notifications">
-        @if (notifications != null)
-        {
-<ActionLink Action="Add" Text="Send Notification" Security="SecurityAccessLevel.View" EditMode="false" />
-                        <br /><br />
-                                                @if (filter == "to")
-                                                {
-                        <Pager Items="@notifications">
-                            <Header>
-                                <th>&nbsp;</th>
-                                <th>&nbsp;</th>
-                                <th>From</th>
-                                <th>Subject</th>
-                                <th>Received</th>
-                            </Header>
-                            <Row>
-                                <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" /></td>
-                                <td><ActionDialog Header="Delete Notification" Message="@("Are You Sure You Wish To Delete This Notification?")" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" /></td>
-                                <td>@(context.FromUser == null ? "System" : context.FromUser.DisplayName)</td>
-                                <td>@context.Subject</td>
-                                <td>@context.CreatedOn</td>
-                            </Row>
-                            <Detail>
-                                <td colspan="2"></td>
-                                <td colspan="3">
-                                    @{ string input = "---";
-                                                if (context.Body.Contains(input))
-                                                {
-                                                    context.Body = context.Body.Split(input)[0];
-                                                } }
-                                    @(context.Body.Length > 100 ? (context.Body.Substring(0, 100) + "...") : context.Body)
+                                <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+                                                <br />
+                                                                <br />
+                                                                                @if (title == "To")
+                                                                                {
+                                                                <table class="table table-borderless">
+                                                                    <tr>
+                                                                        <td>
+                                                                            <label class="control-label">Original Message: </label>
+                                                                        </td>
+                                                                        <td>
+                                                                            <textarea class="form-control" @bind="@reply" rows="5" readonly />
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>}}
 
-                                </td>
-                            </Detail>
-                        </Pager> }
-                    else
-                    {
-<Pager Items="@notifications">
-    <Header>
-        <th>&nbsp;</th>
-        <th>&nbsp;</th>
-        <th>To</th>
-        <th>Subject</th>
-        <th>Sent</th>
-    </Header>
-    <Row>
-        <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" /></td>
-        <td><ActionDialog Header="Delete Notification" Message="@("Are You Sure You Wish To Delete This Notification?")" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" /></td>
-        <td>@(context.ToUser == null ? context.ToEmail : context.ToUser.DisplayName)</td>
-        <td>@context.Subject</td>
-        <td>@context.CreatedOn</td>
-    </Row>
-    <Detail>
-        <td colspan="2"></td>
-        <td colspan="3">
-            @{ string input = "---";
-                        if (context.Body.Contains(input))
-                        {
-                            context.Body = context.Body.Split(input)[0];
-                        } }
-            @(context.Body.Length > 100 ? (context.Body.Substring(0, 100) + "...") : context.Body)
-        </td>
-    </Detail>
-</Pager>}
-                                                                        <br /><hr />
-                                                                                                <select class="form-control" @onchange="(e => FilterChanged(e))">
-                                                                                                    <option value="to">Inbox</option>
-                                                                                                    <option value="from">Sent Items</option>
-                                                                                                </select>}
-    </TabPanel>
-</TabStrip>
+@code { private int notificationid;
+    private string title = string.Empty;
+    private List<UserRole> userroles;
+    private string userid = "-1";
+    private string subject = string.Empty;
+    private string createdon = string.Empty;
 
-@code { private string username = string.Empty;
-    private string password = string.Empty;
-    private string confirm = string.Empty;
-    private string email = string.Empty;
-    private string displayname = string.Empty;
-    private FileManager filemanager;
-    private int photofileid = -1;
-    private List<Profile> profiles;
-    private Dictionary<string, string> settings;
-    private string category = string.Empty;
-    private string filter = "to";
-    private List<Notification> notifications;
+    private string body = string.Empty;
+    private string reply = string.Empty;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
+    public override string Title => "View Notification";
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            if (PageState.User != null)
-            {
-                username = PageState.User.Username;
-                email = PageState.User.Email;
-                displayname = PageState.User.DisplayName;
+            userroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
+            userroles = userroles.Where(item => item.Role.Name == Constants.RegisteredRole || item.Role.Name == Constants.HostRole)
+                .OrderBy(item => item.User.DisplayName).ToList();
 
-                if (PageState.User.PhotoFileId != null)
+            notificationid = Int32.Parse(PageState.QueryString["id"]);
+            Notification notification = await NotificationService.GetNotificationAsync(notificationid);
+            if (notification != null)
+            {
+                if (notification.ToUserId == PageState.User.UserId)
                 {
-                    photofileid = PageState.User.PhotoFileId.Value;
-                }
-
-                profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
-                settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
-
-                await LoadNotificationsAsync();
-            }
-            else
-            {
-                AddModuleMessage("Current User Is Not Logged In", MessageType.Warning);
-            }
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Loading User Profile {Error}", ex.Message);
-            AddModuleMessage("Error Loading User Profile", MessageType.Error);
-        }
-    }
-
-    private async Task LoadNotificationsAsync()
-    {
-        notifications = await NotificationService.GetNotificationsAsync(PageState.Site.SiteId, filter, PageState.User.UserId);
-        notifications = notifications.Where(item => item.DeletedBy != PageState.User.Username).ToList();
-    }
-
-    private string GetProfileValue(string SettingName, string DefaultValue)
-        => SettingService.GetSetting(settings, SettingName, DefaultValue);
-
-    private async Task Save()
-    {
-        try
-        {
-            if (username != string.Empty && email != string.Empty)
-            {
-                if (password == confirm)
-                {
-                    var user = PageState.User;
-                    user.Username = username;
-                    user.Password = password;
-                    user.Email = email;
-                    user.DisplayName = (displayname == string.Empty ? username : displayname);
-                    user.PhotoFileId = null;
-                    photofileid = filemanager.GetFileId();
-
-                    if (photofileid != -1)
+                    title = "From";
+                    if (notification.FromUserId != null)
                     {
-                        user.PhotoFileId = photofileid;
+                        userid = notification.FromUserId.ToString();
                     }
-
-                    await UserService.UpdateUserAsync(user);
-                    await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
-                    await logger.LogInformation("User Profile Saved");
                 }
                 else
                 {
-                    AddModuleMessage("Passwords Entered Do Not Match", MessageType.Warning);
+                    title = "To";
+                    if (notification.ToUserId != null)
+                    {
+                        userid = notification.ToUserId.ToString();
+                    }
                 }
-            }
-            else
-            {
-                AddModuleMessage("You Must Provide A Username and Email Address", MessageType.Warning);
+
+                subject = notification.Subject;
+                createdon = notification.CreatedOn.ToString();
+                body = notification.Body;
             }
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Saving User Profile {Error}", ex.Message);
-            AddModuleMessage("Error Saving User Profile", MessageType.Error);
+            await logger.LogError(ex, "Error Loading Users {Error}", ex.Message);
+            AddModuleMessage("Error Loading Users", MessageType.Error);
         }
     }
 
-    private void Cancel()
+    private void Reply()
     {
-        NavigationManager.NavigateTo(NavigateUrl(string.Empty));
+        title = "To";
+        if (!subject.Contains("RE:"))
+        {
+            subject = "RE: " + subject;
+        }
+        reply = body;
+        body = "\n\n-----------------------------\nSent: " + createdon + "\nSubject: " + subject + "\n\n" + body;
+        StateHasChanged();
     }
 
-    private void ProfileChanged(ChangeEventArgs e, string SettingName)
+    private async Task Send()
     {
-        var value = (string)e.Value;
-        settings = SettingService.SetSetting(settings, SettingName, value);
-    }
+        var notification = new Notification();
+        notification.SiteId = PageState.Site.SiteId;
+        notification.FromUserId = PageState.User.UserId;
+        notification.ToUserId = int.Parse(userid);
+        notification.ToEmail = string.Empty;
+        notification.Subject = subject;
+        notification.Body = body;
+        notification.ParentId = notificationid;
+        notification.CreatedOn = DateTime.UtcNow;
+        notification.IsDelivered = false;
+        notification.DeliveredOn = null;
 
-    private async Task Delete(Notification Notification)
-    {
         try
         {
-            if (!Notification.IsDeleted)
-            {
-                Notification.IsDeleted = true;
-                await NotificationService.UpdateNotificationAsync(Notification);
-            }
-            else
-            {
-                await NotificationService.DeleteNotificationAsync(Notification.NotificationId);
-            }
+            notification = await NotificationService.AddNotificationAsync(notification);
 
-            await logger.LogInformation("Notification Deleted {Notification}", Notification);
-            await LoadNotificationsAsync();
-            StateHasChanged();
+            await logger.LogInformation("Notification Created {Notification}", notification);
+            NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Deleting Notification {Notification} {Error}", Notification, ex.Message);
-            AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Adding Notification {Notification} {Error}", notification, ex.Message);
+            AddModuleMessage("Error Adding Notification", MessageType.Error);
         }
-    }
-
-    private async void FilterChanged(ChangeEventArgs e)
-    {
-        filter = (string)e.Value;
-
-        await LoadNotificationsAsync();
-        StateHasChanged();
     } }
