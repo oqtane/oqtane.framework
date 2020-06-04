@@ -103,8 +103,8 @@ else
     <TabPanel Name="Notifications">
         @if (notifications != null)
         {
-<ActionLink Action="Add" Text="Send Notification" Security="SecurityAccessLevel.View" EditMode="false" />
-                        <br /><br />
+      <ActionLink Action="Add" Text="Send Notification" Security="SecurityAccessLevel.View" EditMode="false" />
+        <br /><br />
                                                 @if (filter == "to")
                                                 {
                         <Pager Items="@notifications">
@@ -130,7 +130,7 @@ else
                                                 {
                                                     context.Body = context.Body.Split(input)[0];
                                                 } }
-                                    @(context.Body.Length > 100 ? (context.Body.Substring(0, 100) + "...") : context.Body)
+                                    @(context.Body.Length > 100 ? (context.Body.Substring(0, 97) + "...") : context.Body)
 
                                 </td>
                             </Detail>
@@ -160,7 +160,7 @@ else
                         {
                             context.Body = context.Body.Split(input)[0];
                         } }
-            @(context.Body.Length > 100 ? (context.Body.Substring(0, 100) + "...") : context.Body)
+            @(context.Body.Length > 100 ? (context.Body.Substring(0, 97) + "...") : context.Body)
         </td>
     </Detail>
 </Pager>}

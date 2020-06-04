@@ -6,7 +6,7 @@ using Oqtane.UI;
 
 namespace Oqtane.Themes
 {
-    public class ContainerBase : ComponentBase, IContainerControl
+    public abstract class ContainerBase : ComponentBase, IContainerControl
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -17,6 +17,8 @@ namespace Oqtane.Themes
         [CascadingParameter]
         protected Module ModuleState { get; set; }
 
+        public virtual string Name { get; set; }
+        public virtual string Thumbnail { get; set; }
 
         public string ThemePath()
         {

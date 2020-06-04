@@ -1,4 +1,6 @@
-window.interop = {
+var Oqtane = Oqtane || {};
+
+Oqtane.Interop = {
     setCookie: function (name, value, days) {
         var d = new Date();
         d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
@@ -25,9 +27,9 @@ window.interop = {
             document.title = title;
         }
     },
-    includeMeta: function (id, attribute, name, content) {
+    includeMeta: function (id, attribute, name, content, key) {
         var meta;
-        if (id !== "") {
+        if (id !== "" && key === "id") {
             meta = document.getElementById(id);
         }
         else {
@@ -43,18 +45,21 @@ window.interop = {
             document.head.appendChild(meta);
         }
         else {
+            if (id !== "") {
+                meta.setAttribute("id", id);
+            }
             if (meta.content !== content) {
                 meta.setAttribute("content", content);
             }
         }
     },
-    includeLink: function (id, rel, url, type, integrity, crossorigin) {
+    includeLink: function (id, rel, href, type, integrity, crossorigin, key) {
         var link;
-        if (id !== "") {
+        if (id !== "" && key === "id") {
             link = document.getElementById(id);
         }
         else {
-            link = document.querySelector("link[href=\"" + CSS.escape(url) + "\"]");
+            link = document.querySelector("link[href=\"" + CSS.escape(href) + "\"]");
         }
         if (link === null) {
             link = document.createElement("link");
@@ -65,7 +70,7 @@ window.interop = {
             if (type !== "") {
                 link.type = type;
             }
-            link.href = url;
+            link.href = href;
             if (integrity !== "") {
                 link.integrity = integrity;
             }
@@ -75,6 +80,9 @@ window.interop = {
             document.head.appendChild(link);
         }
         else {
+            if (link.id !== id) {
+                link.setAttribute('id', id);
+            }
             if (link.rel !== rel) {
                 link.setAttribute('rel', rel);
             }
@@ -85,10 +93,10 @@ window.interop = {
             } else {
                 link.removeAttribute('type');
             }
-            if (link.href !== url) {
+            if (link.href !== this.getAbsoluteUrl(href)) {
                 link.removeAttribute('integrity');
                 link.removeAttribute('crossorigin');
-                link.setAttribute('href', url);
+                link.setAttribute('href', href);
             }
             if (integrity !== "") {
                 if (link.integrity !== integrity) {
@@ -106,10 +114,18 @@ window.interop = {
             }
         }
     },
-    includeScript: function (id, src, content, location, integrity, crossorigin) {
+    includeLinks: function (links) {
+        for (let i = 0; i < links.length; i++) {
+            this.includeLink(links[i].id, links[i].rel, links[i].href, links[i].type, links[i].integrity, links[i].crossorigin, links[i].key);
+        }
+    },
+    includeScript: function (id, src, integrity, crossorigin, content, location, key) {
         var script;
-        if (id !== "") {
+        if (id !== "" && key === "id") {
             script = document.getElementById(id);
+        }
+        else {
+            script = document.querySelector("script[src=\"" + CSS.escape(src) + "\"]");
         }
         if (script === null) {
             script = document.createElement("script");
@@ -122,23 +138,27 @@ window.interop = {
                     script.integrity = integrity;
                 }
                 if (crossorigin !== "") {
-                    script.crossorigin = crossorigin;
+                    script.crossOrigin = crossorigin;
                 }
             }
             else {
                 script.innerHTML = content;
             }
             script.async = false;
-            if (location === 'head') {
-                document.head.appendChild(script);
-            }
-            if (location === 'body') {
-                document.body.appendChild(script);
-            }
+            this.loadScript(script, location)
+                .then(() => {
+                    console.log(src + ' loaded');
+                })
+                .catch(() => {
+                    console.error(src + ' failed');
+                });
         }
         else {
+            if (script.id !== id) {
+                script.setAttribute('id', id);
+            }
             if (src !== "") {
-                if (script.src !== src) {
+                if (script.src !== this.getAbsoluteUrl(src)) {
                     script.removeAttribute('integrity');
                     script.removeAttribute('crossorigin');
                     script.src = src;
@@ -164,6 +184,32 @@ window.interop = {
                 }
             }
         }
+    },
+    loadScript: function (script, location) {
+        if (location === 'head') {
+            document.head.appendChild(script);
+        }
+        if (location === 'body') {
+            document.body.appendChild(script);
+        }
+
+        return new Promise((res, rej) => {
+            script.onload = res();
+            script.onerror = rej();
+        });
+    },
+    includeScripts: function (scripts) {
+        for (let i = 0; i < scripts.length; i++) {
+            this.includeScript(scripts[i].id, scripts[i].src, scripts[i].integrity, scripts[i].crossorigin, scripts[i].content, scripts[i].location, scripts[i].key);
+        }
+    },
+    getAbsoluteUrl: function (url) {
+        var a = document.createElement('a');
+        getAbsoluteUrl = function (url) {
+            a.href = url;
+            return a.href;
+        }
+        return getAbsoluteUrl(url);
     },
     removeElementsById: function (prefix, first, last) {
         var elements = document.querySelectorAll('[id^=' + prefix + ']');
@@ -265,5 +311,15 @@ window.interop = {
                 request.send(data);
             }
         }
+    },
+    refreshBrowser: function (reload, wait) {
+        setInterval(function () {
+            window.location.reload(reload);
+        }, wait * 1000);
+    },
+    redirectBrowser: function (url, wait) {
+        setInterval(function () {
+            window.location.href = url;
+        }, wait * 1000);
     }
 };

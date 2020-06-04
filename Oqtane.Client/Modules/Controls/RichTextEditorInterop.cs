@@ -24,7 +24,7 @@ namespace Oqtane.Modules.Controls
             try
             {
                 _jsRuntime.InvokeAsync<object>(
-                    "interop.createQuill",
+                    "Oqtane.RichTextEditor.createQuill",
                     quillElement, toolbar, readOnly,
                     placeholder, theme, debugLevel);
                 return Task.CompletedTask;
@@ -40,7 +40,7 @@ namespace Oqtane.Modules.Controls
             try
             {
                 return _jsRuntime.InvokeAsync<string>(
-                    "interop.getQuillText",
+                    "Oqtane.RichTextEditor.getQuillText",
                     quillElement);
             }
             catch
@@ -54,7 +54,7 @@ namespace Oqtane.Modules.Controls
             try
             {
                 return _jsRuntime.InvokeAsync<string>(
-                    "interop.getQuillHTML",
+                    "Oqtane.RichTextEditor.getQuillHTML",
                     quillElement);
             }
             catch
@@ -68,7 +68,7 @@ namespace Oqtane.Modules.Controls
             try
             {
                 return _jsRuntime.InvokeAsync<string>(
-                    "interop.getQuillContent",
+                    "Oqtane.RichTextEditor.getQuillContent",
                     quillElement);
             }
             catch
@@ -82,7 +82,7 @@ namespace Oqtane.Modules.Controls
             try
             {
                 _jsRuntime.InvokeAsync<object>(
-                    "interop.loadQuillContent",
+                    "Oqtane.RichTextEditor.loadQuillContent",
                     quillElement, content);
                 return Task.CompletedTask;
             }
@@ -97,7 +97,7 @@ namespace Oqtane.Modules.Controls
             try
             {
                 _jsRuntime.InvokeAsync<object>(
-                    "interop.enableQuillEditor", quillElement, mode);
+                    "Oqtane.RichTextEditor.enableQuillEditor", quillElement, mode);
                 return Task.CompletedTask;
             }
             catch
@@ -111,7 +111,7 @@ namespace Oqtane.Modules.Controls
             try
             {
                 _jsRuntime.InvokeAsync<object>(
-                    "interop.insertQuillImage",
+                    "Oqtane.RichTextEditor.insertQuillImage",
                     quillElement, imageUrl);
                 return Task.CompletedTask;
             }

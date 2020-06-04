@@ -79,5 +79,15 @@ namespace System.Reflection
                 .Where(a => a.GetTypes<IModuleControl>().Any() || a.GetTypes<IThemeControl>().Any() || a.GetTypes<IClientStartup>().Any())
                 .Where(a => Utilities.GetFullTypeName(a.GetName().Name) != "Oqtane.Client");
         }
+
+        /// <summary>
+        /// Checks if type should be ignored by oqtane dynamic loader 
+        /// </summary>
+        /// <param name="type">Checked type</param>
+        /// <returns></returns>
+        public static bool IsOqtaneIgnore(this Type type)
+        {
+            return Attribute.IsDefined(type, typeof(OqtaneIgnoreAttribute)) || type.IsAbstract || type.IsGenericType;
+        }
     }
 }

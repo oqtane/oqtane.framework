@@ -25,9 +25,9 @@
                     <td>
                         <select id="container" class="form-control" @bind="@_containerType">
                             <option value="-">&lt;Inherit From Page Or Site&gt;</option>
-                            @foreach (KeyValuePair<string, string> container in _containers)
+                            @foreach (var container in _containers)
                             {
-                                <option value="@container.Key">@container.Value</option>
+                                <option value="@container.TypeName">@container.Name</option>
                             }
                         </select>
                     </td>
@@ -63,7 +63,7 @@
         }
     </TabPanel>
     <TabPanel Name="Permissions">
-        @if (_containers != null)
+        @if (_permissions != null)
         {
             <table class="table table-borderless">
                 <tr>
@@ -85,12 +85,12 @@
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
 @code {
-    private Dictionary<string, string> _containers;
+    private List<ThemeControl> _containers = new List<ThemeControl>();
     private string _title;
     private string _containerType;
     private string _allPages = "false";
     private string _permissionNames = "";
-    private string _permissions;
+    private string _permissions = null;
     private string _pageId;
     private PermissionGrid _permissionGrid;
     private Type _settingsModuleType;
@@ -105,7 +105,7 @@
     protected override async Task OnInitializedAsync()
     {
         _title = ModuleState.Title;
-        _containers = ThemeService.GetContainerTypes(await ThemeService.GetThemesAsync());
+        _containers = ThemeService.GetContainerControls(await ThemeService.GetThemesAsync(), PageState.Page.ThemeType);
         _containerType = ModuleState.ContainerType;
         if (!string.IsNullOrEmpty(PageState.Page.DefaultContainerType) && _containerType == PageState.Page.DefaultContainerType)
         {

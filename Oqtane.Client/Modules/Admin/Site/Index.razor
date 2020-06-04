@@ -56,45 +56,48 @@
             </td>
             <td>
                 <select id="defaultTheme" class="form-control" @onchange="(e => ThemeChanged(e))">
-                    <option value="">&lt;Select Theme&gt;</option>
-                    @foreach (KeyValuePair<string, string> item in _themes)
+                    <option value="-">&lt;Select Theme&gt;</option>
+                    @foreach (var theme in _themes)
                     {
-                        if (item.Key == _themetype)
+                        if (theme.TypeName == _themetype)
                         {
-                            <option value="@item.Key" selected>@item.Value</option>
+                            <option value="@theme.TypeName" selected>@theme.Name</option>
                         }
                         else
                         {
-                            <option value="@item.Key">@item.Value</option>
+                            <option value="@theme.TypeName">@theme.Name</option>
                         }
                     }
                 </select>
             </td>
         </tr>
-        <tr>
-            <td>
-                <Label For="defaultLayout" HelpText="Select the sites default layout">Default Layout: </Label>
-            </td>
-            <td>
-                <select id="defaultLayout" class="form-control" @bind="@_layouttype">
-                    <option value="">&lt;Select Layout&gt;</option>
-                    @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
-                    {
-                        <option value="@panelayout.Key">@panelayout.Value</option>
-                    }
-                </select>
-            </td>
-        </tr>
+        @if (_layouts.Count > 0)
+        {
+            <tr>
+                <td>
+                    <Label For="defaultLayout" HelpText="Select the sites default layout">Default Layout: </Label>
+                </td>
+                <td>
+                    <select id="defaultLayout" class="form-control" @bind="@_layouttype">
+                        <option value="-">&lt;Select Layout&gt;</option>
+                        @foreach (var layout in _layouts)
+                        {
+                            <option value="@(layout.TypeName)">@(layout.Name)</option>
+                        }
+                    </select>
+                </td>
+            </tr>
+        }
         <tr>
             <td>
                 <Label For="defaultContainer" HelpText="Select the default container for the site">Default Container: </Label>
             </td>
             <td>
                 <select id="defaultContainer" class="form-control" @bind="@_containertype">
-                    <option value="">&lt;Select Container&gt;</option>
-                    @foreach (KeyValuePair<string, string> container in _containers)
+                    <option value="-">&lt;Select Container&gt;</option>
+                    @foreach (var container in _containers)
                     {
-                        <option value="@container.Key">@container.Value</option>
+                        <option value="@container.TypeName">@container.Name</option>
                     }
                 </select>
             </td>
@@ -208,10 +211,10 @@
 }
 
 @code {
-    private Dictionary<string, string> _themes;
-    private Dictionary<string, string> _panelayouts;
-    private Dictionary<string, string> _containers;
     private List<Theme> _themeList;
+    private List<ThemeControl> _themes = new List<ThemeControl>();
+    private List<ThemeControl> _layouts = new List<ThemeControl>();
+    private List<ThemeControl> _containers = new List<ThemeControl>();
     private string _name = string.Empty;
     private List<Tenant> _tenantList;
     private string _tenant = string.Empty;
@@ -221,9 +224,9 @@
     private FileManager _logofilemanager;
     private int _faviconfileid = -1;
     private FileManager _faviconfilemanager;
-    private string _themetype;
-    private string _layouttype;
-    private string _containertype;
+    private string _themetype = "-";
+    private string _layouttype = "-";
+    private string _containertype = "-";
     private string _allowregistration;
     private string _smtphost = string.Empty;
     private string _smtpport = string.Empty;
@@ -271,9 +274,11 @@
                     _faviconfileid = site.FaviconFileId.Value;
                 }
 
+                _themes = ThemeService.GetThemeControls(_themeList);
                 _themetype = site.DefaultThemeType;
-                _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
+                _layouts = ThemeService.GetLayoutControls(_themeList, _themetype);
                 _layouttype = site.DefaultLayoutType;
+                _containers = ThemeService.GetContainerControls(_themeList, _themetype);
                 _containertype = site.DefaultContainerType;
                 _allowregistration = site.AllowRegistration.ToString();
 
@@ -314,9 +319,6 @@
                 _deletedon = site.DeletedOn;
                 _isdeleted = site.IsDeleted.ToString();
             }
-
-            _themes = ThemeService.GetThemeTypes(_themeList);
-            _containers = ThemeService.GetContainerTypes(_themeList);
         }
         catch (Exception ex)
         {
@@ -330,14 +332,18 @@
         try
         {
             _themetype = (string)e.Value;
-            if (_themetype != string.Empty)
+            if (_themetype != "-")
             {
-                _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
+                _layouts = ThemeService.GetLayoutControls(_themeList, _themetype);
+                _containers = ThemeService.GetContainerControls(_themeList, _themetype);
             }
             else
             {
-                _panelayouts = new Dictionary<string, string>();
+                _layouts = new List<ThemeControl>();
+                _containers = new List<ThemeControl>();
             }
+            _layouttype = "-";
+            _containertype = "-";
             StateHasChanged();
         }
         catch (Exception ex)
@@ -351,7 +357,7 @@
     {
         try
         {
-            if (_name != string.Empty && _urls != string.Empty && !string.IsNullOrEmpty(_themetype) && (_panelayouts.Count == 0 || !string.IsNullOrEmpty(_layouttype)) && !string.IsNullOrEmpty(_containertype))
+            if (_name != string.Empty && _urls != string.Empty && _themetype != "-" && (_layouts.Count == 0 || _layouttype != "-") && _containertype != "-")
             {
                 var unique = true;
                 foreach (string name in _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
@@ -376,7 +382,7 @@
                         }
 
                         site.DefaultThemeType = _themetype;
-                        site.DefaultLayoutType = (_layouttype == null ? string.Empty : _layouttype);
+                        site.DefaultLayoutType = (_layouttype == "-" ? string.Empty : _layouttype);
                         site.DefaultContainerType = _containertype;
                         site.AllowRegistration = (_allowregistration == null ? true : Boolean.Parse(_allowregistration));
                         site.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));

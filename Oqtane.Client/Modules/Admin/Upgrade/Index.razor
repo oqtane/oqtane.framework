@@ -4,35 +4,36 @@
 @inject IFileService FileService
 @inject IPackageService PackageService
 @inject IInstallationService InstallationService
+@inject IJSRuntime JsRuntime
 
 @if (_package != null)
 {
-<TabStrip>
-    <TabPanel Name="Download">
-        @if (_upgradeavailable)
-        {
-            <ModuleMessage Type="MessageType.Info" Message="Select The Upgrade Button To Install a New Framework Version"></ModuleMessage>
-            @("Framework") @_package.Version <button type="button" class="btn btn-success" @onclick=@(async () => await Download(Constants.PackageId, Constants.Version))>Upgrade</button>
-        }
-        else
-        {
-            <ModuleMessage Type="MessageType.Info" Message="Framework Is Already Up To Date"></ModuleMessage>
-        }
-    </TabPanel>
-    <TabPanel Name="Upload">
-        <table class="table table-borderless">
-            <tr>
-                <td>
-                    <Label HelpText="Upload a framework package and select Install to complete the installation">Framework: </Label>
-                </td>
-                <td>
-                    <FileManager Filter="nupkg" Folder="Framework" />
-                </td>
-            </tr>
-        </table>
-        <button type="button" class="btn btn-success" @onclick="Upgrade">Install</button>
-    </TabPanel>
-</TabStrip>
+    <TabStrip>
+        <TabPanel Name="Download">
+            @if (_upgradeavailable)
+            {
+                <ModuleMessage Type="MessageType.Info" Message="Select The Upgrade Button To Install a New Framework Version"></ModuleMessage>
+                @("Framework") @_package.Version <button type="button" class="btn btn-success" @onclick=@(async () => await Download(Constants.PackageId, Constants.Version))>Upgrade</button>
+            }
+            else
+            {
+                <ModuleMessage Type="MessageType.Info" Message="Framework Is Already Up To Date"></ModuleMessage>
+            }
+        </TabPanel>
+        <TabPanel Name="Upload">
+            <table class="table table-borderless">
+                <tr>
+                    <td>
+                        <Label HelpText="Upload a framework package and select Install to complete the installation">Framework: </Label>
+                    </td>
+                    <td>
+                        <FileManager Filter="nupkg" Folder="Framework" />
+                    </td>
+                </tr>
+            </table>
+            <button type="button" class="btn btn-success" @onclick="Upgrade">Install</button>
+        </TabPanel>
+    </TabStrip>
 }
 
 @code {
@@ -43,28 +44,58 @@
 
     protected override async Task OnInitializedAsync()
     {
-        List<Package> packages = await PackageService.GetPackagesAsync("framework");
-        _package = packages.FirstOrDefault();
-        if (_package != null)
+        try
         {
-            _upgradeavailable = (Version.Parse(_package.Version).CompareTo(Version.Parse(Constants.Version)) > 0);
+            List<Package> packages = await PackageService.GetPackagesAsync("framework");
+            if (packages != null)
+            {
+                _package = packages.FirstOrDefault();
+                if (_package != null)
+                {
+                    _upgradeavailable = (Version.Parse(_package.Version).CompareTo(Version.Parse(Constants.Version)) > 0);
+                }
+                else
+                {
+                    _package = new Package { Name = Constants.PackageId, Version = Constants.Version };
+                }
+            }
         }
-        else
+        catch
         {
-            _package = new Package { Name = Constants.PackageId, Version = Constants.Version };
+            // can be caused by no network connection
         }
     }
 
     private async Task Upgrade()
     {
-        await InstallationService.Upgrade();
-        NavigationManager.NavigateTo(NavigateUrl());
+        try
+        {
+            ShowProgressIndicator();
+            var interop = new Interop(JsRuntime);
+            await interop.RedirectBrowser(NavigateUrl(), 3);
+            await InstallationService.Upgrade();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Executing Upgrade {Error}", ex.Message);
+            AddModuleMessage("Error Executing Upgrade", MessageType.Error);
+        }
     }
 
     private async Task Download(string packageid, string version)
     {
-        await PackageService.DownloadPackageAsync(packageid, version, "Framework");
-        await InstallationService.Upgrade();
-        NavigationManager.NavigateTo(NavigateUrl());
+        try
+        {
+            await PackageService.DownloadPackageAsync(packageid, version, "Framework");
+            ShowProgressIndicator();
+            var interop = new Interop(JsRuntime);
+            await interop.RedirectBrowser(NavigateUrl(), 3);
+            await InstallationService.Upgrade();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Downloading Framework {Error}", ex.Message);
+            AddModuleMessage("Error Downloading Framework", MessageType.Error);
+        }
     }
 }

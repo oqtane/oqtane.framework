@@ -27,18 +27,13 @@
         DynamicComponent = builder =>
         {
             Type containerType = Type.GetType(container);
-            if (containerType != null)
+            if (containerType == null)
             {
-                builder.OpenComponent(0, containerType);
-                builder.CloseComponent();
+                // fallback
+                containerType = Type.GetType(Constants.DefaultContainer);
             }
-            else
-            {
-            // container does not exist with type specified
-            builder.OpenComponent(0, Type.GetType(Constants.ModuleMessageComponent));
-                builder.AddAttribute(1, "Message", "Error Loading Module Container " + container);
-                builder.CloseComponent();
-            }
+            builder.OpenComponent(0, containerType);
+            builder.CloseComponent();
         };
     }
 }
