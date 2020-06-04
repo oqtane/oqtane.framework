@@ -9,6 +9,9 @@ using System.IO;
 using System.Reflection;
 using System.Linq;
 using System.IO.Compression;
+using Oqtane.Modules;
+using Oqtane.Themes;
+using System.Diagnostics;
 
 namespace Oqtane.Controllers
 {
@@ -70,8 +73,27 @@ namespace Oqtane.Controllers
                 // get list of assemblies which should be downloaded to browser
                 var assemblies = AppDomain.CurrentDomain.GetOqtaneClientAssemblies();
                 var list = assemblies.Select(a => a.GetName().Name).ToList();
-                var deps = assemblies.SelectMany(a => a.GetReferencedAssemblies()).Distinct();
-                list.AddRange(deps.Where(a => a.Name.EndsWith(".oqtane", StringComparison.OrdinalIgnoreCase)).Select(a => a.Name));
+
+                // get module and theme dependencies
+                foreach (var assembly in assemblies)
+                {
+                    foreach (var type in assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(IModule))))
+                    {
+                        var instance = Activator.CreateInstance(type) as IModule;
+                        foreach (string name in instance.ModuleDefinition.Dependencies.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            if (!list.Contains(name)) list.Add(name);
+                        }
+                    }
+                    foreach (var type in assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(ITheme))))
+                    {
+                        var instance = Activator.CreateInstance(type) as ITheme;
+                        foreach (string name in instance.Theme.Dependencies.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            if (!list.Contains(name)) list.Add(name);
+                        }
+                    }
+                }
 
                 // create zip file containing assemblies and debug symbols
                 string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
@@ -90,6 +112,7 @@ namespace Oqtane.Controllers
                                 filestream.CopyTo(entrystream);
                             }
 
+                            // include debug symbols ( we may want to consider restricting this to only host users or when running in debug mode for performance )
                             if (System.IO.File.Exists(Path.Combine(binfolder, file + ".pdb")))
                             {
                                 entry = archive.CreateEntry(file + ".pdb");
