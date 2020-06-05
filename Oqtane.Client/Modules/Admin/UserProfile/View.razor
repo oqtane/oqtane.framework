@@ -1,4 +1,10 @@
-﻿@if (PageState.User != null)
+﻿@namespace Oqtane.Modules.Admin.UserProfile
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject IUserService UserService
+@inject INotificationService NotificationService
+
+@if (PageState.User != null)
 {
     <table class="table table-borderless">
         <tr>
