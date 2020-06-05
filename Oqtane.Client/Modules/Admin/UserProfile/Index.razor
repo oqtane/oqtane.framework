@@ -126,7 +126,14 @@ else
                     </Row>
                     <Detail>
                         <td colspan="2"></td>
-                        <td colspan="3">@(context.Body.Length > 100 ? context.Body.Substring(0, 100) : context.Body)</td>
+                        <td colspan="3">
+                            @{ 
+                            string input = "---";
+                            if (context.Body.Contains(input)){ 
+                            context.Body = context.Body.Split(input)[0];
+                            } }
+                            @(context.Body.Length > 100 ? (context.Body.Substring(0, 97) + "...") : context.Body)
+                        </td>
                     </Detail>
                 </Pager>
             }
@@ -149,7 +156,14 @@ else
                     </Row>
                     <Detail>
                         <td colspan="2"></td>
-                        <td colspan="3">@(context.Body.Length > 100 ? context.Body.Substring(0, 100) : context.Body)</td>
+                        <td colspan="3">
+                            @{ 
+                            string input = "---";
+                            if (context.Body.Contains(input)){ 
+                            context.Body = context.Body.Split(input)[0];
+                            } }
+                            @(context.Body.Length > 100 ? (context.Body.Substring(0, 97) + "...") : context.Body)
+                        </td>
                     </Detail>
                 </Pager>
             }
