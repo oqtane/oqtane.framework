@@ -11,31 +11,36 @@
             <td>
                 <label class="control-label">@title: </label>
             </td>
-            <td>
-                <input class="form-control" @bind="@username" />
-            </td>
+            @if (title == "From")
+            {
+                <td>
+                    <input class="form-control" @bind="@username" readonly />
+                </td>
+            }
+            @if (title == "To")
+            {
+                <td>
+                    <input class="form-control" @bind="@username" />
+                </td>
+            }
         </tr>
         <tr>
             <td>
                 <label class="control-label">Subject: </label>
             </td>
-            <td>
-                <input class="form-control" @bind="@subject" />
-            </td>
+            @if (title == "From")
+            {
+                <td>
+                    <input class="form-control" @bind="@subject" readonly />
+                </td>
+}
+            @if (title == "To")
+            {
+                <td>
+                    <input class="form-control" @bind="@subject" />
+                </td>
+            }
         </tr>
-        @if (title == "From")
-        {
-            <td>
-                <input class="form-control" @bind="@subject" readonly />
-            </td>
-        }
-        @if (title == "To")
-        {
-            <td>
-                <input class="form-control" @bind="@subject" />
-            </td>
-            </tr>}
-
         @if (title == "From")
         {
             <tr>
@@ -46,7 +51,7 @@
                     <input class="form-control" @bind="@createdon" readonly />
                 </td>
             </tr>
-        }
+}
         @if (title == "From")
         {
             <tr>
@@ -57,7 +62,7 @@
                     <textarea class="form-control" @bind="@body" rows="5" readonly />
                 </td>
             </tr>
-        }
+}
         @if (title == "To")
         {
             <tr>
@@ -68,8 +73,9 @@
                     <textarea class="form-control" @bind="@body" rows="5" />
                 </td>
             </tr>
-        }
+}
     </table>
+
 
     @if (reply != string.Empty)
     {
@@ -95,8 +101,8 @@
                 </td>
             </tr>
         </table>
+        }
     }
-}
 
 @code {
     private int notificationid;
@@ -207,5 +213,5 @@
             AddModuleMessage("Error Adding Notification", MessageType.Error);
         }
     }
-
 }
+
