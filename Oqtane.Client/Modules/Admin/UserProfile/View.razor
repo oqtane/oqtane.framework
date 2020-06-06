@@ -9,96 +9,107 @@
     <table class="table table-borderless">
         <tr>
             <td>
-                <label  class="control-label">@title: </label>
+                <label class="control-label">@title: </label>
             </td>
-            <td>
-                <input class="form-control" @bind="@username" />
-            </td>
+            @if (title == "From")
+            {
+                <td>
+                    <input class="form-control" @bind="@username" readonly />
+                </td>
+            }
+            @if (title == "To")
+            {
+                <td>
+                    <input class="form-control" @bind="@username" />
+                </td>
+            }
         </tr>
         <tr>
             <td>
-                <label  class="control-label">Subject: </label>
+                <label class="control-label">Subject: </label>
             </td>
-            <td>
-                <input class="form-control" @bind="@subject" />
-            </td>
+            @if (title == "From")
+            {
+                <td>
+                    <input class="form-control" @bind="@subject" readonly />
+                </td>
+}
+            @if (title == "To")
+            {
+                <td>
+                    <input class="form-control" @bind="@subject" />
+                </td>
+            }
         </tr>
-
-@if (title == "From")
+        @if (title == "From")
         {
-<td>
-    <input class="form-control" @bind="@subject" readonly />
-</td>}
+            <tr>
+                <td>
+                    <label class="control-label">Date: </label>
+                </td>
+                <td>
+                    <input class="form-control" @bind="@createdon" readonly />
+                </td>
+            </tr>
+}
+        @if (title == "From")
+        {
+            <tr>
+                <td>
+                    <label class="control-label">Message: </label>
+                </td>
+                <td>
+                    <textarea class="form-control" @bind="@body" rows="5" readonly />
+                </td>
+            </tr>
+}
         @if (title == "To")
         {
-<td>
-    <input class="form-control" @bind="@subject" />
-</td>}
-    </tr>
-    @if (title == "From")
+            <tr>
+                <td>
+                    <label class="control-label">Message: </label>
+                </td>
+                <td>
+                    <textarea class="form-control" @bind="@body" rows="5" />
+                </td>
+            </tr>
+}
+    </table>
+
+
+    @if (reply != string.Empty)
     {
-<tr>
-    <td>
-        <label class="control-label">Date: </label>
-    </td>
-    <td>
-        <input class="form-control" @bind="@createdon" readonly />
-    </td>
-</tr>}
-    @if (title == "From")
+        <button type="button" class="btn btn-primary" @onclick="Send">Send</button> }
+    else
     {
-<tr>
-    <td>
-        <label class="control-label">Message: </label>
-    </td>
-    <td>
-        <textarea class="form-control" @bind="@body" rows="5" readonly />
-    </td>
-</tr>}
+        if (title == "From")
+        {
+            <button type="button" class="btn btn-primary" @onclick="Reply">Reply</button>}
+    }
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <br />
+    <br />
     @if (title == "To")
     {
-<tr>
-    <td>
-        <label class="control-label">Message: </label>
-    </td>
-    <td>
-        <textarea class="form-control" @bind="@body" rows="5" />
-    </td>
-</tr>}
-</table>
+        <table class="table table-borderless">
+            <tr>
+                <td>
+                    <label class="control-label">Original Message: </label>
+                </td>
+                <td>
+                    <textarea class="form-control" @bind="@reply" rows="5" readonly />
+                </td>
+            </tr>
+        </table>
+        }
+    }
 
-
-                @if (reply != string.Empty)
-                {
-<button type="button" class="btn btn-primary" @onclick="Send">Send</button> }
-else
-{
-if (title == "From")
-{
-<button type="button" class="btn btn-primary" @onclick="Reply">Reply</button>}
-}
-                                <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
-                                                <br />
-                                                                <br />
-                                                                                @if (title == "To")
-                                                                                {
-                                                                <table class="table table-borderless">
-                                                                    <tr>
-                                                                        <td>
-                                                                            <label class="control-label">Original Message: </label>
-                                                                        </td>
-                                                                        <td>
-                                                                            <textarea class="form-control" @bind="@reply" rows="5" readonly />
-                                                                        </td>
-                                                                    </tr>
-                                                                </table>}}
-
-@code { private int notificationid;
+@code {
+    private int notificationid;
     private string title = string.Empty;
     private string username = "";
     private string subject = string.Empty;
     private string createdon = string.Empty;
-
     private string body = string.Empty;
     private string reply = string.Empty;
 
@@ -138,7 +149,6 @@ if (title == "From")
                         username = user.Username;
                     }
                 }
-
                 if (username == "")
                 {
                     username = "System";
@@ -202,4 +212,5 @@ if (title == "From")
             await logger.LogError(ex, "Error Adding Notification {Notification} {Error}", notification, ex.Message);
             AddModuleMessage("Error Adding Notification", MessageType.Error);
         }
-    } }
+    }
+}
