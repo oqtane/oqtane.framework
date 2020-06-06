@@ -91,16 +91,10 @@
     <br />
     @if (title == "To")
     {
-        <table class="table table-borderless">
-            <tr>
-                <td>
-                    <label class="control-label">Original Message: </label>
-                </td>
-                <td>
-                    <textarea class="form-control" @bind="@reply" rows="5" readonly />
-                </td>
-            </tr>
-        </table>
+        <div class="control-group">
+            <label class="control-label">Original Message </label>
+            <textarea class="form-control" @bind="@reply" rows="5" readonly />
+        </div>
         }
     }
 
