@@ -35,14 +35,14 @@ namespace System.Reflection
 
             return assembly.GetTypes()
                 //.Where(t => t.GetInterfaces().Contains(interfaceType));
-                .Where(x => interfaceType.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
+                .Where(x => !x.IsInterface && !x.IsAbstract && interfaceType.IsAssignableFrom(x));
         }
-        
+
         public static IEnumerable<Type> GetTypes<T>(this Assembly assembly)
         {
             return assembly.GetTypes(typeof(T));
         }
-        
+
         public static IEnumerable<T> GetInstances<T>(this Assembly assembly) where T : class
         {
             if (assembly is null)
@@ -51,7 +51,7 @@ namespace System.Reflection
             }
             var type = typeof(T);
             var list = assembly.GetTypes()
-                .Where(x => type.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract && !x.IsGenericType);
+                .Where(x => !x.IsInterface && !x.IsAbstract && !x.IsGenericType && type.IsAssignableFrom(x));
 
             foreach (var type1 in list)
             {
