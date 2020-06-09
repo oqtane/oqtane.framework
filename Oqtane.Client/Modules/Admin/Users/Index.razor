@@ -35,7 +35,7 @@ else
             <td>
                 <ActionLink Action="Roles" Parameters="@($"id=" + context.UserId.ToString())"/>
             </td>
-            <td>@context.User.DisplayName</td>
+            <td class="col">@context.User.DisplayName</td>
         </Row>
     </Pager>
 }
