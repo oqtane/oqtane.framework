@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Oqtane.Themes
 {
-    public class ThemeBase : ComponentBase, IThemeControl
+    public abstract class ThemeBase : ComponentBase, IThemeControl
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -17,6 +17,8 @@ namespace Oqtane.Themes
 
         [CascadingParameter]
         protected PageState PageState { get; set; }
+        public virtual string Name { get; set; }
+        public virtual string Thumbnail { get; set; }
         public virtual string Panes { get; set; }
         public virtual List<Resource> Resources { get; set; }
 

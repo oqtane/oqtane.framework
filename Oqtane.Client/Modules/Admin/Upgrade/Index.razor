@@ -4,35 +4,36 @@
 @inject IFileService FileService
 @inject IPackageService PackageService
 @inject IInstallationService InstallationService
+@inject IJSRuntime JsRuntime
 
 @if (_package != null)
 {
-<TabStrip>
-    <TabPanel Name="Download">
-        @if (_upgradeavailable)
-        {
-            <ModuleMessage Type="MessageType.Info" Message="Select The Upgrade Button To Install a New Framework Version"></ModuleMessage>
-            @("Framework") @_package.Version <button type="button" class="btn btn-success" @onclick=@(async () => await Download(Constants.PackageId, Constants.Version))>Upgrade</button>
-        }
-        else
-        {
-            <ModuleMessage Type="MessageType.Info" Message="Framework Is Already Up To Date"></ModuleMessage>
-        }
-    </TabPanel>
-    <TabPanel Name="Upload">
-        <table class="table table-borderless">
-            <tr>
-                <td>
-                    <Label HelpText="Upload a framework package and select Install to complete the installation">Framework: </Label>
-                </td>
-                <td>
-                    <FileManager Filter="nupkg" Folder="Framework" />
-                </td>
-            </tr>
-        </table>
-        <button type="button" class="btn btn-success" @onclick="Upgrade">Install</button>
-    </TabPanel>
-</TabStrip>
+    <TabStrip>
+        <TabPanel Name="Download">
+            @if (_upgradeavailable)
+            {
+                <ModuleMessage Type="MessageType.Info" Message="Select The Upgrade Button To Install a New Framework Version"></ModuleMessage>
+                @("Framework") @_package.Version <button type="button" class="btn btn-success" @onclick=@(async () => await Download(Constants.PackageId, Constants.Version))>Upgrade</button>
+            }
+            else
+            {
+                <ModuleMessage Type="MessageType.Info" Message="Framework Is Already Up To Date"></ModuleMessage>
+            }
+        </TabPanel>
+        <TabPanel Name="Upload">
+            <table class="table table-borderless">
+                <tr>
+                    <td>
+                        <Label HelpText="Upload a framework package and select Install to complete the installation">Framework: </Label>
+                    </td>
+                    <td>
+                        <FileManager Filter="nupkg" Folder="Framework" />
+                    </td>
+                </tr>
+            </table>
+            <button type="button" class="btn btn-success" @onclick="Upgrade">Install</button>
+        </TabPanel>
+    </TabStrip>
 }
 
 @code {
@@ -59,7 +60,7 @@
                 }
             }
         }
-        catch 
+        catch
         {
             // can be caused by no network connection
         }
@@ -69,8 +70,10 @@
     {
         try
         {
+            ShowProgressIndicator();
+            var interop = new Interop(JsRuntime);
+            await interop.RedirectBrowser(NavigateUrl(), 3);
             await InstallationService.Upgrade();
-            NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {
@@ -84,8 +87,10 @@
         try
         {
             await PackageService.DownloadPackageAsync(packageid, version, "Framework");
+            ShowProgressIndicator();
+            var interop = new Interop(JsRuntime);
+            await interop.RedirectBrowser(NavigateUrl(), 3);
             await InstallationService.Upgrade();
-            NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {

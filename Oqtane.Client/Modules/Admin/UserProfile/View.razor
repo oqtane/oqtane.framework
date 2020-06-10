@@ -1,7 +1,7 @@
 ﻿@namespace Oqtane.Modules.Admin.UserProfile
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
-@inject IUserRoleService UserRoleService
+@inject IUserService UserService
 @inject INotificationService NotificationService
 
 @if (PageState.User != null)
@@ -12,16 +12,7 @@
                 <label  class="control-label">@title: </label>
             </td>
             <td>
-                <select class="form-control" readonly @bind="userid">
-                    <option value="-1">&lt;System&gt;</option>
-                    @if (userroles != null)
-                    {
-                        foreach (UserRole userrole in userroles)
-                        {
-                            <option value="@userrole.UserId">@userrole.User.DisplayName</option>
-                        }
-                    }
-                </select>
+                <input class="form-control" @bind="@username" />
             </td>
         </tr>
         <tr>
@@ -72,8 +63,7 @@
 @code {
     private int notificationid;
     private string title = string.Empty;
-    private List<UserRole> userroles;
-    private string userid = "-1";
+    private string username = "";
     private string subject = string.Empty;
     private string createdon = string.Empty;
     private string body = string.Empty;
@@ -86,20 +76,17 @@
     {
         try
         {
-            userroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
-            userroles = userroles.Where(item => item.Role.Name == Constants.RegisteredRole || item.Role.Name == Constants.HostRole)
-                .OrderBy(item => item.User.DisplayName).ToList();
-
             notificationid = Int32.Parse(PageState.QueryString["id"]);
             Notification notification = await NotificationService.GetNotificationAsync(notificationid);
             if (notification != null)
             {
+                int userid = -1;
                 if (notification.ToUserId == PageState.User.UserId)
                 {
                     title = "From";
                     if (notification.FromUserId != null)
                     {
-                        userid = notification.FromUserId.ToString();
+                        userid = notification.FromUserId.Value;
                     }
                 }
                 else
@@ -107,10 +94,21 @@
                     title = "To";
                     if (notification.ToUserId != null)
                     {
-                        userid = notification.ToUserId.ToString();
+                        userid = notification.ToUserId.Value;
                     }
                 }
-                
+                if (userid != -1)
+                {
+                    var user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
+                    if (user != null)
+                    {
+                        username = user.Username;
+                    }
+                }
+                if (username == "")
+                {
+                    username = "System";
+                }
                 subject = notification.Subject;
                 createdon = notification.CreatedOn.ToString();
                 body = notification.Body;
@@ -134,23 +132,32 @@
     private async Task Send()
     {
         var notification = new Notification();
-        notification.SiteId = PageState.Site.SiteId;
-        notification.FromUserId = PageState.User.UserId;
-        notification.ToUserId = int.Parse(userid);
-        notification.ToEmail = string.Empty;
-        notification.Subject = subject;
-        notification.Body = body;
-        notification.ParentId = notificationid;
-        notification.CreatedOn = DateTime.UtcNow;
-        notification.IsDelivered = false;
-        notification.DeliveredOn = null;
-
         try
         {
-            notification = await NotificationService.AddNotificationAsync(notification);
-
-            await logger.LogInformation("Notification Created {Notification}", notification);
-            NavigationManager.NavigateTo(NavigateUrl());
+            var user = await UserService.GetUserAsync(username, PageState.Site.SiteId);
+            if (user != null)
+            {
+                notification.SiteId = PageState.Site.SiteId;
+                notification.FromUserId = PageState.User.UserId;
+                notification.FromDisplayName = PageState.User.DisplayName;
+                notification.FromEmail = PageState.User.Email;
+                notification.ToUserId = user.UserId;
+                notification.ToDisplayName = user.DisplayName;
+                notification.ToEmail = user.Email;
+                notification.Subject = subject;
+                notification.Body = body;
+                notification.ParentId = notificationid;
+                notification.CreatedOn = DateTime.UtcNow;
+                notification.IsDelivered = false;
+                notification.DeliveredOn = null;
+                notification = await NotificationService.AddNotificationAsync(notification);
+                await logger.LogInformation("Notification Created {Notification}", notification);
+                NavigationManager.NavigateTo(NavigateUrl());
+            }
+            else
+            {
+                AddModuleMessage("User Does Not Exist. Please Verify That The Username Provided Is Correct.", MessageType.Warning);
+            }
         }
         catch (Exception ex)
         {

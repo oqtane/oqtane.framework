@@ -4,7 +4,7 @@ using Oqtane.UI;
 
 namespace Oqtane.Themes
 {
-    public class ThemeControlBase : ComponentBase
+    public abstract class ThemeControlBase : ComponentBase
     {
         [CascadingParameter]
         protected PageState PageState { get; set; }

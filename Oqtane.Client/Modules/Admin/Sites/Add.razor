@@ -38,38 +38,41 @@ else
         </td>
         <td>
             <select id="defaultTheme" class="form-control" @onchange="(e => ThemeChanged(e))">
-                <option value="">&lt;Select Theme&gt;</option>
-                @foreach (KeyValuePair<string, string> item in _themes)
+                <option value="-">&lt;Select Theme&gt;</option>
+                @foreach (var theme in _themes)
                 {
-                    <option value="@item.Key">@item.Value</option>
+                    <option value="@theme.TypeName">@theme.Name</option>
                 }
             </select>
         </td>
     </tr>
-    <tr>
-        <td>
-            <Label For="defaultLayout" HelpText="Select the default layout for the site">Default Layout: </Label>
-        </td>
-        <td>
-            <select id="defaultLayout" class="form-control" @bind="@_layouttype">
-                <option value="">&lt;Select Layout&gt;</option>
-                @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
-                {
-                    <option value="@panelayout.Key">@panelayout.Value</option>
-                }
-            </select>
-        </td>
-    </tr>
+    @if (_layouts.Count > 0)
+    {
+        <tr>
+            <td>
+                <Label For="defaultLayout" HelpText="Select the default layout for the site">Default Layout: </Label>
+            </td>
+            <td>
+                <select id="defaultLayout" class="form-control" @bind="@_layouttype">
+                    <option value="-">&lt;Select Layout&gt;</option>
+                    @foreach (var layout in _layouts)
+                    {
+                        <option value="@(layout.TypeName)">@(layout.Name)</option>
+                    }
+                </select>
+            </td>
+        </tr>
+    }
     <tr>
         <td>
             <Label For="defaultContainer" HelpText="Select the default container for the site">Default Container: </Label>
         </td>
         <td>
             <select id="defaultContainer" class="form-control" @bind="@_containertype">
-                <option value="">&lt;Select Container&gt;</option>
-                @foreach (KeyValuePair<string, string> container in _containers)
+                <option value="-">&lt;Select Container&gt;</option>
+                @foreach (var container in _containers)
                 {
-                    <option value="@container.Key">@container.Value</option>
+                    <option value="@container.TypeName">@container.Name</option>
                 }
             </select>
         </td>
@@ -80,7 +83,7 @@ else
         </td>
         <td>
             <select id="siteTemplate" class="form-control" @bind="@_sitetemplatetype">
-                <option value="">&lt;Select Site Template&gt;</option>
+                <option value="-">&lt;Select Site Template&gt;</option>
                 @foreach (SiteTemplate siteTemplate in _siteTemplates)
                 {
                     <option value="@siteTemplate.TypeName">@siteTemplate.Name</option>
@@ -198,11 +201,11 @@ else
 }
 
 @code {
-    private Dictionary<string, string> _themes = new Dictionary<string, string>();
-    private Dictionary<string, string> _panelayouts = new Dictionary<string, string>();
-    private Dictionary<string, string> _containers = new Dictionary<string, string>();
-    private List<SiteTemplate> _siteTemplates;
     private List<Theme> _themeList;
+    private List<ThemeControl> _themes = new List<ThemeControl>();
+    private List<ThemeControl> _layouts = new List<ThemeControl>();
+    private List<ThemeControl> _containers = new List<ThemeControl>();
+    private List<SiteTemplate> _siteTemplates;
     private List<Tenant> _tenants;
     private string _tenantid = "-";
 
@@ -218,20 +221,19 @@ else
 
     private string _name = string.Empty;
     private string _urls = string.Empty;
-    private string _themetype = string.Empty;
-    private string _layouttype = string.Empty;
-    private string _containertype = string.Empty;
-    private string _sitetemplatetype = string.Empty;
+    private string _themetype = "-";
+    private string _layouttype = "-";
+    private string _containertype = "-";
+    private string _sitetemplatetype = "-";
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnInitializedAsync()
     {
-        _themeList = await ThemeService.GetThemesAsync();
         _tenants = await TenantService.GetTenantsAsync();
         _urls = PageState.Alias.Name;
-        _themes = ThemeService.GetThemeTypes(_themeList);
-        _containers = ThemeService.GetContainerTypes(_themeList);
+        _themeList = await ThemeService.GetThemesAsync();
+        _themes = ThemeService.GetThemeControls(_themeList);
         _siteTemplates = await SiteTemplateService.GetSiteTemplatesAsync();
     }
 
@@ -263,15 +265,18 @@ else
         try
         {
             _themetype = (string)e.Value;
-            if (_themetype != string.Empty)
+            if (_themetype != "-")
             {
-                _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
+                _layouts = ThemeService.GetLayoutControls(_themeList, _themetype);
+                _containers = ThemeService.GetContainerControls(_themeList, _themetype);
             }
             else
             {
-                _panelayouts = new Dictionary<string, string>();
+                _layouts = new List<ThemeControl>();
+                _containers = new List<ThemeControl>();
             }
-
+            _layouttype = "-";
+            _containertype = "-";
             StateHasChanged();
         }
         catch (Exception ex)
@@ -283,7 +288,7 @@ else
 
     private async Task SaveSite()
     {
-        if (_tenantid != "-" && _name != string.Empty && _urls != string.Empty && !string.IsNullOrEmpty(_themetype) && (_panelayouts.Count == 0 || !string.IsNullOrEmpty(_layouttype)) && !string.IsNullOrEmpty(_containertype) && !string.IsNullOrEmpty(_sitetemplatetype))
+        if (_tenantid != "-" && _name != string.Empty && _urls != string.Empty && _themetype != "-" && (_layouts.Count == 0 || _layouttype != "-") && _containertype != "-" && _sitetemplatetype != "-")
         {
             var duplicates = new List<string>();
             var aliases = await AliasService.GetAliasesAsync();

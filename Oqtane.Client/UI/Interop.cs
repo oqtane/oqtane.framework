@@ -204,5 +204,35 @@ namespace Oqtane.UI
                 return Task.CompletedTask;
             }
         }
+
+        public Task RefreshBrowser(bool force, int wait)
+        {
+            try
+            {
+                _jsRuntime.InvokeAsync<object>(
+                    "Oqtane.Interop.refreshBrowser",
+                    force, wait);
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
+        }
+
+        public Task RedirectBrowser(string url, int wait)
+        {
+            try
+            {
+                _jsRuntime.InvokeAsync<object>(
+                    "Oqtane.Interop.redirectBrowser",
+                    url, wait);
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
+        }
     }
 }

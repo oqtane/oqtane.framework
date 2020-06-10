@@ -66,18 +66,13 @@
         DynamicComponent = builder =>
         {
             var themeType = Type.GetType(PageState.Page.ThemeType);
-            if (themeType != null)
+            if (themeType == null)
             {
-                builder.OpenComponent(0, themeType);
-                builder.CloseComponent();
+                // fallback
+                themeType = Type.GetType(Constants.DefaultTheme);
             }
-            else
-            {
-                // theme does not exist with type specified
-                builder.OpenComponent(0, Type.GetType(Constants.ModuleMessageComponent));
-                builder.AddAttribute(1, "Message", "Error Loading Page Theme " + PageState.Page.ThemeType);
-                builder.CloseComponent();
-            }
+            builder.OpenComponent(0, themeType);
+            builder.CloseComponent();
         };
     }
 

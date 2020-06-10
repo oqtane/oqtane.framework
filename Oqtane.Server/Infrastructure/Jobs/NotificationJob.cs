@@ -69,7 +69,7 @@ namespace Oqtane.Infrastructure
                             mailMessage.Subject = notification.Subject;
                             if (notification.FromUserId != null)
                             {
-                                mailMessage.Body = "From: " + notification.FromUser.DisplayName + "<" + notification.FromUser.Email + ">" + "\n";
+                                mailMessage.Body = "From: " + notification.FromDisplayName + "<" + notification.FromEmail + ">" + "\n";
                             }
                             else
                             {
@@ -78,8 +78,8 @@ namespace Oqtane.Infrastructure
                             mailMessage.Body += "Sent: " + notification.CreatedOn + "\n";
                             if (notification.ToUserId != null)
                             {
-                                mailMessage.To.Add(new MailAddress(notification.ToUser.Email, notification.ToUser.DisplayName));
-                                mailMessage.Body += "To: " + notification.ToUser.DisplayName + "<" + notification.ToUser.Email + ">" + "\n";
+                                mailMessage.To.Add(new MailAddress(notification.ToEmail, notification.ToDisplayName));
+                                mailMessage.Body += "To: " + notification.ToDisplayName + "<" + notification.ToEmail + ">" + "\n";
                             }
                             else
                             {

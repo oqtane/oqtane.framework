@@ -57,7 +57,7 @@ namespace Oqtane.Controllers
                 user.SiteId = int.Parse(siteid);
                 user.Roles = GetUserRoles(user.UserId, user.SiteId);
             }
-            return user;
+            return Filter(user);
         }
 
         // GET api/<controller>/name/x?siteid=x
@@ -69,6 +69,29 @@ namespace Oqtane.Controllers
             {
                 user.SiteId = int.Parse(siteid);
                 user.Roles = GetUserRoles(user.UserId, user.SiteId);
+            }
+            return Filter(user);
+        }
+
+        private User Filter(User user)
+        {
+            if (user != null && !User.IsInRole(Constants.AdminRole) && User.Identity.Name != user.Username)
+            {
+                user.DisplayName = "";
+                user.Email = "";
+                user.PhotoFileId = null;
+                user.LastLoginOn = DateTime.MinValue;
+                user.LastIPAddress = "";
+                user.Roles = "";
+                user.CreatedBy = "";
+                user.CreatedOn = DateTime.MinValue;
+                user.ModifiedBy = "";
+                user.ModifiedOn = DateTime.MinValue;
+                user.DeletedBy = "";
+                user.DeletedOn = DateTime.MinValue;
+                user.IsDeleted = false;
+                user.Password = "";
+                user.IsAuthenticated = false;
             }
             return user;
         }
