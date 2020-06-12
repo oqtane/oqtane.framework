@@ -75,7 +75,7 @@ namespace Oqtane.Controllers
 
         private User Filter(User user)
         {
-            if (user != null && !User.IsInRole(Constants.AdminRole) && User.Identity.Name != user.Username)
+            if (user != null && !User.IsInRole(Constants.AdminRole) && User.Identity.Name?.ToLower() != user.Username.ToLower())
             {
                 user.DisplayName = "";
                 user.Email = "";

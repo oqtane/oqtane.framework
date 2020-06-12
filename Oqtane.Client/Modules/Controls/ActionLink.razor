@@ -90,7 +90,8 @@
 
         if (!string.IsNullOrEmpty(IconName))
         {
-            _iconSpan = $"<span class=\"oi oi-{IconName}\"></span>&nbsp;";
+            _iconSpan = $"<span class=\"oi oi-{IconName}\"></span>{(IconOnly?"":"&nbsp")}";
+            
         }
 
         _url = EditUrl(Action, _parameters);
