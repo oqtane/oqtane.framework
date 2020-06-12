@@ -361,20 +361,26 @@
 
             string panes = "";
             Type themetype = Type.GetType(page.ThemeType);
-            var themeobject = Activator.CreateInstance(themetype) as IThemeControl;
-            if (themeobject != null)
+            if (themetype != null)
             {
-                panes = themeobject.Panes;
-                page.Resources = ManagePageResources(page.Resources, themeobject.Resources);
+                var themeobject = Activator.CreateInstance(themetype) as IThemeControl;
+                if (themeobject != null)
+                {
+                    panes = themeobject.Panes;
+                    page.Resources = ManagePageResources(page.Resources, themeobject.Resources);
+                }
             }
 
             if (!string.IsNullOrEmpty(page.LayoutType))
             {
                 Type layouttype = Type.GetType(page.LayoutType);
-                var layoutobject = Activator.CreateInstance(layouttype) as ILayoutControl;
-                if (layoutobject != null)
+                if (layouttype != null)
                 {
-                    panes = layoutobject.Panes;
+                    var layoutobject = Activator.CreateInstance(layouttype) as ILayoutControl;
+                    if (layoutobject != null)
+                    {
+                        panes = layoutobject.Panes;
+                    }
                 }
             }
 
