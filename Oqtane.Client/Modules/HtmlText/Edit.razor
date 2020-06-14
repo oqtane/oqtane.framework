@@ -27,7 +27,6 @@
     public override List<Resource> Resources => new List<Resource>()
     {
         new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" },
-        // the following resources should be declared in the RichTextEditor component however the framework currently only supports resource management for modules and themes
         new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill1.3.6.bubble.css" },
         new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill1.3.6.snow.css" }
     };
