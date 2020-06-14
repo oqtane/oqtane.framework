@@ -234,5 +234,18 @@ namespace Oqtane.UI
                 return Task.CompletedTask;
             }
         }
+
+        public async Task LoadInteropScript(string filePath)
+        {
+            try
+            {
+                await  _jsRuntime.InvokeAsync<bool>("Oqtane.Interop.loadInteropScript", filePath);
+            }
+            catch
+            {
+                // handle exception
+            }
+
+        }
     }
 }

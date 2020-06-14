@@ -321,5 +321,15 @@ Oqtane.Interop = {
         setInterval(function () {
             window.location.href = url;
         }, wait * 1000);
+    },
+    loadInteropScript: async function (filePath) {
+        const promise = new Promise((resolve, reject) => {
+            loadjs(filePath, { returnPromise: true })
+                .then(function () { resolve(true) })
+                .catch(function (pathsNotFound) { reject(false) });
+        });
+
+        const result = await promise;
+        return;
     }
 };
