@@ -1,24 +1,31 @@
 var Oqtane = Oqtane || {};
 
 Oqtane.RichTextEditor = {
-    createQuill: function (
+    createQuill: async function (
         quillElement, toolBar, readOnly,
         placeholder, theme, debugLevel) {
 
-        Quill.register('modules/blotFormatter', QuillBlotFormatter.default);
+        const loadQuill = loadjs(['js/quill1.3.6.min.js', 'js/quill-blot-formatter.min.js'], 'Quill',
+            { async: true, returnPromise: true })
+            .then(function () { /* foo.js & bar.js loaded */
+                Quill.register('modules/blotFormatter', QuillBlotFormatter.default);
 
-        var options = {
-            debug: debugLevel,
-            modules: {
-                toolbar: toolBar,
-                blotFormatter: {}
-            },
-            placeholder: placeholder,
-            readOnly: readOnly,
-            theme: theme
-        };
+                var options = {
+                    debug: debugLevel,
+                    modules: {
+                        toolbar: toolBar,
+                        blotFormatter: {}
+                    },
+                    placeholder: placeholder,
+                    readOnly: readOnly,
+                    theme: theme
+                };
 
-        new Quill(quillElement, options);
+                new Quill(quillElement, options);
+            })
+            .catch(function (pathsNotFound) { /* at least one didn't load */ });
+
+        await loadQuill;
     },
     getQuillContent: function (editorElement) {
         return JSON.stringify(editorElement.__quill.getContents());
