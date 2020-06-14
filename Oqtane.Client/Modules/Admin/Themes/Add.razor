@@ -4,7 +4,6 @@
 @inject IFileService FileService
 @inject IThemeService ThemeService
 @inject IPackageService PackageService
-@inject IJSRuntime JsRuntime
 
 @if (_packages != null)
 {
@@ -79,7 +78,7 @@
         try
         {
             ShowProgressIndicator();
-            var interop = new Interop(JsRuntime);
+            var interop = new Interop(JSRuntime);
             await interop.RedirectBrowser(NavigateUrl(), 3);
             await ThemeService.InstallThemesAsync();
         }

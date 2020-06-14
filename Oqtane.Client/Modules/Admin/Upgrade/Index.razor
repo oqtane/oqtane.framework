@@ -4,7 +4,6 @@
 @inject IFileService FileService
 @inject IPackageService PackageService
 @inject IInstallationService InstallationService
-@inject IJSRuntime JsRuntime
 
 @if (_package != null)
 {
@@ -71,7 +70,7 @@
         try
         {
             ShowProgressIndicator();
-            var interop = new Interop(JsRuntime);
+            var interop = new Interop(JSRuntime);
             await interop.RedirectBrowser(NavigateUrl(), 3);
             await InstallationService.Upgrade();
         }
@@ -88,7 +87,7 @@
         {
             await PackageService.DownloadPackageAsync(packageid, version, "Framework");
             ShowProgressIndicator();
-            var interop = new Interop(JsRuntime);
+            var interop = new Interop(JSRuntime);
             await interop.RedirectBrowser(NavigateUrl(), 3);
             await InstallationService.Upgrade();
         }

@@ -145,7 +145,7 @@ Oqtane.Interop = {
                 script.innerHTML = content;
             }
             script.async = false;
-            this.loadScript(script, location)
+            this.addScript(script, location)
                 .then(() => {
                     console.log(src + ' loaded');
                 })
@@ -185,7 +185,7 @@ Oqtane.Interop = {
             }
         }
     },
-    loadScript: function (script, location) {
+    addScript: function (script, location) {
         if (location === 'head') {
             document.head.appendChild(script);
         }
@@ -198,10 +198,14 @@ Oqtane.Interop = {
             script.onerror = rej();
         });
     },
-    includeScripts: function (scripts) {
-        for (let i = 0; i < scripts.length; i++) {
-            this.includeScript(scripts[i].id, scripts[i].src, scripts[i].integrity, scripts[i].crossorigin, scripts[i].content, scripts[i].location, scripts[i].key);
-        }
+    loadScript: async function (path) {
+        const promise = new Promise((resolve, reject) => {
+            loadjs(path, { returnPromise: true })
+                .then(function () { resolve(true) })
+                .catch(function (pathsNotFound) { reject(false) });
+        });
+        const result = await promise;
+        return;
     },
     getAbsoluteUrl: function (url) {
         var a = document.createElement('a');
@@ -321,15 +325,5 @@ Oqtane.Interop = {
         setInterval(function () {
             window.location.href = url;
         }, wait * 1000);
-    },
-    loadInteropScript: async function (filePath) {
-        const promise = new Promise((resolve, reject) => {
-            loadjs(filePath, { returnPromise: true })
-                .then(function () { resolve(true) })
-                .catch(function (pathsNotFound) { reject(false) });
-        });
-
-        const result = await promise;
-        return;
     }
 };
