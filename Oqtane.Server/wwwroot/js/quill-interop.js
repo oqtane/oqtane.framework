@@ -7,7 +7,7 @@ Oqtane.RichTextEditor = {
 
         const loadQuill = loadjs(['js/quill1.3.6.min.js', 'js/quill-blot-formatter.min.js'], 'Quill',
             { async: true, returnPromise: true })
-            .then(function () { /* foo.js & bar.js loaded */
+            .then(function () { 
                 Quill.register('modules/blotFormatter', QuillBlotFormatter.default);
 
                 var options = {
@@ -23,7 +23,7 @@ Oqtane.RichTextEditor = {
 
                 new Quill(quillElement, options);
             })
-            .catch(function (pathsNotFound) { /* at least one didn't load */ });
+            .catch(function (pathsNotFound) { });
 
         await loadQuill;
     },
