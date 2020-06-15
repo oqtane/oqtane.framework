@@ -277,7 +277,6 @@
             {
                 if (user == null)
                 {
-                    await LogService.Log(null, null, null, GetType().AssemblyQualifiedName, Utilities.GetTypeNameLastSegment(GetType().AssemblyQualifiedName, 1), LogFunction.Security, LogLevel.Error, null, "Page Does Not Exist Or User Is Not Authorized To View Page {Path}", path);
                     // redirect to login page
                     NavigationManager.NavigateTo(Utilities.NavigateUrl(alias.Path, "login", "returnurl=" + path));
                 }
