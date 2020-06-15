@@ -73,7 +73,7 @@ else
         }
     </TabPanel>
     <TabPanel Name="Profile">
-        @if (profiles != null)
+        @if (profiles != null && settings != null)
         {
             <table class="table table-borderless">
                 @foreach (Profile profile in profiles)

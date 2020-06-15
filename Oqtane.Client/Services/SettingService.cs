@@ -153,7 +153,7 @@ namespace Oqtane.Services
         public string GetSetting(Dictionary<string, string> settings, string settingName, string defaultValue)
         {
             string value = defaultValue;
-            if (settings.ContainsKey(settingName))
+            if (settings != null && settings.ContainsKey(settingName))
             {
                 value = settings[settingName];
             }
@@ -162,6 +162,10 @@ namespace Oqtane.Services
 
         public Dictionary<string, string> SetSetting(Dictionary<string, string> settings, string settingName, string settingValue)
         {
+            if (settings == null)
+            {
+                settings = new Dictionary<string, string>();
+            }
             if (settings.ContainsKey(settingName))
             { 
                 settings[settingName] = settingValue;
