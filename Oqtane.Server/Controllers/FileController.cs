@@ -11,12 +11,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Oqtane.Security;
 using System.Linq;
-using System.Drawing;
 using System.Net;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
-using Microsoft.AspNetCore.Routing.Constraints;
+using Oqtane.Extensions;
+using static Oqtane.Infrastructure.ImageProcessing.ThumbnailImage;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
@@ -65,7 +65,7 @@ namespace Oqtane.Controllers
                     {
                         foreach (string file in Directory.GetFiles(folder))
                         {
-                            files.Add(new Models.File { Name = Path.GetFileName(file), Extension = Path.GetExtension(file)?.Replace(".", "") });
+                            files.Add(new Models.File {Name = Path.GetFileName(file), Extension = Path.GetExtension(file)?.Replace(".", "")});
                         }
                     }
                 }
@@ -208,7 +208,7 @@ namespace Oqtane.Controllers
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Create,
                     "File Could Not Be Downloaded From Url Due To Its File Extension {Url}", url);
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
+                HttpContext.Response.StatusCode = (int) HttpStatusCode.Conflict;
                 return file;
             }
 
@@ -216,7 +216,7 @@ namespace Oqtane.Controllers
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Create,
                     $"File Could Not Be Downloaded From Url Due To Its File Name Not Allowed {url}");
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
+                HttpContext.Response.StatusCode = (int) HttpStatusCode.Conflict;
                 return file;
             }
 
@@ -253,7 +253,7 @@ namespace Oqtane.Controllers
 
             if (!file.FileName.IsPathOrFileValid())
             {
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
+                HttpContext.Response.StatusCode = (int) HttpStatusCode.Conflict;
                 return;
             }
 
@@ -423,45 +423,67 @@ namespace Oqtane.Controllers
         [HttpGet("download/{id}")]
         public IActionResult Download(int id)
         {
-            string errorpath = Path.Combine(GetFolderPath("images"), "error.png");
-            Models.File file = _files.GetFile(id);
+            var file = _files.GetFile(id);
             if (file != null)
             {
                 if (_userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.Permissions))
                 {
-                    string filepath = Path.Combine(GetFolderPath(file.Folder), file.Name);
+                    var filepath = Path.Combine(GetFolderPath(file.Folder), file.Name);
                     if (System.IO.File.Exists(filepath))
                     {
-                        byte[] filebytes = System.IO.File.ReadAllBytes(filepath);
-                        return File(filebytes, "application/octet-stream", file.Name);
+                        return PhysicalFile(filepath, file.Name.GetMimeType(), file.Name);
                     }
-                    else
-                    {
-                        _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {FileId} {FilePath}", id, filepath);
-                        HttpContext.Response.StatusCode = 404;
-                        if (System.IO.File.Exists(errorpath))
-                        {
-                            byte[] filebytes = System.IO.File.ReadAllBytes(errorpath);
-                            return File(filebytes, "application/octet-stream", file.Name);
-                        }
-                    }
+
+                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {FileId} {FilePath}", id, filepath);
+                    HttpContext.Response.StatusCode = 404;
                 }
                 else
                 {
                     _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access File {FileId}", id);
                     HttpContext.Response.StatusCode = 401;
-                    byte[] filebytes = System.IO.File.ReadAllBytes(errorpath);
-                    return File(filebytes, "application/octet-stream", file.Name);
                 }
             }
             else
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Not Found {FileId}", id);
                 HttpContext.Response.StatusCode = 404;
-                byte[] filebytes = System.IO.File.ReadAllBytes(errorpath);
-                return File(filebytes, "application/octet-stream", "error.png");
             }
-            return null;
+            string errorPath = Path.Combine(GetFolderPath("images"), "error.png");
+            return System.IO.File.Exists(errorPath) ? PhysicalFile(errorPath, errorPath.GetMimeType()) : null;
+        }
+
+        [ResponseCache(Duration = 1200)]
+        [HttpGet("image/{id}/{size?}/{extension?}/{quality?}")]
+        public IActionResult Image(int id, string size = "full", string extension = "jpg", long quality = 90L)
+        {
+            var file = _files.GetFile(id);
+            if (file != null)
+            {
+                if (_userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.Permissions))
+                {
+                    var filepath = Path.Combine(GetFolderPath(file.Folder), file.Name);
+                    if (System.IO.File.Exists(filepath))
+                    {
+                        var imagePath = GenerateThumbnail(filepath, size, extension, quality);
+                        return PhysicalFile(imagePath, imagePath.GetMimeType());
+                    }
+
+                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {FileId} {FilePath}", id, filepath);
+                    HttpContext.Response.StatusCode = (int) HttpStatusCode.NotFound;
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access File {FileId}", id);
+                    HttpContext.Response.StatusCode = (int) HttpStatusCode.Unauthorized;
+                }
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Not Found {FileId}", id);
+                HttpContext.Response.StatusCode = (int) HttpStatusCode.NotFound;
+            }
+            var errorPath = Path.Combine(GetFolderPath("images"), "error.png");
+            return System.IO.File.Exists(errorPath) ? PhysicalFile(errorPath, errorPath.GetMimeType()) : null;
         }
 
         private string GetFolderPath(Folder folder)
@@ -479,7 +501,7 @@ namespace Oqtane.Controllers
             if (!Directory.Exists(folderpath))
             {
                 string path = "";
-                var separators = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
+                var separators = new char[] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar};
                 string[] folders = folderpath.Split(separators, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string folder in folders)
                 {
@@ -500,14 +522,14 @@ namespace Oqtane.Controllers
 
             FileInfo fileinfo = new FileInfo(filepath);
             file.Extension = fileinfo.Extension.ToLower().Replace(".", "");
-            file.Size = (int)fileinfo.Length;
+            file.Size = (int) fileinfo.Length;
             file.ImageHeight = 0;
             file.ImageWidth = 0;
 
             if (Constants.ImageFiles.Split(',').Contains(file.Extension.ToLower()))
             {
                 FileStream stream = new FileStream(filepath, FileMode.Open, FileAccess.Read);
-                using (var image = Image.FromStream(stream))
+                using (var image = System.Drawing.Image.FromStream(stream))
                 {
                     file.ImageHeight = image.Height;
                     file.ImageWidth = image.Width;

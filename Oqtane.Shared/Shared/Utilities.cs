@@ -1,6 +1,7 @@
 ﻿using Oqtane.Models;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -53,6 +54,30 @@ namespace Oqtane.Shared
         {
             string url = (alias == null) ? "/~" : "/" + alias.AliasId;
             url += Constants.ContentUrl + fileid.ToString();
+            return url;
+        }
+        /// <summary>
+        /// Cached, thumbnail creating variant of ContentUrl()
+        /// </summary>
+        /// <param name="alias"></param>
+        /// <param name="fileid"></param>
+        /// <param name="sizeString"></param>
+        /// <param name="extension"></param>
+        /// <param name="quality"></param>
+        /// <param name="forceGeneration"></param>
+        /// <returns></returns>
+        public static string ContentImageUrl(Alias alias, int fileid,  string sizeString = "full", string extension = null, long? quality = null, bool forceGeneration = false)
+        {
+            var url = (alias == null) ? "/~" : "/" + alias.AliasId;
+            url += Constants.ContentImageUrl + fileid.ToString() + "/";
+            if (string.IsNullOrEmpty(sizeString)) sizeString = "full"; 
+            url += sizeString + "/";
+            if (!string.IsNullOrEmpty(extension))
+            {
+                url += extension + "/";
+                if (extension.Equals("jpg") && quality != null) url += quality + "/";
+            }
+            if (forceGeneration) url += "?force=true";
             return url;
         }
 

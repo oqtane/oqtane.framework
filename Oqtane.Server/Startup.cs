@@ -198,7 +198,7 @@ namespace Oqtane
 
             // load the external assemblies into the app domain, install services 
             services.AddOqtaneParts(_runtime);
-
+            services.AddResponseCaching();
             services.AddMvc()
                 .AddNewtonsoftJson()
                 .AddOqtaneApplicationParts() // register any Controllers from custom modules
@@ -231,6 +231,7 @@ namespace Oqtane
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseResponseCaching();  
             if (_useSwagger)
             {
                 app.UseSwagger();

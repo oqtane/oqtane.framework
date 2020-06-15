@@ -32,6 +32,7 @@ namespace Oqtane.Shared
         public const string DefaultSiteTemplate = "Oqtane.SiteTemplates.DefaultSiteTemplate, Oqtane.Server";
 
         public const string ContentUrl = "/api/file/download/";
+        public const string ContentImageUrl = "/api/file/image/";
 
         public const string HostUser = "host";
 
