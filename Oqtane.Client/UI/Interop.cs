@@ -117,11 +117,23 @@ namespace Oqtane.UI
             }
         }
 
-        public async Task LoadScript(string path)
+        public async Task LoadScript(string url, string integrity, string crossorigin)
         {
             try
             {
-                await _jsRuntime.InvokeVoidAsync("Oqtane.Interop.loadScript", path);
+                await _jsRuntime.InvokeVoidAsync("Oqtane.Interop.loadScript", url, integrity, crossorigin);
+            }
+            catch
+            {
+                // ignore exception
+            }
+        }
+
+        public async Task LoadBootstrapJS()
+        {
+            try
+            {
+                await _jsRuntime.InvokeVoidAsync("Oqtane.Interop.loadBootstrapJS");
             }
             catch
             {

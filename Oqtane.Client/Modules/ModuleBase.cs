@@ -55,7 +55,7 @@ namespace Oqtane.Modules
                     var interop = new Interop(JSRuntime);
                     foreach (var resource in Resources.Where(item => item.ResourceType == ResourceType.Script))
                     {
-                        await interop.LoadScript(resource.Url);
+                        await interop.LoadScript(resource.Url, resource.Integrity ?? "", resource.CrossOrigin ?? "");
                     }
                 }
             }

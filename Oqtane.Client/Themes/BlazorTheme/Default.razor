@@ -1,5 +1,6 @@
 ﻿@namespace Oqtane.Themes.BlazorTheme
 @inherits ThemeBase
+@implements IThemeControl
 
 <div class="breadcrumbs">
     <Breadcrumbs />
@@ -30,6 +31,16 @@
 
     public override List<Resource> Resources => new List<Resource>()
     {
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css", Integrity = "sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T", CrossOrigin = "anonymous" },
         new Resource { ResourceType = ResourceType.Stylesheet, Url = ThemePath() + "Theme.css" }
     };
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var interop = new Interop(JSRuntime);
+            await interop.LoadBootstrapJS();
+        }
+    }
 }
