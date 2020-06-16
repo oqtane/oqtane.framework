@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Oqtane.Themes
 {
-    public abstract class ThemeBase : ComponentBase, IThemeControl
+    public abstract class ThemeBase : ComponentBase
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -34,7 +34,7 @@ namespace Oqtane.Themes
                     var interop = new Interop(JSRuntime);
                     foreach (var resource in Resources.Where(item => item.ResourceType == ResourceType.Script))
                     {
-                        await interop.LoadScript(resource.Url);
+                        await interop.LoadScript(resource.Url, resource.Integrity ?? "", resource.CrossOrigin ?? "");
                     }
                 }
             }
