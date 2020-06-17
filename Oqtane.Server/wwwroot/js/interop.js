@@ -145,7 +145,7 @@ Oqtane.Interop = {
                 script.innerHTML = content;
             }
             script.async = false;
-            this.loadScript(script, location)
+            this.addScript(script, location)
                 .then(() => {
                     console.log(src + ' loaded');
                 })
@@ -185,7 +185,7 @@ Oqtane.Interop = {
             }
         }
     },
-    loadScript: function (script, location) {
+    addScript: function (script, location) {
         if (location === 'head') {
             document.head.appendChild(script);
         }
@@ -198,9 +198,48 @@ Oqtane.Interop = {
             script.onerror = rej();
         });
     },
-    includeScripts: function (scripts) {
-        for (let i = 0; i < scripts.length; i++) {
-            this.includeScript(scripts[i].id, scripts[i].src, scripts[i].integrity, scripts[i].crossorigin, scripts[i].content, scripts[i].location, scripts[i].key);
+    includeScripts: async function (scripts) {
+        const bundles = [];
+        for (let s = 0; s < scripts.length; s++) {
+            if (scripts[s].bundle === '') {
+                scripts[s].bundle = scripts[s].href;
+            }
+            if (!bundles.includes(scripts[s].bundle)) {
+                bundles.push(scripts[s].bundle);
+            }
+        }
+        const urls = [];
+        for (let b = 0; b < bundles.length; b++) {
+            for (let s = 0; s < scripts.length; s++) {
+                if (scripts[s].bundle === bundles[b]) {
+                    urls.push(scripts[s].href);
+                }
+            }
+            const promise = new Promise((resolve, reject) => {
+                if (loadjs.isDefined(bundles[b])) {
+                    resolve(true);
+                }
+                else {
+                    loadjs(urls, bundles[b], {
+                        async: true,
+                        returnPromise: true,
+                        before: function (path, element) {
+                            for (let s = 0; s < scripts.length; s++) {
+                                if (path === scripts[s].href && scripts[s].integrity !== '') {
+                                    element.integrity = scripts[s].integrity;
+                                }
+                                if (path === scripts[s].href && scripts[s].crossorigin !== '') {
+                                    element.crossOrigin = scripts[s].crossorigin;
+                                }
+                            }
+                        }
+                    })
+                    .then(function () { resolve(true) })
+                    .catch(function (pathsNotFound) { reject(false) });
+                }
+            });
+            await promise;
+            urls = [];
         }
     },
     getAbsoluteUrl: function (url) {

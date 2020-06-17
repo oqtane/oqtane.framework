@@ -73,7 +73,7 @@ else
         }
     </TabPanel>
     <TabPanel Name="Profile">
-        @if (profiles != null)
+        @if (profiles != null && settings != null)
         {
             <table class="table table-borderless">
                 @foreach (Profile profile in profiles)
@@ -126,7 +126,16 @@ else
                     </Row>
                     <Detail>
                         <td colspan="2"></td>
-                        <td colspan="3">@(context.Body.Length > 100 ? context.Body.Substring(0, 100) : context.Body)</td>
+                        <td colspan="3">
+                            @{ 
+                            string input = "___";
+                            if (context.Body.Contains(input)){ 
+                            context.Body = context.Body.Split(input)[0];
+                            context.Body = context.Body.Replace("\n", "");
+                            context.Body = context.Body.Replace("\r", "");
+                            } }
+                            @(context.Body.Length > 100 ? (context.Body.Substring(0, 97) + "...") : context.Body)
+                        </td>
                     </Detail>
                 </Pager>
             }
@@ -149,7 +158,16 @@ else
                     </Row>
                     <Detail>
                         <td colspan="2"></td>
-                        <td colspan="3">@(context.Body.Length > 100 ? context.Body.Substring(0, 100) : context.Body)</td>
+                        <td colspan="3">
+                            @{ 
+                            string input = "___";
+                            if (context.Body.Contains(input)){ 
+                            context.Body = context.Body.Split(input)[0];
+                            context.Body = context.Body.Replace("\n", "");
+                            context.Body = context.Body.Replace("\r", "");
+                            } }
+                            @(context.Body.Length > 100 ? (context.Body.Substring(0, 97) + "...") : context.Body)
+                        </td>
                     </Detail>
                 </Pager>
             }

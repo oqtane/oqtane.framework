@@ -13,7 +13,7 @@ namespace Oqtane.Modules.Controls
             _jsRuntime = jsRuntime;
         }
 
-        public Task CreateEditor(
+        public async Task CreateEditor(
             ElementReference quillElement,
             ElementReference toolbar,
             bool readOnly,
@@ -23,15 +23,14 @@ namespace Oqtane.Modules.Controls
         {
             try
             {
-                _jsRuntime.InvokeAsync<object>(
+                await _jsRuntime.InvokeAsync<object>(
                     "Oqtane.RichTextEditor.createQuill",
-                    quillElement, toolbar, readOnly,
-                    placeholder, theme, debugLevel);
-                return Task.CompletedTask;
+                    quillElement, toolbar, readOnly, placeholder, theme, debugLevel);
+                return;
             }
             catch
             {
-                return Task.CompletedTask;
+                // handle exception
             }
         }
 

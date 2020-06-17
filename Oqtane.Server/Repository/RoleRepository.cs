@@ -24,9 +24,9 @@ namespace Oqtane.Repository
             return _db.Role.Where(item => item.SiteId == siteId || item.SiteId == null);
         }
 
-
         public Role AddRole(Role role)
         {
+            role.Description = role.Description.Substring(0, (role.Description.Length > 256) ? 256 : role.Description.Length);
             _db.Role.Add(role);
             _db.SaveChanges();
             return role;
@@ -34,6 +34,7 @@ namespace Oqtane.Repository
 
         public Role UpdateRole(Role role)
         {
+            role.Description = role.Description.Substring(0, (role.Description.Length > 256) ? 256 : role.Description.Length);
             _db.Entry(role).State = EntityState.Modified;
             _db.SaveChanges();
             return role;

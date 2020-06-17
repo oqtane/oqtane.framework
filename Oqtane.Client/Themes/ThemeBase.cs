@@ -4,11 +4,12 @@ using Oqtane.Models;
 using Oqtane.Shared;
 using Oqtane.UI;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Oqtane.Themes
 {
-    public abstract class ThemeBase : ComponentBase, IThemeControl
+    public abstract class ThemeBase : ComponentBase
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -21,6 +22,25 @@ namespace Oqtane.Themes
         public virtual string Thumbnail { get; set; }
         public virtual string Panes { get; set; }
         public virtual List<Resource> Resources { get; set; }
+
+        // base lifecycle method for handling JSInterop script registration
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                if (Resources != null && Resources.Exists(item => item.ResourceType == ResourceType.Script))
+                {
+                    var scripts = new List<object>();
+                    foreach (Resource resource in Resources.Where(item => item.ResourceType == ResourceType.Script))
+                    {
+                        scripts.Add(new { href = resource.Url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "" });
+                    }
+                    var interop = new Interop(JSRuntime);
+                    await interop.IncludeScripts(scripts.ToArray());
+                }
+            }
+        }
 
         // path method
 
@@ -59,6 +79,11 @@ namespace Oqtane.Themes
         public string EditUrl(string path, int moduleid, string action, string parameters)
         {
             return Utilities.EditUrl(PageState.Alias.Path, path, moduleid, action, parameters);
+        }
+
+        public string ContentUrl(int fileid)
+        {
+            return Utilities.ContentUrl(PageState.Alias, fileid);
         }
     }
 }

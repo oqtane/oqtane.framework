@@ -4,7 +4,6 @@
 @inject NavigationManager NavigationManager
 @inject IThemeService ThemeService
 @inject IPackageService PackageService
-@inject IJSRuntime JsRuntime
 
 @if (_themes == null)
 {
@@ -86,7 +85,7 @@ else
             await PackageService.DownloadPackageAsync(themename, version, "Themes");
             await logger.LogInformation("Theme Downloaded {ThemeName} {Version}", themename, version);
             ShowProgressIndicator();
-            var interop = new Interop(JsRuntime);
+            var interop = new Interop(JSRuntime);
             await interop.RedirectBrowser(NavigateUrl(), 3);
             await ThemeService.InstallThemesAsync();
         }
@@ -102,7 +101,7 @@ else
         try
         {
             ShowProgressIndicator();
-            var interop = new Interop(JsRuntime);
+            var interop = new Interop(JSRuntime);
             await interop.RedirectBrowser(NavigateUrl(), 3);
             await ThemeService.DeleteThemeAsync(Theme.ThemeName);
         }

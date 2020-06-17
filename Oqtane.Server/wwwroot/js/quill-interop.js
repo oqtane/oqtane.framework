@@ -1,7 +1,7 @@
 var Oqtane = Oqtane || {};
 
 Oqtane.RichTextEditor = {
-    createQuill: function (
+    createQuill: async function (
         quillElement, toolBar, readOnly,
         placeholder, theme, debugLevel) {
 

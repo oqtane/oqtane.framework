@@ -23,16 +23,14 @@
     <EmbeddedResource Remove="wwwroot\Modules\Templates\**" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Scripts\Master.1.0.1.sql" />
-    <None Remove="Scripts\Tenant.1.0.1.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Scripts\Master.1.0.1.sql" />
-    <EmbeddedResource Include="Scripts\Master.0.9.0.sql" />
-    <EmbeddedResource Include="Scripts\Tenant.1.0.1.sql" />
-    <EmbeddedResource Include="Scripts\Tenant.0.9.0.sql" />
-    <EmbeddedResource Include="Scripts\Tenant.0.9.1.sql" />
-    <EmbeddedResource Include="Scripts\Tenant.0.9.2.sql" />
+    <EmbeddedResource Include="Scripts\Master.00.00.00.00.sql" />
+    <EmbeddedResource Include="Scripts\Master.00.09.00.00.sql" />
+    <EmbeddedResource Include="Scripts\Master.01.00.01.00.sql" />
+    <EmbeddedResource Include="Scripts\Tenant.00.00.00.00.sql" />
+    <EmbeddedResource Include="Scripts\Tenant.00.09.00.00.sql" />
+    <EmbeddedResource Include="Scripts\Tenant.00.09.01.00.sql" />
+    <EmbeddedResource Include="Scripts\Tenant.00.09.02.00.sql" />
+    <EmbeddedResource Include="Scripts\Tenant.01.00.01.00.sql" />
     <EmbeddedResource Include="Modules\HtmlText\Scripts\HtmlText.1.0.0.sql" />
     <EmbeddedResource Include="Modules\HtmlText\Scripts\HtmlText.Uninstall.sql" />
   </ItemGroup>

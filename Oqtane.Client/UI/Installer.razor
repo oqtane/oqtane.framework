@@ -3,6 +3,7 @@
 @inject IInstallationService InstallationService
 @inject ISiteService SiteService
 @inject IUserService UserService
+@inject IJSRuntime JSRuntime
 
 <div class="container">
     <div class="row">
@@ -137,6 +138,15 @@
     private string _message = "";
     private string _integratedSecurityDisplay = "display: none;";
     private string _loadingDisplay = "display: none;";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var interop = new Interop(JSRuntime);
+            await interop.IncludeLink("app-stylesheet", "stylesheet", "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css", "text/css", "sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T", "anonymous", "");
+        }
+    }
 
     private void SetIntegratedSecurity(ChangeEventArgs e)
     {

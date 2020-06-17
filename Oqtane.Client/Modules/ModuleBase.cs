@@ -7,6 +7,8 @@ using System;
 using Oqtane.Enums;
 using Oqtane.UI;
 using System.Collections.Generic;
+using Microsoft.JSInterop;
+using System.Linq;
 
 namespace Oqtane.Modules
 {
@@ -19,6 +21,9 @@ namespace Oqtane.Modules
         [Inject]
         protected ILogService LoggingService { get; set; }
 
+        [Inject]
+        protected IJSRuntime JSRuntime { get; set; }
+
         [CascadingParameter]
         protected PageState PageState { get; set; }
 
@@ -27,7 +32,6 @@ namespace Oqtane.Modules
 
         [CascadingParameter] 
         protected ModuleInstance ModuleInstance { get; set; }
-
 
         // optional interface properties
         public virtual SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.View; } set { } } // default security
@@ -40,7 +44,25 @@ namespace Oqtane.Modules
 
         public virtual List<Resource> Resources { get; set; }
 
+        // base lifecycle method for handling JSInterop script registration
 
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                if (Resources != null && Resources.Exists(item => item.ResourceType == ResourceType.Script))
+                {
+                    var scripts = new List<object>();
+                    foreach (Resource resource in Resources.Where(item => item.ResourceType == ResourceType.Script))
+                    {
+                        scripts.Add(new { href = resource.Url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "" });
+                    }
+                    var interop = new Interop(JSRuntime);
+                    await interop.IncludeScripts(scripts.ToArray());
+                }
+            }
+        }
+        
         // path method
 
         public string ModulePath()

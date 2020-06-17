@@ -3,7 +3,6 @@
 @inject NavigationManager NavigationManager
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject IPackageService PackageService
-@inject IJSRuntime JsRuntime
 
 @if (_moduleDefinitions == null)
 {
@@ -86,7 +85,7 @@ else
             await PackageService.DownloadPackageAsync(moduledefinitionname, version, "Modules");
             await logger.LogInformation("Module Downloaded {ModuleDefinitionName} {Version}", moduledefinitionname, version);
             ShowProgressIndicator();
-            var interop = new Interop(JsRuntime);
+            var interop = new Interop(JSRuntime);
             await interop.RedirectBrowser(NavigateUrl(), 3);
             await ModuleDefinitionService.InstallModuleDefinitionsAsync();
         }
@@ -102,7 +101,7 @@ else
         try
         {
             ShowProgressIndicator();
-            var interop = new Interop(JsRuntime);
+            var interop = new Interop(JSRuntime);
             await interop.RedirectBrowser(NavigateUrl(), 3);
             await ModuleDefinitionService.DeleteModuleDefinitionAsync(moduleDefinition.ModuleDefinitionId, moduleDefinition.SiteId);
         }
