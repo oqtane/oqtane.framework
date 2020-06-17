@@ -5,15 +5,7 @@ Oqtane.RichTextEditor = {
         quillElement, toolBar, readOnly,
         placeholder, theme, debugLevel) {
 
-        if (!loadjs.isDefined('Quill')) {
-            const loadQuill = loadjs(['js/quill1.3.6.min.js', 'js/quill-blot-formatter.min.js'], 'Quill',
-                { async: true, returnPromise: true })
-                .then(function () {
-                    Quill.register('modules/blotFormatter', QuillBlotFormatter.default);
-                })
-                .catch(function (pathsNotFound) { });
-            await loadQuill;
-        }
+        Quill.register('modules/blotFormatter', QuillBlotFormatter.default);
 
         var options = {
             debug: debugLevel,
