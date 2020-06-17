@@ -25,15 +25,9 @@
     public override List<Resource> Resources => new List<Resource>()
     {
         new Resource { ResourceType = ResourceType.Stylesheet, Url = "https://stackpath.bootstrapcdn.com/bootswatch/4.4.1/cyborg/bootstrap.min.css", Integrity = "sha384-l7xaoY0cJM4h9xh1RfazbgJVUZvdtyLWPueWNtLAphf/UbBgOVzqbOTogxPwYLHM", CrossOrigin = "anonymous" },
-        new Resource { ResourceType = ResourceType.Stylesheet, Url = ThemePath() + "Theme.css" }
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = ThemePath() + "Theme.css" },
+        new Resource { ResourceType = ResourceType.Script, Bundle = "Bootstrap", Url = "https://code.jquery.com/jquery-3.3.1.slim.min.js", Integrity = "sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo", CrossOrigin = "anonymous" },
+        new Resource { ResourceType = ResourceType.Script, Bundle = "Bootstrap", Url = "https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js", Integrity = "sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1", CrossOrigin = "anonymous" },
+        new Resource { ResourceType = ResourceType.Script, Bundle = "Bootstrap", Url = "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js", Integrity = "sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM", CrossOrigin = "anonymous" }
     };
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            var interop = new Interop(JSRuntime);
-            await interop.LoadBootstrapJS();
-        }
-    }
 }

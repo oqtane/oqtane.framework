@@ -31,11 +31,13 @@ namespace Oqtane.Themes
             {
                 if (Resources != null && Resources.Exists(item => item.ResourceType == ResourceType.Script))
                 {
-                    var interop = new Interop(JSRuntime);
-                    foreach (var resource in Resources.Where(item => item.ResourceType == ResourceType.Script))
+                    var scripts = new List<object>();
+                    foreach (Resource resource in Resources.Where(item => item.ResourceType == ResourceType.Script))
                     {
-                        await interop.LoadScript(resource.Url, resource.Integrity ?? "", resource.CrossOrigin ?? "");
+                        scripts.Add(new { href = resource.Url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "" });
                     }
+                    var interop = new Interop(JSRuntime);
+                    await interop.IncludeScripts(scripts.ToArray());
                 }
             }
         }

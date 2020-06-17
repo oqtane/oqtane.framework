@@ -109,7 +109,9 @@
 
     public override List<Resource> Resources => new List<Resource>()
     {
-        new Resource { ResourceType = ResourceType.Script, Url = "js/quill-interop.js" }
+        new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill1.3.6.min.js" },
+        new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-blot-formatter.min.js" },
+        new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-interop.js" }
     };
     
     protected override void OnInitialized()
