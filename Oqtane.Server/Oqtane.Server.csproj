@@ -23,13 +23,13 @@
     <EmbeddedResource Remove="wwwroot\Modules\Templates\**" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Scripts\Notification.01.00.01.00.sql" />
+    <None Remove="Scripts\Tenant.01.00.01.01.sql" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Scripts\Master.00.00.00.00.sql" />
     <EmbeddedResource Include="Scripts\Master.00.09.00.00.sql" />
     <EmbeddedResource Include="Scripts\Master.01.00.01.00.sql" />
-    <EmbeddedResource Include="Scripts\Notification.01.00.01.00.sql" />
+    <EmbeddedResource Include="Scripts\Tenant.01.00.01.01.sql" />
     <EmbeddedResource Include="Scripts\Tenant.00.00.00.00.sql" />
     <EmbeddedResource Include="Scripts\Tenant.00.09.00.00.sql" />
     <EmbeddedResource Include="Scripts\Tenant.00.09.01.00.sql" />
