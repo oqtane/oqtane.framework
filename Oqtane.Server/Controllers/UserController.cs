@@ -157,6 +157,7 @@ namespace Oqtane.Controllers
                             notification.CreatedOn = DateTime.UtcNow;
                             notification.IsDelivered = false;
                             notification.DeliveredOn = null;
+                            notification.SendOn = DateTime.UtcNow;
                             _notifications.AddNotification(notification);
                         }
 
@@ -385,6 +386,7 @@ namespace Oqtane.Controllers
                     notification.CreatedOn = DateTime.UtcNow;
                     notification.IsDelivered = false;
                     notification.DeliveredOn = null;
+                    notification.SendOn = DateTime.UtcNow;
                     _notifications.AddNotification(notification);
                     _logger.Log(LogLevel.Information, this, LogFunction.Security, "Password Reset Notification Sent For {Username}", user.Username);
                 }
