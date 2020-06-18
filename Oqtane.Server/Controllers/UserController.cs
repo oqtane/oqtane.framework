@@ -148,7 +148,7 @@ namespace Oqtane.Controllers
                             notification.SiteId = user.SiteId;
                             notification.FromUserId = null;
                             notification.ToUserId = newUser.UserId;
-                            notification.ToEmail = "";
+                            notification.ToEmail = newUser.Email;
                             notification.Subject = "User Account Verification";
                             string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
                             string url = HttpContext.Request.Scheme + "://" + _tenants.GetAlias().Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
