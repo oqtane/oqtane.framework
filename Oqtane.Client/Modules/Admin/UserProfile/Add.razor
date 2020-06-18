@@ -66,6 +66,7 @@
                 notification.CreatedOn = DateTime.UtcNow;
                 notification.IsDelivered = false;
                 notification.DeliveredOn = null;
+                notification.SendOn = DateTime.UtcNow;
                 notification = await NotificationService.AddNotificationAsync(notification);
                 await logger.LogInformation("Notification Created {Notification}", notification);
                 NavigationManager.NavigateTo(NavigateUrl());
