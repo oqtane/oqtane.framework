@@ -221,7 +221,7 @@ Oqtane.Interop = {
                 }
                 else {
                     loadjs(urls, bundles[b], {
-                        async: true,
+                        async: false,
                         returnPromise: true,
                         before: function (path, element) {
                             for (let s = 0; s < scripts.length; s++) {
