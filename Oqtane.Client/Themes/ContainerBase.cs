@@ -7,5 +7,6 @@ namespace Oqtane.Themes
     {
         [CascadingParameter]
         protected Module ModuleState { get; set; }
+
     }
 }

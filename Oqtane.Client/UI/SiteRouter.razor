@@ -375,7 +375,7 @@
                 Type layouttype = Type.GetType(page.LayoutType);
                 if (layouttype != null)
                 {
-                    var layoutobject = Activator.CreateInstance(layouttype) as ILayoutControl;
+                    var layoutobject = Activator.CreateInstance(layouttype) as IThemeControl;
                     if (layoutobject != null)
                     {
                         panes = layoutobject.Panes;

@@ -50,8 +50,9 @@ namespace Oqtane.Repository
             foreach (Type themeControlType in themeControlTypes)
             {
                 // Check if type should be ignored
-                if (themeControlType.IsOqtaneIgnore()
-                ) continue;
+                if (themeControlType.IsOqtaneIgnore() || 
+                    themeControlType.GetInterfaces().Contains(typeof(ILayoutControl)) || 
+                    themeControlType.GetInterfaces().Contains(typeof(IContainerControl))) continue;
 
                 // create namespace root typename
                 string qualifiedThemeType = themeControlType.Namespace + ", " + themeControlType.Assembly.GetName().Name;
@@ -109,7 +110,7 @@ namespace Oqtane.Repository
                     .Where(item => item.GetInterfaces().Contains(typeof(ILayoutControl))).ToArray();
                 foreach (Type layouttype in layouttypes)
                 {
-                    var layoutobject = Activator.CreateInstance(layouttype) as ILayoutControl;
+                    var layoutobject = Activator.CreateInstance(layouttype) as IThemeControl;
                     theme.Layouts.Add(
                         new ThemeControl
                         {
@@ -126,7 +127,7 @@ namespace Oqtane.Repository
                     .Where(item => item.GetInterfaces().Contains(typeof(IContainerControl))).ToArray();
                 foreach (Type containertype in containertypes)
                 {
-                    var containerobject = Activator.CreateInstance(containertype) as IContainerControl;
+                    var containerobject = Activator.CreateInstance(containertype) as IThemeControl;
                     theme.Containers.Add(
                         new ThemeControl
                         {
