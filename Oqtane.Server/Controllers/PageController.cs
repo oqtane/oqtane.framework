@@ -169,8 +169,8 @@ namespace Oqtane.Controllers
                 page.DefaultContainerType = parent.DefaultContainerType;
                 page.Icon = parent.Icon;
                 page.Permissions = new List<Permission> {
-                    new Permission(PermissionNames.View, userid, true),
-                    new Permission(PermissionNames.Edit, userid, true)
+                    new Permission(PermissionNames.View, int.Parse(userid), true),
+                    new Permission(PermissionNames.Edit, int.Parse(userid), true)
                 }.EncodePermissions();
                 page.IsPersonalizable = false;
                 page.UserId = int.Parse(userid);
@@ -187,8 +187,8 @@ namespace Oqtane.Controllers
                     module.ModuleDefinitionName = pm.Module.ModuleDefinitionName;
                     module.AllPages = false;
                     module.Permissions = new List<Permission> {
-                        new Permission(PermissionNames.View, userid, true),
-                        new Permission(PermissionNames.Edit, userid, true)
+                        new Permission(PermissionNames.View, int.Parse(userid), true),
+                        new Permission(PermissionNames.Edit, int.Parse(userid), true)
                     }.EncodePermissions();
                     module = _modules.AddModule(module);
 

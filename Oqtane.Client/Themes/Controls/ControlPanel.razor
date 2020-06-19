@@ -1,5 +1,5 @@
 ﻿@namespace Oqtane.Themes.Controls
-@inherits ThemeControlBase     
+@inherits ThemeControlBase
 @attribute [OqtaneIgnore]
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
@@ -9,8 +9,9 @@
 @inject IPageService PageService
 @inject IPageModuleService PageModuleService
 @inject ILogService logger
+@inject ISettingService SettingService
 
-@if (_moduleDefinitions != null && UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, PageState.Page.Permissions))
+@if (_moduleDefinitions != null && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions))
 {
     <div class="app-controlpanel" style="@_display">
 
@@ -49,6 +50,21 @@
                             <button class="btn btn-danger btn-block mx-auto" @onclick="ConfirmDelete">Delete</button>
                         </div>
                     </div>
+                    <br />
+                    <div class="row">
+                        @if (UserSecurity.GetPermissionStrings(PageState.Page.Permissions).FirstOrDefault(item => item.PermissionName == PermissionNames.View).Permissions.Split(';').Contains(Constants.AllUsersRole))
+                        {
+                            <div class="col">
+                                <button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Publish("unpublish"))>Unpublish Page</button>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col">
+                                <button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Publish("publish"))>Publish Page</button>
+                            </div>
+                        }
+                    </div>
                 }
 
                 @if (_deleteConfirmation)
@@ -78,18 +94,18 @@
                 <div class="row">
                     <div class="col text-center">
                         <label for="Module" class="control-label">Module Management: </label>
-                        <select class="form-control" @bind="@_moduleType">
+                        <select class="form-control" @bind="@ModuleType">
                             <option value="new">Add New Module</option>
                             <option value="existing">Add Existing Module</option>
                         </select>
-                        @if (_moduleType == "new")
+                        @if (ModuleType == "new")
                         {
                             @if (_moduleDefinitions != null)
                             {
                                 <select class="form-control" @onchange="(e => CategoryChanged(e))">
                                     @foreach (var category in _categories)
                                     {
-                                        if (category == _category)
+                                        if (category == Category)
                                         {
                                             <option value="@category" selected>@category Modules</option>
                                         }
@@ -100,7 +116,7 @@
                                     }
                                 </select>
                                 <select class="form-control" @onchange="(e => ModuleChanged(e))">
-                                    @if (_moduleDefinitionName == "-")
+                                    @if (ModuleDefinitionName == "-")
                                     {
                                         <option value="-" selected>&lt;Select Module&gt;</option>
                                     }
@@ -116,7 +132,7 @@
                                         }
                                     }
                                 </select>
-                                @((MarkupString)@_description)                                
+                                @((MarkupString) Description)
                             }
                         }
                         else
@@ -128,7 +144,7 @@
                                     <option value="@p.PageId">@p.Name</option>
                                 }
                             </select>
-                            <select class="form-control" @bind="@_moduleId">
+                            <select class="form-control" @bind="@ModuleId">
                                 <option value="-">&lt;Select Module&gt;</option>
                                 @foreach (Module module in _modules)
                                 {
@@ -141,28 +157,30 @@
                 <div class="row">
                     <div class="col text-center">
                         <label for="Title" class="control-label">Title: </label>
-                        <input type="text" name="Title" class="form-control" @bind="@_title" />
+                        <input type="text" name="Title" class="form-control" @bind="@Title" />
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col text-center">
-                        <label for="Pane" class="control-label">Pane: </label>
-                        <select class="form-control" @bind="@_pane">
-                            <option value="">&lt;Select Pane&gt;</option>
-                            @foreach (string pane in PageState.Page.Panes)
-                            {
-                                <option value="@pane">@pane Pane</option>
-                            }
-                        </select>
+                @if (_pane.Length > 1)
+                {
+                    <div class="row">
+                        <div class="col text-center">
+                            <label for="Pane" class="control-label">Pane: </label>
+                            <select class="form-control" @bind="@Pane">
+                                @foreach (string pane in PageState.Page.Panes)
+                                {
+                                    <option value="@pane">@pane Pane</option>
+                                }
+                            </select>
+                        </div>
                     </div>
-                </div>
+                }
                 <div class="row">
                     <div class="col text-center">
                         <label for="Container" class="control-label">Container: </label>
-                        <select class="form-control" @bind="@_containerType">
-                            @foreach (KeyValuePair<string, string> container in _containers)
+                        <select class="form-control" @bind="@ContainerType">
+                            @foreach (var container in _containers)
                             {
-                                <option value="@container.Key">@container.Value</option>
+                                <option value="@container.TypeName">@container.Name</option>
                             }
                         </select>
                     </div>
@@ -171,13 +189,13 @@
                 <br />
 
                 <button type="button" class="btn btn-primary btn-block mx-auto" @onclick="@AddModule">Add Module To Page</button>
-                @((MarkupString) _message)
+                @((MarkupString) Message)
             </div>
         </div>
     </div>
 }
 
-@if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, PageState.Page.Permissions) || (PageState.Page.IsPersonalizable && PageState.User != null))
+@if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions) || (PageState.Page.IsPersonalizable && PageState.User != null))
 {
     @if (PageState.Page.EditMode)
     {
@@ -202,192 +220,179 @@
     }
 }
 
-@if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, PageState.Page.Permissions))
+@if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions))
 {
     <button type="button" class="btn @ButtonClass" @onclick="ShowControlPanel">
         <span class="oi oi-cog"></span>
     </button>
 }
 
-@code {
+@code{
+
     private bool _deleteConfirmation = false;
-    private string _moduleType = "new";
     private List<string> _categories = new List<string>();
     private List<ModuleDefinition> _allModuleDefinitions;
     private List<ModuleDefinition> _moduleDefinitions;
     private List<Page> _pages = new List<Page>();
-    private string _pageId = "-";
-    private string _moduleId = "-";
     private List<Module> _modules = new List<Module>();
-    private Dictionary<string, string> _containers = new Dictionary<string, string>();
-    private string _moduleDefinitionName = "-";
-    private string _category = "Common";
-    private string _description = "";
-    private string _pane = "";
-    private string _title = "";
-    private string _containerType = "";
+    private List<ThemeControl> _containers = new List<ThemeControl>();
     private string _display = "display: none;";
-    private string _message = "";
+    private string _category = "Common";
 
-    [Parameter]
-    public string ButtonClass { get; set; }
+    protected string PageId { get; private set; } = "-";
+    protected string ModuleId { get; private set; } = "-";
+    protected string ModuleType { get; private set; } = "new";
+    protected string ModuleDefinitionName { get; private set; } = "-";
 
-    [Parameter]
-    public string CardClass { get; set; }
-
-    [Parameter]
-    public string HeaderClass { get; set; }
-
-    [Parameter]
-    public string BodyClass { get; set; }
-
-    protected override async Task OnParametersSetAsync()
+    protected string Category
     {
-        if (string.IsNullOrEmpty(ButtonClass))
+        get => _category;
+        private set
         {
-            ButtonClass = "btn-outline-secondary";
+            if (_category != value)
+            {
+                _category = value;
+                _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(Category)).ToList();
+                ModuleDefinitionName = "-";
+                Description = "";
+                StateHasChanged();
+                _ = UpdateSettingsAsync();
+            }
         }
+    }
 
-        if (string.IsNullOrEmpty(CardClass))
+    protected string Pane
+    {
+        get => _pane;
+        private set
         {
-            CardClass = "card border-secondary mb-3";
+            if (_pane != value)
+            {
+                _pane = value;
+                _ = UpdateSettingsAsync();
+            }
         }
+    }
 
-        if (string.IsNullOrEmpty(HeaderClass))
-        {
-            HeaderClass = "card-header";
-        }
 
-        if (string.IsNullOrEmpty(BodyClass))
-        {
-            BodyClass = "card-body";
-        }
+    protected string Description { get; private set; } = "";
 
-        if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, PageState.Page.Permissions))
+    protected string Title { get; private set; } = "";
+    protected string ContainerType { get; private set; } = "";
+    protected string Message { get; private set; } = "";
+
+    [Parameter]
+    public string ButtonClass { get; set; } = "btn-outline-secondary";
+
+    [Parameter]
+    public string CardClass { get; set; } = "card border-secondary mb-3";
+
+    [Parameter]
+    public string HeaderClass { get; set; } = "card-header";
+
+    [Parameter]
+    public string BodyClass { get; set; } = "card-body";
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions))
         {
             _pages?.Clear();
 
             foreach (Page p in PageState.Pages)
             {
-                if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.View, p.Permissions))
+                if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
                 {
                     _pages.Add(p);
                 }
             }
+            await LoadSettingsAsync();
 
-            var panes = PageState.Page.Panes;
-            _pane = panes.Count() == 1 ? panes.SingleOrDefault() : "";
             var themes = await ThemeService.GetThemesAsync();
-            _containers = ThemeService.GetContainerTypes(themes);
-            _containerType = PageState.Site.DefaultContainerType;
-
+            _containers = ThemeService.GetContainerControls(themes, PageState.Page.ThemeType);
+            ContainerType = PageState.Site.DefaultContainerType;
             _allModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
-
-            _categories = new List<string>();
-            foreach (ModuleDefinition moduledefinition in _allModuleDefinitions)
-            {
-                if (moduledefinition.Categories != "")
-                {
-                    foreach (string category in moduledefinition.Categories.Split(','))
-                    {
-                        if (!_categories.Contains(category))
-                        {
-                            _categories.Add(category);
-                        }
-                    }
-                }
-            }
-
-            _category = "Common";
-            _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(_category)).ToList();
-            _moduleDefinitionName = "-";
-            _description = "";
+            _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(Category)).ToList();
+            _categories = _allModuleDefinitions.SelectMany(m => m.Categories.Split(',')).Distinct().ToList();
         }
     }
 
     private void CategoryChanged(ChangeEventArgs e)
     {
-        _category = (string) e.Value;
-        _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(_category)).ToList();
-        _moduleDefinitionName = "-";
-        _description = "";
-        StateHasChanged();
+        Category = (string) e.Value;
     }
 
     private void ModuleChanged(ChangeEventArgs e)
     {
-        _moduleDefinitionName = (string)e.Value;
-        if (_moduleDefinitionName != "-")
+        ModuleDefinitionName = (string) e.Value;
+        if (ModuleDefinitionName != "-")
         {
-            var moduleDefinition = _moduleDefinitions.FirstOrDefault(item => item.ModuleDefinitionName == _moduleDefinitionName);
-            _description = "<br /><div class=\"alert alert-info\" role=\"alert\">" + moduleDefinition.Description + "</div>";
+            var moduleDefinition = _moduleDefinitions.FirstOrDefault(item => item.ModuleDefinitionName == ModuleDefinitionName);
+            Description = "<br /><div class=\"alert alert-info\" role=\"alert\">" + moduleDefinition.Description + "</div>";
         }
         else
         {
-            _description = "";
+            Description = "";
         }
+
         StateHasChanged();
     }
 
     private void PageChanged(ChangeEventArgs e)
     {
-        _pageId = (string) e.Value;
-        _modules?.Clear();
-
-        if (_pageId != "-")
+        PageId = (string) e.Value;
+        if (PageId != "-")
         {
-            foreach (Module module in PageState.Modules.Where(item => item.PageId == int.Parse(_pageId) && !item.IsDeleted))
-            {
-                if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.View, module.Permissions))
-                {
-                    _modules.Add(module);
-                }
-            }
+            _modules = PageState.Modules
+                .Where(module => module.PageId == int.Parse(PageId)
+                                 && !module.IsDeleted
+                                 && UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.Permissions))
+                .ToList();
         }
-
-        _moduleId = "-";
+        ModuleId = "-";
         StateHasChanged();
     }
 
     private async Task AddModule()
     {
-        if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, PageState.Page.Permissions))
+        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions))
         {
-            if ((_moduleType == "new" && _moduleDefinitionName != "-") || (_moduleType != "new" && _moduleId != "-"))
+            if ((ModuleType == "new" && ModuleDefinitionName != "-") || (ModuleType != "new" && ModuleId != "-"))
             {
-                if (_moduleType == "new")
+                if (ModuleType == "new")
                 {
                     Module module = new Module();
                     module.SiteId = PageState.Site.SiteId;
                     module.PageId = PageState.Page.PageId;
-                    module.ModuleDefinitionName = _moduleDefinitionName;
+                    module.ModuleDefinitionName = ModuleDefinitionName;
                     module.AllPages = false;
                     module.Permissions = PageState.Page.Permissions;
                     module = await ModuleService.AddModuleAsync(module);
-                    _moduleId = module.ModuleId.ToString();
+                    ModuleId = module.ModuleId.ToString();
                 }
 
                 var pageModule = new PageModule
                 {
                     PageId = PageState.Page.PageId,
-                    ModuleId = int.Parse(_moduleId),
-                    Title = _title
+                    ModuleId = int.Parse(ModuleId),
+                    Title = Title
                 };
                 if (pageModule.Title == "")
                 {
-                    if (_moduleType == "new")
+                    if (ModuleType == "new")
                     {
-                        pageModule.Title = _moduleDefinitions.FirstOrDefault(item => item.ModuleDefinitionName == _moduleDefinitionName)?.Name;
+                        pageModule.Title = _moduleDefinitions.FirstOrDefault(item => item.ModuleDefinitionName == ModuleDefinitionName)?.Name;
                     }
                     else
                     {
-                        pageModule.Title = _modules.FirstOrDefault(item => item.ModuleId == int.Parse(_moduleId))?.Title;
+                        pageModule.Title = _modules.FirstOrDefault(item => item.ModuleId == int.Parse(ModuleId))?.Title;
                     }
                 }
 
-                pageModule.Pane = _pane;
+                pageModule.Pane = Pane;
                 pageModule.Order = int.MaxValue;
-                pageModule.ContainerType = _containerType;
+                pageModule.ContainerType = ContainerType;
 
                 if (pageModule.ContainerType == PageState.Site.DefaultContainerType)
                 {
@@ -397,32 +402,23 @@
                 await PageModuleService.AddPageModuleAsync(pageModule);
                 await PageModuleService.UpdatePageModuleOrderAsync(pageModule.PageId, pageModule.Pane);
 
-                _message = "<br /><div class=\"alert alert-success\" role=\"alert\">Module Added To Page</div>";
-
-                _moduleDefinitionName = "-";
-                _description = "";
-                _pane = "";
-                _title = "";
-                _containerType = "";
-                _pageId = "-";
-                _moduleId = "-";
-
+                Message = "<br /><div class=\"alert alert-success\" role=\"alert\">Module Added To Page</div>";
                 NavigationManager.NavigateTo(NavigateUrl());
             }
             else
             {
-                _message = "<br /><div class=\"alert alert-warning\" role=\"alert\">You Must Select A Module</div>";
+                Message = "<br /><div class=\"alert alert-warning\" role=\"alert\">You Must Select A Module</div>";
             }
         }
         else
         {
-            _message = "<br /><div class=\"alert alert-error\" role=\"alert\">Not Authorized</div>";
+            Message = "<br /><div class=\"alert alert-error\" role=\"alert\">Not Authorized</div>";
         }
     }
 
     private async Task ToggleEditMode(bool EditMode)
     {
-        if (UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, PageState.Page.Permissions))
+        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions))
         {
             if (EditMode)
             {
@@ -432,6 +428,7 @@
             {
                 PageState.EditMode = true;
             }
+
             NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "edit=" + ((PageState.EditMode) ? "1" : "0")));
         }
         else
@@ -447,14 +444,14 @@
 
     private void ShowControlPanel()
     {
-        _message = "";
+        Message = "";
         _display = "width: 25%; min-width: 375px;";
         StateHasChanged();
     }
 
     private void HideControlPanel()
     {
-        _message = "";
+        Message = "";
         _display = "width: 0%;";
         StateHasChanged();
     }
@@ -503,6 +500,61 @@
         }
     }
 
+    private async void Publish(string action)
+    {
+        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions))
+        {
+            List<PermissionString> permissions;
+
+            if (action == "publish")
+            {
+                // publish all modules
+                foreach (var module in PageState.Modules.Where(item => item.PageId == PageState.Page.PageId))
+                {
+                    permissions = UserSecurity.GetPermissionStrings(module.Permissions);
+                    foreach (var permissionstring in permissions)
+                    {
+                        if (permissionstring.PermissionName == PermissionNames.View)
+                        {
+                            List<string> ids = permissionstring.Permissions.Split(';').ToList();
+                            if (!ids.Contains(Constants.AllUsersRole)) ids.Add(Constants.AllUsersRole);
+                            if (!ids.Contains(Constants.RegisteredRole)) ids.Add(Constants.RegisteredRole);
+                            permissionstring.Permissions = string.Join(";", ids.ToArray());
+                        }
+                    }
+                    module.Permissions = UserSecurity.SetPermissionStrings(permissions);
+                    await ModuleService.UpdateModuleAsync(module);
+                }
+            }
+
+            // publish page
+            var page = PageState.Page;
+            permissions = UserSecurity.GetPermissionStrings(page.Permissions);
+            foreach (var permissionstring in permissions)
+            {
+                if (permissionstring.PermissionName == PermissionNames.View)
+                {
+                    List<string> ids = permissionstring.Permissions.Split(';').ToList();
+                    switch (action)
+                    {
+                        case "publish":
+                            if (!ids.Contains(Constants.AllUsersRole)) ids.Add(Constants.AllUsersRole);
+                            if (!ids.Contains(Constants.RegisteredRole)) ids.Add(Constants.RegisteredRole);
+                            break;
+                        case "unpublish":
+                            ids.Remove(Constants.AllUsersRole);
+                            ids.Remove(Constants.RegisteredRole);
+                            break;
+                    }
+                    permissionstring.Permissions = string.Join(";", ids.ToArray());
+                }
+            }
+            page.Permissions = UserSecurity.SetPermissionStrings(permissions);
+            await PageService.UpdatePageAsync(page);
+            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "reload"));
+        }
+    }
+
     private void ConfirmDelete()
     {
         _deleteConfirmation = !_deleteConfirmation;
@@ -534,6 +586,26 @@
         {
             await logger.Log(page.PageId, null, PageState.User.UserId, GetType().AssemblyQualifiedName, "ControlPanel", LogFunction.Delete, LogLevel.Information, ex, "Page Deleted {Page} {Error}", page, ex.Message);
         }
+    }
+
+    private string settingCategory = "CP-category";
+    private string settingPane = "CP-pane";
+    private string _pane = "";
+
+    private async Task LoadSettingsAsync()
+    {
+        Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
+        _category = SettingService.GetSetting(settings, settingCategory, "Common");
+        var pane = SettingService.GetSetting(settings, settingPane, "");
+        _pane = PageState.Page.Panes.Contains(pane) ? pane : PageState.Page.Panes.FirstOrDefault();
+    }
+
+    private async Task UpdateSettingsAsync()
+    {
+        Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
+        SettingService.SetSetting(settings, settingCategory, _category);
+        SettingService.SetSetting(settings, settingPane, _pane);
+        await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
     }
 
 }

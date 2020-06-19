@@ -1,10 +1,11 @@
 ﻿@namespace Oqtane.Modules.Admin.Themes
+@using System.Net
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IThemeService ThemeService
 @inject IPackageService PackageService
 
-@if (themes == null)
+@if (_themes == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -12,68 +13,102 @@ else
 {
     <ActionLink Action="Add" Text="Install Theme" />
 
-    <Pager Items="@themes">
+    <Pager Items="@_themes">
         <Header>
+            <th>&nbsp;</th>
             <th>&nbsp;</th>
             <th>Name</th>
             <th>Version</th>
             <th>&nbsp;</th>
         </Header>
         <Row>
+            <td><ActionLink Action="View" Parameters="@($"name=" + WebUtility.UrlEncode(context.ThemeName))" /></td>
             <td>
                 @if (context.AssemblyName != "Oqtane.Client")
-                {
+                    {
                     <ActionDialog Header="Delete Theme" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Theme?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteTheme(context))" />
-                }
+                    }
             </td>
             <td>@context.Name</td>
             <td>@context.Version</td>
             <td>
                 @if (UpgradeAvailable(context.ThemeName, context.Version))
-                {
+                    {
                     <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadTheme(context.ThemeName, context.Version))>Upgrade</button>
-                }
+                    }
             </td>
         </Row>
     </Pager>
 }
 
 @code {
-    private List<Theme> themes;
-    private List<Package> packages;
+    private List<Theme> _themes;
+    private List<Package> _packages;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnInitializedAsync()
     {
-        themes = await ThemeService.GetThemesAsync();
-        packages = await PackageService.GetPackagesAsync("module");
+        try
+        {
+            _themes = await ThemeService.GetThemesAsync();
+            _packages = await PackageService.GetPackagesAsync("theme");
+        }
+        catch (Exception ex)
+        {
+            if (_themes == null)
+            {
+                await logger.LogError(ex, "Error Loading Themes {Error}", ex.Message);
+                AddModuleMessage("Error Loading Themes", MessageType.Error);
+            }
+        }
     }
 
     private bool UpgradeAvailable(string themename, string version)
     {
         var upgradeavailable = false;
-        var package = packages.Where(item => item.PackageId == Utilities.GetTypeName(themename)).FirstOrDefault();
-        if (package != null)
+        if (_packages != null)
         {
-            upgradeavailable = (Version.Parse(package.Version).CompareTo(Version.Parse(version)) > 0);
+            var package = _packages.Where(item => item.PackageId == Utilities.GetTypeName(themename)).FirstOrDefault();
+            if (package != null)
+            {
+                upgradeavailable = (Version.Parse(package.Version).CompareTo(Version.Parse(version)) > 0);
+            }
         }
-        
         return upgradeavailable;
     }
 
     private async Task DownloadTheme(string themename, string version)
     {
-        await PackageService.DownloadPackageAsync(themename, version, "Themes");
-        await logger.LogInformation("Theme Downloaded {ThemeName} {Version}", themename, version);
-        await ThemeService.InstallThemesAsync();
-        NavigationManager.NavigateTo(NavigateUrl());
+        try
+        {
+            await PackageService.DownloadPackageAsync(themename, version, "Themes");
+            await logger.LogInformation("Theme Downloaded {ThemeName} {Version}", themename, version);
+            ShowProgressIndicator();
+            var interop = new Interop(JSRuntime);
+            await interop.RedirectBrowser(NavigateUrl(), 3);
+            await ThemeService.InstallThemesAsync();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Downloading Theme {ThemeName} {Version} {Error}", themename, version, ex.Message);
+            AddModuleMessage("Error Downloading Theme", MessageType.Error);
+        }
     }
 
     private async Task DeleteTheme(Theme Theme)
     {
-        await ThemeService.DeleteThemeAsync(Theme.ThemeName);
-        await logger.LogInformation("Theme Deleted {Theme}", Theme);
-        NavigationManager.NavigateTo(NavigateUrl());
+        try
+        {
+            ShowProgressIndicator();
+            var interop = new Interop(JSRuntime);
+            await interop.RedirectBrowser(NavigateUrl(), 3);
+            await ThemeService.DeleteThemeAsync(Theme.ThemeName);
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Theme {Theme} {Error}", Theme, ex.Message);
+            AddModuleMessage("Error Deleting Theme", MessageType.Error);
+        }
     }
 }

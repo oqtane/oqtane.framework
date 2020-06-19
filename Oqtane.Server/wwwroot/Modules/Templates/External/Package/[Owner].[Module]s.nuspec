@@ -20,13 +20,12 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="..\Client\bin\Release\netstandard2.1\[Owner].[Module]s.Client.Oqtane.dll" target="lib" /> 
-    <file src="..\Client\bin\Release\netstandard2.1\[Owner].[Module]s.Client.Oqtane.pdb" target="lib" /> 
-    <file src="..\Server\bin\Release\netcoreapp3.1\[Owner].[Module]s.Server.Oqtane.dll" target="lib" /> 
-    <file src="..\Server\bin\Release\netcoreapp3.1\[Owner].[Module]s.Server.Oqtane.pdb" target="lib" /> 
-    <file src="..\Shared\bin\Release\netstandard2.1\[Owner].[Module]s.Shared.Oqtane.dll" target="lib" /> 
-    <file src="..\Shared\bin\Release\netstandard2.1\[Owner].[Module]s.Shared.Oqtane.pdb" target="lib" /> 
+    <file src="..\Client\bin\Release\netstandard2.1\[Owner].[Module]s.Client.Oqtane.dll" target="lib\netstandard2.1" /> 
+    <file src="..\Client\bin\Release\netstandard2.1\[Owner].[Module]s.Client.Oqtane.pdb" target="lib\netstandard2.1" /> 
+    <file src="..\Server\bin\Release\netcoreapp3.1\[Owner].[Module]s.Server.Oqtane.dll" target="lib\netcoreapp3.1" /> 
+    <file src="..\Server\bin\Release\netcoreapp3.1\[Owner].[Module]s.Server.Oqtane.pdb" target="lib\netcoreapp3.1" /> 
+    <file src="..\Shared\bin\Release\netstandard2.1\[Owner].[Module]s.Shared.Oqtane.dll" target="lib\netstandard2.1" /> 
+    <file src="..\Shared\bin\Release\netstandard2.1\[Owner].[Module]s.Shared.Oqtane.pdb" target="lib\netstandard2.1" /> 
     <file src="..\Server\wwwroot\**\*.*" target="wwwroot" /> 
-    <file src="..\Server\content\**\*.*" target="content" /> 
   </files>
 </package>

@@ -21,8 +21,6 @@ namespace Oqtane.Repository
                 return _db.Notification
                     .Where(item => item.SiteId == siteId)
                     .Where(item => item.IsDelivered == false)
-                    .Include(item => item.FromUser)
-                    .Include(item => item.ToUser)
                     .ToList();
             }
 
@@ -30,8 +28,6 @@ namespace Oqtane.Repository
                 .Where(item => item.SiteId == siteId)
                 .Where(item => item.ToUserId == toUserId || toUserId == -1)
                 .Where(item => item.FromUserId == fromUserId || fromUserId == -1)
-                .Include(item => item.FromUser)
-                .Include(item => item.ToUser)
                 .ToList();
         }
 

@@ -13,15 +13,13 @@
         DynamicComponent = builder =>
         {
             var layoutType = Type.GetType(PageState.Page.LayoutType);
-            if (layoutType != null)
+            if (layoutType == null)
             {
-                builder.OpenComponent(0, layoutType);
-                builder.CloseComponent();
+                // fallback
+                layoutType = Type.GetType(Constants.DefaultLayout);
             }
-            else
-            {
-                // layout does not exist with type specified
-            }
+            builder.OpenComponent(0, layoutType);
+            builder.CloseComponent();
         };
     }
 }
