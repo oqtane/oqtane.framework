@@ -33,7 +33,7 @@
                 <td>
                     <input class="form-control" @bind="@subject" readonly />
                 </td>
-}
+            }
             @if (title == "To")
             {
                 <td>
@@ -51,7 +51,7 @@
                     <input class="form-control" @bind="@createdon" readonly />
                 </td>
             </tr>
-}
+        }
         @if (title == "From")
         {
             <tr>
@@ -62,7 +62,7 @@
                     <textarea class="form-control" @bind="@body" rows="5" readonly />
                 </td>
             </tr>
-}
+        }
         @if (title == "To")
         {
             <tr>
@@ -73,7 +73,7 @@
                     <textarea class="form-control" @bind="@body" rows="5" />
                 </td>
             </tr>
-}
+        }
     </table>
 
 

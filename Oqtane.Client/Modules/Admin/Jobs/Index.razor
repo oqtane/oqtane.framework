@@ -15,14 +15,14 @@ else
 
     <Pager Items="@_jobs">
         <Header>
-            <th>&nbsp;</th>
-            <th>&nbsp;</th>
-            <th>&nbsp;</th>
+            <th style="width: 1px;">&nbsp;</th>
+            <th style="width: 1px;">&nbsp;</th>
+            <th style="width: 1px;">&nbsp;</th>
             <th>Name</th>
             <th>Status</th>
             <th>Frequency</th>
             <th>Next Execution</th>
-            <th>&nbsp;</th>
+            <th style="width: 1px;">&nbsp;</th>
         </Header>
         <Row>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.JobId.ToString())" /></td>
