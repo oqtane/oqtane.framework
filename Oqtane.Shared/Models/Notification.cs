@@ -22,6 +22,7 @@ namespace Oqtane.Models
         public string DeletedBy { get; set; }
         public DateTime? DeletedOn { get; set; }
         public bool IsDeleted { get; set; }
+        public DateTime? SendOn { get; set; }
     }
 
 }
