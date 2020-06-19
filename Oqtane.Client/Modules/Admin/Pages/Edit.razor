@@ -113,41 +113,44 @@
                         <td>
                             <select id="Theme" class="form-control" @onchange="(e => ThemeChanged(e))">
                                 <option value="-">&lt;Inherit From Site&gt;</option>
-                                @foreach (KeyValuePair<string, string> item in _themes)
+                                @foreach (var theme in _themes)
                                 {
-                                    if (item.Key == _themetype)
+                                    if (theme.TypeName == _themetype)
                                     {
-                                        <option value="@item.Key" selected>@item.Value</option>
+                                        <option value="@theme.TypeName" selected>@theme.Name</option>
                                     }
                                     else
                                     {
-                                        <option value="@item.Key">@item.Value</option>
+                                        <option value="@theme.TypeName">@theme.Name</option>
                                     }
                                 }
                             </select>
                         </td>
                     </tr>
-                    <tr>
-                        <td>
-                            <Label For="Layout" HelpText="Select a layout for the page (if the selected theme supports it)">Layout: </Label>
-                        </td>
-                        <td>
-                            <select id="Layout" class="form-control" @bind="@_layouttype">
-                                <option value="-">&lt;Inherit From Site&gt;</option>
-                                @foreach (KeyValuePair<string, string> panelayout in _panelayouts)
-                                {
-                                    if (panelayout.Key == _layouttype)
+                    @if (_layouts.Count > 0)
+                    {
+                        <tr>
+                            <td>
+                                <Label For="Layout" HelpText="Select a layout for the page (if the selected theme supports it)">Layout: </Label>
+                            </td>
+                            <td>
+                                <select id="Layout" class="form-control" @bind="@_layouttype">
+                                    <option value="-">&lt;Inherit From Site&gt;</option>
+                                    @foreach (var layout in _layouts)
                                     {
-                                        <option value="@panelayout.Key" selected>@panelayout.Value</option>
+                                        if (layout.TypeName == _layouttype)
+                                        {
+                                            <option value="@(layout.TypeName)" selected>@(layout.Name)</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@(layout.TypeName)">@(layout.Name)</option>
+                                        }
                                     }
-                                    else
-                                    {
-                                        <option value="@panelayout.Key">@panelayout.Value</option>
-                                    }
-                                }
-                            </select>
-                        </td>
-                    </tr>
+                                </select>
+                            </td>
+                        </tr>
+                    }
                     <tr>
                         <td>
                             <Label For="defaultContainer" HelpText="Select the default container for the page">Default Container: </Label>
@@ -155,9 +158,9 @@
                         <td>
                             <select id="defaultContainer" class="form-control" @bind="@_containertype">
                                 <option value="-">&lt;Inherit From Site&gt;</option>
-                                @foreach (KeyValuePair<string, string> container in _containers)
+                                @foreach (var container in _containers)
                                 {
-                                    <option value="@container.Key">@container.Value</option>
+                                    <option value="@container.TypeName">@container.Name</option>
                                 }
                             </select>
                         </td>
@@ -199,23 +202,26 @@
         }
     </TabPanel>
     <TabPanel Name="Permissions">
-        <table class="table table-borderless">
-            <tr>
-                <td>
-                    <PermissionGrid EntityName="@EntityNames.Page" Permissions="@_permissions" @ref="_permissionGrid" />
-                </td>
-            </tr>
-        </table>
+        @if (_permissions != null)
+        {
+            <table class="table table-borderless">
+                <tr>
+                    <td>
+                        <PermissionGrid EntityName="@EntityNames.Page" Permissions="@_permissions" @ref="_permissionGrid" />
+                    </td>
+                </tr>
+            </table>
+        }
     </TabPanel>
 </TabStrip>
 <button type="button" class="btn btn-success" @onclick="SavePage">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 
 @code {
-    private Dictionary<string, string> _themes;
-    private Dictionary<string, string> _panelayouts;
-    private Dictionary<string, string> _containers = new Dictionary<string, string>();
     private List<Theme> _themeList;
+    private List<ThemeControl> _themes = new List<ThemeControl>();
+    private List<ThemeControl> _layouts = new List<ThemeControl>();
+    private List<ThemeControl> _containers = new List<ThemeControl>();
     private List<Page> _pageList;
     private int _pageId;
     private string _name;
@@ -234,7 +240,7 @@
     private string _layouttype = "-";
     private string _containertype = "-";
     private string _icon;
-    private string _permissions;
+    private string _permissions = null;
     private string _createdby;
     private DateTime _createdon;
     private string _modifiedby;
@@ -252,12 +258,11 @@
     {
         try
         {
-            _themeList = await ThemeService.GetThemesAsync();
             _pageList = PageState.Pages;
             _children = PageState.Pages.Where(item => item.ParentId == null).ToList();
 
-            _themes = ThemeService.GetThemeTypes(_themeList);
-            _containers = ThemeService.GetContainerTypes(_themeList);
+            _themeList = await ThemeService.GetThemesAsync();
+            _themes = ThemeService.GetThemeControls(_themeList);
 
             _pageId = Int32.Parse(PageState.QueryString["id"]);
             var page = PageState.Pages.FirstOrDefault(item => item.PageId == _pageId);
@@ -291,12 +296,13 @@
                 {
                     _themetype = "-";
                 }
-                _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
+                _layouts = ThemeService.GetLayoutControls(_themeList, page.ThemeType);
                 _layouttype = page.LayoutType;
                 if (_layouttype == PageState.Site.DefaultLayoutType)
                 {
                     _layouttype = "-";
                 }
+                _containers = ThemeService.GetContainerControls(_themeList, page.ThemeType);
                 _containertype = page.DefaultContainerType;
                 if (string.IsNullOrEmpty(_containertype))
                 {
@@ -369,12 +375,16 @@
             _themetype = (string)e.Value;
             if (_themetype != "-")
             {
-                _panelayouts = ThemeService.GetPaneLayoutTypes(_themeList, _themetype);
+                _layouts = ThemeService.GetLayoutControls(_themeList, _themetype);
+                _containers = ThemeService.GetContainerControls(_themeList, _themetype);
             }
             else
             {
-                _panelayouts = new Dictionary<string, string>();
+                _layouts = new List<ThemeControl>();
+                _containers = new List<ThemeControl>();
             }
+            _layouttype = "-";
+            _containertype = "-";
             StateHasChanged();
         }
         catch (Exception ex)

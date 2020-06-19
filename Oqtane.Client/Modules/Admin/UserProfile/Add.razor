@@ -1,7 +1,7 @@
 ﻿@namespace Oqtane.Modules.Admin.UserProfile
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
-@inject IUserRoleService UserRoleService
+@inject IUserService UserService
 @inject INotificationService NotificationService
 
 @if (PageState.User != null)
@@ -9,19 +9,10 @@
     <table class="table table-borderless">
         <tr>
             <td>
-                <Label  For="to" HelpText="Select the user it is going to">To: </Label>
+                <Label For="to" HelpText="Enter the username you wish to send a message to">To: </Label>
             </td>
             <td>
-                <select id="to" class="form-control"  @bind="@userid">
-                    <option value="-1">&lt;Select User&gt;</option>
-                    @if (userroles != null)
-                    {
-                        foreach (UserRole userrole in userroles)
-                        {
-                            <option value="@userrole.UserId">@userrole.User.DisplayName</option>
-                        }
-                    }
-                </select>
+                <input id="to" class="form-control" @bind="@username" />
             </td>
         </tr>
         <tr>
@@ -46,8 +37,7 @@
 }
 
 @code {
-    private List<UserRole> userroles;
-    private string userid = "-1";
+    private string username = "";
     private string subject = "";
     private string body = "";
 
@@ -55,41 +45,35 @@
 
     public override string Title => "Send Notification";
 
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            userroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
-            userroles = userroles.Where(item => item.Role.Name == Constants.RegisteredRole || item.Role.Name == Constants.HostRole)
-                .OrderBy(item => item.User.DisplayName).ToList();
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Loading Users {Error}", ex.Message);
-            AddModuleMessage("Error Loading Users", MessageType.Error);
-        }
-    }
-
     private async Task Send()
     {
         var notification = new Notification();
         try
         {
-            notification.SiteId = PageState.Site.SiteId;
-            notification.FromUserId = PageState.User.UserId;
-            notification.ToUserId = int.Parse(userid);
-            notification.ToEmail = "";
-            notification.Subject = subject;
-            notification.Body = body;
-            notification.ParentId = null;
-            notification.CreatedOn = DateTime.UtcNow;
-            notification.IsDelivered = false;
-            notification.DeliveredOn = null;
-
-            notification = await NotificationService.AddNotificationAsync(notification);
-
-            await logger.LogInformation("Notification Created {Notification}", notification);
-            NavigationManager.NavigateTo(NavigateUrl());
+            var user = await UserService.GetUserAsync(username, PageState.Site.SiteId);
+            if (user != null)
+            {
+                notification.SiteId = PageState.Site.SiteId;
+                notification.FromUserId = PageState.User.UserId;
+                notification.FromDisplayName = PageState.User.DisplayName;
+                notification.FromEmail = PageState.User.Email;
+                notification.ToUserId = user.UserId;
+                notification.ToDisplayName = user.DisplayName;
+                notification.ToEmail = user.Email;
+                notification.Subject = subject;
+                notification.Body = body;
+                notification.ParentId = null;
+                notification.CreatedOn = DateTime.UtcNow;
+                notification.IsDelivered = false;
+                notification.DeliveredOn = null;
+                notification = await NotificationService.AddNotificationAsync(notification);
+                await logger.LogInformation("Notification Created {Notification}", notification);
+                NavigationManager.NavigateTo(NavigateUrl());
+            }
+            else
+            {
+                AddModuleMessage("User Does Not Exist. Please Verify That The Username Provided Is Correct.", MessageType.Warning);
+            }
         }
         catch (Exception ex)
         {

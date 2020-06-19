@@ -98,15 +98,8 @@ namespace Oqtane.Infrastructure
                                         ExtractFile(entry, filename);
                                         break;
                                     case "wwwroot":
-                                        filename = Path.Combine(sourceFolder, Utilities.PathCombine(entry.FullName.Replace("wwwroot", name).Split('/')));
+                                        filename = Path.Combine(webRootPath, Utilities.PathCombine(entry.FullName.Replace("wwwroot/", "").Split('/')));
                                         ExtractFile(entry, filename);
-                                        break;
-                                    case "content":
-                                        if (Path.GetDirectoryName(entry.FullName) != "content") // assets must be in subfolders
-                                        {
-                                            filename = Path.Combine(webRootPath, Utilities.PathCombine(entry.FullName.Replace("content", "").Split('/')));
-                                            ExtractFile(entry, filename);
-                                        }
                                         break;
                                 }
                             }

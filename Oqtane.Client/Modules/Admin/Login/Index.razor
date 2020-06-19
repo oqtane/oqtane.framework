@@ -1,7 +1,6 @@
 ﻿@namespace Oqtane.Modules.Admin.Login
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
-@inject IJSRuntime JsRuntime
 @inject IUserService UserService
 @inject IServiceProvider ServiceProvider
 
@@ -96,7 +95,7 @@
             {
                 await logger.LogInformation("Login Successful For Username {Username}", _username);
                 // complete the login on the server so that the cookies are set correctly on SignalR
-                var interop = new Interop(JsRuntime);
+                var interop = new Interop(JSRuntime);
                 string antiforgerytoken = await interop.GetElementByName("__RequestVerificationToken");
                 var fields = new { __RequestVerificationToken = antiforgerytoken, username = _username, password = _password, remember = _remember, returnurl = _returnUrl };
                 await interop.SubmitForm($"/{PageState.Alias.AliasId}/pages/login/", fields);

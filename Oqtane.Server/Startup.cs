@@ -29,7 +29,8 @@ namespace Oqtane
         public IConfigurationRoot Configuration { get; }
         private string _webRoot;
         private Runtime _runtime;
-        
+        private bool _useSwagger;
+
         public Startup(IWebHostEnvironment env)
         {
             var builder = new ConfigurationBuilder()
@@ -37,9 +38,12 @@ namespace Oqtane
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             Configuration = builder.Build();
 
-             _runtime = (Configuration.GetSection("Runtime").Value == "WebAssembly") ? Runtime.WebAssembly : Runtime.Server;
+            _runtime = (Configuration.GetSection("Runtime").Value == "WebAssembly") ? Runtime.WebAssembly : Runtime.Server;
+            
+            //add possibility to switch off swagger on production.
+            _useSwagger = Configuration.GetSection("UseSwagger").Value != "false";
 
-            _webRoot = env.WebRootPath;              
+            _webRoot = env.WebRootPath;
             AppDomain.CurrentDomain.SetData("DataDirectory", Path.Combine(env.ContentRootPath, "Data"));
         }
 
@@ -47,7 +51,6 @@ namespace Oqtane
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            
             services.AddServerSideBlazor();
 
             // setup HttpClient for server side in a client side compatible fashion ( with auth cookie )
@@ -59,7 +62,7 @@ namespace Oqtane
                     var navigationManager = s.GetRequiredService<NavigationManager>();
                     var httpContextAccessor = s.GetRequiredService<IHttpContextAccessor>();
                     var authToken = httpContextAccessor.HttpContext.Request.Cookies[".AspNetCore.Identity.Application"];
-                    var client = new HttpClient(new HttpClientHandler { UseCookies = false });
+                    var client = new HttpClient(new HttpClientHandler {UseCookies = false});
                     if (authToken != null)
                     {
                         client.DefaultRequestHeaders.Add("Cookie", ".AspNetCore.Identity.Application=" + authToken);
@@ -121,7 +124,7 @@ namespace Oqtane
                 .AddEntityFrameworkStores<TenantDBContext>()
                 .AddSignInManager()
                 .AddDefaultTokenProviders();
-            
+
             services.Configure<IdentityOptions>(options =>
             {
                 // Password settings
@@ -199,14 +202,12 @@ namespace Oqtane
             services.AddMvc()
                 .AddNewtonsoftJson()
                 .AddOqtaneApplicationParts() // register any Controllers from custom modules
-                .ConfigureOqtaneMvc();       // any additional configuration from IStart classes.
+                .ConfigureOqtaneMvc(); // any additional configuration from IStart classes.
 
-            services.AddSwaggerGen(c =>
+            if (_useSwagger)
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Oqtane", Version = "v1" });
-            });
-
-
+                services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "Oqtane", Version = "v1"}); });
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -222,17 +223,19 @@ namespace Oqtane
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+            // to allow install middleware it should be moved up
+            app.ConfigureOqtaneAssemblies(env);
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseBlazorFrameworkFiles();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
+            if (_useSwagger)
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Oqtane V1");
-            });
+                app.UseSwagger();
+                app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Oqtane V1"); });
+            }
 
             app.UseEndpoints(endpoints =>
             {
@@ -240,7 +243,6 @@ namespace Oqtane
                 endpoints.MapControllers();
                 endpoints.MapFallbackToPage("/_Host");
             });
-            app.ConfigureOqtaneAssemblies(env);
         }
     }
 }

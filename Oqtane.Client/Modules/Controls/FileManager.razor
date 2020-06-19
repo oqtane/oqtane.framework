@@ -4,7 +4,6 @@
 @attribute [OqtaneIgnore]
 @inject IFolderService FolderService
 @inject IFileService FileService
-@inject IJSRuntime JsRuntime
 
 @if (_folders != null)
 {
@@ -258,7 +257,7 @@
 
     private async Task UploadFile()
     {
-        var interop = new Interop(JsRuntime);
+        var interop = new Interop(JSRuntime);
         var upload = await interop.GetFiles(_fileinputid);
         if (upload.Length > 0)
         {

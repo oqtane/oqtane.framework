@@ -7,9 +7,9 @@ namespace Oqtane.Services
     public interface IThemeService
     {
         Task<List<Theme>> GetThemesAsync();
-        Dictionary<string, string> GetThemeTypes(List<Theme> themes);
-        Dictionary<string, string> GetPaneLayoutTypes(List<Theme> themes, string themeName);
-        Dictionary<string, string> GetContainerTypes(List<Theme> themes);
+        List<ThemeControl> GetThemeControls(List<Theme> themes);
+        List<ThemeControl> GetLayoutControls(List<Theme> themes, string themeName);
+        List<ThemeControl> GetContainerControls(List<Theme> themes, string themeName);
         Task InstallThemesAsync();
         Task DeleteThemeAsync(string themeName);
     }

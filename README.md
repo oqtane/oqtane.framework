@@ -9,7 +9,7 @@ Please note that this project is owned by the .NET Foundation and is governed by
 
 **To get started with Oqtane:**
 
-   1.&nbsp;Install **[.NET Core 3.2 SDK (v3.1.300)](https://dotnet.microsoft.com/download/dotnet-core/thank-you/sdk-3.1.300-windows-x64-installer)**.
+   1.&nbsp;Install **[.NET Core 3.1 SDK (v3.1.300)](https://dotnet.microsoft.com/download/dotnet-core/thank-you/sdk-3.1.300-windows-x64-installer)**.
    
    2.&nbsp;Install the Preview edition of [Visual Studio 2019](https://visualstudio.microsoft.com/vs/preview/) (version 16.6 or higher) with the **ASP.NET and web development** workload enabled. Oqtane works with all editions of Visual Studio from Community to Enterprise. If you do not have a SQL Server installation available already and you wish to use LocalDB for development, you must also install the **.NET desktop development workload**.  
 
@@ -51,9 +51,11 @@ V1.0.0 (MVP)
 # Background
 Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Initially created as a proof of concept, Oqtane is a native Blazor application written from the ground up using modern .NET Core technology. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly templates (skins), and extensibility via third party modules.
 
-# Release Announcement
+# Release Announcements
 
-[Announcing Oqtane... a Modular Application Framework for Blazor!](https://www.oqtane.org/Resources/Blog/PostId/520/announcing-oqtane-a-modular-application-framework-for-blazor)
+[Oqtane 1.0](https://www.oqtane.org/Resources/Blog/PostId/540/announcing-oqtane-10-a-modular-application-framework-for-blazor)
+
+[Oqtane POC](https://www.oqtane.org/Resources/Blog/PostId/520/announcing-oqtane-a-modular-application-framework-for-blazor)
 
 # Example Screenshots
 

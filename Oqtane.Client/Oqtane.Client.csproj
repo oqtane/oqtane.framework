@@ -17,6 +17,7 @@
     <RepositoryType>Git</RepositoryType>
     <PackageReleaseNotes>Not for production use.</PackageReleaseNotes>
     <RootNamespace>Oqtane</RootNamespace>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -37,5 +38,4 @@
   <ItemGroup>
     <ProjectReference Include="..\Oqtane.Shared\Oqtane.Shared.csproj" />
   </ItemGroup>
-
 </Project>

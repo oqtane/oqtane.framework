@@ -13,6 +13,13 @@
     {
         var interop = new Interop(JsRuntime);
 
+        // handle page redirection
+        if (!string.IsNullOrEmpty(PageState.Page.Url))
+        {
+            NavigationManager.NavigateTo(PageState.Page.Url);
+            return;
+        }
+
         // set page title
         if (!string.IsNullOrEmpty(PageState.Page.Title))
         {
@@ -23,31 +30,20 @@
             await interop.UpdateTitle(PageState.Site.Name + " - " + PageState.Page.Name);
         }
 
-        // update page resources
-        int stylesheet = 0;
-        int script = 0;
-        foreach (Resource resource in PageState.Page.Resources)
+        // manage stylesheets for this page 
+        string batch = DateTime.Now.ToString("yyyyMMddHHmmssfff");
+        var links = new List<object>();
+        foreach (Resource resource in PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet))
         {
-            switch (resource.ResourceType)
-            {
-                case ResourceType.Stylesheet:
-                    stylesheet += 1;
-                    await interop.IncludeLink("app-stylesheet" + stylesheet.ToString("00"), "stylesheet", resource.Url, "text/css", resource.Integrity ?? "", resource.CrossOrigin ?? "");
-                    break;
-                case ResourceType.Script:
-                    script += 1;
-                    await interop.IncludeScript("app-script" + script.ToString("00"), resource.Url, "", "body", resource.Integrity ?? "", resource.CrossOrigin ?? "");
-                    break;
-            }
+            links.Add(new { id = "app-stylesheet-" + batch + "-" + (links.Count + 1).ToString("00"), rel = "stylesheet", href = resource.Url, type = "text/css", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", key = "" });
         }
-        // remove any page resources references which are no longer required for this page
-        await interop.RemoveElementsById("app-stylesheet", "app-stylesheet" + (stylesheet + 1).ToString("00"), "");
-        await interop.RemoveElementsById("app-script", "app-script" + (script + 1).ToString("00"), "");
+        await interop.IncludeLinks(links.ToArray());
+        await interop.RemoveElementsById("app-stylesheet", "", "app-stylesheet-" + batch + "-00");
 
         // add favicon
         if (PageState.Site.FaviconFileId != null)
         {
-            await interop.IncludeLink("fav-icon", "shortcut icon", Utilities.ContentUrl(PageState.Alias, PageState.Site.FaviconFileId.Value), "image/x-icon", "", "");
+            await interop.IncludeLink("app-favicon", "shortcut icon", Utilities.ContentUrl(PageState.Alias, PageState.Site.FaviconFileId.Value), "image/x-icon", "", "", "id");
         }
         // add PWA support
         if (PageState.Site.PwaIsEnabled)
@@ -58,18 +54,13 @@
         DynamicComponent = builder =>
         {
             var themeType = Type.GetType(PageState.Page.ThemeType);
-            if (themeType != null)
+            if (themeType == null)
             {
-                builder.OpenComponent(0, themeType);
-                builder.CloseComponent();
+                // fallback
+                themeType = Type.GetType(Constants.DefaultTheme);
             }
-            else
-            {
-                // theme does not exist with type specified
-                builder.OpenComponent(0, Type.GetType(Constants.ModuleMessageComponent));
-                builder.AddAttribute(1, "Message", "Error Loading Page Theme " + PageState.Page.ThemeType);
-                builder.CloseComponent();
-            }
+            builder.OpenComponent(0, themeType);
+            builder.CloseComponent();
         };
     }
 
@@ -97,10 +88,10 @@
             "const serialized = JSON.stringify(manifest); " +
             "const blob = new Blob([serialized], {type: 'application/javascript'}); " +
             "const url = URL.createObjectURL(blob); " +
-            "document.getElementById('pwa-manifest').setAttribute('href', url); " +
+            "document.getElementById('app-manifest').setAttribute('href', url); " +
             "} " +
             ", 1000);";
-        await interop.IncludeScript("pwa-manifestscript", "", manifest, "body", "", "");
+        await interop.IncludeScript("app-pwa", "", "", "", manifest, "body", "id");
 
         // service worker must be in root of site
         string serviceworker = "if ('serviceWorker' in navigator) { " +
@@ -110,6 +101,6 @@
                 "console.log('ServiceWorker Registration Failed ', err); " +
             "}); " +
             "}";
-        await interop.IncludeScript("pwa-serviceworker", "", serviceworker, "body", "", "");
+        await interop.IncludeScript("app-serviceworker", "", "", "", serviceworker, "body", "id");
     }
 }

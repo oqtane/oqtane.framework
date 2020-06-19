@@ -25,12 +25,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Oqtane.Client">
-      <HintPath>..\..\[RootFolder]\Oqtane.Client\bin\Debug\netstandard2.1\Oqtane.Client.dll</HintPath>
-    </Reference>
-    <Reference Include="Oqtane.Shared">
-      <HintPath>..\..\[RootFolder]\Oqtane.Client\bin\Debug\netstandard2.1\Oqtane.Shared.dll</HintPath>
-    </Reference>
+    <PackageReference Include="Oqtane.Client" Version="1.0.0" />
+    <PackageReference Include="Oqtane.Shared" Version="1.0.0" />
   </ItemGroup>
 
   <PropertyGroup>

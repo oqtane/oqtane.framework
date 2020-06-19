@@ -51,6 +51,9 @@
 
     [Parameter]
     public string IconName { get; set; } // optional - specifies an icon for the link - default is no icon
+    
+    [Parameter]
+    public bool IconOnly { get; set; } // optional - specifies only icon in link
 
     protected override void OnParametersSet()
     {
@@ -58,6 +61,11 @@
         if (!string.IsNullOrEmpty(Text))
         {
             _text = Text;
+        }
+
+        if (IconOnly && !string.IsNullOrEmpty(IconName))
+        {
+            _text = string.Empty;
         }
 
         if (!string.IsNullOrEmpty(Parameters))
@@ -82,7 +90,8 @@
 
         if (!string.IsNullOrEmpty(IconName))
         {
-            _iconSpan = $"<span class=\"oi oi-{IconName}\"></span>&nbsp;";
+            _iconSpan = $"<span class=\"oi oi-{IconName}\"></span>{(IconOnly?"":"&nbsp")}";
+            
         }
 
         _url = EditUrl(Action, _parameters);

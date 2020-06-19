@@ -31,12 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Oqtane.Server">
-      <HintPath>..\..\[RootFolder]\Oqtane.Server\bin\Debug\netcoreapp3.1\Oqtane.Server.dll</HintPath>
-    </Reference>
-    <Reference Include="Oqtane.Shared">
-      <HintPath>..\..\[RootFolder]\Oqtane.Server\bin\Debug\netcoreapp3.1\Oqtane.Shared.dll</HintPath>
-    </Reference>
+    <PackageReference Include="Oqtane.Server" Version="1.0.0" />
+    <PackageReference Include="Oqtane.Shared" Version="1.0.0" />
   </ItemGroup>
-
 </Project>
