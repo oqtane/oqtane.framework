@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using File = Oqtane.Models.File;
 
@@ -331,6 +332,41 @@ namespace Oqtane.Shared
             }
 
             return dictionary;
+        }
+        
+        public static T GetSetting<T>(this Dictionary<string, string> settings, string settingName, Func<T> defaultValue)
+        {
+            try
+            {
+                string value = null;
+                if (settings != null && settings.ContainsKey(settingName))
+                {
+                    value = settings[settingName];
+                }
+                return string.IsNullOrEmpty(value)  ? defaultValue() : JsonSerializer.Deserialize<T>(value);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            return defaultValue();
+        }
+
+        public static Dictionary<string, string> SetSetting<T>(this Dictionary<string, string> settings, string settingName, T value)
+        {
+            if (settings == null)
+            {
+                settings = new Dictionary<string, string>();
+            }
+            if (settings.ContainsKey(settingName))
+            { 
+                settings[settingName] =  JsonSerializer.Serialize(value);
+            }
+            else
+            {
+                settings.Add(settingName, JsonSerializer.Serialize(value));
+            }
+            return settings;
         }
     }
 }

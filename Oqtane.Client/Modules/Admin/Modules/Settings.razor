@@ -80,6 +80,14 @@
             @DynamicComponent
         </TabPanel>
     }
+
+    @if (ContainerSettingsComponent != null)
+    {
+        <TabPanel Name="ContainerSettings" Heading="Container Settings">
+            @ContainerSettingsComponent
+        </TabPanel>
+    }
+
 </TabStrip>
 <button type="button" class="btn btn-success" @onclick="SaveModule">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
@@ -95,12 +103,15 @@
     private PermissionGrid _permissionGrid;
     private Type _settingsModuleType;
     private string _settingstitle = "Other Settings";
+    
     private object _settings;
+    private ISettingPage _containerSettings;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
     public override string Title => "Module Settings";
 
     private RenderFragment DynamicComponent { get; set; }
+    private RenderFragment ContainerSettingsComponent { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -137,6 +148,22 @@
                 builder.CloseComponent();
             };
         }
+
+        var containerType = Type.GetType(ModuleState.ContainerType);
+        if (containerType != null && typeof(ISettingPageProvider).IsAssignableFrom(containerType))
+        {
+            var moduleobject = Activator.CreateInstance(containerType) as ISettingPageProvider;
+            var type = moduleobject?.SettingsPage;
+            if (type != null)
+            {
+                ContainerSettingsComponent = builder =>
+                {
+                    builder.OpenComponent(0, type);
+                    builder.AddComponentReferenceCapture(1, inst => { _containerSettings = Convert.ChangeType(inst, type) as ISettingPage; });
+                    builder.CloseComponent();
+                };
+            }
+        }
     }
 
     private async Task SaveModule()
@@ -161,14 +188,24 @@
         module.Permissions = _permissionGrid.GetPermissions();
         await ModuleService.UpdateModuleAsync(module);
 
-        if (_settingsModuleType != null)
+        if (_settings is ISettingPage page)
         {
-            var moduleType = Type.GetType(ModuleState.ModuleType);
-            if (moduleType != null)
+            await page.UpdateSettings();
+        }
+        else
+        {
+            // For compatibility with settings where ISettingPage is not implemented
+            if (_settingsModuleType != null)
             {
-                moduleType.GetMethod("UpdateSettings")?.Invoke(_settings, null); // method must be public in settings component
+                var moduleType = Type.GetType(ModuleState.ModuleType);
+                if (moduleType != null)
+                {
+                    moduleType.GetMethod("UpdateSettings")?.Invoke(_settings, null); // method must be public in settings component
+                }
             }
         }
+
+        _containerSettings?.UpdateSettings();
 
         NavigationManager.NavigateTo(NavigateUrl());
     }
