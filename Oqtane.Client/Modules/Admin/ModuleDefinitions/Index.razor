@@ -14,11 +14,11 @@ else
 
     <Pager Items="@_moduleDefinitions">
         <Header>
-            <th>&nbsp;</th>
-            <th>&nbsp;</th>
+            <th style="width: 1px;">&nbsp;</th>
+            <th style="width: 1px;">&nbsp;</th>
             <th>Name</th>
             <th>Version</th>
-            <th>&nbsp;</th>
+            <th style="width: 1px;">&nbsp;</th>
         </Header>
         <Row>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ModuleDefinitionId.ToString())" /></td>

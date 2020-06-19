@@ -148,7 +148,7 @@ namespace Oqtane.Controllers
                             notification.SiteId = user.SiteId;
                             notification.FromUserId = null;
                             notification.ToUserId = newUser.UserId;
-                            notification.ToEmail = "";
+                            notification.ToEmail = newUser.Email;
                             notification.Subject = "User Account Verification";
                             string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
                             string url = HttpContext.Request.Scheme + "://" + _tenants.GetAlias().Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
@@ -157,6 +157,7 @@ namespace Oqtane.Controllers
                             notification.CreatedOn = DateTime.UtcNow;
                             notification.IsDelivered = false;
                             notification.DeliveredOn = null;
+                            notification.SendOn = DateTime.UtcNow;
                             _notifications.AddNotification(notification);
                         }
 
@@ -385,6 +386,7 @@ namespace Oqtane.Controllers
                     notification.CreatedOn = DateTime.UtcNow;
                     notification.IsDelivered = false;
                     notification.DeliveredOn = null;
+                    notification.SendOn = DateTime.UtcNow;
                     _notifications.AddNotification(notification);
                     _logger.Log(LogLevel.Information, this, LogFunction.Security, "Password Reset Notification Sent For {Username}", user.Username);
                 }
