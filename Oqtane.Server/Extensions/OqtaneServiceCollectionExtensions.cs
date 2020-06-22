@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 using Microsoft.Extensions.Hosting;
-using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Modules;
 using Oqtane.Services;
-using Oqtane.Shared;
 using Oqtane.UI;
 
 // ReSharper disable once CheckNamespace
@@ -55,31 +52,32 @@ namespace Microsoft.Extensions.DependencyInjection
                         services.AddSingleton(hostedServiceType, serviceType);
                     }
                 }
-                
+
                 var startUps = assembly.GetInstances<IServerStartup>();
                 foreach (var startup in startUps)
                 {
                     startup.ConfigureServices(services);
                 }
-               
+
                 if (runtime == Runtime.Server)
                 {
-                assembly.GetInstances<IClientStartup>()
-                    .ToList()
-                    .ForEach(x => x.ConfigureServices(services));
+                    assembly.GetInstances<IClientStartup>()
+                        .ToList()
+                        .ForEach(x => x.ConfigureServices(services));
                 }
             }
             return services;
         }
 
-        
         private static void LoadAssemblies()
         {
             var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
             if (assemblyPath == null) return;
 
-            var assembliesFolder = new DirectoryInfo(assemblyPath);
+            AssemblyLoadContext.Default.Resolving += ResolveDependencies;
 
+            var assembliesFolder = new DirectoryInfo(assemblyPath);
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
             // iterate through Oqtane assemblies in /bin ( filter is narrow to optimize loading process )
             foreach (var dll in assembliesFolder.EnumerateFiles($"*.dll", SearchOption.TopDirectoryOnly).Where(f => f.IsOqtaneAssembly()))
@@ -95,7 +93,6 @@ namespace Microsoft.Extensions.DependencyInjection
                     continue;
                 }
 
-                var assemblies = AppDomain.CurrentDomain.GetAssemblies();
                 if (!assemblies.Any(a => AssemblyName.ReferenceMatchesDefinition(assemblyName, a.GetName())))
                 {
                     try
@@ -121,5 +118,19 @@ namespace Microsoft.Extensions.DependencyInjection
                 }
             }
         }
+
+        private static Assembly ResolveDependencies(AssemblyLoadContext context, AssemblyName name)
+        {
+            var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location) + "\\" + name.Name + ".dll";
+            if (File.Exists(assemblyPath))
+            {
+                return context.LoadFromStream(new MemoryStream(File.ReadAllBytes(assemblyPath)));
+            }
+            else
+            {
+                return null;
+            }
+        }
+
     }
 }
