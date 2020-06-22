@@ -1,28 +1,26 @@
-﻿using Oqtane.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Reflection;
-using System;
+using Oqtane.Models;
 using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
     public class ThemeService : ServiceBase, IThemeService
     {
-        private readonly HttpClient _http;
+        private readonly SiteState _siteState;
 
-        public ThemeService(HttpClient http) : base(http)
+        public ThemeService(HttpClient http, SiteState siteState) : base(http)
         {
-            _http = http;
+            _siteState = siteState;
         }
 
-        private string Apiurl => CreateApiUrl("Theme");
+        private string ApiUrl => CreateApiUrl(_siteState.Alias, "Theme");
 
         public async Task<List<Theme>> GetThemesAsync()
         {
-            List<Theme> themes = await GetJsonAsync<List<Theme>>(Apiurl);
+            List<Theme> themes = await GetJsonAsync<List<Theme>>(ApiUrl);
             return themes.OrderBy(item => item.Name).ToList();
         }
 
@@ -45,12 +43,12 @@ namespace Oqtane.Services
 
         public async Task InstallThemesAsync()
         {
-            await GetJsonAsync<List<string>>($"{Apiurl}/install");
+            await GetJsonAsync<List<string>>($"{ApiUrl}/install");
         }
 
         public async Task DeleteThemeAsync(string themeName)
         {
-            await DeleteAsync($"{Apiurl}/{themeName}");
+            await DeleteAsync($"{ApiUrl}/{themeName}");
         }
     }
 }
