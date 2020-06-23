@@ -5,8 +5,8 @@ namespace Oqtane.Shared
     public class Constants
     {
         public const string PackageId = "Oqtane.Framework";
-        public const string Version = "1.0.0";
-        public const string ReleaseVersions = "0.9.0,0.9.1,0.9.2,1.0.0";
+        public const string Version = "1.0.1";
+        public const string ReleaseVersions = "0.9.0,0.9.1,0.9.2,1.0.0,1.0.1";
 
         public const string PageComponent = "Oqtane.UI.ThemeBuilder, Oqtane.Client";
         public const string ContainerComponent = "Oqtane.UI.ContainerBuilder, Oqtane.Client";

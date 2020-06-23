@@ -4,7 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <LangVersion>7.3</LangVersion>
     <Configurations>Debug;Release</Configurations>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Product>Oqtane</Product>
     <Authors>Shaun Walker</Authors>
     <Company>.NET Foundation</Company>
@@ -13,7 +13,7 @@
     <PackageProjectUrl>https://www.oqtane.org</PackageProjectUrl>
     <RepositoryUrl>https://github.com/oqtane</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <PackageReleaseNotes>Not for production use.</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v1.0.1</PackageReleaseNotes>
     <RootNamespace>Oqtane</RootNamespace>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
@@ -23,18 +23,15 @@
     <EmbeddedResource Remove="wwwroot\Modules\Templates\**" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Scripts\Tenant.01.00.01.01.sql" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Scripts\Master.00.00.00.00.sql" />
     <EmbeddedResource Include="Scripts\Master.00.09.00.00.sql" />
     <EmbeddedResource Include="Scripts\Master.01.00.01.00.sql" />
-    <EmbeddedResource Include="Scripts\Tenant.01.00.01.01.sql" />
     <EmbeddedResource Include="Scripts\Tenant.00.00.00.00.sql" />
     <EmbeddedResource Include="Scripts\Tenant.00.09.00.00.sql" />
     <EmbeddedResource Include="Scripts\Tenant.00.09.01.00.sql" />
     <EmbeddedResource Include="Scripts\Tenant.00.09.02.00.sql" />
     <EmbeddedResource Include="Scripts\Tenant.01.00.01.00.sql" />
+    <EmbeddedResource Include="Scripts\Tenant.01.00.01.01.sql" />
     <EmbeddedResource Include="Modules\HtmlText\Scripts\HtmlText.1.0.0.sql" />
     <EmbeddedResource Include="Modules\HtmlText\Scripts\HtmlText.Uninstall.sql" />
   </ItemGroup>
