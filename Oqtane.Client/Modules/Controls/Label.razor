@@ -1,6 +1,5 @@
 ﻿@namespace Oqtane.Modules.Controls
-@inherits ModuleBase   
-@attribute [OqtaneIgnore]
+@inherits ModuleControlBase
 
 @if (!string.IsNullOrEmpty(HelpText))
 {
@@ -16,7 +15,7 @@ else
     private string _closeLabel = "</label>";
 
     [Parameter]
-    public RenderFragment ChildContent { get; set; } 
+    public RenderFragment ChildContent { get; set; }
 
     [Parameter]
     public string For { get; set; } // optional - the id of the associated input control for accessibility
@@ -34,12 +33,12 @@ else
         {
             _openLabel += " for=\"" + For + "\"";
         }
-        
+
         if (!string.IsNullOrEmpty(Class))
         {
             _openLabel += " class=\"" + Class + "\"";
         }
-        
+
         _openLabel += ">";
     }
 }

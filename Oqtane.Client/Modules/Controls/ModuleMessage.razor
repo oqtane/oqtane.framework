@@ -1,6 +1,5 @@
 ﻿@namespace Oqtane.Modules.Controls
-@inherits ModuleBase      
-@attribute [OqtaneIgnore]
+@inherits ModuleControlBase
 
 @if (!string.IsNullOrEmpty(_message))
 {
@@ -52,7 +51,7 @@
                 classname = "alert alert-danger";
                 break;
         }
-        
+
         return classname;
     }
 }
