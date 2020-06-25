@@ -1,6 +1,5 @@
 ﻿@namespace Oqtane.Modules.Controls
-@inherits ModuleBase       
-@attribute [OqtaneIgnore]
+@inherits ModuleControlBase
 @inject IRoleService RoleService
 @inject IUserService UserService
 
@@ -39,7 +38,7 @@
                     <th scope="col">User</th>
                     @foreach (PermissionString permission in _permissions)
                     {
-                <th style="text-align: center; width: 1px;">@permission.PermissionName</th>
+                        <th style="text-align: center; width: 1px;">@permission.PermissionName</th>
                     }
                 </tr>
             </thead>
@@ -48,7 +47,7 @@
                 {
                     string userid = "[" + user.UserId.ToString() + "]";
                     <tr>
-                        <td >@user.DisplayName</td>
+                        <td>@user.DisplayName</td>
                         @foreach (PermissionString permission in _permissions)
                         {
                             var p = permission;
@@ -107,13 +106,13 @@
         _roles.Insert(0, new Role { Name = Constants.AllUsersRole });
 
         _permissions = new List<PermissionString>();
-        
+
         foreach (string permissionname in _permissionnames.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
         {
             // initialize with admin role
             _permissions.Add(new PermissionString { PermissionName = permissionname, Permissions = Constants.AdminRole });
         }
-        
+
         if (!string.IsNullOrEmpty(Permissions))
         {
             // populate permissions
@@ -123,7 +122,7 @@
                 {
                     _permissions[_permissions.FindIndex(item => item.PermissionName == permissionstring.PermissionName)].Permissions = permissionstring.Permissions;
                 }
-                
+
                 if (permissionstring.Permissions.Contains("["))
                 {
                     foreach (string user in permissionstring.Permissions.Split(new char[] { '[' }, StringSplitOptions.RemoveEmptyEntries))
@@ -183,7 +182,7 @@
                 _message = "Username Does Not Exist";
             }
         }
-        
+
         _username = string.Empty;
     }
 
@@ -209,7 +208,7 @@
                 case null:
                     break; // permission not specified
             }
-            
+
             _permissions[_permissions.FindIndex(item => item.PermissionName == permissionName)].Permissions = string.Join(";", ids.ToArray());
         }
     }

@@ -1,6 +1,5 @@
 ﻿@namespace Oqtane.Modules.Controls
-@inherits ModuleBase  
-@attribute [OqtaneIgnore]
+@inherits ModuleControlBase
 @inject IUserService UserService
 
 @if (_authorized)
@@ -51,7 +50,7 @@
 
     [Parameter]
     public string IconName { get; set; } // optional - specifies an icon for the link - default is no icon
-    
+
     [Parameter]
     public bool IconOnly { get; set; } // optional - specifies only icon in link
 
@@ -90,8 +89,8 @@
 
         if (!string.IsNullOrEmpty(IconName))
         {
-            _iconSpan = $"<span class=\"oi oi-{IconName}\"></span>{(IconOnly?"":"&nbsp")}";
-            
+            _iconSpan = $"<span class=\"oi oi-{IconName}\"></span>{(IconOnly ? "" : "&nbsp")}";
+
         }
 
         _url = EditUrl(Action, _parameters);
@@ -123,7 +122,7 @@
             {
                 security = Security.Value;
             }
-            
+
             switch (security)
             {
                 case SecurityAccessLevel.Anonymous:
@@ -143,7 +142,7 @@
                     break;
             }
         }
-        
+
         return authorized;
     }
 }

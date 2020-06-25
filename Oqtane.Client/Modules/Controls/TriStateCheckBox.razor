@@ -1,4 +1,5 @@
 ﻿@namespace Oqtane.Modules.Controls
+@inherits ModuleControlBase
 
 <img src="@_src" title="@_title" @onclick="SetValue" />
 
@@ -38,7 +39,7 @@
                     _value = true;
                     break;
             }
-            
+
             SetImage();
             OnChange(_value);
         }

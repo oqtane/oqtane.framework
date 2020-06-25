@@ -1,41 +1,39 @@
 ﻿@namespace Oqtane.Modules.Controls
-@inherits ModuleBase
-@attribute [OqtaneIgnore]
-@typeparam TableItem    
-
+@inherits ModuleControlBase
+@typeparam TableItem
 
 <p>
-    @if(Format == "Table")
+    @if (Format == "Table")
     {
-    <table class="@Class">
-        <thead>
-            <tr>@Header</tr>
-        </thead>
-        <tbody>
+        <table class="@Class">
+            <thead>
+                <tr>@Header</tr>
+            </thead>
+            <tbody>
+                @foreach (var item in ItemList)
+                {
+                    <tr>@Row(item)</tr>
+                    @if (Detail != null)
+                    {
+                        <tr>@Detail(item)</tr>
+                    }
+                }
+            </tbody>
+        </table>
+    }
+    @if (Format == "Grid")
+    {
+        <div class="@Class">
+            <div class="row">@Header</div>
             @foreach (var item in ItemList)
             {
-                <tr>@Row(item)</tr>
+                <div class="row">@Row(item)</div>
                 @if (Detail != null)
                 {
-                    <tr>@Detail(item)</tr>
+                    <div class="row">@Detail(item)</div>
                 }
             }
-        </tbody>
-    </table>
-    }
-    @if(Format == "Grid")
-    {
-    <div class="@Class">
-        <div class="row">@Header</div>
-        @foreach (var item in ItemList)
-        {
-            <div class="row">@Row(item)</div>
-            @if (Detail != null)
-            {
-                <div class="row">@Detail(item)</div>
-            }
-        }
-    </div>
+        </div>
     }
     <div class="mx-auto text-center">
         @if (_page > _maxPages)
@@ -44,7 +42,7 @@
         }
         @if (_endPage > 1)
         {
-            <button class="btn btn-secondary" @onclick=@(async () => NavigateToPage("previous"))><span class="oi oi-chevron-left" title="previous" aria-hidden="true"></span></button>            
+            <button class="btn btn-secondary" @onclick=@(async () => NavigateToPage("previous"))><span class="oi oi-chevron-left" title="previous" aria-hidden="true"></span></button>
             @for (int i = _startPage; i <= _endPage; i++)
             {
                 var pager = i;
@@ -105,7 +103,7 @@
         {
             Format = "Table";
         }
-        
+
         if (string.IsNullOrEmpty(Class))
         {
             if (Format == "Table")
@@ -117,7 +115,7 @@
                 Class = "container";
             }
         }
-        
+
         if (string.IsNullOrEmpty(PageSize))
         {
             _maxItems = 10;
@@ -126,7 +124,7 @@
         {
             _maxItems = int.Parse(PageSize);
         }
-        
+
         if (string.IsNullOrEmpty(DisplayPages))
         {
             _maxPages = 5;
@@ -149,7 +147,7 @@
     {
         ItemList = Items.Skip((currentPage - 1) * _maxItems).Take(_maxItems);
         _page = currentPage;
-        
+
         StateHasChanged();
     }
 
@@ -174,7 +172,7 @@
             {
                 _endPage = _pages;
             }
-            
+
             StateHasChanged();
         }
         else if (direction == "back")
@@ -208,7 +206,7 @@
                 _page -= 1;
             }
         }
-        
+
         UpdateList(_page);
     }
 }

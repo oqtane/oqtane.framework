@@ -1,7 +1,5 @@
 ﻿@namespace Oqtane.Modules.Controls
-@inherits ModuleBase
-
-@attribute [OqtaneIgnore]
+@inherits ModuleControlBase
 @inject IFolderService FolderService
 @inject IFileService FileService
 
@@ -56,11 +54,11 @@
                     <div>
                         @if (UploadMultiple)
                         {
-                            <input type="file" id="@_fileinputid" name="file" accept="@_filter" multiple/>
+                            <input type="file" id="@_fileinputid" name="file" accept="@_filter" multiple />
                         }
                         else
                         {
-                            <input type="file" id="@_fileinputid" name="file" accept="@_filter"/>
+                            <input type="file" id="@_fileinputid" name="file" accept="@_filter" />
                         }
                         <span id="@_progressinfoid"></span><progress id="@_progressbarid" style="width: 150px; visibility: hidden;"></progress>
                         <span class="float-right">
@@ -134,7 +132,7 @@
 
         if (!string.IsNullOrEmpty(Folder))
         {
-            _folders = new List<Folder> {new Folder {FolderId = -1, Name = Folder}};
+            _folders = new List<Folder> { new Folder { FolderId = -1, Name = Folder } };
             FolderId = -1;
         }
         else
@@ -163,7 +161,7 @@
 
         await GetFiles();
 
-    // create unique id for component
+        // create unique id for component
         _guid = Guid.NewGuid().ToString("N");
         _fileinputid = _guid + "FileInput";
         _progressinfoid = _guid + "ProgressInfo";
@@ -211,7 +209,7 @@
         _message = string.Empty;
         try
         {
-            FolderId = int.Parse((string) e.Value);
+            FolderId = int.Parse((string)e.Value);
             await GetFiles();
             FileId = -1;
             _image = string.Empty;
@@ -227,7 +225,7 @@
     private async Task FileChanged(ChangeEventArgs e)
     {
         _message = string.Empty;
-        FileId = int.Parse((string) e.Value);
+        FileId = int.Parse((string)e.Value);
 
         await SetImage();
         StateHasChanged();
@@ -244,8 +242,8 @@
                 var maxwidth = 200;
                 var maxheight = 200;
 
-                var ratioX = (double) maxwidth / (double) file.ImageWidth;
-                var ratioY = (double) maxheight / (double) file.ImageHeight;
+                var ratioX = (double)maxwidth / (double)file.ImageWidth;
+                var ratioY = (double)maxheight / (double)file.ImageHeight;
                 var ratio = ratioX < ratioY ? ratioX : ratioY;
 
                 _image = "<img src=\"" + ContentUrl(FileId) + "\" alt=\"" + file.Name +
