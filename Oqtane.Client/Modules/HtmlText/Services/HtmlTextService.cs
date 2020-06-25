@@ -21,23 +21,23 @@ namespace Oqtane.Modules.HtmlText.Services
 
         public async Task<HtmlTextInfo> GetHtmlTextAsync(int moduleId)
         {
-            var htmltext = await GetJsonAsync<List<HtmlTextInfo>>($"{ApiUrl}/{moduleId}?entityid={moduleId}");
+            var htmltext = await GetJsonAsync<List<HtmlTextInfo>>(CreateAuthorizationPolicyUrl($"{ApiUrl}/{moduleId}", moduleId));
             return htmltext.FirstOrDefault();
         }
 
         public async Task AddHtmlTextAsync(HtmlTextInfo htmlText)
         {
-            await PostJsonAsync($"{ApiUrl}?entityid={htmlText.ModuleId}", htmlText);
+            await PostJsonAsync(CreateAuthorizationPolicyUrl($"{ApiUrl}", htmlText.ModuleId), htmlText);
         }
 
         public async Task UpdateHtmlTextAsync(HtmlTextInfo htmlText)
         {
-            await PutJsonAsync($"{ApiUrl}/{htmlText.HtmlTextId}?entityid={htmlText.ModuleId}", htmlText);
+            await PutJsonAsync(CreateAuthorizationPolicyUrl($"{ApiUrl}/{htmlText.HtmlTextId}", htmlText.ModuleId), htmlText);
         }
 
         public async Task DeleteHtmlTextAsync(int moduleId)
         {
-            await DeleteAsync($"{ApiUrl}/{moduleId}?entityid={moduleId}");
+            await DeleteAsync(CreateAuthorizationPolicyUrl($"{ApiUrl}/{moduleId}", moduleId));
         }
     }
 }
