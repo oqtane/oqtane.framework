@@ -39,7 +39,7 @@ namespace Oqtane.Shared
         {
             if (moduleid != -1)
             {
-                path += $"/{moduleid}";
+                path += $"/{Constants.ModuleSegment}/{moduleid}";
                 if (!string.IsNullOrEmpty(action))
                 {
                     path += $"/{action}";
@@ -136,6 +136,7 @@ namespace Oqtane.Shared
                                 stringBuilder.Append(RemapInternationalCharToAscii(c));
                             prevdash = false;
                             break;
+
                         case UnicodeCategory.SpaceSeparator:
                         case UnicodeCategory.ConnectorPunctuation:
                         case UnicodeCategory.DashPunctuation:
@@ -250,7 +251,7 @@ namespace Oqtane.Shared
 
         public static string PathCombine(params string[] segments)
         {
-            var separators = new char[] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar};
+            var separators = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
 
             for (int i = 1; i < segments.Length; i++)
             {
@@ -284,7 +285,6 @@ namespace Oqtane.Shared
                     !Constants.ReservedDevices.Split(',').Contains(name.ToUpper().Split('.')[0]));
         }
 
-
         public static bool TryGetQueryValue(
             this Uri uri,
             string key,
@@ -304,7 +304,7 @@ namespace Oqtane.Shared
         {
             value = defaultValue;
             string s;
-            return uri.TryGetQueryValue(key, out s, (string) null) && int.TryParse(s, out value);
+            return uri.TryGetQueryValue(key, out s, (string)null) && int.TryParse(s, out value);
         }
 
         public static Dictionary<string, string> ParseQueryString(string query)
@@ -314,7 +314,7 @@ namespace Oqtane.Shared
             {
                 query = query.Substring(1);
                 string str = query;
-                char[] separator = new char[1] {'&'};
+                char[] separator = new char[1] { '&' };
                 foreach (string key in str.Split(separator, StringSplitOptions.RemoveEmptyEntries))
                 {
                     if (key != "")

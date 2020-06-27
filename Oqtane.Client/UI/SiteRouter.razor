@@ -75,6 +75,7 @@
         Page page;
         User user = null;
         List<Module> modules;
+        Dictionary<string, string> pageVariables = new Dictionary<string, string>();
         var moduleid = -1;
         var action = "";
         var editmode = false;
@@ -179,22 +180,32 @@
             // extract admin route elements from path
             var segments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             int result;
-            // check if path has moduleid and action specification ie. pagename/moduleid/action/
-            if (segments.Length >= 2 && int.TryParse(segments[segments.Length - 2], out result))
+
+            int modIdPos = 0;
+
+            for (int i = 0; i < segments.Length; i++)
             {
-                action = segments[segments.Length - 1];
-                moduleid = result;
-                path = path.Replace(moduleid.ToString() + "/" + action + "/", "");
-            }
-            else
-            {
-                // check if path has moduleid specification ie. pagename/moduleid/
-                if (segments.Length >= 1 && int.TryParse(segments[segments.Length - 1], out result))
+                if (segments[i] == Constants.ModuleSegment)
                 {
-                    moduleid = result;
-                    path = path.Replace(moduleid.ToString() + "/", "");
+                    modIdPos = i + 1;
+                }
+
+                if (i > modIdPos && modIdPos != 0)
+                {
+                    action += segments[i] + "/";
                 }
             }
+
+            // check if path has moduleid and action specification ie. pagename/moduleid/action/
+            if (modIdPos > 0)
+            {
+                int.TryParse(segments[modIdPos], out result);
+                moduleid = result;
+                path = path.Replace(segments[modIdPos - 1] + "/" + segments[modIdPos] + "/" + action, "");
+
+            }
+
+            if (action.EndsWith("/")) action = action.Substring(0, action.Length - 1);
 
             // remove trailing slash so it can be used as a key for Pages
             if (path.EndsWith("/")) path = path.Substring(0, path.Length - 1);
@@ -246,7 +257,7 @@
                     if (PageState == null || reload >= Reload.Page)
                     {
                         modules = await ModuleService.GetModulesAsync(site.SiteId);
-                        (page, modules) = ProcessModules(page, modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType);
+                        (page, modules, pageVariables) = ProcessModules(page, modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType);
                     }
                     else
                     {
@@ -263,6 +274,7 @@
                         Modules = modules,
                         Uri = new Uri(_absoluteUri, UriKind.Absolute),
                         QueryString = querystring,
+                        PageVariables = pageVariables,
                         ModuleId = moduleid,
                         Action = action,
                         EditMode = editmode,
@@ -314,9 +326,12 @@
         return Task.CompletedTask;
     }
 
-    private Dictionary<string, string> ParseQueryString(string query)
+    private Dictionary<string, string>
+        ParseQueryString(string query)
     {
-        Dictionary<string, string> querystring = new Dictionary<string, string>();
+        Dictionary<string, string>
+            querystring = new Dictionary<string, string>
+                ();
         if (!string.IsNullOrEmpty(query))
         {
             query = query.Substring(1); // ignore "?"
@@ -339,7 +354,8 @@
         return querystring;
     }
 
-    private async Task<Page> ProcessPage(Page page, Site site, User user)
+    private async Task<Page>
+        ProcessPage(Page page, Site site, User user)
     {
         try
         {
@@ -355,8 +371,10 @@
                 page.LayoutType = site.DefaultLayoutType;
             }
 
-            page.Panes = new List<string>();
-            page.Resources = new List<Resource>();
+            page.Panes = new List<string>
+                ();
+            page.Resources = new List<Resource>
+                ();
 
             string panes = "";
             Type themetype = Type.GetType(page.ThemeType);
@@ -393,9 +411,12 @@
         return page;
     }
 
-    private (Page Page, List<Module> Modules) ProcessModules(Page page, List<Module> modules, int moduleid, string action, string defaultcontainertype)
+    private (Page Page, List<Module>
+        Modules, Dictionary<string, string> PageVariables) ProcessModules(Page page, List<Module>
+            modules, int moduleid, string action, string defaultcontainertype)
     {
         var paneindex = new Dictionary<string, int>();
+        var pageVariables = new Dictionary<string, string>();
         foreach (Module module in modules)
         {
             if (module.PageId == page.PageId || module.ModuleId == moduleid)
@@ -410,17 +431,52 @@
                     typename = Constants.ErrorModule;
                 }
 
+                var pages = action.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
                 if (module.ModuleId == moduleid && action != "")
                 {
                     // check if the module defines custom routes
                     if (module.ModuleDefinition.ControlTypeRoutes != "")
                     {
-                        foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                        var controlTypeRoutes = module.ModuleDefinition.ControlTypeRoutes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                        foreach (string route in controlTypeRoutes)
                         {
-                            if (route.StartsWith(action + "="))
+                            var pageAction = route.Split('=')[0];
+
+                            var routes = pageAction.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                            var newRoute = "";
+                            if (pages.Length == routes.Length)
                             {
-                                typename = route.Replace(action + "=", "");
+                                for (int i = 0; i < pages.Length; i++)
+                                {
+                                    if (pages.Length > i)
+                                    {
+                                        if (routes[i] == pages[i])
+                                        {
+                                            newRoute += pages[i] + "/";
+                                        }
+                                        else if (routes[i].StartsWith("[") && routes[i].EndsWith("]"))
+                                        {
+                                            newRoute += pages[i] + "/";
+                                            var key = routes[i].Replace("[", "");
+                                            key = key.Replace("]", "");
+                                            pageVariables.TryAdd(key, pages[i]);
+                                        }
+                                        else
+                                        {
+                                            i = pages.Length;
+                                            newRoute = "";
+                                        }
+
+                                    }
+                                }
+
+                                if (newRoute != "")
+                                {
+                                    typename = route.Replace(pageAction + "=", "");
+                                }
                             }
+
                         }
                     }
                     module.ModuleType = typename.Replace(Constants.ActionToken, action);
@@ -489,10 +545,13 @@
             module.PaneModuleCount = paneindex[module.Pane.ToLower()] + 1;
         }
 
-        return (page, modules);
+        return (page, modules, pageVariables);
     }
 
-    private List<Resource> ManagePageResources(List<Resource> pageresources, List<Resource> resources)
+    private List<Resource>
+        ManagePageResources(List<Resource>
+            pageresources, List<Resource>
+                resources)
     {
         if (resources != null)
         {
@@ -509,7 +568,7 @@
     }
 
     private Runtime GetRuntime()
-=> RuntimeInformation.IsOSPlatform(OSPlatform.Create("BROWSER"))
-        ? Runtime.WebAssembly
-        : Runtime.Server;
+    => RuntimeInformation.IsOSPlatform(OSPlatform.Create("BROWSER"))
+    ? Runtime.WebAssembly
+    : Runtime.Server;
 }
