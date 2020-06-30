@@ -87,7 +87,7 @@ Control panel for adding, editing, and deleting pages as well as adding new modu
 
 ![Manage Page](https://github.com/oqtane/framework/blob/master/screenshots/screenshot5.png?raw=true "Manage Page")
 
-Admin dashboard for accessing the variuous administrative features of the framework:
+Admin dashboard for accessing the various administrative features of the framework:
 
 ![Admin Dashboard](https://github.com/oqtane/framework/blob/master/screenshots/screenshot6.png?raw=true "Admin Dashboard")
 

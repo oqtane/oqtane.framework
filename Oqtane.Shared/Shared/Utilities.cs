@@ -20,8 +20,53 @@ namespace Oqtane.Shared
             return $"{type.Namespace}, {assemblyName}";
         }
 
+        public static (string UrlParameters, string Querystring, string Anchor) ParseParameters(string parameters)
+        {
+            // /urlparameters /urlparameters?Id=1 /urlparameters#5 /urlparameters?Id=1#5 /urlparameters?reload#5
+
+            // Id=1 Id=1#5 reload#5 reload
+
+            // #5
+
+            var urlparameters = string.Empty;
+            var querystring = string.Empty;
+            var anchor = string.Empty;
+
+            if (parameters.Contains('#'))
+            {
+                anchor = parameters.Split('#').Last();
+                parameters = parameters.Replace("#" + anchor, "");
+            }
+
+            if (parameters.Contains('?'))
+            {
+                urlparameters = parameters.Split('?').First();
+                querystring = parameters.Replace(urlparameters + "?", "");
+            }
+            else if (parameters.Contains('/'))
+            {
+                urlparameters = parameters;
+            }
+            else
+            {
+                querystring = parameters;
+            }
+
+            return (urlparameters, querystring, anchor);
+        }
+
         public static string NavigateUrl(string alias, string path, string parameters)
         {
+            string urlparameters;
+            string querystring;
+            string anchor;
+            (urlparameters, querystring, anchor) = ParseParameters(parameters);
+
+            if (!string.IsNullOrEmpty(urlparameters))
+            {
+                if (urlparameters.StartsWith("/")) urlparameters = urlparameters.Remove(0, 1);
+                path += $"/{Constants.UrlParametersDelimiter}/{urlparameters}";
+            }
             var uriBuilder = new UriBuilder
             {
                 Path = !string.IsNullOrEmpty(alias)
@@ -29,17 +74,18 @@ namespace Oqtane.Shared
                         ? $"{alias}/{path}"
                         : $"{alias}"
                     : $"{path}",
-                Query = parameters
+                Query = querystring,
             };
-
-            return uriBuilder.Uri.PathAndQuery;
+            anchor = string.IsNullOrEmpty(anchor) ? "" : "#" + anchor;
+            var navigateUrl = uriBuilder.Uri.PathAndQuery + anchor;
+            return navigateUrl;
         }
 
         public static string EditUrl(string alias, string path, int moduleid, string action, string parameters)
         {
             if (moduleid != -1)
             {
-                path += $"/{moduleid}";
+                path += $"/{Constants.ModuleDelimiter}/{moduleid}";
                 if (!string.IsNullOrEmpty(action))
                 {
                     path += $"/{action}";
@@ -136,6 +182,7 @@ namespace Oqtane.Shared
                                 stringBuilder.Append(RemapInternationalCharToAscii(c));
                             prevdash = false;
                             break;
+
                         case UnicodeCategory.SpaceSeparator:
                         case UnicodeCategory.ConnectorPunctuation:
                         case UnicodeCategory.DashPunctuation:
@@ -250,7 +297,7 @@ namespace Oqtane.Shared
 
         public static string PathCombine(params string[] segments)
         {
-            var separators = new char[] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar};
+            var separators = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
 
             for (int i = 1; i < segments.Length; i++)
             {
@@ -284,7 +331,6 @@ namespace Oqtane.Shared
                     !Constants.ReservedDevices.Split(',').Contains(name.ToUpper().Split('.')[0]));
         }
 
-
         public static bool TryGetQueryValue(
             this Uri uri,
             string key,
@@ -304,7 +350,7 @@ namespace Oqtane.Shared
         {
             value = defaultValue;
             string s;
-            return uri.TryGetQueryValue(key, out s, (string) null) && int.TryParse(s, out value);
+            return uri.TryGetQueryValue(key, out s, (string)null) && int.TryParse(s, out value);
         }
 
         public static Dictionary<string, string> ParseQueryString(string query)
@@ -314,7 +360,7 @@ namespace Oqtane.Shared
             {
                 query = query.Substring(1);
                 string str = query;
-                char[] separator = new char[1] {'&'};
+                char[] separator = new char[1] { '&' };
                 foreach (string key in str.Split(separator, StringSplitOptions.RemoveEmptyEntries))
                 {
                     if (key != "")
