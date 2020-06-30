@@ -209,7 +209,15 @@
                 {
                     modIdPos = i + 1;
                     actionPos = modIdPos + 1;
-                    action = segments[actionPos];
+                    if (actionPos > segments.Length - 1)
+                    {
+                        action = Constants.DefaultAction;
+                    }
+                    else
+                    {
+                        action = segments[actionPos];
+
+                    }
                 }
 
             }
@@ -219,7 +227,14 @@
             {
                 int.TryParse(segments[modIdPos], out result);
                 moduleid = result;
-                path = path.Replace("/" + segments[modIdPos - 1] + "/" + segments[modIdPos] + "/" + segments[actionPos], "");
+                if (actionPos > segments.Length - 1)
+                {
+                    path = path.Replace("/" + segments[modIdPos - 1] + "/" + segments[modIdPos], "");
+                }
+                else
+                {
+                    path = path.Replace("/" + segments[modIdPos - 1] + "/" + segments[modIdPos] + "/" + segments[actionPos], "");
+                }
 
             }
 
