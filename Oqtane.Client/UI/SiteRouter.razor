@@ -76,7 +76,8 @@
         User user = null;
         List<Module> modules;
         var moduleid = -1;
-        var action = "";
+        var action = string.Empty;
+        var urlparameters = string.Empty;
         var editmode = false;
         var reload = Reload.None;
         var lastsyncdate = DateTime.UtcNow;
@@ -179,21 +180,60 @@
             // extract admin route elements from path
             var segments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             int result;
-            // check if path has moduleid and action specification ie. pagename/moduleid/action/
-            if (segments.Length >= 2 && int.TryParse(segments[segments.Length - 2], out result))
+
+            int modIdPos = 0;
+            int actionPos = 0;
+            int urlParametersPos = 0;
+
+            for (int i = 0; i < segments.Length; i++)
             {
-                action = segments[segments.Length - 1];
-                moduleid = result;
-                path = path.Replace(moduleid.ToString() + "/" + action + "/", "");
-            }
-            else
-            {
-                // check if path has moduleid specification ie. pagename/moduleid/
-                if (segments.Length >= 1 && int.TryParse(segments[segments.Length - 1], out result))
+
+                if (segments[i] == Constants.UrlParametersDelimiter)
                 {
-                    moduleid = result;
-                    path = path.Replace(moduleid.ToString() + "/", "");
+                    urlParametersPos = i + 1;
                 }
+
+                if (i >= urlParametersPos && urlParametersPos != 0)
+                {
+                    urlparameters += "/" + segments[i];
+                }
+
+                if (segments[i] == Constants.ModuleDelimiter)
+                {
+                    modIdPos = i + 1;
+                    actionPos = modIdPos + 1;
+                    if (actionPos > segments.Length - 1)
+                    {
+                        action = Constants.DefaultAction;
+                    }
+                    else
+                    {
+                        action = segments[actionPos];
+
+                    }
+                }
+
+            }
+
+            // check if path has moduleid and action specification ie. pagename/moduleid/action/
+            if (modIdPos > 0)
+            {
+                int.TryParse(segments[modIdPos], out result);
+                moduleid = result;
+                if (actionPos > segments.Length - 1)
+                {
+                    path = path.Replace("/" + segments[modIdPos - 1] + "/" + segments[modIdPos], "");
+                }
+                else
+                {
+                    path = path.Replace("/" + segments[modIdPos - 1] + "/" + segments[modIdPos] + "/" + segments[actionPos], "");
+                }
+
+            }
+
+            if (urlParametersPos > 0)
+            {
+                path = path.Replace("/" + segments[urlParametersPos - 1] + urlparameters, "");
             }
 
             // remove trailing slash so it can be used as a key for Pages
@@ -263,6 +303,7 @@
                         Modules = modules,
                         Uri = new Uri(_absoluteUri, UriKind.Absolute),
                         QueryString = querystring,
+                        UrlParameters = urlparameters,
                         ModuleId = moduleid,
                         Action = action,
                         EditMode = editmode,
