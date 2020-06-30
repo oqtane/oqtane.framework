@@ -78,7 +78,6 @@
         var moduleid = -1;
         var action = string.Empty;
         var urlparameters = string.Empty;
-        var anchor = string.Empty;
         var editmode = false;
         var reload = Reload.None;
         var lastsyncdate = DateTime.UtcNow;
@@ -88,12 +87,6 @@
 
         // get path
         var path = uri.LocalPath.Substring(1);
-
-        //set anchor
-        if (uri.Fragment.StartsWith('#'))
-        {
-            anchor = uri.Fragment.Remove(0, 1);
-        }
 
         // parse querystring
         var querystring = ParseQueryString(uri.Query);
@@ -190,17 +183,17 @@
 
             int modIdPos = 0;
             int actionPos = 0;
-            int ulrParametersPos = 0;
+            int urlParametersPos = 0;
 
             for (int i = 0; i < segments.Length; i++)
             {
 
                 if (segments[i] == Constants.UrlParametersDelimiter)
                 {
-                    ulrParametersPos = i + 1;
+                    urlParametersPos = i + 1;
                 }
 
-                if (i >= ulrParametersPos && ulrParametersPos != 0)
+                if (i >= urlParametersPos && urlParametersPos != 0)
                 {
                     urlparameters += "/" + segments[i];
                 }
@@ -238,9 +231,9 @@
 
             }
 
-            if (ulrParametersPos > 0)
+            if (urlParametersPos > 0)
             {
-                path = path.Replace("/" + segments[ulrParametersPos - 1] + urlparameters, "");
+                path = path.Replace("/" + segments[urlParametersPos - 1] + urlparameters, "");
             }
 
             // remove trailing slash so it can be used as a key for Pages
@@ -311,7 +304,6 @@
                         Uri = new Uri(_absoluteUri, UriKind.Absolute),
                         QueryString = querystring,
                         UrlParameters = urlparameters,
-                        Anchor = anchor,
                         ModuleId = moduleid,
                         Action = action,
                         EditMode = editmode,

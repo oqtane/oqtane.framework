@@ -76,8 +76,8 @@ namespace Oqtane.Shared
                     : $"{path}",
                 Query = querystring,
             };
-
-            var navigateUrl = uriBuilder.Uri.PathAndQuery + "#" + anchor;
+            anchor = string.IsNullOrEmpty(anchor) ? "" : "#" + anchor;
+            var navigateUrl = uriBuilder.Uri.PathAndQuery + anchor;
             return navigateUrl;
         }
 
