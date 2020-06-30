@@ -222,18 +222,18 @@
                 moduleid = result;
                 if (actionPos > segments.Length - 1)
                 {
-                    path = path.Replace("/" + segments[modIdPos - 1] + "/" + segments[modIdPos], "");
+                    path = path.Replace(segments[modIdPos - 1] + "/" + segments[modIdPos] + "/", "");
                 }
                 else
                 {
-                    path = path.Replace("/" + segments[modIdPos - 1] + "/" + segments[modIdPos] + "/" + segments[actionPos], "");
+                    path = path.Replace(segments[modIdPos - 1] + "/" + segments[modIdPos] + "/" + segments[actionPos] + "/", "");
                 }
 
             }
 
             if (urlParametersPos > 0)
             {
-                path = path.Replace("/" + segments[urlParametersPos - 1] + urlparameters, "");
+                path = path.Replace(segments[urlParametersPos - 1] + urlparameters + "/", "");
             }
 
             // remove trailing slash so it can be used as a key for Pages
