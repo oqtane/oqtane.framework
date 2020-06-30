@@ -132,10 +132,10 @@ namespace Oqtane.Modules
                         if (templateSegments[i] == parameters[i])
                         {
                         }
-                        else if (templateSegments[i].StartsWith("[") && templateSegments[i].EndsWith("]"))
+                        else if (templateSegments[i].StartsWith("{") && templateSegments[i].EndsWith("}"))
                         {
-                            var key = templateSegments[i].Replace("[", "");
-                            key = key.Replace("]", "");
+                            var key = templateSegments[i].Replace("{", "");
+                            key = key.Replace("}", "");
                             urlParameters.TryAdd(key, parameters[i]);
                         }
                         else
