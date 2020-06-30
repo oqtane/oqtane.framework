@@ -14,7 +14,8 @@ namespace Oqtane.UI
         public List<Module> Modules { get; set; }
         public Uri Uri { get; set; }
         public Dictionary<string, string> QueryString { get; set; }
-        public Dictionary<string, string> PageVariables { get; set; }
+        public string UrlParameters { get; set; }
+        public string Anchor { get; set; }
         public int ModuleId { get; set; }
         public string Action { get; set; }
         public bool EditMode { get; set; }

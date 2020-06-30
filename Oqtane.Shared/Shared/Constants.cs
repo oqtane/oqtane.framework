@@ -19,7 +19,8 @@ namespace Oqtane.Shared
         public const string ActionToken = "{Action}";
         public const string DefaultAction = "Index";
         public const string AdminPane = "Admin";
-        public const string ModuleSegment = "module";
+        public const string ModuleDelimiter = "*";
+        public const string UrlParametersDelimiter = "!";
 
         // Default Module Actions are reserved and should not be used by modules
         public static readonly string[] DefaultModuleActions = new[] { "Settings", "Import", "Export" };

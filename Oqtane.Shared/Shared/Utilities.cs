@@ -20,8 +20,53 @@ namespace Oqtane.Shared
             return $"{type.Namespace}, {assemblyName}";
         }
 
+        public static (string UrlParameters, string Querystring, string Anchor) ParseParameters(string parameters)
+        {
+            // /urlparameters /urlparameters?Id=1 /urlparameters#5 /urlparameters?Id=1#5 /urlparameters?reload#5
+
+            // Id=1 Id=1#5 reload#5 reload
+
+            // #5
+
+            var urlparameters = string.Empty;
+            var querystring = string.Empty;
+            var anchor = string.Empty;
+
+            if (parameters.Contains('#'))
+            {
+                anchor = parameters.Split('#').Last();
+                parameters = parameters.Replace("#" + anchor, "");
+            }
+
+            if (parameters.Contains('?'))
+            {
+                urlparameters = parameters.Split('?').First();
+                querystring = parameters.Replace(urlparameters + "?", "");
+            }
+            else if (parameters.Contains('/'))
+            {
+                urlparameters = parameters;
+            }
+            else
+            {
+                querystring = parameters;
+            }
+
+            return (urlparameters, querystring, anchor);
+        }
+
         public static string NavigateUrl(string alias, string path, string parameters)
         {
+            string urlparameters;
+            string querystring;
+            string anchor;
+            (urlparameters, querystring, anchor) = ParseParameters(parameters);
+
+            if (!string.IsNullOrEmpty(urlparameters))
+            {
+                if (urlparameters.StartsWith("/")) urlparameters = urlparameters.Remove(0, 1);
+                path += $"/{Constants.UrlParametersDelimiter}/{urlparameters}";
+            }
             var uriBuilder = new UriBuilder
             {
                 Path = !string.IsNullOrEmpty(alias)
@@ -29,17 +74,18 @@ namespace Oqtane.Shared
                         ? $"{alias}/{path}"
                         : $"{alias}"
                     : $"{path}",
-                Query = parameters
+                Query = querystring,
             };
 
-            return uriBuilder.Uri.PathAndQuery;
+            var navigateUrl = uriBuilder.Uri.PathAndQuery + "#" + anchor;
+            return navigateUrl;
         }
 
         public static string EditUrl(string alias, string path, int moduleid, string action, string parameters)
         {
             if (moduleid != -1)
             {
-                path += $"/{Constants.ModuleSegment}/{moduleid}";
+                path += $"/{Constants.ModuleDelimiter}/{moduleid}";
                 if (!string.IsNullOrEmpty(action))
                 {
                     path += $"/{action}";
