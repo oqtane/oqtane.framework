@@ -122,7 +122,7 @@ namespace Oqtane.Modules
 
             var templateSegments = parameterTemplate.Split('/', StringSplitOptions.RemoveEmptyEntries);
             var parameters = PageState.UrlParameters.Split('/', StringSplitOptions.RemoveEmptyEntries);
-
+            var actionId = 1;
             if (parameters.Length == templateSegments.Length)
             {
                 for (int i = 0; i < parameters.Length; i++)
@@ -131,6 +131,8 @@ namespace Oqtane.Modules
                     {
                         if (templateSegments[i] == parameters[i])
                         {
+                            urlParameters.TryAdd("action" + actionId, parameters[i]);
+                            actionId += 1;
                         }
                         else if (templateSegments[i].StartsWith("{") && templateSegments[i].EndsWith("}"))
                         {
