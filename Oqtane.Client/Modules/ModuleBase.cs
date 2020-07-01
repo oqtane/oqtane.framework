@@ -44,26 +44,6 @@ namespace Oqtane.Modules
 
         public virtual List<Resource> Resources { get; set; }
 
-        public virtual string UrlParametersTemplate { get; set; } = "";
-        public virtual Dictionary<string, string> UrlParamerters
-        {
-            get
-            {
-                var urlparameters = new Dictionary<string, string>();
-
-                var templates = UrlParametersTemplate.Split(',', StringSplitOptions.RemoveEmptyEntries);
-                foreach (var template in templates)
-                {
-                    urlparameters = GetUrlParameters(template);
-
-                    if (urlparameters.Count > 0) goto Return;
-                }
-
-                Return:
-                return urlparameters;
-            }
-        }
-
         // base lifecycle method for handling JSInterop script registration
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -136,37 +116,51 @@ namespace Oqtane.Modules
             return Utilities.ContentUrl(PageState.Alias, fileid);
         }
 
-        public virtual Dictionary<string, string> GetUrlParameters(string parameterTemplate)
+        public virtual Dictionary<string, string> GetUrlParameters(string parametersTemplate = "")
         {
             var urlParameters = new Dictionary<string, string>();
-
-            var templateSegments = parameterTemplate.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            string[] templateSegments;
             var parameters = PageState.UrlParameters.Split('/', StringSplitOptions.RemoveEmptyEntries);
-            var actionId = 1;
-            if (parameters.Length == templateSegments.Length)
+            var parameterId = 0;
+
+            if (string.IsNullOrEmpty(parametersTemplate))
             {
                 for (int i = 0; i < parameters.Length; i++)
                 {
-                    if (parameters.Length > i)
+                    urlParameters.TryAdd("parameter" + i, parameters[i]);
+                }
+            }
+            else
+            {
+                templateSegments = parametersTemplate.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+                if (parameters.Length == templateSegments.Length)
+                {
+                    for (int i = 0; i < parameters.Length; i++)
                     {
-                        if (templateSegments[i] == parameters[i])
+                        if (parameters.Length > i)
                         {
-                            urlParameters.TryAdd("parameter" + actionId, parameters[i]);
-                            actionId += 1;
-                        }
-                        else if (templateSegments[i].StartsWith("{") && templateSegments[i].EndsWith("}"))
-                        {
-                            var key = templateSegments[i].Replace("{", "");
-                            key = key.Replace("}", "");
-                            urlParameters.TryAdd(key, parameters[i]);
-                        }
-                        else
-                        {
-                            i = parameters.Length;
+                            if (templateSegments[i] == parameters[i])
+                            {
+                                urlParameters.TryAdd("parameter" + parameterId, parameters[i]);
+                                parameterId++;
+                            }
+                            else if (templateSegments[i].StartsWith("{") && templateSegments[i].EndsWith("}"))
+                            {
+                                var key = templateSegments[i].Replace("{", "");
+                                key = key.Replace("}", "");
+                                urlParameters.TryAdd(key, parameters[i]);
+                            }
+                            else
+                            {
+                                i = parameters.Length;
+                                urlParameters.Clear();
+                            }
                         }
                     }
                 }
             }
+
             return urlParameters;
         }
 
