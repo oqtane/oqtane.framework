@@ -44,6 +44,26 @@ namespace Oqtane.Modules
 
         public virtual List<Resource> Resources { get; set; }
 
+        public virtual string UrlParametersTemplate { get; set; } = "";
+        public virtual Dictionary<string, string> UrlParamerters
+        {
+            get
+            {
+                var urlparameters = new Dictionary<string, string>();
+
+                var templates = UrlParametersTemplate.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                foreach (var template in templates)
+                {
+                    urlparameters = GetUrlParameters(template);
+
+                    if (urlparameters.Count > 0) goto Return;
+                }
+
+                Return:
+                return urlparameters;
+            }
+        }
+
         // base lifecycle method for handling JSInterop script registration
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -116,7 +136,7 @@ namespace Oqtane.Modules
             return Utilities.ContentUrl(PageState.Alias, fileid);
         }
 
-        public Dictionary<string, string> GetUrlParameters(string parameterTemplate)
+        public virtual Dictionary<string, string> GetUrlParameters(string parameterTemplate)
         {
             var urlParameters = new Dictionary<string, string>();
 
@@ -131,7 +151,7 @@ namespace Oqtane.Modules
                     {
                         if (templateSegments[i] == parameters[i])
                         {
-                            urlParameters.TryAdd("action" + actionId, parameters[i]);
+                            urlParameters.TryAdd("parameter" + actionId, parameters[i]);
                             actionId += 1;
                         }
                         else if (templateSegments[i].StartsWith("{") && templateSegments[i].EndsWith("}"))
