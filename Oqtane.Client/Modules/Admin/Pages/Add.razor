@@ -346,6 +346,12 @@
                     }
                 }
 
+                if (!PagePathIsUnique(page.Path, page.SiteId, _pageList))
+                {
+                    AddModuleMessage($"A page with path {_path} already exists for the selected parent page. The page path needs to be unique for the selected parent.", MessageType.Warning);
+                    return;
+                }
+
                 Page child;
                 switch (_insert)
                 {
@@ -407,4 +413,8 @@
         }
     }
 
+    private static bool PagePathIsUnique(string pagePath, int siteId, List<Page> existingPages)
+    {
+        return !existingPages.Any(page => page.SiteId == siteId && page.Path == pagePath);
+    }
 }
