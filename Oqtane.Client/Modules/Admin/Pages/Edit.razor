@@ -333,7 +333,7 @@
             _children = new List<Page>();
             if (_parentid == "-1")
             {
-                foreach(Page p in PageState.Pages.Where(item => item.ParentId == null))
+                foreach (Page p in PageState.Pages.Where(item => item.ParentId == null))
                 {
                     if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
                     {
@@ -433,6 +433,13 @@
                         page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(_path);
                     }
                 }
+
+                if (!PagePathIsUnique(page.Path, page.SiteId, page.PageId, _pageList))
+                {
+                    AddModuleMessage($"A page with path {_path} already exists for the selected parent page. The page path needs to be unique for the selected parent.", MessageType.Warning);
+                    return;
+                }
+
                 if (_insert != "=")
                 {
                     Page child;
@@ -511,5 +518,10 @@
             await logger.LogError(ex, "Error Saving Page {Page} {Error}", page, ex.Message);
             AddModuleMessage("Error Saving Page", MessageType.Error);
         }
+    }
+
+    private static bool PagePathIsUnique(string pagePath, int siteId, int pageId, List<Page> existingPages)
+    {
+        return !existingPages.Any(page => page.SiteId == siteId && page.Path == pagePath && page.PageId != pageId);
     }
 }
