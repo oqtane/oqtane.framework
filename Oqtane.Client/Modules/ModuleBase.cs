@@ -116,35 +116,51 @@ namespace Oqtane.Modules
             return Utilities.ContentUrl(PageState.Alias, fileid);
         }
 
-        public Dictionary<string, string> GetUrlParameters(string parameterTemplate)
+        public virtual Dictionary<string, string> GetUrlParameters(string parametersTemplate = "")
         {
             var urlParameters = new Dictionary<string, string>();
-
-            var templateSegments = parameterTemplate.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            string[] templateSegments;
             var parameters = PageState.UrlParameters.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            var parameterId = 0;
 
-            if (parameters.Length == templateSegments.Length)
+            if (string.IsNullOrEmpty(parametersTemplate))
             {
                 for (int i = 0; i < parameters.Length; i++)
                 {
-                    if (parameters.Length > i)
+                    urlParameters.TryAdd("parameter" + i, parameters[i]);
+                }
+            }
+            else
+            {
+                templateSegments = parametersTemplate.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+                if (parameters.Length == templateSegments.Length)
+                {
+                    for (int i = 0; i < parameters.Length; i++)
                     {
-                        if (templateSegments[i] == parameters[i])
+                        if (parameters.Length > i)
                         {
-                        }
-                        else if (templateSegments[i].StartsWith("{") && templateSegments[i].EndsWith("}"))
-                        {
-                            var key = templateSegments[i].Replace("{", "");
-                            key = key.Replace("}", "");
-                            urlParameters.TryAdd(key, parameters[i]);
-                        }
-                        else
-                        {
-                            i = parameters.Length;
+                            if (templateSegments[i] == parameters[i])
+                            {
+                                urlParameters.TryAdd("parameter" + parameterId, parameters[i]);
+                                parameterId++;
+                            }
+                            else if (templateSegments[i].StartsWith("{") && templateSegments[i].EndsWith("}"))
+                            {
+                                var key = templateSegments[i].Replace("{", "");
+                                key = key.Replace("}", "");
+                                urlParameters.TryAdd(key, parameters[i]);
+                            }
+                            else
+                            {
+                                i = parameters.Length;
+                                urlParameters.Clear();
+                            }
                         }
                     }
                 }
             }
+
             return urlParameters;
         }
 
