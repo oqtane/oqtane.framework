@@ -15,7 +15,18 @@
                 }
                 else
                 {
-                    <a class="dropdown-item" @onclick="(async () => await ModuleAction(action))">@action.Name</a>
+                    <a class="dropdown-item" @onclick="(async () => await ModuleAction(action))">
+                        @if (string.IsNullOrEmpty(action.Icon))
+                        {
+                            @((MarkupString) "&nbsp;&nbsp;");
+                        }
+                        else
+                        {
+                            <span class="oi oi-@action.Icon" aria-hidden="true"></span>
+                        }
+                        &nbsp;
+                        @action.Name
+                    </a>
                 }
             }
         </div>
