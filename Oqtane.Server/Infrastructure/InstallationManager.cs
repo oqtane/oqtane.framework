@@ -88,7 +88,7 @@ namespace Oqtane.Infrastructure
                             // deploy to appropriate locations
                             foreach (ZipArchiveEntry entry in archive.Entries)
                             {
-                                string foldername = Path.GetDirectoryName(entry.FullName).Split('\\')[0];
+                                string foldername = Path.GetDirectoryName(entry.FullName).Split(Path.DirectorySeparatorChar)[0];
                                 string filename = Path.GetFileName(entry.FullName);
 
                                 switch (foldername)
@@ -98,7 +98,7 @@ namespace Oqtane.Infrastructure
                                         ExtractFile(entry, filename);
                                         break;
                                     case "wwwroot":
-                                        filename = Path.Combine(webRootPath, Utilities.PathCombine(entry.FullName.Replace("wwwroot/", "").Split('/')));
+                                        filename = Path.Combine(webRootPath, Utilities.PathCombine(entry.FullName.Replace($"wwwroot{Path.DirectorySeparatorChar}", "").Split(Path.DirectorySeparatorChar)));
                                         ExtractFile(entry, filename);
                                         break;
                                 }
