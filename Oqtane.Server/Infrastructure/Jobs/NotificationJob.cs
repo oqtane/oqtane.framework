@@ -38,10 +38,8 @@ namespace Oqtane.Infrastructure
                 List<Site> sites = siteRepository.GetSites().ToList();
                 foreach (Site site in sites)
                 {
-                    List<Notification> notifications = notificationRepository.GetNotifications(site.SiteId, -1, -1).ToList();
-                    if (!notifications.Any()) continue; //Nothing to do.
-                    
                     log += "Processing Notifications For Site: " + site.Name + "\n\n";
+
                     // get site settings
                     List<Setting> sitesettings = settingRepository.GetSettings(EntityNames.Site, site.SiteId).ToList();
                     Dictionary<string, string> settings = GetSettings(sitesettings);
@@ -63,6 +61,7 @@ namespace Oqtane.Infrastructure
 
                         // iterate through notifications
                         int sent = 0;
+                        List<Notification> notifications = notificationRepository.GetNotifications(site.SiteId, -1, -1).ToList();
                         foreach (Notification notification in notifications)
                         {
                             MailMessage mailMessage = new MailMessage();
