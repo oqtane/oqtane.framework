@@ -75,10 +75,18 @@
                 </tr>
                 <tr>
                     <td>
-                        <Label For="license" HelpText="The license of the module">License: </Label>
+                        <Label For="license" HelpText="The module license terms">License: </Label>
                     </td>
                     <td>
                         <textarea id="license" class="form-control" @bind="@_license" rows="5" disabled></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="runtimes" HelpText="The Blazor runtimes which this module supports">Runtimes: </Label>
+                    </td>
+                    <td>
+                        <input id="runtimes" class="form-control" @bind="@_runtimes" disabled />
                     </td>
                 </tr>
             </table>
@@ -110,6 +118,7 @@
     private string _url = "";
     private string _contact = "";
     private string _license = "";
+    private string _runtimes = "";
     private string _permissions;
     private string _createdby;
     private DateTime _createdon;
@@ -139,6 +148,7 @@
                 _url = moduleDefinition.Url;
                 _contact = moduleDefinition.Contact;
                 _license = moduleDefinition.License;
+                _runtimes = moduleDefinition.Runtimes;
                 _permissions = moduleDefinition.Permissions;
                 _createdby = moduleDefinition.CreatedBy;
                 _createdon = moduleDefinition.CreatedOn;

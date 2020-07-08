@@ -175,17 +175,6 @@
                     </tr>
                     <tr>
                         <td>
-                            <Label For="Default-Mode" HelpText="Select the default administration mode you want for this page">Default Mode? </Label>
-                        </td>
-                        <td>
-                            <select id="Default-Mode" class="form-control" @bind="@_mode">
-                                <option value="view">View Mode</option>
-                                <option value="edit">Edit Mode</option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
                             <Label For="Personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content">Personalizable? </Label>
                         </td>
                         <td>
@@ -235,7 +224,6 @@
     private string _isnavigation;
     private string _url;
     private string _ispersonalizable;
-    private string _mode;
     private string _themetype = "-";
     private string _layouttype = "-";
     private string _containertype = "-";
@@ -290,7 +278,6 @@
                 _isnavigation = page.IsNavigation.ToString();
                 _url = page.Url;
                 _ispersonalizable = page.IsPersonalizable.ToString();
-                _mode = (page.EditMode) ? "edit" : "view";
                 _themetype = page.ThemeType;
                 if (_themetype == PageState.Site.DefaultThemeType)
                 {
@@ -463,7 +450,6 @@
                 }
                 page.IsNavigation = (_isnavigation == null || Boolean.Parse(_isnavigation));
                 page.Url = _url;
-                page.EditMode = (_mode == "edit");
                 page.ThemeType = (_themetype != "-") ? _themetype : string.Empty;
                 if (!string.IsNullOrEmpty(page.ThemeType) && page.ThemeType == PageState.Site.DefaultThemeType)
                 {

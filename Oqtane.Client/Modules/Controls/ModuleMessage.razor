@@ -1,9 +1,16 @@
 ﻿@namespace Oqtane.Modules.Controls
 @inherits ModuleControlBase
+@inject NavigationManager NavigationManager
 
 @if (!string.IsNullOrEmpty(_message))
 {
-    <div class="@_classname" role="alert">@_message</div>
+    <div class="@_classname" role="alert">
+        @_message
+        @if (Type == MessageType.Error && UserSecurity.IsAuthorized(PageState.User, Constants.HostRole))
+        {
+            @((MarkupString)"&nbsp;&nbsp;")<NavLink href="@NavigateUrl("admin/log")">View Details</NavLink>
+        }
+    </div>
     <br />
 }
 

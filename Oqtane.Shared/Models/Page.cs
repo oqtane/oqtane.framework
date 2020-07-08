@@ -19,7 +19,6 @@ namespace Oqtane.Models
         public string DefaultContainerType { get; set; }
         public string Icon { get; set; }
         public bool IsNavigation { get; set; }
-        public bool EditMode { get; set; }
         public int? UserId { get; set; }
         public bool IsPersonalizable { get; set; }
 
@@ -41,5 +40,9 @@ namespace Oqtane.Models
         public int Level { get; set; }
         [NotMapped]
         public bool HasChildren { get; set; }
+
+        [Obsolete("This property is obsolete", false)]
+        [NotMapped]
+        public bool EditMode { get; set; }
     }
 }

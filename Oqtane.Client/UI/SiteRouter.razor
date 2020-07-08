@@ -260,17 +260,14 @@
             {
                 page = pages.Where(item => item.Path == path).FirstOrDefault();
                 reload = Reload.Page;
-                if (page != null)
-                {
-                    editmode = page.EditMode;
-                }
+                editmode = false;
             }
 
             if (page != null)
             {
                 if (PageState == null)
                 {
-                    editmode = page.EditMode;
+                    editmode = false;
                 }
 
                 // check if user is authorized to view page
@@ -401,6 +398,13 @@
 
             string panes = "";
             Type themetype = Type.GetType(page.ThemeType);
+            if (themetype == null)
+            {
+                // fallback
+                page.ThemeType = Constants.DefaultTheme;
+                page.LayoutType = Constants.DefaultLayout;
+                themetype = Type.GetType(Constants.DefaultTheme);
+            }
             if (themetype != null)
             {
                 var themeobject = Activator.CreateInstance(themetype) as IThemeControl;
@@ -442,7 +446,7 @@
             if (module.PageId == page.PageId || module.ModuleId == moduleid)
             {
                 var typename = string.Empty;
-                if (module.ModuleDefinition != null)
+                if (module.ModuleDefinition != null && (module.ModuleDefinition.Runtimes == "" || module.ModuleDefinition.Runtimes.Contains(GetRuntime().ToString())))
                 {
                     typename = module.ModuleDefinition.ControlTypeTemplate;
                 }

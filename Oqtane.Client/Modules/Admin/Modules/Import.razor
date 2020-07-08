@@ -31,9 +31,15 @@
         {
             try
             {
-                await ModuleService.ImportModuleAsync(ModuleState.ModuleId, _content);
-                StateHasChanged();
-                NavigationManager.NavigateTo(NavigateUrl());
+                bool success = await ModuleService.ImportModuleAsync(ModuleState.ModuleId, _content);
+                if (success)
+                {
+                    AddModuleMessage("Content Imported Successfully", MessageType.Success);
+                }
+                else
+                {
+                    AddModuleMessage("A Problem Was Encountered Importing Content. Please Ensure The Content Is Formatted Correctly For The Module.", MessageType.Warning);
+                }
             }
             catch (Exception ex)
             {

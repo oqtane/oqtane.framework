@@ -42,7 +42,6 @@ namespace Oqtane.SiteTemplates
                 Icon = "home",
                 IsNavigation = true,
                 IsPersonalizable = false,
-                EditMode = false,
                 PagePermissions = new List<Permission> {
                     new Permission(PermissionNames.View, Constants.AllUsersRole, true),
                     new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -89,7 +88,6 @@ namespace Oqtane.SiteTemplates
                 Icon = "lock-locked",
                 IsNavigation = true,
                 IsPersonalizable = false,
-                EditMode = false,
                 PagePermissions = new List<Permission> {
                     new Permission(PermissionNames.View, Constants.RegisteredRole, true),
                     new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -114,7 +112,6 @@ namespace Oqtane.SiteTemplates
                 Icon = "target",
                 IsNavigation = true,
                 IsPersonalizable = true,
-                EditMode = false,
                 PagePermissions = new List<Permission> {
                     new Permission(PermissionNames.View, Constants.AllUsersRole, true),
                     new Permission(PermissionNames.View, Constants.AdminRole, true),

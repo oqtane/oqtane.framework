@@ -100,7 +100,7 @@
     private bool IsAuthorized()
     {
         var authorized = false;
-        if (PageState.EditMode || !_editmode)
+        if (PageState.EditMode || _editmode)
         {
             var security = SecurityAccessLevel.Host;
             if (Security == null)
