@@ -30,7 +30,6 @@ namespace Oqtane.SiteTemplates
                 Icon = "home",
                 IsNavigation = true,
                 IsPersonalizable = false,
-                EditMode = false,
                 PagePermissions = new List<Permission> {
                     new Permission(PermissionNames.View, Constants.AllUsersRole, true),
                     new Permission(PermissionNames.View, Constants.AdminRole, true),

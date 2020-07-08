@@ -18,32 +18,44 @@ namespace [Owner].[Module]s.Services
             _siteState = siteState;
         }
 
-         private string Apiurl=> CreateApiUrl(_siteState.Alias, "[Module]");
+         private string Apiurl => CreateApiUrl(_siteState.Alias, "[Module]");
 
         public async Task<List<[Module]>> Get[Module]sAsync(int ModuleId)
         {
-            List<[Module]> [Module]s = await GetJsonAsync<List<[Module]>>($"{Apiurl}?moduleid={ModuleId}");
+            List<[Module]> [Module]s = await GetJsonAsync<List<[Module]>>(CreateAuthPolicyUrl($"{Apiurl}?moduleid={ModuleId}", ModuleId));
             return [Module]s.OrderBy(item => item.Name).ToList();
         }
 
-        public async Task<[Module]> Get[Module]Async(int [Module]Id)
+        public async Task<[Module]> Get[Module]Async(int [Module]Id, int ModuleId)
         {
-            return await GetJsonAsync<[Module]>($"{Apiurl}/{[Module]Id}");
+            return await GetJsonAsync<[Module]>(CreateAuthPolicyUrl($"{Apiurl}/{[Module]Id}", ModuleId));
         }
 
         public async Task<[Module]> Add[Module]Async([Module] [Module])
         {
-            return await PostJsonAsync<[Module]>($"{Apiurl}?entityid={[Module].ModuleId}", [Module]);
+            return await PostJsonAsync<[Module]>(CreateAuthPolicyUrl($"{Apiurl}?entityid={[Module].ModuleId}", [Module].ModuleId), [Module]);
         }
 
         public async Task<[Module]> Update[Module]Async([Module] [Module])
         {
-            return await PutJsonAsync<[Module]>($"{Apiurl}/{[Module].[Module]Id}?entityid={[Module].ModuleId}", [Module]);
+            return await PutJsonAsync<[Module]>(CreateAuthPolicyUrl($"{Apiurl}/{[Module].[Module]Id}", [Module].ModuleId), [Module]);
         }
 
-        public async Task Delete[Module]Async(int [Module]Id)
+        public async Task Delete[Module]Async(int [Module]Id, int ModuleId)
         {
-            await DeleteAsync($"{Apiurl}/{[Module]Id}");
+            await DeleteAsync(CreateAuthPolicyUrl($"{Apiurl}/{[Module]Id}", ModuleId));
+        }
+
+        private string CreateAuthPolicyUrl(string Url, int ModuleId)
+        {
+            if (Url.Contains("?"))
+            {
+                return Url + "&entityid=" + ModuleId.ToString();
+            }
+            else
+            {
+                return Url + "?entityid=" + ModuleId.ToString();
+            }
         }
     }
 }

@@ -8,12 +8,12 @@ namespace [Owner].[Module]s.Services
     {
         Task<List<[Module]>> Get[Module]sAsync(int ModuleId);
 
-        Task<[Module]> Get[Module]Async(int [Module]Id);
+        Task<[Module]> Get[Module]Async(int [Module]Id, int ModuleId);
 
         Task<[Module]> Add[Module]Async([Module] [Module]);
 
         Task<[Module]> Update[Module]Async([Module] [Module]);
 
-        Task Delete[Module]Async(int [Module]Id);
+        Task Delete[Module]Async(int [Module]Id, int ModuleId);
     }
 }

@@ -125,7 +125,7 @@ namespace Oqtane.Controllers
                     _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, page.SiteId);
                     _logger.Log(LogLevel.Information, this, LogFunction.Create, "Page Added {Page}", page);
 
-                    if (!page.EditMode)
+                    if (!page.Path.StartsWith("admin/"))
                     {
                         var modules = _modules.GetModules(page.SiteId).Where(item => item.AllPages).ToList();
                         foreach (Module module in modules)
@@ -163,7 +163,6 @@ namespace Oqtane.Controllers
                 page.Order = 0;
                 page.IsNavigation = false;
                 page.Url = "";
-                page.EditMode = false;
                 page.ThemeType = parent.ThemeType;
                 page.LayoutType = parent.LayoutType;
                 page.DefaultContainerType = parent.DefaultContainerType;

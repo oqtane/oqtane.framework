@@ -95,7 +95,7 @@ else
     {
         try
         {
-            await [Module]Service.Delete[Module]Async([Module].[Module]Id);
+            await [Module]Service.Delete[Module]Async([Module].[Module]Id, ModuleState.ModuleId);
             await logger.LogInformation("[Module] Deleted {[Module]}", [Module]);
             _[Module]s = await [Module]Service.Get[Module]sAsync(ModuleState.ModuleId);
             StateHasChanged();

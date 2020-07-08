@@ -38,7 +38,7 @@ namespace Oqtane.Infrastructure
                 List<Site> sites = siteRepository.GetSites().ToList();
                 foreach (Site site in sites)
                 {
-                    log += "Processing Notifications For Site: " + site.Name + "\n\n";
+                    log += "Processing Notifications For Site: " + site.Name + "<br />";
 
                     // get site settings
                     List<Setting> sitesettings = settingRepository.GetSettings(EntityNames.Site, site.SiteId).ToList();
@@ -101,21 +101,20 @@ namespace Oqtane.Infrastructure
                             catch (Exception ex)
                             {
                                 // error
-                                log += ex.Message + "\n\n";
+                                log += ex.Message + "<br />";
                             }
                         }
-                        log += "Notifications Delivered: " + sent + "\n\n";
+                        log += "Notifications Delivered: " + sent + "<br />";
                     }
                     else
                     {
-                        log += "SMTP Not Configured" + "\n\n";
+                        log += "SMTP Not Configured" + "<br />";
                     }
                 }
             }
 
             return log;
         }
-
 
         private Dictionary<string, string> GetSettings(List<Setting> settings)
         {

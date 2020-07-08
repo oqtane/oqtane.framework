@@ -61,6 +61,11 @@ else
 <!-- The content above is for informational purposes only and can be safely removed -->
 
 @code {
+    public override List<Resource> Resources => new List<Resource>()
+    {
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" }
+    };
+
     List<[Module]> _[Module]s;
 
     protected override async Task OnInitializedAsync()
@@ -80,7 +85,7 @@ else
     {
         try
         {
-            await [Module]Service.Delete[Module]Async([Module].[Module]Id);
+            await [Module]Service.Delete[Module]Async([Module].[Module]Id, ModuleState.ModuleId);
             await logger.LogInformation("[Module] Deleted {[Module]}", [Module]);
             _[Module]s = await [Module]Service.Get[Module]sAsync(ModuleState.ModuleId);
             StateHasChanged();

@@ -50,7 +50,7 @@
             if (PageState.Action == "Edit")
             {
                 _id = Int32.Parse(PageState.QueryString["id"]);
-                [Module] [Module] = await [Module]Service.Get[Module]Async(_id);
+                [Module] [Module] = await [Module]Service.Get[Module]Async(_id, ModuleState.ModuleId);
                 if ([Module] != null)
                 {
                     _name = [Module].Name;
@@ -82,7 +82,7 @@
             }
             else
             {
-                [Module] [Module] = await [Module]Service.Get[Module]Async(_id);
+                [Module] [Module] = await [Module]Service.Get[Module]Async(_id, ModuleState.ModuleId);
                 [Module].Name = _name;
                 await [Module]Service.Update[Module]Async([Module]);
                 await logger.LogInformation("[Module] Updated {[Module]}", [Module]);

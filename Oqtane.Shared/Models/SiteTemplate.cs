@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Oqtane.Models
 {
@@ -16,9 +17,11 @@ namespace Oqtane.Models
         public string Icon { get; set; }
         public bool IsNavigation { get; set; }
         public bool IsPersonalizable { get; set; }
-        public bool EditMode { get; set; }
         public string PagePermissions { get; set; }
         public List<PageTemplateModule> PageTemplateModules { get; set; }
+
+        [Obsolete("This property is obsolete", false)]
+        public bool EditMode { get; set; }
     }
 
     public class PageTemplateModule

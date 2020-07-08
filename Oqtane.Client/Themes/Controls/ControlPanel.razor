@@ -127,7 +127,10 @@
                                     {
                                         if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Utilize, moduledefinition.Permissions))
                                         {
-                                            <option value="@moduledefinition.ModuleDefinitionName">@moduledefinition.Name</option>
+                                            if (moduledefinition.Runtimes == "" || moduledefinition.Runtimes.Contains(PageState.Runtime.ToString()))
+                                            {
+                                                <option value="@moduledefinition.ModuleDefinitionName">@moduledefinition.Name</option>
+                                            }
                                         }
                                     }
                                 </select>
@@ -196,26 +199,17 @@
 
 @if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions) || (PageState.Page.IsPersonalizable && PageState.User != null))
 {
-    @if (PageState.Page.EditMode)
+    if (PageState.EditMode)
     {
-        <button type="button" class="btn @ButtonClass active" aria-pressed="true" autocomplete="off">
+        <button type="button" class="btn @ButtonClass active" data-toggle="button" aria-pressed="true" autocomplete="off" @onclick="(async () => await ToggleEditMode(PageState.EditMode))">
             <span class="oi oi-pencil"></span>
         </button>
     }
     else
     {
-        if (PageState.EditMode)
-        {
-            <button type="button" class="btn @ButtonClass active" data-toggle="button" aria-pressed="true" autocomplete="off" @onclick="(async () => await ToggleEditMode(PageState.EditMode))">
-                <span class="oi oi-pencil"></span>
-            </button>
-        }
-        else
-        {
-            <button type="button" class="btn @ButtonClass" data-toggle="button" aria-pressed="false" autocomplete="off" @onclick="(async () => await ToggleEditMode(PageState.EditMode))">
-                <span class="oi oi-pencil"></span>
-            </button>
-        }
+        <button type="button" class="btn @ButtonClass" data-toggle="button" aria-pressed="false" autocomplete="off" @onclick="(async () => await ToggleEditMode(PageState.EditMode))">
+            <span class="oi oi-pencil"></span>
+        </button>
     }
 }
 
