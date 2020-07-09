@@ -7,17 +7,19 @@ Oqtane uses Blazor, an open source and cross-platform web UI framework for build
 
 Please note that this project is owned by the .NET Foundation and is governed by the **[.NET Foundation Contributor Covenant Code of Conduct](https://dotnetfoundation.org/code-of-conduct)**
 
-**To get started with Oqtane using the latest code:**
+# Getting Started
 
-   1.&nbsp;Install **[.NET Core 3.1 SDK (v3.1.300)](https://dotnet.microsoft.com/download/dotnet-core/thank-you/sdk-3.1.300-windows-x64-installer)**.
+**Using the latest code:**
+
+- Install **[.NET Core 3.1 SDK (v3.1.300)](https://dotnet.microsoft.com/download/dotnet-core/thank-you/sdk-3.1.300-windows-x64-installer)**.
    
-   2.&nbsp;Install the Preview edition of [Visual Studio 2019](https://visualstudio.microsoft.com/vs/preview/) (version 16.6 or higher) with the **ASP.NET and web development** workload enabled. Oqtane works with all editions of Visual Studio from Community to Enterprise. If you do not have a SQL Server installation available already and you wish to use LocalDB for development, you must also install the **.NET desktop development workload**.  
+- Install the Preview edition of [Visual Studio 2019](https://visualstudio.microsoft.com/vs/preview/) (version 16.6 or higher) with the **ASP.NET and web development** workload enabled. Oqtane works with all editions of Visual Studio from Community to Enterprise. If you do not have a SQL Server installation available already and you wish to use LocalDB for development, you must also install the **.NET desktop development workload**.  
 
-   3.&nbsp;Download or Clone the Oqtane source code to your local system. Open the **Oqtane.sln** solution file and Build the solution. 
+- Download or Clone the Oqtane source code to your local system. Open the **Oqtane.sln** solution file and Build the solution. 
 
-**To get started with Oqtane using an official release:**
+**Using an official release:**
 
-- A detailed set of instructions for installing an official release of Oqtane on IIS is located here: [Installing Oqtane on IIS](https://www.oqtane.org/Resources/Blog/PostId/542/installing-oqtane-on-iis)
+- A detailed set of instructions for installing Oqtane on IIS is located here: [Installing Oqtane on IIS](https://www.oqtane.org/Resources/Blog/PostId/542/installing-oqtane-on-iis)
 
 **Additional Instructions**
 
