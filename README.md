@@ -63,6 +63,8 @@ Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalke
 
 # Release Announcements
 
+[Oqtane 1.0.1](https://www.oqtane.org/Resources/Blog/PostId/541/oqtane-builds-momentum-with-101-release)
+
 [Oqtane 1.0](https://www.oqtane.org/Resources/Blog/PostId/540/announcing-oqtane-10-a-modular-application-framework-for-blazor)
 
 [Oqtane POC](https://www.oqtane.org/Resources/Blog/PostId/520/announcing-oqtane-a-modular-application-framework-for-blazor)
