@@ -123,7 +123,7 @@ namespace Oqtane.Repository
                     ModuleDefinition moduledefinition = moduledefinitions.Where(item => item.ModuleDefinitionName == module.ModuleDefinitionName).FirstOrDefault();
                     if (moduledefinition != null)
                     {
-                        ModuleContent modulecontent = JsonSerializer.Deserialize<ModuleContent>(content);
+                        ModuleContent modulecontent = JsonSerializer.Deserialize<ModuleContent>(content.Replace("\n", ""));
                         if (modulecontent.ModuleDefinitionName == moduledefinition.ModuleDefinitionName)
                         {
                             if (moduledefinition.ServerManagerType != "")
@@ -147,9 +147,10 @@ namespace Oqtane.Repository
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 // error occurred during import
+                string error = ex.Message;
             }
 
             return success;
