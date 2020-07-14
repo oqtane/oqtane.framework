@@ -33,7 +33,7 @@ namespace [Owner].[Module]s.Services
 
         public async Task<[Module]> Add[Module]Async([Module] [Module])
         {
-            return await PostJsonAsync<[Module]>(CreateAuthPolicyUrl($"{Apiurl}?moduleid={[Module].ModuleId}", [Module].ModuleId), [Module]);
+            return await PostJsonAsync<[Module]>(CreateAuthPolicyUrl($"{Apiurl}", [Module].ModuleId), [Module]);
         }
 
         public async Task<[Module]> Update[Module]Async([Module] [Module])
