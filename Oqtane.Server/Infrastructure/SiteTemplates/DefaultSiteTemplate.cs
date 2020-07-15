@@ -134,7 +134,7 @@ namespace Oqtane.SiteTemplates
 
             if (System.IO.File.Exists(Path.Combine(_environment.WebRootPath, "images", "logo-white.png")))
             {
-                string folderpath = Utilities.PathCombine(_environment.ContentRootPath, "Content", "Tenants", site.TenantId.ToString(), "Sites", site.SiteId.ToString(),"\\");
+                string folderpath = Utilities.PathCombine(_environment.ContentRootPath, "Content", "Tenants", site.TenantId.ToString(), "Sites", site.SiteId.ToString(), Path.DirectorySeparatorChar.ToString());
                 System.IO.Directory.CreateDirectory(folderpath);
                 if (!System.IO.File.Exists(Path.Combine(folderpath, "logo-white.png")))
                 {

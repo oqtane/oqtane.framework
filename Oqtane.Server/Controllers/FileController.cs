@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -483,7 +483,7 @@ namespace Oqtane.Controllers
                 string[] folders = folderpath.Split(separators, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string folder in folders)
                 {
-                    path = Utilities.PathCombine(path, folder, "\\");
+                    path = Utilities.PathCombine(path, folder, Path.DirectorySeparatorChar.ToString());
                     if (!Directory.Exists(path))
                     {
                         Directory.CreateDirectory(path);
