@@ -9,6 +9,7 @@ using System.Linq;
 using System.Security.Claims;
 using Oqtane.Shared;
 using System;
+using System.IO;
 using System.Net;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
@@ -174,7 +175,7 @@ namespace Oqtane.Controllers
                         }
 
                         // add folder for user
-                        Folder folder = _folders.GetFolder(user.SiteId, Utilities.PathCombine("Users","\\"));
+                        Folder folder = _folders.GetFolder(user.SiteId, Utilities.PathCombine("Users",Path.DirectorySeparatorChar.ToString()));
                         if (folder != null)
                         {
                             _folders.AddFolder(new Folder
@@ -182,7 +183,7 @@ namespace Oqtane.Controllers
                                 SiteId = folder.SiteId,
                                 ParentId = folder.FolderId,
                                 Name = "My Folder",
-                                Path = Utilities.PathCombine(folder.Path, newUser.UserId.ToString(),"\\"),
+                                Path = Utilities.PathCombine(folder.Path, newUser.UserId.ToString(),Path.DirectorySeparatorChar.ToString()),
                                 Order = 1,
                                 IsSystem = true,
                                 Permissions = "[{\"PermissionName\":\"Browse\",\"Permissions\":\"[" + newUser.UserId.ToString() + "]\"},{\"PermissionName\":\"View\",\"Permissions\":\"All Users\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"[" +

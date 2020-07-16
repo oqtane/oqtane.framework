@@ -461,7 +461,7 @@ namespace Oqtane.Infrastructure
                                 userroles.AddUserRole(userRole);
 
                                 // add user folder
-                                var folder = folders.GetFolder(user.SiteId, Utilities.PathCombine("Users", "\\"));
+                                var folder = folders.GetFolder(user.SiteId, Utilities.PathCombine("Users", Path.DirectorySeparatorChar.ToString()));
                                 if (folder != null)
                                 {
                                     folders.AddFolder(new Folder
@@ -469,7 +469,7 @@ namespace Oqtane.Infrastructure
                                         SiteId = folder.SiteId,
                                         ParentId = folder.FolderId,
                                         Name = "My Folder",
-                                        Path = Utilities.PathCombine(folder.Path, user.UserId.ToString(), "\\"),
+                                        Path = Utilities.PathCombine(folder.Path, user.UserId.ToString(), Path.DirectorySeparatorChar.ToString()),
                                         Order = 1,
                                         IsSystem = true,
                                         Permissions = new List<Permission>
