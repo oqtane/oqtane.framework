@@ -10,7 +10,7 @@ using [Owner].[Module]s.Repository;
 
 namespace [Owner].[Module]s.Controllers
 {
-    [Route("{site}/api/[controller]")]
+    [Route("{alias}/api/[controller]")]
     public class [Module]Controller : Controller
     {
         private readonly I[Module]Repository _[Module]s;

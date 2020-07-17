@@ -20,7 +20,7 @@
     private string _parameters = string.Empty;
     private string _classname = "btn btn-primary";
     private string _style = string.Empty;
-    private bool _editmode = true;
+    private bool _editmode = false;
     private bool _authorized = false;
     private string _iconSpan = string.Empty;
 
@@ -46,7 +46,7 @@
     public bool Disabled { get; set; } // optional
 
     [Parameter]
-    public string EditMode { get; set; } // optional - specifies if a user must be in edit mode to see the action - default is true
+    public string EditMode { get; set; } // optional - specifies if an authorized user must be in edit mode to see the action - default is false.
 
     [Parameter]
     public string IconName { get; set; } // optional - specifies an icon for the link - default is no icon
@@ -100,7 +100,7 @@
     private bool IsAuthorized()
     {
         var authorized = false;
-        if (PageState.EditMode || _editmode)
+        if (PageState.EditMode || !_editmode)
         {
             var security = SecurityAccessLevel.Host;
             if (Security == null)
