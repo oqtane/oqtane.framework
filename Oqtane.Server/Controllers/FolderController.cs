@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Oqtane.Models;
@@ -112,7 +113,7 @@ namespace Oqtane.Controllers
                             Folder parent = _folders.GetFolder(folder.ParentId.Value);
                             folder.Path = Utilities.PathCombine(parent.Path, folder.Name);
                         }
-                        folder.Path = Utilities.PathCombine(folder.Path, "\\");
+                        folder.Path = Utilities.PathCombine(folder.Path, Path.DirectorySeparatorChar.ToString());
                         folder = _folders.AddFolder(folder);
                         _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Added {Folder}", folder);
                     }
@@ -147,7 +148,7 @@ namespace Oqtane.Controllers
                         Folder parent = _folders.GetFolder(folder.ParentId.Value);
                         folder.Path = Utilities.PathCombine(parent.Path, folder.Name);
                     }
-                    folder.Path = Utilities.PathCombine(folder.Path, "\\");
+                    folder.Path = Utilities.PathCombine(folder.Path, Path.DirectorySeparatorChar.ToString());
                     folder = _folders.UpdateFolder(folder);
                     _logger.Log(LogLevel.Information, this, LogFunction.Update, "Folder Updated {Folder}", folder);
                 }
