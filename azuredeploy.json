@@ -172,7 +172,7 @@
             "[resourceId('Microsoft.Web/Sites/config', parameters('BlazorWebsiteName'), 'connectionstrings')]"
           ],
           "properties": {
-            "RepoUrl": "https://github.com/ADefWebserver/oqtane.framework.git",
+            "RepoUrl": "https://github.com/oqtane/oqtane.framework.git",
             "branch": "master",
             "IsManualIntegration": true
           }
