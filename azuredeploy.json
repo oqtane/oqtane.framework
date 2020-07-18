@@ -173,7 +173,7 @@
           ],
           "properties": {
             "RepoUrl": "https://github.com/ADefWebserver/oqtane.framework.git",
-            "branch": "main",
+            "branch": "master",
             "IsManualIntegration": true
           }
         },
