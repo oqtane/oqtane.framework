@@ -1,2 +1,2 @@
 [config]
-project = WebProject/Oqtane.sln
+project = Oqtane.Server/Oqtane.Server.csproj
