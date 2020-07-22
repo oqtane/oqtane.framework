@@ -19,7 +19,7 @@
     {
         _moduleState = Module; // passed in from Pane component
         string container = _moduleState.ContainerType;
-        if (PageState.ModuleId != -1 && PageState.Action != "" && _moduleState.UseAdminContainer)
+        if (PageState.ModuleId != -1 && _moduleState.UseAdminContainer)
         {
             container = Constants.DefaultAdminContainer;
         }

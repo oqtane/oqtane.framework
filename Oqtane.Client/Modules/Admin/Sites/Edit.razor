@@ -6,7 +6,7 @@
 @inject IAliasService AliasService
 @inject IThemeService  ThemeService
 
-@if (_themes != null)
+@if (_initialized)
 {
     <table class="table table-borderless">
         <tr>
@@ -106,6 +106,7 @@
 }
 
 @code {
+    private bool _initialized = false;
     private List<Theme> _themeList;
     private List<ThemeControl> _themes = new List<ThemeControl>();
     private List<ThemeControl> _layouts = new List<ThemeControl>();
@@ -163,6 +164,8 @@
                 _deletedby = site.DeletedBy;
                 _deletedon = site.DeletedOn;
                 _isdeleted = site.IsDeleted.ToString();
+
+                _initialized = true;
             }
         }
         catch (Exception ex)
