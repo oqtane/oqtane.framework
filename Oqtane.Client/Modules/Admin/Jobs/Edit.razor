@@ -63,10 +63,18 @@
     </tr>
     <tr>
         <td>
-            <Label For="retention-log" HelpText="What items do you want in the retention log">Retention Log (Items): </Label>
+            <Label For="retention" HelpText="Number of log entries to retain for this job">Retention Log (Items): </Label>
         </td>
         <td>
-            <input id="retention-log" class="form-control" @bind="@_retentionHistory" />
+            <input id="retention" class="form-control" @bind="@_retentionHistory" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="next" HelpText="Next execution for this job.">Next Execution: </Label>
+        </td>
+        <td>
+            <input id="next" class="form-control" @bind="@_nextExecution" />
         </td>
     </tr>
 </table>
@@ -83,6 +91,7 @@
     private string _startDate = string.Empty;
     private string _endDate = string.Empty;
     private string _retentionHistory = string.Empty;
+    private string _nextExecution = string.Empty;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
@@ -102,6 +111,7 @@
                 _startDate = (job.StartDate != null) ? job.StartDate.ToString() : string.Empty;
                 _endDate = (job.EndDate != null) ? job.EndDate.ToString() : string.Empty;
                 _retentionHistory = job.RetentionHistory.ToString();
+                _nextExecution = job.NextExecution.ToString();
             }
         }
         catch (Exception ex)
@@ -140,6 +150,15 @@
                 job.EndDate = DateTime.Parse(_endDate);
             }
 
+            if (_nextExecution == string.Empty)
+            {
+                job.NextExecution = null;
+            }
+            else
+            {
+                job.NextExecution = DateTime.Parse(_nextExecution);
+            }
+            
             job.RetentionHistory = int.Parse(_retentionHistory);
 
             try
