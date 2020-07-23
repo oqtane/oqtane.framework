@@ -1,13 +1,13 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using Microsoft.Extensions.Hosting;
-using Microsoft.AspNetCore.Hosting;
+using System.Reflection;
 using System.Xml;
-using Oqtane.Shared;
-using System;
-using System.Diagnostics;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Hosting;
+using Oqtane.Shared;
 
 namespace Oqtane.Infrastructure
 {
@@ -27,7 +27,7 @@ namespace Oqtane.Infrastructure
         public void InstallPackages(string folders, bool restart)
         {
             var webRootPath = _environment.WebRootPath;
-            
+
             var install = InstallPackages(folders, webRootPath);
 
             if (install && restart)
@@ -101,6 +101,11 @@ namespace Oqtane.Infrastructure
                                         filename = Path.Combine(webRootPath, Utilities.PathCombine(entry.FullName.Replace($"wwwroot{Path.DirectorySeparatorChar}", "").Split(Path.DirectorySeparatorChar)));
                                         ExtractFile(entry, filename);
                                         break;
+                                    case "runtimes":
+                                        var destSubFolder = Path.GetDirectoryName(entry.FullName);
+                                        filename = Path.Combine(binFolder, destSubFolder, filename);
+                                        ExtractFile(entry, filename);
+                                        break;
                                 }
                             }
                         }
@@ -121,9 +126,24 @@ namespace Oqtane.Infrastructure
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(filename));
             }
-            entry.ExtractToFile(filename, true);
+            if (FileInUse(filename) == false)
+                entry.ExtractToFile(filename, true);
         }
-
+        private static bool FileInUse(string path)
+        {
+            try
+            {
+                using (FileStream fs = new FileStream(path, FileMode.OpenOrCreate))
+                {
+                    var flag = fs.CanWrite;
+                }
+                return false;
+            }
+            catch (IOException ex)
+            {
+                return true;
+            }
+        }
         public void UpgradeFramework()
         {
             string folder = Path.Combine(_environment.WebRootPath, "Framework");
@@ -131,7 +151,7 @@ namespace Oqtane.Infrastructure
             {
                 // get package with highest version and clean up any others
                 string packagename = "";
-                foreach(string package in Directory.GetFiles(folder, "Oqtane.Framework.*.nupkg"))
+                foreach (string package in Directory.GetFiles(folder, "Oqtane.Framework.*.nupkg"))
                 {
                     if (packagename != "")
                     {
