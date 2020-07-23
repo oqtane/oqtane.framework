@@ -79,7 +79,7 @@
         {
             ShowProgressIndicator();
             var interop = new Interop(JSRuntime);
-            await interop.RedirectBrowser(NavigateUrl(), 3);
+            await interop.RedirectBrowser(NavigateUrl(), 10);
             await ModuleDefinitionService.InstallModuleDefinitionsAsync();
         }
         catch (Exception ex)
