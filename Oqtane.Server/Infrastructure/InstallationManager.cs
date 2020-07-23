@@ -98,7 +98,7 @@ namespace Oqtane.Infrastructure
                                         ExtractFile(entry, filename);
                                         break;
                                     case "wwwroot":
-                                        filename = Path.Combine(webRootPath, Utilities.PathCombine(entry.FullName.Replace($"wwwroot{Path.DirectorySeparatorChar}", "").Split(Path.DirectorySeparatorChar)));
+                                        filename = Path.Combine(webRootPath, Utilities.PathCombine(entry.FullName.Replace($"wwwroot/", "").Split('/')));
                                         ExtractFile(entry, filename);
                                         break;
                                     case "runtimes":
