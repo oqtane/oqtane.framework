@@ -87,7 +87,7 @@ else
             await logger.LogInformation("Theme Downloaded {ThemeName} {Version}", themename, version);
             ShowProgressIndicator();
             var interop = new Interop(JSRuntime);
-            await interop.RedirectBrowser(NavigateUrl(), 3);
+            await interop.RedirectBrowser(NavigateUrl(), 10);
             await ThemeService.InstallThemesAsync();
         }
         catch (Exception ex)
@@ -103,7 +103,7 @@ else
         {
             ShowProgressIndicator();
             var interop = new Interop(JSRuntime);
-            await interop.RedirectBrowser(NavigateUrl(), 3);
+            await interop.RedirectBrowser(NavigateUrl(), 10);
             await ThemeService.DeleteThemeAsync(Theme.ThemeName);
         }
         catch (Exception ex)
