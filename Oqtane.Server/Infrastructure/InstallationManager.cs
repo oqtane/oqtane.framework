@@ -126,8 +126,10 @@ namespace Oqtane.Infrastructure
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(filename));
             }
-            if (FileInUse(filename) == false)
+            if (!FileInUse(filename) == false)
+            {
                 entry.ExtractToFile(filename, true);
+            }
         }
         private static bool FileInUse(string path)
         {
@@ -139,11 +141,12 @@ namespace Oqtane.Infrastructure
                 }
                 return false;
             }
-            catch (IOException ex)
+            catch
             {
                 return true;
             }
         }
+
         public void UpgradeFramework()
         {
             string folder = Path.Combine(_environment.WebRootPath, "Framework");
