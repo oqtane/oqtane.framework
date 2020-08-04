@@ -186,6 +186,7 @@ namespace Oqtane.Infrastructure
                                     packageversion = node.InnerText;
                                 }
                                 reader.Close();
+                                break;
                             }
                         }
                     }
@@ -202,28 +203,26 @@ namespace Oqtane.Infrastructure
         private void FinishUpgrade()
         {
             // check if upgrade application exists
+            string Upgrader = "Oqtane.Upgrade.dll";
             string folder = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
-            if (folder == null || !File.Exists(Path.Combine(folder, "Oqtane.Upgrade.exe"))) return;
+            if (folder == null || !File.Exists(Path.Combine(folder, Upgrader))) return;
 
             // run upgrade application
-            var process = new Process
+            using (var process = new Process())
             {
-                StartInfo =
+                process.StartInfo = new ProcessStartInfo
                 {
-                    FileName = Path.Combine(folder, "Oqtane.Upgrade.exe"),
-                    Arguments = "\"" + _environment.ContentRootPath + "\" \"" + _environment.WebRootPath + "\"",
-                    ErrorDialog = false,
+                    WorkingDirectory = folder,
+                    FileName = "dotnet",
+                    Arguments = Path.Combine(folder, Upgrader) + " \"" + _environment.ContentRootPath + "\" \"" + _environment.WebRootPath + "\"",
                     UseShellExecute = false,
+                    ErrorDialog = false,
                     CreateNoWindow = true,
                     RedirectStandardOutput = false,
                     RedirectStandardError = false
-                }
+                };
+                process.Start();
             };
-            process.Start();
-            process.Dispose();
-
-            // stop application so upgrade application can proceed
-            RestartApplication();
         }
 
         public void RestartApplication()
