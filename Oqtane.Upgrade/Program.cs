@@ -58,7 +58,7 @@ namespace Oqtane.Upgrade
                                             files.Add(Path.Combine(binfolder, filename));
                                             break;
                                         case "wwwroot":
-                                            files.Add(Path.Combine(webrootfolder, entry.FullName.Replace("wwwroot/", "").Replace("/", Path.DirectorySeparatorChar.ToString())));
+                                            files.Add(Path.Combine(webrootfolder.Replace(Path.DirectorySeparatorChar + "wwwroot", ""), entry.FullName.Replace('/', Path.DirectorySeparatorChar)));
                                             break;
                                     }
                                 }
@@ -102,21 +102,26 @@ namespace Oqtane.Upgrade
                                                         filename = Path.Combine(binfolder, filename);
                                                         break;
                                                     case "wwwroot":
-                                                        filename = Path.Combine(webrootfolder, entry.FullName.Replace("wwwroot/", "").Replace("/", Path.DirectorySeparatorChar.ToString()));
+                                                        filename = Path.Combine(webrootfolder.Replace(Path.DirectorySeparatorChar + "wwwroot", ""), entry.FullName.Replace('/', Path.DirectorySeparatorChar));
                                                         break;
                                                 }
                                                 if (files.Contains(filename))
                                                 {
+                                                    if (!Directory.Exists(Path.GetDirectoryName(filename)))
+                                                    {
+                                                        Directory.CreateDirectory(Path.GetDirectoryName(filename));
+                                                    }
                                                     entry.ExtractToFile(filename, true);
                                                 }
                                             }
                                         }
                                     }
                                 }
-                                catch
+                                catch (Exception ex)
                                 {
                                     // an error occurred extracting a file
                                     success = false;
+                                    Console.WriteLine("Update Not Successful: Error Extracting Files From Package - " + ex.Message);
                                 }
 
                                 if (success)
@@ -135,8 +140,6 @@ namespace Oqtane.Upgrade
                                 }
                                 else
                                 {
-                                    Console.WriteLine("Update Not Successful: Error Extracting Files From Package");
-
                                     // restore on failure
                                     foreach (string file in files)
                                     {
