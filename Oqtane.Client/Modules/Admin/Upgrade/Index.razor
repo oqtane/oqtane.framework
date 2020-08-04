@@ -12,7 +12,7 @@
             @if (_upgradeavailable)
             {
                 <ModuleMessage Type="MessageType.Info" Message="Select The Upgrade Button To Install a New Framework Version"></ModuleMessage>
-                @("Framework") @_package.Version <button type="button" class="btn btn-success" @onclick=@(async () => await Download(Constants.PackageId, Constants.Version))>Upgrade</button>
+                <button type="button" class="btn btn-success" @onclick=@(async () => await Download(Constants.PackageId, @_package.Version))>Upgrade To @_package.Version</button>
             }
             else
             {
