@@ -181,8 +181,8 @@ namespace Oqtane.Infrastructure
                         }
                     }
 
-                    // ensure package version is higher than current framework version
-                    if (packageversion != "" && Version.Parse(Constants.Version).CompareTo(Version.Parse(packageversion)) < 0)
+                    // ensure package version is greater than or equal to current framework version
+                    if (packageversion != "" && Version.Parse(Constants.Version).CompareTo(Version.Parse(packageversion)) <= 0)
                     {
                         FinishUpgrade();
                     }
