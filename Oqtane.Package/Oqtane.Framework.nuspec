@@ -17,12 +17,7 @@
     <summary>A modular application framework for Blazor</summary>
   </metadata>
   <files>
-    <file src="..\Oqtane.Client\bin\Release\netstandard2.1\Oqtane.Client.dll" target="lib\netcoreapp3.1" /> 
-    <file src="..\Oqtane.Client\bin\Release\netstandard2.1\Oqtane.Client.pdb" target="lib\netcoreapp3.1" /> 
-    <file src="..\Oqtane.Server\bin\Release\netcoreapp3.1\Oqtane.Server.dll" target="lib\netcoreapp3.1" /> 
-    <file src="..\Oqtane.Server\bin\Release\netcoreapp3.1\Oqtane.Server.pdb" target="lib\netcoreapp3.1" /> 
-    <file src="..\Oqtane.Shared\bin\Release\netstandard2.1\Oqtane.Shared.dll" target="lib\netcoreapp3.1" /> 
-    <file src="..\Oqtane.Shared\bin\Release\netstandard2.1\Oqtane.Shared.pdb" target="lib\netcoreapp3.1" /> 
-    <file src="..\Oqtane.Server\wwwroot\**\*.*" target="wwwroot" /> 
+    <file src="..\Oqtane.Server\bin\Release\netcoreapp3.1\publish\*.*" target="lib\netcoreapp3.1" /> 
+    <file src="..\Oqtane.Server\bin\Release\netcoreapp3.1\publish\wwwroot\**\*.*" target="wwwroot" /> 
   </files>
 </package>

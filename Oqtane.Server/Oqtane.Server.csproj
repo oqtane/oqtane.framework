@@ -51,7 +51,9 @@
     <ProjectReference Include="..\Oqtane.Shared\Oqtane.Shared.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <UpgradeFiles Include="$(ProjectDir)bin\Release\netcoreapp3.1\Oqtane.Upgrade.deps.json" />
     <UpgradeFiles Include="$(ProjectDir)bin\Release\netcoreapp3.1\Oqtane.Upgrade.dll" />
+    <UpgradeFiles Include="$(ProjectDir)bin\Release\netcoreapp3.1\Oqtane.Upgrade.pdb" />
     <UpgradeFiles Include="$(ProjectDir)bin\Release\netcoreapp3.1\Oqtane.Upgrade.runtimeconfig.json" />
     <TemplateFiles Include="$(ProjectDir)wwwroot\Modules\Templates\**\*.*" />
   </ItemGroup>
