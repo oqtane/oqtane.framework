@@ -126,24 +126,14 @@ namespace Oqtane.Infrastructure
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(filename));
             }
-            if (!FileInUse(filename) == false)
+
+            try
             {
                 entry.ExtractToFile(filename, true);
             }
-        }
-        private static bool FileInUse(string path)
-        {
-            try
-            {
-                using (FileStream fs = new FileStream(path, FileMode.OpenOrCreate))
-                {
-                    var flag = fs.CanWrite;
-                }
-                return false;
-            }
             catch
             {
-                return true;
+                // an error occurred extracting the file
             }
         }
 
