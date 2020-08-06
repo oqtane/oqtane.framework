@@ -94,8 +94,8 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.HostRole)]
         public void InstallModules()
         {
-            _installationManager.InstallPackages("Modules", true);
             _logger.Log(LogLevel.Information, this, LogFunction.Create, "Modules Installed");
+            _installationManager.InstallPackages("Modules", true);
         }
 
         // DELETE api/<controller>/5?siteid=x
