@@ -24,6 +24,7 @@ Please note that this project is owned by the .NET Foundation and is governed by
 **Using an official release:**
 
 - A detailed set of instructions for installing Oqtane on IIS is located here: [Installing Oqtane on IIS](https://www.oqtane.org/Resources/Blog/PostId/542/installing-oqtane-on-iis)
+- Instructions for upgrading Oqtane are located here: [Upgrading Oqtane](https://www.oqtane.org/Resources/Blog/PostId/543/upgrading-oqtane)
 
 **Additional Instructions**
 
