@@ -63,7 +63,7 @@
                         <span id="@_progressinfoid"></span><progress id="@_progressbarid" style="width: 150px; visibility: hidden;"></progress>
                         <span class="float-right">
                             <button type="button" class="btn btn-success" @onclick="UploadFile">Upload</button>
-                            @if (_showfiles && GetFileId() != -1)
+                            @if (ShowFiles && GetFileId() != -1)
                             {
                                 <button type="button" class="btn btn-danger" @onclick="DeleteFile">Delete</button>
                             }
@@ -86,7 +86,6 @@
     private string _id;
     private List<Folder> _folders;
     private List<File> _files = new List<File>();
-    private bool _showfiles = true;
     private string _fileinputid = string.Empty;
     private string _progressinfoid = string.Empty;
     private string _progressbarid = string.Empty;
