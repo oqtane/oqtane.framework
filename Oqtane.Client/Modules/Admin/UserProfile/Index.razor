@@ -75,10 +75,12 @@ else
     <TabPanel Name="Profile">
         @if (profiles != null && settings != null)
         {
-            <table class="table table-borderless">
-                @foreach (Profile profile in profiles)
+        <table class="table table-borderless">
+            @foreach (Profile profile in profiles)
+            {
+                var p = profile;
+                if (!p.IsPrivate || UserSecurity.IsAuthorized(PageState.User, Constants.AdminRole))
                 {
-                    var p = profile;
                     if (p.Category != category)
                     {
                         <tr>
@@ -90,14 +92,22 @@ else
                     }
                     <tr>
                         <td>
-                            <label for="@p.Name" class="control-label">@p.Title: </label>
+                            <Label For="@p.Name" HelpText="@p.Description">@p.Title</Label>
                         </td>
                         <td>
-                            <input class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" placeholder="@p.Description" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                            @if (p.IsRequired)
+                            {
+                                <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
+                            }
+                            else
+                            {
+                                <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                            }
                         </td>
                     </tr>
                 }
-            </table>
+            }
+        </table>
             <button type="button" class="btn btn-primary" @onclick="Save">Save</button>
             <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
         }
@@ -241,7 +251,7 @@ else
     {
         try
         {
-            if (username != string.Empty && email != string.Empty)
+            if (username != string.Empty && email != string.Empty && ValidateProfiles())
             {
                 if (password == confirm)
                 {
@@ -261,6 +271,7 @@ else
                     await UserService.UpdateUserAsync(user);
                     await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
                     await logger.LogInformation("User Profile Saved");
+                    AddModuleMessage("User Profile Updated Successfully", MessageType.Success);
                 }
                 else
                 {
@@ -269,7 +280,7 @@ else
             }
             else
             {
-                AddModuleMessage("You Must Provide A Username and Email Address", MessageType.Warning);
+                AddModuleMessage("You Must Provide A Username and Email Address As Well As All Required Profile Information", MessageType.Warning);
             }
         }
         catch (Exception ex)
@@ -277,6 +288,26 @@ else
             await logger.LogError(ex, "Error Saving User Profile {Error}", ex.Message);
             AddModuleMessage("Error Saving User Profile", MessageType.Error);
         }
+    }
+
+    private bool ValidateProfiles()
+    {
+        bool valid = true;
+        foreach (Profile profile in profiles)
+        {
+            if (string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)) && !string.IsNullOrEmpty(profile.DefaultValue))
+            {
+                settings = SettingService.SetSetting(settings, profile.Name, profile.DefaultValue);
+            }
+            if (!profile.IsPrivate || UserSecurity.IsAuthorized(PageState.User, Constants.AdminRole))
+            {
+                if (profile.IsRequired && string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)))
+                {
+                    valid = false;
+                }
+            }
+        }
+        return valid;
     }
 
     private void Cancel()
