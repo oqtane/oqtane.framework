@@ -71,10 +71,17 @@
                 }
                 <tr>
                     <td>
-                        <label for="@p.Name" class="control-label">@p.Title: </label>
+                        <Label For="@p.Name" HelpText="@p.Description">@p.Title</Label>
                     </td>
                     <td>
-                        <input class="form-control" maxlength="@p.MaxLength" placeholder="@p.Description" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                        @if (p.IsRequired)
+                        {
+                            <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
+                        }
+                        else
+                        {
+                            <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                        }
                     </td>
                 </tr>
             }
@@ -112,11 +119,14 @@
         }
     }
 
+    private string GetProfileValue(string SettingName, string DefaultValue)
+        => SettingService.GetSetting(settings, SettingName, DefaultValue);
+
     private async Task SaveUser()
     {
         try
         {
-            if (username != string.Empty && password != string.Empty && confirm != string.Empty && email != string.Empty)
+            if (username != string.Empty && password != string.Empty && confirm != string.Empty && email != string.Empty && ValidateProfiles())
             {
                 if (password == confirm)
                 {
@@ -149,7 +159,7 @@
             }
             else
             {
-                AddModuleMessage("You Must Provide A Username, Password, and Email Address", MessageType.Warning);
+                AddModuleMessage("You Must Provide A Username, Password, Email Address And All Required Profile Information", MessageType.Warning);
             }
         }
         catch (Exception ex)
@@ -159,6 +169,23 @@
         }
     }
 
+    private bool ValidateProfiles()
+    {
+        bool valid = true;
+        foreach (Profile profile in profiles)
+        {
+            if (string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)) && !string.IsNullOrEmpty(profile.DefaultValue))
+            {
+                settings = SettingService.SetSetting(settings, profile.Name, profile.DefaultValue);
+            }
+            if (profile.IsRequired && string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)))
+            {
+                valid = false;
+            }
+        }
+        return valid;
+    }
+    
     private void ProfileChanged(ChangeEventArgs e, string SettingName)
     {
         var value = (string)e.Value;
