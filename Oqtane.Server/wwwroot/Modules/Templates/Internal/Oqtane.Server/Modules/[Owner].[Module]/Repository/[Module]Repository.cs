@@ -2,9 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Collections.Generic;
 using Oqtane.Modules;
-using [Owner].[Module]s.Models;
+using [Owner].[Module].Models;
 
-namespace [Owner].[Module]s.Repository
+namespace [Owner].[Module].Repository
 {
     public class [Module]Repository : I[Module]Repository, IService
     {
@@ -15,24 +15,24 @@ namespace [Owner].[Module]s.Repository
             _db = context;
         }
 
-        public IEnumerable<[Module]> Get[Module]s(int ModuleId)
+        public IEnumerable<Models.[Module]> Get[Module]s(int ModuleId)
         {
             return _db.[Module].Where(item => item.ModuleId == ModuleId);
         }
 
-        public [Module] Get[Module](int [Module]Id)
+        public Models.[Module] Get[Module](int [Module]Id)
         {
             return _db.[Module].Find([Module]Id);
         }
 
-        public [Module] Add[Module]([Module] [Module])
+        public Models.[Module] Add[Module](Models.[Module] [Module])
         {
             _db.[Module].Add([Module]);
             _db.SaveChanges();
             return [Module];
         }
 
-        public [Module] Update[Module]([Module] [Module])
+        public Models.[Module] Update[Module](Models.[Module] [Module])
         {
             _db.Entry([Module]).State = EntityState.Modified;
             _db.SaveChanges();
@@ -41,7 +41,7 @@ namespace [Owner].[Module]s.Repository
 
         public void Delete[Module](int [Module]Id)
         {
-            [Module] [Module] = _db.[Module].Find([Module]Id);
+            Models.[Module] [Module] = _db.[Module].Find([Module]Id);
             _db.[Module].Remove([Module]);
             _db.SaveChanges();
         }
