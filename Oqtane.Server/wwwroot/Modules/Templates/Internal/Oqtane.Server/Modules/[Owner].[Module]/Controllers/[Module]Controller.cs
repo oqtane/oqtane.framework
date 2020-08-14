@@ -5,21 +5,21 @@ using Microsoft.AspNetCore.Http;
 using Oqtane.Shared;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
-using [Owner].[Module]s.Models;
-using [Owner].[Module]s.Repository;
+using [Owner].[Module].Models;
+using [Owner].[Module].Repository;
 
-namespace [Owner].[Module]s.Controllers
+namespace [Owner].[Module].Controllers
 {
     [Route("{alias}/api/[controller]")]
     public class [Module]Controller : Controller
     {
-        private readonly I[Module]Repository _[Module]s;
+        private readonly I[Module]Repository _[Module]Repository;
         private readonly ILogManager _logger;
         protected int _entityId = -1;
 
-        public [Module]Controller(I[Module]Repository [Module]s, ILogManager logger, IHttpContextAccessor accessor)
+        public [Module]Controller(I[Module]Repository [Module]Repository, ILogManager logger, IHttpContextAccessor accessor)
         {
-            _[Module]s = [Module]s;
+            _[Module]Repository = [Module]Repository;
             _logger = logger;
 
             if (accessor.HttpContext.Request.Query.ContainsKey("entityid"))
@@ -31,17 +31,17 @@ namespace [Owner].[Module]s.Controllers
         // GET: api/<controller>?moduleid=x
         [HttpGet]
         [Authorize(Policy = "ViewModule")]
-        public IEnumerable<[Module]> Get(string moduleid)
+        public IEnumerable<Models.[Module]> Get(string moduleid)
         {
-            return _[Module]s.Get[Module]s(int.Parse(moduleid));
+            return _[Module]Repository.Get[Module]s(int.Parse(moduleid));
         }
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
         [Authorize(Policy = "ViewModule")]
-        public [Module] Get(int id)
+        public Models.[Module] Get(int id)
         {
-            [Module] [Module] = _[Module]s.Get[Module](id);
+            Models.[Module] [Module] = _[Module]Repository.Get[Module](id);
             if ([Module] != null && [Module].ModuleId != _entityId)
             {
                 [Module] = null;
@@ -52,11 +52,11 @@ namespace [Owner].[Module]s.Controllers
         // POST api/<controller>
         [HttpPost]
         [Authorize(Policy = "EditModule")]
-        public [Module] Post([FromBody] [Module] [Module])
+        public Models.[Module] Post([FromBody] Models.[Module] [Module])
         {
             if (ModelState.IsValid && [Module].ModuleId == _entityId)
             {
-                [Module] = _[Module]s.Add[Module]([Module]);
+                [Module] = _[Module]Repository.Add[Module]([Module]);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "[Module] Added {[Module]}", [Module]);
             }
             return [Module];
@@ -65,11 +65,11 @@ namespace [Owner].[Module]s.Controllers
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Policy = "EditModule")]
-        public [Module] Put(int id, [FromBody] [Module] [Module])
+        public Models.[Module] Put(int id, [FromBody] Models.[Module] [Module])
         {
             if (ModelState.IsValid && [Module].ModuleId == _entityId)
             {
-                [Module] = _[Module]s.Update[Module]([Module]);
+                [Module] = _[Module]Repository.Update[Module]([Module]);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "[Module] Updated {[Module]}", [Module]);
             }
             return [Module];
@@ -80,10 +80,10 @@ namespace [Owner].[Module]s.Controllers
         [Authorize(Policy = "EditModule")]
         public void Delete(int id)
         {
-            [Module] [Module] = _[Module]s.Get[Module](id);
+            Models.[Module] [Module] = _[Module]Repository.Get[Module](id);
             if ([Module] != null && [Module].ModuleId == _entityId)
             {
-                _[Module]s.Delete[Module](id);
+                _[Module]Repository.Delete[Module](id);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "[Module] Deleted {[Module]Id}", id);
             }
         }

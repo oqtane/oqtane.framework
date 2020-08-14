@@ -1,7 +1,7 @@
-@using [Owner].[Module]s.Services
-@using [Owner].[Module]s.Models
+@using [Owner].[Module].Services
+@using [Owner].[Module].Models
 
-@namespace [Owner].[Module]s
+@namespace [Owner].[Module]
 @inherits ModuleBase
 @inject I[Module]Service [Module]Service
 @inject NavigationManager NavigationManager
@@ -17,16 +17,16 @@ else
     <br />
     @if (@_[Module]s.Count != 0)
     {
-        <Pager Items="@_[Module]s" Format="Grid">
+        <Pager Items="@_[Module]s">
             <Header>
-                <div class="col"><strong>[Module]s</strong></div>
+                <th style="width: 1px;">&nbsp;</th>
+                <th style="width: 1px;">&nbsp;</th>
+                <th>Name</th>
             </Header>
             <Row>
-                <div class="col">
-                    <ActionLink Action="Edit" Parameters="@($"id=" + context.[Module]Id.ToString())" />
-                    <ActionDialog Header="Delete [Module]" Message="@("Are You Sure You Wish To Delete The " + context.Name + " [Module]?")" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" />
-                    @context.Name
-                </div>
+                <td><ActionLink Action="Edit" Parameters="@($"id=" + context.[Module]Id.ToString())" /></td>
+                <td><ActionDialog Header="Delete [Module]" Message="@("Are You Sure You Wish To Delete The " + context.Name + " [Module]?")" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" /></td>
+                <td>@context.Name</td>
             </Row>
         </Pager>
     }

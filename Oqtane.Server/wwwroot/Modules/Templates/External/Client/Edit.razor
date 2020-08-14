@@ -1,8 +1,8 @@
 @using Oqtane.Modules.Controls
-@using [Owner].[Module]s.Services
-@using [Owner].[Module]s.Models
+@using [Owner].[Module].Services
+@using [Owner].[Module].Models
 
-@namespace [Owner].[Module]s
+@namespace [Owner].[Module]
 @inherits ModuleBase
 @inject I[Module]Service [Module]Service
 @inject NavigationManager NavigationManager
@@ -30,6 +30,8 @@
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
 
     public override string Actions => "Add,Edit";
+
+    public override string Title => "Manage [Module]";
 
     public override List<Resource> Resources => new List<Resource>()
     {

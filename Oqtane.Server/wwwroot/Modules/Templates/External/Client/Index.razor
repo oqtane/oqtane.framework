@@ -1,7 +1,7 @@
-@using [Owner].[Module]s.Services
-@using [Owner].[Module]s.Models
+@using [Owner].[Module].Services
+@using [Owner].[Module].Models
 
-@namespace [Owner].[Module]s
+@namespace [Owner].[Module]
 @inherits ModuleBase
 @inject I[Module]Service [Module]Service
 @inject NavigationManager NavigationManager
@@ -17,16 +17,16 @@ else
     <br />
     @if (@_[Module]s.Count != 0)
     {
-        <Pager Items="@_[Module]s" Format="Grid">
+        <Pager Items="@_[Module]s">
             <Header>
-                <div class="col"><strong>[Module]s</strong></div>
+                <th style="width: 1px;">&nbsp;</th>
+                <th style="width: 1px;">&nbsp;</th>
+                <th>Name</th>
             </Header>
             <Row>
-                <div class="col">
-                    <ActionLink Action="Edit" Parameters="@($"id=" + context.[Module]Id.ToString())" />
-                    <ActionDialog Header="Delete [Module]" Message="@("Are You Sure You Wish To Delete The " + context.Name + " [Module]?")" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" />
-                    @context.Name
-                </div>
+                <td><ActionLink Action="Edit" Parameters="@($"id=" + context.[Module]Id.ToString())" /></td>
+                <td><ActionDialog Header="Delete [Module]" Message="@("Are You Sure You Wish To Delete The " + context.Name + " [Module]?")" Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" /></td>
+                <td>@context.Name</td>
             </Row>
         </Pager>
     }
@@ -41,7 +41,7 @@ else
 <hr />
 [Module] Module Created Successfully. Use Edit Mode To Add A [Module]. You Can Access The Files At The Following Locations:<br /><br />
 [RootPath]Client\<br />
-- [Owner].[Module]s.Client.csproj - client project<br />
+- [Owner].[Module].Client.csproj - client project<br />
 - _Imports.razor - global imports for module components<br />
 - Edit.razor - component for adding or editing content<br />
 - Index.razor - main component for your module **the content you are reading is in this file**<br />
@@ -50,22 +50,22 @@ else
 - Services\I[Module]Service.cs - interface for defining service API methods<br />
 - Services\[Module]Service.cs - implements service API interface methods<br /><br />
 [RootPath]Package\<br />
-- [Owner].[Module]s.nuspec - nuget manifest for packaging module<br />
-- [Owner].[Module]s.Package.csproj - packaging project<br />
+- [Owner].[Module].nuspec - nuget manifest for packaging module<br />
+- [Owner].[Module].Package.csproj - packaging project<br />
 - debug.cmd - copies assemblies to Oqtane bin folder when in Debug mode<br />
 - release.cmd - creates nuget package and deploys to Oqtane wwwroot/modules folder when in Release mode<br /><br />
 [RootPath]Server\<br />
-- [Owner].[Module]s.Server.csproj - server project<br />
+- [Owner].[Module].Server.csproj - server project<br />
 - Controllers\[Module]Controller.cs - API methods implemented using a REST pattern<br />
 - Manager\[Module]Manager.cs - implements optional module interfaces for features such as import/export of content<br />
 - Repository\I[Module]Repository.cs - interface for defining repository methods<br />
 - Repository\[Module]Respository.cs - implements repository interface methods for data access using EF Core<br />
 - Repository\[Module]Context.cs - provides a DB Context for data access<br />
-- Scripts\[Owner].[Module]s.1.0.0.sql - database schema definition script<br />
-- Scripts\[Owner].[Module]s.Uninstall.sql - database uninstall script<br />
+- Scripts\[Owner].[Module].1.0.0.sql - database schema definition script<br />
+- Scripts\[Owner].[Module].Uninstall.sql - database uninstall script<br />
 - wwwroot\Module.css - module style sheet<br /><br />
 [RootPath]Shared\<br />
-- [Owner].[Module]s.csproj - shared project<br />
+- [Owner].[Module].csproj - shared project<br />
 - Models\[Module].cs - model definition<br /><br />
 
 <!-- The content above is for informational purposes only and can be safely removed -->

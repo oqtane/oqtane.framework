@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using Oqtane.Models;
 
-namespace [Owner].[Module]s.Models
+namespace [Owner].[Module].Models
 {
     [Table("[Owner][Module]")]
     public class [Module] : IAuditable
