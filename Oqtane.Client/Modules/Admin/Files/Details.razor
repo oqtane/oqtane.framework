@@ -1,0 +1,111 @@
+﻿@namespace Oqtane.Modules.Admin.Files
+@inherits ModuleBase
+@inject IFileService FileService
+@inject IFolderService FolderService
+@inject NavigationManager NavigationManager
+
+@if (_folders != null)
+{
+    <table class="table table-borderless">
+        <tr>
+            <td>
+                <Label for="name" HelpText="The name of the file">Name: </Label>
+            </td>
+            <td>
+                <input id="name" class="form-control" @bind="@_name" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="parent" HelpText="The folder where the file is located">Folder: </Label>
+            </td>
+            <td>
+                <select id="parent" class="form-control" @bind="@_folderId">
+                    @foreach (Folder folder in _folders)
+                    {
+                        <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label for="size" HelpText="The size of the file (in bytes)">Size: </Label>
+            </td>
+            <td>
+                <input id="size" class="form-control" @bind="@_size" readonly />
+            </td>
+        </tr>
+    </table>
+    <button type="button" class="btn btn-success" @onclick="SaveFile">Save</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <br />
+    <br />
+    <AuditInfo CreatedBy="@_createdBy" CreatedOn="@_createdOn" ModifiedBy="@_modifiedBy" ModifiedOn="@_modifiedOn"></AuditInfo>
+}
+
+@code {
+    private int _fileId = -1;
+    private string _name;
+    private List<Folder> _folders;
+    private int _folderId = -1;
+    private int _size;
+    private string _createdBy;
+    private DateTime _createdOn;
+    private string _modifiedBy;
+    private DateTime _modifiedOn;
+
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+
+    public override string Title => "File Management";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _folders = await FolderService.GetFoldersAsync(PageState.Site.SiteId);
+            _fileId = Int32.Parse(PageState.QueryString["id"]);
+            File file = await FileService.GetFileAsync(_fileId);
+            if (file != null)
+            {
+                _name = file.Name;
+                _folderId = file.FolderId;
+                _size = file.Size;
+                _createdBy = file.CreatedBy;
+                _createdOn = file.CreatedOn;
+                _modifiedBy = file.ModifiedBy;
+                _modifiedOn = file.ModifiedOn;
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading File {FileId} {Error}", _fileId, ex.Message);
+            AddModuleMessage("Error Loading File", MessageType.Error);
+        }
+    }
+
+    private async Task SaveFile()
+    {
+        try
+        {
+            if (_name.IsPathOrFileValid())
+            {
+                File file = await FileService.GetFileAsync(_fileId);
+                file.Name = _name;
+                file.FolderId = _folderId;
+                file = await FileService.UpdateFileAsync(file);
+                await logger.LogInformation("File Saved {File}", file);
+                NavigationManager.NavigateTo(NavigateUrl());
+            }
+            else
+            {
+                AddModuleMessage("File Name Not Valid", MessageType.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Saving File {FileId} {Error}", _fileId, ex.Message);
+            AddModuleMessage("Error Saving File", MessageType.Error);
+        }
+    }
+}

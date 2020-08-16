@@ -9,6 +9,7 @@ namespace Oqtane.Repository
         Folder AddFolder(Folder folder);
         Folder UpdateFolder(Folder folder);
         Folder GetFolder(int folderId);
+        Folder GetFolder(int folderId, bool tracking);
         Folder GetFolder(int siteId, string path);
         void DeleteFolder(int folderId);
     }

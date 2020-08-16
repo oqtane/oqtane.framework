@@ -123,7 +123,7 @@
             AddModuleMessage("Folder Name Not Valid.", MessageType.Warning);
             return;
         }
-        
+
         try
         {
             Folder folder;
@@ -174,7 +174,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving Folder {FolderId} {Error}", _folderId, ex.Message);
-            AddModuleMessage("Error Saving Module", MessageType.Error);
+            AddModuleMessage("Error Saving Folder", MessageType.Error);
         }
     }
 
@@ -182,9 +182,25 @@
     {
         try
         {
-            await FolderService.DeleteFolderAsync(_folderId);
-            await logger.LogInformation("Folder Deleted {Folder}", _folderId);
-            AddModuleMessage("Folder Deleted", MessageType.Success);
+            bool isparent = false;
+            foreach (Folder folder in _folders)
+            {
+                if (folder.ParentId == _folderId)
+                {
+                    isparent = true;
+                    break;
+                }
+            }
+            if (!isparent)
+            {
+                await FolderService.DeleteFolderAsync(_folderId);
+                await logger.LogInformation("Folder Deleted {Folder}", _folderId);
+                NavigationManager.NavigateTo(NavigateUrl());
+            }
+            else
+            {
+                AddModuleMessage("Folder Has Child Folders And Cannot Be Deleted", MessageType.Warning);
+            }
         }
         catch (Exception ex)
         {
