@@ -45,7 +45,21 @@ namespace Oqtane.Repository
 
         public File GetFile(int fileId)
         {
-            File file = _db.File.Where(item => item.FileId == fileId).Include(item => item.Folder).FirstOrDefault();
+            return GetFile(fileId, true);
+        }
+
+        public File GetFile(int fileId, bool tracking)
+        {
+            File file;
+            if (tracking)
+            {
+                file = _db.File.Where(item => item.FileId == fileId).Include(item => item.Folder).FirstOrDefault();
+
+            }
+            else
+            {
+                file = _db.File.AsNoTracking().Where(item => item.FileId == fileId).Include(item => item.Folder).FirstOrDefault();
+            }
             if (file != null)
             {
                 IEnumerable<Permission> permissions = _permissions.GetPermissions(EntityNames.Folder, file.FolderId).ToList();

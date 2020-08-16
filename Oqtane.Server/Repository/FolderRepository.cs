@@ -47,7 +47,20 @@ namespace Oqtane.Repository
 
         public Folder GetFolder(int folderId)
         {
-            Folder folder = _db.Folder.Find(folderId);
+            return GetFolder(folderId, true);
+        }
+
+        public Folder GetFolder(int folderId, bool tracking)
+        {
+            Folder folder;
+            if (tracking)
+            {
+                folder = _db.Folder.Where(item => item.FolderId == folderId).FirstOrDefault();
+            }
+            else
+            {
+                folder = _db.Folder.AsNoTracking().Where(item => item.FolderId == folderId).FirstOrDefault();
+            }
             if (folder != null)
             {
                 folder.Permissions = _permissions.GetPermissionString(EntityNames.Folder, folder.FolderId);

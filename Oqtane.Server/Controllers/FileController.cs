@@ -135,8 +135,20 @@ namespace Oqtane.Controllers
         [Authorize(Roles = Constants.RegisteredRole)]
         public Models.File Put(int id, [FromBody] Models.File file)
         {
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Folder, file.Folder.FolderId, PermissionNames.Edit))
+            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Folder, file.FolderId, PermissionNames.Edit))
             {
+                file.Folder = _folders.GetFolder(file.FolderId);
+                Models.File _file = _files.GetFile(id, false);
+                if (_file.Name != file.Name || _file.FolderId != file.FolderId)
+                {
+                    string folderpath = GetFolderPath(file.Folder);
+                    if (!Directory.Exists(folderpath))
+                    {
+                        Directory.CreateDirectory(folderpath);
+                    }
+                    System.IO.File.Move(Path.Combine(GetFolderPath(_file.Folder), _file.Name), Path.Combine(folderpath, file.Name));
+                }
+                file.Extension = Path.GetExtension(file.Name).ToLower().Replace(".", "");
                 file = _files.UpdateFile(file);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "File Updated {File}", file);
             }
