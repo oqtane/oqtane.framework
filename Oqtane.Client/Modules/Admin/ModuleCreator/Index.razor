@@ -105,11 +105,11 @@
                     string[] path = systeminfo["serverpath"].Split('\\');
                     if (_template == "internal")
                     {
-                        _location = string.Join("\\", path, 0, path.Length - 1) + "\\Oqtane.Client\\Modules\\" + _owner + "." + _module + "s";
+                        _location = string.Join("\\", path, 0, path.Length - 1) + "\\Oqtane.Client\\Modules\\" + _owner + "." + _module;
                     }
                     else
                     {
-                        _location = string.Join("\\", path, 0, path.Length - 2) + "\\" + _owner + "." + _module + "s";
+                        _location = string.Join("\\", path, 0, path.Length - 2) + "\\" + _owner + "." + _module;
                     }
                 }
             }
