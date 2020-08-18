@@ -49,6 +49,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Oqtane.Client\Oqtane.Client.csproj" />
     <ProjectReference Include="..\Oqtane.Shared\Oqtane.Shared.csproj" />
+    <ProjectReference Include="..\Oqtane.Upgrade\Oqtane.Upgrade.csproj" />
   </ItemGroup>
   <ItemGroup>
     <UpgradeFiles Include="$(ProjectDir)bin\Release\netcoreapp3.1\Oqtane.Upgrade.deps.json" />
