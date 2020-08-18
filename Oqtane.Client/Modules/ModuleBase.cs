@@ -17,7 +17,7 @@ namespace Oqtane.Modules
         private Logger _logger;
 
         protected Logger logger => _logger ?? (_logger = new Logger(this));
- 
+
         [Inject]
         protected ILogService LoggingService { get; set; }
 
@@ -30,7 +30,7 @@ namespace Oqtane.Modules
         [CascadingParameter]
         protected Module ModuleState { get; set; }
 
-        [CascadingParameter] 
+        [CascadingParameter]
         protected ModuleInstance ModuleInstance { get; set; }
 
         // optional interface properties
@@ -62,7 +62,7 @@ namespace Oqtane.Modules
                 }
             }
         }
-        
+
         // path method
 
         public string ModulePath()
@@ -116,6 +116,54 @@ namespace Oqtane.Modules
             return Utilities.ContentUrl(PageState.Alias, fileid);
         }
 
+        public virtual Dictionary<string, string> GetUrlParameters(string parametersTemplate = "")
+        {
+            var urlParameters = new Dictionary<string, string>();
+            string[] templateSegments;
+            var parameters = PageState.UrlParameters.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            var parameterId = 0;
+
+            if (string.IsNullOrEmpty(parametersTemplate))
+            {
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    urlParameters.TryAdd("parameter" + i, parameters[i]);
+                }
+            }
+            else
+            {
+                templateSegments = parametersTemplate.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+                if (parameters.Length == templateSegments.Length)
+                {
+                    for (int i = 0; i < parameters.Length; i++)
+                    {
+                        if (parameters.Length > i)
+                        {
+                            if (templateSegments[i] == parameters[i])
+                            {
+                                urlParameters.TryAdd("parameter" + parameterId, parameters[i]);
+                                parameterId++;
+                            }
+                            else if (templateSegments[i].StartsWith("{") && templateSegments[i].EndsWith("}"))
+                            {
+                                var key = templateSegments[i].Replace("{", "");
+                                key = key.Replace("}", "");
+                                urlParameters.TryAdd(key, parameters[i]);
+                            }
+                            else
+                            {
+                                i = parameters.Length;
+                                urlParameters.Clear();
+                            }
+                        }
+                    }
+                }
+            }
+
+            return urlParameters;
+        }
+
         // user feedback methods
         public void AddModuleMessage(string message, MessageType type)
         {
@@ -154,12 +202,15 @@ namespace Oqtane.Modules
                 case "add":
                     logFunction = LogFunction.Create;
                     break;
+
                 case "edit":
                     logFunction = LogFunction.Update;
                     break;
+
                 case "delete":
                     logFunction = LogFunction.Delete;
                     break;
+
                 default:
                     logFunction = LogFunction.Read;
                     break;

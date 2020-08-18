@@ -14,11 +14,11 @@ else
 
     <Pager Items="@_moduleDefinitions">
         <Header>
-            <th>&nbsp;</th>
-            <th>&nbsp;</th>
+            <th style="width: 1px;">&nbsp;</th>
+            <th style="width: 1px;">&nbsp;</th>
             <th>Name</th>
             <th>Version</th>
-            <th>&nbsp;</th>
+            <th style="width: 1px;">&nbsp;</th>
         </Header>
         <Row>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ModuleDefinitionId.ToString())" /></td>
@@ -86,7 +86,7 @@ else
             await logger.LogInformation("Module Downloaded {ModuleDefinitionName} {Version}", moduledefinitionname, version);
             ShowProgressIndicator();
             var interop = new Interop(JSRuntime);
-            await interop.RedirectBrowser(NavigateUrl(), 3);
+            await interop.RedirectBrowser(NavigateUrl(), 10);
             await ModuleDefinitionService.InstallModuleDefinitionsAsync();
         }
         catch (Exception ex)
@@ -102,7 +102,7 @@ else
         {
             ShowProgressIndicator();
             var interop = new Interop(JSRuntime);
-            await interop.RedirectBrowser(NavigateUrl(), 3);
+            await interop.RedirectBrowser(NavigateUrl(), 10);
             await ModuleDefinitionService.DeleteModuleDefinitionAsync(moduleDefinition.ModuleDefinitionId, moduleDefinition.SiteId);
         }
         catch (Exception ex)

@@ -20,11 +20,15 @@ namespace Oqtane.Infrastructure
         {
             string log = "";
 
-            // iterate through aliases in this installation
+            // iterate through tenants in this installation
+            List<int> tenants = new List<int>();
             var aliasRepository = provider.GetRequiredService<IAliasRepository>();
             List<Alias> aliases = aliasRepository.GetAliases().ToList();
             foreach (Alias alias in aliases)
             {
+                if (tenants.Contains(alias.TenantId)) continue;
+                tenants.Add(alias.TenantId);
+
                 // use the SiteState to set the Alias explicitly so the tenant can be resolved
                 var siteState = provider.GetRequiredService<SiteState>();
                 siteState.Alias = alias;
@@ -34,11 +38,11 @@ namespace Oqtane.Infrastructure
                 var settingRepository = provider.GetRequiredService<ISettingRepository>();
                 var notificationRepository = provider.GetRequiredService<INotificationRepository>();
 
-                // iterate through sites 
+                // iterate through sites for this tenant
                 List<Site> sites = siteRepository.GetSites().ToList();
                 foreach (Site site in sites)
                 {
-                    log += "Processing Notifications For Site: " + site.Name + "\n\n";
+                    log += "Processing Notifications For Site: " + site.Name + "<br />";
 
                     // get site settings
                     List<Setting> sitesettings = settingRepository.GetSettings(EntityNames.Site, site.SiteId).ToList();
@@ -101,21 +105,20 @@ namespace Oqtane.Infrastructure
                             catch (Exception ex)
                             {
                                 // error
-                                log += ex.Message + "\n\n";
+                                log += ex.Message + "<br />";
                             }
                         }
-                        log += "Notifications Delivered: " + sent + "\n\n";
+                        log += "Notifications Delivered: " + sent + "<br />";
                     }
                     else
                     {
-                        log += "SMTP Not Configured" + "\n\n";
+                        log += "SMTP Not Configured" + "<br />";
                     }
                 }
             }
 
             return log;
         }
-
 
         private Dictionary<string, string> GetSettings(List<Setting> settings)
         {

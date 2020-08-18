@@ -27,8 +27,10 @@ namespace Oqtane.Infrastructure
 
         protected async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            await Task.Yield(); // required so that this method does not block startup
+
             try
-            {
+            {                
                 while (!stoppingToken.IsCancellationRequested)
                 {
                     using (var scope = _serviceScopeFactory.CreateScope())
@@ -41,21 +43,26 @@ namespace Oqtane.Infrastructure
                         Job job = jobs.GetJobs().Where(item => item.JobType == jobType).FirstOrDefault();
                         if (job != null && job.IsEnabled && !job.IsExecuting)
                         {
-                            // set next execution date
+                            // get next execution date
+                            DateTime NextExecution;
                             if (job.NextExecution == null)
                             {
                                 if (job.StartDate != null)
                                 {
-                                    job.NextExecution = job.StartDate;
+                                    NextExecution = job.StartDate.Value;
                                 }
                                 else
                                 {
-                                    job.NextExecution = DateTime.UtcNow;
+                                    NextExecution = DateTime.UtcNow;
                                 }
+                            }
+                            else
+                            {
+                                NextExecution = job.NextExecution.Value;
                             }
 
                             // determine if the job should be run
-                            if (job.NextExecution <= DateTime.UtcNow && (job.EndDate == null || job.EndDate >= DateTime.UtcNow))
+                            if (NextExecution <= DateTime.UtcNow && (job.EndDate == null || job.EndDate >= DateTime.UtcNow))
                             {
                                 IJobLogRepository jobLogs = scope.ServiceProvider.GetRequiredService<IJobLogRepository>();
 
@@ -89,7 +96,7 @@ namespace Oqtane.Infrastructure
                                 jobLogs.UpdateJobLog(log);
 
                                 // update the job
-                                job.NextExecution = CalculateNextExecution(job.NextExecution.Value, job.Frequency, job.Interval);
+                                job.NextExecution = CalculateNextExecution(NextExecution, job.Frequency, job.Interval);
                                 job.IsExecuting = false;
                                 jobs.UpdateJob(job);
 

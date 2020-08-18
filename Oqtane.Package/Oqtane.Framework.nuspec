@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>Oqtane.Framework</id>
-    <version>1.0.0</version>
+    <version>1.0.3</version>
     <authors>Shaun Walker</authors>
     <owners>.NET Foundation</owners>
     <title>Oqtane Framework</title>
@@ -13,16 +13,11 @@
     <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
     <iconUrl>https://www.oqtane.org/Portals/0/icon.jpg</iconUrl>
     <tags>oqtane framework</tags>
-    <releaseNotes>Initial Release</releaseNotes>
+    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v1.0.3</releaseNotes>
     <summary>A modular application framework for Blazor</summary>
   </metadata>
   <files>
-    <file src="..\Oqtane.Client\bin\Release\netstandard2.1\Oqtane.Client.dll" target="lib\netcoreapp3.1" /> 
-    <file src="..\Oqtane.Client\bin\Release\netstandard2.1\Oqtane.Client.pdb" target="lib\netcoreapp3.1" /> 
-    <file src="..\Oqtane.Server\bin\Release\netcoreapp3.1\Oqtane.Server.dll" target="lib\netcoreapp3.1" /> 
-    <file src="..\Oqtane.Server\bin\Release\netcoreapp3.1\Oqtane.Server.pdb" target="lib\netcoreapp3.1" /> 
-    <file src="..\Oqtane.Shared\bin\Release\netstandard2.1\Oqtane.Shared.dll" target="lib\netcoreapp3.1" /> 
-    <file src="..\Oqtane.Shared\bin\Release\netstandard2.1\Oqtane.Shared.pdb" target="lib\netcoreapp3.1" /> 
-    <file src="..\Oqtane.Server\wwwroot\**\*.*" target="wwwroot" /> 
+    <file src="..\Oqtane.Server\bin\Release\netcoreapp3.1\publish\*.*" target="lib\netcoreapp3.1" /> 
+    <file src="..\Oqtane.Server\bin\Release\netcoreapp3.1\publish\wwwroot\**\*.*" target="wwwroot" /> 
   </files>
 </package>

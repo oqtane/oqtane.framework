@@ -1,13 +1,13 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using Microsoft.Extensions.Hosting;
-using Microsoft.AspNetCore.Hosting;
+using System.Reflection;
 using System.Xml;
-using Oqtane.Shared;
-using System;
-using System.Diagnostics;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Hosting;
+using Oqtane.Shared;
 
 namespace Oqtane.Infrastructure
 {
@@ -27,7 +27,7 @@ namespace Oqtane.Infrastructure
         public void InstallPackages(string folders, bool restart)
         {
             var webRootPath = _environment.WebRootPath;
-            
+
             var install = InstallPackages(folders, webRootPath);
 
             if (install && restart)
@@ -88,7 +88,7 @@ namespace Oqtane.Infrastructure
                             // deploy to appropriate locations
                             foreach (ZipArchiveEntry entry in archive.Entries)
                             {
-                                string foldername = Path.GetDirectoryName(entry.FullName).Split('\\')[0];
+                                string foldername = Path.GetDirectoryName(entry.FullName).Split(Path.DirectorySeparatorChar)[0];
                                 string filename = Path.GetFileName(entry.FullName);
 
                                 switch (foldername)
@@ -98,7 +98,12 @@ namespace Oqtane.Infrastructure
                                         ExtractFile(entry, filename);
                                         break;
                                     case "wwwroot":
-                                        filename = Path.Combine(webRootPath, Utilities.PathCombine(entry.FullName.Replace("wwwroot/", "").Split('/')));
+                                        filename = Path.Combine(webRootPath.Replace(Path.DirectorySeparatorChar + "wwwroot", ""), Utilities.PathCombine(entry.FullName.Split('/')));
+                                        ExtractFile(entry, filename);
+                                        break;
+                                    case "runtimes":
+                                        var destSubFolder = Path.GetDirectoryName(entry.FullName);
+                                        filename = Path.Combine(binFolder, destSubFolder, filename);
                                         ExtractFile(entry, filename);
                                         break;
                                 }
@@ -121,7 +126,15 @@ namespace Oqtane.Infrastructure
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(filename));
             }
-            entry.ExtractToFile(filename, true);
+
+            try
+            {
+                entry.ExtractToFile(filename, true);
+            }
+            catch
+            {
+                // an error occurred extracting the file
+            }
         }
 
         public void UpgradeFramework()
@@ -131,7 +144,7 @@ namespace Oqtane.Infrastructure
             {
                 // get package with highest version and clean up any others
                 string packagename = "";
-                foreach(string package in Directory.GetFiles(folder, "Oqtane.Framework.*.nupkg"))
+                foreach (string package in Directory.GetFiles(folder, "Oqtane.Framework.*.nupkg"))
                 {
                     if (packagename != "")
                     {
@@ -163,12 +176,13 @@ namespace Oqtane.Infrastructure
                                     packageversion = node.InnerText;
                                 }
                                 reader.Close();
+                                break;
                             }
                         }
                     }
 
-                    // ensure package version is higher than current framework version
-                    if (packageversion != "" && Version.Parse(Constants.Version).CompareTo(Version.Parse(packageversion)) < 0)
+                    // ensure package version is greater than or equal to current framework version
+                    if (packageversion != "" && Version.Parse(Constants.Version).CompareTo(Version.Parse(packageversion)) <= 0)
                     {
                         FinishUpgrade();
                     }
@@ -179,28 +193,26 @@ namespace Oqtane.Infrastructure
         private void FinishUpgrade()
         {
             // check if upgrade application exists
+            string Upgrader = "Oqtane.Upgrade.dll";
             string folder = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
-            if (folder == null || !File.Exists(Path.Combine(folder, "Oqtane.Upgrade.exe"))) return;
+            if (folder == null || !File.Exists(Path.Combine(folder, Upgrader))) return;
 
             // run upgrade application
-            var process = new Process
+            using (var process = new Process())
             {
-                StartInfo =
+                process.StartInfo = new ProcessStartInfo
                 {
-                    FileName = Path.Combine(folder, "Oqtane.Upgrade.exe"),
-                    Arguments = "\"" + _environment.ContentRootPath + "\" \"" + _environment.WebRootPath + "\"",
-                    ErrorDialog = false,
+                    WorkingDirectory = folder,
+                    FileName = "dotnet",
+                    Arguments = Path.Combine(folder, Upgrader) + " \"" + _environment.ContentRootPath + "\" \"" + _environment.WebRootPath + "\"",
                     UseShellExecute = false,
+                    ErrorDialog = false,
                     CreateNoWindow = true,
                     RedirectStandardOutput = false,
                     RedirectStandardError = false
-                }
+                };
+                process.Start();
             };
-            process.Start();
-            process.Dispose();
-
-            // stop application so upgrade application can proceed
-            RestartApplication();
         }
 
         public void RestartApplication()

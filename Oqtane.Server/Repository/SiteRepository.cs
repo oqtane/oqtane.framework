@@ -58,7 +58,6 @@ namespace Oqtane.Repository
                 Icon = Icons.LockLocked,
                 IsNavigation = false,
                 IsPersonalizable = false,
-                EditMode = false,
                 PagePermissions = new List<Permission>
                 {
                     new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -88,7 +87,6 @@ namespace Oqtane.Repository
                 Icon = Icons.Person,
                 IsNavigation = false,
                 IsPersonalizable = false,
-                EditMode = false,
                 PagePermissions = new List<Permission>
                 {
                     new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -119,7 +117,6 @@ namespace Oqtane.Repository
                 Icon = Icons.Person,
                 IsNavigation = false,
                 IsPersonalizable = false,
-                EditMode = false,
                 PagePermissions = new List<Permission>
                 {
                     new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -149,7 +146,6 @@ namespace Oqtane.Repository
                 Icon = Icons.Person,
                 IsNavigation = false,
                 IsPersonalizable = false,
-                EditMode = false,
                 PagePermissions = new List<Permission>
                 {
                     new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -175,7 +171,7 @@ namespace Oqtane.Repository
             // admin pages
             pageTemplates.Add(new PageTemplate
             {
-                Name = "Admin", Parent = "", Path = "admin", Icon = "", IsNavigation = false, IsPersonalizable = false, EditMode = true,
+                Name = "Admin", Parent = "", Path = "admin", Icon = "", IsNavigation = false, IsPersonalizable = false, 
                 PagePermissions = new List<Permission>
                 {
                     new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -203,7 +199,6 @@ namespace Oqtane.Repository
                 Icon = Icons.Home,
                 IsNavigation = false,
                 IsPersonalizable = false,
-                EditMode = true,
                 PagePermissions = new List<Permission>
                 {
                     new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -231,7 +226,6 @@ namespace Oqtane.Repository
                 Icon = Icons.Layers,
                 IsNavigation = false,
                 IsPersonalizable = false,
-                EditMode = true,
                 PagePermissions = new List<Permission>
                 {
                     new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -259,7 +253,6 @@ namespace Oqtane.Repository
                 Icon = Icons.People,
                 IsNavigation = false,
                 IsPersonalizable = false,
-                EditMode = true,
                 PagePermissions = new List<Permission>
                 {
                     new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -287,7 +280,6 @@ namespace Oqtane.Repository
                 Icon = Icons.Person,
                 IsNavigation = false,
                 IsPersonalizable = false,
-                EditMode = true,
                 PagePermissions = new List<Permission>
                 {
                     new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -315,7 +307,6 @@ namespace Oqtane.Repository
                 Icon = Icons.LockLocked,
                 IsNavigation = false,
                 IsPersonalizable = false,
-                EditMode = true,
                 PagePermissions = new List<Permission>
                 {
                     new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -343,7 +334,6 @@ namespace Oqtane.Repository
                 Icon = Icons.File,
                 IsNavigation = false,
                 IsPersonalizable = false,
-                EditMode = true,
                 PagePermissions = new List<Permission>
                 {
                     new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -371,7 +361,6 @@ namespace Oqtane.Repository
                 Icon = Icons.Trash,
                 IsNavigation = false,
                 IsPersonalizable = false,
-                EditMode = true,
                 PagePermissions = new List<Permission>
                 {
                     new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -401,7 +390,6 @@ namespace Oqtane.Repository
                 Icon = Icons.MagnifyingGlass,
                 IsNavigation = false,
                 IsPersonalizable = false,
-                EditMode = true,
                 PagePermissions = new List<Permission>
                 {
                     new Permission(PermissionNames.View, Constants.HostRole, true),
@@ -428,7 +416,6 @@ namespace Oqtane.Repository
                 Icon = Icons.List,
                 IsNavigation = false,
                 IsPersonalizable = false,
-                EditMode = true,
                 PagePermissions = new List<Permission>
                 {
                     new Permission(PermissionNames.View, Constants.HostRole, true),
@@ -450,7 +437,7 @@ namespace Oqtane.Repository
             });
             pageTemplates.Add(new PageTemplate
             {
-                Name = "Site Management", Parent = "Admin", Path = "admin/sites", Icon = Icons.Globe, IsNavigation = false, IsPersonalizable = false, EditMode = true,
+                Name = "Site Management", Parent = "Admin", Path = "admin/sites", Icon = Icons.Globe, IsNavigation = false, IsPersonalizable = false, 
                 PagePermissions = new List<Permission>
                 {
                     new Permission(PermissionNames.View, Constants.HostRole, true),
@@ -472,7 +459,7 @@ namespace Oqtane.Repository
             });
             pageTemplates.Add(new PageTemplate
             {
-                Name = "Module Management", Parent = "Admin", Path = "admin/modules", Icon = Icons.Browser, IsNavigation = false, IsPersonalizable = false, EditMode = true,
+                Name = "Module Management", Parent = "Admin", Path = "admin/modules", Icon = Icons.Browser, IsNavigation = false, IsPersonalizable = false, 
                 PagePermissions = new List<Permission>
                 {
                     new Permission(PermissionNames.View, Constants.HostRole, true),
@@ -494,7 +481,7 @@ namespace Oqtane.Repository
             });
             pageTemplates.Add(new PageTemplate
             {
-                Name = "Theme Management", Parent = "Admin", Path = "admin/themes", Icon = Icons.Brush, IsNavigation = false, IsPersonalizable = false, EditMode = true,
+                Name = "Theme Management", Parent = "Admin", Path = "admin/themes", Icon = Icons.Brush, IsNavigation = false, IsPersonalizable = false, 
                 PagePermissions = new List<Permission>
                 {
                     new Permission(PermissionNames.View, Constants.HostRole, true),
@@ -516,7 +503,7 @@ namespace Oqtane.Repository
             });
             pageTemplates.Add(new PageTemplate
             {
-                Name = "Scheduled Jobs", Parent = "Admin", Path = "admin/jobs", Icon = Icons.Timer, IsNavigation = false, IsPersonalizable = false, EditMode = true,
+                Name = "Scheduled Jobs", Parent = "Admin", Path = "admin/jobs", Icon = Icons.Timer, IsNavigation = false, IsPersonalizable = false, 
                 PagePermissions = new List<Permission>
                 {
                     new Permission(PermissionNames.View, Constants.HostRole, true),
@@ -544,7 +531,6 @@ namespace Oqtane.Repository
                 Icon = "spreadsheet",
                 IsNavigation = false,
                 IsPersonalizable = false,
-                EditMode = true,
                 PagePermissions = new List<Permission>
                 {
                     new Permission(PermissionNames.View, Constants.HostRole, true),
@@ -572,7 +558,6 @@ namespace Oqtane.Repository
                 Icon = "medical-cross",
                 IsNavigation = false,
                 IsPersonalizable = false,
-                EditMode = true,
                 PagePermissions = new List<Permission>
                 {
                     new Permission(PermissionNames.View, Constants.HostRole, true),
@@ -594,7 +579,7 @@ namespace Oqtane.Repository
             });
             pageTemplates.Add(new PageTemplate
             {
-                Name = "System Update", Parent = "Admin", Path = "admin/update", Icon = Icons.Aperture, IsNavigation = false, IsPersonalizable = false, EditMode = true,
+                Name = "System Update", Parent = "Admin", Path = "admin/update", Icon = Icons.Aperture, IsNavigation = false, IsPersonalizable = false, 
                 PagePermissions = new List<Permission>
                 {
                     new Permission(PermissionNames.View, Constants.HostRole, true),
@@ -692,7 +677,7 @@ namespace Oqtane.Repository
             });
             _folderRepository.AddFolder(new Folder
             {
-                SiteId = site.SiteId, ParentId = folder.FolderId, Name = "Users", Path = Utilities.PathCombine("Users","\\"), Order = 1, IsSystem = true,
+                SiteId = site.SiteId, ParentId = folder.FolderId, Name = "Users", Path = Utilities.PathCombine("Users",Path.DirectorySeparatorChar.ToString()), Order = 1, IsSystem = true,
                 Permissions = "[{\"PermissionName\":\"Browse\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]"
             });
 
@@ -754,7 +739,6 @@ namespace Oqtane.Repository
                     Order = 1,
                     Url = "",
                     IsNavigation = pagetemplate.IsNavigation,
-                    EditMode = pagetemplate.EditMode,
                     ThemeType = "",
                     LayoutType = "",
                     DefaultContainerType = "",

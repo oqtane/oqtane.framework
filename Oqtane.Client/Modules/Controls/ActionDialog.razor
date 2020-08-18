@@ -1,6 +1,6 @@
 ﻿@namespace Oqtane.Modules.Controls
-@inherits ModuleBase
-@attribute [OqtaneIgnore]
+@inherits ModuleControlBase
+
 @if (_visible)
 {
     <div class="app-admin-modal">
@@ -40,7 +40,7 @@
 
 @code {
     private bool _visible = false;
-    private bool _editmode = true;
+    private bool _editmode = false;
     private bool _authorized = false;
     private string _iconSpan = string.Empty;
 
@@ -66,7 +66,7 @@
     public bool Disabled { get; set; } // optional
 
     [Parameter]
-    public string EditMode { get; set; } // optional - specifies if a user must be in edit mode to see the action - default is true
+    public string EditMode { get; set; } // optional - specifies if an authorized user must be in edit mode to see the action - default is false
 
     [Parameter]
     public Action OnClick { get; set; } // required if an Action is specified - executes a method in the calling component
@@ -84,6 +84,7 @@
         {
             Class = "btn btn-success";
         }
+
         if (!string.IsNullOrEmpty(EditMode))
         {
             _editmode = bool.Parse(EditMode);

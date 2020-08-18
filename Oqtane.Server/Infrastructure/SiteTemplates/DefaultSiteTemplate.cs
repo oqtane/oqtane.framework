@@ -42,7 +42,6 @@ namespace Oqtane.SiteTemplates
                 Icon = "home",
                 IsNavigation = true,
                 IsPersonalizable = false,
-                EditMode = false,
                 PagePermissions = new List<Permission> {
                     new Permission(PermissionNames.View, Constants.AllUsersRole, true),
                     new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -89,7 +88,6 @@ namespace Oqtane.SiteTemplates
                 Icon = "lock-locked",
                 IsNavigation = true,
                 IsPersonalizable = false,
-                EditMode = false,
                 PagePermissions = new List<Permission> {
                     new Permission(PermissionNames.View, Constants.RegisteredRole, true),
                     new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -114,7 +112,6 @@ namespace Oqtane.SiteTemplates
                 Icon = "target",
                 IsNavigation = true,
                 IsPersonalizable = true,
-                EditMode = false,
                 PagePermissions = new List<Permission> {
                     new Permission(PermissionNames.View, Constants.AllUsersRole, true),
                     new Permission(PermissionNames.View, Constants.AdminRole, true),
@@ -134,7 +131,7 @@ namespace Oqtane.SiteTemplates
 
             if (System.IO.File.Exists(Path.Combine(_environment.WebRootPath, "images", "logo-white.png")))
             {
-                string folderpath = Utilities.PathCombine(_environment.ContentRootPath, "Content", "Tenants", site.TenantId.ToString(), "Sites", site.SiteId.ToString(),"\\");
+                string folderpath = Utilities.PathCombine(_environment.ContentRootPath, "Content", "Tenants", site.TenantId.ToString(), "Sites", site.SiteId.ToString(), Path.DirectorySeparatorChar.ToString());
                 System.IO.Directory.CreateDirectory(folderpath);
                 if (!System.IO.File.Exists(Path.Combine(folderpath, "logo-white.png")))
                 {

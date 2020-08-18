@@ -15,10 +15,10 @@ else
 
     <Pager Items="@_themes">
         <Header>
-            <th>&nbsp;</th>
-            <th>&nbsp;</th>
-            <th>Name</th>
-            <th>Version</th>
+            <th style="width: 1px;">&nbsp;</th>
+            <th style="width: 1px;">&nbsp;</th>
+            <th scope="col">Name</th>
+            <th scope="col">Version</th>
             <th>&nbsp;</th>
         </Header>
         <Row>
@@ -37,6 +37,7 @@ else
                     <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadTheme(context.ThemeName, context.Version))>Upgrade</button>
                     }
             </td>
+            <td></td>
         </Row>
     </Pager>
 }
@@ -86,7 +87,7 @@ else
             await logger.LogInformation("Theme Downloaded {ThemeName} {Version}", themename, version);
             ShowProgressIndicator();
             var interop = new Interop(JSRuntime);
-            await interop.RedirectBrowser(NavigateUrl(), 3);
+            await interop.RedirectBrowser(NavigateUrl(), 10);
             await ThemeService.InstallThemesAsync();
         }
         catch (Exception ex)
@@ -102,7 +103,7 @@ else
         {
             ShowProgressIndicator();
             var interop = new Interop(JSRuntime);
-            await interop.RedirectBrowser(NavigateUrl(), 3);
+            await interop.RedirectBrowser(NavigateUrl(), 10);
             await ThemeService.DeleteThemeAsync(Theme.ThemeName);
         }
         catch (Exception ex)

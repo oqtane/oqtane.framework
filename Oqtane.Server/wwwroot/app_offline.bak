@@ -9,8 +9,8 @@
 </head>
 <body>
     <div>
-	<br /><br /><h1 align="center">Please Wait... Upgrade In Progress....</h1>
-        <img src="https://www.oqtane.org/Portals/0/oqtane-black.png" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);" />
+	<br /><br />
+    <h1 align="center">Please Wait... Upgrade In Progress....</h1>
     </div>
 </body>
 </html>

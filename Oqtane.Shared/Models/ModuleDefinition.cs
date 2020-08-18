@@ -20,6 +20,7 @@ namespace Oqtane.Models
             ServerManagerType = "";
             ControlTypeRoutes = "";
             ReleaseVersions = "";
+            Runtimes = "";
             Template = "";
         }
 
@@ -44,6 +45,8 @@ namespace Oqtane.Models
         public string Contact { get; set; }
         [NotMapped]
         public string License { get; set; }
+        [NotMapped]
+        public string Runtimes { get; set; }
         [NotMapped]
         public string Dependencies { get; set; }
         [NotMapped]

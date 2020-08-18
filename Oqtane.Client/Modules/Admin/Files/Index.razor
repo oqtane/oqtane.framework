@@ -28,13 +28,15 @@
     </table>
     <Pager Items="@_files">
         <Header>
-            <th>&nbsp;</th>
+            <th style="width: 1px;">&nbsp;</th>
+            <th style="width: 1px;">&nbsp;</th>
             <th>Name</th>
             <th>Modified</th>
             <th>Type</th>
             <th>Size</th>
         </Header>
         <Row>
+            <td><ActionLink Action="Details" Text="Edit" Parameters="@($"id=" + context.FileId.ToString())" /></td>
             <td><ActionDialog Header="Delete File" Message="@("Are You Sure You Wish To Delete " + context.Name + "?")" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteFile(context))" /></td>
             <td><a href="@(ContentUrl(context.FileId))" target="_new">@context.Name</a></td>
             <td>@context.ModifiedOn</td>

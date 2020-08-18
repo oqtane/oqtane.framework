@@ -2,7 +2,7 @@
 @inherits ModuleActionsBase 
 @attribute [OqtaneIgnore]
 
-@if (PageState.EditMode && !PageState.Page.EditMode && UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, ModuleState.Permissions))
+@if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, ModuleState.Permissions))
 {
     <div class="app-moduleactions">
         <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"></a>
@@ -15,7 +15,18 @@
                 }
                 else
                 {
-                    <a class="dropdown-item" @onclick="(async () => await ModuleAction(action))">@action.Name</a>
+                    <a class="dropdown-item" @onclick="(async () => await ModuleAction(action))">
+                        @if (string.IsNullOrEmpty(action.Icon))
+                        {
+                            @((MarkupString) "&nbsp;&nbsp;");
+                        }
+                        else
+                        {
+                            <span class="oi oi-@action.Icon" aria-hidden="true"></span>
+                        }
+                        &nbsp;
+                        @action.Name
+                    </a>
                 }
             }
         </div>

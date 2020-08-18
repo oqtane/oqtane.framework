@@ -12,7 +12,7 @@
             @if (_upgradeavailable)
             {
                 <ModuleMessage Type="MessageType.Info" Message="Select The Upgrade Button To Install a New Framework Version"></ModuleMessage>
-                @("Framework") @_package.Version <button type="button" class="btn btn-success" @onclick=@(async () => await Download(Constants.PackageId, Constants.Version))>Upgrade</button>
+                <button type="button" class="btn btn-success" @onclick=@(async () => await Download(Constants.PackageId, @_package.Version))>Upgrade To @_package.Version</button>
             }
             else
             {
@@ -26,7 +26,7 @@
                         <Label HelpText="Upload a framework package and select Install to complete the installation">Framework: </Label>
                     </td>
                     <td>
-                        <FileManager Filter="nupkg" Folder="Framework" />
+                        <FileManager Filter="nupkg" ShowFiles="false" Folder="Framework" />
                     </td>
                 </tr>
             </table>
@@ -71,7 +71,7 @@
         {
             ShowProgressIndicator();
             var interop = new Interop(JSRuntime);
-            await interop.RedirectBrowser(NavigateUrl(), 3);
+            await interop.RedirectBrowser(NavigateUrl(), 10);
             await InstallationService.Upgrade();
         }
         catch (Exception ex)
@@ -88,7 +88,7 @@
             await PackageService.DownloadPackageAsync(packageid, version, "Framework");
             ShowProgressIndicator();
             var interop = new Interop(JSRuntime);
-            await interop.RedirectBrowser(NavigateUrl(), 3);
+            await interop.RedirectBrowser(NavigateUrl(), 10);
             await InstallationService.Upgrade();
         }
         catch (Exception ex)

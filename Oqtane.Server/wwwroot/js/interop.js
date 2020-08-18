@@ -221,7 +221,7 @@ Oqtane.Interop = {
                 }
                 else {
                     loadjs(urls, bundles[b], {
-                        async: true,
+                        async: false,
                         returnPromise: true,
                         before: function (path, element) {
                             for (let s = 0; s < scripts.length; s++) {
@@ -327,7 +327,7 @@ Oqtane.Interop = {
 
             while (Chunk = FileChunk.shift()) {
                 PartCount++;
-                var FileName = file.name + ".part_" + PartCount + "_" + TotalParts;
+                var FileName = file.name + ".part_" + PartCount.toString().padStart(3, '0') + "_" + TotalParts.toString().padStart(3, '0');
 
                 var data = new FormData();
                 data.append('folder', folder);

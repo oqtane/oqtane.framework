@@ -21,6 +21,7 @@ namespace Oqtane.Repository
                 return _db.Notification
                     .Where(item => item.SiteId == siteId)
                     .Where(item => item.IsDelivered == false)
+                    .Where(item => item.SendOn == null || item.SendOn < System.DateTime.UtcNow)
                     .ToList();
             }
 

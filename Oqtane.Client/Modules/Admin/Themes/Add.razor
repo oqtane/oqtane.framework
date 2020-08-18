@@ -16,7 +16,7 @@
                     <Header>
                         <th>Name</th>
                         <th>Version</th>
-                        <th></th>
+                        <th style="width: 1px;"></th>
                     </Header>
                     <Row>
                         <td>@context.Name</td>
@@ -79,7 +79,7 @@
         {
             ShowProgressIndicator();
             var interop = new Interop(JSRuntime);
-            await interop.RedirectBrowser(NavigateUrl(), 3);
+            await interop.RedirectBrowser(NavigateUrl(), 10);
             await ThemeService.InstallThemesAsync();
         }
         catch (Exception ex)

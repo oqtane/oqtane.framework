@@ -122,7 +122,7 @@ namespace Oqtane.Controllers
                     var pages = _pages.GetPages(module.SiteId).ToList();
                     foreach (Page page in pages)
                     {
-                        if (page.PageId != pageModule.PageId && !page.EditMode)
+                        if (page.PageId != pageModule.PageId && !page.Path.StartsWith("admin/"))
                         {
                             _pageModules.AddPageModule(new PageModule { PageId = page.PageId, ModuleId = pageModule.ModuleId, Title = pageModule.Title, Pane = pageModule.Pane, Order = pageModule.Order, ContainerType = pageModule.ContainerType });
                         }

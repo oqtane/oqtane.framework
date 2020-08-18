@@ -175,17 +175,6 @@
                     </tr>
                     <tr>
                         <td>
-                            <Label For="Default-Mode" HelpText="Select the default administration mode you want for this page">Default Mode? </Label>
-                        </td>
-                        <td>
-                            <select id="Default-Mode" class="form-control" @bind="@_mode">
-                                <option value="view">View Mode</option>
-                                <option value="edit">Edit Mode</option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
                             <Label For="Personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content">Personalizable? </Label>
                         </td>
                         <td>
@@ -235,7 +224,6 @@
     private string _isnavigation;
     private string _url;
     private string _ispersonalizable;
-    private string _mode;
     private string _themetype = "-";
     private string _layouttype = "-";
     private string _containertype = "-";
@@ -290,7 +278,6 @@
                 _isnavigation = page.IsNavigation.ToString();
                 _url = page.Url;
                 _ispersonalizable = page.IsPersonalizable.ToString();
-                _mode = (page.EditMode) ? "edit" : "view";
                 _themetype = page.ThemeType;
                 if (_themetype == PageState.Site.DefaultThemeType)
                 {
@@ -333,7 +320,7 @@
             _children = new List<Page>();
             if (_parentid == "-1")
             {
-                foreach(Page p in PageState.Pages.Where(item => item.ParentId == null))
+                foreach (Page p in PageState.Pages.Where(item => item.ParentId == null))
                 {
                     if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
                     {
@@ -433,6 +420,13 @@
                         page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(_path);
                     }
                 }
+
+                if (!PagePathIsUnique(page.Path, page.SiteId, page.PageId, _pageList))
+                {
+                    AddModuleMessage($"A page with path {_path} already exists for the selected parent page. The page path needs to be unique for the selected parent.", MessageType.Warning);
+                    return;
+                }
+
                 if (_insert != "=")
                 {
                     Page child;
@@ -456,7 +450,6 @@
                 }
                 page.IsNavigation = (_isnavigation == null || Boolean.Parse(_isnavigation));
                 page.Url = _url;
-                page.EditMode = (_mode == "edit");
                 page.ThemeType = (_themetype != "-") ? _themetype : string.Empty;
                 if (!string.IsNullOrEmpty(page.ThemeType) && page.ThemeType == PageState.Site.DefaultThemeType)
                 {
@@ -511,5 +504,10 @@
             await logger.LogError(ex, "Error Saving Page {Page} {Error}", page, ex.Message);
             AddModuleMessage("Error Saving Page", MessageType.Error);
         }
+    }
+
+    private static bool PagePathIsUnique(string pagePath, int siteId, int pageId, List<Page> existingPages)
+    {
+        return !existingPages.Any(page => page.SiteId == siteId && page.Path == pagePath && page.PageId != pageId);
     }
 }

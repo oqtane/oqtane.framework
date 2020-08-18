@@ -342,46 +342,48 @@ namespace Oqtane.Infrastructure
                     if (!string.IsNullOrEmpty(moduledefinition.ReleaseVersions) && !string.IsNullOrEmpty(moduledefinition.ServerManagerType))
                     {
                         Type moduletype = Type.GetType(moduledefinition.ServerManagerType);
-
-                        string[] versions = moduledefinition.ReleaseVersions.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                        using (var db = new InstallationContext(NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey))))
+                        if (moduletype != null)
                         {
-                            foreach (var tenant in db.Tenant.ToList())
+                            string[] versions = moduledefinition.ReleaseVersions.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                            using (var db = new InstallationContext(NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey))))
                             {
-                                int index = Array.FindIndex(versions, item => item == moduledefinition.Version);
-                                if (tenant.Name == install.TenantName && install.TenantName != Constants.MasterTenant)
+                                foreach (var tenant in db.Tenant.ToList())
                                 {
-                                    index = -1;
-                                }
-                                if (index != (versions.Length - 1))
-                                {
-                                    if (index == -1) index = 0;
-                                    for (int i = index; i < versions.Length; i++)
+                                    int index = Array.FindIndex(versions, item => item == moduledefinition.Version);
+                                    if (tenant.Name == install.TenantName && install.TenantName != Constants.MasterTenant)
                                     {
-                                        try
+                                        index = -1;
+                                    }
+                                    if (index != (versions.Length - 1))
+                                    {
+                                        if (index == -1) index = 0;
+                                        for (int i = index; i < versions.Length; i++)
                                         {
-                                            if (moduletype.GetInterface("IInstallable") != null)
+                                            try
                                             {
-                                                var moduleobject = ActivatorUtilities.CreateInstance(scope.ServiceProvider, moduletype);
+                                                if (moduletype.GetInterface("IInstallable") != null)
+                                                {
+                                                    var moduleobject = ActivatorUtilities.CreateInstance(scope.ServiceProvider, moduletype);
                                                     ((IInstallable)moduleobject).Install(tenant, versions[i]);
+                                                }
+                                                else
+                                                {
+                                                    sql.ExecuteScript(tenant, moduletype.Assembly, Utilities.GetTypeName(moduledefinition.ModuleDefinitionName) + "." + versions[i] + ".sql");
+                                                }
                                             }
-                                            else
+                                            catch (Exception ex)
                                             {
-                                                sql.ExecuteScript(tenant, moduletype.Assembly, Utilities.GetTypeName(moduledefinition.ModuleDefinitionName) + "." + versions[i] + ".sql");
+                                                result.Message = "An Error Occurred Installing " + moduledefinition.Name + " Version " + versions[i] + " - " + ex.Message.ToString();
                                             }
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            result.Message = "An Error Occurred Installing " + moduledefinition.Name + " Version " + versions[i] + " - " + ex.Message.ToString();
                                         }
                                     }
                                 }
-                            }
-                            if (string.IsNullOrEmpty(result.Message) && moduledefinition.Version != versions[versions.Length - 1])
-                            {
-                                moduledefinition.Version = versions[versions.Length - 1];
-                                db.Entry(moduledefinition).State = EntityState.Modified;
-                                db.SaveChanges();
+                                if (string.IsNullOrEmpty(result.Message) && moduledefinition.Version != versions[versions.Length - 1])
+                                {
+                                    moduledefinition.Version = versions[versions.Length - 1];
+                                    db.Entry(moduledefinition).State = EntityState.Modified;
+                                    db.SaveChanges();
+                                }
                             }
                         }
                     }
@@ -461,7 +463,7 @@ namespace Oqtane.Infrastructure
                                 userroles.AddUserRole(userRole);
 
                                 // add user folder
-                                var folder = folders.GetFolder(user.SiteId, Utilities.PathCombine("Users", "\\"));
+                                var folder = folders.GetFolder(user.SiteId, Utilities.PathCombine("Users", Path.DirectorySeparatorChar.ToString()));
                                 if (folder != null)
                                 {
                                     folders.AddFolder(new Folder
@@ -469,7 +471,7 @@ namespace Oqtane.Infrastructure
                                         SiteId = folder.SiteId,
                                         ParentId = folder.FolderId,
                                         Name = "My Folder",
-                                        Path = Utilities.PathCombine(folder.Path, user.UserId.ToString(), "\\"),
+                                        Path = Utilities.PathCombine(folder.Path, user.UserId.ToString(), Path.DirectorySeparatorChar.ToString()),
                                         Order = 1,
                                         IsSystem = true,
                                         Permissions = new List<Permission>

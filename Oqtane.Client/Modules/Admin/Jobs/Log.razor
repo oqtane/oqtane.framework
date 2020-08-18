@@ -22,7 +22,7 @@ else
         <td>@context.FinishDate</td>
     </Row>
     <Detail>
-        <td colspan="4">@context.Notes</td>
+        <td colspan="4">@((MarkupString)context.Notes)</td>
     </Detail>
 </Pager>
 }

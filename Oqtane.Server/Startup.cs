@@ -72,7 +72,7 @@ namespace Oqtane
                 });
             }
 
-            // register authorization services
+            // register custom authorization policies
             services.AddAuthorizationCore(options =>
             {
                 options.AddPolicy("ViewPage", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Page, PermissionNames.View)));
