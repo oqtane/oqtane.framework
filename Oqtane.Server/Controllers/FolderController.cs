@@ -214,6 +214,11 @@ namespace Oqtane.Controllers
         {
             if (_userPermissions.IsAuthorized(User, EntityNames.Folder, id, PermissionNames.Edit))
             {
+                Models.Folder _folder = _folders.GetFolder(id, false);
+                if (Directory.Exists(GetFolderPath(_folder)))
+                {
+                    Directory.Delete(GetFolderPath(_folder));
+                }
                 _folders.DeleteFolder(id);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Folder Deleted {FolderId}", id);
             }

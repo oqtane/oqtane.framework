@@ -52,6 +52,31 @@ app {
         width: 80%; /* Could be more or less, depending on screen size */
     }
 
+/* Action Dialog */
+.app-actiondialog .modal {
+    position: fixed; /* Stay in place */
+    z-index: 9999; /* Sit on top */
+    left: 0;
+    top: 0;
+    display: block;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background: rgba(0,0,0,0.3); /* Dim background */
+}
+
+.app-actiondialog .modal-dialog {
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    max-width: none; /* Override default of 500px */
+}
+
+.app-actiondialog .modal-content {
+    margin: 15% auto; /* 15% from the top and centered */
+    width: 40%; /* Could be more or less, depending on screen size */
+}
+
+/* Admin Pane */
 .app-pane-admin-border {
     width: 100%;
     border-width: 1px;
