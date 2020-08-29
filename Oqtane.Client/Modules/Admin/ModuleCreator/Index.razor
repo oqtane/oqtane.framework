@@ -5,55 +5,69 @@
 @inject IModuleService ModuleService
 @inject ISystemService SystemService
 
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <Label For="owner" HelpText="Enter the name of the organization who is developing this module. It should not contain spaces or punctuation.">Owner Name: </Label>
-        </td>
-        <td>
-            <input id="owner" class="form-control" @bind="@_owner" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="module" HelpText="Enter a name for this module. It should not contain spaces or punctuation.">Module Name: </Label>
-        </td>
-        <td>
-            <input id="module" class="form-control" @bind="@_module" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="description" HelpText="Enter s short description for the module">Description: </Label>
-        </td>
-        <td>
-            <textarea id="description" class="form-control" @bind="@_description" rows="3"></textarea>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="template" HelpText="Select a module template. Internal modules are created inside of the Oqtane solution. External modules are created outside of the Oqtane solution.">Template: </Label>
-        </td>
-        <td>
-            <select id="template" class="form-control" @onchange="(e => TemplateChanged(e))">
-                <option value="-">&lt;Select Template&gt;</option>
-                <option value="internal">Internal</option>
-                <option value="external">External</option>
-            </select>
-        </td>
-    </tr>
-    @if (!string.IsNullOrEmpty(_location))
-    {
+    <table class="table table-borderless">
         <tr>
             <td>
-                <Label For="location" HelpText="Location where the module will be created">Location: </Label>
+                <Label For="owner" HelpText="Enter the name of the organization who is developing this module. It should not contain spaces or punctuation.">Owner Name: </Label>
             </td>
             <td>
-                <input id="module" class="form-control" @bind="@_location" readonly />
+                <input id="owner" class="form-control" @bind="@_owner" />
             </td>
         </tr>
-    }
-</table>
+        <tr>
+            <td>
+                <Label For="module" HelpText="Enter a name for this module. It should not contain spaces or punctuation.">Module Name: </Label>
+            </td>
+            <td>
+                <input id="module" class="form-control" @bind="@_module" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="description" HelpText="Enter s short description for the module">Description: </Label>
+            </td>
+            <td>
+                <textarea id="description" class="form-control" @bind="@_description" rows="3"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="template" HelpText="Select a module template. Internal modules are created inside of the Oqtane solution. External modules are created outside of the Oqtane solution.">Template: </Label>
+            </td>
+            <td>
+                <select id="template" class="form-control" @onchange="(e => TemplateChanged(e))">
+                    <option value="-">&lt;Select Template&gt;</option>
+                    <option value="internal">Internal</option>
+                    <option value="external">External</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="reference" HelpText="Select a framework reference version">Framework Reference: </Label>
+            </td>
+            <td>
+                <select id="reference" class="form-control" @bind="@_reference">
+                    @foreach (string version in Constants.ReleaseVersions.Split(','))
+                    {
+                        <option value="@(version)">@(version)</option>
+                    }
+                    <option value="local">Local</option>
+                </select>
+            </td>
+        </tr>
+        @if (!string.IsNullOrEmpty(_location))
+        {
+            <tr>
+                <td>
+                    <Label For="location" HelpText="Location where the module will be created">Location: </Label>
+                </td>
+                <td>
+                    <input id="module" class="form-control" @bind="@_location" readonly />
+                </td>
+            </tr>
+        }
+    </table>
 
 <button type="button" class="btn btn-success" @onclick="CreateModule">Create Module</button>
 
@@ -62,6 +76,7 @@
     private string _module = string.Empty;
     private string _description = string.Empty;
     private string _template = "-";
+    public string _reference = Constants.Version;
     private string _location = string.Empty;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
@@ -77,7 +92,7 @@
         {
             if (!string.IsNullOrEmpty(_owner) && !string.IsNullOrEmpty(_module) && _template != "-")
             {
-                var moduleDefinition = new ModuleDefinition { Owner = _owner.Replace(" ", ""), Name = _module.Replace(" ", ""), Description = _description, Template = _template };
+                var moduleDefinition = new ModuleDefinition { Owner = _owner.Replace(" ", ""), Name = _module.Replace(" ", ""), Description = _description, Template = _template, Version = _reference };
                 await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition, ModuleState.ModuleId);
             }
             else
