@@ -240,7 +240,20 @@ namespace Oqtane.Controllers
                     text = text.Replace("[ServerManagerType]", moduleDefinition.ServerManagerType);
                     text = text.Replace("[Folder]", folderPath);
                     text = text.Replace("[File]", Path.GetFileName(filePath));
-                    text = text.Replace("[FrameworkVersion]", Constants.Version);
+                    if (moduleDefinition.Version == "local")
+                    {
+                        text = text.Replace("[FrameworkVersion]", Constants.Version);
+                        text = text.Replace("[ClientReference]", "<Reference Include=\"Oqtane.Client\"><HintPath>..\\..\\oqtane.framework\\Oqtane.Server\\bin\\Debug\\netcoreapp3.1\\Oqtane.Client.dll</HintPath></Reference>");
+                        text = text.Replace("[ServerReference]", "<Reference Include=\"Oqtane.Server\"><HintPath>..\\..\\oqtane.framework\\Oqtane.Server\\bin\\Debug\\netcoreapp3.1\\Oqtane.Server.dll</HintPath></Reference>");
+                        text = text.Replace("[SharedReference]", "<Reference Include=\"Oqtane.Shared\"><HintPath>..\\..\\oqtane.framework\\Oqtane.Server\\bin\\Debug\\netcoreapp3.1\\Oqtane.Shared.dll</HintPath></Reference>");
+                    }
+                    else
+                    {
+                        text = text.Replace("[FrameworkVersion]", moduleDefinition.Version);
+                        text = text.Replace("[ClientReference]", "<PackageReference Include=\"Oqtane.Client\" Version=\"" + moduleDefinition.Version + "\" />");
+                        text = text.Replace("[ServerReference]", "<PackageReference Include=\"Oqtane.Server\" Version=\"" + moduleDefinition.Version + "\" />");
+                        text = text.Replace("[SharedReference]", "<PackageReference Include=\"Oqtane.Shared\" Version=\"" + moduleDefinition.Version + "\" />");
+                    }
                     System.IO.File.WriteAllText(filePath, text);
                 }
 
