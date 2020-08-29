@@ -15,6 +15,7 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using System.Xml.Linq;
+using System.Text.Json;
 
 namespace Oqtane.Controllers
 {
@@ -110,6 +111,7 @@ namespace Oqtane.Controllers
                 {
                     Type moduletype = Type.GetType(moduledefinition.ServerManagerType);
 
+                    // execute uninstall logic
                     foreach (Tenant tenant in _tenants.GetTenants())
                     {
                         try
@@ -130,25 +132,28 @@ namespace Oqtane.Controllers
                             _logger.Log(LogLevel.Error, this, LogFunction.Delete, "Error Uninstalling {ModuleDefinitionName} For Tenant {Tenant} {Error}", moduledefinition.ModuleDefinitionName, tenant.Name, ex.Message);
                         }
                     }
-                    
+
+                    // use assets.json to clean up file resources
+                    string assetfilepath = Path.Combine(_environment.WebRootPath, "Modules", Utilities.GetTypeName(moduledefinition.ModuleDefinitionName), "assets.json");
+                    if (System.IO.File.Exists(assetfilepath))
+                    {
+                        List<string> assets = JsonSerializer.Deserialize<List<string>>(System.IO.File.ReadAllText(assetfilepath));
+                        foreach(string asset in assets)
+                        {
+                            if (System.IO.File.Exists(asset))
+                            {
+                                System.IO.File.Delete(asset);
+                            }
+                        }
+                        _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Assets Removed For {ModuleDefinitionName}", moduledefinition.ModuleDefinitionName);
+                    }
+
                     // clean up module static resource folder
                     string folder = Path.Combine(_environment.WebRootPath, Path.Combine("Modules", Utilities.GetTypeName(moduledefinition.ModuleDefinitionName)));
                     if (Directory.Exists(folder))
                     {
                         Directory.Delete(folder, true);
-                        _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Static Resources Removed For {ModuleDefinitionName}", moduledefinition.ModuleDefinitionName);
-                    }
-
-                    // get root assembly name ( note that this only works if modules follow a specific naming convention for their assemblies )
-                    string assemblyname = Utilities.GetAssemblyName(moduledefinition.ModuleDefinitionName).ToLower();
-                    assemblyname = assemblyname.Replace(".client", "").Replace(".oqtane", "");
-
-                    // remove module assemblies from /bin
-                    string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-                    foreach (string file in Directory.EnumerateFiles(binfolder, assemblyname + "*.*"))
-                    {
-                        System.IO.File.Delete(file);
-                        _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Assembly {Filename} Removed For {ModuleDefinitionName}", file, moduledefinition.ModuleDefinitionName);
+                        _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Resources Folder Removed For {ModuleDefinitionName}", moduledefinition.ModuleDefinitionName);
                     }
 
                     // remove module definition
