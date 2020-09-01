@@ -72,6 +72,11 @@ Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalke
 
 [Oqtane POC](https://www.oqtane.org/Resources/Blog/PostId/520/announcing-oqtane-a-modular-application-framework-for-blazor)
 
+# Architecture
+
+![Architecture](https://github.com/oqtane/framework/blob/master/screenshots/Architecture.png?raw=true "Architecture")
+
+
 # Example Screenshots
 
 Install Wizard:
