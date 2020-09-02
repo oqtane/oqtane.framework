@@ -77,7 +77,9 @@ Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalke
 
 # Architecture
 
-![Architecture](https://github.com/oqtane/framework/blob/master/screenshots/Architecture.png?raw=true "Architecture")
+The following diagram visualizes the client and server components in the Oqtane architecture.
+
+![Architecture](https://github.com/oqtane/framework/blob/master/screenshots/Architecture.png?raw=true "Oqtane Architecture")
 
 
 # Example Screenshots
