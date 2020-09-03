@@ -48,9 +48,10 @@ V.Next ( still in the process of being prioritized )
 - [ ] JwT token authentication ( possibly using IdentityServer )
 - [ ] Optional Encryption for Settings Values 
 
-V1.0.0 (MVP) 
+V1.0.0 (MVP) - Released in conjunction with .NET Core 3.2 ( May 2020 )
 - [x] Multi-Tenant ( Shared Database & Isolated Database ) 
-- [x] Modular Architecture / Headless API
+- [x] Modular Architecture
+- [x] Headless API with Swagger Support
 - [x] Dynamic Page Compositing Model / Site & Page Management
 - [x] Authentication / User Management / Profile Management
 - [x] Authorization / Roles Management / Granular Permissions
@@ -63,6 +64,7 @@ V1.0.0 (MVP)
 - [x] Scheduled Jobs ( Background Processing )
 - [x] Notifications / Email Delivery
 - [x] Auto-Upgrade Framework
+- [x] Progressive Web Application Support
 
 # Background
 Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Initially created as a proof of concept, Oqtane is a native Blazor application written from the ground up using modern .NET Core technology. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly templates (skins), and extensibility via third party modules.
