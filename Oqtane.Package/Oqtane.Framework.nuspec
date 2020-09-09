@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>Oqtane.Framework</id>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <authors>Shaun Walker</authors>
     <owners>.NET Foundation</owners>
     <title>Oqtane Framework</title>
@@ -13,7 +13,7 @@
     <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
     <iconUrl>https://www.oqtane.org/Portals/0/icon.jpg</iconUrl>
     <tags>oqtane framework</tags>
-    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v1.0.3</releaseNotes>
+    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v1.0.4</releaseNotes>
     <summary>A modular application framework for Blazor</summary>
   </metadata>
   <files>
