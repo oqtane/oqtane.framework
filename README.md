@@ -1,11 +1,10 @@
 # Oqtane Framework
-Oqtane is a Modular Application Framework for Blazor
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Foqtane%2Foqtane.framework%2Fmaster%2Fazuredeploy.json)
 
 ![Oqtane](https://github.com/oqtane/framework/blob/master/oqtane.png?raw=true "Oqtane")
 
-Oqtane uses Blazor, an open source and cross-platform web UI framework for building single-page apps using .NET and C# instead of JavaScript. Blazor apps are composed of reusable web UI components implemented using C#, HTML, and CSS. Both client and server code is written in C#, allowing you to share code and libraries.
+Oqtane is a Modular Application Framework. It leverages Blazor, an open source and cross-platform web UI framework for building single-page apps using .NET and C# instead of JavaScript. Blazor apps are composed of reusable web UI components implemented using C#, HTML, and CSS. Both client and server code is written in C#, allowing you to share code and libraries.
 
 Oqtane is being developed based on some fundamental principles which are outlined in the [Oqtane Philosophy](https://www.oqtane.org/Resources/Blog/PostId/538/oqtane-philosophy).
 
@@ -32,6 +31,10 @@ Please note that this project is owned by the .NET Foundation and is governed by
    
 - If you want to submit pull requests make sure you install the [Github Extension For Visual Studio](https://visualstudio.github.com/). It is recommended you ignore any local changes you have made to the appsettings.json file before you submit a pull request. To automate this activity, open a command prompt and navigate to the /Oqtane.Server/ folder and enter the command "git update-index --skip-worktree appsettings.json" 
 
+**Video Series**
+
+- If you are getting started with Oqtane, a [series of videos](https://www.youtube.com/watch?v=JPfUZPlRRCE&list=PLYhXmd7yV0elLNLfQwZBUlM7ZSMYPTZ_f) are available which explain how to install the product, interact with the user interface, and develop custom modules.
+
 # Roadmap
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
 
@@ -45,9 +48,10 @@ V.Next ( still in the process of being prioritized )
 - [ ] JwT token authentication ( possibly using IdentityServer )
 - [ ] Optional Encryption for Settings Values 
 
-V1.0.0 (MVP) 
+V1.0.0 (MVP) - Released in conjunction with .NET Core 3.2 ( May 2020 )
 - [x] Multi-Tenant ( Shared Database & Isolated Database ) 
-- [x] Modular Architecture / Headless API
+- [x] Modular Architecture
+- [x] Headless API with Swagger Support
 - [x] Dynamic Page Compositing Model / Site & Page Management
 - [x] Authentication / User Management / Profile Management
 - [x] Authorization / Roles Management / Granular Permissions
@@ -60,6 +64,7 @@ V1.0.0 (MVP)
 - [x] Scheduled Jobs ( Background Processing )
 - [x] Notifications / Email Delivery
 - [x] Auto-Upgrade Framework
+- [x] Progressive Web Application Support
 
 # Background
 Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Initially created as a proof of concept, Oqtane is a native Blazor application written from the ground up using modern .NET Core technology. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly templates (skins), and extensibility via third party modules.
@@ -71,6 +76,13 @@ Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalke
 [Oqtane 1.0](https://www.oqtane.org/Resources/Blog/PostId/540/announcing-oqtane-10-a-modular-application-framework-for-blazor)
 
 [Oqtane POC](https://www.oqtane.org/Resources/Blog/PostId/520/announcing-oqtane-a-modular-application-framework-for-blazor)
+
+# Architecture
+
+The following diagram visualizes the client and server components in the Oqtane architecture.
+
+![Architecture](https://github.com/oqtane/framework/blob/master/screenshots/Architecture.png?raw=true "Oqtane Architecture")
+
 
 # Example Screenshots
 
