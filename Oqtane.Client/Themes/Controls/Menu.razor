@@ -1,6 +1,4 @@
-﻿@namespace Oqtane.Themes.Controls
-
-@switch (Orientation)
+﻿@switch (Orientation)
 {
     case "Horizontal":
         <MenuHorizontal/>
@@ -10,11 +8,4 @@
         <MenuVertical/>
         break;
     }
-}
-
-@code{
-
-    [Parameter]
-    public string Orientation { get; set; }
-
 }

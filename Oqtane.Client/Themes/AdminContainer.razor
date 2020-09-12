@@ -1,6 +1,5 @@
 ﻿@namespace Oqtane.Themes
 @inherits ContainerBase
-@inject NavigationManager NavigationManager
 
 <div class="app-admin-modal">
     <div class="modal" tabindex="-1" role="dialog">
@@ -17,11 +16,3 @@
         </div>
     </div>
 </div>
-
-@code {
-    private void CloseModal()
-    {
-        NavigationManager.NavigateTo(NavigateUrl());
-    }
-}
-

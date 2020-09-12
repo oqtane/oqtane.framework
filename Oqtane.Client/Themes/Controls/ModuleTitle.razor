@@ -3,20 +3,5 @@
 @attribute [OqtaneIgnore]
 
 <span class="app-moduletitle">
-    @((MarkupString)title)
+    @((MarkupString)Title)
 </span>
-
-@code {
-    private string title = "";
-
-    protected override Task OnParametersSetAsync()
-    {
-        title = ModuleState.Title;
-        // check for core module actions component
-        if (Constants.DefaultModuleActions.Contains(PageState.Action))
-        {
-            title = PageState.Action;
-        }
-        return Task.CompletedTask;
-    }
-}

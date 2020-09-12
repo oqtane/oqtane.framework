@@ -1,7 +1,5 @@
 ﻿@namespace Oqtane.Themes.Controls
-@inherits ThemeControlBase   
-
-@inject NavigationManager NavigationManager
+@inherits ThemeControlBase
 
 <span class="app-profile">
     <AuthorizeView>
@@ -19,18 +17,3 @@
         </NotAuthorized>
     </AuthorizeView>
 </span>
-
-@code {
-
-    private void RegisterUser()
-    {
-        NavigationManager.NavigateTo(NavigateUrl("register"));
-    }
-
-    private void UpdateProfile()
-    {
-        NavigationManager.NavigateTo(NavigateUrl("profile"));
-    }
-}
-
-
