@@ -4,16 +4,16 @@ using Microsoft.AspNetCore.Components.Routing;
 using Oqtane.Enums;
 using Oqtane.Models;
 using Oqtane.Modules;
+using Oqtane.Security;
 using Oqtane.Services;
 using Oqtane.Shared;
 using Oqtane.Themes;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Runtime.InteropServices;
-using Oqtane.Security;
+using System.Threading.Tasks;
 
 namespace Oqtane.UI
 {
