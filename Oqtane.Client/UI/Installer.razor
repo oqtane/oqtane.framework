@@ -1,11 +1,4 @@
-﻿@namespace Oqtane.UI
-@inject NavigationManager NavigationManager
-@inject IInstallationService InstallationService
-@inject ISiteService SiteService
-@inject IUserService UserService
-@inject IJSRuntime JSRuntime
-
-<div class="container">
+﻿<div class="container">
     <div class="row">
         <div class="mx-auto text-center">
             <img src="oqtane-black.png" />
@@ -23,7 +16,7 @@
                             <label class="control-label" style="font-weight: bold">Database Type: </label>
                         </td>
                         <td>
-                            <select class="custom-select" @bind="@_databaseType">
+                            <select class="custom-select" @bind="@DatabaseType">
                                 <option value="LocalDB">Local Database</option>
                                 <option value="SQLServer">SQL Server</option>
                             </select>
@@ -34,7 +27,7 @@
                             <label class="control-label" style="font-weight: bold">Server: </label>
                         </td>
                         <td>
-                            <input type="text" class="form-control" @bind="@_serverName" />
+                            <input type="text" class="form-control" @bind="@ServerName" />
                         </td>
                     </tr>
                     <tr>
@@ -42,7 +35,7 @@
                             <label class="control-label" style="font-weight: bold">Database: </label>
                         </td>
                         <td>
-                            <input type="text" class="form-control" @bind="@_databaseName" />
+                            <input type="text" class="form-control" @bind="@DatabaseName" />
                         </td>
                     </tr>
                     <tr>
@@ -56,20 +49,20 @@
                             </select>
                         </td>
                     </tr>
-                    <tr style="@_integratedSecurityDisplay">
+                    <tr style="@IntegratedSecurityDisplay">
                         <td>
                             <label class="control-label" style="font-weight: bold">Username: </label>
                         </td>
                         <td>
-                            <input type="text" class="form-control" @bind="@_username" />
+                            <input type="text" class="form-control" @bind="@Username" />
                         </td>
                     </tr>
-                    <tr style="@_integratedSecurityDisplay">
+                    <tr style="@IntegratedSecurityDisplay">
                         <td>
                             <label class="control-label" style="font-weight: bold">Password: </label>
                         </td>
                         <td>
-                            <input type="password" class="form-control" @bind="@_password" />
+                            <input type="password" class="form-control" @bind="@Password" />
                         </td>
                     </tr>
                 </tbody>
@@ -84,7 +77,7 @@
                             <label class="control-label" style="font-weight: bold">Username: </label>
                         </td>
                         <td>
-                            <input type="text" class="form-control" @bind="@_hostUsername" readonly />
+                            <input type="text" class="form-control" @bind="@HostUsername" readonly />
                         </td>
                     </tr>
                     <tr>
@@ -92,7 +85,7 @@
                             <label class="control-label" style="font-weight: bold">Password: </label>
                         </td>
                         <td>
-                            <input type="password" class="form-control" @bind="@_hostPassword" />
+                            <input type="password" class="form-control" @bind="@HostPassword" />
                         </td>
                     </tr>
                     <tr>
@@ -100,7 +93,7 @@
                             <label class="control-label" style="font-weight: bold">Confirm: </label>
                         </td>
                         <td>
-                            <input type="password" class="form-control" @bind="@_confirmPassword" />
+                            <input type="password" class="form-control" @bind="@ConfirmPassword" />
                         </td>
                     </tr>
                     <tr>
@@ -108,7 +101,7 @@
                             <label class="control-label" style="font-weight: bold">Email: </label>
                         </td>
                         <td>
-                            <input type="text" class="form-control" @bind="@_hostEmail" />
+                            <input type="text" class="form-control" @bind="@HostEmail" />
                         </td>
                     </tr>
                 </tbody>
@@ -119,96 +112,8 @@
     <div class="row">
         <div class="mx-auto text-center">
             <button type="button" class="btn btn-success" @onclick="Install">Install Now</button><br /><br />
-            @((MarkupString) _message)
+            @((MarkupString) Message)
         </div>
-        <div class="app-progress-indicator" style="@_loadingDisplay"></div>
+        <div class="app-progress-indicator" style="@LoadingDisplay"></div>
     </div>
 </div>
-
-@code {
-    private string _databaseType = "LocalDB";
-    private string _serverName = "(LocalDb)\\MSSQLLocalDB";
-    private string _databaseName = "Oqtane-" + DateTime.UtcNow.ToString("yyyyMMddHHmm");
-    private string _username = "";
-    private string _password = "";
-    private string _hostUsername = Constants.HostUser;
-    private string _hostPassword = "";
-    private string _confirmPassword = "";
-    private string _hostEmail = "";
-    private string _message = "";
-    private string _integratedSecurityDisplay = "display: none;";
-    private string _loadingDisplay = "display: none;";
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            var interop = new Interop(JSRuntime);
-            await interop.IncludeLink("app-stylesheet", "stylesheet", "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css", "text/css", "sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T", "anonymous", "");
-        }
-    }
-
-    private void SetIntegratedSecurity(ChangeEventArgs e)
-    {
-        _integratedSecurityDisplay = Convert.ToBoolean((string)e.Value)
-            ? "display: none;"
-            : string.Empty;
-    }
-
-    private async Task Install()
-    {
-        if (_serverName != "" && _databaseName != "" && _hostUsername != "" && _hostPassword.Length >= 6 && _hostPassword == _confirmPassword && _hostEmail != "")
-        {
-            _loadingDisplay = "";
-            StateHasChanged();
-
-            var connectionstring = "";
-            if (_databaseType == "LocalDB")
-            {
-                connectionstring = "Data Source=" + _serverName + ";AttachDbFilename=|DataDirectory|\\" + _databaseName + ".mdf;Initial Catalog=" + _databaseName + ";Integrated Security=SSPI;";
-            }
-            else
-            {
-                connectionstring = "Data Source=" + _serverName + ";Initial Catalog=" + _databaseName + ";";
-                if (_integratedSecurityDisplay == "display: none;")
-                {
-                    connectionstring += "Integrated Security=SSPI;";
-                }
-                else
-                {
-                    connectionstring += "User ID=" + _username + ";Password=" + _password;
-                }
-            }
-
-            Uri uri = new Uri(NavigationManager.Uri);
-
-            var config = new InstallConfig
-            {
-                ConnectionString = connectionstring,
-                Aliases = uri.Authority,
-                HostEmail = _hostEmail,
-                HostPassword = _hostPassword,
-                HostName = Constants.HostUser,
-                TenantName = Constants.MasterTenant,
-                IsNewTenant = true,
-                SiteName = Constants.DefaultSite
-            };
-
-            var installation = await InstallationService.Install(config);
-            if (installation.Success)
-            {
-                NavigationManager.NavigateTo(uri.Scheme + "://" + uri.Authority, true);
-            }
-            else
-            {
-                _message = "<div class=\"alert alert-danger\" role=\"alert\">" + installation.Message + "</div>";
-                _loadingDisplay = "display: none;";
-            }
-        }
-        else
-        {
-            _message = "<div class=\"alert alert-danger\" role=\"alert\">Please Enter All Fields And Ensure Passwords Match And Are Greater Than 5 Characters In Length</div>";
-        }
-    }
-
-}
