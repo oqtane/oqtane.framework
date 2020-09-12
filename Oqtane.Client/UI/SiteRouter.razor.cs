@@ -10,6 +10,7 @@ using Oqtane.Shared;
 using Oqtane.Themes;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -100,7 +101,7 @@ namespace Oqtane.UI
                 }
                 else
                 {
-                    System.Diagnostics.Debug.WriteLine(GetType().FullName + ": Error: API call to " + _absoluteUri + " is not mapped to a Controller");
+                    Debug.WriteLine(GetType().FullName + ": Error: API call to " + _absoluteUri + " is not mapped to a Controller");
                 }
             }
         }
@@ -211,7 +212,7 @@ namespace Oqtane.UI
                     path += "/";
                 }
 
-                if (alias.Path != "")
+                if (alias.Path != string.Empty)
                 {
                     path = path.Substring(alias.Path.Length + 1);
                 }
@@ -261,18 +262,18 @@ namespace Oqtane.UI
                     moduleid = result;
                     if (actionPos > segments.Length - 1)
                     {
-                        path = path.Replace(segments[modIdPos - 1] + "/" + segments[modIdPos] + "/", "");
+                        path = path.Replace(segments[modIdPos - 1] + "/" + segments[modIdPos] + "/", string.Empty);
                     }
                     else
                     {
-                        path = path.Replace(segments[modIdPos - 1] + "/" + segments[modIdPos] + "/" + segments[actionPos] + "/", "");
+                        path = path.Replace(segments[modIdPos - 1] + "/" + segments[modIdPos] + "/" + segments[actionPos] + "/", string.Empty);
                     }
 
                 }
 
                 if (urlParametersPos > 0)
                 {
-                    path = path.Replace(segments[urlParametersPos - 1] + urlparameters + "/", "");
+                    path = path.Replace(segments[urlParametersPos - 1] + urlparameters + "/", string.Empty);
                 }
 
                 // remove trailing slash so it can be used as a key for Pages
@@ -288,7 +289,7 @@ namespace Oqtane.UI
                 }
 
                 // failsafe in case router cannot locate the home page for the site
-                if (page == null && path == "")
+                if (page == null && path == string.Empty)
                 {
                     page = pages.FirstOrDefault();
                     path = page.Path;
@@ -360,10 +361,10 @@ namespace Oqtane.UI
                     else
                     {
                         await _logService.Log(null, null, user.UserId, GetType().AssemblyQualifiedName, Utilities.GetTypeNameLastSegment(GetType().AssemblyQualifiedName, 1), LogFunction.Security, LogLevel.Error, null, "Page Does Not Exist Or User Is Not Authorized To View Page {Path}", path);
-                        if (path != "")
+                        if (path != string.Empty)
                         {
                             // redirect to home page
-                            _navigationManager.NavigateTo(Utilities.NavigateUrl(alias.Path, "", ""));
+                            _navigationManager.NavigateTo(Utilities.NavigateUrl(alias.Path, string.Empty, string.Empty));
                         }
                     }
                 }
@@ -399,7 +400,7 @@ namespace Oqtane.UI
                 query = query.Substring(1); // ignore "?"
                 foreach (string kvp in query.Split(new[] { '&' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    if (kvp != "")
+                    if (kvp != string.Empty)
                     {
                         if (kvp.Contains("="))
                         {
@@ -435,7 +436,7 @@ namespace Oqtane.UI
                 page.Panes = new List<string>();
                 page.Resources = new List<Resource>();
 
-                string panes = "";
+                string panes = string.Empty;
                 Type themetype = Type.GetType(page.ThemeType);
                 if (themetype == null)
                 {
@@ -485,7 +486,7 @@ namespace Oqtane.UI
                 if (module.PageId == page.PageId || module.ModuleId == moduleid)
                 {
                     var typename = string.Empty;
-                    if (module.ModuleDefinition != null && (module.ModuleDefinition.Runtimes == "" || module.ModuleDefinition.Runtimes.Contains(GetRuntime().ToString())))
+                    if (module.ModuleDefinition != null && (module.ModuleDefinition.Runtimes == string.Empty || module.ModuleDefinition.Runtimes.Contains(GetRuntime().ToString())))
                     {
                         typename = module.ModuleDefinition.ControlTypeTemplate;
                     }
@@ -494,16 +495,16 @@ namespace Oqtane.UI
                         typename = Constants.ErrorModule;
                     }
 
-                    if (module.ModuleId == moduleid && action != "")
+                    if (module.ModuleId == moduleid && action != string.Empty)
                     {
                         // check if the module defines custom routes
-                        if (module.ModuleDefinition.ControlTypeRoutes != "")
+                        if (module.ModuleDefinition.ControlTypeRoutes != string.Empty)
                         {
                             foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
                             {
                                 if (route.StartsWith(action + "="))
                                 {
-                                    typename = route.Replace(action + "=", "");
+                                    typename = route.Replace(action + "=", string.Empty);
                                 }
                             }
                         }
@@ -526,15 +527,15 @@ namespace Oqtane.UI
                     // ensure component implements IModuleControl
                     if (moduletype != null && !moduletype.GetInterfaces().Contains(typeof(IModuleControl)))
                     {
-                        module.ModuleType = "";
+                        module.ModuleType = string.Empty;
                     }
-                    if (moduletype != null && module.ModuleType != "")
+                    if (moduletype != null && module.ModuleType != string.Empty)
                     {
                         var moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
                         page.Resources = ManagePageResources(page.Resources, moduleobject.Resources);
 
                         // additional metadata needed for admin components
-                        if (module.ModuleId == moduleid && action != "")
+                        if (module.ModuleId == moduleid && action != string.Empty)
                         {
                             module.SecurityAccessLevel = moduleobject.SecurityAccessLevel;
                             module.ControlTitle = moduleobject.Title;

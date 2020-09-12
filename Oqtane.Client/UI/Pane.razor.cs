@@ -11,19 +11,8 @@ namespace Oqtane.UI
 {
     public partial class Pane
     {
-        private readonly IUserService _userService;
-        private readonly IModuleService _moduleService;
-        private readonly IModuleDefinitionService _moduleDefinitionService;
-
-        public Pane(IUserService userService, IModuleService moduleService, IModuleDefinitionService moduleDefinitionService)
-        {
-            _userService = userService;
-            _moduleService = moduleService;
-            _moduleDefinitionService = moduleDefinitionService;
-        }
-
-        private string _paneadminborder = "";
-        private string _panetitle = "";
+        private string _paneadminborder = string.Empty;
+        private string _panetitle = string.Empty;
 
         [CascadingParameter]
         protected PageState PageState { get; set; }
@@ -42,8 +31,8 @@ namespace Oqtane.UI
             }
             else
             {
-                _paneadminborder = "";
-                _panetitle = "";
+                _paneadminborder = string.Empty;
+                _panetitle = string.Empty;
             }
 
             DynamicComponent = builder =>
@@ -94,7 +83,7 @@ namespace Oqtane.UI
 
                                 if (authorized)
                                 {
-                                    if (!Constants.DefaultModuleActions.Contains(PageState.Action) && module.ControlTitle != "")
+                                    if (!Constants.DefaultModuleActions.Contains(PageState.Action) && module.ControlTitle != string.Empty)
                                     {
                                         module.Title = module.ControlTitle;
                                     }

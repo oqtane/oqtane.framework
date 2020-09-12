@@ -13,16 +13,12 @@ namespace Oqtane.UI
         [Parameter]
         public Module Module { get; set; }
 
-        public Module ModuleState { get; private set; }
-
         RenderFragment DynamicComponent { get; set; }
 
         protected override void OnParametersSet()
         {
-            ModuleState = Module; // passed in from Pane component
-
-            var container = ModuleState.ContainerType;
-            if (PageState.ModuleId != -1 && ModuleState.UseAdminContainer)
+            var container = Module.ContainerType;
+            if (PageState.ModuleId != -1 && Module.UseAdminContainer)
             {
                 container = Constants.DefaultAdminContainer;
             }

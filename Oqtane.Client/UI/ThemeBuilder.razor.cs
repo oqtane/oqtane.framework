@@ -50,15 +50,15 @@ namespace Oqtane.UI
             var links = new List<object>();
             foreach (Resource resource in PageState.Page.Resources.Where(item => item.ResourceType == ResourceType.Stylesheet))
             {
-                links.Add(new { id = "app-stylesheet-" + batch + "-" + (links.Count + 1).ToString("00"), rel = "stylesheet", href = resource.Url, type = "text/css", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "", key = "" });
+                links.Add(new { id = "app-stylesheet-" + batch + "-" + (links.Count + 1).ToString("00"), rel = "stylesheet", href = resource.Url, type = "text/css", integrity = resource.Integrity ?? string.Empty, crossorigin = resource.CrossOrigin ?? string.Empty, key = string.Empty });
             }
             await interop.IncludeLinks(links.ToArray());
-            await interop.RemoveElementsById("app-stylesheet", "", "app-stylesheet-" + batch + "-00");
+            await interop.RemoveElementsById("app-stylesheet", string.Empty, "app-stylesheet-" + batch + "-00");
 
             // add favicon
             if (PageState.Site.FaviconFileId != null)
             {
-                await interop.IncludeLink("app-favicon", "shortcut icon", Utilities.ContentUrl(PageState.Alias, PageState.Site.FaviconFileId.Value), "image/x-icon", "", "", "id");
+                await interop.IncludeLink("app-favicon", "shortcut icon", Utilities.ContentUrl(PageState.Alias, PageState.Site.FaviconFileId.Value), "image/x-icon", string.Empty, string.Empty, "id");
             }
             // add PWA support
             if (PageState.Site.PwaIsEnabled)
@@ -101,7 +101,7 @@ namespace Oqtane.UI
                 "document.getElementById('app-manifest').setAttribute('href', url); " +
                 "} " +
                 ", 1000);";
-            await interop.IncludeScript("app-pwa", "", "", "", manifest, "body", "id");
+            await interop.IncludeScript("app-pwa", string.Empty, string.Empty, string.Empty, manifest, "body", "id");
 
             // service worker must be in root of site
             string serviceworker = "if ('serviceWorker' in navigator) { " +
@@ -111,7 +111,7 @@ namespace Oqtane.UI
                     "console.log('ServiceWorker Registration Failed ', err); " +
                 "}); " +
                 "}";
-            await interop.IncludeScript("app-serviceworker", "", "", "", serviceworker, "body", "id");
+            await interop.IncludeScript("app-serviceworker", string.Empty, string.Empty, string.Empty, serviceworker, "body", "id");
         }
     }
 }

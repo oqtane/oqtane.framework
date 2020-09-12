@@ -20,25 +20,25 @@ namespace Oqtane.UI
             _jsRuntime = jsRuntime;
         }
 
-        public string DatabaseType { get; private set; } = "LocalDB";
+        public string DatabaseType { get; set; } = "LocalDB";
 
-        public string ServerName { get; private set; } = "(LocalDb)\\MSSQLLocalDB";
+        public string ServerName { get; set; } = "(LocalDb)\\MSSQLLocalDB";
 
-        public string DatabaseName { get; private set; } = "Oqtane-" + DateTime.UtcNow.ToString("yyyyMMddHHmm");
+        public string DatabaseName { get; set; } = "Oqtane-" + DateTime.UtcNow.ToString("yyyyMMddHHmm");
 
-        public string Username { get; private set; } = "";
+        public string Username { get; set; }
 
-        public string Password { get; private set; } = "";
+        public string Password { get; set; }
 
-        public string HostUsername { get; private set; } = Constants.HostUser;
+        public string HostUsername { get; set; } = Constants.HostUser;
 
-        public string HostPassword { get; private set; } = "";
+        public string HostPassword { get; set; }
 
-        public string ConfirmPassword { get; private set; } = "";
+        public string ConfirmPassword { get; set; }
 
-        public string HostEmail { get; private set; } = "";
+        public string HostEmail { get; set; }
 
-        public string Message { get; private set; } = "";
+        public string Message { get; private set; }
 
         public string IntegratedSecurityDisplay { get; private set; } = "display: none;";
 
@@ -49,7 +49,7 @@ namespace Oqtane.UI
             if (firstRender)
             {
                 var interop = new Interop(_jsRuntime);
-                await interop.IncludeLink("app-stylesheet", "stylesheet", "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css", "text/css", "sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T", "anonymous", "");
+                await interop.IncludeLink("app-stylesheet", "stylesheet", "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css", "text/css", "sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T", "anonymous", string.Empty);
             }
         }
 
@@ -62,12 +62,12 @@ namespace Oqtane.UI
 
         private async Task Install()
         {
-            if (ServerName != "" && DatabaseName != "" && HostUsername != "" && HostPassword.Length >= 6 && HostPassword == ConfirmPassword && HostEmail != "")
+            if (ServerName != string.Empty && !string.IsNullOrEmpty(DatabaseName) && HostUsername != string.Empty && HostPassword.Length >= 6 && HostPassword == ConfirmPassword && !string.IsNullOrEmpty(HostEmail))
             {
-                LoadingDisplay = "";
+                LoadingDisplay = string.Empty;
                 StateHasChanged();
 
-                var connectionstring = "";
+                var connectionstring = string.Empty;
                 if (DatabaseType == "LocalDB")
                 {
                     connectionstring = "Data Source=" + ServerName + ";AttachDbFilename=|DataDirectory|\\" + DatabaseName + ".mdf;Initial Catalog=" + DatabaseName + ";Integrated Security=SSPI;";
