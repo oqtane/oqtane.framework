@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Oqtane.Enums;
 using Oqtane.Models;
 using Oqtane.Security;
 using Oqtane.Services;
@@ -12,6 +13,19 @@ namespace Oqtane.Themes.Controls
 {
     public partial class ControlPanel : ThemeControlBase
     {
+        private string settingCategory = "CP-category";
+        private string settingPane = "CP-pane";
+        private string _pane = string.Empty;
+        private bool _deleteConfirmation = false;
+        private List<string> _categories = new List<string>();
+        private List<ModuleDefinition> _allModuleDefinitions;
+        private List<ModuleDefinition> _moduleDefinitions;
+        private List<Page> _pages = new List<Page>();
+        private List<Module> _modules = new List<Module>();
+        private List<ThemeControl> _containers = new List<ThemeControl>();
+        private string _display = "display: none;";
+        private string _category = "Common";
+
         private readonly NavigationManager _navigationManager;
         private readonly IUserService _userService;
         private readonly IModuleDefinitionService _moduleDefinitionService;
@@ -44,16 +58,6 @@ namespace Oqtane.Themes.Controls
             _settingService = settingService;
         }
 
-        private bool _deleteConfirmation = false;
-        private List<string> _categories = new List<string>();
-        private List<ModuleDefinition> _allModuleDefinitions;
-        private List<ModuleDefinition> _moduleDefinitions;
-        private List<Page> _pages = new List<Page>();
-        private List<Module> _modules = new List<Module>();
-        private List<ThemeControl> _containers = new List<ThemeControl>();
-        private string _display = "display: none;";
-        private string _category = "Common";
-
         protected string PageId { get; private set; } = "-";
 
         protected string ModuleId { get; private set; } = "-";
@@ -72,7 +76,7 @@ namespace Oqtane.Themes.Controls
                     _category = value;
                     _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(Category)).ToList();
                     ModuleDefinitionName = "-";
-                    Description = "";
+                    Description = string.Empty;
                     StateHasChanged();
                     _ = UpdateSettingsAsync();
                 }
@@ -151,7 +155,7 @@ namespace Oqtane.Themes.Controls
             }
             else
             {
-                Description = "";
+                Description = string.Empty;
             }
 
             StateHasChanged();
@@ -196,7 +200,7 @@ namespace Oqtane.Themes.Controls
                         ModuleId = int.Parse(ModuleId),
                         Title = Title
                     };
-                    if (pageModule.Title == "")
+                    if (pageModule.Title == string.Empty)
                     {
                         if (ModuleType == "new")
                         {
@@ -214,7 +218,7 @@ namespace Oqtane.Themes.Controls
 
                     if (pageModule.ContainerType == PageState.Site.DefaultContainerType)
                     {
-                        pageModule.ContainerType = "";
+                        pageModule.ContainerType = string.Empty;
                     }
 
                     await _pageModuleService.AddPageModuleAsync(pageModule);
@@ -262,14 +266,14 @@ namespace Oqtane.Themes.Controls
 
         private void ShowControlPanel()
         {
-            Message = "";
+            Message = string.Empty;
             _display = "width: 25%; min-width: 375px;";
             StateHasChanged();
         }
 
         private void HideControlPanel()
         {
-            Message = "";
+            Message = string.Empty;
             _display = "width: 0%;";
             StateHasChanged();
         }
@@ -286,13 +290,13 @@ namespace Oqtane.Themes.Controls
 
                     if (module != null)
                     {
-                        _navigationManager.NavigateTo(EditUrl(PageState.Page.Path, module.ModuleId, "Index", ""));
+                        _navigationManager.NavigateTo(EditUrl(PageState.Page.Path, module.ModuleId, "Index", string.Empty));
                     }
 
                     break;
                 case "Add":
                 case "Edit":
-                    string url = "";
+                    string url = string.Empty;
                     // get page management moduleid
                     module = PageState.Modules.FirstOrDefault(item => item.ModuleDefinitionName == Constants.PageManagementModule);
 
@@ -301,7 +305,7 @@ namespace Oqtane.Themes.Controls
                         switch (location)
                         {
                             case "Add":
-                                url = EditUrl(PageState.Page.Path, module.ModuleId, location, "");
+                                url = EditUrl(PageState.Page.Path, module.ModuleId, location, string.Empty);
                                 break;
                             case "Edit":
                                 url = EditUrl(PageState.Page.Path, module.ModuleId, location, "id=" + PageState.Page.PageId.ToString());
@@ -309,7 +313,7 @@ namespace Oqtane.Themes.Controls
                         }
                     }
 
-                    if (url != "")
+                    if (url != string.Empty)
                     {
                         _navigationManager.NavigateTo(url);
                     }
@@ -391,7 +395,7 @@ namespace Oqtane.Themes.Controls
                     page.IsDeleted = true;
                     await _pageService.UpdatePageAsync(page);
                     await _logger.Log(page.PageId, null, PageState.User.UserId, GetType().AssemblyQualifiedName, "ControlPanel", LogFunction.Delete, LogLevel.Information, null, "Page Deleted {Page}", page);
-                    _navigationManager.NavigateTo(NavigateUrl(""));
+                    _navigationManager.NavigateTo(NavigateUrl(string.Empty));
                 }
                 else // personalized page
                 {
@@ -406,15 +410,11 @@ namespace Oqtane.Themes.Controls
             }
         }
 
-        private string settingCategory = "CP-category";
-        private string settingPane = "CP-pane";
-        private string _pane = "";
-
         private async Task LoadSettingsAsync()
         {
             Dictionary<string, string> settings = await _settingService.GetUserSettingsAsync(PageState.User.UserId);
             _category = _settingService.GetSetting(settings, settingCategory, "Common");
-            var pane = _settingService.GetSetting(settings, settingPane, "");
+            var pane = _settingService.GetSetting(settings, settingPane, string.Empty);
             _pane = PageState.Page.Panes.Contains(pane) ? pane : PageState.Page.Panes.FirstOrDefault();
         }
 
