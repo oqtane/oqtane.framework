@@ -119,7 +119,7 @@ namespace Oqtane.Infrastructure
                             // save list of assets
                             if (assets.Count != 0)
                             {
-                                string assetfilepath = Path.Combine(webRootPath, "Modules", name, "assets.json");
+                                string assetfilepath = Path.Combine(webRootPath, folder, name, "assets.json");
                                 if (File.Exists(assetfilepath))
                                 {
                                     File.Delete(assetfilepath);

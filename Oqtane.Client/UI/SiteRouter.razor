@@ -390,6 +390,10 @@
             if (string.IsNullOrEmpty(page.ThemeType))
             {
                 page.ThemeType = site.DefaultThemeType;
+            }
+
+            if (string.IsNullOrEmpty(page.LayoutType))
+            {
                 page.LayoutType = site.DefaultLayoutType;
             }
 
