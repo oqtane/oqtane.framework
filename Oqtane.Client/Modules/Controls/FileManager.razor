@@ -290,13 +290,13 @@
                 else
                 {
                     await logger.LogError("File Upload Failed For {Files}", result.Replace(",", ", "));
-                    _message = "<br /><div class=\"alert alert-danger\" role=\"alert\">File Upload Failed</div>";
+                    _message = DangerMessage("File Upload Failed");
                 }
             }
             catch (Exception ex)
             {
                 await logger.LogError(ex, "File Upload Failed {Error}", ex.Message);
-                _message = "<br /><div class=\"alert alert-danger\" role=\"alert\">File Upload Failed</div>";
+                _message = DangerMessage("File Upload Failed");
             }
         }
         else
@@ -322,10 +322,15 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting File {File} {Error}", FileId, ex.Message);
-            _message = "<br /><div class=\"alert alert-danger\" role=\"alert\">Error Deleting File</div>";
+            _message = DangerMessage("Error Deleting File");
         }
     }
 
     public int GetFileId() => FileId;
+
+    private static string DangerMessage(string message)
+    {
+        return $"<br /><div class=\"alert alert-danger\" role=\"alert\">{message}</div>";
+    }
 
 }
