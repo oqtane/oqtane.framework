@@ -444,8 +444,8 @@ namespace Oqtane.Controllers
                     string filepath = Path.Combine(GetFolderPath(file.Folder), file.Name);
                     if (System.IO.File.Exists(filepath))
                     {
-                        byte[] filebytes = System.IO.File.ReadAllBytes(filepath);
-                        return File(filebytes, "application/octet-stream", file.Name);
+                        var stream = new FileStream(filepath, FileMode.Open);
+                        return File(stream, "application/octet-stream", file.Name);
                     }
                     else
                     {
@@ -453,8 +453,8 @@ namespace Oqtane.Controllers
                         HttpContext.Response.StatusCode = 404;
                         if (System.IO.File.Exists(errorpath))
                         {
-                            byte[] filebytes = System.IO.File.ReadAllBytes(errorpath);
-                            return File(filebytes, "application/octet-stream", file.Name);
+                            var stream = new FileStream(errorpath, FileMode.Open);
+                            return File(stream, "application/octet-stream", file.Name);
                         }
                     }
                 }
@@ -462,16 +462,16 @@ namespace Oqtane.Controllers
                 {
                     _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access File {FileId}", id);
                     HttpContext.Response.StatusCode = 401;
-                    byte[] filebytes = System.IO.File.ReadAllBytes(errorpath);
-                    return File(filebytes, "application/octet-stream", file.Name);
+                    var stream = new FileStream(errorpath, FileMode.Open);
+                    return File(stream, "application/octet-stream", file.Name);
                 }
             }
             else
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Not Found {FileId}", id);
                 HttpContext.Response.StatusCode = 404;
-                byte[] filebytes = System.IO.File.ReadAllBytes(errorpath);
-                return File(filebytes, "application/octet-stream", "error.png");
+                var stream = new FileStream(errorpath, FileMode.Open);
+                return File(stream, "application/octet-stream", file.Name);
             }
             return null;
         }

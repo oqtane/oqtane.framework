@@ -673,12 +673,22 @@ namespace Oqtane.Repository
             Folder folder = _folderRepository.AddFolder(new Folder
             {
                 SiteId = site.SiteId, ParentId = null, Name = "Root", Path = "", Order = 1, IsSystem = true,
-                Permissions = "[{\"PermissionName\":\"Browse\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"View\",\"Permissions\":\"All Users\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]"
+                Permissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.Browse, Constants.AdminRole, true),
+                    new Permission(PermissionNames.View, Constants.AllUsersRole, true),
+                    new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                }.EncodePermissions()
             });
             _folderRepository.AddFolder(new Folder
             {
                 SiteId = site.SiteId, ParentId = folder.FolderId, Name = "Users", Path = Utilities.PathCombine("Users",Path.DirectorySeparatorChar.ToString()), Order = 1, IsSystem = true,
-                Permissions = "[{\"PermissionName\":\"Browse\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"View\",\"Permissions\":\"Administrators\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"Administrators\"}]"
+                Permissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.Browse, Constants.AdminRole, true),
+                    new Permission(PermissionNames.View, Constants.AdminRole, true),
+                    new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                }.EncodePermissions()
             });
 
             // process site template first

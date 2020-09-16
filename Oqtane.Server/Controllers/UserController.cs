@@ -14,6 +14,7 @@ using System.Net;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
+using Oqtane.Extensions;
 
 namespace Oqtane.Controllers
 {
@@ -186,8 +187,12 @@ namespace Oqtane.Controllers
                                 Path = Utilities.PathCombine(folder.Path, newUser.UserId.ToString(),Path.DirectorySeparatorChar.ToString()),
                                 Order = 1,
                                 IsSystem = true,
-                                Permissions = "[{\"PermissionName\":\"Browse\",\"Permissions\":\"[" + newUser.UserId.ToString() + "]\"},{\"PermissionName\":\"View\",\"Permissions\":\"All Users\"},{\"PermissionName\":\"Edit\",\"Permissions\":\"[" +
-                                              newUser.UserId.ToString() + "]\"}]"
+                                Permissions = new List<Permission>
+                                {
+                                    new Permission(PermissionNames.Browse, newUser.UserId, true),
+                                    new Permission(PermissionNames.View, Constants.AllUsersRole, true),
+                                    new Permission(PermissionNames.Edit, newUser.UserId, true)
+                                }.EncodePermissions()
                             });
                         }
                     }

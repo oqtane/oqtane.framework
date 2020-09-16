@@ -58,7 +58,7 @@ namespace Oqtane.Controllers
             if (theme != null && Utilities.GetAssemblyName(theme.ThemeName) != "Oqtane.Client")
             {
                 // use assets.json to clean up file resources
-                string assetfilepath = Path.Combine(_environment.WebRootPath, "Modules", Utilities.GetTypeName(theme.ThemeName), "assets.json");
+                string assetfilepath = Path.Combine(_environment.WebRootPath, "Themes", Utilities.GetTypeName(theme.ThemeName), "assets.json");
                 if (System.IO.File.Exists(assetfilepath))
                 {
                     List<string> assets = JsonSerializer.Deserialize<List<string>>(System.IO.File.ReadAllText(assetfilepath));
@@ -81,24 +81,6 @@ namespace Oqtane.Controllers
                 }
 
                 _installationManager.RestartApplication();
-            }
-        }
-
-        // GET api/<controller>/load/assembyname
-        [HttpGet("load/{assemblyname}")]
-        public IActionResult Load(string assemblyname)
-        {
-            if (Path.GetExtension(assemblyname).ToLower() == ".dll")
-            {
-                string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-                byte[] file = System.IO.File.ReadAllBytes(Path.Combine(binfolder, assemblyname));
-                return File(file, "application/octet-stream", assemblyname);
-            }
-            else
-            {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Download Assembly {Assembly}", assemblyname);
-                HttpContext.Response.StatusCode = 401;
-                return null;
             }
         }
 
