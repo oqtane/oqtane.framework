@@ -70,7 +70,7 @@
                         </span>
                     </div>
                 }
-                @((MarkupString) _message)
+                <Alert @ref=_alert></Alert>
             </div>
             @if (_image != string.Empty)
             {
@@ -91,9 +91,9 @@
     private string _progressbarid = string.Empty;
     private string _filter = "*";
     private bool _haseditpermission = false;
-    private string _message = string.Empty;
     private string _image = string.Empty;
     private string _guid;
+    private Alert _alert = new Alert();
 
     [Parameter]
     public string Id { get; set; } // optional - for setting the id of the FileManager component for accessibility
@@ -205,7 +205,6 @@
 
     private async Task FolderChanged(ChangeEventArgs e)
     {
-        _message = string.Empty;
         try
         {
             FolderId = int.Parse((string)e.Value);
@@ -217,13 +216,14 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Files {Error}", ex.Message);
-            _message = "<br /><div class=\"alert alert-danger\" role=\"alert\">Error Loading Files</div>";
+
+            _alert.Type = AlertType.Danger;
+            _alert.Message = "Error Loading Files";
         }
     }
 
     private async Task FileChanged(ChangeEventArgs e)
     {
-        _message = string.Empty;
         FileId = int.Parse((string)e.Value);
 
         await SetImage();
@@ -273,7 +273,10 @@
                 if (result == string.Empty)
                 {
                     await logger.LogInformation("File Upload Succeeded {Files}", upload);
-                    _message = "<br /><div class=\"alert alert-success\" role=\"alert\">File Upload Succeeded</div>";
+
+                    _alert.Type = AlertType.Success;
+                    _alert.Message = "File Upload Succeeded";
+
                     await GetFiles();
 
                     if (upload.Length == 1)
@@ -290,30 +293,36 @@
                 else
                 {
                     await logger.LogError("File Upload Failed For {Files}", result.Replace(",", ", "));
-                    _message = "<br /><div class=\"alert alert-danger\" role=\"alert\">File Upload Failed</div>";
+
+                    _alert.Type = AlertType.Danger;
+                    _alert.Message = "File Upload Failed";
                 }
             }
             catch (Exception ex)
             {
                 await logger.LogError(ex, "File Upload Failed {Error}", ex.Message);
-                _message = "<br /><div class=\"alert alert-danger\" role=\"alert\">File Upload Failed</div>";
+
+                _alert.Type = AlertType.Danger;
+                _alert.Message = "File Upload Failed";
             }
         }
         else
         {
-            _message = "<br /><div class=\"alert alert-warning\" role=\"alert\">You Have Not Selected A File To Upload</div>";
+            _alert.Type = AlertType.Warning;
+            _alert.Message = "You Have Not Selected A File To Upload";
         }
     }
 
     private async Task DeleteFile()
     {
-        _message = string.Empty;
-
         try
         {
             await FileService.DeleteFileAsync(FileId);
             await logger.LogInformation("File Deleted {File}", FileId);
-            _message = "<br /><div class=\"alert alert-success\" role=\"alert\">File Deleted</div>";
+
+            _alert.Type = AlertType.Success;
+            _alert.Message = "File Deleted";
+
             await GetFiles();
             FileId = -1;
             await SetImage();
@@ -322,7 +331,9 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting File {File} {Error}", FileId, ex.Message);
-            _message = "<br /><div class=\"alert alert-danger\" role=\"alert\">Error Deleting File</div>";
+
+            _alert.Type = AlertType.Danger;
+            _alert.Message = "Error Deleting File";
         }
     }
 
