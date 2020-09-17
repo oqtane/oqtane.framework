@@ -46,7 +46,7 @@ namespace Oqtane.Shared
         public const string RegisteredRole = "Registered Users";
 
         public const string ImageFiles = "jpg,jpeg,jpe,gif,bmp,png,svg,ico";
-        public const string UploadableFiles = "jpg,jpeg,jpe,gif,bmp,png,svg,ico,mov,wmv,avi,mp4,mp3,doc,docx,xls,xlsx,ppt,pptx,pdf,txt,zip,nupkg";
+        public const string UploadableFiles = "jpg,jpeg,jpe,gif,bmp,png,svg,ico,mov,wmv,avi,mp4,mp3,doc,docx,xls,xlsx,ppt,pptx,pdf,txt,zip,nupkg,csv";
         public const string ReservedDevices = "CON,NUL,PRN,COM0,COM1,COM2,COM3,COM4,COM5,COM6,COM7,COM8,COM9,LPT0,LPT1,LPT2,LPT3,LPT4,LPT5,LPT6,LPT7,LPT8,LPT9,CONIN$,CONOUT$";
 
         public static readonly char[] InvalidFileNameChars =
