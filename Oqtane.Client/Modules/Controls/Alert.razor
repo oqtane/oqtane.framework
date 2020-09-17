@@ -5,10 +5,19 @@
 {
     <div class="alert alert-@(Type.ToString().ToLower()) alert-dismissible fade show" role="alert">
         @Message
+        @if (Dismissible)
+        {
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        }
     </div>
 }
 
 @code {
+    [Parameter]
+    public bool Dismissible { get; set; } = true;
+
     [Parameter]
     public string Message { get; set; }
 
