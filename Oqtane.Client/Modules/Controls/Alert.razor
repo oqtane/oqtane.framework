@@ -1,0 +1,22 @@
+﻿@namespace Oqtane.Modules.Controls
+@inherits ModuleControlBase
+
+@if (!string.IsNullOrEmpty(Message))
+{
+    <div class="alert alert-@(Type.ToString().ToLower()) alert-dismissible fade show" role="alert">
+        @Message
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string Message { get; set; }
+
+    [Parameter]
+    public AlertType Type { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+}
