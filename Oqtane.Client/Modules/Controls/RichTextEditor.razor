@@ -8,7 +8,7 @@
                 @if (_filemanagervisible)
                 {
                     <FileManager @ref="_fileManager" Filter="@Constants.ImageFiles" />
-                    @((MarkupString)_message)
+                    <ModuleMessage @ref=_message></ModuleMessage>
                     <br />
                 }
                 <div class="row justify-content-center" style="margin-bottom: 20px;">
@@ -85,7 +85,7 @@
     private FileManager _fileManager;
     private string _content = string.Empty;
     private string _original = string.Empty;
-    private string _message = string.Empty;
+    private ModuleMessage _message = new ModuleMessage();
 
     [Parameter]
     public string Content { get; set; }
@@ -144,7 +144,6 @@
     public void CloseFileManager()
     {
         _filemanagervisible = false;
-        _message = string.Empty;
         StateHasChanged();
     }
 
@@ -189,17 +188,15 @@
                 var interop = new RichTextEditorInterop(JSRuntime);
                 await interop.InsertImage(_editorElement, ContentUrl(fileid));
                 _filemanagervisible = false;
-                _message = string.Empty;
             }
             else
             {
-                _message = "<br /><div class=\"alert alert-warning\" role=\"alert\">You Must Select An Image To Insert</div>";
+                _message.SetModuleMessage("You Must Select An Image To Insert", MessageType.Warning);
             }
         }
         else
         {
             _filemanagervisible = true;
-            _message = string.Empty;
         }
         StateHasChanged();
     }
