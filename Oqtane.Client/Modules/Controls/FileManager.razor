@@ -70,7 +70,7 @@
                         </span>
                     </div>
                 }
-                <Alert @ref=_alert></Alert>
+                <ModuleMessage @ref=_message></ModuleMessage>
             </div>
             @if (_image != string.Empty)
             {
@@ -93,7 +93,7 @@
     private bool _haseditpermission = false;
     private string _image = string.Empty;
     private string _guid;
-    private Alert _alert = new Alert();
+    private ModuleMessage _message = new ModuleMessage();
 
     [Parameter]
     public string Id { get; set; } // optional - for setting the id of the FileManager component for accessibility
@@ -217,8 +217,7 @@
         {
             await logger.LogError(ex, "Error Loading Files {Error}", ex.Message);
 
-            _alert.Type = AlertType.Danger;
-            _alert.Message = "Error Loading Files";
+            _message.SetModuleMessage("Error Loading Files", MessageType.Error);
         }
     }
 
@@ -274,8 +273,7 @@
                 {
                     await logger.LogInformation("File Upload Succeeded {Files}", upload);
 
-                    _alert.Type = AlertType.Success;
-                    _alert.Message = "File Upload Succeeded";
+                    _message.SetModuleMessage("File Upload Succeeded", MessageType.Success);
 
                     await GetFiles();
 
@@ -294,22 +292,19 @@
                 {
                     await logger.LogError("File Upload Failed For {Files}", result.Replace(",", ", "));
 
-                    _alert.Type = AlertType.Danger;
-                    _alert.Message = "File Upload Failed";
+                    _message.SetModuleMessage("File Upload Failed", MessageType.Error);
                 }
             }
             catch (Exception ex)
             {
                 await logger.LogError(ex, "File Upload Failed {Error}", ex.Message);
 
-                _alert.Type = AlertType.Danger;
-                _alert.Message = "File Upload Failed";
+                _message.SetModuleMessage("File Upload Failed", MessageType.Error);
             }
         }
         else
         {
-            _alert.Type = AlertType.Warning;
-            _alert.Message = "You Have Not Selected A File To Upload";
+            _message.SetModuleMessage("You Have Not Selected A File To Upload", MessageType.Warning);
         }
     }
 
@@ -320,8 +315,7 @@
             await FileService.DeleteFileAsync(FileId);
             await logger.LogInformation("File Deleted {File}", FileId);
 
-            _alert.Type = AlertType.Success;
-            _alert.Message = "File Deleted";
+            _message.SetModuleMessage("File Deleted", MessageType.Success);
 
             await GetFiles();
             FileId = -1;
@@ -332,8 +326,7 @@
         {
             await logger.LogError(ex, "Error Deleting File {File} {Error}", FileId, ex.Message);
 
-            _alert.Type = AlertType.Danger;
-            _alert.Message = "Error Deleting File";
+            _message.SetModuleMessage("Error Deleting File", MessageType.Error);
         }
     }
 
