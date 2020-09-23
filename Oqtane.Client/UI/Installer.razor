@@ -201,13 +201,15 @@
             }
             else
             {
-                _message.SetModuleMessage(installation.Message, MessageType.Error);
+                _message.Message = installation.Message;
+                _message.Type = MessageType.Error;
                 _loadingDisplay = "display: none;";
             }
         }
         else
         {
-            _message.SetModuleMessage("Please Enter All Fields And Ensure Passwords Match And Are Greater Than 5 Characters In Length", MessageType.Error);
+            _message.Message = "Please Enter All Fields And Ensure Passwords Match And Are Greater Than 5 Characters In Length";
+            _message.Type = MessageType.Error;
         }
     }
 

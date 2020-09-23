@@ -191,7 +191,8 @@
             }
             else
             {
-                _message.SetModuleMessage("You Must Select An Image To Insert", MessageType.Warning);
+                _message.Message = "You Must Select An Image To Insert";
+                _message.Type = MessageType.Warning;
             }
         }
         else

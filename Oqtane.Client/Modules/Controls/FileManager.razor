@@ -217,7 +217,8 @@
         {
             await logger.LogError(ex, "Error Loading Files {Error}", ex.Message);
 
-            _message.SetModuleMessage("Error Loading Files", MessageType.Error);
+            _message.Message = "Error Loading Files";
+            _message.Type = MessageType.Error;
         }
     }
 
@@ -273,7 +274,8 @@
                 {
                     await logger.LogInformation("File Upload Succeeded {Files}", upload);
 
-                    _message.SetModuleMessage("File Upload Succeeded", MessageType.Success);
+                    _message.Message = "File Upload Succeeded";
+                    _message.Type = MessageType.Success;
 
                     await GetFiles();
 
@@ -292,19 +294,22 @@
                 {
                     await logger.LogError("File Upload Failed For {Files}", result.Replace(",", ", "));
 
-                    _message.SetModuleMessage("File Upload Failed", MessageType.Error);
+                    _message.Message = "File Upload Failed";
+                    _message.Type = MessageType.Error;
                 }
             }
             catch (Exception ex)
             {
                 await logger.LogError(ex, "File Upload Failed {Error}", ex.Message);
 
-                _message.SetModuleMessage("File Upload Failed", MessageType.Error);
+                _message.Message = "File Upload Failed";
+                _message.Type = MessageType.Error;
             }
         }
         else
         {
-            _message.SetModuleMessage("You Have Not Selected A File To Upload", MessageType.Warning);
+            _message.Message = "You Have Not Selected A File To Upload";
+            _message.Type = MessageType.Warning;
         }
     }
 
@@ -315,7 +320,8 @@
             await FileService.DeleteFileAsync(FileId);
             await logger.LogInformation("File Deleted {File}", FileId);
 
-            _message.SetModuleMessage("File Deleted", MessageType.Success);
+            _message.Message = "File Deleted";
+            _message.Type = MessageType.Success;
 
             await GetFiles();
             FileId = -1;
@@ -326,7 +332,8 @@
         {
             await logger.LogError(ex, "Error Deleting File {File} {Error}", FileId, ex.Message);
 
-            _message.SetModuleMessage("Error Deleting File", MessageType.Error);
+            _message.Message = "Error Deleting File";
+            _message.Type = MessageType.Error;
         }
     }
 
