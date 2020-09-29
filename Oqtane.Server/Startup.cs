@@ -128,6 +128,8 @@ namespace Oqtane
                 .AddSignInManager()
                 .AddDefaultTokenProviders();
 
+            services.Configure<LocalizationOptions>(Configuration.GetSection("Localization"));
+
             services.Configure<IdentityOptions>(options =>
             {
                 // Password settings
@@ -190,6 +192,7 @@ namespace Oqtane
             services.AddTransient<ISettingRepository, SettingRepository>();
             services.AddTransient<ILogRepository, LogRepository>();
             services.AddTransient<ILogManager, LogManager>();
+            services.AddTransient<ILocalizationManager, LocalizationManager>();
             services.AddTransient<IJobRepository, JobRepository>();
             services.AddTransient<IJobLogRepository, JobLogRepository>();
             services.AddTransient<INotificationRepository, NotificationRepository>();
@@ -198,6 +201,9 @@ namespace Oqtane
             services.AddTransient<ISiteTemplateRepository, SiteTemplateRepository>();
             services.AddTransient<ISqlRepository, SqlRepository>();
             services.AddTransient<IUpgradeManager, UpgradeManager>();
+
+            // TODO: Check if there's a better way instead of building service provider
+            ServiceActivator.Configure(services.BuildServiceProvider());
 
             // load the external assemblies into the app domain, install services 
             services.AddOqtane(_runtime);

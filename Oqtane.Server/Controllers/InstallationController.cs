@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Oqtane.Infrastructure;
-using Oqtane.Infrastructure.Localization;
 using Oqtane.Models;
 using Oqtane.Modules;
 using Oqtane.Shared;
@@ -21,12 +20,14 @@ namespace Oqtane.Controllers
         private readonly IConfigurationRoot _config;
         private readonly IInstallationManager _installationManager;
         private readonly IDatabaseManager _databaseManager;
+        private readonly ILocalizationManager _localizationManager;
 
-        public InstallationController(IConfigurationRoot config, IInstallationManager installationManager, IDatabaseManager databaseManager)
+        public InstallationController(IConfigurationRoot config, IInstallationManager installationManager, IDatabaseManager databaseManager, ILocalizationManager localizationManager)
         {
             _config = config;
             _installationManager = installationManager;
             _databaseManager = databaseManager;
+            _localizationManager = localizationManager;
         }
 
         // POST api/<controller>
@@ -76,7 +77,7 @@ namespace Oqtane.Controllers
                 var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
                 // Get the satellite assemblies
-                foreach (var culture in LocalizationSettings.SupportedCultures)
+                foreach (var culture in _localizationManager.GetSupportedCultures())
                 {
                     if (culture == Constants.DefaultCulture)
                     {

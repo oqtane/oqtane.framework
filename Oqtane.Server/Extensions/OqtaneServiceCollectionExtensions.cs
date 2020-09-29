@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Runtime.Loader;
 using Microsoft.Extensions.Hosting;
 using Oqtane.Infrastructure;
-using Oqtane.Infrastructure.Localization;
 using Oqtane.Modules;
 using Oqtane.Services;
 using Oqtane.Shared;
@@ -134,35 +133,39 @@ namespace Microsoft.Extensions.DependencyInjection
 
             AssemblyLoadContext.Default.Resolving += ResolveDependencies;
 
-            foreach (var culture in LocalizationSettings.SupportedCultures)
+            using (var serviceScope = ServiceActivator.GetScope())
             {
-                if (culture == Constants.DefaultCulture)
+                var localizationManager = serviceScope.ServiceProvider.GetService<ILocalizationManager>();
+                foreach (var culture in localizationManager.GetSupportedCultures())
                 {
-                    continue;
-                }
-
-                var assembliesFolder = new DirectoryInfo(Path.Combine(assemblyPath, culture));
-                foreach (var assemblyFile in assembliesFolder.EnumerateFiles(Constants.StalliteAssemblyExtension))
-                {
-                    AssemblyName assemblyName;
-                    try
+                    if (culture == Constants.DefaultCulture)
                     {
-                        assemblyName = AssemblyName.GetAssemblyName(assemblyFile.FullName);
-                    }
-                    catch
-                    {
-                        Console.WriteLine($"Not Satellite Assembly : {assemblyFile.Name}");
                         continue;
                     }
 
-                    try
+                    var assembliesFolder = new DirectoryInfo(Path.Combine(assemblyPath, culture));
+                    foreach (var assemblyFile in assembliesFolder.EnumerateFiles(Constants.StalliteAssemblyExtension))
                     {
-                        Assembly assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(assemblyFile.FullName)));
-                        Console.WriteLine($"Loaded : {assemblyName}");
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine($"Failed : {assemblyName}\n{e}");
+                        AssemblyName assemblyName;
+                        try
+                        {
+                            assemblyName = AssemblyName.GetAssemblyName(assemblyFile.FullName);
+                        }
+                        catch
+                        {
+                            Console.WriteLine($"Not Satellite Assembly : {assemblyFile.Name}");
+                            continue;
+                        }
+
+                        try
+                        {
+                            Assembly assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(assemblyFile.FullName)));
+                            Console.WriteLine($"Loaded : {assemblyName}");
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine($"Failed : {assemblyName}\n{e}");
+                        }
                     }
                 }
             }
