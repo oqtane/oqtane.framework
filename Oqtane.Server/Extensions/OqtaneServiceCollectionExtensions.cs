@@ -8,6 +8,7 @@ using Oqtane.Infrastructure;
 using Oqtane.Infrastructure.Localization;
 using Oqtane.Modules;
 using Oqtane.Services;
+using Oqtane.Shared;
 using Oqtane.UI;
 
 // ReSharper disable once CheckNamespace
@@ -15,8 +16,6 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class OqtaneServiceCollectionExtensions
     {
-        private static readonly string StalliteAssemblyExtension = ".resources.dll";
-
         public static IServiceCollection AddOqtane(this IServiceCollection services, Runtime runtime)
         {
             LoadAssemblies();
@@ -138,7 +137,7 @@ namespace Microsoft.Extensions.DependencyInjection
             foreach (var culture in LocalizationSettings.SupportedCultures)
             {
                 var assembliesFolder = new DirectoryInfo(Path.Combine(assemblyPath, culture));
-                foreach (var assemblyFile in assembliesFolder.EnumerateFiles(StalliteAssemblyExtension))
+                foreach (var assemblyFile in assembliesFolder.EnumerateFiles(Constants.StalliteAssemblyExtension))
                 {
                     AssemblyName assemblyName;
                     try

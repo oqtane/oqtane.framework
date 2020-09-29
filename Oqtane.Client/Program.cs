@@ -1,19 +1,18 @@
-﻿using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using System.Threading.Tasks;
-using Oqtane.Services;
-using System.Reflection;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Json;
-using Oqtane.Modules;
-using Oqtane.Shared;
-using Oqtane.Providers;
+using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.Authorization;
-using System.IO.Compression;
-using System.IO;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Oqtane.Modules;
+using Oqtane.Providers;
+using Oqtane.Shared;
+using Oqtane.Services;
 
 namespace Oqtane.Client
 {
@@ -101,8 +100,8 @@ namespace Oqtane.Client
             // asemblies and debug symbols are packaged in a zip file
             using (ZipArchive archive = new ZipArchive(new MemoryStream(zip)))
             {
-                Dictionary<string, byte[]> dlls = new Dictionary<string, byte[]>();
-                Dictionary<string, byte[]> pdbs = new Dictionary<string, byte[]>();
+                var dlls = new Dictionary<string, byte[]>();
+                var pdbs = new Dictionary<string, byte[]>();
 
                 foreach (ZipArchiveEntry entry in archive.Entries)
                 {
@@ -115,7 +114,15 @@ namespace Oqtane.Client
                             switch (Path.GetExtension(entry.Name))
                             {
                                 case ".dll":
-                                    dlls.Add(entry.Name, file);
+                                    // Loads the stallite assemblies early
+                                    if (entry.Name.EndsWith(Constants.StalliteAssemblyExtension))
+                                    {
+                                        Assembly.Load(entry.Name);
+                                    }
+                                    else
+                                    {
+                                        dlls.Add(entry.Name, file);
+                                    }
                                     break;
                                 case ".pdb":
                                     pdbs.Add(entry.Name, file);

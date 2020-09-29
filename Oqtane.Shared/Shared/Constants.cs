@@ -57,5 +57,7 @@ namespace Oqtane.Shared
             (Char) 28, (Char) 29, (Char) 30, (Char) 31, ':', '*', '?', '\\', '/'
         };
         public static readonly string[] InvalidFileNameEndingChars = { ".", " " };
+
+        public static readonly string StalliteAssemblyExtension = ".resources.dll";
     }
 }
