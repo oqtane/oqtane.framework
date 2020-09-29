@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -16,6 +17,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Oqtane.Extensions;
 using Oqtane.Infrastructure;
+using Oqtane.Infrastructure.Localization;
 using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Services;
@@ -51,6 +53,10 @@ namespace Oqtane
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            // Register localization services
+            services.AddLocalization(options => options.ResourcesPath = "Resources");
+            CultureInfo.CurrentUICulture = new CultureInfo(LocalizationSettings.DefaultCulture);
+
             services.AddServerSideBlazor();
 
             // setup HttpClient for server side in a client side compatible fashion ( with auth cookie )
@@ -225,6 +231,10 @@ namespace Oqtane
             }
             // to allow install middleware it should be moved up
             app.ConfigureOqtaneAssemblies(env);
+
+            app.UseRequestLocalization(options => options
+                .AddSupportedUICultures(LocalizationSettings.SupportedCultures.ToArray()));
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseBlazorFrameworkFiles();
