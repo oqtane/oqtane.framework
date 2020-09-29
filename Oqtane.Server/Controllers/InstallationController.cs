@@ -1,17 +1,17 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Oqtane.Models;
-using Oqtane.Shared;
-using Oqtane.Infrastructure;
-using System;
+﻿using System;
 using System.IO;
 using System.Reflection;
 using System.Linq;
 using System.IO.Compression;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Oqtane.Infrastructure;
+using Oqtane.Infrastructure.Localization;
+using Oqtane.Models;
 using Oqtane.Modules;
+using Oqtane.Shared;
 using Oqtane.Themes;
-using System.Diagnostics;
 
 namespace Oqtane.Controllers
 {
@@ -73,6 +73,16 @@ namespace Oqtane.Controllers
                 // get list of assemblies which should be downloaded to browser
                 var assemblies = AppDomain.CurrentDomain.GetOqtaneClientAssemblies();
                 var list = assemblies.Select(a => a.GetName().Name).ToList();
+                var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+
+                // Get the satellite assemblies
+                foreach (var cultureFolder in LocalizationSettings.SupportedCultures)
+                {
+                    foreach (var resourceFile in Directory.EnumerateFiles(Path.Combine(Path.GetDirectoryName(binFolder), cultureFolder)))
+                    {
+                        list.Add(Path.Combine(cultureFolder, Path.GetFileNameWithoutExtension(resourceFile)));
+                    }
+                }
 
                 // get module and theme dependencies
                 foreach (var assembly in assemblies)
@@ -96,7 +106,6 @@ namespace Oqtane.Controllers
                 }
 
                 // create zip file containing assemblies and debug symbols
-                string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
                 byte[] zipfile;
                 using (var memoryStream = new MemoryStream())
                 {
@@ -106,17 +115,17 @@ namespace Oqtane.Controllers
                         foreach (string file in list)
                         {
                             entry = archive.CreateEntry(file + ".dll");
-                            using (var filestream = new FileStream(Path.Combine(binfolder, file + ".dll"), FileMode.Open, FileAccess.Read))
+                            using (var filestream = new FileStream(Path.Combine(binFolder, file + ".dll"), FileMode.Open, FileAccess.Read))
                             using (var entrystream = entry.Open())
                             {
                                 filestream.CopyTo(entrystream);
                             }
 
                             // include debug symbols ( we may want to consider restricting this to only host users or when running in debug mode for performance )
-                            if (System.IO.File.Exists(Path.Combine(binfolder, file + ".pdb")))
+                            if (System.IO.File.Exists(Path.Combine(binFolder, file + ".pdb")))
                             {
                                 entry = archive.CreateEntry(file + ".pdb");
-                                using (var filestream = new FileStream(Path.Combine(binfolder, file + ".pdb"), FileMode.Open, FileAccess.Read))
+                                using (var filestream = new FileStream(Path.Combine(binFolder, file + ".pdb"), FileMode.Open, FileAccess.Read))
                                 using (var entrystream = entry.Open())
                                 {
                                     filestream.CopyTo(entrystream);
