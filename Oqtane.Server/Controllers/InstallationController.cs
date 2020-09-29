@@ -83,7 +83,7 @@ namespace Oqtane.Controllers
                         continue;
                     }
 
-                    foreach (var resourceFile in Directory.EnumerateFiles(Path.Combine(Path.GetDirectoryName(binFolder), culture)))
+                    foreach (var resourceFile in Directory.EnumerateFiles(Path.Combine(binFolder, culture)))
                     {
                         list.Add(Path.Combine(culture, Path.GetFileNameWithoutExtension(resourceFile)));
                     }
