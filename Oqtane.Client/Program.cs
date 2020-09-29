@@ -120,7 +120,7 @@ namespace Oqtane.Client
                                     // Loads the stallite assemblies early
                                     if (entry.Name.EndsWith(Constants.StalliteAssemblyExtension))
                                     {
-                                        Assembly.Load(entry.Name);
+                                        Assembly.Load(file);
                                     }
                                     else
                                     {
