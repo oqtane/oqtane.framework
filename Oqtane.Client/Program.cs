@@ -27,6 +27,9 @@ namespace Oqtane.Client
             builder.Services.AddSingleton(httpClient);
             builder.Services.AddOptions();
 
+            // Register localization services
+            builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
             // register auth services
             builder.Services.AddAuthorizationCore();
             builder.Services.AddScoped<IdentityAuthenticationStateProvider>();
