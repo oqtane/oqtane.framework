@@ -197,7 +197,7 @@ namespace Oqtane
             services.AddTransient<IUpgradeManager, UpgradeManager>();
 
             // load the external assemblies into the app domain, install services 
-            services.AddOqtaneParts(_runtime);
+            services.AddOqtane(_runtime);
 
             services.AddMvc()
                 .AddNewtonsoftJson()

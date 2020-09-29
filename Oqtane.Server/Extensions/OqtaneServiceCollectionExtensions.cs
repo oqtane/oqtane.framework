@@ -17,7 +17,7 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         private static readonly string StalliteAssemblyExtension = ".resources.dll";
 
-        public static IServiceCollection AddOqtaneParts(this IServiceCollection services, Runtime runtime)
+        public static IServiceCollection AddOqtane(this IServiceCollection services, Runtime runtime)
         {
             LoadAssemblies();
             LoadSatelliteAssemblies();
