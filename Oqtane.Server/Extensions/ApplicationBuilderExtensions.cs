@@ -21,12 +21,16 @@ namespace Oqtane.Extensions
             var configuration = app.ApplicationServices.GetService<IConfiguration>();
             var defaultCulture = configuration.GetSection(DefaultCultureKey).Value;
             var supportedCultures = configuration.GetSection(SupportedCulturesKey).Get<string[]>();
+            if (defaultCulture == CultureInfo.InstalledUICulture.Name)
+            {
+                LocalizationSettings.DefaultCulture = defaultCulture;
+            }
+
             if (supportedCultures.Length > 0)
             {
                 LocalizationSettings.SupportedCultures.AddRange(supportedCultures);
             }
 
-            LocalizationSettings.DefaultCulture = defaultCulture;
             CultureInfo.CurrentUICulture = new CultureInfo(defaultCulture);
 
             app.UseRequestLocalization(options => {

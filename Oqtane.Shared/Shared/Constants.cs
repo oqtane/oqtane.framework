@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Oqtane.Shared
 {
@@ -60,6 +61,6 @@ namespace Oqtane.Shared
 
         public static readonly string StalliteAssemblyExtension = ".resources.dll";
 
-        public static readonly string DefaultCulture = "en-US";
+        public static readonly string DefaultCulture = CultureInfo.InstalledUICulture.Name;
     }
 }
