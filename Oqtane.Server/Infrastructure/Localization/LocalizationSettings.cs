@@ -13,6 +13,6 @@ namespace Oqtane.Infrastructure.Localization
 
         public static string DefaultCulture { get; set; }
 
-        public static IList<string> SupportedCultures { get; set; }
+        public static List<string> SupportedCultures { get; }
     }
 }

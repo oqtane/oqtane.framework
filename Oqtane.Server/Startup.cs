@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -17,7 +16,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Oqtane.Extensions;
 using Oqtane.Infrastructure;
-using Oqtane.Infrastructure.Localization;
 using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Services;
@@ -55,7 +53,6 @@ namespace Oqtane
         {
             // Register localization services
             services.AddLocalization(options => options.ResourcesPath = "Resources");
-            CultureInfo.CurrentUICulture = new CultureInfo(LocalizationSettings.DefaultCulture);
 
             services.AddServerSideBlazor();
 
@@ -232,8 +229,8 @@ namespace Oqtane
             // to allow install middleware it should be moved up
             app.ConfigureOqtaneAssemblies(env);
 
-            app.UseRequestLocalization(options => options
-                .AddSupportedUICultures(LocalizationSettings.SupportedCultures.ToArray()));
+            // Allow oqtane localization middleware
+            app.UseOqtaneLocalization();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
