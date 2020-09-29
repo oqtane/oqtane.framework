@@ -59,5 +59,7 @@ namespace Oqtane.Shared
         public static readonly string[] InvalidFileNameEndingChars = { ".", " " };
 
         public static readonly string StalliteAssemblyExtension = ".resources.dll";
+
+        public static readonly string DefaultCulture = "en-US";
     }
 }

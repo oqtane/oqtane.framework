@@ -136,6 +136,11 @@ namespace Microsoft.Extensions.DependencyInjection
 
             foreach (var culture in LocalizationSettings.SupportedCultures)
             {
+                if (culture == Constants.DefaultCulture)
+                {
+                    continue;
+                }
+
                 var assembliesFolder = new DirectoryInfo(Path.Combine(assemblyPath, culture));
                 foreach (var assemblyFile in assembliesFolder.EnumerateFiles(Constants.StalliteAssemblyExtension))
                 {

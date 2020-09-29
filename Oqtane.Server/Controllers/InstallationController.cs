@@ -76,11 +76,16 @@ namespace Oqtane.Controllers
                 var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
                 // Get the satellite assemblies
-                foreach (var cultureFolder in LocalizationSettings.SupportedCultures)
+                foreach (var culture in LocalizationSettings.SupportedCultures)
                 {
-                    foreach (var resourceFile in Directory.EnumerateFiles(Path.Combine(Path.GetDirectoryName(binFolder), cultureFolder)))
+                    if (culture == Constants.DefaultCulture)
                     {
-                        list.Add(Path.Combine(cultureFolder, Path.GetFileNameWithoutExtension(resourceFile)));
+                        continue;
+                    }
+
+                    foreach (var resourceFile in Directory.EnumerateFiles(Path.Combine(Path.GetDirectoryName(binFolder), culture)))
+                    {
+                        list.Add(Path.Combine(culture, Path.GetFileNameWithoutExtension(resourceFile)));
                     }
                 }
 

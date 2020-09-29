@@ -1,14 +1,13 @@
 ﻿using System.Collections.Generic;
+using Oqtane.Shared;
 
 namespace Oqtane.Infrastructure.Localization
 {
     public static class LocalizationSettings
     {
-        private const string EnglishCulture = "en-US";
-
         static LocalizationSettings()
         {
-            DefaultCulture = EnglishCulture;
+            DefaultCulture = Constants.DefaultCulture;
             SupportedCultures = new List<string> { DefaultCulture };
         }
 
