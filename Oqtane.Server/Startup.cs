@@ -51,6 +51,9 @@ namespace Oqtane
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            // Register localization services
+            services.AddLocalization(options => options.ResourcesPath = "Resources");
+
             services.AddServerSideBlazor();
 
             // setup HttpClient for server side in a client side compatible fashion ( with auth cookie )
@@ -125,6 +128,8 @@ namespace Oqtane
                 .AddSignInManager()
                 .AddDefaultTokenProviders();
 
+            services.Configure<LocalizationOptions>(Configuration.GetSection("Localization"));
+
             services.Configure<IdentityOptions>(options =>
             {
                 // Password settings
@@ -187,6 +192,7 @@ namespace Oqtane
             services.AddTransient<ISettingRepository, SettingRepository>();
             services.AddTransient<ILogRepository, LogRepository>();
             services.AddTransient<ILogManager, LogManager>();
+            services.AddTransient<ILocalizationManager, LocalizationManager>();
             services.AddTransient<IJobRepository, JobRepository>();
             services.AddTransient<IJobLogRepository, JobLogRepository>();
             services.AddTransient<INotificationRepository, NotificationRepository>();
@@ -196,8 +202,11 @@ namespace Oqtane
             services.AddTransient<ISqlRepository, SqlRepository>();
             services.AddTransient<IUpgradeManager, UpgradeManager>();
 
+            // TODO: Check if there's a better way instead of building service provider
+            ServiceActivator.Configure(services.BuildServiceProvider());
+
             // load the external assemblies into the app domain, install services 
-            services.AddOqtaneParts(_runtime);
+            services.AddOqtane(_runtime);
 
             services.AddMvc()
                 .AddNewtonsoftJson()
@@ -225,6 +234,10 @@ namespace Oqtane
             }
             // to allow install middleware it should be moved up
             app.ConfigureOqtaneAssemblies(env);
+
+            // Allow oqtane localization middleware
+            app.UseOqtaneLocalization();
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseBlazorFrameworkFiles();
