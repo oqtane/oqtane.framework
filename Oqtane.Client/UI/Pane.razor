@@ -1,18 +1,23 @@
-﻿@using Microsoft.AspNetCore.Components.Rendering 
+﻿@using Microsoft.AspNetCore.Components.Rendering
 @namespace Oqtane.UI
 @inject IUserService UserService
 @inject IModuleService ModuleService
 @inject IModuleDefinitionService ModuleDefinitionService
 
-<div class="@_paneadminborder">
-    @if (_panetitle != "")
-    {
+@if (_useadminborder)
+{
+    <div class="@_paneadminborder">
         @((MarkupString)_panetitle)
-    }
+        @DynamicComponent
+    </div>
+}
+else
+{
     @DynamicComponent
-</div>
+}
 
 @code {
+    private bool _useadminborder = false;
     private string _paneadminborder = "container";
     private string _panetitle = "";
 
@@ -26,8 +31,9 @@
 
     protected override void OnParametersSet()
     {
-        if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, PageState.Page.Permissions) && Name != Constants.AdminPane)
+        if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions) && Name != Constants.AdminPane)
         {
+            _useadminborder = true;
             _paneadminborder = "app-pane-admin-border";
             _panetitle = "<div class=\"app-pane-admin-title\">" + Name + " Pane</div>";
         }
@@ -47,8 +53,8 @@
                     if (module != null && !module.IsDeleted)
                     {
                         var typename = module.ModuleType;
-                        // check for core module actions component
-                        if (Constants.DefaultModuleActions.Contains(PageState.Action))
+                    // check for core module actions component
+                    if (Constants.DefaultModuleActions.Contains(PageState.Action))
                         {
                             typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, PageState.Action);
                         }
@@ -94,8 +100,8 @@
                         }
                         else
                         {
-                            // module control does not exist with name specified
-                        }
+                        // module control does not exist with name specified
+                    }
                     }
                 }
             }
@@ -106,8 +112,8 @@
                     Module module = PageState.Modules.FirstOrDefault(item => item.ModuleId == PageState.ModuleId);
                     if (module != null && module.Pane.ToLower() == Name.ToLower() && !module.IsDeleted)
                     {
-                        // check if user is authorized to view module
-                        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.Permissions))
+                    // check if user is authorized to view module
+                    if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.Permissions))
                         {
                             CreateComponent(builder, module);
                         }
@@ -117,8 +123,8 @@
                 {
                     foreach (Module module in PageState.Modules.Where(item => item.PageId == PageState.Page.PageId && item.Pane.ToLower() == Name.ToLower() && !item.IsDeleted).OrderBy(x => x.Order).ToArray())
                     {
-                        // check if user is authorized to view module
-                        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.Permissions))
+                    // check if user is authorized to view module
+                    if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, module.Permissions))
                         {
                             CreateComponent(builder, module);
                         }
