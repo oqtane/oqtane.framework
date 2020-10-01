@@ -1,5 +1,7 @@
 ﻿@namespace Oqtane.Themes.OqtaneTheme
 @inherits ThemeBase
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<Default> Localizer
 
 <main role="main">
     <nav class="navbar navbar-expand-md navbar-dark bg-primary fixed-top">
@@ -9,6 +11,7 @@
         </div>
     </nav>
     <div class="content container">
+        <h3 style="color:white">@Localizer["Hello Oqtane"]</h3>
         <PaneLayout />
         <div class="row px-4">
             <Pane Name="Admin" />
