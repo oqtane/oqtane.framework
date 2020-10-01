@@ -1,17 +1,16 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Oqtane.Models;
-using Oqtane.Shared;
-using Oqtane.Infrastructure;
-using System;
+﻿using System;
 using System.IO;
 using System.Reflection;
 using System.Linq;
 using System.IO.Compression;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Oqtane.Infrastructure;
+using Oqtane.Models;
 using Oqtane.Modules;
+using Oqtane.Shared;
 using Oqtane.Themes;
-using System.Diagnostics;
 
 namespace Oqtane.Controllers
 {
@@ -21,12 +20,14 @@ namespace Oqtane.Controllers
         private readonly IConfigurationRoot _config;
         private readonly IInstallationManager _installationManager;
         private readonly IDatabaseManager _databaseManager;
+        private readonly ILocalizationManager _localizationManager;
 
-        public InstallationController(IConfigurationRoot config, IInstallationManager installationManager, IDatabaseManager databaseManager)
+        public InstallationController(IConfigurationRoot config, IInstallationManager installationManager, IDatabaseManager databaseManager, ILocalizationManager localizationManager)
         {
             _config = config;
             _installationManager = installationManager;
             _databaseManager = databaseManager;
+            _localizationManager = localizationManager;
         }
 
         // POST api/<controller>
@@ -73,6 +74,21 @@ namespace Oqtane.Controllers
                 // get list of assemblies which should be downloaded to browser
                 var assemblies = AppDomain.CurrentDomain.GetOqtaneClientAssemblies();
                 var list = assemblies.Select(a => a.GetName().Name).ToList();
+                var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+
+                // Get the satellite assemblies
+                foreach (var culture in _localizationManager.GetSupportedCultures())
+                {
+                    if (culture == Constants.DefaultCulture)
+                    {
+                        continue;
+                    }
+
+                    foreach (var resourceFile in Directory.EnumerateFiles(Path.Combine(binFolder, culture)))
+                    {
+                        list.Add(Path.Combine(culture, Path.GetFileNameWithoutExtension(resourceFile)));
+                    }
+                }
 
                 // get module and theme dependencies
                 foreach (var assembly in assemblies)
@@ -96,7 +112,6 @@ namespace Oqtane.Controllers
                 }
 
                 // create zip file containing assemblies and debug symbols
-                string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
                 byte[] zipfile;
                 using (var memoryStream = new MemoryStream())
                 {
@@ -106,17 +121,17 @@ namespace Oqtane.Controllers
                         foreach (string file in list)
                         {
                             entry = archive.CreateEntry(file + ".dll");
-                            using (var filestream = new FileStream(Path.Combine(binfolder, file + ".dll"), FileMode.Open, FileAccess.Read))
+                            using (var filestream = new FileStream(Path.Combine(binFolder, file + ".dll"), FileMode.Open, FileAccess.Read))
                             using (var entrystream = entry.Open())
                             {
                                 filestream.CopyTo(entrystream);
                             }
 
                             // include debug symbols ( we may want to consider restricting this to only host users or when running in debug mode for performance )
-                            if (System.IO.File.Exists(Path.Combine(binfolder, file + ".pdb")))
+                            if (System.IO.File.Exists(Path.Combine(binFolder, file + ".pdb")))
                             {
                                 entry = archive.CreateEntry(file + ".pdb");
-                                using (var filestream = new FileStream(Path.Combine(binfolder, file + ".pdb"), FileMode.Open, FileAccess.Read))
+                                using (var filestream = new FileStream(Path.Combine(binFolder, file + ".pdb"), FileMode.Open, FileAccess.Read))
                                 using (var entrystream = entry.Open())
                                 {
                                     filestream.CopyTo(entrystream);

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Oqtane.Infrastructure;
 using Oqtane.Modules;
 using Oqtane.Services;
+using Oqtane.Shared;
 using Oqtane.UI;
 
 // ReSharper disable once CheckNamespace
@@ -14,10 +15,12 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class OqtaneServiceCollectionExtensions
     {
-        public static IServiceCollection AddOqtaneParts(this IServiceCollection services, Runtime runtime)
+        public static IServiceCollection AddOqtane(this IServiceCollection services, Runtime runtime)
         {
             LoadAssemblies();
+            LoadSatelliteAssemblies();
             services.AddOqtaneServices(runtime);
+
             return services;
         }
 
@@ -114,6 +117,55 @@ namespace Microsoft.Extensions.DependencyInjection
                     catch (Exception e)
                     {
                         Console.WriteLine($"Failed : {assemblyName}\n{e}");
+                    }
+                }
+            }
+        }
+
+        private static void LoadSatelliteAssemblies()
+        {
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
+            if (assemblyPath == null)
+            {
+                return;
+            }
+
+            AssemblyLoadContext.Default.Resolving += ResolveDependencies;
+
+            using (var serviceScope = ServiceActivator.GetScope())
+            {
+                var localizationManager = serviceScope.ServiceProvider.GetService<ILocalizationManager>();
+                foreach (var culture in localizationManager.GetSupportedCultures())
+                {
+                    if (culture == Constants.DefaultCulture)
+                    {
+                        continue;
+                    }
+
+                    var assembliesFolder = new DirectoryInfo(Path.Combine(assemblyPath, culture));
+                    foreach (var assemblyFile in assembliesFolder.EnumerateFiles(Constants.StalliteAssemblyExtension))
+                    {
+                        AssemblyName assemblyName;
+                        try
+                        {
+                            assemblyName = AssemblyName.GetAssemblyName(assemblyFile.FullName);
+                        }
+                        catch
+                        {
+                            Console.WriteLine($"Not Satellite Assembly : {assemblyFile.Name}");
+                            continue;
+                        }
+
+                        try
+                        {
+                            Assembly assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(assemblyFile.FullName)));
+                            Console.WriteLine($"Loaded : {assemblyName}");
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine($"Failed : {assemblyName}\n{e}");
+                        }
                     }
                 }
             }
