@@ -202,21 +202,15 @@
                 {
                     modIdPos = i + 1;
                     actionPos = modIdPos + 1;
-                    // Route to index page if no action is specifed
-                    if (actionPos > segments.Length - 1)
-                    {
-                        action = Constants.DefaultAction;
-                    }
-                    else
+                    if (actionPos <= segments.Length - 1)
                     {
                         action = segments[actionPos];
-
                     }
                 }
 
             }
 
-            // check if path has moduleid and action specification ie. pagename/moduleid/action/
+            // check if path has moduleid and action specification ie. pagename/*/moduleid/action/
             if (modIdPos > 0)
             {
                 int.TryParse(segments[modIdPos], out result);
@@ -460,7 +454,13 @@
                     typename = Constants.ErrorModule;
                 }
 
-                // check if the module defines custom routes*@
+                // handle default action
+                if (action == Constants.DefaultAction && !string.IsNullOrEmpty(module.ModuleDefinition.DefaultAction))
+                {
+                    action = module.ModuleDefinition.DefaultAction;
+                }
+
+                // check if the module defines custom action routes
                 if (module.ModuleDefinition.ControlTypeRoutes != "")
                 {
                     foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
