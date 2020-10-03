@@ -141,28 +141,35 @@ namespace Microsoft.Extensions.DependencyInjection
                 }
 
                 var assembliesFolder = new DirectoryInfo(Path.Combine(assemblyPath, culture));
-                foreach (var assemblyFile in assembliesFolder.EnumerateFiles(Constants.StalliteAssemblyExtension))
+                if (assembliesFolder.Exists)
                 {
-                    AssemblyName assemblyName;
-                    try
+                    foreach (var assemblyFile in assembliesFolder.EnumerateFiles(Constants.StalliteAssemblyExtension))
                     {
-                        assemblyName = AssemblyName.GetAssemblyName(assemblyFile.FullName);
-                    }
-                    catch
-                    {
-                        Console.WriteLine($"Not Satellite Assembly : {assemblyFile.Name}");
-                        continue;
-                    }
+                        AssemblyName assemblyName;
+                        try
+                        {
+                            assemblyName = AssemblyName.GetAssemblyName(assemblyFile.FullName);
+                        }
+                        catch
+                        {
+                            Console.WriteLine($"Not Satellite Assembly : {assemblyFile.Name}");
+                            continue;
+                        }
 
-                    try
-                    {
-                        Assembly assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(assemblyFile.FullName)));
-                        Console.WriteLine($"Loaded : {assemblyName}");
+                        try
+                        {
+                            Assembly assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(assemblyFile.FullName)));
+                            Console.WriteLine($"Loaded : {assemblyName}");
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine($"Failed : {assemblyName}\n{e}");
+                        }
                     }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine($"Failed : {assemblyName}\n{e}");
-                    }
+                }
+                else
+                {
+                    Console.WriteLine($"The satellite assemblies folder named '{culture}' is not found.");
                 }
             }
         }
