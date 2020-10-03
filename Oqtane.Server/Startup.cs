@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -26,10 +27,13 @@ namespace Oqtane
 {
     public class Startup
     {
-        public IConfigurationRoot Configuration { get; }
+        private static readonly string[] DefaultSupportedCultures = new[] { Constants.DefaultCulture };
+
         private string _webRoot;
         private Runtime _runtime;
         private bool _useSwagger;
+
+        public IConfigurationRoot Configuration { get; }
 
         public Startup(IWebHostEnvironment env)
         {
@@ -128,7 +132,10 @@ namespace Oqtane
                 .AddSignInManager()
                 .AddDefaultTokenProviders();
 
-            services.Configure<LocalizationOptions>(Configuration.GetSection("Localization"));
+            var localizationSection = Configuration.GetSection("Localization");
+            var localizationOptions = localizationSection.Get<LocalizationOptions>();
+
+            services.Configure<LocalizationOptions>(localizationSection);
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -202,11 +209,11 @@ namespace Oqtane
             services.AddTransient<ISqlRepository, SqlRepository>();
             services.AddTransient<IUpgradeManager, UpgradeManager>();
 
-            // TODO: Check if there's a better way instead of building service provider
-            ServiceActivator.Configure(services.BuildServiceProvider());
-
             // load the external assemblies into the app domain, install services 
-            services.AddOqtane(_runtime);
+            services.AddOqtane(_runtime,
+                localizationOptions.SupportedCultures.IsNullOrEmpty()
+                    ? DefaultSupportedCultures
+                    : localizationOptions.SupportedCultures);
 
             services.AddMvc()
                 .AddNewtonsoftJson()
