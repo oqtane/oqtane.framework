@@ -202,6 +202,7 @@
                 {
                     modIdPos = i + 1;
                     actionPos = modIdPos + 1;
+                    // Route to index page if no action is specifed
                     if (actionPos > segments.Length - 1)
                     {
                         action = Constants.DefaultAction;
