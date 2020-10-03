@@ -76,7 +76,7 @@
         User user = null;
         List<Module> modules;
         var moduleid = -1;
-        var action = string.Empty;
+        var action = Constants.DefaultAction;
         var urlparameters = string.Empty;
         var editmode = false;
         var reload = Reload.None;
@@ -202,6 +202,7 @@
                 {
                     modIdPos = i + 1;
                     actionPos = modIdPos + 1;
+                    // Route to index page if no action is specifed
                     if (actionPos > segments.Length - 1)
                     {
                         action = Constants.DefaultAction;
@@ -459,25 +460,18 @@
                     typename = Constants.ErrorModule;
                 }
 
-                if (module.ModuleId == moduleid && action != "")
+                // check if the module defines custom routes*@
+                if (module.ModuleDefinition.ControlTypeRoutes != "")
                 {
-                    // check if the module defines custom routes
-                    if (module.ModuleDefinition.ControlTypeRoutes != "")
+                    foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
                     {
-                        foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                        if (route.StartsWith(action + "="))
                         {
-                            if (route.StartsWith(action + "="))
-                            {
-                                typename = route.Replace(action + "=", "");
-                            }
+                            typename = route.Replace(action + "=", "");
                         }
                     }
-                    module.ModuleType = typename.Replace(Constants.ActionToken, action);
                 }
-                else
-                {
-                    module.ModuleType = typename.Replace(Constants.ActionToken, Constants.DefaultAction);
-                }
+                module.ModuleType = typename.Replace(Constants.ActionToken, action);
 
                 // get additional metadata from IModuleControl interface
                 typename = module.ModuleType;
