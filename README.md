@@ -38,15 +38,10 @@ Please note that this project is owned by the .NET Foundation and is governed by
 # Roadmap
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
 
-V.Next ( still in the process of being prioritized )
-- [ ] Admin UI markup optimization
-- [ ] DB Migrations for framework installation/upgrade
-- [ ] Support for SQLite
+V.2.0.0 ( estimated release date Nov 10, 2020 )
+- [ ] Migrate to .NET 5
 - [ ] Static Localization ( ie. labels, help text, etc.. )
-- [ ] Migrate to Code-Behind Pattern ( *.razor.cs )
-- [ ] Generic Repository Pattern
-- [ ] JwT token authentication ( possibly using IdentityServer )
-- [ ] Optional Encryption for Settings Values 
+- [ ] Admin UI markup optimization
 
 V1.0.0 (MVP) - Released in conjunction with .NET Core 3.2 ( May 2020 )
 - [x] Multi-Tenant ( Shared Database & Isolated Database ) 
@@ -65,6 +60,13 @@ V1.0.0 (MVP) - Released in conjunction with .NET Core 3.2 ( May 2020 )
 - [x] Notifications / Email Delivery
 - [x] Auto-Upgrade Framework
 - [x] Progressive Web Application Support
+
+Future Consideration
+- [ ] DB Migrations for framework installation/upgrade
+- [ ] Support for SQLite
+- [ ] Generic Repository Pattern
+- [ ] JwT token authentication ( possibly using IdentityServer )
+- [ ] Optional Encryption for Settings Values 
 
 # Background
 Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Initially created as a proof of concept, Oqtane is a native Blazor application written from the ground up using modern .NET Core technology. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly templates (skins), and extensibility via third party modules.

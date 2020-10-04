@@ -15,10 +15,10 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class OqtaneServiceCollectionExtensions
     {
-        public static IServiceCollection AddOqtane(this IServiceCollection services, Runtime runtime)
+        public static IServiceCollection AddOqtane(this IServiceCollection services, Runtime runtime, string[] supportedCultures)
         {
             LoadAssemblies();
-            LoadSatelliteAssemblies();
+            LoadSatelliteAssemblies(supportedCultures);
             services.AddOqtaneServices(runtime);
 
             return services;
@@ -122,7 +122,7 @@ namespace Microsoft.Extensions.DependencyInjection
             }
         }
 
-        private static void LoadSatelliteAssemblies()
+        private static void LoadSatelliteAssemblies(string[] supportedCultures)
         {
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
@@ -133,17 +133,16 @@ namespace Microsoft.Extensions.DependencyInjection
 
             AssemblyLoadContext.Default.Resolving += ResolveDependencies;
 
-            using (var serviceScope = ServiceActivator.GetScope())
+            foreach (var culture in supportedCultures)
             {
-                var localizationManager = serviceScope.ServiceProvider.GetService<ILocalizationManager>();
-                foreach (var culture in localizationManager.GetSupportedCultures())
+                if (culture == Constants.DefaultCulture)
                 {
-                    if (culture == Constants.DefaultCulture)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    var assembliesFolder = new DirectoryInfo(Path.Combine(assemblyPath, culture));
+                var assembliesFolder = new DirectoryInfo(Path.Combine(assemblyPath, culture));
+                if (assembliesFolder.Exists)
+                {
                     foreach (var assemblyFile in assembliesFolder.EnumerateFiles(Constants.StalliteAssemblyExtension))
                     {
                         AssemblyName assemblyName;
@@ -167,6 +166,10 @@ namespace Microsoft.Extensions.DependencyInjection
                             Console.WriteLine($"Failed : {assemblyName}\n{e}");
                         }
                     }
+                }
+                else
+                {
+                    Console.WriteLine($"The satellite assemblies folder named '{culture}' is not found.");
                 }
             }
         }

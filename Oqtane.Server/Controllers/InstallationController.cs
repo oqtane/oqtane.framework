@@ -79,14 +79,22 @@ namespace Oqtane.Controllers
                 // Get the satellite assemblies
                 foreach (var culture in _localizationManager.GetSupportedCultures())
                 {
+                    var assembliesFolderPath = Path.Combine(binFolder, culture);
                     if (culture == Constants.DefaultCulture)
                     {
                         continue;
                     }
 
-                    foreach (var resourceFile in Directory.EnumerateFiles(Path.Combine(binFolder, culture)))
+                    if(Directory.Exists(assembliesFolderPath))
                     {
-                        list.Add(Path.Combine(culture, Path.GetFileNameWithoutExtension(resourceFile)));
+                        foreach (var resourceFile in Directory.EnumerateFiles(assembliesFolderPath))
+                        {
+                            list.Add(Path.Combine(culture, Path.GetFileNameWithoutExtension(resourceFile)));
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"The satellite assemblies folder named '{culture}' is not found.");
                     }
                 }
 
