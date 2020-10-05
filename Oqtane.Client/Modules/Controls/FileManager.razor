@@ -70,7 +70,7 @@
                         </span>
                     </div>
                 }
-                <ModuleMessage @ref=_message></ModuleMessage>
+                <ModuleMessage Message="@_message" Type="@_messagetype"></ModuleMessage>
             </div>
             @if (_image != string.Empty)
             {
@@ -93,7 +93,8 @@
     private bool _haseditpermission = false;
     private string _image = string.Empty;
     private string _guid;
-    private ModuleMessage _message = new ModuleMessage();
+    private string _message = string.Empty;
+    private MessageType _messagetype;
 
     [Parameter]
     public string Id { get; set; } // optional - for setting the id of the FileManager component for accessibility
@@ -205,6 +206,7 @@
 
     private async Task FolderChanged(ChangeEventArgs e)
     {
+        _message = string.Empty;
         try
         {
             FolderId = int.Parse((string)e.Value);
@@ -217,13 +219,14 @@
         {
             await logger.LogError(ex, "Error Loading Files {Error}", ex.Message);
 
-            _message.Message = "Error Loading Files";
-            _message.Type = MessageType.Error;
+            _message = "Error Loading Files";
+            _messagetype = MessageType.Error;
         }
     }
 
     private async Task FileChanged(ChangeEventArgs e)
     {
+        _message = string.Empty;
         FileId = int.Parse((string)e.Value);
 
         await SetImage();
@@ -254,6 +257,7 @@
 
     private async Task UploadFile()
     {
+        _message = string.Empty;
         var interop = new Interop(JSRuntime);
         var upload = await interop.GetFiles(_fileinputid);
         if (upload.Length > 0)
@@ -274,8 +278,8 @@
                 {
                     await logger.LogInformation("File Upload Succeeded {Files}", upload);
 
-                    _message.Message = "File Upload Succeeded";
-                    _message.Type = MessageType.Success;
+                    _message = "File Upload Succeeded";
+                    _messagetype = MessageType.Success;
 
                     await GetFiles();
 
@@ -294,34 +298,35 @@
                 {
                     await logger.LogError("File Upload Failed For {Files}", result.Replace(",", ", "));
 
-                    _message.Message = "File Upload Failed";
-                    _message.Type = MessageType.Error;
+                    _message = "File Upload Failed";
+                    _messagetype = MessageType.Error;
                 }
             }
             catch (Exception ex)
             {
                 await logger.LogError(ex, "File Upload Failed {Error}", ex.Message);
 
-                _message.Message = "File Upload Failed";
-                _message.Type = MessageType.Error;
+                _message = "File Upload Failed";
+                _messagetype = MessageType.Error;
             }
         }
         else
         {
-            _message.Message = "You Have Not Selected A File To Upload";
-            _message.Type = MessageType.Warning;
+            _message = "You Have Not Selected A File To Upload";
+            _messagetype = MessageType.Warning;
         }
     }
 
     private async Task DeleteFile()
     {
+        _message = string.Empty;
         try
         {
             await FileService.DeleteFileAsync(FileId);
             await logger.LogInformation("File Deleted {File}", FileId);
 
-            _message.Message = "File Deleted";
-            _message.Type = MessageType.Success;
+            _message = "File Deleted";
+            _messagetype = MessageType.Success;
 
             await GetFiles();
             FileId = -1;
@@ -332,8 +337,8 @@
         {
             await logger.LogError(ex, "Error Deleting File {File} {Error}", FileId, ex.Message);
 
-            _message.Message = "Error Deleting File";
-            _message.Type = MessageType.Error;
+            _message = "Error Deleting File";
+            _messagetype = MessageType.Error;
         }
     }
 

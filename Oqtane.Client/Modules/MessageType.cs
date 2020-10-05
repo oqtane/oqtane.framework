@@ -5,6 +5,7 @@
         Success,
         Info,
         Warning,
-        Error
+        Error,
+        Undefined
     }
 }

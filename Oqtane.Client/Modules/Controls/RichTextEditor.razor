@@ -8,7 +8,7 @@
                 @if (_filemanagervisible)
                 {
                     <FileManager @ref="_fileManager" Filter="@Constants.ImageFiles" />
-                    <ModuleMessage @ref=_message></ModuleMessage>
+                    <ModuleMessage Message="@_message" Type="MessageType.Warning"></ModuleMessage>
                     <br />
                 }
                 <div class="row justify-content-center" style="margin-bottom: 20px;">
@@ -85,7 +85,7 @@
     private FileManager _fileManager;
     private string _content = string.Empty;
     private string _original = string.Empty;
-    private ModuleMessage _message = new ModuleMessage();
+    private string _message = string.Empty;
 
     [Parameter]
     public string Content { get; set; }
@@ -107,7 +107,7 @@
     public string DebugLevel { get; set; } = "info";
 
     public override List<Resource> Resources => new List<Resource>()
-{
+    {
         new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill1.3.6.min.js" },
         new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-blot-formatter.min.js" },
         new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-interop.js" }
@@ -144,6 +144,7 @@
     public void CloseFileManager()
     {
         _filemanagervisible = false;
+        _message = string.Empty;
         StateHasChanged();
     }
 
@@ -180,6 +181,7 @@
 
     public async Task InsertImage()
     {
+        _message = string.Empty;
         if (_filemanagervisible)
         {
             var fileid = _fileManager.GetFileId();
@@ -191,8 +193,7 @@
             }
             else
             {
-                _message.Message = "You Must Select An Image To Insert";
-                _message.Type = MessageType.Warning;
+                _message = "You Must Select An Image To Insert";
             }
         }
         else

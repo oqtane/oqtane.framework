@@ -16,7 +16,7 @@
 
 @code {
     private string _message = string.Empty;
-    private string _classname = "alert alert-danger";
+    private string _classname = string.Empty;
 
     [Parameter]
     public string Message { get; set; }
@@ -26,23 +26,16 @@
 
     protected override void OnParametersSet()
     {
-        if (!string.IsNullOrEmpty(Message))
+        _message = Message;
+        if (!string.IsNullOrEmpty(_message))
         {
-            _message = Message;
             _classname = GetMessageType(Type);
         }
     }
 
-    public void SetModuleMessage(string message, MessageType type)
-    {
-        _message = message;
-        _classname = GetMessageType(type);
-        StateHasChanged();
-    }
-
     private string GetMessageType(MessageType type)
     {
-        var classname = string.Empty;
+        string classname = string.Empty;
         switch (type)
         {
             case MessageType.Success:
