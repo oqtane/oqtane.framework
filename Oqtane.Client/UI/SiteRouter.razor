@@ -455,7 +455,7 @@
                 }
 
                 // handle default action
-                if (action == Constants.DefaultAction && !string.IsNullOrEmpty(module.ModuleDefinition.DefaultAction))
+                if (action == Constants.DefaultAction && !string.IsNullOrEmpty(module.ModuleDefinition?.DefaultAction))
                 {
                     action = module.ModuleDefinition.DefaultAction;
                 }
