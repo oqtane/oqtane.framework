@@ -32,6 +32,7 @@ namespace Oqtane
         private string _webRoot;
         private Runtime _runtime;
         private bool _useSwagger;
+        private IWebHostEnvironment _env;
 
         public IConfigurationRoot Configuration { get; }
 
@@ -49,6 +50,8 @@ namespace Oqtane
 
             _webRoot = env.WebRootPath;
             AppDomain.CurrentDomain.SetData("DataDirectory", Path.Combine(env.ContentRootPath, "Data"));
+
+            _env = env;
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -58,7 +61,13 @@ namespace Oqtane
             // Register localization services
             services.AddLocalization(options => options.ResourcesPath = "Resources");
 
-            services.AddServerSideBlazor();
+            services.AddServerSideBlazor().AddCircuitOptions(options =>
+            {
+                if (_env.IsDevelopment())
+                {
+                    options.DetailedErrors = true;
+                }
+            });
 
             // setup HttpClient for server side in a client side compatible fashion ( with auth cookie )
             if (!services.Any(x => x.ServiceType == typeof(HttpClient)))
