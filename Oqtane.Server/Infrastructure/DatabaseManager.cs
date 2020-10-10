@@ -11,11 +11,12 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using Oqtane.Enums;
 using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
-using Oqtane.Enums;
+using Oqtane.Services;
 using File = System.IO.File;
 
 namespace Oqtane.Infrastructure
@@ -25,12 +26,14 @@ namespace Oqtane.Infrastructure
         private readonly IConfigurationRoot _config;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IMemoryCache _cache;
+        private readonly IPlatform _platform;
 
-        public DatabaseManager(IConfigurationRoot config, IServiceScopeFactory serviceScopeFactory, IMemoryCache cache)
+        public DatabaseManager(IConfigurationRoot config, IServiceScopeFactory serviceScopeFactory, IMemoryCache cache, IPlatform platform)
         {
             _config = config;
             _serviceScopeFactory = serviceScopeFactory;
             _cache = cache;
+            _platform = platform;
         }
 
         public bool IsInstalled()
@@ -492,7 +495,7 @@ namespace Oqtane.Infrastructure
                             aliases.UpdateAlias(alias);
                         }
 
-                        tenant.Version = Constants.Version;
+                        tenant.Version = _platform.Version;
                         tenants.UpdateTenant(tenant);
 
                         log.Log(site.SiteId, LogLevel.Trace, this, LogFunction.Create, "Site Created {Site}", site);

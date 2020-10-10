@@ -4,12 +4,13 @@
 @inject ISiteService SiteService
 @inject IUserService UserService
 @inject IJSRuntime JSRuntime
+@inject IPlatform Platform
 
 <div class="container">
     <div class="row">
         <div class="mx-auto text-center">
             <img src="oqtane-black.png" />
-            <div style="font-weight: bold">Version: @Constants.Version</div>
+            <div style="font-weight: bold">Version: @Platform.Version</div>
         </div>
     </div>
     <hr class="app-rule" />

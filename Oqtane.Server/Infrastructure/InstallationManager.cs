@@ -9,21 +9,25 @@ using System.Xml;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
+using Oqtane.Services;
 using Oqtane.Shared;
 
 namespace Oqtane.Infrastructure
 {
     public class InstallationManager : IInstallationManager
     {
+        private static IPlatform _platform;
+        
         private readonly IHostApplicationLifetime _hostApplicationLifetime;
         private readonly IWebHostEnvironment _environment;
         private readonly IMemoryCache _cache;
 
-        public InstallationManager(IHostApplicationLifetime hostApplicationLifetime, IWebHostEnvironment environment, IMemoryCache cache)
+        public InstallationManager(IHostApplicationLifetime hostApplicationLifetime, IWebHostEnvironment environment, IMemoryCache cache, IPlatform platform)
         {
             _hostApplicationLifetime = hostApplicationLifetime;
             _environment = environment;
             _cache = cache;
+            _platform = platform;
         }
 
         public void InstallPackages(string folders, bool restart)
@@ -80,7 +84,7 @@ namespace Oqtane.Infrastructure
                         }
 
                         // if compatible with framework version
-                        if (frameworkversion == "" || Version.Parse(Constants.Version).CompareTo(Version.Parse(frameworkversion)) >= 0)
+                        if (frameworkversion == "" || Version.Parse(_platform.Version).CompareTo(Version.Parse(frameworkversion)) >= 0)
                         {
                             List<string> assets = new List<string>();
 
@@ -200,7 +204,7 @@ namespace Oqtane.Infrastructure
                     }
 
                     // ensure package version is greater than or equal to current framework version
-                    if (packageversion != "" && Version.Parse(Constants.Version).CompareTo(Version.Parse(packageversion)) <= 0)
+                    if (packageversion != "" && Version.Parse(_platform.Version).CompareTo(Version.Parse(packageversion)) <= 0)
                     {
                         FinishUpgrade();
                     }

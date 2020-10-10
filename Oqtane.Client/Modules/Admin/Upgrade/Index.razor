@@ -4,6 +4,7 @@
 @inject IFileService FileService
 @inject IPackageService PackageService
 @inject IInstallationService InstallationService
+@inject IPlatform Platform
 
 @if (_package != null)
 {
@@ -51,11 +52,11 @@
                 _package = packages.FirstOrDefault();
                 if (_package != null)
                 {
-                    _upgradeavailable = (Version.Parse(_package.Version).CompareTo(Version.Parse(Constants.Version)) > 0);
+                    _upgradeavailable = (Version.Parse(_package.Version).CompareTo(Version.Parse(Platform.Version)) > 0);
                 }
                 else
                 {
-                    _package = new Package { Name = Constants.PackageId, Version = Constants.Version };
+                    _package = new Package { Name = Constants.PackageId, Version = Platform.Version };
                 }
             }
         }

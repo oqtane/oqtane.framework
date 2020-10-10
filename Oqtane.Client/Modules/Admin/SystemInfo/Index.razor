@@ -1,6 +1,7 @@
 ﻿@namespace Oqtane.Modules.Admin.SystemInfo
 @inherits ModuleBase
 @inject ISystemService SystemService
+@inject IPlatform Platform
 
 <table class="table table-borderless">
     <tr>
@@ -8,7 +9,7 @@
             <Label For="version" HelpText="Framework Version">Framework Version: </Label>
         </td>
         <td>
-            <input id="version" class="form-control" @bind="@_version" readonly />
+            <input id="version" class="form-control" @bind="@Platform.Version" readonly />
         </td>
     </tr>
     <tr>
@@ -57,7 +58,6 @@
 @code {
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-    private string _version = string.Empty;
     private string _runtime = string.Empty;
     private string _clrversion = string.Empty;
     private string _osversion = string.Empty;
@@ -66,7 +66,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _version = Constants.Version;
         _runtime = PageState.Runtime.ToString();
 
         Dictionary<string, string> systeminfo = await SystemService.GetSystemInfoAsync();

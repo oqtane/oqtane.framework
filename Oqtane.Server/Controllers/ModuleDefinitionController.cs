@@ -1,21 +1,21 @@
-﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
-using Oqtane.Models;
-using Oqtane.Shared;
-using Microsoft.AspNetCore.Authorization;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Linq;
+using System.Text.Json;
+using System.Xml.Linq;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
-using Oqtane.Enums;
-using Oqtane.Infrastructure;
-using Oqtane.Repository;
-using Oqtane.Security;
-using System;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
-using System.Xml.Linq;
-using System.Text.Json;
+using Oqtane.Enums;
+using Oqtane.Infrastructure;
+using Oqtane.Models;
+using Oqtane.Repository;
+using Oqtane.Security;
+using Oqtane.Services;
+using Oqtane.Shared;
 
 namespace Oqtane.Controllers
 {
@@ -31,9 +31,10 @@ namespace Oqtane.Controllers
         private readonly IWebHostEnvironment _environment;
         private readonly IConfigurationRoot _config;
         private readonly IServiceProvider _serviceProvider;
+        private readonly IPlatform _platform;
         private readonly ILogManager _logger;
 
-        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, IModuleRepository modules,ITenantRepository tenants, ISqlRepository sql, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, IConfigurationRoot config, IServiceProvider serviceProvider, ILogManager logger)
+        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, IModuleRepository modules,ITenantRepository tenants, ISqlRepository sql, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, IConfigurationRoot config, IServiceProvider serviceProvider, IPlatform platform, ILogManager logger)
         {
             _moduleDefinitions = moduleDefinitions;
             _modules = modules;
@@ -44,6 +45,7 @@ namespace Oqtane.Controllers
             _environment = environment;
             _config = config;
             _serviceProvider = serviceProvider;
+            _platform = platform;
             _logger = logger;
         }
 
@@ -242,7 +244,7 @@ namespace Oqtane.Controllers
                     text = text.Replace("[File]", Path.GetFileName(filePath));
                     if (moduleDefinition.Version == "local")
                     {
-                        text = text.Replace("[FrameworkVersion]", Constants.Version);
+                        text = text.Replace("[FrameworkVersion]", _platform.Version);
                         text = text.Replace("[ClientReference]", "<Reference Include=\"Oqtane.Client\"><HintPath>..\\..\\oqtane.framework\\Oqtane.Server\\bin\\Debug\\netcoreapp3.1\\Oqtane.Client.dll</HintPath></Reference>");
                         text = text.Replace("[ServerReference]", "<Reference Include=\"Oqtane.Server\"><HintPath>..\\..\\oqtane.framework\\Oqtane.Server\\bin\\Debug\\netcoreapp3.1\\Oqtane.Server.dll</HintPath></Reference>");
                         text = text.Replace("[SharedReference]", "<Reference Include=\"Oqtane.Shared\"><HintPath>..\\..\\oqtane.framework\\Oqtane.Server\\bin\\Debug\\netcoreapp3.1\\Oqtane.Shared.dll</HintPath></Reference>");

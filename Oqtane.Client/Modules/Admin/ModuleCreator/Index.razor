@@ -4,6 +4,7 @@
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject IModuleService ModuleService
 @inject ISystemService SystemService
+@inject IPlatform Platform
 
     <table class="table table-borderless">
         <tr>
@@ -76,13 +77,14 @@
     private string _module = string.Empty;
     private string _description = string.Empty;
     private string _template = "-";
-    public string _reference = Constants.Version;
+    public string _reference = string.Empty;
     private string _location = string.Empty;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override void OnInitialized()
     {
+        _reference = Platform.Version;
         AddModuleMessage("Please Note That Once You Select The Create Module Button The Application Must Restart In Order To Complete The Process. If You Create An External Module You Will Need To Compile The Source Code In Order To Make It Functional.", MessageType.Info);
     }
 
