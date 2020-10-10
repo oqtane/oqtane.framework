@@ -10,10 +10,20 @@ namespace Oqtane.Themes.Controls
 {
     public class LoginBase : ThemeControlBase
     {
-        [Inject] public NavigationManager NavigationManager {get;set;}
-        [Inject]public IUserService UserService {get;set;}
-        [Inject]public IJSRuntime jsRuntime {get;set;}
-        [Inject]public IServiceProvider ServiceProvider {get;set;}
+        [Inject]
+        public NavigationManager NavigationManager { get; set; }
+
+        [Inject]
+        public IUserService UserService { get; set; }
+
+        [Inject]
+        public IJSRuntime jsRuntime { get; set; }
+
+        [Inject]
+        public IServiceProvider ServiceProvider { get; set; }
+
+        [Inject]
+        public IPlatform Platform { get; set; }
 
         protected void LoginUser()
         {
@@ -29,7 +39,7 @@ namespace Oqtane.Themes.Controls
         {
             await UserService.LogoutUserAsync(PageState.User);
 
-            if (PageState.Runtime == Runtime.Server)
+            if (Platform.Runtime == Runtime.Server)
             {
                 // server-side Blazor
                 var interop = new Interop(jsRuntime);

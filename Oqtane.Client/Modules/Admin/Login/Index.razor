@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject IServiceProvider ServiceProvider
+@inject IPlatform Platform
 
 @if (_message != string.Empty)
 {
@@ -82,7 +83,7 @@
 
     private async Task Login()
     {
-        if (PageState.Runtime == Runtime.Server)
+        if (Platform.Runtime == Runtime.Server)
         {
             // server-side Blazor
             var user = new User();

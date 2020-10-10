@@ -17,7 +17,7 @@
             <Label For="runtime" HelpText="Blazor Runtime (Server or WebAssembly)">Blazor Runtime: </Label>
         </td>
         <td>
-            <input id="runtime" class="form-control" @bind="@_runtime" readonly />
+            <input id="runtime" class="form-control" @bind="@Platform.Runtime.ToString()" readonly />
         </td>
     </tr>
     <tr>
@@ -58,7 +58,6 @@
 @code {
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-    private string _runtime = string.Empty;
     private string _clrversion = string.Empty;
     private string _osversion = string.Empty;
     private string _serverpath = string.Empty;
@@ -66,8 +65,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _runtime = PageState.Runtime.ToString();
-
         Dictionary<string, string> systeminfo = await SystemService.GetSystemInfoAsync();
         if (systeminfo != null)
         {
