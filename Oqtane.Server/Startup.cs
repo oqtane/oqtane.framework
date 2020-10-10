@@ -30,20 +30,20 @@ namespace Oqtane
         private static readonly string[] DefaultSupportedCultures = new[] { Constants.DefaultCulture };
 
         private string _webRoot;
-        private Runtime _runtime;
+        private readonly Runtime _runtime;
         private bool _useSwagger;
         private IWebHostEnvironment _env;
 
         public IConfigurationRoot Configuration { get; }
 
-        public Startup(IWebHostEnvironment env)
+        public Startup(IWebHostEnvironment env, PlateformOptions plateformOptions)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             Configuration = builder.Build();
 
-            _runtime = (Configuration.GetSection("Runtime").Value == "WebAssembly") ? Runtime.WebAssembly : Runtime.Server;
+            _runtime = plateformOptions.Runtime;
             
             //add possibility to switch off swagger on production.
             _useSwagger = Configuration.GetSection("UseSwagger").Value != "false";
