@@ -27,21 +27,22 @@ namespace Oqtane
 {
     public class Startup
     {
-        private static readonly string[] DefaultSupportedCultures = new[] { Constants.DefaultCulture };
-
         private string _webRoot;
         private Runtime _runtime;
         private bool _useSwagger;
         private IWebHostEnvironment _env;
+        private string[] _supportedCultures;
 
         public IConfigurationRoot Configuration { get; }
 
-        public Startup(IWebHostEnvironment env)
+        public Startup(IWebHostEnvironment env, ILocalizationManager localizationManager)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             Configuration = builder.Build();
+
+            _supportedCultures = localizationManager.GetSupportedCultures();
 
             _runtime = (Configuration.GetSection("Runtime").Value == "WebAssembly") ? Runtime.WebAssembly : Runtime.Server;
             
@@ -141,11 +142,6 @@ namespace Oqtane
                 .AddSignInManager()
                 .AddDefaultTokenProviders();
 
-            var localizationSection = Configuration.GetSection("Localization");
-            var localizationOptions = localizationSection.Get<LocalizationOptions>();
-
-            services.Configure<LocalizationOptions>(localizationSection);
-
             services.Configure<IdentityOptions>(options =>
             {
                 // Password settings
@@ -219,10 +215,7 @@ namespace Oqtane
             services.AddTransient<IUpgradeManager, UpgradeManager>();
 
             // load the external assemblies into the app domain, install services 
-            services.AddOqtane(_runtime,
-                localizationOptions.SupportedCultures.IsNullOrEmpty()
-                    ? DefaultSupportedCultures
-                    : localizationOptions.SupportedCultures);
+            services.AddOqtane(_runtime, _supportedCultures);
 
             services.AddMvc()
                 .AddNewtonsoftJson()
