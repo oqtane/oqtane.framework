@@ -36,14 +36,14 @@ namespace Oqtane
 
         public IConfigurationRoot Configuration { get; }
 
-        public Startup(IWebHostEnvironment env, PlateformOptions plateformOptions)
+        public Startup(IWebHostEnvironment env, IPlatform plateform)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             Configuration = builder.Build();
 
-            _runtime = plateformOptions.Runtime;
+            _runtime = plateform.Runtime;
             
             //add possibility to switch off swagger on production.
             _useSwagger = Configuration.GetSection("UseSwagger").Value != "false";
