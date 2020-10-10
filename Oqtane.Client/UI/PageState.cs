@@ -19,6 +19,8 @@ namespace Oqtane.UI
         public string Action { get; set; }
         public bool EditMode { get; set; }
         public DateTime LastSyncDate { get; set; }
+
+        [Obsolete("This property is deprecated and will be removed in the upcoming major release, try to use IPlatformRuntime instead.")]
         public Runtime Runtime { get; set; }
     }
 }
