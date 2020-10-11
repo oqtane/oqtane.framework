@@ -25,7 +25,7 @@ namespace Oqtane.Client
 
             // Register oqtane services
             builder.Services.AddOqtaneServices();
-            builder.Services.AddOqtaneClientServices(httpClient);
+            await builder.Services.AddOqtaneClientServices(httpClient);
 
             await builder.Build().RunAsync();
         }

@@ -56,9 +56,9 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        public static IServiceCollection AddOqtaneClientServices(this IServiceCollection services, HttpClient httpClient)
+        public static async Task<IServiceCollection> AddOqtaneClientServices(this IServiceCollection services, HttpClient httpClient)
         {
-            LoadClientAssemblies(httpClient).GetAwaiter().GetResult();
+            await LoadClientAssemblies(httpClient);
 
             // dynamically register module contexts and repository services
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
