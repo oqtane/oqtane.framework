@@ -11,7 +11,7 @@ namespace Oqtane.Extensions
 {
     public static class ApplicationBuilderExtensions
     {
-        public static IApplicationBuilder ConfigureOqtaneAssemblies(this IApplicationBuilder app, IWebHostEnvironment env)
+        public static IApplicationBuilder UseOqtaneConfiguration(this IApplicationBuilder app, IWebHostEnvironment env)
         {
             var startUps = AppDomain.CurrentDomain
                 .GetOqtaneAssemblies()

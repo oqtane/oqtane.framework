@@ -154,7 +154,7 @@ namespace Oqtane
                 app.UseHsts();
             }
             // to allow install middleware it should be moved up
-            app.ConfigureOqtaneAssemblies(env);
+            app.UseOqtaneConfiguration(env);
 
             // Allow oqtane localization middleware
             app.UseOqtaneLocalization();
