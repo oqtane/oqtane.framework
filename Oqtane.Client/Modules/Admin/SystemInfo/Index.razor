@@ -9,7 +9,7 @@
             <Label For="version" HelpText="Framework Version">Framework Version: </Label>
         </td>
         <td>
-            <input id="version" class="form-control" @bind="@Platform.Version" readonly />
+            <input id="version" class="form-control" @bind="@_version" readonly />
         </td>
     </tr>
     <tr>
@@ -17,7 +17,7 @@
             <Label For="runtime" HelpText="Blazor Runtime (Server or WebAssembly)">Blazor Runtime: </Label>
         </td>
         <td>
-            <input id="runtime" class="form-control" @bind="@Platform.Runtime.ToString()" readonly />
+            <input id="runtime" class="form-control" @bind="@_runtime" readonly />
         </td>
     </tr>
     <tr>
@@ -62,9 +62,14 @@
     private string _osversion = string.Empty;
     private string _serverpath = string.Empty;
     private string _servertime = string.Empty;
+    private string _version = string.Empty;	
+    private string _runtime = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
+        _version = Platform.Version;	
+        _runtime = Platform.Runtime.ToString();
+
         Dictionary<string, string> systeminfo = await SystemService.GetSystemInfoAsync();
         if (systeminfo != null)
         {
