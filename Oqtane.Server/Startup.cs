@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
@@ -18,7 +17,6 @@ using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Security;
-using Oqtane.Services;
 using Oqtane.Shared;
 using Oqtane.UI;
 
@@ -144,11 +142,7 @@ namespace Oqtane
             // register custom claims principal factory for role claims
             services.AddTransient<IUserClaimsPrincipalFactory<IdentityUser>, ClaimsPrincipalFactory<IdentityUser>>();
 
-            // register singleton scoped core services
-            services.AddSingleton(Configuration);
-            services.AddSingleton<IInstallationManager, InstallationManager>();
-            services.AddSingleton<ISyncManager, SyncManager>();
-            services.AddSingleton<IDatabaseManager, DatabaseManager>();
+            services.AddOqtaneSingletonServices();
 
             // install any modules or themes ( this needs to occur BEFORE the assemblies are loaded into the app domain )
             InstallationManager.InstallPackages("Modules,Themes", _webRoot);

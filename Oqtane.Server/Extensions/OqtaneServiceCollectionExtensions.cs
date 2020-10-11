@@ -76,6 +76,15 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
+        public static IServiceCollection AddOqtaneSingletonServices(this IServiceCollection services)
+        {
+            services.AddSingleton<IInstallationManager, InstallationManager>();
+            services.AddSingleton<ISyncManager, SyncManager>();
+            services.AddSingleton<IDatabaseManager, DatabaseManager>();
+
+            return services;
+        }
+
         public static IServiceCollection AddOqtaneTransientServices(this IServiceCollection services)
         {
             services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
