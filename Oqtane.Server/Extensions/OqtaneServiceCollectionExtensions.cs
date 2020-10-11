@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 using Oqtane.Infrastructure;
 using Oqtane.Modules;
 using Oqtane.Security;
@@ -37,6 +38,19 @@ namespace Microsoft.Extensions.DependencyInjection
             LoadAssemblies();
             LoadSatelliteAssemblies(supportedCultures);
             services.AddOqtaneServices(runtime);
+
+            return services;
+        }
+
+        public static IServiceCollection AddOqtaneSwaggerDocs(this IServiceCollection services, Action<OqtaneSwaggerOptions> optionsSetup)
+        {
+            var swaggerOptions = new OqtaneSwaggerOptions();
+            optionsSetup.Invoke(swaggerOptions);
+
+            if (swaggerOptions.Enable)
+            {
+                services.AddSwaggerGen(c => { c.SwaggerDoc(swaggerOptions.Name, new OpenApiInfo { Title = swaggerOptions.Title, Version = swaggerOptions.Version }); });
+            }
 
             return services;
         }

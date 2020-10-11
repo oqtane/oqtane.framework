@@ -14,7 +14,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
 using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
@@ -220,10 +219,12 @@ namespace Oqtane
                 .AddOqtaneApplicationParts() // register any Controllers from custom modules
                 .ConfigureOqtaneMvc(); // any additional configuration from IStart classes.
 
-            if (_useSwagger)
+            services.AddOqtaneSwaggerDocs(options =>
             {
-                services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "Oqtane", Version = "v1"}); });
-            }
+                options.Enable = _useSwagger;
+                options.Name = "Oqtane";
+                options.Title = options.Version = "v1";
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
