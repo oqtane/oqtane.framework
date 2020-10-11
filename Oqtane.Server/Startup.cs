@@ -114,6 +114,7 @@ namespace Oqtane
             // register custom claims principal factory for role claims
             services.AddTransient<IUserClaimsPrincipalFactory<IdentityUser>, ClaimsPrincipalFactory<IdentityUser>>();
 
+            services.AddSingleton(Configuration);
             services.AddOqtaneSingletonServices();
 
             // install any modules or themes ( this needs to occur BEFORE the assemblies are loaded into the app domain )
