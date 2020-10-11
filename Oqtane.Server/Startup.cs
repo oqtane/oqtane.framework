@@ -179,34 +179,7 @@ namespace Oqtane
             // install any modules or themes ( this needs to occur BEFORE the assemblies are loaded into the app domain )
             InstallationManager.InstallPackages("Modules,Themes", _webRoot);
 
-            // register transient scoped core services
-            services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
-            services.AddTransient<IThemeRepository, ThemeRepository>();
-            services.AddTransient<IUserPermissions, UserPermissions>();
-            services.AddTransient<ITenantResolver, TenantResolver>();
-            services.AddTransient<IAliasRepository, AliasRepository>();
-            services.AddTransient<ITenantRepository, TenantRepository>();
-            services.AddTransient<ISiteRepository, SiteRepository>();
-            services.AddTransient<IPageRepository, PageRepository>();
-            services.AddTransient<IModuleRepository, ModuleRepository>();
-            services.AddTransient<IPageModuleRepository, PageModuleRepository>();
-            services.AddTransient<IUserRepository, UserRepository>();
-            services.AddTransient<IProfileRepository, ProfileRepository>();
-            services.AddTransient<IRoleRepository, RoleRepository>();
-            services.AddTransient<IUserRoleRepository, UserRoleRepository>();
-            services.AddTransient<IPermissionRepository, PermissionRepository>();
-            services.AddTransient<ISettingRepository, SettingRepository>();
-            services.AddTransient<ILogRepository, LogRepository>();
-            services.AddTransient<ILogManager, LogManager>();
-            services.AddTransient<ILocalizationManager, LocalizationManager>();
-            services.AddTransient<IJobRepository, JobRepository>();
-            services.AddTransient<IJobLogRepository, JobLogRepository>();
-            services.AddTransient<INotificationRepository, NotificationRepository>();
-            services.AddTransient<IFolderRepository, FolderRepository>();
-            services.AddTransient<IFileRepository, FileRepository>();
-            services.AddTransient<ISiteTemplateRepository, SiteTemplateRepository>();
-            services.AddTransient<ISqlRepository, SqlRepository>();
-            services.AddTransient<IUpgradeManager, UpgradeManager>();
+            services.AddOqtaneTransientServices();
 
             // load the external assemblies into the app domain, install services 
             services.AddOqtane(_runtime,

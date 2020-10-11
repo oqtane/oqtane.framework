@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Oqtane.Infrastructure;
 using Oqtane.Modules;
+using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Services;
 using Oqtane.Shared;
@@ -38,6 +39,40 @@ namespace Microsoft.Extensions.DependencyInjection
             LoadAssemblies();
             LoadSatelliteAssemblies(supportedCultures);
             services.AddOqtaneServices(runtime);
+
+            return services;
+        }
+
+
+        public static IServiceCollection AddOqtaneTransientServices(this IServiceCollection services)
+        {
+            services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
+            services.AddTransient<IThemeRepository, ThemeRepository>();
+            services.AddTransient<IUserPermissions, UserPermissions>();
+            services.AddTransient<ITenantResolver, TenantResolver>();
+            services.AddTransient<IAliasRepository, AliasRepository>();
+            services.AddTransient<ITenantRepository, TenantRepository>();
+            services.AddTransient<ISiteRepository, SiteRepository>();
+            services.AddTransient<IPageRepository, PageRepository>();
+            services.AddTransient<IModuleRepository, ModuleRepository>();
+            services.AddTransient<IPageModuleRepository, PageModuleRepository>();
+            services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<IProfileRepository, ProfileRepository>();
+            services.AddTransient<IRoleRepository, RoleRepository>();
+            services.AddTransient<IUserRoleRepository, UserRoleRepository>();
+            services.AddTransient<IPermissionRepository, PermissionRepository>();
+            services.AddTransient<ISettingRepository, SettingRepository>();
+            services.AddTransient<ILogRepository, LogRepository>();
+            services.AddTransient<ILogManager, LogManager>();
+            services.AddTransient<ILocalizationManager, LocalizationManager>();
+            services.AddTransient<IJobRepository, JobRepository>();
+            services.AddTransient<IJobLogRepository, JobLogRepository>();
+            services.AddTransient<INotificationRepository, NotificationRepository>();
+            services.AddTransient<IFolderRepository, FolderRepository>();
+            services.AddTransient<IFileRepository, FileRepository>();
+            services.AddTransient<ISiteTemplateRepository, SiteTemplateRepository>();
+            services.AddTransient<ISqlRepository, SqlRepository>();
+            services.AddTransient<IUpgradeManager, UpgradeManager>();
 
             return services;
         }
