@@ -4,6 +4,8 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Oqtane.Infrastructure;
@@ -31,6 +33,19 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.AddPolicy("EditFolder", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Folder, PermissionNames.Edit)));
                 options.AddPolicy("ListFolder", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Folder, PermissionNames.Browse)));
             });
+
+            return services;
+        }
+
+        public static IServiceCollection UseOqtaneSqlServerDatabase(this IServiceCollection services, string connectionString)
+        {
+            services.AddDbContext<MasterDBContext>(options => options.UseSqlServer(connectionString));
+            services.AddDbContext<TenantDBContext>(options => { });
+
+            services.AddIdentityCore<IdentityUser>(options => { })
+                .AddEntityFrameworkStores<TenantDBContext>()
+                .AddSignInManager()
+                .AddDefaultTokenProviders();
 
             return services;
         }

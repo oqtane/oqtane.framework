@@ -9,13 +9,11 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Oqtane.Extensions;
 using Oqtane.Infrastructure;
-using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Shared;
 using Oqtane.UI;
@@ -27,6 +25,7 @@ namespace Oqtane
         private static readonly string[] DefaultSupportedCultures = new[] { Constants.DefaultCulture };
 
         private string _webRoot;
+        private string _connectionString;
         private Runtime _runtime;
         private bool _useSwagger;
         private IWebHostEnvironment _env;
@@ -41,13 +40,15 @@ namespace Oqtane
             Configuration = builder.Build();
 
             _runtime = (Configuration.GetSection("Runtime").Value == "WebAssembly") ? Runtime.WebAssembly : Runtime.Server;
-            
+
             //add possibility to switch off swagger on production.
             _useSwagger = Configuration.GetSection("UseSwagger").Value != "false";
 
             _webRoot = env.WebRootPath;
-            AppDomain.CurrentDomain.SetData("DataDirectory", Path.Combine(env.ContentRootPath, "Data"));
 
+            AppDomain.CurrentDomain.SetData("DataDirectory", Path.Combine(env.ContentRootPath, "Data"));
+            
+            _connectionString = Configuration.GetConnectionString("DefaultConnection").Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString());
             _env = env;
         }
 
@@ -85,23 +86,13 @@ namespace Oqtane
                 });
             }
 
-            // register custom authorization policies
             services.AddOqtaneAuthorizationPolicies();
 
             services.AddOqtaneScopedServices();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            services.AddDbContext<MasterDBContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")
-                    .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString())
-                ));
-            services.AddDbContext<TenantDBContext>(options => { });
-
-            services.AddIdentityCore<IdentityUser>(options => { })
-                .AddEntityFrameworkStores<TenantDBContext>()
-                .AddSignInManager()
-                .AddDefaultTokenProviders();
+            services.UseOqtaneSqlServerDatabase(_connectionString);
 
             var localizationSection = Configuration.GetSection("Localization");
             var localizationOptions = localizationSection.Get<LocalizationOptions>();
