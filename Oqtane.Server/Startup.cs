@@ -1,11 +1,8 @@
 using System;
 using System.Collections;
 using System.IO;
-using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -68,23 +65,7 @@ namespace Oqtane
             });
 
             // setup HttpClient for server side in a client side compatible fashion ( with auth cookie )
-            if (!services.Any(x => x.ServiceType == typeof(HttpClient)))
-            {
-                services.AddScoped(s =>
-                {
-                    // creating the URI helper needs to wait until the JS Runtime is initialized, so defer it.
-                    var navigationManager = s.GetRequiredService<NavigationManager>();
-                    var httpContextAccessor = s.GetRequiredService<IHttpContextAccessor>();
-                    var authToken = httpContextAccessor.HttpContext.Request.Cookies[".AspNetCore.Identity.Application"];
-                    var client = new HttpClient(new HttpClientHandler {UseCookies = false});
-                    if (authToken != null)
-                    {
-                        client.DefaultRequestHeaders.Add("Cookie", ".AspNetCore.Identity.Application=" + authToken);
-                    }
-                    client.BaseAddress = new Uri(navigationManager.Uri);
-                    return client;
-                });
-            }
+            services.AddHttpClientWithAuthCookie();
 
             services.AddOqtaneAuthorizationPolicies();
 

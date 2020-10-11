@@ -1,9 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Loader;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
@@ -21,6 +24,30 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class OqtaneServiceCollectionExtensions
     {
+        public static IServiceCollection AddHttpClientWithAuthCookie(this IServiceCollection services)
+        {
+            if (!services.Any(x => x.ServiceType == typeof(HttpClient)))
+            {
+                services.AddScoped(s =>
+                {
+                    // creating the URI helper needs to wait until the JS Runtime is initialized, so defer it.
+                    var navigationManager = s.GetRequiredService<NavigationManager>();
+                    var httpContextAccessor = s.GetRequiredService<IHttpContextAccessor>();
+                    var authToken = httpContextAccessor.HttpContext.Request.Cookies[".AspNetCore.Identity.Application"];
+                    var client = new HttpClient(new HttpClientHandler { UseCookies = false });
+                    if (authToken != null)
+                    {
+                        client.DefaultRequestHeaders.Add("Cookie", ".AspNetCore.Identity.Application=" + authToken);
+                    }
+                    client.BaseAddress = new Uri(navigationManager.Uri);
+                    
+                    return client;
+                });
+            }
+
+            return services;
+        }
+
         public static IServiceCollection AddOqtaneAuthorizationPolicies(this IServiceCollection services)
         {
             services.AddAuthorizationCore(options =>
