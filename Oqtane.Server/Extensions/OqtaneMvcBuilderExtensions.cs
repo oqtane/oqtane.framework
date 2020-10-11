@@ -36,7 +36,7 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
 
-        public static IMvcBuilder AddServerStartups(this IMvcBuilder mvcBuilder)
+        public static IMvcBuilder AddOqtaneMvcConfiguration(this IMvcBuilder mvcBuilder)
         {
             var startUps = AppDomain.CurrentDomain
                 .GetOqtaneAssemblies()

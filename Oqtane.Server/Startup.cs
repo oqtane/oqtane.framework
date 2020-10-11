@@ -130,7 +130,7 @@ namespace Oqtane
             services.AddMvc()
                 .AddNewtonsoftJson()
                 .AddOqtaneApplicationParts() // register any Controllers from custom modules
-                .AddServerStartups(); // any additional configuration from IStart classes.
+                .AddOqtaneMvcConfiguration(); // any additional configuration from IStart classes.
 
             services.AddOqtaneSwaggerDocs(options =>
             {
