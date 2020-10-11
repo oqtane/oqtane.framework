@@ -6,11 +6,9 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Modules;
-using Oqtane.Providers;
 using Oqtane.Shared;
 using Oqtane.Services;
 
@@ -30,10 +28,7 @@ namespace Oqtane.Client
             // Register localization services
             builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
-            // register auth services
-            builder.Services.AddAuthorizationCore();
-            builder.Services.AddScoped<IdentityAuthenticationStateProvider>();
-            builder.Services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredService<IdentityAuthenticationStateProvider>());
+            builder.Services.AddOqtaneAuthentication();
 
             // register scoped core services
             builder.Services.AddScoped<SiteState>();
