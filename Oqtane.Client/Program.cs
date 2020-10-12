@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Modules;
 using Oqtane.Providers;
@@ -26,6 +27,7 @@ namespace Oqtane.Client
 
             builder.Services.AddSingleton(httpClient);
             builder.Services.AddOptions();
+            builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             // Register localization services
             builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
