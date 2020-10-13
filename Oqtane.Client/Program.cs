@@ -26,6 +26,7 @@ namespace Oqtane.Client
 
             builder.Services.AddSingleton(httpClient);
             builder.Services.AddOptions();
+            builder.Services.AddHttpContextAccessor();
 
             // Register localization services
             builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");

@@ -1,5 +1,8 @@
 ﻿@namespace Oqtane.Modules.Controls
 @inherits ModuleControlBase
+@using Microsoft.AspNetCore.Http
+@using Microsoft.Extensions.Localization
+@inject IHttpContextAccessor HttpContextAccessor
 
 @if (!string.IsNullOrEmpty(HelpText))
 {
@@ -26,6 +29,9 @@ else
     [Parameter]
     public string HelpText { get; set; } // optional - tooltip for this label
 
+    [Parameter]
+    public string ResourceKey { get; set; }
+
     protected override void OnParametersSet()
     {
         _openLabel = "<label";
@@ -40,5 +46,19 @@ else
         }
 
         _openLabel += ">";
+
+        if (!string.IsNullOrEmpty(ResourceKey))
+        {
+            if (ModuleState?.ModuleType != null)
+            {
+                var moduleType = Type.GetType(ModuleState.ModuleType);
+                var localizerTypeName = $"Microsoft.Extensions.Localization.IStringLocalizer`1[[{moduleType.AssemblyQualifiedName}]], Microsoft.Extensions.Localization.Abstractions";
+                var localizerType = Type.GetType(localizerTypeName);
+                var localizer = (IStringLocalizer)HttpContextAccessor.HttpContext.RequestServices.GetService(localizerType);
+                
+                ChildContent = @<text>@localizer[$"{ResourceKey}.Text"]</text>;
+                HelpText = localizer[$"{ResourceKey}.{nameof(HelpText)}"];
+            }
+        }
     }
 }
