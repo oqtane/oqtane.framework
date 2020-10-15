@@ -1,8 +1,6 @@
 ﻿@namespace Oqtane.Modules.Controls
 @inherits ModuleControlBase
-@using Microsoft.AspNetCore.Http
 @using Microsoft.Extensions.Localization
-@inject IHttpContextAccessor HttpContextAccessor
 
 @if (!string.IsNullOrEmpty(HelpText))
 {
@@ -54,10 +52,15 @@ else
                 var moduleType = Type.GetType(ModuleState.ModuleType);
                 var localizerTypeName = $"Microsoft.Extensions.Localization.IStringLocalizer`1[[{moduleType.AssemblyQualifiedName}]], Microsoft.Extensions.Localization.Abstractions";
                 var localizerType = Type.GetType(localizerTypeName);
-                var localizer = (IStringLocalizer)HttpContextAccessor.HttpContext.RequestServices.GetService(localizerType);
-                
-                ChildContent = @<text>@localizer[$"{ResourceKey}.Text"]</text>;
-                HelpText = localizer[$"{ResourceKey}.{nameof(HelpText)}"];
+
+                // HACK: Use ServiceActivator instead of injecting IHttpContextAccessor, because HttpContext throws NRE in WebAssembly runtime
+                using (var scope = ServiceActivator.GetScope())
+                {
+                    var localizer = (IStringLocalizer)scope.ServiceProvider.GetService(localizerType);
+
+                    ChildContent = @<text>@localizer[$"{ResourceKey}.Text"]</text>;
+                    HelpText = localizer[$"{ResourceKey}.{nameof(HelpText)}"];
+                }
             }
         }
     }
