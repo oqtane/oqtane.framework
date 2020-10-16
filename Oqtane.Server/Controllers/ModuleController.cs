@@ -89,7 +89,7 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        [Authorize(Roles = Constants.RegisteredRole)]
+        [Authorize(Roles = RoleNames.Registered)]
         public Module Post([FromBody] Module module)
         {
             if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Page, module.PageId, PermissionNames.Edit))
@@ -108,7 +108,7 @@ namespace Oqtane.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        [Authorize(Roles = Constants.RegisteredRole)]
+        [Authorize(Roles = RoleNames.Registered)]
         public Module Put(int id, [FromBody] Module module)
         {
             if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Module, module.ModuleId, PermissionNames.Edit))
@@ -140,7 +140,7 @@ namespace Oqtane.Controllers
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = Constants.RegisteredRole)]
+        [Authorize(Roles = RoleNames.Registered)]
         public void Delete(int id)
         {
             if (_userPermissions.IsAuthorized(User, EntityNames.Module, id, PermissionNames.Edit))
@@ -157,7 +157,7 @@ namespace Oqtane.Controllers
 
         // GET api/<controller>/export?moduleid=x
         [HttpGet("export")]
-        [Authorize(Roles = Constants.RegisteredRole)]
+        [Authorize(Roles = RoleNames.Registered)]
         public string Export(int moduleid)
         {
             string content = "";
@@ -175,7 +175,7 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>/import?moduleid=x
         [HttpPost("import")]
-        [Authorize(Roles = Constants.RegisteredRole)]
+        [Authorize(Roles = RoleNames.Registered)]
         public bool Import(int moduleid, [FromBody] string content)
         {
             bool success = false;

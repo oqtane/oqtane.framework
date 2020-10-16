@@ -458,7 +458,7 @@ namespace Oqtane.Infrastructure
                                 };
 
                                 user = users.AddUser(user);
-                                var hostRoleId = roles.GetRoles(user.SiteId, true).FirstOrDefault(item => item.Name == Constants.HostRole)?.RoleId ?? 0;
+                                var hostRoleId = roles.GetRoles(user.SiteId, true).FirstOrDefault(item => item.Name == RoleNames.Host)?.RoleId ?? 0;
                                 var userRole = new UserRole { UserId = user.UserId, RoleId = hostRoleId, EffectiveDate = null, ExpiryDate = null };
                                 userroles.AddUserRole(userRole);
 
@@ -477,7 +477,7 @@ namespace Oqtane.Infrastructure
                                         Permissions = new List<Permission>
                                         {
                                             new Permission(PermissionNames.Browse, user.UserId, true),
-                                            new Permission(PermissionNames.View, Constants.AllUsersRole, true),
+                                            new Permission(PermissionNames.View, RoleNames.Everyone, true),
                                             new Permission(PermissionNames.Edit, user.UserId, true),
                                         }.EncodePermissions(),
                                     });

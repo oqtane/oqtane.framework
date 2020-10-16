@@ -124,10 +124,10 @@ namespace Oqtane.Controllers
             switch (entityName)
             {
                 case EntityNames.Tenant:
-                    authorized = User.IsInRole(Constants.HostRole);
+                    authorized = User.IsInRole(RoleNames.Host);
                     break;
                 case EntityNames.Site:
-                    authorized = User.IsInRole(Constants.AdminRole);
+                    authorized = User.IsInRole(RoleNames.Admin);
                     break;
                 case EntityNames.Page:
                 case EntityNames.Module:
@@ -138,7 +138,7 @@ namespace Oqtane.Controllers
                     authorized = true;
                     if (permissionName == PermissionNames.Edit)
                     {
-                        authorized = User.IsInRole(Constants.AdminRole) || (_userPermissions.GetUser(User).UserId == entityId);
+                        authorized = User.IsInRole(RoleNames.Admin) || (_userPermissions.GetUser(User).UserId == entityId);
                     }
                     break;
             }

@@ -65,7 +65,7 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        [Authorize(Roles = Constants.RegisteredRole)]
+        [Authorize(Roles = RoleNames.Registered)]
         public PageModule Post([FromBody] PageModule pageModule)
         {
             if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Page, pageModule.PageId, PermissionNames.Edit))
@@ -85,7 +85,7 @@ namespace Oqtane.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        [Authorize(Roles = Constants.RegisteredRole)]
+        [Authorize(Roles = RoleNames.Registered)]
         public PageModule Put(int id, [FromBody] PageModule pageModule)
         {
             if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Module, pageModule.ModuleId, PermissionNames.Edit))
@@ -105,7 +105,7 @@ namespace Oqtane.Controllers
 
         // PUT api/<controller>/?pageid=x&pane=y
         [HttpPut]
-        [Authorize(Roles = Constants.RegisteredRole)]
+        [Authorize(Roles = RoleNames.Registered)]
         public void Put(int pageid, string pane)
         {
             if (_userPermissions.IsAuthorized(User, EntityNames.Page, pageid, PermissionNames.Edit))
@@ -133,7 +133,7 @@ namespace Oqtane.Controllers
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = Constants.RegisteredRole)]
+        [Authorize(Roles = RoleNames.Registered)]
         public void Delete(int id)
         {
             PageModule pagemodule = _pageModules.GetPageModule(id);

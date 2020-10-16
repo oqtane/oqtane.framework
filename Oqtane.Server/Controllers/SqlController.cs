@@ -30,7 +30,7 @@ namespace Oqtane.Controllers
 
         // POST: api/<controller>
         [HttpPost]
-        [Authorize(Roles = Constants.HostRole)]
+        [Authorize(Roles = RoleNames.Host)]
         public SqlQuery Post([FromBody] SqlQuery sqlquery)
         {
             var results = new List<Dictionary<string, string>>();

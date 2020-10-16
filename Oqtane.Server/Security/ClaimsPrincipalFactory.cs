@@ -39,15 +39,15 @@ namespace Oqtane.Security
                 {
                     id.AddClaim(new Claim(_options.ClaimsIdentity.RoleClaimType, userrole.Role.Name));
                     // host users are members of every site
-                    if (userrole.Role.Name == Constants.HostRole)
+                    if (userrole.Role.Name == RoleNames.Host)
                     {
-                        if (userroles.Where(item => item.Role.Name == Constants.RegisteredRole).FirstOrDefault() == null)
+                        if (userroles.Where(item => item.Role.Name == RoleNames.Registered).FirstOrDefault() == null)
                         {
-                            id.AddClaim(new Claim(_options.ClaimsIdentity.RoleClaimType, Constants.RegisteredRole));
+                            id.AddClaim(new Claim(_options.ClaimsIdentity.RoleClaimType, RoleNames.Registered));
                         }
-                        if (userroles.Where(item => item.Role.Name == Constants.AdminRole).FirstOrDefault() == null)
+                        if (userroles.Where(item => item.Role.Name == RoleNames.Admin).FirstOrDefault() == null)
                         {
-                            id.AddClaim(new Claim(_options.ClaimsIdentity.RoleClaimType, Constants.AdminRole));
+                            id.AddClaim(new Claim(_options.ClaimsIdentity.RoleClaimType, RoleNames.Admin));
                         }
                     }
                 }
