@@ -149,7 +149,7 @@ namespace Oqtane.Controllers
                     }
                     zipfile = memoryStream.ToArray();
                 }
-                return File(zipfile, "application/octet-stream", "oqtane.zip");
+                return File(zipfile, System.Net.Mime.MediaTypeNames.Application.Octet, "oqtane.zip");
             }
             else
             {
