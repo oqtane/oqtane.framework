@@ -72,7 +72,7 @@ namespace Oqtane.Infrastructure
             if (install == null)
             {
                 // startup or silent installation
-                install = new InstallConfig { ConnectionString = _config.GetConnectionString(SettingKeys.ConnectionStringKey), TenantName = Constants.MasterTenant, IsNewTenant = false };
+                install = new InstallConfig { ConnectionString = _config.GetConnectionString(SettingKeys.ConnectionStringKey), TenantName = TenantNames.Master, IsNewTenant = false };
 
                 if (!IsInstalled())
                 {
@@ -192,7 +192,7 @@ namespace Oqtane.Infrastructure
         {
             var result = new Installation { Success = false, Message = string.Empty };
 
-            if (install.TenantName == Constants.MasterTenant)
+            if (install.TenantName == TenantNames.Master)
             {
                 MigrateScriptNamingConvention("Master", install.ConnectionString);
 
@@ -245,7 +245,7 @@ namespace Oqtane.Infrastructure
                         db.SaveChanges();
                         _cache.Remove("tenants");
 
-                        if (install.TenantName == Constants.MasterTenant)
+                        if (install.TenantName == TenantNames.Master)
                         {
                             var job = new Job { Name = "Notification Job", JobType = "Oqtane.Infrastructure.NotificationJob, Oqtane.Server", Frequency = "m", Interval = 1, StartDate = null, EndDate = null, IsEnabled = false, IsStarted = false, IsExecuting = false, NextExecution = null, RetentionHistory = 10, CreatedBy = "", CreatedOn = DateTime.UtcNow, ModifiedBy = "", ModifiedOn = DateTime.UtcNow };
                             db.Job.Add(job);
@@ -350,7 +350,7 @@ namespace Oqtane.Infrastructure
                                 foreach (var tenant in db.Tenant.ToList())
                                 {
                                     int index = Array.FindIndex(versions, item => item == moduledefinition.Version);
-                                    if (tenant.Name == install.TenantName && install.TenantName != Constants.MasterTenant)
+                                    if (tenant.Name == install.TenantName && install.TenantName != TenantNames.Master)
                                     {
                                         index = -1;
                                     }

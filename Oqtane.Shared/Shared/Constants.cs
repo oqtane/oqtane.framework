@@ -40,7 +40,8 @@ namespace Oqtane.Shared {
         [Obsolete("Use UserNames.Host instead.")]
         public const string HostUser = UserNames.Host;
 
-        public const string MasterTenant = "Master";
+        [Obsolete("Use TenantNames.Master instead")]
+        public const string MasterTenant = TenantNames.Master;
         public const string DefaultSite = "Default Site";
 
         const string RoleObsoleteMessage = "Use the corresponding memeber from Oqtane.Shared.RoleNames";
