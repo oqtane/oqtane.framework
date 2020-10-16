@@ -11,7 +11,7 @@ using Oqtane.Security;
 
 namespace Oqtane.Controllers
 {
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class ModuleController : Controller
     {
         private readonly IModuleRepository _modules;

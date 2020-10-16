@@ -12,7 +12,7 @@ using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class JobController : Controller
     {
         private readonly IJobRepository _jobs;

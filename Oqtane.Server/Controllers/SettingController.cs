@@ -10,7 +10,7 @@ using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class SettingController : Controller
     {
         private readonly ISettingRepository _settings;

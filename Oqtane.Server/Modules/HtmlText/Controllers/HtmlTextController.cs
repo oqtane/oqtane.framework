@@ -12,7 +12,7 @@ using Oqtane.Controllers;
 
 namespace Oqtane.Modules.HtmlText.Controllers
 {
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class HtmlTextController : ModuleControllerBase
     {
         private readonly IHtmlTextRepository _htmlText;

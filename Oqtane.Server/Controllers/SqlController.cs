@@ -14,7 +14,7 @@ using System;
 
 namespace Oqtane.Controllers
 {
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class SqlController : Controller
     {
         private readonly ITenantRepository _tenants;

@@ -14,7 +14,7 @@ using Oqtane.Themes;
 
 namespace Oqtane.Controllers
 {
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class InstallationController : Controller
     {
         private readonly IConfigurationRoot _config;

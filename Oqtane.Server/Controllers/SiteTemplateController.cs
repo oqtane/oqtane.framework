@@ -7,7 +7,7 @@ using Oqtane.Shared;
 
 namespace Oqtane.Controllers
 {
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class SiteTemplateController : Controller
     {
         private readonly ISiteTemplateRepository _siteTemplates;

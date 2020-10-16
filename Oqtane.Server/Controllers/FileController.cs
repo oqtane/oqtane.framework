@@ -22,7 +22,7 @@ using Microsoft.AspNetCore.Routing.Constraints;
 
 namespace Oqtane.Controllers
 {
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class FileController : Controller
     {
         private readonly IWebHostEnvironment _environment;

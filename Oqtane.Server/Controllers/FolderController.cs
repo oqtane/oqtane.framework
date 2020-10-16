@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace Oqtane.Controllers
 {
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class FolderController : Controller
     {
         private readonly IWebHostEnvironment _environment;
