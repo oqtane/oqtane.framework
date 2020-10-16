@@ -31,7 +31,7 @@ else
 
     protected override void OnParametersSet()
     {
-        if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions) && Name != Constants.AdminPane)
+        if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions) && Name != PaneNames.Admin)
         {
             _useadminborder = true;
             _paneadminborder = "app-pane-admin-border";
@@ -47,7 +47,7 @@ else
         {
             if (PageState.ModuleId != -1 && PageState.Action != Constants.DefaultAction)
             {
-                if (Name.ToLower() == Constants.AdminPane.ToLower())
+                if (Name.ToLower() == PaneNames.Admin.ToLower())
                 {
                     Module module = PageState.Modules.FirstOrDefault(item => item.ModuleId == PageState.ModuleId);
                     if (module != null && !module.IsDeleted)

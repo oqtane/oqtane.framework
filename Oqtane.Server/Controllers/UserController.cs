@@ -118,7 +118,7 @@ namespace Oqtane.Controllers
 
             bool verified;
             bool allowregistration;
-            if (user.Username == Constants.HostUser || User.IsInRole(RoleNames.Admin))
+            if (user.Username == UserNames.Host || User.IsInRole(RoleNames.Admin))
             {
                 verified = true;
                 allowregistration = true;
@@ -164,7 +164,7 @@ namespace Oqtane.Controllers
                         }
 
                         // assign to host role if this is the host user ( initial installation )
-                        if (user.Username == Constants.HostUser)
+                        if (user.Username == UserNames.Host)
                         {
                             int hostroleid = _roles.GetRoles(user.SiteId, true).Where(item => item.Name == RoleNames.Host).FirstOrDefault().RoleId;
                             UserRole userrole = new UserRole();
@@ -206,7 +206,7 @@ namespace Oqtane.Controllers
                     }
                 }
 
-                if (newUser != null && user.Username != Constants.HostUser)
+                if (newUser != null && user.Username != UserNames.Host)
                 {
                     // add auto assigned roles to user for site
                     List<Role> roles = _roles.GetRoles(user.SiteId).Where(item => item.IsAutoAssigned).ToList();

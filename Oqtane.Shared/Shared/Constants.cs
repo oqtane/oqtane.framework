@@ -18,7 +18,9 @@ namespace Oqtane.Shared {
 
         public const string ActionToken = "{Action}";
         public const string DefaultAction = "Index";
-        public const string AdminPane = "Admin";
+
+        [Obsolete("Use PaneNames.Admin")]
+        public const string AdminPane = PaneNames.Admin;
         public const string ModuleDelimiter = "*";
         public const string UrlParametersDelimiter = "!";
 
@@ -35,7 +37,8 @@ namespace Oqtane.Shared {
 
         public const string ContentUrl = "/api/file/download/";
 
-        public const string HostUser = "host";
+        [Obsolete("Use UserNames.Host instead.")]
+        public const string HostUser = UserNames.Host;
 
         public const string MasterTenant = "Master";
         public const string DefaultSite = "Default Site";

@@ -83,7 +83,7 @@ namespace Oqtane.Infrastructure
                     if (!string.IsNullOrEmpty(install.ConnectionString) && !string.IsNullOrEmpty(install.Aliases) && !string.IsNullOrEmpty(install.HostPassword) && !string.IsNullOrEmpty(install.HostEmail))
                     {
                         // silent install
-                        install.HostName = Constants.HostUser;
+                        install.HostName = UserNames.Host;
                         install.SiteTemplate = GetInstallationConfig(SettingKeys.SiteTemplateKey, Constants.DefaultSiteTemplate);
                         install.DefaultTheme = GetInstallationConfig(SettingKeys.DefaultThemeKey, Constants.DefaultTheme);
                         install.DefaultLayout = GetInstallationConfig(SettingKeys.DefaultLayoutKey, Constants.DefaultLayout);
@@ -439,17 +439,17 @@ namespace Oqtane.Infrastructure
                         };
                         site = sites.AddSite(site);
 
-                        IdentityUser identityUser = identityUserManager.FindByNameAsync(Constants.HostUser).GetAwaiter().GetResult();
+                        IdentityUser identityUser = identityUserManager.FindByNameAsync(UserNames.Host).GetAwaiter().GetResult();
                         if (identityUser == null)
                         {
-                            identityUser = new IdentityUser { UserName = Constants.HostUser, Email = install.HostEmail, EmailConfirmed = true };
+                            identityUser = new IdentityUser { UserName = UserNames.Host, Email = install.HostEmail, EmailConfirmed = true };
                             var create = identityUserManager.CreateAsync(identityUser, install.HostPassword).GetAwaiter().GetResult();
                             if (create.Succeeded)
                             {
                                 var user = new User
                                 {
                                     SiteId = site.SiteId,
-                                    Username = Constants.HostUser,
+                                    Username = UserNames.Host,
                                     Password = install.HostPassword,
                                     Email = install.HostEmail,
                                     DisplayName = install.HostName,
