@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Oqtane.Controllers
 {
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class AliasController : Controller
     {
         private readonly IAliasRepository _aliases;
@@ -32,7 +32,7 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>
         [HttpGet]
-        [Authorize(Roles = Constants.AdminRole)]
+        [Authorize(Roles = RoleNames.Admin)]
         public IEnumerable<Alias> Get()
         {
             return _aliases.GetAliases();
@@ -40,7 +40,7 @@ namespace Oqtane.Controllers
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
-        [Authorize(Roles = Constants.AdminRole)]
+        [Authorize(Roles = RoleNames.Admin)]
         public Alias Get(int id)
         {
             return _aliases.GetAlias(id);
@@ -86,7 +86,7 @@ namespace Oqtane.Controllers
         
         // POST api/<controller>
         [HttpPost]
-        [Authorize(Roles = Constants.AdminRole)]
+        [Authorize(Roles = RoleNames.Admin)]
         public Alias Post([FromBody] Alias alias)
         {
             if (ModelState.IsValid)
@@ -99,7 +99,7 @@ namespace Oqtane.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        [Authorize(Roles = Constants.AdminRole)]
+        [Authorize(Roles = RoleNames.Admin)]
         public Alias Put(int id, [FromBody] Alias alias)
         {
             if (ModelState.IsValid)
@@ -112,7 +112,7 @@ namespace Oqtane.Controllers
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = Constants.AdminRole)]
+        [Authorize(Roles = RoleNames.Admin)]
         public void Delete(int id)
         {
             _aliases.DeleteAlias(id);

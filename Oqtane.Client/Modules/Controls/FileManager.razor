@@ -173,7 +173,7 @@
         _haseditpermission = false;
         if (!string.IsNullOrEmpty(Folder))
         {
-            _haseditpermission = UserSecurity.IsAuthorized(PageState.User, Constants.HostRole);
+            _haseditpermission = UserSecurity.IsAuthorized(PageState.User, RoleNames.Host);
             _files = await FileService.GetFilesAsync(Folder);
         }
         else

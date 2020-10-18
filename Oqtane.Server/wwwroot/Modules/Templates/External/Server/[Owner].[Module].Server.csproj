@@ -31,7 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    [ServerReference]
-    [SharedReference]
+	  <ServerReference />
+	  <SharedReference />
   </ItemGroup>
 </Project>

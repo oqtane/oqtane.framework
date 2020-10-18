@@ -1,5 +1,6 @@
 ﻿@namespace Oqtane.Modules.Controls
 @inherits ModuleControlBase
+@using Microsoft.Extensions.Localization
 
 @if (!string.IsNullOrEmpty(HelpText))
 {
@@ -26,6 +27,9 @@ else
     [Parameter]
     public string HelpText { get; set; } // optional - tooltip for this label
 
+    [Parameter]
+    public string ResourceKey { get; set; }
+
     protected override void OnParametersSet()
     {
         _openLabel = "<label";
@@ -40,5 +44,24 @@ else
         }
 
         _openLabel += ">";
+
+        if (!string.IsNullOrEmpty(ResourceKey))
+        {
+            if (ModuleState?.ModuleType != null)
+            {
+                var moduleType = Type.GetType(ModuleState.ModuleType);
+                var localizerTypeName = $"Microsoft.Extensions.Localization.IStringLocalizer`1[[{moduleType.AssemblyQualifiedName}]], Microsoft.Extensions.Localization.Abstractions";
+                var localizerType = Type.GetType(localizerTypeName);
+
+                // HACK: Use ServiceActivator instead of injecting IHttpContextAccessor, because HttpContext throws NRE in WebAssembly runtime
+                using (var scope = ServiceActivator.GetScope())
+                {
+                    var localizer = (IStringLocalizer)scope.ServiceProvider.GetService(localizerType);
+
+                    ChildContent = @<text>@localizer[$"{ResourceKey}.Text"]</text>;
+                    HelpText = localizer[$"{ResourceKey}.{nameof(HelpText)}"];
+                }
+            }
+        }
     }
 }

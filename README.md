@@ -65,7 +65,7 @@ Future Consideration
 - [ ] DB Migrations for framework installation/upgrade
 - [ ] Support for SQLite
 - [ ] Generic Repository Pattern
-- [ ] JwT token authentication ( possibly using IdentityServer )
+- [ ] Support for other Auth providers
 - [ ] Optional Encryption for Settings Values 
 
 # Background

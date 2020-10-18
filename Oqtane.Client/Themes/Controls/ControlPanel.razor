@@ -23,7 +23,7 @@
             </div>
             <div class="@BodyClass">
 
-                @if (UserSecurity.IsAuthorized(PageState.User, Constants.AdminRole))
+                @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
                 {
                     <div class="row">
                         <div class="col">
@@ -51,7 +51,7 @@
                     </div>
                     <br />
                     <div class="row">
-                        @if (UserSecurity.GetPermissionStrings(PageState.Page.Permissions).FirstOrDefault(item => item.PermissionName == PermissionNames.View).Permissions.Split(';').Contains(Constants.AllUsersRole))
+                        @if (UserSecurity.GetPermissionStrings(PageState.Page.Permissions).FirstOrDefault(item => item.PermissionName == PermissionNames.View).Permissions.Split(';').Contains(RoleNames.Everyone))
                         {
                             <div class="col">
                                 <button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Publish("unpublish"))>Unpublish Page</button>
@@ -510,8 +510,8 @@
                         if (permissionstring.PermissionName == PermissionNames.View)
                         {
                             List<string> ids = permissionstring.Permissions.Split(';').ToList();
-                            if (!ids.Contains(Constants.AllUsersRole)) ids.Add(Constants.AllUsersRole);
-                            if (!ids.Contains(Constants.RegisteredRole)) ids.Add(Constants.RegisteredRole);
+                            if (!ids.Contains(RoleNames.Everyone)) ids.Add(RoleNames.Everyone);
+                            if (!ids.Contains(RoleNames.Registered)) ids.Add(RoleNames.Registered);
                             permissionstring.Permissions = string.Join(";", ids.ToArray());
                         }
                     }
@@ -531,12 +531,12 @@
                     switch (action)
                     {
                         case "publish":
-                            if (!ids.Contains(Constants.AllUsersRole)) ids.Add(Constants.AllUsersRole);
-                            if (!ids.Contains(Constants.RegisteredRole)) ids.Add(Constants.RegisteredRole);
+                            if (!ids.Contains(RoleNames.Everyone)) ids.Add(RoleNames.Everyone);
+                            if (!ids.Contains(RoleNames.Registered)) ids.Add(RoleNames.Registered);
                             break;
                         case "unpublish":
-                            ids.Remove(Constants.AllUsersRole);
-                            ids.Remove(Constants.RegisteredRole);
+                            ids.Remove(RoleNames.Everyone);
+                            ids.Remove(RoleNames.Registered);
                             break;
                     }
                     permissionstring.Permissions = string.Join(";", ids.ToArray());

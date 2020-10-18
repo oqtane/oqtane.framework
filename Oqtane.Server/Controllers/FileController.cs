@@ -22,7 +22,7 @@ using Microsoft.AspNetCore.Routing.Constraints;
 
 namespace Oqtane.Controllers
 {
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class FileController : Controller
     {
         private readonly IWebHostEnvironment _environment;
@@ -58,7 +58,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                if (User.IsInRole(Constants.HostRole))
+                if (User.IsInRole(RoleNames.Host))
                 {
                     folder = GetFolderPath(folder);
                     if (Directory.Exists(folder))
@@ -132,7 +132,7 @@ namespace Oqtane.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        [Authorize(Roles = Constants.RegisteredRole)]
+        [Authorize(Roles = RoleNames.Registered)]
         public Models.File Put(int id, [FromBody] Models.File file)
         {
             if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Folder, file.FolderId, PermissionNames.Edit))
@@ -164,7 +164,7 @@ namespace Oqtane.Controllers
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = Constants.RegisteredRole)]
+        [Authorize(Roles = RoleNames.Registered)]
         public void Delete(int id)
         {
             Models.File file = _files.GetFile(id);
@@ -282,7 +282,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                if (User.IsInRole(Constants.HostRole))
+                if (User.IsInRole(RoleNames.Host))
                 {
                     folderPath = GetFolderPath(folder);
                 }

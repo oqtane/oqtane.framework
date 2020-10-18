@@ -10,7 +10,7 @@ using Oqtane.Security;
 
 namespace Oqtane.Controllers
 {
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class NotificationController : Controller
     {
         private readonly INotificationRepository _notifications;
@@ -26,7 +26,7 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>?siteid=x&type=y&userid=z
         [HttpGet]
-        [Authorize(Roles = Constants.RegisteredRole)]
+        [Authorize(Roles = RoleNames.Registered)]
         public IEnumerable<Notification> Get(string siteid, string direction, string userid)
         {
             IEnumerable<Notification> notifications = null;
@@ -46,7 +46,7 @@ namespace Oqtane.Controllers
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
-        [Authorize(Roles = Constants.RegisteredRole)]
+        [Authorize(Roles = RoleNames.Registered)]
         public Notification Get(int id)
         {
             Notification notification = _notifications.GetNotification(id);
@@ -59,7 +59,7 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        [Authorize(Roles = Constants.RegisteredRole)]
+        [Authorize(Roles = RoleNames.Registered)]
         public Notification Post([FromBody] Notification notification)
         {
             if (IsAuthorized(notification.FromUserId))
@@ -72,7 +72,7 @@ namespace Oqtane.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        [Authorize(Roles = Constants.RegisteredRole)]
+        [Authorize(Roles = RoleNames.Registered)]
         public Notification Put(int id, [FromBody] Notification notification)
         {
             if (IsAuthorized(notification.FromUserId))
@@ -85,7 +85,7 @@ namespace Oqtane.Controllers
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = Constants.RegisteredRole)]
+        [Authorize(Roles = RoleNames.Registered)]
         public void Delete(int id)
         {
             Notification notification = _notifications.GetNotification(id);

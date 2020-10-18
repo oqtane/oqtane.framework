@@ -88,8 +88,11 @@ namespace Oqtane.Client
                     .ToList()
                     .ForEach(x => x.ConfigureServices(builder.Services));
             }
+            var host = builder.Build();
 
-            await builder.Build().RunAsync();
+            ServiceActivator.Configure(host.Services);
+
+            await host.RunAsync();
         }
 
         private static async Task LoadClientAssemblies(HttpClient http)

@@ -10,7 +10,7 @@ using [Owner].[Module].Repository;
 
 namespace [Owner].[Module].Controllers
 {
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class [Module]Controller : Controller
     {
         private readonly I[Module]Repository _[Module]Repository;
@@ -30,7 +30,7 @@ namespace [Owner].[Module].Controllers
 
         // GET: api/<controller>?moduleid=x
         [HttpGet]
-        [Authorize(Policy = "ViewModule")]
+        [Authorize(Policy = PolicyNames.ViewModule)]
         public IEnumerable<Models.[Module]> Get(string moduleid)
         {
             return _[Module]Repository.Get[Module]s(int.Parse(moduleid));
@@ -38,7 +38,7 @@ namespace [Owner].[Module].Controllers
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
-        [Authorize(Policy = "ViewModule")]
+        [Authorize(Policy = PolicyNames.ViewModule)]
         public Models.[Module] Get(int id)
         {
             Models.[Module] [Module] = _[Module]Repository.Get[Module](id);
@@ -51,7 +51,7 @@ namespace [Owner].[Module].Controllers
 
         // POST api/<controller>
         [HttpPost]
-        [Authorize(Policy = "EditModule")]
+        [Authorize(Policy = PolicyNames.EditModule)]
         public Models.[Module] Post([FromBody] Models.[Module] [Module])
         {
             if (ModelState.IsValid && [Module].ModuleId == _entityId)
@@ -64,7 +64,7 @@ namespace [Owner].[Module].Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        [Authorize(Policy = "EditModule")]
+        [Authorize(Policy = PolicyNames.EditModule)]
         public Models.[Module] Put(int id, [FromBody] Models.[Module] [Module])
         {
             if (ModelState.IsValid && [Module].ModuleId == _entityId)
@@ -77,7 +77,7 @@ namespace [Owner].[Module].Controllers
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
-        [Authorize(Policy = "EditModule")]
+        [Authorize(Policy = PolicyNames.EditModule)]
         public void Delete(int id)
         {
             Models.[Module] [Module] = _[Module]Repository.Get[Module](id);

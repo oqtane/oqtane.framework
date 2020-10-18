@@ -33,7 +33,7 @@ namespace Oqtane.Themes.Controls
             {
                 actionList.Add(new ActionViewModel {Icon = Icons.Cog, Name = "Manage Settings", Action = async (u, m) => await Settings(u, m)});
                 
-                if (UserSecurity.GetPermissionStrings(ModuleState.Permissions).FirstOrDefault(item => item.PermissionName == PermissionNames.View).Permissions.Split(';').Contains(Constants.AllUsersRole))
+                if (UserSecurity.GetPermissionStrings(ModuleState.Permissions).FirstOrDefault(item => item.PermissionName == PermissionNames.View).Permissions.Split(';').Contains(RoleNames.Everyone))
                 {
                     actionList.Add(new ActionViewModel {Icon=Icons.CircleX, Name = "Unpublish Module", Action = async (s, m) => await Unpublish(s, m) });
                 }
@@ -141,8 +141,8 @@ namespace Oqtane.Themes.Controls
                 if (permissionstring.PermissionName == PermissionNames.View)
                 {
                     List<string> ids = permissionstring.Permissions.Split(';').ToList();
-                    if (!ids.Contains(Constants.AllUsersRole)) ids.Add(Constants.AllUsersRole);
-                    if (!ids.Contains(Constants.RegisteredRole)) ids.Add(Constants.RegisteredRole);
+                    if (!ids.Contains(RoleNames.Everyone)) ids.Add(RoleNames.Everyone);
+                    if (!ids.Contains(RoleNames.Registered)) ids.Add(RoleNames.Registered);
                     permissionstring.Permissions = string.Join(";", ids.ToArray());
                 }
             }
@@ -159,8 +159,8 @@ namespace Oqtane.Themes.Controls
                 if (permissionstring.PermissionName == PermissionNames.View)
                 {
                     List<string> ids = permissionstring.Permissions.Split(';').ToList();
-                    ids.Remove(Constants.AllUsersRole);
-                    ids.Remove(Constants.RegisteredRole);
+                    ids.Remove(RoleNames.Everyone);
+                    ids.Remove(RoleNames.Registered);
                     permissionstring.Permissions = string.Join(";", ids.ToArray());
                 }
             }

@@ -15,7 +15,7 @@ using Oqtane.Shared;
 
 namespace Oqtane.Controllers
 {
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class PackageController : Controller
     {
         private readonly IWebHostEnvironment _environment;
@@ -27,7 +27,7 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>?tag=x
         [HttpGet]
-        [Authorize(Roles = Constants.HostRole)]
+        [Authorize(Roles = RoleNames.Host)]
         public async Task<IEnumerable<Package>> Get(string tag)
         {
             List<Package> packages = new List<Package>();
@@ -55,7 +55,7 @@ namespace Oqtane.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = Constants.HostRole)]
+        [Authorize(Roles = RoleNames.Host)]
         public async Task Post(string packageid, string version, string folder)
         {
             using (var httpClient = new HttpClient())

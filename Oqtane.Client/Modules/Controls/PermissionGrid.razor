@@ -103,14 +103,14 @@
         }
 
         _roles = await RoleService.GetRolesAsync(ModuleState.SiteId);
-        _roles.Insert(0, new Role { Name = Constants.AllUsersRole });
+        _roles.Insert(0, new Role { Name = RoleNames.Everyone });
 
         _permissions = new List<PermissionString>();
 
         foreach (string permissionname in _permissionnames.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
         {
             // initialize with admin role
-            _permissions.Add(new PermissionString { PermissionName = permissionname, Permissions = Constants.AdminRole });
+            _permissions.Add(new PermissionString { PermissionName = permissionname, Permissions = RoleNames.Admin });
         }
 
         if (!string.IsNullOrEmpty(Permissions))
@@ -161,7 +161,7 @@
     }
 
     private bool GetPermissionDisabled(string roleName)
-        => roleName == Constants.AdminRole
+        => roleName == RoleNames.Admin
             ? true
             : false;
 
@@ -226,8 +226,8 @@
         {
             permission = _permissions[i];
             List<string> ids = permission.Permissions.Split(';').ToList();
-            ids.Remove("!" + Constants.AllUsersRole); // remove deny all users
-            ids.Remove("!" + Constants.RegisteredRole); // remove deny registered users
+            ids.Remove("!" + RoleNames.Everyone); // remove deny all users
+            ids.Remove("!" + RoleNames.Registered); // remove deny registered users
             permission.Permissions = string.Join(";", ids.ToArray());
             _permissions[i] = permission;
         }

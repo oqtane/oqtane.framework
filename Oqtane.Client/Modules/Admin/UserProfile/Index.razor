@@ -79,7 +79,7 @@ else
             @foreach (Profile profile in profiles)
             {
                 var p = profile;
-                if (!p.IsPrivate || UserSecurity.IsAuthorized(PageState.User, Constants.AdminRole))
+                if (!p.IsPrivate || UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
                 {
                     if (p.Category != category)
                     {
@@ -299,7 +299,7 @@ else
             {
                 settings = SettingService.SetSetting(settings, profile.Name, profile.DefaultValue);
             }
-            if (!profile.IsPrivate || UserSecurity.IsAuthorized(PageState.User, Constants.AdminRole))
+            if (!profile.IsPrivate || UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
             {
                 if (profile.IsRequired && string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)))
                 {

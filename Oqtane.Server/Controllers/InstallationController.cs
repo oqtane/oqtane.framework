@@ -14,7 +14,7 @@ using Oqtane.Themes;
 
 namespace Oqtane.Controllers
 {
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class InstallationController : Controller
     {
         private readonly IConfigurationRoot _config;
@@ -36,7 +36,7 @@ namespace Oqtane.Controllers
         {
             var installation = new Installation {Success = false, Message = ""};
 
-            if (ModelState.IsValid && (User.IsInRole(Constants.HostRole) || string.IsNullOrEmpty(_config.GetConnectionString(SettingKeys.ConnectionStringKey))))
+            if (ModelState.IsValid && (User.IsInRole(RoleNames.Host) || string.IsNullOrEmpty(_config.GetConnectionString(SettingKeys.ConnectionStringKey))))
             {
                 installation = _databaseManager.Install(config);
             }
@@ -57,7 +57,7 @@ namespace Oqtane.Controllers
         }
 
         [HttpGet("upgrade")]
-        [Authorize(Roles = Constants.HostRole)]
+        [Authorize(Roles = RoleNames.Host)]
         public Installation Upgrade()
         {
             var installation = new Installation {Success = true, Message = ""};
@@ -149,7 +149,7 @@ namespace Oqtane.Controllers
                     }
                     zipfile = memoryStream.ToArray();
                 }
-                return File(zipfile, "application/octet-stream", "oqtane.zip");
+                return File(zipfile, System.Net.Mime.MediaTypeNames.Application.Octet, "oqtane.zip");
             }
             else
             {

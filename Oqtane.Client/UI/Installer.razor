@@ -131,7 +131,7 @@
     private string _databaseName = "Oqtane-" + DateTime.UtcNow.ToString("yyyyMMddHHmm");
     private string _username = string.Empty;
     private string _password = string.Empty;
-    private string _hostUsername = Constants.HostUser;
+    private string _hostUsername = UserNames.Host;
     private string _hostPassword = string.Empty;
     private string _confirmPassword = string.Empty;
     private string _hostEmail = string.Empty;
@@ -188,8 +188,8 @@
                 Aliases = uri.Authority,
                 HostEmail = _hostEmail,
                 HostPassword = _hostPassword,
-                HostName = Constants.HostUser,
-                TenantName = Constants.MasterTenant,
+                HostName = UserNames.Host,
+                TenantName = TenantNames.Master,
                 IsNewTenant = true,
                 SiteName = Constants.DefaultSite
             };

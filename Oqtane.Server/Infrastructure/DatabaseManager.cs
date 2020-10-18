@@ -72,7 +72,7 @@ namespace Oqtane.Infrastructure
             if (install == null)
             {
                 // startup or silent installation
-                install = new InstallConfig { ConnectionString = _config.GetConnectionString(SettingKeys.ConnectionStringKey), TenantName = Constants.MasterTenant, IsNewTenant = false };
+                install = new InstallConfig { ConnectionString = _config.GetConnectionString(SettingKeys.ConnectionStringKey), TenantName = TenantNames.Master, IsNewTenant = false };
 
                 if (!IsInstalled())
                 {
@@ -83,7 +83,7 @@ namespace Oqtane.Infrastructure
                     if (!string.IsNullOrEmpty(install.ConnectionString) && !string.IsNullOrEmpty(install.Aliases) && !string.IsNullOrEmpty(install.HostPassword) && !string.IsNullOrEmpty(install.HostEmail))
                     {
                         // silent install
-                        install.HostName = Constants.HostUser;
+                        install.HostName = UserNames.Host;
                         install.SiteTemplate = GetInstallationConfig(SettingKeys.SiteTemplateKey, Constants.DefaultSiteTemplate);
                         install.DefaultTheme = GetInstallationConfig(SettingKeys.DefaultThemeKey, Constants.DefaultTheme);
                         install.DefaultLayout = GetInstallationConfig(SettingKeys.DefaultLayoutKey, Constants.DefaultLayout);
@@ -192,7 +192,7 @@ namespace Oqtane.Infrastructure
         {
             var result = new Installation { Success = false, Message = string.Empty };
 
-            if (install.TenantName == Constants.MasterTenant)
+            if (install.TenantName == TenantNames.Master)
             {
                 MigrateScriptNamingConvention("Master", install.ConnectionString);
 
@@ -245,7 +245,7 @@ namespace Oqtane.Infrastructure
                         db.SaveChanges();
                         _cache.Remove("tenants");
 
-                        if (install.TenantName == Constants.MasterTenant)
+                        if (install.TenantName == TenantNames.Master)
                         {
                             var job = new Job { Name = "Notification Job", JobType = "Oqtane.Infrastructure.NotificationJob, Oqtane.Server", Frequency = "m", Interval = 1, StartDate = null, EndDate = null, IsEnabled = false, IsStarted = false, IsExecuting = false, NextExecution = null, RetentionHistory = 10, CreatedBy = "", CreatedOn = DateTime.UtcNow, ModifiedBy = "", ModifiedOn = DateTime.UtcNow };
                             db.Job.Add(job);
@@ -350,7 +350,7 @@ namespace Oqtane.Infrastructure
                                 foreach (var tenant in db.Tenant.ToList())
                                 {
                                     int index = Array.FindIndex(versions, item => item == moduledefinition.Version);
-                                    if (tenant.Name == install.TenantName && install.TenantName != Constants.MasterTenant)
+                                    if (tenant.Name == install.TenantName && install.TenantName != TenantNames.Master)
                                     {
                                         index = -1;
                                     }
@@ -439,17 +439,17 @@ namespace Oqtane.Infrastructure
                         };
                         site = sites.AddSite(site);
 
-                        IdentityUser identityUser = identityUserManager.FindByNameAsync(Constants.HostUser).GetAwaiter().GetResult();
+                        IdentityUser identityUser = identityUserManager.FindByNameAsync(UserNames.Host).GetAwaiter().GetResult();
                         if (identityUser == null)
                         {
-                            identityUser = new IdentityUser { UserName = Constants.HostUser, Email = install.HostEmail, EmailConfirmed = true };
+                            identityUser = new IdentityUser { UserName = UserNames.Host, Email = install.HostEmail, EmailConfirmed = true };
                             var create = identityUserManager.CreateAsync(identityUser, install.HostPassword).GetAwaiter().GetResult();
                             if (create.Succeeded)
                             {
                                 var user = new User
                                 {
                                     SiteId = site.SiteId,
-                                    Username = Constants.HostUser,
+                                    Username = UserNames.Host,
                                     Password = install.HostPassword,
                                     Email = install.HostEmail,
                                     DisplayName = install.HostName,
@@ -458,7 +458,7 @@ namespace Oqtane.Infrastructure
                                 };
 
                                 user = users.AddUser(user);
-                                var hostRoleId = roles.GetRoles(user.SiteId, true).FirstOrDefault(item => item.Name == Constants.HostRole)?.RoleId ?? 0;
+                                var hostRoleId = roles.GetRoles(user.SiteId, true).FirstOrDefault(item => item.Name == RoleNames.Host)?.RoleId ?? 0;
                                 var userRole = new UserRole { UserId = user.UserId, RoleId = hostRoleId, EffectiveDate = null, ExpiryDate = null };
                                 userroles.AddUserRole(userRole);
 
@@ -477,7 +477,7 @@ namespace Oqtane.Infrastructure
                                         Permissions = new List<Permission>
                                         {
                                             new Permission(PermissionNames.Browse, user.UserId, true),
-                                            new Permission(PermissionNames.View, Constants.AllUsersRole, true),
+                                            new Permission(PermissionNames.View, RoleNames.Everyone, true),
                                             new Permission(PermissionNames.Edit, user.UserId, true),
                                         }.EncodePermissions(),
                                     });

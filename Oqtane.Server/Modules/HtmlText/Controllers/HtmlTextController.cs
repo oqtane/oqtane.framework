@@ -12,7 +12,7 @@ using Oqtane.Controllers;
 
 namespace Oqtane.Modules.HtmlText.Controllers
 {
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class HtmlTextController : ModuleControllerBase
     {
         private readonly IHtmlTextRepository _htmlText;
@@ -24,7 +24,7 @@ namespace Oqtane.Modules.HtmlText.Controllers
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
-        [Authorize(Policy = "ViewModule")]
+        [Authorize(Policy = PolicyNames.ViewModule)]
         public List<HtmlTextInfo> Get(int id)
         {
             var list = new List<HtmlTextInfo>();
@@ -47,7 +47,7 @@ namespace Oqtane.Modules.HtmlText.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        [Authorize(Policy = "EditModule")]
+        [Authorize(Policy = PolicyNames.EditModule)]
         public HtmlTextInfo Post([FromBody] HtmlTextInfo htmlText)
         {
             try
@@ -68,7 +68,7 @@ namespace Oqtane.Modules.HtmlText.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        [Authorize(Policy = "EditModule")]
+        [Authorize(Policy = PolicyNames.EditModule)]
         public HtmlTextInfo Put(int id, [FromBody] HtmlTextInfo htmlText)
         {
             try
@@ -89,7 +89,7 @@ namespace Oqtane.Modules.HtmlText.Controllers
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
-        [Authorize(Policy = "EditModule")]
+        [Authorize(Policy = PolicyNames.EditModule)]
         public void Delete(int id)
         {
             try

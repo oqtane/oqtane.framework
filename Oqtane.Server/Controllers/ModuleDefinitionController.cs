@@ -19,7 +19,7 @@ using System.Text.Json;
 
 namespace Oqtane.Controllers
 {
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class ModuleDefinitionController : Controller
     {
         private readonly IModuleDefinitionRepository _moduleDefinitions;
@@ -81,7 +81,7 @@ namespace Oqtane.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        [Authorize(Roles = Constants.AdminRole)]
+        [Authorize(Roles = RoleNames.Admin)]
         public void Put(int id, [FromBody] ModuleDefinition moduleDefinition)
         {
             if (ModelState.IsValid)
@@ -92,7 +92,7 @@ namespace Oqtane.Controllers
         }
 
         [HttpGet("install")]
-        [Authorize(Roles = Constants.HostRole)]
+        [Authorize(Roles = RoleNames.Host)]
         public void InstallModules()
         {
             _logger.Log(LogLevel.Information, this, LogFunction.Create, "Modules Installed");
@@ -101,7 +101,7 @@ namespace Oqtane.Controllers
 
         // DELETE api/<controller>/5?siteid=x
         [HttpDelete("{id}")]
-        [Authorize(Roles = Constants.HostRole)]
+        [Authorize(Roles = RoleNames.Host)]
         public void Delete(int id, int siteid)
         {
             ModuleDefinition moduledefinition = _moduleDefinitions.GetModuleDefinition(id, siteid);
@@ -168,7 +168,7 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>?moduleid=x
         [HttpPost]
-        [Authorize(Roles = Constants.HostRole)]
+        [Authorize(Roles = RoleNames.Host)]
         public void Post([FromBody] ModuleDefinition moduleDefinition, string moduleid)
         {
             if (ModelState.IsValid)

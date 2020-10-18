@@ -173,13 +173,15 @@ namespace Oqtane.Services
         // add entityid parameter to url for custom authorization policy
         public string CreateAuthorizationPolicyUrl(string url, int entityId)
         {
+            string qs = "entityid=" + entityId.ToString();
+
             if (url.Contains("?"))
             {
-                return url + "&entityid=" + entityId.ToString();
+                return url + "&" + qs;
             }
             else
             {
-                return url + "?entityid=" + entityId.ToString();
+                return url + "?" + qs;
             }
         }
 

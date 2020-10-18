@@ -88,7 +88,7 @@ else
             Role role = await RoleService.GetRoleAsync(roleid);
             name = role.Name;
             users = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
-            users = users.Where(item => item.Role.Name == Constants.RegisteredRole).ToList();
+            users = users.Where(item => item.Role.Name == RoleNames.Registered).ToList();
             await GetUserRoles();
         }
         catch (Exception ex)
