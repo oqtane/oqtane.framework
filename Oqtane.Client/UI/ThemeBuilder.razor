@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.UI
+@namespace Oqtane.UI
 @inject IJSRuntime JsRuntime
 @inject NavigationManager NavigationManager
 
@@ -79,7 +79,7 @@
                 "\"sizes\": \"512x512\", " +
                 "\"type\": \"image/png\" " +
             "}] " +
-            "} " +
+            "}; " +
             "const serialized = JSON.stringify(manifest); " +
             "const blob = new Blob([serialized], {type: 'application/javascript'}); " +
             "const url = URL.createObjectURL(blob); " +
