@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Globalization;
 
-namespace Oqtane.Shared
-{
-    public class Constants
-    {
+namespace Oqtane.Shared {
+
+    public class Constants {
         public const string PackageId = "Oqtane.Framework";
         public const string Version = "1.0.4";
         public const string ReleaseVersions = "1.0.0,1.0.1,1.0.2,1.0.3,1.0.4";
@@ -19,7 +18,9 @@ namespace Oqtane.Shared
 
         public const string ActionToken = "{Action}";
         public const string DefaultAction = "Index";
-        public const string AdminPane = "Admin";
+
+        [Obsolete("Use PaneNames.Admin")]
+        public const string AdminPane = PaneNames.Admin;
         public const string ModuleDelimiter = "*";
         public const string UrlParametersDelimiter = "!";
 
@@ -36,15 +37,23 @@ namespace Oqtane.Shared
 
         public const string ContentUrl = "/api/file/download/";
 
-        public const string HostUser = "host";
+        [Obsolete("Use UserNames.Host instead.")]
+        public const string HostUser = UserNames.Host;
 
-        public const string MasterTenant = "Master";
+        [Obsolete("Use TenantNames.Master instead")]
+        public const string MasterTenant = TenantNames.Master;
         public const string DefaultSite = "Default Site";
 
-        public const string AllUsersRole = "All Users";
-        public const string HostRole = "Host Users";
-        public const string AdminRole = "Administrators";
-        public const string RegisteredRole = "Registered Users";
+        const string RoleObsoleteMessage = "Use the corresponding memeber from Oqtane.Shared.RoleNames";
+
+        [Obsolete(RoleObsoleteMessage)]
+        public const string AllUsersRole = RoleNames.Everyone;
+        [Obsolete(RoleObsoleteMessage)]
+        public const string HostRole = RoleNames.Host;
+        [Obsolete(RoleObsoleteMessage)]
+        public const string AdminRole = RoleNames.Admin;
+        [Obsolete(RoleObsoleteMessage)]
+        public const string RegisteredRole = RoleNames.Registered;
 
         public const string ImageFiles = "jpg,jpeg,jpe,gif,bmp,png,svg,ico";
         public const string UploadableFiles = "jpg,jpeg,jpe,gif,bmp,png,svg,ico,mov,wmv,avi,mp4,mp3,doc,docx,xls,xlsx,ppt,pptx,pdf,txt,zip,nupkg,csv";

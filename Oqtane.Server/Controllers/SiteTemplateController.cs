@@ -7,7 +7,7 @@ using Oqtane.Shared;
 
 namespace Oqtane.Controllers
 {
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class SiteTemplateController : Controller
     {
         private readonly ISiteTemplateRepository _siteTemplates;
@@ -19,7 +19,7 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>
         [HttpGet]
-        [Authorize(Roles = Constants.HostRole)]
+        [Authorize(Roles = RoleNames.Host)]
         public IEnumerable<SiteTemplate> Get()
         {
             return _siteTemplates.GetSiteTemplates();

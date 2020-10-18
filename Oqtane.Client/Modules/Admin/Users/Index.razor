@@ -58,10 +58,10 @@ else
     {
         if (string.IsNullOrEmpty(_search))
         {
-            return allroles.Where(item => item.Role.Name == Constants.RegisteredRole).ToList();
+            return allroles.Where(item => item.Role.Name == RoleNames.Registered).ToList();
         }
         return allroles
-            .Where(item => item.Role.Name == Constants.RegisteredRole &&
+            .Where(item => item.Role.Name == RoleNames.Registered &&
                            (
                                item.User.Username.Contains(search, StringComparison.OrdinalIgnoreCase) ||
                                item.User.Email.Contains(search, StringComparison.OrdinalIgnoreCase) ||

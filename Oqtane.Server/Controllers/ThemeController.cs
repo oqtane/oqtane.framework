@@ -16,7 +16,7 @@ using System.Text.Json;
 
 namespace Oqtane.Controllers
 {
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class ThemeController : Controller
     {
         private readonly IThemeRepository _themes;
@@ -34,14 +34,14 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>
         [HttpGet]
-        [Authorize(Roles = Constants.RegisteredRole)]
+        [Authorize(Roles = RoleNames.Registered)]
         public IEnumerable<Theme> Get()
         {
             return _themes.GetThemes();
         }
 
         [HttpGet("install")]
-        [Authorize(Roles = Constants.HostRole)]
+        [Authorize(Roles = RoleNames.Host)]
         public void InstallThemes()
         {
             _logger.Log(LogLevel.Information, this, LogFunction.Create, "Themes Installed");
@@ -50,7 +50,7 @@ namespace Oqtane.Controllers
 
         // DELETE api/<controller>/xxx
         [HttpDelete("{themename}")]
-        [Authorize(Roles = Constants.HostRole)]
+        [Authorize(Roles = RoleNames.Host)]
         public void Delete(string themename)
         {
             List<Theme> themes = _themes.GetThemes().ToList();

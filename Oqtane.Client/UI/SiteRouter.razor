@@ -505,7 +505,7 @@
                 // ensure module's pane exists in current page and if not, assign it to the Admin pane
                 if (page.Panes == null || page.Panes.FindIndex(item => item.Equals(module.Pane, StringComparison.OrdinalIgnoreCase)) == -1)
                 {
-                    module.Pane = Constants.AdminPane;
+                    module.Pane = PaneNames.Admin;
                 }
 
                 // calculate module position within pane

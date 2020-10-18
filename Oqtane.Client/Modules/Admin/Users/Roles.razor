@@ -63,7 +63,7 @@ else
             <Row>
                 <td>@context.Role.Name</td>
                 <td>
-                    @if (context.Role.Name != Constants.RegisteredRole)
+                    @if (context.Role.Name != RoleNames.Registered)
                         {
                         <button type="button" class="btn btn-danger" @onclick=@(async () => await DeleteUserRole(context.UserRoleId))>Delete</button>
                         }

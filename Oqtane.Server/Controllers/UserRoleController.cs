@@ -9,7 +9,7 @@ using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class UserRoleController : Controller
     {
         private readonly IUserRoleRepository _userRoles;
@@ -27,7 +27,7 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>?siteid=x
         [HttpGet]
-        [Authorize(Roles = Constants.AdminRole)]
+        [Authorize(Roles = RoleNames.Admin)]
         public IEnumerable<UserRole> Get(string siteid)
         {
             return _userRoles.GetUserRoles(int.Parse(siteid));
@@ -35,7 +35,7 @@ namespace Oqtane.Controllers
         
         // GET api/<controller>/5
         [HttpGet("{id}")]
-        [Authorize(Roles = Constants.AdminRole)]
+        [Authorize(Roles = RoleNames.Admin)]
         public UserRole Get(int id)
         {
             return _userRoles.GetUserRole(id);
@@ -43,7 +43,7 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        [Authorize(Roles = Constants.AdminRole)]
+        [Authorize(Roles = RoleNames.Admin)]
         public UserRole Post([FromBody] UserRole userRole)
         {
             if (ModelState.IsValid)
@@ -57,7 +57,7 @@ namespace Oqtane.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        [Authorize(Roles = Constants.AdminRole)]
+        [Authorize(Roles = RoleNames.Admin)]
         public UserRole Put(int id, [FromBody] UserRole userRole)
         {
             if (ModelState.IsValid)
@@ -71,7 +71,7 @@ namespace Oqtane.Controllers
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = Constants.AdminRole)]
+        [Authorize(Roles = RoleNames.Admin)]
         public void Delete(int id)
         {
             UserRole userRole = _userRoles.GetUserRole(id);

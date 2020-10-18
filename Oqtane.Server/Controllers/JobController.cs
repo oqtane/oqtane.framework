@@ -12,7 +12,7 @@ using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class JobController : Controller
     {
         private readonly IJobRepository _jobs;
@@ -28,7 +28,7 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>
         [HttpGet]
-        [Authorize(Roles = Constants.HostRole)]
+        [Authorize(Roles = RoleNames.Host)]
         public IEnumerable<Job> Get()
         {
             return _jobs.GetJobs();
@@ -36,7 +36,7 @@ namespace Oqtane.Controllers
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
-        [Authorize(Roles = Constants.HostRole)]
+        [Authorize(Roles = RoleNames.Host)]
         public Job Get(int id)
         {
             return _jobs.GetJob(id);
@@ -44,7 +44,7 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        [Authorize(Roles = Constants.HostRole)]
+        [Authorize(Roles = RoleNames.Host)]
         public Job Post([FromBody] Job job)
         {
             if (ModelState.IsValid)
@@ -57,7 +57,7 @@ namespace Oqtane.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        [Authorize(Roles = Constants.HostRole)]
+        [Authorize(Roles = RoleNames.Host)]
         public Job Put(int id, [FromBody] Job job)
         {
             if (ModelState.IsValid)
@@ -70,7 +70,7 @@ namespace Oqtane.Controllers
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = Constants.HostRole)]
+        [Authorize(Roles = RoleNames.Host)]
         public void Delete(int id)
         {
             _jobs.DeleteJob(id);
@@ -79,7 +79,7 @@ namespace Oqtane.Controllers
 
         // GET api/<controller>/start
         [HttpGet("start/{id}")]
-        [Authorize(Roles = Constants.HostRole)]
+        [Authorize(Roles = RoleNames.Host)]
         public void Start(int id)
         {
             Job job = _jobs.GetJob(id);
@@ -93,7 +93,7 @@ namespace Oqtane.Controllers
 
         // GET api/<controller>/stop
         [HttpGet("stop/{id}")]
-        [Authorize(Roles = Constants.HostRole)]
+        [Authorize(Roles = RoleNames.Host)]
         public void Stop(int id)
         {
             Job job = _jobs.GetJob(id);
