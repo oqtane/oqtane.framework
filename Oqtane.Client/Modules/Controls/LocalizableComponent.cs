@@ -12,10 +12,17 @@ namespace Oqtane.Modules.Controls
         [Parameter]
         public string ResourceKey { get; set; }
 
+        protected bool IsLocalizable { get; private set; }
+
         protected string Localize(string name)
         {
-            var key = $"{ResourceKey}.{name}";
+            if (!IsLocalizable)
+            {
+                return null;
+            }
 
+            var key = $"{ResourceKey}.{name}";
+ 
             return _localizer?[key] ?? key;
         }
 
@@ -35,6 +42,12 @@ namespace Oqtane.Modules.Controls
                         _localizer = (IStringLocalizer)scope.ServiceProvider.GetService(localizerType);
                     }
                 }
+
+                IsLocalizable = true;
+            }
+            else
+            {
+                IsLocalizable = false;
             }
         }
     }

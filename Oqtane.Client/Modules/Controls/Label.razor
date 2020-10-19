@@ -43,7 +43,10 @@ else
 
         _openLabel += ">";
 
-        ChildContent =@<text>@Localize("Text")</text>;
-        HelpText = Localize(nameof(HelpText));
+        if (IsLocalizable)
+        {
+            ChildContent =@<text>@Localize("Text")</text>;
+            HelpText = Localize(nameof(HelpText));
+        }
     }
 }
