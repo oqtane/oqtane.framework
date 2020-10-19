@@ -7,10 +7,17 @@ namespace Oqtane.Modules.Controls
 {
     public class LocalizableComponent : ModuleControlBase
     {
+        private IStringLocalizer _localizer;
+
         [Parameter]
         public string ResourceKey { get; set; }
 
-        protected IStringLocalizer Localizer { get; private set; }
+        protected string Localize(string name)
+        {
+            var key = $"{ResourceKey}.{name}";
+
+            return _localizer?[key] ?? key;
+        }
 
         protected override void OnParametersSet()
         {
@@ -25,7 +32,7 @@ namespace Oqtane.Modules.Controls
                     // HACK: Use ServiceActivator instead of injecting IHttpContextAccessor, because HttpContext throws NRE in WebAssembly runtime
                     using (var scope = ServiceActivator.GetScope())
                     {
-                        Localizer = (IStringLocalizer)scope.ServiceProvider.GetService(localizerType);
+                        _localizer = (IStringLocalizer)scope.ServiceProvider.GetService(localizerType);
                     }
                 }
             }

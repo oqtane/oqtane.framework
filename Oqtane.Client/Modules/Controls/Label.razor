@@ -43,10 +43,7 @@ else
 
         _openLabel += ">";
 
-        if (!string.IsNullOrEmpty(ResourceKey))
-        {
-            ChildContent =@<text>@Localizer[$"{ResourceKey}.Text"]</text>;
-            HelpText = Localizer[$"{ResourceKey}.{nameof(HelpText)}"];
-        }
+        ChildContent =@<text>@Localize("Text")</text>;
+        HelpText = Localize(nameof(HelpText));
     }
 }
