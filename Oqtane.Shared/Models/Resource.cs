@@ -1,4 +1,4 @@
-﻿using Oqtane.Shared;
+using Oqtane.Shared;
 
 namespace Oqtane.Models
 {
@@ -9,5 +9,7 @@ namespace Oqtane.Models
         public string Integrity { get; set; }
         public string CrossOrigin { get; set; }
         public string Bundle { get; set; }
+        public ResourceDeclaration Declaration { get; set; }
+        public ResourceLocation Location { get; set; }
     }
 }

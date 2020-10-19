@@ -32,12 +32,15 @@ namespace Oqtane.Themes
                 if (Resources != null && Resources.Exists(item => item.ResourceType == ResourceType.Script))
                 {
                     var scripts = new List<object>();
-                    foreach (Resource resource in Resources.Where(item => item.ResourceType == ResourceType.Script))
+                    foreach (Resource resource in Resources.Where(item => item.ResourceType == ResourceType.Script && item.Declaration != ResourceDeclaration.Global))
                     {
                         scripts.Add(new { href = resource.Url, bundle = resource.Bundle ?? "", integrity = resource.Integrity ?? "", crossorigin = resource.CrossOrigin ?? "" });
                     }
-                    var interop = new Interop(JSRuntime);
-                    await interop.IncludeScripts(scripts.ToArray());
+                    if (scripts.Any())
+                    {
+                        var interop = new Interop(JSRuntime);
+                        await interop.IncludeScripts(scripts.ToArray());
+                    }
                 }
             }
         }

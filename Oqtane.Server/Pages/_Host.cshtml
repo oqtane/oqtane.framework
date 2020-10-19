@@ -1,4 +1,4 @@
-﻿@page "/"
+@page "/"
 @namespace Oqtane.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @using System.Globalization
@@ -24,7 +24,7 @@
     <link id="app-manifest" rel="manifest" />
     <link rel="stylesheet" href="css/app.css" />
     <script src="js/loadjs.min.js"></script>
-    @Html.Raw(@Model.Resources)
+    @Html.Raw(@Model.HeadResources)
 </head>
 <body>
     @(Html.AntiForgeryToken())
@@ -53,5 +53,6 @@
     {
         <script src="_framework/blazor.server.js"></script>
     }
+    @Html.Raw(@Model.BodyResources)
 </body>
 </html>
