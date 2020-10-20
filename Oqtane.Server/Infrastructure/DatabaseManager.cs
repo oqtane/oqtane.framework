@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -35,7 +35,7 @@ namespace Oqtane.Infrastructure
 
         public bool IsInstalled()
         {
-            var defaultConnectionString = NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey));
+            var defaultConnectionString = Oqtane.Configuration.ConnectionString.Normalize(_config.GetConnectionString(SettingKeys.ConnectionStringKey));
             var result = !string.IsNullOrEmpty(defaultConnectionString);
             if (result)
             {
@@ -165,10 +165,10 @@ namespace Oqtane.Infrastructure
                 try
                 {
                     //create data directory if does not exist
-                    var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString();
+                    var dataDirectory = Oqtane.Configuration.DataDirectory.Current();
                     if (!Directory.Exists(dataDirectory)) Directory.CreateDirectory(dataDirectory);
 
-                    using (var dbc = new DbContext(new DbContextOptionsBuilder().UseSqlServer(NormalizeConnectionString(install.ConnectionString)).Options))
+                    using (var dbc = new DbContext(new DbContextOptionsBuilder().UseSqlServer(Oqtane.Configuration.ConnectionString.Normalize(install.ConnectionString)).Options))
                     {
                         // create empty database if it does not exist       
                         dbc.Database.EnsureCreated();
@@ -198,7 +198,7 @@ namespace Oqtane.Infrastructure
 
                 var upgradeConfig = DeployChanges
                 .To
-                .SqlDatabase(NormalizeConnectionString(install.ConnectionString))
+                .SqlDatabase(Oqtane.Configuration.ConnectionString.Normalize(install.ConnectionString))
                 .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), s => s.Contains("Master.") && s.EndsWith(".sql",StringComparison.OrdinalIgnoreCase));
 
                 var upgrade = upgradeConfig.Build();
@@ -235,12 +235,20 @@ namespace Oqtane.Infrastructure
 
             if (!string.IsNullOrEmpty(install.TenantName) && !string.IsNullOrEmpty(install.Aliases))
             {
-                using (var db = new InstallationContext(NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey)))) 
+                using (var db = new InstallationContext(Configuration.ConnectionString.Normalize(_config.GetConnectionString(SettingKeys.ConnectionStringKey)))) 
                 {
                     Tenant tenant;
                     if (install.IsNewTenant)
                     {
-                        tenant = new Tenant { Name = install.TenantName, DBConnectionString = DenormalizeConnectionString(install.ConnectionString), CreatedBy = "", CreatedOn = DateTime.UtcNow, ModifiedBy = "", ModifiedOn = DateTime.UtcNow };
+                        tenant = new Tenant {
+                            Name = install.TenantName,
+                            DBConnectionString = Configuration.ConnectionString.Denormalize(install.ConnectionString),
+                            CreatedBy = "",
+                            CreatedOn = DateTime.UtcNow,
+                            ModifiedBy = "",
+                            ModifiedOn = DateTime.UtcNow
+                        };
+
                         db.Tenant.Add(tenant);
                         db.SaveChanges();
                         _cache.Remove("tenants");
@@ -283,13 +291,13 @@ namespace Oqtane.Infrastructure
             {
                 var upgrades = scope.ServiceProvider.GetRequiredService<IUpgradeManager>();
   
-                using (var db = new InstallationContext(NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey))))
+                using (var db = new InstallationContext(Oqtane.Configuration.ConnectionString.Normalize(_config.GetConnectionString(SettingKeys.ConnectionStringKey))))
                 {
                     foreach (var tenant in db.Tenant.ToList())
                     {
                         MigrateScriptNamingConvention("Tenant", tenant.DBConnectionString);
 
-                        var upgradeConfig = DeployChanges.To.SqlDatabase(NormalizeConnectionString(tenant.DBConnectionString))
+                        var upgradeConfig = DeployChanges.To.SqlDatabase(Oqtane.Configuration.ConnectionString.Normalize(tenant.DBConnectionString))
                             .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), s => s.Contains("Tenant.") && s.EndsWith(".sql", StringComparison.OrdinalIgnoreCase));
 
                         var upgrade = upgradeConfig.Build();
@@ -345,7 +353,7 @@ namespace Oqtane.Infrastructure
                         if (moduletype != null)
                         {
                             string[] versions = moduledefinition.ReleaseVersions.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                            using (var db = new InstallationContext(NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey))))
+                            using (var db = new InstallationContext(Oqtane.Configuration.ConnectionString.Normalize(_config.GetConnectionString(SettingKeys.ConnectionStringKey))))
                             {
                                 foreach (var tenant in db.Tenant.ToList())
                                 {
@@ -505,23 +513,11 @@ namespace Oqtane.Infrastructure
             return result;
         }
 
-        private string NormalizeConnectionString(string connectionString)
-        {
-            var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString();
-            connectionString = connectionString.Replace("|DataDirectory|", dataDirectory);
-            return connectionString;
-        }
 
-        private string DenormalizeConnectionString(string connectionString)
-        {
-            var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString();
-            connectionString = connectionString.Replace(dataDirectory, "|DataDirectory|");
-            return connectionString;
-        }
 
         public void UpdateConnectionString(string connectionString)
         {
-            connectionString = DenormalizeConnectionString(connectionString);
+            connectionString = Oqtane.Configuration.ConnectionString.Denormalize(connectionString);
             if (_config.GetConnectionString(SettingKeys.ConnectionStringKey) != connectionString)
             {
                 AddOrUpdateAppSetting($"ConnectionStrings:{SettingKeys.ConnectionStringKey}", connectionString);
@@ -578,7 +574,7 @@ namespace Oqtane.Infrastructure
         private void MigrateScriptNamingConvention(string scriptType, string connectionString)
         {
             // migrate to new naming convention for scripts
-            var migrateConfig = DeployChanges.To.SqlDatabase(NormalizeConnectionString(connectionString))
+            var migrateConfig = DeployChanges.To.SqlDatabase(Oqtane.Configuration.ConnectionString.Normalize(connectionString))
                 .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), s => s == scriptType + ".00.00.00.00.sql");
             var migrate = migrateConfig.Build();
             if (migrate.IsUpgradeRequired())

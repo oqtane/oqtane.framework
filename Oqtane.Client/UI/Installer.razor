@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.UI
+@namespace Oqtane.UI
 @inject NavigationManager NavigationManager
 @inject IInstallationService InstallationService
 @inject ISiteService SiteService
@@ -165,18 +165,18 @@
             var connectionstring = "";
             if (_databaseType == "LocalDB")
             {
-                connectionstring = "Data Source=" + _serverName + ";AttachDbFilename=|DataDirectory|\\" + _databaseName + ".mdf;Initial Catalog=" + _databaseName + ";Integrated Security=SSPI;";
+                connectionstring = $@"Data Source={_serverName};AttachDbFilename={Configuration.ConnectionString.DataDirectoryVariable}\{_databaseName}.mdf;Initial Catalog={_databaseName};Integrated Security=SSPI;";
             }
             else
             {
-                connectionstring = "Data Source=" + _serverName + ";Initial Catalog=" + _databaseName + ";";
+                connectionstring = $@"Data Source={_serverName};Initial Catalog={_databaseName};";
                 if (_integratedSecurityDisplay == "display: none;")
                 {
-                    connectionstring += "Integrated Security=SSPI;";
+                    connectionstring += $@"Integrated Security=SSPI;";
                 }
                 else
                 {
-                    connectionstring += "User ID=" + _username + ";Password=" + _password;
+                    connectionstring += $@"User ID={_username};Password={_password}";
                 }
             }
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
@@ -59,7 +59,7 @@ namespace Oqtane.Repository
 
         public int ExecuteNonQuery(Tenant tenant, string query)
         {
-            SqlConnection conn = new SqlConnection(FormatConnectionString(tenant.DBConnectionString));
+            SqlConnection conn = new SqlConnection(Oqtane.Configuration.ConnectionString.Normalize(tenant.DBConnectionString));
             SqlCommand cmd = conn.CreateCommand();
             using (conn)
             {
@@ -79,7 +79,7 @@ namespace Oqtane.Repository
 
         public SqlDataReader ExecuteReader(Tenant tenant, string query)
         {
-            SqlConnection conn = new SqlConnection(FormatConnectionString(tenant.DBConnectionString));
+            SqlConnection conn = new SqlConnection(Oqtane.Configuration.ConnectionString.Normalize(tenant.DBConnectionString));
             SqlCommand cmd = conn.CreateCommand();
             PrepareCommand(conn, cmd, query);
             var dr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
@@ -97,9 +97,5 @@ namespace Oqtane.Repository
             cmd.CommandType = CommandType.Text;
         }
 
-        private string FormatConnectionString(string connectionString)
-        {
-            return connectionString.Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory").ToString());
-        }
     }
 }

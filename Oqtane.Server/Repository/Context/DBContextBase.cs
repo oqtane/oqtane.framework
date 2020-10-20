@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -21,8 +21,8 @@ namespace Oqtane.Repository
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(_tenant.DBConnectionString
-                    .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString())
+            optionsBuilder.UseSqlServer(
+                Oqtane.Configuration.ConnectionString.Normalize(_tenant.DBConnectionString)
             );
             base.OnConfiguring(optionsBuilder);
         }

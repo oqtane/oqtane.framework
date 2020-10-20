@@ -50,7 +50,7 @@ namespace Oqtane
             _useSwagger = Configuration.GetSection("UseSwagger").Value != "false";
 
             _webRoot = env.WebRootPath;
-            AppDomain.CurrentDomain.SetData("DataDirectory", Path.Combine(env.ContentRootPath, "Data"));
+            Oqtane.Configuration.DataDirectory.Set(Path.Combine(env.ContentRootPath, "Data"));
 
             _env = env;
         }
@@ -132,8 +132,8 @@ namespace Oqtane
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddDbContext<MasterDBContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")
-                    .Replace("|DataDirectory|", AppContext.GetData("DataDirectory")?.ToString())
+                options.UseSqlServer(
+                    Oqtane.Configuration.ConnectionString.Normalize(Configuration.GetConnectionString("DefaultConnection"))
                 ));
             services.AddDbContext<TenantDBContext>(options => { });
 
