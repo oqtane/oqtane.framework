@@ -95,7 +95,11 @@
 
         }
 
-        _text = Localize(nameof(Text));
+        if (IsLocalizable)
+        {
+            _text = Localize(nameof(Text));
+        }
+
         _url = EditUrl(Action, _parameters);
         _authorized = IsAuthorized();
     }
