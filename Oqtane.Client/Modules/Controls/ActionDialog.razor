@@ -1,5 +1,5 @@
-﻿@namespace Oqtane.Modules.Controls
-@inherits ModuleControlBase
+@namespace Oqtane.Modules.Controls
+@inherits LocalizableComponent
 
 @if (_visible)
 {
@@ -17,9 +17,9 @@
                     <div class="modal-footer">
                         @if (!string.IsNullOrEmpty(Action))
                         {
-                            <button type="button" class="@Class" @onclick="Confirm">@((MarkupString)_iconSpan) @Action</button>
+                            <button type="button" class="@Class" @onclick="Confirm">@((MarkupString)_iconSpan) @Localize(Action)</button>
                         }
-                        <button type="button" class="btn btn-secondary" @onclick="DisplayModal">Cancel</button>
+                        <button type="button" class="btn btn-secondary" @onclick="DisplayModal">@Localize("Cancel")</button>
                     </div>
                 </div>
             </div>
@@ -76,6 +76,8 @@
 
     protected override void OnParametersSet()
     {
+        base.OnParametersSet();
+
         if (string.IsNullOrEmpty(Text))
         {
             Text = Action;
@@ -93,6 +95,12 @@
         if (!string.IsNullOrEmpty(IconName))
         {
             _iconSpan = $"<span class=\"oi oi-{IconName}\"></span>&nbsp;";
+        }
+
+        if (IsLocalizable)
+        {
+            Header = Localize(nameof(Header));
+            Message = Localize(nameof(Message));
         }
 
         _authorized = IsAuthorized();
