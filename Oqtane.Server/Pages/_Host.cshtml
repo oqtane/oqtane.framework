@@ -45,7 +45,7 @@
 
     <script src="js/interop.js"></script>
 
-    @if (Configuration.GetSection("Runtime").Value == "WebAssembly")
+    @if (Configuration.GetSection(Oqtane.Shared.SettingKeys.RuntimeSection).Value == "WebAssembly")
     {
         <script src="_framework/blazor.webassembly.js"></script>
     }

@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +15,7 @@ namespace Oqtane.Configuration
         public static string Normalize(string connectionString)
         {
             var ret = connectionString.Replace(DataDirectoryVariable, DataDirectory.Current());
-            return connectionString;
+            return ret;
         }
 
         public static string Denormalize(string connectionString)

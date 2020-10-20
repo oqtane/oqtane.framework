@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Reflection;
 using System.Linq;
@@ -69,7 +69,7 @@ namespace Oqtane.Controllers
         [HttpGet("load")]
         public IActionResult Load()
         {
-            if (_config.GetSection("Runtime").Value == "WebAssembly")
+            if (_config.GetSection(SettingKeys.RuntimeSection).Value == "WebAssembly")
             {
                 // get list of assemblies which should be downloaded to browser
                 var assemblies = AppDomain.CurrentDomain.GetOqtaneClientAssemblies();

@@ -1,6 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Oqtane.Infrastructure;
+using Oqtane.Shared;
 
 namespace Microsoft.AspNetCore.Hosting
 {
@@ -12,7 +13,7 @@ namespace Microsoft.AspNetCore.Hosting
             {
                 var config = context.Configuration;
 
-                services.Configure<LocalizationOptions>(config.GetSection("Localization"));
+                services.Configure<LocalizationOptions>(config.GetSection(SettingKeys.LocalizationSection));
                 services.AddSingleton(ctx => ctx.GetService<IOptions<LocalizationOptions>>().Value);
                 services.AddTransient<ILocalizationManager, LocalizationManager>();
             });

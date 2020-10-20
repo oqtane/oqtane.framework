@@ -1,8 +1,11 @@
-﻿namespace Oqtane.Shared
+namespace Oqtane.Shared
 {
     public static class SettingKeys
     {
         public const string InstallationSection = "Installation";
+        public const string RuntimeSection = "Runtime";
+        public const string LocalizationSection = "Localization";
+
         public const string DefaultAliasKey = "DefaultAlias";
         public const string HostPasswordKey = "HostPassword";
         public const string HostEmailKey = "HostEmail";
