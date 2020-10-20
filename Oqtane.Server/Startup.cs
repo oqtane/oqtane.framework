@@ -45,7 +45,7 @@ namespace Oqtane
             _supportedCultures = localizationManager.GetSupportedCultures();
 
             _runtime = (Configuration.GetSection("Runtime").Value == "WebAssembly") ? Runtime.WebAssembly : Runtime.Server;
-            
+
             //add possibility to switch off swagger on production.
             _useSwagger = Configuration.GetSection("UseSwagger").Value != "false";
 
@@ -92,13 +92,13 @@ namespace Oqtane
             // register custom authorization policies
             services.AddAuthorizationCore(options =>
             {
-                options.AddPolicy("ViewPage", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Page, PermissionNames.View)));
-                options.AddPolicy("EditPage", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Page, PermissionNames.Edit)));
-                options.AddPolicy("ViewModule", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Module, PermissionNames.View)));
-                options.AddPolicy("EditModule", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Module, PermissionNames.Edit)));
-                options.AddPolicy("ViewFolder", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Folder, PermissionNames.View)));
-                options.AddPolicy("EditFolder", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Folder, PermissionNames.Edit)));
-                options.AddPolicy("ListFolder", policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Folder, PermissionNames.Browse)));
+                options.AddPolicy(PolicyNames.ViewPage, policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Page, PermissionNames.View)));
+                options.AddPolicy(PolicyNames.EditPage, policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Page, PermissionNames.Edit)));
+                options.AddPolicy(PolicyNames.ViewModule, policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Module, PermissionNames.View)));
+                options.AddPolicy(PolicyNames.EditModule, policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Module, PermissionNames.Edit)));
+                options.AddPolicy(PolicyNames.ViewFolder, policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Folder, PermissionNames.View)));
+                options.AddPolicy(PolicyNames.EditFolder, policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Folder, PermissionNames.Edit)));
+                options.AddPolicy(PolicyNames.ListFolder, policy => policy.Requirements.Add(new PermissionRequirement(EntityNames.Folder, PermissionNames.Browse)));
             });
 
             // register scoped core services
@@ -133,7 +133,7 @@ namespace Oqtane
 
             services.AddDbContext<MasterDBContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")
-                    .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString())
+                    .Replace("|DataDirectory|", AppContext.GetData("DataDirectory")?.ToString())
                 ));
             services.AddDbContext<TenantDBContext>(options => { });
 
