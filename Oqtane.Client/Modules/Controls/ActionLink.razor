@@ -1,5 +1,5 @@
-﻿@namespace Oqtane.Modules.Controls
-@inherits ModuleControlBase
+@namespace Oqtane.Modules.Controls
+@inherits LocalizableComponent
 @inject IUserService UserService
 
 @if (_authorized)
@@ -56,6 +56,8 @@
 
     protected override void OnParametersSet()
     {
+        base.OnParametersSet();
+
         _text = Action;
         if (!string.IsNullOrEmpty(Text))
         {
@@ -93,6 +95,7 @@
 
         }
 
+        _text = Localize(nameof(Text));
         _url = EditUrl(Action, _parameters);
         _authorized = IsAuthorized();
     }
