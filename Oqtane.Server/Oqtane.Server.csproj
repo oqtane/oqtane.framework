@@ -33,6 +33,7 @@
     <EmbeddedResource Include="Scripts\Tenant.01.00.01.00.sql" />
     <EmbeddedResource Include="Scripts\Tenant.01.00.01.01.sql" />
     <EmbeddedResource Include="Scripts\Tenant.01.00.02.01.sql" />
+    <EmbeddedResource Include="Scripts\Tenant.02.00.00.01.sql" />
     <EmbeddedResource Include="Modules\HtmlText\Scripts\HtmlText.1.0.0.sql" />
     <EmbeddedResource Include="Modules\HtmlText\Scripts\HtmlText.Uninstall.sql" />
   </ItemGroup>
@@ -58,6 +59,9 @@
     <UpgradeFiles Include="$(ProjectDir)bin\Release\netcoreapp3.1\Oqtane.Upgrade.pdb" />
     <UpgradeFiles Include="$(ProjectDir)bin\Release\netcoreapp3.1\Oqtane.Upgrade.runtimeconfig.json" />
     <TemplateFiles Include="$(ProjectDir)wwwroot\Modules\Templates\**\*.*" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Scripts\Tenant.02.00.00.01.sql" />
   </ItemGroup>
   <Target Name="AddPayloadsFolder" AfterTargets="Publish">
     <Copy SourceFiles="@(UpgradeFiles)" DestinationFiles="@(UpgradeFiles->'$(PublishDir)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false" />
