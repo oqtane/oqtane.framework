@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Oqtane.Models
 {
@@ -15,6 +15,7 @@ namespace Oqtane.Models
         public string DefaultValue { get; set; }
         public bool IsRequired { get; set; }
         public bool IsPrivate { get; set; }
+        public string Options { get; set; }
 
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
