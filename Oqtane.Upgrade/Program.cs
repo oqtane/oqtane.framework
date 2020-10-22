@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -58,7 +58,7 @@ namespace Oqtane.Upgrade
                                             files.Add(Path.Combine(binfolder, filename));
                                             break;
                                         case "wwwroot":
-                                            files.Add(Path.Combine(webrootfolder.Replace(Path.DirectorySeparatorChar + "wwwroot", ""), entry.FullName.Replace('/', Path.DirectorySeparatorChar)));
+                                            files.Add(Path.Combine(webrootfolder, entry.FullName.Replace("wwwroot/", "").Replace('/', Path.DirectorySeparatorChar)));
                                             break;
                                     }
                                 }
@@ -102,7 +102,7 @@ namespace Oqtane.Upgrade
                                                         filename = Path.Combine(binfolder, filename);
                                                         break;
                                                     case "wwwroot":
-                                                        filename = Path.Combine(webrootfolder.Replace(Path.DirectorySeparatorChar + "wwwroot", ""), entry.FullName.Replace('/', Path.DirectorySeparatorChar));
+                                                        filename = Path.Combine(webrootfolder, entry.FullName.Replace("wwwroot/", "").Replace('/', Path.DirectorySeparatorChar));
                                                         break;
                                                 }
                                                 if (files.Contains(filename))
