@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -103,7 +103,7 @@ namespace Oqtane.Infrastructure
                                         assets.Add(filename);
                                         break;
                                     case "wwwroot":
-                                        filename = Path.Combine(webRootPath.Replace(Path.DirectorySeparatorChar + "wwwroot", ""), Utilities.PathCombine(entry.FullName.Split('/')));
+                                        filename = Path.Combine(webRootPath, Utilities.PathCombine(entry.FullName.Replace("wwwroot/", "").Split('/')));
                                         ExtractFile(entry, filename);
                                         assets.Add(filename);
                                         break;
