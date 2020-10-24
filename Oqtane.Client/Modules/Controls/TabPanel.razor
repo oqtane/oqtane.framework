@@ -39,7 +39,19 @@ else
 
         if (IsLocalizable)
         {
-            Heading = Localize(nameof(Heading));
+            if (string.IsNullOrEmpty(Heading))
+            {
+                Name = Localize(nameof(Name));
+            }
+            else
+            {
+                Heading = Localize(nameof(Heading));
+            }
         }
+    }
+
+    public string DisplayHeading()
+    {
+        return (string.IsNullOrEmpty(Heading)) ? Name : Heading;
     }
 }
