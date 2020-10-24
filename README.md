@@ -51,7 +51,7 @@ This project is a work in progress and the schedule for implementing enhancement
 
 V.2.0.0 ( estimated release date Nov 10, 2020 )
 - [ ] Migration to .NET 5
-- [ ] Static Localization ( ie. labels, help text, etc.. )
+- [x] Static Localization ( ie. labels, help text, etc.. )
 - [ ] Admin UI markup optimization
 
 V.1.x - Initial version released in conjunction with .NET Core 3.2 ( May 2020 )
