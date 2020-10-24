@@ -1,5 +1,5 @@
-﻿@namespace Oqtane.Modules.Controls
-@inherits ModuleControlBase
+@namespace Oqtane.Modules.Controls
+@inherits LocalizableComponent
 
 <div class="d-flex">
     <div>
@@ -40,5 +40,17 @@
     {
         _heading = (!string.IsNullOrEmpty(Heading)) ? Heading : Name;
         _expanded = (!string.IsNullOrEmpty(Expanded)) ? Expanded : "false";
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (IsLocalizable)
+        {
+            _heading = !string.IsNullOrEmpty(Heading)
+                ? Localize(nameof(Heading))
+                : Localize(nameof(Name));
+        }
     }
 }
