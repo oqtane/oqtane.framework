@@ -1,5 +1,5 @@
-﻿@namespace Oqtane.Modules.Controls
-@inherits ModuleControlBase
+@namespace Oqtane.Modules.Controls
+@inherits LocalizableComponent
 
 @if (Name == Parent.ActiveTab)
 {
@@ -31,5 +31,15 @@ else
     {
         base.OnInitialized();
         Parent.AddTabPanel((TabPanel)this);
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (IsLocalizable)
+        {
+            Heading = Localize(nameof(Heading));
+        }
     }
 }
