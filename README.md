@@ -12,7 +12,7 @@ Please note that this project is owned by the .NET Foundation and is governed by
 
 # Getting Started
 
-**Using the latest repository source code:**
+**Using the latest repository source code ( ie. version 2.0.0 ):**
 
 - Install **[.NET 5 RC2 SDK (v5.0.100-rc.2.20479.15)](https://dotnet.microsoft.com/download/dotnet/5.0)**.
    
@@ -43,15 +43,18 @@ Please note that this project is owned by the .NET Foundation and is governed by
 
 - If you are getting started with Oqtane, a [series of videos](https://www.youtube.com/watch?v=JPfUZPlRRCE&list=PLYhXmd7yV0elLNLfQwZBUlM7ZSMYPTZ_f) are available which explain how to install the product, interact with the user interface, and develop custom modules.
 
+# Documentation
+There is a separate [Documentation repository](https://github.com/oqtane/oqtane.docs) which contains a variety of types of documentation for Oqtane, including API documentation that is auto generated using Docfx. The contents of the repository is published to Githib Pages and is available at [https://docs.oqtane.org](https://docs.oqtane.org/)
+
 # Roadmap
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
 
 V.2.0.0 ( estimated release date Nov 10, 2020 )
-- [ ] Migrate to .NET 5
-- [ ] Static Localization ( ie. labels, help text, etc.. )
+- [ ] Migration to .NET 5
+- [x] Static Localization ( ie. labels, help text, etc.. )
 - [ ] Admin UI markup optimization
 
-V1.0.0 (MVP) - Released in conjunction with .NET Core 3.2 ( May 2020 )
+V.1.x - Initial version released in conjunction with .NET Core 3.2 ( May 2020 )
 - [x] Multi-Tenant ( Shared Database & Isolated Database ) 
 - [x] Modular Architecture
 - [x] Headless API with Swagger Support
@@ -66,8 +69,10 @@ V1.0.0 (MVP) - Released in conjunction with .NET Core 3.2 ( May 2020 )
 - [x] Recycle Bin
 - [x] Scheduled Jobs ( Background Processing )
 - [x] Notifications / Email Delivery
-- [x] Auto-Upgrade Framework
+- [x] Seamless Upgrade Experience
 - [x] Progressive Web Application Support
+- [x] JavaScript Lazy Loading
+- [x] CSS Dynamic/Lazy Loading
 
 Future Consideration
 - [ ] DB Migrations for framework installation/upgrade
