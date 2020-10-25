@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Modules.Controls
+@namespace Oqtane.Modules.Controls
 @inherits ModuleControlBase
 
 <CascadingValue Value="this">
@@ -11,13 +11,13 @@
                         @if (tabPanel.Name == ActiveTab)
                         {
                             <a class="nav-link active" data-toggle="tab" href="#@tabPanel.Name" role="tab" @onclick:preventDefault="true">
-                                @DisplayHeading(tabPanel.Name, tabPanel.Heading)
+                                @tabPanel.DisplayHeading()
                             </a>
                         }
                         else
                         {
                             <a class="nav-link" data-toggle="tab" href="#@tabPanel.Name" role="tab" @onclick:preventDefault="true">
-                                @DisplayHeading(tabPanel.Name, tabPanel.Heading)
+                                @tabPanel.DisplayHeading()
                             </a>
                         }
                     </li>
@@ -56,10 +56,5 @@
             ActiveTab = tabPanel.Name;
         }
         StateHasChanged();
-    }
-
-    private string DisplayHeading(string Name, string Heading)
-    {
-        return (string.IsNullOrEmpty(Heading)) ? Name : Heading;
     }
 }
