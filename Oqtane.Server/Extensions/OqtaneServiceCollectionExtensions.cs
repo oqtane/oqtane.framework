@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -32,6 +32,7 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             var hostedServiceType = typeof(IHostedService);
+
             var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
             foreach (var assembly in assemblies)
             {
@@ -56,6 +57,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
                 }
 
+                // register server startup services
                 var startUps = assembly.GetInstances<IServerStartup>();
                 foreach (var startup in startUps)
                 {
@@ -64,6 +66,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 if (runtime == Runtime.Server)
                 {
+                    // register client startup services if running on server
                     assembly.GetInstances<IClientStartup>()
                         .ToList()
                         .ForEach(x => x.ConfigureServices(services));
@@ -143,7 +146,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 var assembliesFolder = new DirectoryInfo(Path.Combine(assemblyPath, culture));
                 if (assembliesFolder.Exists)
                 {
-                    foreach (var assemblyFile in assembliesFolder.EnumerateFiles(Constants.StalliteAssemblyExtension))
+                    foreach (var assemblyFile in assembliesFolder.EnumerateFiles(Constants.SatelliteAssemblyExtension))
                     {
                         AssemblyName assemblyName;
                         try

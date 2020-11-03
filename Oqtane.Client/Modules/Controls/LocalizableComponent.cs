@@ -18,7 +18,7 @@ namespace Oqtane.Modules.Controls
         {
             if (!IsLocalizable)
             {
-                return null;
+                return name;
             }
 
             var key = $"{ResourceKey}.{name}";

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Runtime.Loader;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -64,30 +65,28 @@ namespace Oqtane.Client
 
             await LoadClientAssemblies(httpClient);
 
-            // dynamically register module contexts and repository services
-            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (Assembly assembly in assemblies)
+            var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
+            foreach (var assembly in assemblies)
             {
-                var implementationTypes = assembly.GetTypes()
-                    .Where(item => item.GetInterfaces().Contains(typeof(IService)));
-
-                foreach (Type implementationtype in implementationTypes)
+                // dynamically register module services 
+                var implementationTypes = assembly.GetInterfaces<IService>(); 
+                foreach (var implementationType in implementationTypes)
                 {
-                    Type servicetype = Type.GetType(implementationtype.AssemblyQualifiedName.Replace(implementationtype.Name, "I" + implementationtype.Name));
-                    if (servicetype != null)
+                    if (implementationType.AssemblyQualifiedName != null)
                     {
-                        builder.Services.AddScoped(servicetype, implementationtype); // traditional service interface
-                    }
-                    else
-                    {
-                        builder.Services.AddScoped(implementationtype, implementationtype); // no interface defined for service
+                        var serviceType = Type.GetType(implementationType.AssemblyQualifiedName.Replace(implementationType.Name, $"I{implementationType.Name}"));
+                        builder.Services.AddScoped(serviceType ?? implementationType, implementationType);
                     }
                 }
 
-                assembly.GetInstances<IClientStartup>()
-                    .ToList()
-                    .ForEach(x => x.ConfigureServices(builder.Services));
+                // register client startup services
+                var startUps = assembly.GetInstances<IClientStartup>();
+                foreach (var startup in startUps)
+                {
+                    startup.ConfigureServices(builder.Services);
+                }
             }
+
             var host = builder.Build();
 
             ServiceActivator.Configure(host.Services);
@@ -120,15 +119,7 @@ namespace Oqtane.Client
                             switch (Path.GetExtension(entry.Name))
                             {
                                 case ".dll":
-                                    // Loads the stallite assemblies early
-                                    if (entry.Name.EndsWith(Constants.StalliteAssemblyExtension))
-                                    {
-                                        Assembly.Load(file);
-                                    }
-                                    else
-                                    {
-                                        dlls.Add(entry.Name, file);
-                                    }
+                                    dlls.Add(entry.Name, file);
                                     break;
                                 case ".pdb":
                                     pdbs.Add(entry.Name, file);
@@ -142,11 +133,11 @@ namespace Oqtane.Client
                 {
                     if (pdbs.ContainsKey(item.Key))
                     {
-                        Assembly.Load(item.Value, pdbs[item.Key]);
+                        AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(item.Value), new MemoryStream(pdbs[item.Key]));
                     }
                     else
                     {
-                        Assembly.Load(item.Value);
+                        AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(item.Value));
                     }
                 }
             }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Reflection;
 using System.Linq;
@@ -71,12 +71,12 @@ namespace Oqtane.Controllers
         {
             if (_config.GetSection("Runtime").Value == "WebAssembly")
             {
-                // get list of assemblies which should be downloaded to browser
+                // get list of assemblies which should be downloaded to client
                 var assemblies = AppDomain.CurrentDomain.GetOqtaneClientAssemblies();
                 var list = assemblies.Select(a => a.GetName().Name).ToList();
                 var binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
-                // Get the satellite assemblies
+                // insert satellite assemblies at beginning of list
                 foreach (var culture in _localizationManager.GetSupportedCultures())
                 {
                     var assembliesFolderPath = Path.Combine(binFolder, culture);
@@ -89,7 +89,7 @@ namespace Oqtane.Controllers
                     {
                         foreach (var resourceFile in Directory.EnumerateFiles(assembliesFolderPath))
                         {
-                            list.Add(Path.Combine(culture, Path.GetFileNameWithoutExtension(resourceFile)));
+                            list.Insert(0, Path.Combine(culture, Path.GetFileNameWithoutExtension(resourceFile)));
                         }
                     }
                     else
@@ -98,7 +98,7 @@ namespace Oqtane.Controllers
                     }
                 }
 
-                // get module and theme dependencies
+                // insert module and theme dependencies at beginning of list
                 foreach (var assembly in assemblies)
                 {
                     foreach (var type in assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(IModule))))
@@ -106,7 +106,7 @@ namespace Oqtane.Controllers
                         var instance = Activator.CreateInstance(type) as IModule;
                         foreach (string name in instance.ModuleDefinition.Dependencies.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                         {
-                            if (!list.Contains(name)) list.Add(name);
+                            if (!list.Contains(name)) list.Insert(0, name);
                         }
                     }
                     foreach (var type in assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(ITheme))))
@@ -114,7 +114,7 @@ namespace Oqtane.Controllers
                         var instance = Activator.CreateInstance(type) as ITheme;
                         foreach (string name in instance.Theme.Dependencies.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                         {
-                            if (!list.Contains(name)) list.Add(name);
+                            if (!list.Contains(name)) list.Insert(0, name);
                         }
                     }
                 }
