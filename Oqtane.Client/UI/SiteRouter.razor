@@ -1,4 +1,4 @@
-﻿@using System.Diagnostics.CodeAnalysis
+@using System.Diagnostics.CodeAnalysis
 @using System.Runtime.InteropServices
 @namespace Oqtane.UI
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -442,7 +442,7 @@
         var paneindex = new Dictionary<string, int>();
         foreach (Module module in modules)
         {
-            if (module.PageId == page.PageId || module.ModuleId == moduleid)
+            if ((module.PageId == page.PageId || module.ModuleId == moduleid) && module.ModuleDefinition != null)
             {
                 var typename = string.Empty;
                 if (module.ModuleDefinition != null && (module.ModuleDefinition.Runtimes == "" || module.ModuleDefinition.Runtimes.Contains(GetRuntime().ToString())))
