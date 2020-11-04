@@ -16,7 +16,7 @@ Please note that this project is owned by the .NET Foundation and is governed by
 
 - Install **[.NET 5 RC2 SDK (v5.0.100-rc.2.20479.15)](https://dotnet.microsoft.com/download/dotnet/5.0)**.
    
-- Install the latest Preview edition of [Visual Studio 2019](https://visualstudio.microsoft.com/vs/preview/) (Community, Professional, and Enterprise Editions are all supported) with the **ASP.NET and web development** workload enabled. Oqtane works with all editions of Visual Studio from Community to Enterprise. If you do not have a SQL Server installation available already and you wish to use LocalDB for development, you must also install the **.NET desktop development workload**.  
+- Install the latest Preview edition (v16.8, Preview 4 or higher) of [Visual Studio 2019](https://visualstudio.microsoft.com/vs/preview/) (Community, Professional, and Enterprise Editions are all supported) with the **ASP.NET and web development** workload enabled. Oqtane works with all editions of Visual Studio from Community to Enterprise. If you do not have a SQL Server installation available already and you wish to use LocalDB for development, you must also install the **.NET desktop development workload**.  
 
 - Download or Clone the Oqtane source code to your local system. Open the **Oqtane.sln** solution file and Build the solution. 
 
@@ -50,9 +50,8 @@ There is a separate [Documentation repository](https://github.com/oqtane/oqtane.
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
 
 V.2.0.0 ( estimated release date Nov 10, 2020 )
-- [ ] Migration to .NET 5
+- [x] Migration to .NET 5
 - [x] Static Localization ( ie. labels, help text, etc.. )
-- [ ] Admin UI markup optimization
 
 V.1.x - Initial version released in conjunction with .NET Core 3.2 ( May 2020 )
 - [x] Multi-Tenant ( Shared Database & Isolated Database ) 
@@ -75,11 +74,10 @@ V.1.x - Initial version released in conjunction with .NET Core 3.2 ( May 2020 )
 - [x] CSS Dynamic/Lazy Loading
 
 Future Consideration
+- [ ] Admin UI markup optimization ( ie. replace tables with divs in forms )
 - [ ] DB Migrations for framework installation/upgrade
 - [ ] Support for SQLite
-- [ ] Generic Repository Pattern
-- [ ] Support for other Auth providers
-- [ ] Optional Encryption for Settings Values 
+- [ ] OAuth Support
 
 # Background
 Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Initially created as a proof of concept, Oqtane is a native Blazor application written from the ground up using modern .NET Core technology. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly templates (skins), and extensibility via third party modules.
