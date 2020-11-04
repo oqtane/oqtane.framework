@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
@@ -12,6 +12,11 @@ namespace Oqtane.Repository
         public SettingRepository(TenantDBContext context)
         {
             _db = context;
+        }
+
+        public IEnumerable<Setting> GetSettings(string entityName)
+        {
+            return _db.Setting.Where(item => item.EntityName == entityName);
         }
 
         public IEnumerable<Setting> GetSettings(string entityName, int entityId)
