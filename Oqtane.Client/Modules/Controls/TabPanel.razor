@@ -27,6 +27,9 @@ else
     [Parameter]
     public string Heading { get; set; } // optional - defaults to name if not specified
 
+    [Parameter]
+    public SecurityAccessLevel? Security { get; set; } // optional - can be used to specify SecurityAccessLevel
+
     protected override void OnInitialized()
     {
         base.OnInitialized();
