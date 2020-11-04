@@ -11,6 +11,7 @@ using Oqtane.Models;
 using Oqtane.Modules;
 using Oqtane.Shared;
 using Oqtane.Themes;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Oqtane.Controllers
 {
@@ -21,13 +22,15 @@ namespace Oqtane.Controllers
         private readonly IInstallationManager _installationManager;
         private readonly IDatabaseManager _databaseManager;
         private readonly ILocalizationManager _localizationManager;
+        private readonly IMemoryCache _cache;
 
-        public InstallationController(IConfigurationRoot config, IInstallationManager installationManager, IDatabaseManager databaseManager, ILocalizationManager localizationManager)
+        public InstallationController(IConfigurationRoot config, IInstallationManager installationManager, IDatabaseManager databaseManager, ILocalizationManager localizationManager, IMemoryCache cache)
         {
             _config = config;
             _installationManager = installationManager;
             _databaseManager = databaseManager;
             _localizationManager = localizationManager;
+            _cache = cache;
         }
 
         // POST api/<controller>
@@ -71,6 +74,19 @@ namespace Oqtane.Controllers
         {
             if (_config.GetSection("Runtime").Value == "WebAssembly")
             {
+                return File(GetAssemblies(), System.Net.Mime.MediaTypeNames.Application.Octet, "oqtane.zip");
+            }
+            else
+            {
+                HttpContext.Response.StatusCode = 401;
+                return null;
+            }
+        }
+
+        private byte[] GetAssemblies()
+        {            
+            return _cache.GetOrCreate("assemblies", entry =>
+            {
                 // get list of assemblies which should be downloaded to client
                 var assemblies = AppDomain.CurrentDomain.GetOqtaneClientAssemblies();
                 var list = assemblies.Select(a => a.GetName().Name).ToList();
@@ -85,7 +101,7 @@ namespace Oqtane.Controllers
                         continue;
                     }
 
-                    if(Directory.Exists(assembliesFolderPath))
+                    if (Directory.Exists(assembliesFolderPath))
                     {
                         foreach (var resourceFile in Directory.EnumerateFiles(assembliesFolderPath))
                         {
@@ -120,42 +136,32 @@ namespace Oqtane.Controllers
                 }
 
                 // create zip file containing assemblies and debug symbols
-                byte[] zipfile;
                 using (var memoryStream = new MemoryStream())
                 {
                     using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
                     {
-                        ZipArchiveEntry entry;
                         foreach (string file in list)
                         {
-                            entry = archive.CreateEntry(file + ".dll");
                             using (var filestream = new FileStream(Path.Combine(binFolder, file + ".dll"), FileMode.Open, FileAccess.Read))
-                            using (var entrystream = entry.Open())
+                            using (var entrystream = archive.CreateEntry(file + ".dll").Open())
                             {
                                 filestream.CopyTo(entrystream);
                             }
 
-                            // include debug symbols ( we may want to consider restricting this to only host users or when running in debug mode for performance )
+                            // include debug symbols
                             if (System.IO.File.Exists(Path.Combine(binFolder, file + ".pdb")))
                             {
-                                entry = archive.CreateEntry(file + ".pdb");
                                 using (var filestream = new FileStream(Path.Combine(binFolder, file + ".pdb"), FileMode.Open, FileAccess.Read))
-                                using (var entrystream = entry.Open())
+                                using (var entrystream = archive.CreateEntry(file + ".pdb").Open())
                                 {
                                     filestream.CopyTo(entrystream);
                                 }
                             }
                         }
                     }
-                    zipfile = memoryStream.ToArray();
+                    return memoryStream.ToArray();
                 }
-                return File(zipfile, System.Net.Mime.MediaTypeNames.Application.Octet, "oqtane.zip");
-            }
-            else
-            {
-                HttpContext.Response.StatusCode = 401;
-                return null;
-            }
+            });
         }
     }
 }
