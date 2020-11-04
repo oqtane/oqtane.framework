@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Oqtane.Models;
@@ -71,7 +71,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Page, pageModule.PageId, PermissionNames.Edit))
             {
                 pageModule = _pageModules.AddPageModule(pageModule);
-                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Page, pageModule.PageId);
+                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, _tenants.GetAlias().SiteId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Page Module Added {PageModule}", pageModule);
             }
             else
@@ -91,7 +91,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Module, pageModule.ModuleId, PermissionNames.Edit))
             {
                 pageModule = _pageModules.UpdatePageModule(pageModule);
-                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Page, pageModule.PageId);
+                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, _tenants.GetAlias().SiteId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Module Updated {PageModule}", pageModule);
             }
             else
@@ -121,7 +121,7 @@ namespace Oqtane.Controllers
                     }
                     order += 2;
                 }
-                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Page, pageid);
+                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, _tenants.GetAlias().SiteId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Module Order Updated {PageId} {Pane}", pageid, pane);
             }
             else
@@ -140,7 +140,7 @@ namespace Oqtane.Controllers
             if (_userPermissions.IsAuthorized(User, EntityNames.Page, pagemodule.PageId, PermissionNames.Edit))
             {
                 _pageModules.DeletePageModule(id);
-                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Page, pagemodule.PageId);
+                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, _tenants.GetAlias().SiteId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Page Module Deleted {PageModuleId}", id);
             }
             else

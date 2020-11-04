@@ -275,15 +275,15 @@
                         reload = Reload.Page;
                     }
 
-                    if (PageState == null || reload >= Reload.Page)
+                    if (PageState == null || reload >= Reload.Site)
                     {
                         modules = await ModuleService.GetModulesAsync(site.SiteId);
-                        (page, modules) = ProcessModules(page, modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType);
                     }
                     else
                     {
                         modules = PageState.Modules;
                     }
+                    (page, modules) = ProcessModules(page, modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType);
 
                     _pagestate = new PageState
                     {
