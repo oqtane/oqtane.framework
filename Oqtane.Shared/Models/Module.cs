@@ -1,5 +1,6 @@
-﻿using Oqtane.Shared;
+using Oqtane.Shared;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Models
@@ -25,6 +26,9 @@ namespace Oqtane.Models
 
         [NotMapped]
         public string Permissions { get; set; }
+
+        [NotMapped]
+        public Dictionary<string, string> Settings { get; set; }
 
         // PageModule properties
         [NotMapped]

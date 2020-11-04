@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Oqtane.Models;
@@ -18,15 +18,17 @@ namespace Oqtane.Controllers
         private readonly IPageModuleRepository _pageModules;
         private readonly IPageRepository _pages;
         private readonly IModuleDefinitionRepository _moduleDefinitions;
+        private readonly ISettingRepository _settings;
         private readonly IUserPermissions _userPermissions;
         private readonly ILogManager _logger;
 
-        public ModuleController(IModuleRepository modules, IPageModuleRepository pageModules, IPageRepository pages, IModuleDefinitionRepository moduleDefinitions, IUserPermissions userPermissions, ILogManager logger)
+        public ModuleController(IModuleRepository modules, IPageModuleRepository pageModules, IPageRepository pages, IModuleDefinitionRepository moduleDefinitions, ISettingRepository settings, IUserPermissions userPermissions, ILogManager logger)
         {
-            _modules = modules;
+            _modules = modules; 
             _pageModules = pageModules;
             _pages = pages;
             _moduleDefinitions = moduleDefinitions;
+            _settings = settings;
             _userPermissions = userPermissions;
             _logger = logger;
         }
@@ -36,6 +38,8 @@ namespace Oqtane.Controllers
         public IEnumerable<Module> Get(string siteid)
         {
             List<ModuleDefinition> moduledefinitions = _moduleDefinitions.GetModuleDefinitions(int.Parse(siteid)).ToList();
+            List<Setting> settings = _settings.GetSettings(EntityNames.Module).ToList();
+
             List<Module> modules = new List<Module>();
             foreach (PageModule pagemodule in _pageModules.GetPageModules(int.Parse(siteid)))
             {
@@ -61,6 +65,8 @@ namespace Oqtane.Controllers
                     module.ContainerType = pagemodule.ContainerType;
 
                     module.ModuleDefinition = moduledefinitions.Find(item => item.ModuleDefinitionName == module.ModuleDefinitionName);
+                    module.Settings = settings.Where(item => item.EntityId == pagemodule.ModuleId)
+                        .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
 
                     modules.Add(module);
                 }
@@ -77,6 +83,9 @@ namespace Oqtane.Controllers
             {
                 List<ModuleDefinition> moduledefinitions = _moduleDefinitions.GetModuleDefinitions(module.SiteId).ToList();
                 module.ModuleDefinition = moduledefinitions.Find(item => item.ModuleDefinitionName == module.ModuleDefinitionName);
+                module.Settings = _settings.GetSettings(EntityNames.Module, id)
+                        .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
+
                 return module;
             }
             else
