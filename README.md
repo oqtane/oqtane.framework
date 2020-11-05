@@ -63,7 +63,7 @@ V.1.x - Initial version released in conjunction with .NET Core 3.2 ( May 2020 )
 - [x] Dynamic Routing
 - [x] Extensibility via Custom Modules
 - [x] Extensibility via Custom Themes
-- [x] Event Logging
+- [x] Event Logging / Audit Trail
 - [x] Folder / File Management
 - [x] Recycle Bin
 - [x] Scheduled Jobs ( Background Processing )
@@ -71,7 +71,7 @@ V.1.x - Initial version released in conjunction with .NET Core 3.2 ( May 2020 )
 - [x] Seamless Upgrade Experience
 - [x] Progressive Web Application Support
 - [x] JavaScript Lazy Loading
-- [x] CSS Dynamic/Lazy Loading
+- [x] Dynamic CSS/Lazy Loading
 
 Future Consideration
 - [ ] Admin UI markup optimization ( ie. replace tables with divs in forms )
