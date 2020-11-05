@@ -49,7 +49,7 @@ There is a separate [Documentation repository](https://github.com/oqtane/oqtane.
 # Roadmap
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
 
-V.2.0.0 ( estimated release date Nov 10, 2020 )
+V.2.0.0 ( estimated release date Nov 11, 2020 )
 - [x] Migration to .NET 5
 - [x] Static Localization ( ie. labels, help text, etc.. )
 
