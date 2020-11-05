@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Oqtane.Models;
 using Oqtane.Shared;
@@ -243,9 +243,9 @@ namespace Oqtane.Controllers
                     if (moduleDefinition.Version == "local")
                     {
                         text = text.Replace("[FrameworkVersion]", Constants.Version);
-                        text = text.Replace("[ClientReference]", "<Reference Include=\"Oqtane.Client\"><HintPath>..\\..\\oqtane.framework\\Oqtane.Server\\bin\\Debug\\netcoreapp3.1\\Oqtane.Client.dll</HintPath></Reference>");
-                        text = text.Replace("[ServerReference]", "<Reference Include=\"Oqtane.Server\"><HintPath>..\\..\\oqtane.framework\\Oqtane.Server\\bin\\Debug\\netcoreapp3.1\\Oqtane.Server.dll</HintPath></Reference>");
-                        text = text.Replace("[SharedReference]", "<Reference Include=\"Oqtane.Shared\"><HintPath>..\\..\\oqtane.framework\\Oqtane.Server\\bin\\Debug\\netcoreapp3.1\\Oqtane.Shared.dll</HintPath></Reference>");
+                        text = text.Replace("[ClientReference]", "<Reference Include=\"Oqtane.Client\"><HintPath>..\\..\\oqtane.framework\\Oqtane.Server\\bin\\Debug\\net5.0\\Oqtane.Client.dll</HintPath></Reference>");
+                        text = text.Replace("[ServerReference]", "<Reference Include=\"Oqtane.Server\"><HintPath>..\\..\\oqtane.framework\\Oqtane.Server\\bin\\Debug\\net5.0\\Oqtane.Server.dll</HintPath></Reference>");
+                        text = text.Replace("[SharedReference]", "<Reference Include=\"Oqtane.Shared\"><HintPath>..\\..\\oqtane.framework\\Oqtane.Server\\bin\\Debug\\net5.0\\Oqtane.Shared.dll</HintPath></Reference>");
                     }
                     else
                     {
