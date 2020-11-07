@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Modules.Admin.ModuleCreator
+@namespace Oqtane.Modules.Admin.ModuleCreator
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IModuleDefinitionService ModuleDefinitionService
@@ -50,9 +50,12 @@
                 <select id="reference" class="form-control" @bind="@_reference">
                     @foreach (string version in Constants.ReleaseVersions.Split(','))
                     {
-                        <option value="@(version)">@(version)</option>
+                        if (Version.Parse(version).CompareTo(Version.Parse("2.0.0")) >= 0)
+                        {
+                            <option value="@(version)">@(version)</option>
+                        }
                     }
-                    <option value="local">Local</option>
+                    <option value="local">Local Version</option>
                 </select>
             </td>
         </tr>
