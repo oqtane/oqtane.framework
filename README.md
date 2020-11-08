@@ -49,7 +49,7 @@ There is a separate [Documentation repository](https://github.com/oqtane/oqtane.
 # Roadmap
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
 
-V.2.0.0 ( estimated release date Nov 10, 2020 )
+V.2.0.0 ( estimated release date Nov 11, 2020 )
 - [x] Migration to .NET 5
 - [x] Static Localization ( ie. labels, help text, etc.. )
 
@@ -63,7 +63,7 @@ V.1.x - Initial version released in conjunction with .NET Core 3.2 ( May 2020 )
 - [x] Dynamic Routing
 - [x] Extensibility via Custom Modules
 - [x] Extensibility via Custom Themes
-- [x] Event Logging
+- [x] Event Logging / Audit Trail
 - [x] Folder / File Management
 - [x] Recycle Bin
 - [x] Scheduled Jobs ( Background Processing )
@@ -71,7 +71,7 @@ V.1.x - Initial version released in conjunction with .NET Core 3.2 ( May 2020 )
 - [x] Seamless Upgrade Experience
 - [x] Progressive Web Application Support
 - [x] JavaScript Lazy Loading
-- [x] CSS Dynamic/Lazy Loading
+- [x] Dynamic CSS/Lazy Loading
 
 Future Consideration
 - [ ] Admin UI markup optimization ( ie. replace tables with divs in forms )
