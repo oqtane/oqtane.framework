@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Components.Rendering
+@using Microsoft.AspNetCore.Components.Rendering
 @namespace Oqtane.UI
 @inject IUserService UserService
 @inject IModuleService ModuleService
@@ -53,8 +53,8 @@ else
                     if (module != null && !module.IsDeleted)
                     {
                         var typename = module.ModuleType;
-                    // check for core module actions component
-                    if (Constants.DefaultModuleActions.Contains(PageState.Action))
+                        // check for core module actions component
+                        if (Constants.DefaultModuleActions.Contains(PageState.Action))
                         {
                             typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, PageState.Action);
                         }
@@ -91,17 +91,13 @@ else
 
                             if (authorized)
                             {
-                                if (!Constants.DefaultModuleActions.Contains(PageState.Action) && module.ControlTitle != "")
-                                {
-                                    module.Title = module.ControlTitle;
-                                }
                                 CreateComponent(builder, module);
                             }
                         }
                         else
                         {
-                        // module control does not exist with name specified
-                    }
+                            // module control does not exist with name specified
+                        }
                     }
                 }
             }
