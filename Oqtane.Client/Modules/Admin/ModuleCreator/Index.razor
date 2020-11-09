@@ -86,7 +86,7 @@
 
     protected override void OnInitialized()
     {
-        AddModuleMessage("Please Note That Once You Select The Create Module Button The Application Must Restart In Order To Complete The Process. If You Create An External Module You Will Need To Compile The Source Code In Order To Make It Functional.", MessageType.Info);
+        AddModuleMessage("Please Note That Once You Select The Create Module Button The Application Must Restart In Order To Complete The Process. If You Create An External Module You Will Need To Compile The Source Code And Then Relaunch Your Site In Order To Make It Functional.", MessageType.Info);
     }
 
     private async Task CreateModule()
@@ -95,6 +95,10 @@
         {
             if (!string.IsNullOrEmpty(_owner) && !string.IsNullOrEmpty(_module) && _template != "-")
             {
+                ShowProgressIndicator();
+                var interop = new Interop(JSRuntime);
+                await interop.RedirectBrowser(NavigateUrl(), 5);
+
                 var moduleDefinition = new ModuleDefinition { Owner = _owner.Replace(" ", ""), Name = _module.Replace(" ", ""), Description = _description, Template = _template, Version = _reference };
                 await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition, ModuleState.ModuleId);
             }
