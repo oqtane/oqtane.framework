@@ -442,6 +442,12 @@
         var paneindex = new Dictionary<string, int>();
         foreach (Module module in modules)
         {
+            // initialize module control properties
+            module.SecurityAccessLevel = SecurityAccessLevel.Host;
+            module.ControlTitle = "";
+            module.Actions = "";
+            module.UseAdminContainer = false;
+
             if ((module.PageId == page.PageId || module.ModuleId == moduleid) && module.ModuleDefinition != null)
             {
                 var typename = string.Empty;
@@ -520,6 +526,7 @@
 
                 module.PaneModuleIndex = paneindex[module.Pane.ToLower()];
 
+                // container fallback
                 if (string.IsNullOrEmpty(module.ContainerType))
                 {
                     module.ContainerType = defaultcontainertype;
