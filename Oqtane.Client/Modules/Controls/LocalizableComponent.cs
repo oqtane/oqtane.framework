@@ -17,14 +17,15 @@ namespace Oqtane.Modules.Controls
 
         protected string Localize(string name)
         {
+            var key = $"{ResourceKey}.{name}";
+
+            // TODO: we should have a ShowMissingResourceKeys option which developers/translators can enable to find missing translations which would display the key rather than the name    
             if (!IsLocalizable)
             {
                 return name;
             }
-
-            var key = $"{ResourceKey}.{name}";
  
-            return _localizer?[key] ?? key;
+            return _localizer?[key] ?? name;
         }
 
         protected override void OnParametersSet()
@@ -34,12 +35,13 @@ namespace Oqtane.Modules.Controls
                 if (ModuleState?.ModuleType != null)
                 {
                     var moduleType = Type.GetType(ModuleState.ModuleType);
-
-                    // HACK: Use ServiceActivator instead of injecting IHttpContextAccessor, because HttpContext throws NRE in WebAssembly runtime
-                    using (var scope = ServiceActivator.GetScope())
+                    if (moduleType != null)
                     {
-                        var localizerFactory = scope.ServiceProvider.GetService<IStringLocalizerFactory>();
-                        _localizer = localizerFactory.Create(moduleType);
+                        using (var scope = ServiceActivator.GetScope())
+                        {
+                            var localizerFactory = scope.ServiceProvider.GetService<IStringLocalizerFactory>();
+                            _localizer = localizerFactory.Create(moduleType);
+                        }
                     }
                 }
 
