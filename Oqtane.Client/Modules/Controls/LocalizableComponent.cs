@@ -1,5 +1,6 @@
 using System;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using Oqtane.Shared;
 
@@ -33,13 +34,12 @@ namespace Oqtane.Modules.Controls
                 if (ModuleState?.ModuleType != null)
                 {
                     var moduleType = Type.GetType(ModuleState.ModuleType);
-                    var localizerTypeName = $"Microsoft.Extensions.Localization.IStringLocalizer`1[[{moduleType.AssemblyQualifiedName}]], Microsoft.Extensions.Localization.Abstractions";
-                    var localizerType = Type.GetType(localizerTypeName);
 
                     // HACK: Use ServiceActivator instead of injecting IHttpContextAccessor, because HttpContext throws NRE in WebAssembly runtime
                     using (var scope = ServiceActivator.GetScope())
                     {
-                        _localizer = (IStringLocalizer)scope.ServiceProvider.GetService(localizerType);
+                        var localizerFactory = scope.ServiceProvider.GetService<IStringLocalizerFactory>();
+                        _localizer = localizerFactory.Create(moduleType);
                     }
                 }
 
