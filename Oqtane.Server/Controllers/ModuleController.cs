@@ -20,9 +20,11 @@ namespace Oqtane.Controllers
         private readonly IModuleDefinitionRepository _moduleDefinitions;
         private readonly ISettingRepository _settings;
         private readonly IUserPermissions _userPermissions;
+        private readonly ITenantResolver _tenants;
+        private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
 
-        public ModuleController(IModuleRepository modules, IPageModuleRepository pageModules, IPageRepository pages, IModuleDefinitionRepository moduleDefinitions, ISettingRepository settings, IUserPermissions userPermissions, ILogManager logger)
+        public ModuleController(IModuleRepository modules, IPageModuleRepository pageModules, IPageRepository pages, IModuleDefinitionRepository moduleDefinitions, ISettingRepository settings, IUserPermissions userPermissions, ITenantResolver tenants, ISyncManager syncManager, ILogManager logger)
         {
             _modules = modules; 
             _pageModules = pageModules;
@@ -30,6 +32,8 @@ namespace Oqtane.Controllers
             _moduleDefinitions = moduleDefinitions;
             _settings = settings;
             _userPermissions = userPermissions;
+            _tenants = tenants;
+            _syncManager = syncManager;
             _logger = logger;
         }
 
@@ -104,6 +108,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Page, module.PageId, PermissionNames.Edit))
             {
                 module = _modules.AddModule(module);
+                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, _tenants.GetAlias().SiteId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Module Added {Module}", module);
             }
             else
@@ -137,6 +142,7 @@ namespace Oqtane.Controllers
                         }
                     }
                 }
+                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, _tenants.GetAlias().SiteId);
             }
             else
             {
@@ -155,6 +161,7 @@ namespace Oqtane.Controllers
             if (_userPermissions.IsAuthorized(User, EntityNames.Module, id, PermissionNames.Edit))
             {
                 _modules.DeleteModule(id);
+                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, _tenants.GetAlias().SiteId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Deleted {ModuleId}", id);
             }
             else

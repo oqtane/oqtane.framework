@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Oqtane.Models;
 using Oqtane.Shared;
@@ -16,13 +16,17 @@ namespace Oqtane.Controllers
         private readonly ISettingRepository _settings;
         private readonly IPageModuleRepository _pageModules;
         private readonly IUserPermissions _userPermissions;
+        private readonly ITenantResolver _tenants;
+        private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
 
-        public SettingController(ISettingRepository settings, IPageModuleRepository pageModules, IUserPermissions userPermissions, ILogManager logger)
+        public SettingController(ISettingRepository settings, IPageModuleRepository pageModules, IUserPermissions userPermissions, ITenantResolver tenants, ISyncManager syncManager, ILogManager logger)
         {
             _settings = settings;
             _pageModules = pageModules;
             _userPermissions = userPermissions;
+            _tenants = tenants;
+            _syncManager = syncManager;
             _logger = logger;
         }
 
@@ -67,6 +71,10 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit))
             {
                 setting = _settings.AddSetting(setting);
+                if (setting.EntityName == EntityNames.Module)
+                {
+                    _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, _tenants.GetAlias().SiteId);
+                }
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Setting Added {Setting}", setting);
             }
             else
@@ -85,6 +93,10 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit))
             {
                 setting = _settings.UpdateSetting(setting);
+                if (setting.EntityName == EntityNames.Module)
+                {
+                    _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, _tenants.GetAlias().SiteId);
+                }
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Setting Updated {Setting}", setting);
             }
             else
@@ -104,6 +116,10 @@ namespace Oqtane.Controllers
             if (IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit))
             {
                 _settings.DeleteSetting(id);
+                if (setting.EntityName == EntityNames.Module)
+                {
+                    _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, _tenants.GetAlias().SiteId);
+                }
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Setting Deleted {Setting}", setting);
             }
             else
