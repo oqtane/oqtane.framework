@@ -14,7 +14,7 @@ Please note that this project is owned by the .NET Foundation and is governed by
 
 **Using the latest repository source code ( ie. version 2.0.0 ):**
 
-- Install **[.NET 5 RC2 SDK (v5.0.100-rc.2.20479.15)](https://dotnet.microsoft.com/download/dotnet/5.0)**.
+- Install **[.NET 5 SDK (v5.0.100)](https://dotnet.microsoft.com/download/dotnet/5.0)**.
    
 - Install the latest Preview edition (v16.8, Preview 4 or higher) of [Visual Studio 2019](https://visualstudio.microsoft.com/vs/preview/) (Community, Professional, and Enterprise Editions are all supported) with the **ASP.NET and web development** workload enabled. Oqtane works with all editions of Visual Studio from Community to Enterprise. If you do not have a SQL Server installation available already and you wish to use LocalDB for development, you must also install the **.NET desktop development workload**.  
 
