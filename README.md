@@ -56,7 +56,7 @@ V.2.0.0 ( released in conjuntion with .NET 5 on Nov 11, 2020 )
 - [x] Performance optimizations
 - [x] Developer productivity enhancements
 
-V.1.0.0 ( released in conjunction with .NET Core 3.2 on May 20, 2020 )
+V.1.0.0 ( released in conjunction with .NET Core 3.2 on May 19, 2020 )
 - [x] Multi-Tenant ( Shared Database & Isolated Database ) 
 - [x] Modular Architecture
 - [x] Headless API with Swagger Support
