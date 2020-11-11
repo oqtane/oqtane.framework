@@ -49,14 +49,14 @@ There is a separate [Documentation repository](https://github.com/oqtane/oqtane.
 # Roadmap
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
 
-V.2.0.0 ( released Nov 11, 2020 )
+V.2.0.0 ( released in conjuntion with .NET 5 on Nov 11, 2020 )
 - [x] Migration to .NET 5
 - [x] Static Localization ( ie. labels, help text, etc.. )
 - [x] Improved JavaScript reference support
 - [x] Performance optimizations
 - [x] Developer productivity enhancements
 
-V.1.x - Initial version released in conjunction with .NET Core 3.2 ( May 2020 )
+V.1.0.0 ( released in conjunction with .NET Core 3.2 on May 20, 2020 )
 - [x] Multi-Tenant ( Shared Database & Isolated Database ) 
 - [x] Modular Architecture
 - [x] Headless API with Swagger Support
