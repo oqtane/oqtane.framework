@@ -447,36 +447,35 @@
             module.ControlTitle = "";
             module.Actions = "";
             module.UseAdminContainer = false;
+            module.PaneModuleIndex = -1;
+            module.PaneModuleCount = 0;
 
-            if ((module.PageId == page.PageId || module.ModuleId == moduleid) && module.ModuleDefinition != null)
+            if ((module.PageId == page.PageId || module.ModuleId == moduleid))
             {
-                var typename = string.Empty;
+                var typename = Constants.ErrorModule;
                 if (module.ModuleDefinition != null && (module.ModuleDefinition.Runtimes == "" || module.ModuleDefinition.Runtimes.Contains(GetRuntime().ToString())))
                 {
                     typename = module.ModuleDefinition.ControlTypeTemplate;
-                }
-                else
-                {
-                    typename = Constants.ErrorModule;
-                }
 
-                // handle default action
-                if (action == Constants.DefaultAction && !string.IsNullOrEmpty(module.ModuleDefinition.DefaultAction))
-                {
-                    action = module.ModuleDefinition.DefaultAction;
-                }
-
-                // check if the module defines custom action routes
-                if (module.ModuleDefinition.ControlTypeRoutes != "")
-                {
-                    foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                    // handle default action
+                    if (action == Constants.DefaultAction && !string.IsNullOrEmpty(module.ModuleDefinition.DefaultAction))
                     {
-                        if (route.StartsWith(action + "="))
+                        action = module.ModuleDefinition.DefaultAction;
+                    }
+
+                    // check if the module defines custom action routes
+                    if (module.ModuleDefinition.ControlTypeRoutes != "")
+                    {
+                        foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
                         {
-                            typename = route.Replace(action + "=", "");
+                            if (route.StartsWith(action + "="))
+                            {
+                                typename = route.Replace(action + "=", "");
+                            }
                         }
                     }
                 }
+
                 module.ModuleType = typename.Replace(Constants.ActionToken, action);
 
                 // get additional metadata from IModuleControl interface
@@ -536,7 +535,10 @@
 
         foreach (Module module in modules.Where(item => item.PageId == page.PageId))
         {
-            module.PaneModuleCount = paneindex[module.Pane.ToLower()] + 1;
+            if (paneindex.ContainsKey(module.Pane.ToLower()))
+            {
+                module.PaneModuleCount = paneindex[module.Pane.ToLower()] + 1;
+            }
         }
 
         return (page, modules);
