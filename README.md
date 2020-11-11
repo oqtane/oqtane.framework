@@ -26,7 +26,7 @@ Please note that this project is owned by the .NET Foundation and is governed by
    
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/vs) (Community, Professional, or Enterprise Editions) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you do not have a SQL Server installation available already and you wish to use LocalDB for development, you must also install the **.NET desktop development workload**.  
 
-- Download a release or Clone the Oqtane source code to your local system. Open the **Oqtane.sln** solution file and Build the solution. 
+- Download a release or Clone the Oqtane source code from a v1.x Tag to your local system. Open the **Oqtane.sln** solution file and Build the solution. 
 
 **Installing an official release:**
 
