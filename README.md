@@ -1,11 +1,10 @@
 # Oqtane Framework
-Oqtane is a Modular Application Framework for Blazor
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Foqtane%2Foqtane.framework%2Fmaster%2Fazuredeploy.json)
 
 ![Oqtane](https://github.com/oqtane/framework/blob/master/oqtane.png?raw=true "Oqtane")
 
-Oqtane uses Blazor, an open source and cross-platform web UI framework for building single-page apps using .NET and C# instead of JavaScript. Blazor apps are composed of reusable web UI components implemented using C#, HTML, and CSS. Both client and server code is written in C#, allowing you to share code and libraries.
+Oqtane is a Modular Application Framework. It leverages Blazor, an open source and cross-platform web UI framework for building single-page apps using .NET and C# instead of JavaScript. Blazor apps are composed of reusable web UI components implemented using C#, HTML, and CSS. Both client and server code is written in C#, allowing you to share code and libraries.
 
 Oqtane is being developed based on some fundamental principles which are outlined in the [Oqtane Philosophy](https://www.oqtane.org/Resources/Blog/PostId/538/oqtane-philosophy).
 
@@ -13,15 +12,23 @@ Please note that this project is owned by the .NET Foundation and is governed by
 
 # Getting Started
 
-**Using the latest code:**
+**Using the latest repository source code ( ie. version 2.0.0 ):**
 
-- Install **[.NET Core 3.1 SDK (v3.1.300)](https://dotnet.microsoft.com/download/dotnet-core/thank-you/sdk-3.1.300-windows-x64-installer)**.
+- Install **[.NET 5 SDK (v5.0.100)](https://dotnet.microsoft.com/download/dotnet/5.0)**.
    
-- Install the Preview edition of [Visual Studio 2019](https://visualstudio.microsoft.com/vs/preview/) (Community, Professional, and Enterprise Editions are all supported) with the **ASP.NET and web development** workload enabled. Oqtane works with all editions of Visual Studio from Community to Enterprise. If you do not have a SQL Server installation available already and you wish to use LocalDB for development, you must also install the **.NET desktop development workload**.  
+- Install the latest Preview edition (v16.8, Preview 4 or higher) of [Visual Studio 2019](https://visualstudio.microsoft.com/vs/preview/) (Community, Professional, and Enterprise Editions are all supported) with the **ASP.NET and web development** workload enabled. Oqtane works with all editions of Visual Studio from Community to Enterprise. If you do not have a SQL Server installation available already and you wish to use LocalDB for development, you must also install the **.NET desktop development workload**.  
 
 - Download or Clone the Oqtane source code to your local system. Open the **Oqtane.sln** solution file and Build the solution. 
 
-**Using an official release:**
+**Using the latest release code ( ie. release versions 1.0.0-1.0.4 ):**
+
+- Install **[.NET Core 3.1 SDK (v3.1.300)](https://dotnet.microsoft.com/download/dotnet-core/thank-you/sdk-3.1.300-windows-x64-installer)**.
+   
+- Install [Visual Studio 2019](https://visualstudio.microsoft.com/vs) (Community, Professional, and Enterprise Editions are all supported) with the **ASP.NET and web development** workload enabled. Oqtane works with all editions of Visual Studio from Community to Enterprise. If you do not have a SQL Server installation available already and you wish to use LocalDB for development, you must also install the **.NET desktop development workload**.  
+
+- Download or Clone the Oqtane source code to your local system. Open the **Oqtane.sln** solution file and Build the solution. 
+
+**Installing an official release:**
 
 - A detailed set of instructions for installing Oqtane on IIS is located here: [Installing Oqtane on IIS](https://www.oqtane.org/Resources/Blog/PostId/542/installing-oqtane-on-iis)
 - Instructions for upgrading Oqtane are located here: [Upgrading Oqtane](https://www.oqtane.org/Resources/Blog/PostId/543/upgrading-oqtane)
@@ -32,34 +39,45 @@ Please note that this project is owned by the .NET Foundation and is governed by
    
 - If you want to submit pull requests make sure you install the [Github Extension For Visual Studio](https://visualstudio.github.com/). It is recommended you ignore any local changes you have made to the appsettings.json file before you submit a pull request. To automate this activity, open a command prompt and navigate to the /Oqtane.Server/ folder and enter the command "git update-index --skip-worktree appsettings.json" 
 
+**Video Series**
+
+- If you are getting started with Oqtane, a [series of videos](https://www.youtube.com/watch?v=JPfUZPlRRCE&list=PLYhXmd7yV0elLNLfQwZBUlM7ZSMYPTZ_f) are available which explain how to install the product, interact with the user interface, and develop custom modules.
+
+# Documentation
+There is a separate [Documentation repository](https://github.com/oqtane/oqtane.docs) which contains a variety of types of documentation for Oqtane, including API documentation that is auto generated using Docfx. The contents of the repository is published to Githib Pages and is available at [https://docs.oqtane.org](https://docs.oqtane.org/)
+
 # Roadmap
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
 
-V.Next ( still in the process of being prioritized )
-- [ ] Admin UI markup optimization
-- [ ] DB Migrations for framework installation/upgrade
-- [ ] Support for SQLite
-- [ ] Static Localization ( ie. labels, help text, etc.. )
-- [ ] Migrate to Code-Behind Pattern ( *.razor.cs )
-- [ ] Generic Repository Pattern
-- [ ] JwT token authentication ( possibly using IdentityServer )
-- [ ] Optional Encryption for Settings Values 
+V.2.0.0 ( estimated release date Nov 11, 2020 )
+- [x] Migration to .NET 5
+- [x] Static Localization ( ie. labels, help text, etc.. )
 
-V1.0.0 (MVP) 
+V.1.x - Initial version released in conjunction with .NET Core 3.2 ( May 2020 )
 - [x] Multi-Tenant ( Shared Database & Isolated Database ) 
-- [x] Modular Architecture / Headless API
+- [x] Modular Architecture
+- [x] Headless API with Swagger Support
 - [x] Dynamic Page Compositing Model / Site & Page Management
 - [x] Authentication / User Management / Profile Management
 - [x] Authorization / Roles Management / Granular Permissions
 - [x] Dynamic Routing
 - [x] Extensibility via Custom Modules
 - [x] Extensibility via Custom Themes
-- [x] Event Logging
+- [x] Event Logging / Audit Trail
 - [x] Folder / File Management
 - [x] Recycle Bin
 - [x] Scheduled Jobs ( Background Processing )
 - [x] Notifications / Email Delivery
-- [x] Auto-Upgrade Framework
+- [x] Seamless Upgrade Experience
+- [x] Progressive Web Application Support
+- [x] JavaScript Lazy Loading
+- [x] Dynamic CSS/Lazy Loading
+
+Future Consideration
+- [ ] Admin UI markup optimization ( ie. replace tables with divs in forms )
+- [ ] DB Migrations for framework installation/upgrade
+- [ ] Support for SQLite
+- [ ] OAuth Support
 
 # Background
 Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Initially created as a proof of concept, Oqtane is a native Blazor application written from the ground up using modern .NET Core technology. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly templates (skins), and extensibility via third party modules.
@@ -71,6 +89,13 @@ Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalke
 [Oqtane 1.0](https://www.oqtane.org/Resources/Blog/PostId/540/announcing-oqtane-10-a-modular-application-framework-for-blazor)
 
 [Oqtane POC](https://www.oqtane.org/Resources/Blog/PostId/520/announcing-oqtane-a-modular-application-framework-for-blazor)
+
+# Architecture
+
+The following diagram visualizes the client and server components in the Oqtane architecture.
+
+![Architecture](https://github.com/oqtane/framework/blob/master/screenshots/Architecture.png?raw=true "Oqtane Architecture")
+
 
 # Example Screenshots
 

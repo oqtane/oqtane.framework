@@ -1,4 +1,4 @@
-﻿@using System.Diagnostics.CodeAnalysis
+@using System.Diagnostics.CodeAnalysis
 @using System.Runtime.InteropServices
 @namespace Oqtane.UI
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -76,7 +76,7 @@
         User user = null;
         List<Module> modules;
         var moduleid = -1;
-        var action = string.Empty;
+        var action = Constants.DefaultAction;
         var urlparameters = string.Empty;
         var editmode = false;
         var reload = Reload.None;
@@ -202,20 +202,15 @@
                 {
                     modIdPos = i + 1;
                     actionPos = modIdPos + 1;
-                    if (actionPos > segments.Length - 1)
-                    {
-                        action = Constants.DefaultAction;
-                    }
-                    else
+                    if (actionPos <= segments.Length - 1)
                     {
                         action = segments[actionPos];
-
                     }
                 }
 
             }
 
-            // check if path has moduleid and action specification ie. pagename/moduleid/action/
+            // check if path has moduleid and action specification ie. pagename/*/moduleid/action/
             if (modIdPos > 0)
             {
                 int.TryParse(segments[modIdPos], out result);
@@ -280,15 +275,15 @@
                         reload = Reload.Page;
                     }
 
-                    if (PageState == null || reload >= Reload.Page)
+                    if (PageState == null || reload >= Reload.Site)
                     {
                         modules = await ModuleService.GetModulesAsync(site.SiteId);
-                        (page, modules) = ProcessModules(page, modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType);
                     }
                     else
                     {
                         modules = PageState.Modules;
                     }
+                    (page, modules) = ProcessModules(page, modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType);
 
                     _pagestate = new PageState
                     {
@@ -390,6 +385,10 @@
             if (string.IsNullOrEmpty(page.ThemeType))
             {
                 page.ThemeType = site.DefaultThemeType;
+            }
+
+            if (string.IsNullOrEmpty(page.LayoutType))
+            {
                 page.LayoutType = site.DefaultLayoutType;
             }
 
@@ -443,7 +442,13 @@
         var paneindex = new Dictionary<string, int>();
         foreach (Module module in modules)
         {
-            if (module.PageId == page.PageId || module.ModuleId == moduleid)
+            // initialize module control properties
+            module.SecurityAccessLevel = SecurityAccessLevel.Host;
+            module.ControlTitle = "";
+            module.Actions = "";
+            module.UseAdminContainer = false;
+
+            if ((module.PageId == page.PageId || module.ModuleId == moduleid) && module.ModuleDefinition != null)
             {
                 var typename = string.Empty;
                 if (module.ModuleDefinition != null && (module.ModuleDefinition.Runtimes == "" || module.ModuleDefinition.Runtimes.Contains(GetRuntime().ToString())))
@@ -455,25 +460,24 @@
                     typename = Constants.ErrorModule;
                 }
 
-                if (module.ModuleId == moduleid && action != "")
+                // handle default action
+                if (action == Constants.DefaultAction && !string.IsNullOrEmpty(module.ModuleDefinition.DefaultAction))
                 {
-                    // check if the module defines custom routes
-                    if (module.ModuleDefinition.ControlTypeRoutes != "")
+                    action = module.ModuleDefinition.DefaultAction;
+                }
+
+                // check if the module defines custom action routes
+                if (module.ModuleDefinition.ControlTypeRoutes != "")
+                {
+                    foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
                     {
-                        foreach (string route in module.ModuleDefinition.ControlTypeRoutes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                        if (route.StartsWith(action + "="))
                         {
-                            if (route.StartsWith(action + "="))
-                            {
-                                typename = route.Replace(action + "=", "");
-                            }
+                            typename = route.Replace(action + "=", "");
                         }
                     }
-                    module.ModuleType = typename.Replace(Constants.ActionToken, action);
                 }
-                else
-                {
-                    module.ModuleType = typename.Replace(Constants.ActionToken, Constants.DefaultAction);
-                }
+                module.ModuleType = typename.Replace(Constants.ActionToken, action);
 
                 // get additional metadata from IModuleControl interface
                 typename = module.ModuleType;
@@ -507,7 +511,7 @@
                 // ensure module's pane exists in current page and if not, assign it to the Admin pane
                 if (page.Panes == null || page.Panes.FindIndex(item => item.Equals(module.Pane, StringComparison.OrdinalIgnoreCase)) == -1)
                 {
-                    module.Pane = Constants.AdminPane;
+                    module.Pane = PaneNames.Admin;
                 }
 
                 // calculate module position within pane
@@ -522,6 +526,7 @@
 
                 module.PaneModuleIndex = paneindex[module.Pane.ToLower()];
 
+                // container fallback
                 if (string.IsNullOrEmpty(module.ContainerType))
                 {
                     module.ContainerType = defaultcontainertype;

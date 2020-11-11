@@ -40,7 +40,7 @@ namespace Oqtane.Repository
         {
             var oldTenant =_db.Tenant.AsNoTracking().FirstOrDefault(t=> t.TenantId == tenant.TenantId);
             
-            if (oldTenant != null && (oldTenant.Name.Equals(Constants.MasterTenant, StringComparison.OrdinalIgnoreCase) && !oldTenant.Name.Equals(tenant.Name)))
+            if (oldTenant != null && (oldTenant.Name.Equals(TenantNames.Master, StringComparison.OrdinalIgnoreCase) && !oldTenant.Name.Equals(tenant.Name)))
             {
                 throw new InvalidOperationException("Unable to rename the master tenant.");
             }
@@ -59,7 +59,7 @@ namespace Oqtane.Repository
         public void DeleteTenant(int tenantId)
         {
             var tenant = GetTenant(tenantId);
-            if (tenant != null && !tenant.Name.Equals(Constants.MasterTenant, StringComparison.OrdinalIgnoreCase))
+            if (tenant != null && !tenant.Name.Equals(TenantNames.Master, StringComparison.OrdinalIgnoreCase))
             {
                 _db.Tenant.Remove(tenant);
                 _db.SaveChanges();

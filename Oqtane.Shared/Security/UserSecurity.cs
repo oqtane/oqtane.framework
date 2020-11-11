@@ -85,14 +85,14 @@ namespace Oqtane.Security
                 if (permission.StartsWith("!"))
                 {
                     string denyRole = permission.Replace("!", "");
-                    if (denyRole == Constants.AllUsersRole || IsAllowed(userId, roles, denyRole))
+                    if (denyRole == RoleNames.Everyone || IsAllowed(userId, roles, denyRole))
                     {
                         allowed = false;
                     }
                 }
                 else // grant permission
                 {
-                    if (permission == Constants.AllUsersRole || IsAllowed(userId, roles, permission))
+                    if (permission == RoleNames.Everyone || IsAllowed(userId, roles, permission))
                     {
                         allowed = true;
                     }

@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Modules.Controls
+@namespace Oqtane.Modules.Controls
 @inherits ModuleControlBase
 
 <CascadingValue Value="this">
@@ -7,20 +7,23 @@
             <ul class="nav nav-tabs" role="tablist">
                 @foreach (TabPanel tabPanel in _tabPanels)
                 {
-                    <li class="nav-item">
-                        @if (tabPanel.Name == ActiveTab)
-                        {
-                            <a class="nav-link active" data-toggle="tab" href="#@tabPanel.Name" role="tab" @onclick:preventDefault="true">
-                                @DisplayHeading(tabPanel.Name, tabPanel.Heading)
-                            </a>
-                        }
-                        else
-                        {
-                            <a class="nav-link" data-toggle="tab" href="#@tabPanel.Name" role="tab" @onclick:preventDefault="true">
-                                @DisplayHeading(tabPanel.Name, tabPanel.Heading)
-                            </a>
-                        }
-                    </li>
+                    @if (IsAuthorized(tabPanel))
+                    {
+                        <li class="nav-item">
+                            @if (tabPanel.Name == ActiveTab)
+                            {
+                                <a class="nav-link active" data-toggle="tab" href="#@tabPanel.Name" role="tab" @onclick:preventDefault="true">
+                                    @tabPanel.DisplayHeading()
+                                </a>
+                            }
+                            else
+                            {
+                                <a class="nav-link" data-toggle="tab" href="#@tabPanel.Name" role="tab" @onclick:preventDefault="true">
+                                    @tabPanel.DisplayHeading()
+                                </a>
+                            }
+                        </li>
+                    }
                 }
             </ul>
             <div class="tab-content">
@@ -58,8 +61,30 @@
         StateHasChanged();
     }
 
-    private string DisplayHeading(string Name, string Heading)
+    private bool IsAuthorized(TabPanel tabPanel)
     {
-        return (string.IsNullOrEmpty(Heading)) ? Name : Heading;
+        var authorized = false;
+        switch (tabPanel.Security)
+        {
+            case null: // security not specified - assume SecurityAccessLevel.Anonymous
+                authorized = true;
+                break;
+            case SecurityAccessLevel.Anonymous:
+                authorized = true;
+                break;
+            case SecurityAccessLevel.View:
+                authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, ModuleState.Permissions);
+                break;
+            case SecurityAccessLevel.Edit:
+                authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.Permissions);
+                break;
+            case SecurityAccessLevel.Admin:
+                authorized = UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin);
+                break;
+            case SecurityAccessLevel.Host:
+                authorized = UserSecurity.IsAuthorized(PageState.User, RoleNames.Host);
+                break;
+        }
+        return authorized;
     }
 }

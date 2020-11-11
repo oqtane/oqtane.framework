@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Modules.Admin.Profiles
+@namespace Oqtane.Modules.Admin.Profiles
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IProfileService ProfileService
@@ -6,7 +6,7 @@
     <table class="table table-borderless">
         <tr>
             <td>
-                <Label For="name" HelpText="The name of this field">Name: </Label>
+                <Label For="name" HelpText="The name of this profile item">Name: </Label>
             </td>
             <td>
                 <input id="name" class="form-control" @bind="@_name" />
@@ -14,7 +14,7 @@
         </tr>
         <tr>
             <td>
-                <Label For="title" HelpText="The title of the field">Title: </Label>
+                <Label For="title" HelpText="The title of the profile item to display to the user">Title: </Label>
             </td>
             <td>
                 <input id="title" class="form-control" @bind="@_title" />
@@ -22,7 +22,7 @@
         </tr>
         <tr>
             <td>
-                <Label For="description" HelpText="What the profile field is">Description: </Label>
+                <Label For="description" HelpText="The help text displayed to the user for this profile item">Description: </Label>
             </td>
             <td>
                 <textarea id="description" class="form-control" @bind="@_description" rows="5"></textarea>
@@ -30,7 +30,7 @@
         </tr>
         <tr>
             <td>
-                <Label For="category" HelpText="What larger category does this field belong to">Category: </Label>
+                <Label For="category" HelpText="The category of this profile item (for grouping)">Category: </Label>
             </td>
             <td>
                 <input id="category" class="form-control" @bind="@_category" />
@@ -38,7 +38,7 @@
         </tr>
         <tr>
             <td>
-                <Label For="order" HelpText="What place is this field in a larger category list">Order: </Label>
+                <Label For="order" HelpText="The index order of where this profile item should be displayed">Order: </Label>
             </td>
             <td>
                 <input id="order" class="form-control" @bind="@_vieworder" />
@@ -46,7 +46,7 @@
         </tr>
         <tr>
             <td>
-                <Label For="length" HelpText="What is the max amount of characters should this field accept">Length: </Label>
+                <Label For="length" HelpText="The max number of characters this profile item should accept (enter zero for unlimited)">Length: </Label>
             </td>
             <td>
                 <input id="length" class="form-control" @bind="@_maxlength" />
@@ -54,7 +54,7 @@
         </tr>
         <tr>
             <td>
-                <Label For="defaultVal" HelpText="What value do you want this field to start with">Default Value: </Label>
+                <Label For="defaultVal" HelpText="The default value for this profile item">Default Value: </Label>
             </td>
             <td>
                 <input id="defaultVal" class="form-control" @bind="@_defaultvalue" />
@@ -62,7 +62,15 @@
         </tr>
         <tr>
             <td>
-                <Label For="required" HelpText="Is a user required to input something into this field?">Required? </Label>
+                <Label For="options" HelpText="A comma delimited list of options the user can select from">Options: </Label>
+            </td>
+            <td>
+                <input id="options" class="form-control" @bind="@_options" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="required" HelpText="Should a user be required to provide a value for this profile item?">Required? </Label>
             </td>
             <td>
                 <select id="required" class="form-control" @bind="@_isrequired">
@@ -73,7 +81,7 @@
         </tr>
         <tr>
             <td>
-                <Label For="private" HelpText="Is this field private?">Private? </Label>
+                <Label For="private" HelpText="Should this profile item be visible to all users?">Private? </Label>
             </td>
             <td>
                 <select id="private" class="form-control" @bind="@_isprivate">
@@ -95,6 +103,7 @@
     private string _vieworder = "0";
     private string _maxlength = "0";
     private string _defaultvalue = string.Empty;
+    private string _options = string.Empty;
     private string _isrequired = "False";
     private string _isprivate = "False";
 
@@ -119,6 +128,7 @@
                     _vieworder = profile.ViewOrder.ToString();
                     _maxlength = profile.MaxLength.ToString();
                     _defaultvalue = profile.DefaultValue;
+                    _options = profile.Options;
                     _isrequired = profile.IsRequired.ToString();
                     _isprivate = profile.IsPrivate.ToString();
                 }
@@ -153,6 +163,7 @@
             profile.ViewOrder = int.Parse(_vieworder);
             profile.MaxLength = int.Parse(_maxlength);
             profile.DefaultValue = _defaultvalue;
+            profile.Options = _options;
             profile.IsRequired = (_isrequired == null ? false : Boolean.Parse(_isrequired));
             profile.IsPrivate = (_isprivate == null ? false : Boolean.Parse(_isprivate));
             if (_profileid != -1)

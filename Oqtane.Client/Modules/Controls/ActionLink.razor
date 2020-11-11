@@ -1,5 +1,5 @@
-﻿@namespace Oqtane.Modules.Controls
-@inherits ModuleControlBase
+@namespace Oqtane.Modules.Controls
+@inherits LocalizableComponent
 @inject IUserService UserService
 
 @if (_authorized)
@@ -56,6 +56,8 @@
 
     protected override void OnParametersSet()
     {
+        base.OnParametersSet();
+
         _text = Action;
         if (!string.IsNullOrEmpty(Text))
         {
@@ -91,6 +93,11 @@
         {
             _iconSpan = $"<span class=\"oi oi-{IconName}\"></span>{(IconOnly ? "" : "&nbsp")}";
 
+        }
+
+        if (IsLocalizable)
+        {
+            _text = Localize(nameof(Text));
         }
 
         _url = EditUrl(Action, _parameters);
@@ -135,10 +142,10 @@
                     authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.Permissions);
                     break;
                 case SecurityAccessLevel.Admin:
-                    authorized = UserSecurity.IsAuthorized(PageState.User, Constants.AdminRole);
+                    authorized = UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin);
                     break;
                 case SecurityAccessLevel.Host:
-                    authorized = UserSecurity.IsAuthorized(PageState.User, Constants.HostRole);
+                    authorized = UserSecurity.IsAuthorized(PageState.User, RoleNames.Host);
                     break;
             }
         }

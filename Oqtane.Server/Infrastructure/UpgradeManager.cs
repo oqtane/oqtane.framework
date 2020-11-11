@@ -40,9 +40,9 @@ namespace Oqtane.Infrastructure
                     //    EditMode = false,
                     //    PagePermissions = new List<Permission>
                     //    {
-                    //        new Permission(PermissionNames.View, Constants.AdminRole, true),
-                    //        new Permission(PermissionNames.View, Constants.AllUsersRole, true),
-                    //        new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                    //        new Permission(PermissionNames.View, RoleNames.Admin, true),
+                    //        new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                    //        new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                     //    }.EncodePermissions(),
                     //            PageTemplateModules = new List<PageTemplateModule>
                     //    {
@@ -51,9 +51,9 @@ namespace Oqtane.Infrastructure
                     //            ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Login.Index).ToModuleDefinitionName(), Title = "Test", Pane = "Content",
                     //            ModulePermissions = new List<Permission>
                     //            {
-                    //                new Permission(PermissionNames.View, Constants.AdminRole, true),
-                    //                new Permission(PermissionNames.View, Constants.AllUsersRole, true),
-                    //                new Permission(PermissionNames.Edit, Constants.AdminRole, true)
+                    //                new Permission(PermissionNames.View, RoleNames.Admin, true),
+                    //                new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                    //                new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                     //            }.EncodePermissions(),
                     //            Content = ""
                     //        }

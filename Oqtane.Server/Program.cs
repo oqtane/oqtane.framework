@@ -26,6 +26,7 @@ namespace Oqtane.Server
                     .AddCommandLine(args)
                     .Build())
                 .UseStartup<Startup>()
+                .ConfigureLocalizationSettings()
                 .Build();
     }
 }

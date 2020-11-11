@@ -20,7 +20,7 @@ GO
 /*  
 Create foreign key relationships
 */
-ALTER TABLE [dbo].[[Owner][Module]]  WITH CHECK ADD  CONSTRAINT [FK_[Owner][Module]_Module] FOREIGN KEY([ModuleId])
+ALTER TABLE [dbo].[[Owner][Module]] WITH CHECK ADD CONSTRAINT [FK_[Owner][Module]_Module] FOREIGN KEY([ModuleId])
 REFERENCES [dbo].Module ([ModuleId])
 ON DELETE CASCADE
 GO

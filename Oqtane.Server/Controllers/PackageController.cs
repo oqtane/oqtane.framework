@@ -15,7 +15,7 @@ using Oqtane.Shared;
 
 namespace Oqtane.Controllers
 {
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class PackageController : Controller
     {
         private readonly IWebHostEnvironment _environment;
@@ -27,15 +27,14 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>?tag=x
         [HttpGet]
-        [Authorize(Roles = Constants.HostRole)]
+        [Authorize(Roles = RoleNames.Host)]
         public async Task<IEnumerable<Package>> Get(string tag)
         {
             List<Package> packages = new List<Package>();
 
             using (var httpClient = new HttpClient())
             {
-                CancellationToken token;
-                var searchResult = await GetJson<SearchResult>(httpClient, "https://azuresearch-usnc.nuget.org/query?q=tags:oqtane", token);
+                var searchResult = await GetJson<SearchResult>(httpClient, "https://azuresearch-usnc.nuget.org/query?q=tags:oqtane");
                 foreach(Data data in searchResult.Data)
                 {
                     if (data.Tags.Contains(tag))
@@ -56,14 +55,13 @@ namespace Oqtane.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = Constants.HostRole)]
+        [Authorize(Roles = RoleNames.Host)]
         public async Task Post(string packageid, string version, string folder)
         {
             using (var httpClient = new HttpClient())
             {
-                CancellationToken token;
                 folder = Path.Combine(_environment.WebRootPath, folder);
-                var response = await httpClient.GetAsync("https://www.nuget.org/api/v2/package/" + packageid.ToLower() + "/" + version, token).ConfigureAwait(false);
+                var response = await httpClient.GetAsync("https://www.nuget.org/api/v2/package/" + packageid.ToLower() + "/" + version).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
                 string filename = packageid + "." + version + ".nupkg";
                 using (var fileStream = new FileStream(Path.Combine(folder, filename), FileMode.Create, FileAccess.Write, FileShare.None))
@@ -73,10 +71,10 @@ namespace Oqtane.Controllers
             }
         }
 
-        private async Task<T> GetJson<T>(HttpClient httpClient, string url, CancellationToken token)
+        private async Task<T> GetJson<T>(HttpClient httpClient, string url)
         {
             Uri uri = new Uri(url);
-            var response = await httpClient.GetAsync(uri, token).ConfigureAwait(false);
+            var response = await httpClient.GetAsync(uri).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
             var stream = await response.Content.ReadAsStreamAsync();
             using (var streamReader = new StreamReader(stream))

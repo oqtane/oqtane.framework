@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Themes.Controls
+@namespace Oqtane.Themes.Controls
 @inherits ContainerBase      
 @attribute [OqtaneIgnore]
 
@@ -16,6 +16,13 @@
         if (Constants.DefaultModuleActions.Contains(PageState.Action))
         {
             title = PageState.Action;
+        }
+        else
+        {
+            if (!string.IsNullOrEmpty(ModuleState.ControlTitle))
+            {
+                title = ModuleState.ControlTitle;
+            }
         }
         return Task.CompletedTask;
     }

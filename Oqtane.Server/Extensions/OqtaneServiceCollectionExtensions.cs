@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Oqtane.Infrastructure;
 using Oqtane.Modules;
 using Oqtane.Services;
+using Oqtane.Shared;
 using Oqtane.UI;
 
 // ReSharper disable once CheckNamespace
@@ -14,10 +15,12 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class OqtaneServiceCollectionExtensions
     {
-        public static IServiceCollection AddOqtaneParts(this IServiceCollection services, Runtime runtime)
+        public static IServiceCollection AddOqtane(this IServiceCollection services, Runtime runtime, string[] supportedCultures)
         {
             LoadAssemblies();
+            LoadSatelliteAssemblies(supportedCultures);
             services.AddOqtaneServices(runtime);
+
             return services;
         }
 
@@ -29,6 +32,7 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             var hostedServiceType = typeof(IHostedService);
+
             var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
             foreach (var assembly in assemblies)
             {
@@ -53,6 +57,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
                 }
 
+                // register server startup services
                 var startUps = assembly.GetInstances<IServerStartup>();
                 foreach (var startup in startUps)
                 {
@@ -61,6 +66,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 if (runtime == Runtime.Server)
                 {
+                    // register client startup services if running on server
                     assembly.GetInstances<IClientStartup>()
                         .ToList()
                         .ForEach(x => x.ConfigureServices(services));
@@ -115,6 +121,58 @@ namespace Microsoft.Extensions.DependencyInjection
                     {
                         Console.WriteLine($"Failed : {assemblyName}\n{e}");
                     }
+                }
+            }
+        }
+
+        private static void LoadSatelliteAssemblies(string[] supportedCultures)
+        {
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
+            if (assemblyPath == null)
+            {
+                return;
+            }
+
+            AssemblyLoadContext.Default.Resolving += ResolveDependencies;
+
+            foreach (var culture in supportedCultures)
+            {
+                if (culture == Constants.DefaultCulture)
+                {
+                    continue;
+                }
+
+                var assembliesFolder = new DirectoryInfo(Path.Combine(assemblyPath, culture));
+                if (assembliesFolder.Exists)
+                {
+                    foreach (var assemblyFile in assembliesFolder.EnumerateFiles(Constants.SatelliteAssemblyExtension))
+                    {
+                        AssemblyName assemblyName;
+                        try
+                        {
+                            assemblyName = AssemblyName.GetAssemblyName(assemblyFile.FullName);
+                        }
+                        catch
+                        {
+                            Console.WriteLine($"Not Satellite Assembly : {assemblyFile.Name}");
+                            continue;
+                        }
+
+                        try
+                        {
+                            Assembly assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(assemblyFile.FullName)));
+                            Console.WriteLine($"Loaded : {assemblyName}");
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine($"Failed : {assemblyName}\n{e}");
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"The satellite assemblies folder named '{culture}' is not found.");
                 }
             }
         }

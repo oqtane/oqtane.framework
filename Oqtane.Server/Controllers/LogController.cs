@@ -9,7 +9,7 @@ using Oqtane.Shared;
 namespace Oqtane.Controllers
 {
 
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class LogController : Controller
     {
         private readonly ILogManager _logger;
@@ -23,7 +23,7 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>?siteid=x&level=y&function=z&rows=50
         [HttpGet]
-        [Authorize(Roles = Constants.AdminRole)]
+        [Authorize(Roles = RoleNames.Admin)]
         public IEnumerable<Log> Get(string siteid, string level, string function, string rows)
         {
             return _logs.GetLogs(int.Parse(siteid), level, function, int.Parse(rows));
@@ -31,7 +31,7 @@ namespace Oqtane.Controllers
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
-        [Authorize(Roles = Constants.AdminRole)]
+        [Authorize(Roles = RoleNames.Admin)]
         public Log Get(int id)
         {
             return _logs.GetLog(id);

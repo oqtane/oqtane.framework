@@ -9,7 +9,7 @@
             <Label For="name" HelpText="The name of the tenant">Name: </Label>
         </td>
         <td>
-            @if (name == Constants.MasterTenant)
+            @if (name == TenantNames.Master)
             {
                 <input id="name" class="form-control" @bind="@name" readonly />
             }

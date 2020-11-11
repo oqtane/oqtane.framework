@@ -239,15 +239,15 @@ namespace Oqtane.Repository
                     {
                         moduledefinition.Permissions = new List<Permission>
                         {
-                            new Permission(PermissionNames.Utilize, Constants.AdminRole, true)
+                            new Permission(PermissionNames.Utilize, RoleNames.Admin, true)
                         }.EncodePermissions();
                     }
                     else
                     {
                         moduledefinition.Permissions = new List<Permission>
                         {
-                            new Permission(PermissionNames.Utilize, Constants.AdminRole, true),
-                            new Permission(PermissionNames.Utilize, Constants.RegisteredRole, true)
+                            new Permission(PermissionNames.Utilize, RoleNames.Admin, true),
+                            new Permission(PermissionNames.Utilize, RoleNames.Registered, true)
                         }.EncodePermissions();
                     }
 

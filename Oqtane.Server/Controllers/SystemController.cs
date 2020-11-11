@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace Oqtane.Controllers
 {
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class SystemController : Controller
     {
         private readonly IWebHostEnvironment _environment;
@@ -19,7 +19,7 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>
         [HttpGet]
-        [Authorize(Roles = Constants.HostRole)]
+        [Authorize(Roles = RoleNames.Host)]
         public Dictionary<string, string> Get()
         {
             Dictionary<string, string> systeminfo = new Dictionary<string, string>();

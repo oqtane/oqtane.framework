@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Oqtane.Modules;
@@ -34,7 +34,6 @@ namespace System.Reflection
             }
 
             return assembly.GetTypes()
-                //.Where(t => t.GetInterfaces().Contains(interfaceType));
                 .Where(x => !x.IsInterface && !x.IsAbstract && interfaceType.IsAssignableFrom(x));
         }
 

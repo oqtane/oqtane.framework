@@ -299,7 +299,7 @@
         Page page = null;
         try
         {
-            if (_name != string.Empty && !string.IsNullOrEmpty(_themetype) && (_layouts.Count == 0 || !string.IsNullOrEmpty(_layouttype)))
+            if (_name != string.Empty && !string.IsNullOrEmpty(_themetype) && (_layouts.Count == 0 || _layouttype != "-"))
             {
                 page = new Page();
                 page.SiteId = PageState.Page.SiteId;
@@ -389,7 +389,7 @@
             }
             else
             {
-                AddModuleMessage("You Must Provide Page Name And Theme", MessageType.Warning);
+                AddModuleMessage("You Must Provide Page Name And Theme/Layout", MessageType.Warning);
             }
 
         }

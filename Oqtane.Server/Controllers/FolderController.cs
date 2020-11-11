@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace Oqtane.Controllers
 {
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class FolderController : Controller
     {
         private readonly IWebHostEnvironment _environment;
@@ -93,7 +93,7 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        [Authorize(Roles = Constants.RegisteredRole)]
+        [Authorize(Roles = RoleNames.Registered)]
         public Folder Post([FromBody] Folder folder)
         {
             if (ModelState.IsValid)
@@ -106,7 +106,7 @@ namespace Oqtane.Controllers
                 else
                 {
                     permissions = new List<Permission> {
-                        new Permission(PermissionNames.Edit, Constants.AdminRole, true),
+                        new Permission(PermissionNames.Edit, RoleNames.Admin, true),
                     }.EncodePermissions();
                 }
                 if (_userPermissions.IsAuthorized(User, PermissionNames.Edit, permissions))
@@ -141,7 +141,7 @@ namespace Oqtane.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        [Authorize(Roles = Constants.RegisteredRole)]
+        [Authorize(Roles = RoleNames.Registered)]
         public Folder Put(int id, [FromBody] Folder folder)
         {
             if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Folder, folder.FolderId, PermissionNames.Edit))
@@ -182,7 +182,7 @@ namespace Oqtane.Controllers
 
         // PUT api/<controller>/?siteid=x&folderid=y&parentid=z
         [HttpPut]
-        [Authorize(Roles = Constants.RegisteredRole)]
+        [Authorize(Roles = RoleNames.Registered)]
         public void Put(int siteid, int folderid, int? parentid)
         {
             if (_userPermissions.IsAuthorized(User, EntityNames.Folder, folderid, PermissionNames.Edit))
@@ -209,11 +209,16 @@ namespace Oqtane.Controllers
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = Constants.RegisteredRole)]
+        [Authorize(Roles = RoleNames.Registered)]
         public void Delete(int id)
         {
             if (_userPermissions.IsAuthorized(User, EntityNames.Folder, id, PermissionNames.Edit))
             {
+                Models.Folder _folder = _folders.GetFolder(id, false);
+                if (Directory.Exists(GetFolderPath(_folder)))
+                {
+                    Directory.Delete(GetFolderPath(_folder));
+                }
                 _folders.DeleteFolder(id);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Folder Deleted {FolderId}", id);
             }

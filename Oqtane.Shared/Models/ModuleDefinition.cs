@@ -20,6 +20,7 @@ namespace Oqtane.Models
             ServerManagerType = "";
             ControlTypeRoutes = "";
             ReleaseVersions = "";
+            DefaultAction = "";
             Runtimes = "";
             Template = "";
         }
@@ -57,6 +58,8 @@ namespace Oqtane.Models
         public string ControlTypeRoutes { get; set; }
         [NotMapped]
         public string ReleaseVersions { get; set; }
+        [NotMapped]
+        public string DefaultAction { get; set; }
 
         // internal properties
         [NotMapped]

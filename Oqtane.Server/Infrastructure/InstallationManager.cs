@@ -1,8 +1,10 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Reflection;
+using System.Text.Json;
 using System.Xml;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Memory;
@@ -80,6 +82,8 @@ namespace Oqtane.Infrastructure
                         // if compatible with framework version
                         if (frameworkversion == "" || Version.Parse(Constants.Version).CompareTo(Version.Parse(frameworkversion)) >= 0)
                         {
+                            List<string> assets = new List<string>();
+
                             // module and theme packages must be in form of name.1.0.0.nupkg
                             string name = Path.GetFileNameWithoutExtension(packagename);
                             string[] segments = name?.Split('.');
@@ -96,17 +100,31 @@ namespace Oqtane.Infrastructure
                                     case "lib":
                                         filename = Path.Combine(binFolder, filename);
                                         ExtractFile(entry, filename);
+                                        assets.Add(filename);
                                         break;
                                     case "wwwroot":
-                                        filename = Path.Combine(webRootPath.Replace(Path.DirectorySeparatorChar + "wwwroot", ""), Utilities.PathCombine(entry.FullName.Split('/')));
+                                        filename = Path.Combine(webRootPath, Utilities.PathCombine(entry.FullName.Replace("wwwroot/", "").Split('/')));
                                         ExtractFile(entry, filename);
+                                        assets.Add(filename);
                                         break;
                                     case "runtimes":
                                         var destSubFolder = Path.GetDirectoryName(entry.FullName);
                                         filename = Path.Combine(binFolder, destSubFolder, filename);
                                         ExtractFile(entry, filename);
+                                        assets.Add(filename);
                                         break;
                                 }
+                            }
+
+                            // save list of assets
+                            if (assets.Count != 0)
+                            {
+                                string assetfilepath = Path.Combine(webRootPath, folder, name, "assets.json");
+                                if (File.Exists(assetfilepath))
+                                {
+                                    File.Delete(assetfilepath);
+                                }
+                                File.WriteAllText(assetfilepath, JsonSerializer.Serialize(assets));
                             }
                         }
                     }

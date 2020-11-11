@@ -1,19 +1,24 @@
-﻿@using Microsoft.AspNetCore.Components.Rendering 
+@using Microsoft.AspNetCore.Components.Rendering
 @namespace Oqtane.UI
 @inject IUserService UserService
 @inject IModuleService ModuleService
 @inject IModuleDefinitionService ModuleDefinitionService
 
-<div class="@_paneadminborder">
-    @if (_panetitle != "")
-    {
+@if (_useadminborder)
+{
+    <div class="@_paneadminborder">
         @((MarkupString)_panetitle)
-    }
+        @DynamicComponent
+    </div>
+}
+else
+{
     @DynamicComponent
-</div>
+}
 
 @code {
-    private string _paneadminborder = "";
+    private bool _useadminborder = false;
+    private string _paneadminborder = "container";
     private string _panetitle = "";
 
     [CascadingParameter]
@@ -26,8 +31,9 @@
 
     protected override void OnParametersSet()
     {
-        if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, PageState.Page.Permissions) && Name != Constants.AdminPane)
+        if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions) && Name != PaneNames.Admin)
         {
+            _useadminborder = true;
             _paneadminborder = "app-pane-admin-border";
             _panetitle = "<div class=\"app-pane-admin-title\">" + Name + " Pane</div>";
         }
@@ -41,7 +47,7 @@
         {
             if (PageState.ModuleId != -1 && PageState.Action != Constants.DefaultAction)
             {
-                if (Name.ToLower() == Constants.AdminPane.ToLower())
+                if (Name.ToLower() == PaneNames.Admin.ToLower())
                 {
                     Module module = PageState.Modules.FirstOrDefault(item => item.ModuleId == PageState.ModuleId);
                     if (module != null && !module.IsDeleted)
@@ -75,20 +81,16 @@
                                         authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, module.Permissions);
                                         break;
                                     case SecurityAccessLevel.Admin:
-                                        authorized = UserSecurity.IsAuthorized(PageState.User, Constants.AdminRole);
+                                        authorized = UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin);
                                         break;
                                     case SecurityAccessLevel.Host:
-                                        authorized = UserSecurity.IsAuthorized(PageState.User, Constants.HostRole);
+                                        authorized = UserSecurity.IsAuthorized(PageState.User, RoleNames.Host);
                                         break;
                                 }
                             }
 
                             if (authorized)
                             {
-                                if (!Constants.DefaultModuleActions.Contains(PageState.Action) && module.ControlTitle != "")
-                                {
-                                    module.Title = module.ControlTitle;
-                                }
                                 CreateComponent(builder, module);
                             }
                         }

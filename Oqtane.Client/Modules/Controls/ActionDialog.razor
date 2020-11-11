@@ -1,9 +1,9 @@
-﻿@namespace Oqtane.Modules.Controls
-@inherits ModuleControlBase
+@namespace Oqtane.Modules.Controls
+@inherits LocalizableComponent
 
 @if (_visible)
 {
-    <div class="app-admin-modal">
+    <div class="app-actiondialog">
         <div class="modal" tabindex="-1" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -17,9 +17,9 @@
                     <div class="modal-footer">
                         @if (!string.IsNullOrEmpty(Action))
                         {
-                            <button type="button" class="@Class" @onclick="Confirm">@((MarkupString)_iconSpan) @Action</button>
+                            <button type="button" class="@Class" @onclick="Confirm">@((MarkupString)_iconSpan) @Localize(Action)</button>
                         }
-                        <button type="button" class="btn btn-secondary" @onclick="DisplayModal">Cancel</button>
+                        <button type="button" class="btn btn-secondary" @onclick="DisplayModal">@Localize("Cancel")</button>
                     </div>
                 </div>
             </div>
@@ -76,6 +76,8 @@
 
     protected override void OnParametersSet()
     {
+        base.OnParametersSet();
+
         if (string.IsNullOrEmpty(Text))
         {
             Text = Action;
@@ -93,6 +95,12 @@
         if (!string.IsNullOrEmpty(IconName))
         {
             _iconSpan = $"<span class=\"oi oi-{IconName}\"></span>&nbsp;";
+        }
+
+        if (IsLocalizable)
+        {
+            Header = Localize(nameof(Header));
+            Message = Localize(nameof(Message));
         }
 
         _authorized = IsAuthorized();
@@ -134,10 +142,10 @@
                     authorized = UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, ModuleState.Permissions);
                     break;
                 case SecurityAccessLevel.Admin:
-                    authorized = UserSecurity.IsAuthorized(PageState.User, Constants.AdminRole);
+                    authorized = UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin);
                     break;
                 case SecurityAccessLevel.Host:
-                    authorized = UserSecurity.IsAuthorized(PageState.User, Constants.HostRole);
+                    authorized = UserSecurity.IsAuthorized(PageState.User, RoleNames.Host);
                     break;
             }
         }

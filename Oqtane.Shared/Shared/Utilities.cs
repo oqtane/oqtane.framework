@@ -326,7 +326,8 @@ namespace Oqtane.Shared
 
         public static bool IsPathOrFileValid(this string name)
         {
-            return (name.IndexOfAny(Constants.InvalidFileNameChars) == -1 &&
+            return (name != null &&
+                    name.IndexOfAny(Constants.InvalidFileNameChars) == -1 &&
                     !Constants.InvalidFileNameEndingChars.Any(name.EndsWith) &&
                     !Constants.ReservedDevices.Split(',').Contains(name.ToUpper().Split('.')[0]));
         }

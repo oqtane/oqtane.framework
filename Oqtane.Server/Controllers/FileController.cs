@@ -22,7 +22,7 @@ using Microsoft.AspNetCore.Routing.Constraints;
 
 namespace Oqtane.Controllers
 {
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class FileController : Controller
     {
         private readonly IWebHostEnvironment _environment;
@@ -58,7 +58,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                if (User.IsInRole(Constants.HostRole))
+                if (User.IsInRole(RoleNames.Host))
                 {
                     folder = GetFolderPath(folder);
                     if (Directory.Exists(folder))
@@ -132,7 +132,7 @@ namespace Oqtane.Controllers
 
         // PUT api/<controller>/5
         [HttpPut("{id}")]
-        [Authorize(Roles = Constants.RegisteredRole)]
+        [Authorize(Roles = RoleNames.Registered)]
         public Models.File Put(int id, [FromBody] Models.File file)
         {
             if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Folder, file.FolderId, PermissionNames.Edit))
@@ -164,7 +164,7 @@ namespace Oqtane.Controllers
 
         // DELETE api/<controller>/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = Constants.RegisteredRole)]
+        [Authorize(Roles = RoleNames.Registered)]
         public void Delete(int id)
         {
             Models.File file = _files.GetFile(id);
@@ -282,7 +282,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                if (User.IsInRole(Constants.HostRole))
+                if (User.IsInRole(RoleNames.Host))
                 {
                     folderPath = GetFolderPath(folder);
                 }
@@ -444,8 +444,8 @@ namespace Oqtane.Controllers
                     string filepath = Path.Combine(GetFolderPath(file.Folder), file.Name);
                     if (System.IO.File.Exists(filepath))
                     {
-                        byte[] filebytes = System.IO.File.ReadAllBytes(filepath);
-                        return File(filebytes, "application/octet-stream", file.Name);
+                        var stream = new FileStream(filepath, FileMode.Open);
+                        return File(stream, "application/octet-stream", file.Name);
                     }
                     else
                     {
@@ -453,8 +453,8 @@ namespace Oqtane.Controllers
                         HttpContext.Response.StatusCode = 404;
                         if (System.IO.File.Exists(errorpath))
                         {
-                            byte[] filebytes = System.IO.File.ReadAllBytes(errorpath);
-                            return File(filebytes, "application/octet-stream", file.Name);
+                            var stream = new FileStream(errorpath, FileMode.Open);
+                            return File(stream, "application/octet-stream", file.Name);
                         }
                     }
                 }
@@ -462,16 +462,16 @@ namespace Oqtane.Controllers
                 {
                     _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access File {FileId}", id);
                     HttpContext.Response.StatusCode = 401;
-                    byte[] filebytes = System.IO.File.ReadAllBytes(errorpath);
-                    return File(filebytes, "application/octet-stream", file.Name);
+                    var stream = new FileStream(errorpath, FileMode.Open);
+                    return File(stream, "application/octet-stream", file.Name);
                 }
             }
             else
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Not Found {FileId}", id);
                 HttpContext.Response.StatusCode = 404;
-                byte[] filebytes = System.IO.File.ReadAllBytes(errorpath);
-                return File(filebytes, "application/octet-stream", "error.png");
+                var stream = new FileStream(errorpath, FileMode.Open);
+                return File(stream, "application/octet-stream", file.Name);
             }
             return null;
         }

@@ -8,7 +8,7 @@
     protected override async Task OnInitializedAsync()
     {
         Module module = await ModuleService.GetModuleAsync(ModuleState.ModuleId);
-        if (UserSecurity.IsAuthorized(PageState.User, Constants.HostRole))
+        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
         {
             string message = "A Problem Was Encountered Loading Module " + module.ModuleDefinitionName;
             AddModuleMessage(message, MessageType.Error);

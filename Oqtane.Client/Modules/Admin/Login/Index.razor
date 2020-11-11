@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Modules.Admin.Login
+@namespace Oqtane.Modules.Admin.Login
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
@@ -16,14 +16,14 @@
         <ModuleMessage Message="You Are Already Logged In" Type="MessageType.Info" />
     </Authorized>
     <NotAuthorized>
-        <div class="container">
+        <div class="container Oqtane-Modules-Admin-Login">
             <div class="form-group">
                 <label for="Username" class="control-label">Username: </label>
-                <input type="text" name="Username" class="form-control" placeholder="Username" @bind="@_username" id="Username" />
+                <input type="text" name="Username" class="form-control username" placeholder="Username" @bind="@_username" id="Username" />
             </div>
             <div class="form-group">
                 <label for="Password" class="control-label">Password: </label>
-                <input type="password" name="Password" class="form-control" placeholder="Password" @bind="@_password" id="Password" />
+                <input type="password" name="Password" class="form-control password" placeholder="Password" @bind="@_password" id="Password" />
             </div>
             <div class="form-group">
                 <div class="form-check form-check-inline">
@@ -49,18 +49,23 @@
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
 
+    public override List<Resource> Resources => new List<Resource>()
+    {
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" }
+    };
+
     protected override async Task OnInitializedAsync()
     {
         if (PageState.QueryString.ContainsKey("returnurl"))
         {
             _returnUrl = PageState.QueryString["returnurl"];
         }
-        
+
         if (PageState.QueryString.ContainsKey("name"))
         {
             _username = PageState.QueryString["name"];
         }
-        
+
         if (PageState.QueryString.ContainsKey("token"))
         {
             var user = new User();
@@ -90,7 +95,7 @@
             user.Username = _username;
             user.Password = _password;
             user = await UserService.LoginUserAsync(user, false, false);
-            
+
             if (user.IsAuthenticated)
             {
                 await logger.LogInformation("Login Successful For Username {Username}", _username);
@@ -154,7 +159,7 @@
         {
             _message = "Please Enter The Username Related To Your Account And Then Select The Forgot Password Option Again";
         }
-        
+
         StateHasChanged();
     }
 }

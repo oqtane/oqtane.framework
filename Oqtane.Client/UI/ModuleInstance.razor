@@ -1,8 +1,7 @@
 ﻿@namespace Oqtane.UI
 
-<ModuleMessage Message="@_message" Type="MessageType.Error" />
+<ModuleMessage Message="@_message" Type="@_messagetype" />
 <CascadingValue Value="this">
-    <ModuleMessage @ref="ModuleMessage" />
     @DynamicComponent
 </CascadingValue>
 @if (_progressindicator)
@@ -12,6 +11,7 @@
 
 @code {
     private string _message;
+    private MessageType _messagetype;
     private bool _progressindicator = false;
 
     [CascadingParameter]
@@ -49,11 +49,13 @@
                 {
                     // module does not exist with typename specified
                     _message = "Module Does Not Have A Component Named " + Utilities.GetTypeNameLastSegment(typename, 0) + ".razor";
+                    _messagetype = MessageType.Error;
                 }
             }
             else
             {
                 _message = "Something is wrong with moduletype";
+                _messagetype = MessageType.Error;
             }
 
         };
@@ -61,9 +63,10 @@
 
     public void AddModuleMessage(string message, MessageType type)
     {
+        _message = message;
+        _messagetype = type;
         _progressindicator = false;
         StateHasChanged();
-        ModuleMessage.SetModuleMessage(message, type);
     }
 
     public void ShowProgressIndicator()

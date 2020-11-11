@@ -216,7 +216,7 @@ else
     private string _username = string.Empty;
     private string _password = string.Empty;
     private bool _integratedsecurity = true;
-    private string _hostusername = Constants.HostUser;
+    private string _hostusername = UserNames.Host;
     private string _hostpassword = string.Empty;
 
     private string _name = string.Empty;
@@ -311,7 +311,7 @@ else
                         // validate host credentials
                         var user = new User();
                         user.SiteId = PageState.Site.SiteId;
-                        user.Username = Constants.HostUser;
+                        user.Username = UserNames.Host;
                         user.Password = _hostpassword;
                         user = await UserService.LoginUserAsync(user, false, false);
                         if (user.IsAuthenticated)
@@ -402,7 +402,7 @@ else
         }
         else
         {
-            AddModuleMessage("You Must Provide A Tenant, Site Name, Alias, Default Theme/Container, And Site Template", MessageType.Warning);
+            AddModuleMessage("You Must Provide A Tenant, Site Name, Alias, Default Theme/Layout/Container, And Site Template", MessageType.Warning);
         }
     }
 }

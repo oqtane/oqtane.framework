@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Oqtane.Models;
 using Oqtane.Shared;
@@ -10,19 +10,23 @@ using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
-    [Route("{alias}/api/[controller]")]
+    [Route(ControllerRoutes.Default)]
     public class SettingController : Controller
     {
         private readonly ISettingRepository _settings;
         private readonly IPageModuleRepository _pageModules;
         private readonly IUserPermissions _userPermissions;
+        private readonly ITenantResolver _tenants;
+        private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
 
-        public SettingController(ISettingRepository settings, IPageModuleRepository pageModules, IUserPermissions userPermissions, ILogManager logger)
+        public SettingController(ISettingRepository settings, IPageModuleRepository pageModules, IUserPermissions userPermissions, ITenantResolver tenants, ISyncManager syncManager, ILogManager logger)
         {
             _settings = settings;
             _pageModules = pageModules;
             _userPermissions = userPermissions;
+            _tenants = tenants;
+            _syncManager = syncManager;
             _logger = logger;
         }
 
@@ -67,6 +71,10 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit))
             {
                 setting = _settings.AddSetting(setting);
+                if (setting.EntityName == EntityNames.Module)
+                {
+                    _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, _tenants.GetAlias().SiteId);
+                }
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Setting Added {Setting}", setting);
             }
             else
@@ -85,6 +93,10 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit))
             {
                 setting = _settings.UpdateSetting(setting);
+                if (setting.EntityName == EntityNames.Module)
+                {
+                    _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, _tenants.GetAlias().SiteId);
+                }
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Setting Updated {Setting}", setting);
             }
             else
@@ -104,6 +116,10 @@ namespace Oqtane.Controllers
             if (IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit))
             {
                 _settings.DeleteSetting(id);
+                if (setting.EntityName == EntityNames.Module)
+                {
+                    _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, _tenants.GetAlias().SiteId);
+                }
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Setting Deleted {Setting}", setting);
             }
             else
@@ -124,10 +140,10 @@ namespace Oqtane.Controllers
             switch (entityName)
             {
                 case EntityNames.Tenant:
-                    authorized = User.IsInRole(Constants.HostRole);
+                    authorized = User.IsInRole(RoleNames.Host);
                     break;
                 case EntityNames.Site:
-                    authorized = User.IsInRole(Constants.AdminRole);
+                    authorized = User.IsInRole(RoleNames.Admin);
                     break;
                 case EntityNames.Page:
                 case EntityNames.Module:
@@ -138,7 +154,7 @@ namespace Oqtane.Controllers
                     authorized = true;
                     if (permissionName == PermissionNames.Edit)
                     {
-                        authorized = User.IsInRole(Constants.AdminRole) || (_userPermissions.GetUser(User).UserId == entityId);
+                        authorized = User.IsInRole(RoleNames.Admin) || (_userPermissions.GetUser(User).UserId == entityId);
                     }
                     break;
             }
