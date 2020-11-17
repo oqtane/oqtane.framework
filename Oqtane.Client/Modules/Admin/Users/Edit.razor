@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Modules.Admin.Users
+@namespace Oqtane.Modules.Admin.Users
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
@@ -14,7 +14,7 @@ else
     <br />
 }
 <TabStrip>
-    <TabPanel Name="Identity">
+    <TabPanel Name="Identity" ResourceKey="Identity">
         @if (profiles != null)
         {
             <table class="table table-borderless">
@@ -80,7 +80,7 @@ else
             </table>
         }
     </TabPanel>
-    <TabPanel Name="Profile">
+    <TabPanel Name="Profile" ResourceKey="Profile">
         @if (profiles != null)
         {
         <table class="table table-borderless">
