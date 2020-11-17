@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Modules.Admin.Tenants
+@namespace Oqtane.Modules.Admin.Tenants
 @inherits ModuleBase
 @inject ITenantService TenantService
 @inject IAliasService AliasService
@@ -16,8 +16,8 @@ else
             <th>Name</th>
         </Header>
         <Row>
-            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.TenantId.ToString())" /></td>
-            <td><ActionDialog Header="Delete Tenant" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Tenant?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteTenant(context))" Disabled="@(context.Name == TenantNames.Master)" /></td>
+            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.TenantId.ToString())" ResourceKey="EditTenant" /></td>
+            <td><ActionDialog Header="Delete Tenant" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Tenant?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteTenant(context))" Disabled="@(context.Name == TenantNames.Master)" ResourceKey="DeleteTenant" /></td>
             <td>@context.Name</td>
         </Row>
     </Pager>

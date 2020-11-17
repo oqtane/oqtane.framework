@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Modules.Admin.Tenants
+@namespace Oqtane.Modules.Admin.Tenants
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject ITenantService TenantService
@@ -6,7 +6,7 @@
 <table class="table table-borderless">
     <tr>
         <td>
-            <Label For="name" HelpText="The name of the tenant">Name: </Label>
+            <Label For="name" HelpText="The name of the tenant" ResourceKey="Name">Name: </Label>
         </td>
         <td>
             @if (name == TenantNames.Master)
@@ -21,7 +21,7 @@
     </tr>
     <tr>
         <td>
-            <Label For="connectionstring" HelpText="The database connection string">Connection String: </Label>
+            <Label For="connectionstring" HelpText="The database connection string" ResourceKey="ConnectionString">Connection String: </Label>
         </td>
         <td>
             <textarea id="connectionstring" class="form-control" @bind="@connectionstring" rows="3" readonly></textarea>
