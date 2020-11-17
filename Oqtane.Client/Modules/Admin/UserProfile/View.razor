@@ -1,8 +1,9 @@
-﻿@namespace Oqtane.Modules.Admin.UserProfile
+@namespace Oqtane.Modules.Admin.UserProfile
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject INotificationService NotificationService
+@inject IStringLocalizer<View> Localizer
 
 @if (PageState.User != null)
 {
@@ -26,7 +27,7 @@
         </tr>
         <tr>
             <td>
-                <label class="control-label">Subject: </label>
+                <label class="control-label">@Localizer["Subject:"] </label>
             </td>
             @if (title == "From")
             {
@@ -45,7 +46,7 @@
         {
             <tr>
                 <td>
-                    <label class="control-label">Date: </label>
+                    <label class="control-label">@Localizer["Date:"] </label>
                 </td>
                 <td>
                     <input class="form-control" @bind="@createdon" readonly />
@@ -56,7 +57,7 @@
         {
             <tr>
                 <td>
-                    <label class="control-label">Message: </label>
+                    <label class="control-label">@Localizer["Message:"] </label>
                 </td>
                 <td>
                     <textarea class="form-control" @bind="@body" rows="5" readonly />
@@ -67,7 +68,7 @@
         {
             <tr>
                 <td>
-                    <label class="control-label">Message: </label>
+                    <label class="control-label">@Localizer["Message:"] </label>
                 </td>
                 <td>
                     <textarea class="form-control" @bind="@body" rows="5" />
@@ -79,24 +80,26 @@
 
     @if (reply != string.Empty)
     {
-        <button type="button" class="btn btn-primary" @onclick="Send">Send</button> }
+        <button type="button" class="btn btn-primary" @onclick="Send">@Localizer["Send"]</button>
+    }
     else
     {
         if (title == "From")
         {
-            <button type="button" class="btn btn-primary" @onclick="Reply">Reply</button>}
+            <button type="button" class="btn btn-primary" @onclick="Reply">@Localizer["Reply"]</button>
+        }
     }
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
     <br />
     <br />
     @if (title == "To")
     {
         <div class="control-group">
-            <label class="control-label">Original Message </label>
+            <label class="control-label">@Localizer["Original Message"] </label>
             <textarea class="form-control" @bind="@reply" rows="5" readonly />
         </div>
-        }
     }
+}
 
 @code {
     private int notificationid;

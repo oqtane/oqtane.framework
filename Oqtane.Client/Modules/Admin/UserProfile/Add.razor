@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject INotificationService NotificationService
+@inject IStringLocalizer<Add> Localizer
 
 @if (PageState.User != null)
 {
@@ -32,8 +33,8 @@
             </td>
         </tr>
     </table>
-    <button type="button" class="btn btn-primary" @onclick="Send">Send</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <button type="button" class="btn btn-primary" @onclick="Send">@Localizer["Send"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
 }
 
 @code {
