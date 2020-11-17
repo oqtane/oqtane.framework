@@ -22,11 +22,11 @@ else
             <th>&nbsp;</th>
         </Header>
         <Row>
-            <td><ActionLink Action="View" Parameters="@($"name=" + WebUtility.UrlEncode(context.ThemeName))" /></td>
+            <td><ActionLink Action="View" Parameters="@($"name=" + WebUtility.UrlEncode(context.ThemeName))" ResourceKey="ViewTheme" /></td>
             <td>
                 @if (context.AssemblyName != "Oqtane.Client")
                     {
-                    <ActionDialog Header="Delete Theme" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Theme?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteTheme(context))" />
+                    <ActionDialog Header="Delete Theme" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Theme?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteTheme(context))" ResourceKey="DeleteTheme" />
                     }
             </td>
             <td>@context.Name</td>
