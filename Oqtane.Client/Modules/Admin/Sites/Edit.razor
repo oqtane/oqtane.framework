@@ -5,6 +5,7 @@
 @inject ITenantService TenantService
 @inject IAliasService AliasService
 @inject IThemeService  ThemeService
+@inject IStringLocalizer<Edit> Localizer
 
 @if (_initialized)
 {
@@ -39,7 +40,7 @@
             </td>
             <td>
                 <select id="defaultTheme" class="form-control" @onchange="(e => ThemeChanged(e))">
-                    <option value="-">&lt;Select Theme&gt;</option>
+                    <option value="-">&lt;@Localizer["Select Theme"]&gt;</option>
                     @foreach (var theme in _themes)
                     {
                         if (theme.TypeName == _themetype)
@@ -62,7 +63,7 @@
                 </td>
                 <td>
                     <select id="defaultLayout" class="form-control" @bind="@_layouttype">
-                        <option value="-">&lt;Select Layout&gt;</option>
+                        <option value="-">&lt;@Localizer["Select Layout"]&gt;</option>
                         @foreach (var layout in _layouts)
                         {
                             <option value="@(layout.TypeName)">@(layout.Name)</option>
@@ -77,7 +78,7 @@
             </td>
             <td>
                 <select id="defaultIdea" class="form-control" @bind="@_containertype">
-                    <option value="-">&lt;Select Container&gt;</option>
+                    <option value="-">&lt;@Localizer["Select Container"]&gt;</option>
                     @foreach (var container in _containers)
                     {
                         <option value="@container.TypeName">@container.Name</option>
@@ -91,15 +92,15 @@
             </td>
             <td>
                 <select id="isDeleted" class="form-control" @bind="@_isdeleted">
-                    <option value="True">Yes</option>
-                    <option value="False">No</option>
+                    <option value="True">@Localizer["Yes"]</option>
+                    <option value="False">@Localizer["No"]</option>
                 </select>
             </td>
         </tr>
     </table>
     <br />
-    <button type="button" class="btn btn-success" @onclick="SaveSite">Save</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <button type="button" class="btn btn-success" @onclick="SaveSite">@Localizer["Save"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
     <br />
     <br />
     <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
@@ -256,7 +257,7 @@
                             }
                         }
 
-                        await Log(_alias, LogLevel.Information,PermissionNames.Edit, null, "Site Saved {Site}", site);
+                        await Log(_alias, LogLevel.Information, PermissionNames.Edit, null, "Site Saved {Site}", site);
 
                         NavigationManager.NavigateTo(NavigateUrl());
                     }
@@ -277,4 +278,4 @@
             AddModuleMessage("Error Saving Site", MessageType.Error);
         }
     }
- }
+}

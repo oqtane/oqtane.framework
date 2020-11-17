@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject IAliasService AliasService
 @inject ISiteService SiteService
+@inject IStringLocalizer<Index> Localizer
 
 @if (_sites == null)
 {
@@ -16,7 +17,7 @@ else
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
-            <th>Name</th>
+            <th>@Localizer["Name"]</th>
         </Header>
         <Row>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.AliasId.ToString())" ResourceKey="EditSite" /></td>
@@ -57,13 +58,13 @@ else
                 SiteService.SetAlias(alias);
                 await SiteService.DeleteSiteAsync(alias.SiteId);
                 await Log(alias, LogLevel.Information, "", null, "Site Deleted {SiteId}", alias.SiteId);
-                
+
                 var aliases = await AliasService.GetAliasesAsync();
                 foreach (Alias a in aliases.Where(item => item.SiteId == alias.SiteId && item.TenantId == alias.TenantId))
                 {
                     await AliasService.DeleteAliasAsync(a.AliasId);
                 }
-                
+
                 NavigationManager.NavigateTo(NavigateUrl());
             }
             else

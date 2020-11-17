@@ -8,10 +8,11 @@
 @inject ISiteTemplateService SiteTemplateService
 @inject IUserService UserService
 @inject IInstallationService InstallationService
+@inject IStringLocalizer<Add> Localizer
 
 @if (_tenants == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>@Localizer["Loading..."]</em></p>
 }
 else
 {
@@ -38,7 +39,7 @@ else
         </td>
         <td>
             <select id="defaultTheme" class="form-control" @onchange="(e => ThemeChanged(e))">
-                <option value="-">&lt;Select Theme&gt;</option>
+                <option value="-">&lt;@Localizer["Select Theme"]&gt;</option>
                 @foreach (var theme in _themes)
                 {
                     <option value="@theme.TypeName">@theme.Name</option>
@@ -54,7 +55,7 @@ else
             </td>
             <td>
                 <select id="defaultLayout" class="form-control" @bind="@_layouttype">
-                    <option value="-">&lt;Select Layout&gt;</option>
+                    <option value="-">&lt;@Localizer["Select Layout"]&gt;</option>
                     @foreach (var layout in _layouts)
                     {
                         <option value="@(layout.TypeName)">@(layout.Name)</option>
@@ -69,7 +70,7 @@ else
         </td>
         <td>
             <select id="defaultContainer" class="form-control" @bind="@_containertype">
-                <option value="-">&lt;Select Container&gt;</option>
+                <option value="-">&lt;@Localizer["Select Container"]&gt;</option>
                 @foreach (var container in _containers)
                 {
                     <option value="@container.TypeName">@container.Name</option>
@@ -83,7 +84,7 @@ else
         </td>
         <td>
             <select id="siteTemplate" class="form-control" @bind="@_sitetemplatetype">
-                <option value="-">&lt;Select Site Template&gt;</option>
+                <option value="-">&lt;@Localizer["Select Site Template"]&gt;</option>
                 @foreach (SiteTemplate siteTemplate in _siteTemplates)
                 {
                     <option value="@siteTemplate.TypeName">@siteTemplate.Name</option>
@@ -97,8 +98,8 @@ else
         </td>
         <td>
             <select id="tenant" class="form-control" @onchange="(e => TenantChanged(e))">
-                <option value="-">&lt;Select Tenant&gt;</option>
-                <option value="+">&lt;Create New Tenant&gt;</option>
+                <option value="-">&lt;@Localizer["Select Tenant"]&gt;</option>
+                <option value="+">&lt;@Localizer["Create New Tenant"]&gt;</option>
                 @foreach (Tenant tenant in _tenants)
                 {
                     <option value="@tenant.TenantId">@tenant.Name</option>
@@ -127,8 +128,8 @@ else
             </td>
             <td>
                 <select id="databaseType" class="custom-select" @bind="@_databasetype">
-                    <option value="LocalDB">Local Database</option>
-                    <option value="SQLServer">SQL Server</option>
+                    <option value="LocalDB">@Localizer["Local Database"]</option>
+                    <option value="SQLServer">@Localizer["SQL Server"]</option>
                 </select>
             </td>
         </tr>
@@ -154,8 +155,8 @@ else
             </td>
             <td>
                 <select id="integratedSecurity" class="custom-select" @onchange="SetIntegratedSecurity">
-                    <option value="true" selected>True</option>
-                    <option value="false">False</option>
+                    <option value="true" selected>@Localizer["True"]</option>
+                    <option value="false">@Localizer["False"]</option>
                 </select>
             </td>
         </tr>
@@ -196,8 +197,8 @@ else
         </tr>
     }
 </table>
-    <button type="button" class="btn btn-success" @onclick="SaveSite">Save</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <button type="button" class="btn btn-success" @onclick="SaveSite">@Localizer["Save"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
 }
 
 @code {
