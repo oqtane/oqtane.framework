@@ -44,11 +44,11 @@ else
         {
             if (string.IsNullOrEmpty(Heading))
             {
-                Name = Localize(nameof(Name));
+                Name = Localize(nameof(Name), Name);
             }
             else
             {
-                Heading = Localize(nameof(Heading));
+                Heading = Localize(nameof(Heading), Heading);
             }
         }
     }
