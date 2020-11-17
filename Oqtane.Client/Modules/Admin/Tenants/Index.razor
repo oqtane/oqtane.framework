@@ -2,10 +2,11 @@
 @inherits ModuleBase
 @inject ITenantService TenantService
 @inject IAliasService AliasService
+@inject IStringLocalizer<Index> Localizer
 
 @if (tenants == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>@Localizer["Loading..."]</em></p>
 }
 else
 {
@@ -13,7 +14,7 @@ else
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
-            <th>Name</th>
+            <th>@Localizer["Name"]</th>
         </Header>
         <Row>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.TenantId.ToString())" ResourceKey="EditTenant" /></td>
