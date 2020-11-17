@@ -3,10 +3,11 @@
 @inject IRoleService RoleService
 @inject IUserService UserService
 @inject IUserRoleService UserRoleService
+@inject IStringLocalizer<Roles> Localizer
 
 @if (userroles == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>@Localizer["Loading..."]</em></p>
 }
 else
 {
@@ -50,23 +51,23 @@ else
             </td>
         </tr>
     </table>
-    <button type="button" class="btn btn-success" @onclick="SaveUserRole">Save</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <button type="button" class="btn btn-success" @onclick="SaveUserRole">@Localizer["Save"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
 
     <hr class="app-rule" />
     <p align="center">
         <Pager Items="@userroles">
             <Header>
-                <th>Roles</th>
+                <th>@Localizer["Roles"]</th>
                 <th>&nbsp;</th>
             </Header>
             <Row>
                 <td>@context.Role.Name</td>
                 <td>
                     @if (context.Role.Name != RoleNames.Registered)
-                        {
-                        <button type="button" class="btn btn-danger" @onclick=@(async () => await DeleteUserRole(context.UserRoleId))>Delete</button>
-                        }
+                     {
+                        <button type="button" class="btn btn-danger" @onclick=@(async () => await DeleteUserRole(context.UserRoleId))>@Localizer["Delete"]</button>
+                     }
                 </td>
             </Row>
         </Pager>
