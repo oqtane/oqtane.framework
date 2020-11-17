@@ -12,7 +12,7 @@ else
     <table class="table table-borderless">
         <tr>
             <td>
-                <Label For="role" HelpText="The role you are assigning users to" ResourceKey="Roles">Role: </Label>
+                <Label For="role" HelpText="The role you are assigning users to" ResourceKey="Role">Role: </Label>
             </td>
             <td>
                 <input id="role" class="form-control" @bind="@name" disabled />
@@ -20,7 +20,7 @@ else
         </tr>
         <tr>
             <td>
-                <Label For="user" HelpText="Select a user" ResourceKey="Users">User: </Label>
+                <Label For="user" HelpText="Select a user" ResourceKey="User">User: </Label>
             </td>
             <td>
                 <select id="user" class="form-control" @bind="@userid">
