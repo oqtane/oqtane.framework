@@ -1,10 +1,11 @@
-﻿@namespace Oqtane.Modules.Admin.Roles
+@namespace Oqtane.Modules.Admin.Roles
 @inherits ModuleBase
 @inject IRoleService RoleService
+@inject IStringLocalizer<Index> Localizer
 
 @if (_roles == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>@Localizer["Loading..."]</em></p>
 }
 else
 {
@@ -15,7 +16,7 @@ else
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
-            <th>Name</th>
+            <th>@Localizer["Name"]</th>
         </Header>
         <Row>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.RoleId.ToString())" Disabled="@(context.IsSystem)" ResourceKey="Edit" /></td>

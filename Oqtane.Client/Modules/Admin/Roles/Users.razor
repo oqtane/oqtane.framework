@@ -1,11 +1,12 @@
-﻿@namespace Oqtane.Modules.Admin.Roles
+@namespace Oqtane.Modules.Admin.Roles
 @inherits ModuleBase
 @inject IRoleService RoleService
 @inject IUserRoleService UserRoleService
+@inject IStringLocalizer<Users> Localizer
 
 @if (userroles == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>@Localizer["Loading..."]</em></p>
 }
 else
 {
@@ -49,20 +50,20 @@ else
             </td>
         </tr>
     </table>
-    <button type="button" class="btn btn-success" @onclick="SaveUserRole">Save</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <button type="button" class="btn btn-success" @onclick="SaveUserRole">@Localizer["Save"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
 
     <hr class="app-rule" />
     <p align="center">
         <Pager Items="@userroles">
             <Header>
-                <th>Users</th>
+                <th>@Localizer["Users"]</th>
                 <th>&nbsp;</th>
             </Header>
             <Row>
                 <td>@context.User.DisplayName</td>
                 <td>
-                    <button type="button" class="btn btn-danger" @onclick=@(async () => await DeleteUserRole(context.UserRoleId))>Delete</button>
+                    <button type="button" class="btn btn-danger" @onclick=@(async () => await DeleteUserRole(context.UserRoleId))>@Localizer["Delete"]</button>
                 </td>
             </Row>
         </Pager>
