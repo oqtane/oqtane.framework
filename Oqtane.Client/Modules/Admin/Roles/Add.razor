@@ -6,7 +6,7 @@
 <table class="table table-borderless">
     <tr>
         <td>
-            <Label For="name" HelpText="Name Of The Role">Name:</Label>
+            <Label For="name" HelpText="Name Of The Role" ResourceKey="Name">Name:</Label>
         </td>
         <td>
             <input id="name" class="form-control" @bind="@_name" />
@@ -14,7 +14,7 @@
     </tr>
     <tr>
         <td>
-            <Label For="description" HelpText="A Short Description Of The Role Which Describes Its Purpose">Description:</Label>
+            <Label For="description" HelpText="A Short Description Of The Role Which Describes Its Purpose" ResourceKey="Description">Description:</Label>
         </td>
         <td>
             <textarea id="description" class="form-control" @bind="@_description" rows="5"></textarea>
@@ -22,7 +22,7 @@
     </tr>
     <tr>
         <td>
-            <Label For="isautoassigned" HelpText="Indicates Whether Or Not New Users Are Automatically Assigned To This Role">Auto Assigned?</Label>
+            <Label For="isautoassigned" HelpText="Indicates Whether Or Not New Users Are Automatically Assigned To This Role" ResourceKey="AutoAssigned">Auto Assigned?</Label>
         </td>
         <td>
             <select id="isautoassigned" class="form-control" @bind="@_isautoassigned">
