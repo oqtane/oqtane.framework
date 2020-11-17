@@ -15,7 +15,7 @@ else
     <br />
 }
 <TabStrip>
-    <TabPanel Name="Identity">
+    <TabPanel Name="Identity" ResourceKey="Identity">
         @if (PageState.User != null)
         {
             <table class="table table-borderless">
@@ -72,7 +72,7 @@ else
             <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
         }
     </TabPanel>
-    <TabPanel Name="Profile">
+    <TabPanel Name="Profile" ResourceKey="Profile">
         @if (profiles != null && settings != null)
         {
         <table class="table table-borderless">
@@ -131,10 +131,10 @@ else
             <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
         }
     </TabPanel>
-    <TabPanel Name="Notifications">
+    <TabPanel Name="Notifications" ResourceKey="Notifications">
         @if (notifications != null)
         {
-            <ActionLink Action="Add" Text="Send Notification" Security="SecurityAccessLevel.View" EditMode="false" />
+            <ActionLink Action="Add" Text="Send Notification" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="SendNotification" />
             <br /><br />
             @if (filter == "to")
             {
@@ -147,8 +147,8 @@ else
                         <th>Received</th>
                     </Header>
                     <Row>
-                        <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" /></td>
-                        <td><ActionDialog Header="Delete Notification" Message="@("Are You Sure You Wish To Delete This Notification?")" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" /></td>
+                        <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" /></td>
+                        <td><ActionDialog Header="Delete Notification" Message="@("Are You Sure You Wish To Delete This Notification?")" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" ResourceKey="DeleteNotification" /></td>
                         <td>@context.FromDisplayName</td>
                         <td>@context.Subject</td>
                         <td>@context.CreatedOn</td>
@@ -179,8 +179,8 @@ else
                         <th>Sent</th>
                     </Header>
                     <Row>
-                        <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" /></td>
-                        <td><ActionDialog Header="Delete Notification" Message="@("Are You Sure You Wish To Delete This Notification?")" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" /></td>
+                        <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" /></td>
+                        <td><ActionDialog Header="Delete Notification" Message="@("Are You Sure You Wish To Delete This Notification?")" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" ResourceKey="DeleteNotification" /></td>
                         <td>@context.ToDisplayName</td>
                         <td>@context.Subject</td>
                         <td>@context.CreatedOn</td>

@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Modules.Admin.UserProfile
+@namespace Oqtane.Modules.Admin.UserProfile
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
@@ -9,7 +9,7 @@
     <table class="table table-borderless">
         <tr>
             <td>
-                <Label For="to" HelpText="Enter the username you wish to send a message to">To: </Label>
+                <Label For="to" HelpText="Enter the username you wish to send a message to" ResourceKey="To">To: </Label>
             </td>
             <td>
                 <input id="to" class="form-control" @bind="@username" />
@@ -17,7 +17,7 @@
         </tr>
         <tr>
             <td>
-                <Label For="subject" HelpText="Enter the subject of the message">Subject: </Label>
+                <Label For="subject" HelpText="Enter the subject of the message" ResourceKey="Subject">Subject: </Label>
             </td>
             <td>
                 <input id="subject" class="form-control" @bind="@subject" />
@@ -25,7 +25,7 @@
         </tr>
         <tr>
             <td>
-                <Label For="message" HelpText="Enter the message">Message: </Label>
+                <Label For="message" HelpText="Enter the message" ResourceKey="Message">Message: </Label>
             </td>
             <td>
                 <textarea id="message" class="form-control" @bind="@body" rows="5" />
