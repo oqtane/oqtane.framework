@@ -1,9 +1,10 @@
-﻿@namespace Oqtane.Modules.Admin.Themes
+@namespace Oqtane.Modules.Admin.Themes
 @using System.Net
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IThemeService ThemeService
 @inject IPackageService PackageService
+@inject IStringLocalizer<Index> Localizer
 
 @if (_themes == null)
 {
@@ -17,8 +18,8 @@ else
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
-            <th scope="col">Name</th>
-            <th scope="col">Version</th>
+            <th scope="col">@Localizer["Name"]</th>
+            <th scope="col">@Localizer["Version"]</th>
             <th>&nbsp;</th>
         </Header>
         <Row>
@@ -34,7 +35,7 @@ else
             <td>
                 @if (UpgradeAvailable(context.ThemeName, context.Version))
                     {
-                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadTheme(context.ThemeName, context.Version))>Upgrade</button>
+                <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadTheme(context.ThemeName, context.Version))>@Localizer["Upgrade"]</button>
                     }
             </td>
             <td></td>
