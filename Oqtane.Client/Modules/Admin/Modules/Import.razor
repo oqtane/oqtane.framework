@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Modules.Admin.Modules
+@namespace Oqtane.Modules.Admin.Modules
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IModuleService ModuleService
@@ -7,7 +7,7 @@
     <tbody>
         <tr>
             <td>
-                <Label For="content" HelpText="Enter the module content">Content: </Label>
+                <Label For="content" HelpText="Enter the module content" ResourceKey="Content">Content: </Label>
             </td>
             <td>
                 <textarea id="content" class="form-control" @bind="@_content" rows="5"></textarea>
