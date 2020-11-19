@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject IPageService PageService
 @inject IThemeService  ThemeService
+@inject IStringLocalizer<Add> Localizer
 
 <TabStrip>
     <TabPanel Name="Settings" ResourceKey="Settings">
@@ -23,7 +24,7 @@
                     </td>
                     <td>
                         <select id="Parent" class="form-control" @onchange="(e => ParentChanged(e))">
-                            <option value="-1">&lt;Site Root&gt;</option>
+                            <option value="-1">&lt;@Localizer["Site Root"]&gt;</option>
                             @foreach (Page page in _pageList)
                             {
                                 <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
@@ -37,18 +38,18 @@
                     </td>
                     <td>
                         <select id="Insert" class="form-control" @bind="@_insert">
-                            <option value="<<">At Beginning</option>
+                            <option value="<<">@Localizer["At Beginning"]</option>
                             @if (_children != null && _children.Count > 0)
                             {
-                                <option value="<">Before</option>
-                                <option value=">">After</option>
+                                <option value="<">@Localizer["Before"]</option>
+                                <option value=">">@Localizer["After"]</option>
                             }
-                            <option value=">>">At End</option>
+                            <option value=">>">@Localizer["At End"]</option>
                         </select>
                         @if (_children != null && _children.Count > 0 && (_insert == "<" || _insert == ">"))
                         {
                             <select class="form-control" @bind="@_childid">
-                                <option value="-1">&lt;Select Page&gt;</option>
+                                <option value="-1">&lt;@Localizer["Select Page"]&gt;</option>
                                 @foreach (Page page in _children)
                                 {
                                     <option value="@(page.PageId)">@(page.Name)</option>
@@ -63,8 +64,8 @@
                     </td>
                     <td>
                         <select id="Navigation" class="form-control" @bind="@_isnavigation">
-                            <option value="True">Yes</option>
-                            <option value="False">No</option>
+                            <option value="True">@Localizer["Yes"]</option>
+                            <option value="False">@Localizer["No"]</option>
                         </select>
                     </td>
                 </tr>
@@ -101,7 +102,7 @@
                         </td>
                         <td>
                             <select id="Theme" class="form-control" @onchange="(e => ThemeChanged(e))">
-                                <option value="-">&lt;Inherit From Site&gt;</option>
+                                <option value="-">&lt;@Localizer["Inherit From Site"]&gt;</option>
                                 @foreach (var theme in _themes)
                                 {
                                     if (theme.TypeName == _themetype)
@@ -124,7 +125,7 @@
                             </td>
                             <td>
                                 <select id="Layout" class="form-control" @bind="@_layouttype">
-                                    <option value="-">&lt;Inherit From Site&gt;</option>
+                                    <option value="-">&lt;@Localizer["Inherit From Site"]&gt;</option>
                                     @foreach (var layout in _layouts)
                                     {
                                         if (layout.TypeName == _layouttype)
@@ -146,7 +147,7 @@
                         </td>
                         <td>
                             <select id="defaultContainer" class="form-control" @bind="@_containertype">
-                                <option value="-">&lt;Inherit From Site&gt;</option>
+                                <option value="-">&lt;@Localizer["Inherit From Site"]&gt;</option>
                                 @foreach (var container in _containers)
                                 {
                                     <option value="@container.TypeName">@container.Name</option>
@@ -168,8 +169,8 @@
                         </td>
                         <td>
                             <select id="Personalizable" class="form-control" @bind="@_ispersonalizable">
-                                <option value="True">Yes</option>
-                                <option value="False">No</option>
+                                <option value="True">@Localizer["Yes"]</option>
+                                <option value="False">@Localizer["No"]</option>
                             </select>
                         </td>
                     </tr>
@@ -187,8 +188,8 @@
         </table>
     </TabPanel>
 </TabStrip>
-<button type="button" class="btn btn-success" @onclick="SavePage">Save</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+<button type="button" class="btn btn-success" @onclick="SavePage">@Localizer["Save"]</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
 
 @code {
     private List<Theme> _themeList;

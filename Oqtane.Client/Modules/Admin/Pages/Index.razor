@@ -2,6 +2,7 @@
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IPageService PageService
+@inject IStringLocalizer<Index> Localizer 
 
 @if (PageState.Pages != null)
 {
@@ -11,7 +12,7 @@
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
-            <th>Name</th>
+            <th>@Localizer["Name"]</th>
         </Header>
         <Row>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.PageId.ToString())" ResourceKey="EditPage" /></td>
