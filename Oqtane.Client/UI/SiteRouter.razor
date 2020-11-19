@@ -107,13 +107,9 @@
         SiteState.Alias = alias; // set state for services
         lastsyncdate = alias.SyncDate;
 
-        // process any sync events for site or page
+        // process any sync events for site 
         if (reload != Reload.Site && alias.SyncEvents.Any())
         {
-            if (PageState != null && alias.SyncEvents.Exists(item => item.EntityName == EntityNames.Page && item.EntityId == PageState.Page.PageId))
-            {
-                reload = Reload.Page;
-            }
             if (alias.SyncEvents.Exists(item => item.EntityName == EntityNames.Site && item.EntityId == alias.SiteId))
             {
                 reload = Reload.Site;
@@ -155,7 +151,7 @@
                 }
             }
 
-            if (PageState == null || reload >= Reload.Site)
+            if (PageState == null || reload == Reload.Site)
             {
                 pages = await PageService.GetPagesAsync(site.SiteId);
             }
@@ -207,7 +203,6 @@
                         action = segments[actionPos];
                     }
                 }
-
             }
 
             // check if path has moduleid and action specification ie. pagename/*/moduleid/action/
@@ -223,7 +218,6 @@
                 {
                     path = path.Replace(segments[modIdPos - 1] + "/" + segments[modIdPos] + "/" + segments[actionPos] + "/", "");
                 }
-
             }
 
             if (urlParametersPos > 0)
@@ -234,7 +228,7 @@
             // remove trailing slash so it can be used as a key for Pages
             if (path.EndsWith("/")) path = path.Substring(0, path.Length - 1);
 
-            if (PageState == null || reload >= Reload.Page)
+            if (PageState == null || reload == Reload.Site)
             {
                 page = pages.Where(item => item.Path == path).FirstOrDefault();
             }
@@ -254,7 +248,6 @@
             if (page != null && page.Path != path)
             {
                 page = pages.Where(item => item.Path == path).FirstOrDefault();
-                reload = Reload.Page;
                 editmode = false;
             }
 
@@ -270,12 +263,7 @@
                 {
                     page = await ProcessPage(page, site, user);
 
-                    if (PageState != null && (PageState.ModuleId != moduleid || PageState.Action != action))
-                    {
-                        reload = Reload.Page;
-                    }
-
-                    if (PageState == null || reload >= Reload.Site)
+                    if (PageState == null || reload == Reload.Site)
                     {
                         modules = await ModuleService.GetModulesAsync(site.SiteId);
                     }
@@ -283,6 +271,7 @@
                     {
                         modules = PageState.Modules;
                     }
+
                     (page, modules) = ProcessModules(page, modules, moduleid, action, (!string.IsNullOrEmpty(page.DefaultContainerType)) ? page.DefaultContainerType : site.DefaultContainerType);
 
                     _pagestate = new PageState
