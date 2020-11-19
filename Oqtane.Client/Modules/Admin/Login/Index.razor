@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject IServiceProvider ServiceProvider
+@inject IStringLocalizer<Index> Localizer
 
 @if (_message != string.Empty)
 {
@@ -18,23 +19,23 @@
     <NotAuthorized>
         <div class="container Oqtane-Modules-Admin-Login">
             <div class="form-group">
-                <label for="Username" class="control-label">Username: </label>
+                <label for="Username" class="control-label">@Localizer["Username:"] </label>
                 <input type="text" name="Username" class="form-control username" placeholder="Username" @bind="@_username" id="Username" />
             </div>
             <div class="form-group">
-                <label for="Password" class="control-label">Password: </label>
+                <label for="Password" class="control-label">@Localizer["Password:"] </label>
                 <input type="password" name="Password" class="form-control password" placeholder="Password" @bind="@_password" id="Password" />
             </div>
             <div class="form-group">
                 <div class="form-check form-check-inline">
-                    <label class="form-check-label" for="Remember">Remember Me?</label>&nbsp;
+                    <label class="form-check-label" for="Remember">@Localizer["Remember Me?"]</label>&nbsp;
                     <input type="checkbox" class="form-check-input" name="Remember" @bind="@_remember" id="Remember" />
                 </div>
             </div>
-            <button type="button" class="btn btn-primary" @onclick="Login">Login</button>
-            <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+            <button type="button" class="btn btn-primary" @onclick="Login">@Localizer["Login"]</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">@Localizer["Cancel"]</button>
             <br /><br />
-            <button type="button" class="btn btn-secondary" @onclick="Forgot">Forgot Password</button>
+            <button type="button" class="btn btn-secondary" @onclick="Forgot">@Localizer["Forgot Password"]</button>
         </div>
     </NotAuthorized>
 </AuthorizeView>
