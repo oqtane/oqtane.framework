@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Modules.Admin.Logs
+@namespace Oqtane.Modules.Admin.Logs
 @inherits ModuleBase
 @inject ILogService LogService
 
@@ -56,7 +56,7 @@ else
                 <th>Function</th>
             </Header>
             <Row>
-                <td class="@GetClass(context.Function)"><ActionLink Action="Detail" Parameters="@($"id=" + context.LogId.ToString())" /></td>
+                <td class="@GetClass(context.Function)"><ActionLink Action="Detail" Parameters="@($"id=" + context.LogId.ToString())" ResourceKey="LogDetails" /></td>
                 <td class="@GetClass(context.Function)">@context.LogDate</td>
                 <td class="@GetClass(context.Function)">@context.Level</td>
                 <td class="@GetClass(context.Function)">@context.Feature</td>
