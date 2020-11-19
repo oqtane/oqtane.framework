@@ -4,6 +4,7 @@
 @inject IFileService FileService
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject IPackageService PackageService
+@inject IStringLocalizer<Add> Localizer
 
 @if (_packages != null)
 {
@@ -14,15 +15,15 @@
                 <ModuleMessage Type="MessageType.Info" Message="Download one or more modules from the list below. Once you are ready click Install to complete the installation."></ModuleMessage>
                 <Pager Items="@_packages">
                     <Header>
-                        <th>Name</th>
-                        <th>Version</th>
+                        <th>@Localizer["Name"]</th>
+                        <th>@Localizer["Version"]</th>
                         <th style="width: 1px"></th>
                     </Header>
                     <Row>
                         <td>@context.Name</td>
                         <td>@context.Version</td>
                         <td>
-                            <button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadModule(context.PackageId, context.Version))>Download</button>
+                            <button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadModule(context.PackageId, context.Version))>@Localizer["Download"]</button>
                         </td>
                     </Row>
                 </Pager>
@@ -42,8 +43,8 @@
         </TabPanel>
     </TabStrip>
 
-    <button type="button" class="btn btn-success" @onclick="InstallModules">Install</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <button type="button" class="btn btn-success" @onclick="InstallModules">@Localizer["Install"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
 }
 
 @code {
