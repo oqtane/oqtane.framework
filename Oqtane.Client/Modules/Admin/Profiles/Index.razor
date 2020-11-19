@@ -1,10 +1,11 @@
 @namespace Oqtane.Modules.Admin.Profiles
 @inherits ModuleBase
 @inject IProfileService ProfileService
+@inject IStringLocalizer<Index> Localizer
 
 @if (_profiles == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>@Localizer["Loading..."]</em></p>
 }
 else
 {
@@ -14,7 +15,7 @@ else
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
-            <th>Name</th>
+            <th>@Localizer["Name"]</th>
         </Header>
         <Row>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ProfileId.ToString())" ResourceKey="EditProfile" /></td>
