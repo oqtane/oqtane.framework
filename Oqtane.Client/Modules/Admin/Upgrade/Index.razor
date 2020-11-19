@@ -1,36 +1,37 @@
-﻿@namespace Oqtane.Modules.Admin.Upgrade
+@namespace Oqtane.Modules.Admin.Upgrade
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IFileService FileService
 @inject IPackageService PackageService
 @inject IInstallationService InstallationService
+@inject IStringLocalizer<Index> Localizer
 
 @if (_package != null)
 {
     <TabStrip>
-        <TabPanel Name="Download">
+        <TabPanel Name="Download" ResourceKey="Download">
             @if (_upgradeavailable)
             {
                 <ModuleMessage Type="MessageType.Info" Message="Select The Upgrade Button To Install a New Framework Version"></ModuleMessage>
-                <button type="button" class="btn btn-success" @onclick=@(async () => await Download(Constants.PackageId, @_package.Version))>Upgrade To @_package.Version</button>
+                <button type="button" class="btn btn-success" @onclick=@(async () => await Download(Constants.PackageId, @_package.Version))>@Localizer["Upgrade To"] @_package.Version</button>
             }
             else
             {
                 <ModuleMessage Type="MessageType.Info" Message="Framework Is Already Up To Date"></ModuleMessage>
             }
         </TabPanel>
-        <TabPanel Name="Upload">
+        <TabPanel Name="Upload" ResourceKey="Upload">
             <table class="table table-borderless">
                 <tr>
                     <td>
-                        <Label HelpText="Upload a framework package and select Install to complete the installation">Framework: </Label>
+                        <Label HelpText="Upload a framework package and select Install to complete the installation" ResourceKey="Framework">Framework: </Label>
                     </td>
                     <td>
                         <FileManager Filter="nupkg" ShowFiles="false" Folder="Framework" />
                     </td>
                 </tr>
             </table>
-            <button type="button" class="btn btn-success" @onclick="Upgrade">Install</button>
+            <button type="button" class="btn btn-success" @onclick="Upgrade">@Localizer["Install"]</button>
         </TabPanel>
     </TabStrip>
 }
