@@ -8,7 +8,6 @@ using Oqtane.Infrastructure;
 using Oqtane.Modules;
 using Oqtane.Services;
 using Oqtane.Shared;
-using Oqtane.UI;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection

@@ -549,8 +549,8 @@
         return pageresources;
     }
 
-    private Runtime GetRuntime()
+    private Oqtane.Shared.Runtime GetRuntime()
 => RuntimeInformation.IsOSPlatform(OSPlatform.Create("BROWSER"))
-        ? Runtime.WebAssembly
-        : Runtime.Server;
+        ? Oqtane.Shared.Runtime.WebAssembly
+        : Oqtane.Shared.Runtime.Server;
 }

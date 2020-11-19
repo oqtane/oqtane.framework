@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Oqtane.Providers;
 using Oqtane.Services;
-using Oqtane.UI;
+using Oqtane.Shared;
 
 namespace Oqtane.Themes.Controls
 {
