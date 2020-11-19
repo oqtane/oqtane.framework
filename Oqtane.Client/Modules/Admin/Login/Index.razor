@@ -87,7 +87,7 @@
 
     private async Task Login()
     {
-        if (PageState.Runtime == Runtime.Server)
+        if (PageState.Runtime == Oqtane.Shared.Runtime.Server)
         {
             // server-side Blazor
             var user = new User();

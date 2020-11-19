@@ -49,8 +49,8 @@
         if (IsLocalizable)
         {
             _heading = !string.IsNullOrEmpty(Heading)
-                ? Localize(nameof(Heading))
-                : Localize(nameof(Name));
+                ? Localize(nameof(Heading), Heading)
+                : Localize(nameof(Name), Name);
         }
     }
 }

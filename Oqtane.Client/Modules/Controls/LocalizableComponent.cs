@@ -24,8 +24,23 @@ namespace Oqtane.Modules.Controls
             {
                 return name;
             }
- 
+
             return _localizer?[key] ?? name;
+        }
+
+        protected string Localize(string name, string defaultValue)
+        {
+            var key = $"{ResourceKey}.{name}";
+            var value = Localize(name);
+
+            if (value == key)
+            {
+                return defaultValue;
+            }
+            else
+            {
+                return value;
+            }
         }
 
         protected override void OnParametersSet()

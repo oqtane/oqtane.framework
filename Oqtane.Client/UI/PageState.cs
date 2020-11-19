@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Oqtane.Models;
 
@@ -19,6 +19,6 @@ namespace Oqtane.UI
         public string Action { get; set; }
         public bool EditMode { get; set; }
         public DateTime LastSyncDate { get; set; }
-        public Runtime Runtime { get; set; }
+        public Oqtane.Shared.Runtime Runtime { get; set; }
     }
 }

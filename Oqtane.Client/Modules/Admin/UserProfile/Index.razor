@@ -5,6 +5,7 @@
 @inject IProfileService ProfileService
 @inject ISettingService SettingService
 @inject INotificationService NotificationService
+@inject IStringLocalizer<Index> Localizer
 
 @if (PageState.User != null && photofileid != -1)
 {
@@ -15,13 +16,13 @@ else
     <br />
 }
 <TabStrip>
-    <TabPanel Name="Identity">
+    <TabPanel Name="Identity" ResourceKey="Identity">
         @if (PageState.User != null)
         {
             <table class="table table-borderless">
                 <tr>
                     <td>
-                        <label for="Name" class="control-label">Username: </label>
+                        <label for="Name" class="control-label">@Localizer["Username:"] </label>
                     </td>
                     <td>
                         <input class="form-control" @bind="@username" readonly />
@@ -29,7 +30,7 @@ else
                 </tr>
                 <tr>
                     <td>
-                        <label for="Name" class="control-label">Password: </label>
+                        <label for="Name" class="control-label">@Localizer["Password:"] </label>
                     </td>
                     <td>
                         <input type="password" class="form-control" @bind="@password" autocomplete="new-password" />
@@ -37,7 +38,7 @@ else
                 </tr>
                 <tr>
                     <td>
-                        <label for="Name" class="control-label">Confirm Password: </label>
+                        <label for="Name" class="control-label">@Localizer["Confirm Password:"] </label>
                     </td>
                     <td>
                         <input type="password" class="form-control" @bind="@confirm" autocomplete="new-password" />
@@ -45,7 +46,7 @@ else
                 </tr>
                 <tr>
                     <td>
-                        <label for="Name" class="control-label">Email: </label>
+                        <label for="Name" class="control-label">@Localizer["Email:"] </label>
                     </td>
                     <td>
                         <input class="form-control" @bind="@email" />
@@ -53,7 +54,7 @@ else
                 </tr>
                 <tr>
                     <td>
-                        <label for="Name" class="control-label">Full Name: </label>
+                        <label for="Name" class="control-label">@Localizer["Full Name:"] </label>
                     </td>
                     <td>
                         <input class="form-control" @bind="@displayname" />
@@ -61,18 +62,18 @@ else
                 </tr>
                 <tr>
                     <td>
-                        <label for="Name" class="control-label">Photo: </label>
+                        <label for="Name" class="control-label">@Localizer["Photo:"] </label>
                     </td>
                     <td>
                         <FileManager FileId="@photofileid" @ref="filemanager" />
                     </td>
                 </tr>
             </table>
-            <button type="button" class="btn btn-primary" @onclick="Save">Save</button>
-            <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+            <button type="button" class="btn btn-primary" @onclick="Save">@Localizer["Save"]</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">@Localizer["Cancel"]</button>
         }
     </TabPanel>
-    <TabPanel Name="Profile">
+    <TabPanel Name="Profile" ResourceKey="Profile">
         @if (profiles != null && settings != null)
         {
         <table class="table table-borderless">
@@ -127,14 +128,14 @@ else
                 }
             }
         </table>
-            <button type="button" class="btn btn-primary" @onclick="Save">Save</button>
-            <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+            <button type="button" class="btn btn-primary" @onclick="Save">@Localizer["Save"]</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">@Localizer["Cancel"]</button>
         }
     </TabPanel>
-    <TabPanel Name="Notifications">
+    <TabPanel Name="Notifications" ResourceKey="Notifications">
         @if (notifications != null)
         {
-            <ActionLink Action="Add" Text="Send Notification" Security="SecurityAccessLevel.View" EditMode="false" />
+            <ActionLink Action="Add" Text="Send Notification" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="SendNotification" />
             <br /><br />
             @if (filter == "to")
             {
@@ -142,13 +143,13 @@ else
                     <Header>
                         <th style="width: 1px;">&nbsp;</th>
                         <th style="width: 1px;">&nbsp;</th>
-                        <th>From</th>
-                        <th>Subject</th>
-                        <th>Received</th>
+                        <th>@Localizer["From"]</th>
+                        <th>@Localizer["Subject"]</th>
+                        <th>@Localizer["Received"]</th>
                     </Header>
                     <Row>
-                        <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" /></td>
-                        <td><ActionDialog Header="Delete Notification" Message="@("Are You Sure You Wish To Delete This Notification?")" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" /></td>
+                        <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" /></td>
+                        <td><ActionDialog Header="Delete Notification" Message="@("Are You Sure You Wish To Delete This Notification?")" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" ResourceKey="DeleteNotification" /></td>
                         <td>@context.FromDisplayName</td>
                         <td>@context.Subject</td>
                         <td>@context.CreatedOn</td>
@@ -174,13 +175,13 @@ else
                     <Header>
                         <th>&nbsp;</th>
                         <th>&nbsp;</th>
-                        <th>To</th>
-                        <th>Subject</th>
-                        <th>Sent</th>
+                        <th>@Localizer["To"]</th>
+                        <th>@Localizer["Subject"]</th>
+                        <th>@Localizer["Sent"]</th>
                     </Header>
                     <Row>
-                        <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" /></td>
-                        <td><ActionDialog Header="Delete Notification" Message="@("Are You Sure You Wish To Delete This Notification?")" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" /></td>
+                        <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" /></td>
+                        <td><ActionDialog Header="Delete Notification" Message="@("Are You Sure You Wish To Delete This Notification?")" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" ResourceKey="DeleteNotification" /></td>
                         <td>@context.ToDisplayName</td>
                         <td>@context.Subject</td>
                         <td>@context.CreatedOn</td>
@@ -202,8 +203,8 @@ else
             }
             <br /><hr />
             <select class="form-control" @onchange="(e => FilterChanged(e))">
-                <option value="to">Inbox</option>
-                <option value="from">Sent Items</option>
+                <option value="to">@Localizer["Inbox"]</option>
+                <option value="from">@Localizer["Sent Items"]</option>
             </select>
         }
     </TabPanel>
