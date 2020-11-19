@@ -4,7 +4,7 @@
 
 @if (_jobs == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>@Localizer["Loading..."]</em></p>
 }
 else
 {
@@ -18,10 +18,10 @@ else
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
-            <th>Name</th>
-            <th>Status</th>
-            <th>Frequency</th>
-            <th>Next Execution</th>
+            <th>@Localizer["Name"]</th>
+            <th>@Localizer["Status"]</th>
+            <th>@Localizer["Frequency"]</th>
+            <th>@Localizer["Next Execution"]</th>
             <th style="width: 1px;">&nbsp;</th>
         </Header>
         <Row>
@@ -35,11 +35,11 @@ else
             <td>
                 @if (context.IsStarted)
                 {
-                    <button type="button" class="btn btn-danger" @onclick="(async () => await StopJob(context.JobId))">Stop</button>
+                    <button type="button" class="btn btn-danger" @onclick="(async () => await StopJob(context.JobId))">@Localizer["Stop"]</button>
                 }
                 else
                 {
-                    <button type="button" class="btn btn-success" @onclick="(async () => await StartJob(context.JobId))">Start</button>
+                    <button type="button" class="btn btn-success" @onclick="(async () => await StartJob(context.JobId))">@Localizer["Start"]</button>
                 }
             </td>
         </Row>

@@ -2,6 +2,7 @@
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IJobService JobService
+@inject IStringLocalizer<Edit> Localizer
 
 <table class="table table-borderless">
     <tr>
@@ -26,8 +27,8 @@
         </td>
         <td>
             <select id="enabled" class="form-control" @bind="@_isEnabled">
-                <option value="True">Yes</option>
-                <option value="False">No</option>
+                <option value="True">@Localizer["Yes"]</option>
+                <option value="False">@Localizer["No"]</option>
             </select>
         </td>
     </tr>
@@ -38,10 +39,10 @@
         <td>
             <input id="runs-every" class="form-control" @bind="@_interval" />
             <select id="runs-every" class="form-control" @bind="@_frequency">
-                <option value="m">Minute(s)</option>
-                <option value="H">Hour(s)</option>
-                <option value="d">Day(s)</option>
-                <option value="M">Month(s)</option>
+                <option value="m">@Localizer["Minute(s)"]</option>
+                <option value="H">@Localizer["Hour(s)"]</option>
+                <option value="d">@Localizer["Day(s)"]</option>
+                <option value="M">@Localizer["Month(s)"]</option>
             </select>
         </td>
     </tr>
@@ -78,8 +79,8 @@
         </td>
     </tr>
 </table>
-<button type="button" class="btn btn-success" @onclick="SaveJob">Save</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+<button type="button" class="btn btn-success" @onclick="SaveJob">@Localizer["Save"]</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
 
 @code {
     private int _jobId;
@@ -158,7 +159,7 @@
             {
                 job.NextExecution = DateTime.Parse(_nextExecution);
             }
-            
+
             job.RetentionHistory = int.Parse(_retentionHistory);
 
             try
