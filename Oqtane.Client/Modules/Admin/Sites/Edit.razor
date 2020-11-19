@@ -1,17 +1,18 @@
-﻿@namespace Oqtane.Modules.Admin.Sites
+@namespace Oqtane.Modules.Admin.Sites
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject ISiteService SiteService
 @inject ITenantService TenantService
 @inject IAliasService AliasService
 @inject IThemeService  ThemeService
+@inject IStringLocalizer<Edit> Localizer
 
 @if (_initialized)
 {
     <table class="table table-borderless">
         <tr>
             <td>
-                <Label For="name" HelpText="Enter the name of the site">Name: </Label>
+                <Label For="name" HelpText="Enter the name of the site" ResourceKey="Name">Name: </Label>
             </td>
             <td>
                 <input id="name" class="form-control" @bind="@_name" />
@@ -19,7 +20,7 @@
         </tr>
         <tr>
             <td>
-                <Label For="tenant" HelpText="Enter the tenant for the site">Tenant: </Label>
+                <Label For="tenant" HelpText="Enter the tenant for the site" ResourceKey="Tenant">Tenant: </Label>
             </td>
             <td>
                 <input id="tenant" class="form-control" @bind="@_tenant" readonly />
@@ -27,7 +28,7 @@
         </tr>
         <tr>
             <td>
-                <Label For="alias" HelpText="Enter the alias for the server">Aliases: </Label>
+                <Label For="alias" HelpText="Enter the alias for the server" ResourceKey="Aliases">Aliases: </Label>
             </td>
             <td>
                 <textarea id="alias" class="form-control" @bind="@_urls" rows="3" />
@@ -35,11 +36,11 @@
         </tr>
         <tr>
             <td>
-                <Label For="defaultTheme" HelpText="Select the default theme for the website">Default Theme: </Label>
+                <Label For="defaultTheme" HelpText="Select the default theme for the website" ResourceKey="DefaultTheme">Default Theme: </Label>
             </td>
             <td>
                 <select id="defaultTheme" class="form-control" @onchange="(e => ThemeChanged(e))">
-                    <option value="-">&lt;Select Theme&gt;</option>
+                    <option value="-">&lt;@Localizer["Select Theme"]&gt;</option>
                     @foreach (var theme in _themes)
                     {
                         if (theme.TypeName == _themetype)
@@ -58,11 +59,11 @@
         {
             <tr>
                 <td>
-                    <Label For="defaultLayout" HelpText="Select the default layout for the site">Default Layout: </Label>
+                    <Label For="defaultLayout" HelpText="Select the default layout for the site" ResourceKey="DefaultLayout">Default Layout: </Label>
                 </td>
                 <td>
                     <select id="defaultLayout" class="form-control" @bind="@_layouttype">
-                        <option value="-">&lt;Select Layout&gt;</option>
+                        <option value="-">&lt;@Localizer["Select Layout"]&gt;</option>
                         @foreach (var layout in _layouts)
                         {
                             <option value="@(layout.TypeName)">@(layout.Name)</option>
@@ -73,11 +74,11 @@
         }
         <tr>
             <td>
-                <Label For="defaultContainer" HelpText="Select the default container for the site">Default Container: </Label>
+                <Label For="defaultContainer" HelpText="Select the default container for the site" ResourceKey="DefaultContainer">Default Container: </Label>
             </td>
             <td>
                 <select id="defaultIdea" class="form-control" @bind="@_containertype">
-                    <option value="-">&lt;Select Container&gt;</option>
+                    <option value="-">&lt;@Localizer["Select Container"]&gt;</option>
                     @foreach (var container in _containers)
                     {
                         <option value="@container.TypeName">@container.Name</option>
@@ -87,19 +88,19 @@
         </tr>
         <tr>
             <td>
-                <Label For="isDeleted" HelpText="Has this site been deleted?">Is Deleted? </Label>
+                <Label For="isDeleted" HelpText="Has this site been deleted?" ResourceKey="IsDeleted">Is Deleted? </Label>
             </td>
             <td>
                 <select id="isDeleted" class="form-control" @bind="@_isdeleted">
-                    <option value="True">Yes</option>
-                    <option value="False">No</option>
+                    <option value="True">@Localizer["Yes"]</option>
+                    <option value="False">@Localizer["No"]</option>
                 </select>
             </td>
         </tr>
     </table>
     <br />
-    <button type="button" class="btn btn-success" @onclick="SaveSite">Save</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <button type="button" class="btn btn-success" @onclick="SaveSite">@Localizer["Save"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
     <br />
     <br />
     <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
@@ -256,7 +257,7 @@
                             }
                         }
 
-                        await Log(_alias, LogLevel.Information,PermissionNames.Edit, null, "Site Saved {Site}", site);
+                        await Log(_alias, LogLevel.Information, PermissionNames.Edit, null, "Site Saved {Site}", site);
 
                         NavigationManager.NavigateTo(NavigateUrl());
                     }
@@ -277,4 +278,4 @@
             AddModuleMessage("Error Saving Site", MessageType.Error);
         }
     }
- }
+}
