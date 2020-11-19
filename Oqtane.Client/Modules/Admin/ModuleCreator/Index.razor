@@ -1,3 +1,4 @@
+@using System.IO;
 @namespace Oqtane.Modules.Admin.ModuleCreator
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
@@ -124,14 +125,14 @@
                 Dictionary<string, string> systeminfo = await SystemService.GetSystemInfoAsync();
                 if (systeminfo != null)
                 {
-                    string[] path = systeminfo["serverpath"].Split('\\');
+                    string[] path = systeminfo["serverpath"].Split(Path.DirectorySeparatorChar);
                     if (_template == "internal")
                     {
-                        _location = string.Join("\\", path, 0, path.Length - 1) + "\\Oqtane.Client\\Modules\\" + _owner + "." + _module;
+                        _location = string.Join(Path.DirectorySeparatorChar, path, 0, path.Length - 1) + Path.DirectorySeparatorChar + "Oqtane.Client"+ Path.DirectorySeparatorChar+"Modules"+ Path.DirectorySeparatorChar + _owner + "." + _module;
                     }
                     else
                     {
-                        _location = string.Join("\\", path, 0, path.Length - 2) + "\\" + _owner + "." + _module;
+                        _location = string.Join(Path.DirectorySeparatorChar, path, 0, path.Length - 2) + Path.DirectorySeparatorChar + _owner + "." + _module;
                     }
                 }
             }
