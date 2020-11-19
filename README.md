@@ -12,21 +12,21 @@ Please note that this project is owned by the .NET Foundation and is governed by
 
 # Getting Started
 
-**Using the latest repository source code ( ie. version 2.0.0 ):**
+**Using Version 2+:**
 
 - Install **[.NET 5 SDK (v5.0.100)](https://dotnet.microsoft.com/download/dotnet/5.0)**.
    
-- Install the latest Preview edition (v16.8, Preview 4 or higher) of [Visual Studio 2019](https://visualstudio.microsoft.com/vs/preview/) (Community, Professional, and Enterprise Editions are all supported) with the **ASP.NET and web development** workload enabled. Oqtane works with all editions of Visual Studio from Community to Enterprise. If you do not have a SQL Server installation available already and you wish to use LocalDB for development, you must also install the **.NET desktop development workload**.  
+- Install the latest edition (v16.8 or higher) of [Visual Studio 2019](https://visualstudio.microsoft.com/vs/) (Community, Professional, or Enterprise Editions) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you do not have a SQL Server installation available already and you wish to use LocalDB for development, you must also install the **.NET desktop development workload**.  
 
-- Download or Clone the Oqtane source code to your local system. Open the **Oqtane.sln** solution file and Build the solution. 
+- Download a release or Clone the Oqtane source code to your local system. Open the **Oqtane.sln** solution file and Build the solution. 
 
-**Using the latest release code ( ie. release versions 1.0.0-1.0.4 ):**
+**Using Version 1:**
 
 - Install **[.NET Core 3.1 SDK (v3.1.300)](https://dotnet.microsoft.com/download/dotnet-core/thank-you/sdk-3.1.300-windows-x64-installer)**.
    
-- Install [Visual Studio 2019](https://visualstudio.microsoft.com/vs) (Community, Professional, and Enterprise Editions are all supported) with the **ASP.NET and web development** workload enabled. Oqtane works with all editions of Visual Studio from Community to Enterprise. If you do not have a SQL Server installation available already and you wish to use LocalDB for development, you must also install the **.NET desktop development workload**.  
+- Install [Visual Studio 2019](https://visualstudio.microsoft.com/vs) (Community, Professional, or Enterprise Editions) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you do not have a SQL Server installation available already and you wish to use LocalDB for development, you must also install the **.NET desktop development workload**.  
 
-- Download or Clone the Oqtane source code to your local system. Open the **Oqtane.sln** solution file and Build the solution. 
+- Download a release or Clone the Oqtane source code from a v1.x Tag to your local system. Open the **Oqtane.sln** solution file and Build the solution. 
 
 **Installing an official release:**
 
@@ -49,11 +49,14 @@ There is a separate [Documentation repository](https://github.com/oqtane/oqtane.
 # Roadmap
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
 
-V.2.0.0 ( estimated release date Nov 11, 2020 )
+V.2.0.0 ( released in conjuntion with .NET 5 on Nov 11, 2020 )
 - [x] Migration to .NET 5
 - [x] Static Localization ( ie. labels, help text, etc.. )
+- [x] Improved JavaScript reference support
+- [x] Performance optimizations
+- [x] Developer productivity enhancements
 
-V.1.x - Initial version released in conjunction with .NET Core 3.2 ( May 2020 )
+V.1.0.0 ( released in conjunction with .NET Core 3.2 on May 19, 2020 )
 - [x] Multi-Tenant ( Shared Database & Isolated Database ) 
 - [x] Modular Architecture
 - [x] Headless API with Swagger Support
@@ -74,17 +77,19 @@ V.1.x - Initial version released in conjunction with .NET Core 3.2 ( May 2020 )
 - [x] Dynamic CSS/Lazy Loading
 
 Future Consideration
-- [ ] Admin UI markup optimization ( ie. replace tables with divs in forms )
-- [ ] DB Migrations for framework installation/upgrade
-- [ ] Support for SQLite
+- [ ] DB Migrations for Database Installation/Upgrade
+- [ ] Support for other Databases ( ie. SQLite )
 - [ ] OAuth Support
+- [ ] Site Configuration Migrations
+- [ ] Pub/Sub Event Framework
+- [ ] Admin UI Markup Optimization ( ie. replace tables with divs in forms )
 
 # Background
 Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Initially created as a proof of concept, Oqtane is a native Blazor application written from the ground up using modern .NET Core technology. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly templates (skins), and extensibility via third party modules.
 
 # Release Announcements
 
-[Oqtane 1.0.1](https://www.oqtane.org/Resources/Blog/PostId/541/oqtane-builds-momentum-with-101-release)
+[Oqtane 2.0](https://www.oqtane.org/Resources/Blog/PostId/544/announcing-oqtane-20-for-net-5)
 
 [Oqtane 1.0](https://www.oqtane.org/Resources/Blog/PostId/540/announcing-oqtane-10-a-modular-application-framework-for-blazor)
 
