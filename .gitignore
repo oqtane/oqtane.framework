@@ -13,3 +13,7 @@ Oqtane.Server/Data/*.mdf
 Oqtane.Server/Data/*.ldf
 
 /Oqtane.Server/Properties/PublishProfiles/FolderProfile.pubxml
+/Oqtane.Server/wwwroot/Modules/StudioElf.TickIt/Module.js
+/Oqtane.Server/wwwroot/Modules/StudioElf.TickIt/Module.css
+/Oqtane.Server/wwwroot/Modules/StudioElf.Experimental/Module.js
+/Oqtane.Server/wwwroot/Modules/StudioElf.Experimental/Module.css

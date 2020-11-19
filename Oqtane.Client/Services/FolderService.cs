@@ -1,4 +1,4 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Net.Http;
@@ -37,7 +37,7 @@ namespace Oqtane.Services
         {
             if (!(folderPath.EndsWith(System.IO.Path.DirectorySeparatorChar) || folderPath.EndsWith(System.IO.Path.AltDirectorySeparatorChar)))
             {
-                folderPath = Utilities.PathCombine(folderPath, "\\");
+                folderPath = Utilities.PathCombine(folderPath, System.IO.Path.DirectorySeparatorChar.ToString());
             }
             
             var path = WebUtility.UrlEncode(folderPath);

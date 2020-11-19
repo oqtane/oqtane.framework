@@ -1,0 +1,25 @@
+﻿/* Module Custom Styles */
+
+.DNF-Projects-Index .header {
+    margin: auto;
+    width: 90% !important;
+}
+
+.DNF-Projects-Index .chart {
+    height: 300px;
+}
+
+.DNF-Projects-Index .search {
+    margin: auto;
+    width: 40% !important;
+}
+
+.DNF-Projects-View .header {
+    margin: auto;
+    width: 50% !important;
+}
+
+.DNF-Projects-View .chart {
+    max-width: 800px;
+    margin: 0 auto;
+}
