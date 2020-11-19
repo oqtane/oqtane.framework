@@ -1,16 +1,17 @@
-﻿@namespace Oqtane.Modules.Admin.RecycleBin
+@namespace Oqtane.Modules.Admin.RecycleBin
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IPageModuleService PageModuleService
 @inject IModuleService ModuleService
 @inject IPageService PageService
+@inject IStringLocalizer<Index> Localizer
 
 <TabStrip>
-    <TabPanel Name="Pages">
+    <TabPanel Name="Pages" ResourceKey="Pages">
         @if (_pages == null)
         {
             <br />
-            <p>No Deleted Pages</p>
+            <p>@Localizer["No Deleted Pages"]</p>
         }
         else
         {
@@ -19,12 +20,12 @@
                     <th style="width: 1px;">&nbsp;</th>
                     <th style="width: 1px;">&nbsp;</th>
                     <th>Name</th>
-                    <th>Deleted By</th>
-                    <th>Deleted On</th>
+                    <th>@Localizer["Deleted By"]</th>
+                    <th>@Localizer["Deleted On"]</th>
                 </Header>
                 <Row>
                     <td><button @onclick="@(() => RestorePage(context))" class="btn btn-info" title="Restore">Restore</button></td>
-                    <td><ActionDialog Header="Delete Page" Message="@("Are You Sure You Wish To Permanently Delete The " + context.Name + " Page?")" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeletePage(context))" /></td>
+                    <td><ActionDialog Header="Delete Page" Message="@("Are You Sure You Wish To Permanently Delete The " + context.Name + " Page?")" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeletePage(context))" ResourceKey="DeletePage" /></td>
                     <td>@context.Name</td>
                     <td>@context.DeletedBy</td>
                     <td>@context.DeletedOn</td>
@@ -32,11 +33,11 @@
             </Pager>
         }
     </TabPanel>
-    <TabPanel Name="Modules">
+    <TabPanel Name="Modules" ResourceKey="Modules">
         @if (_modules == null)
         {
             <br />
-            <p>No Deleted Modules</p>
+            <p>@Localizer["No Deleted Modules"]</p>
         }
         else
         {
@@ -44,14 +45,14 @@
                 <Header>
                     <th style="width: 1px;">&nbsp;</th>
                     <th style="width: 1px;">&nbsp;</th>
-                    <th>Page</th>
-                    <th>Module</th>
-                    <th>Deleted By</th>
-                    <th>Deleted On</th>
+                    <th>@Localizer["Page"]</th>
+                    <th>@Localizer["Module"]</th>
+                    <th>@Localizer["Deleted By"]</th>
+                    <th>@Localizer["Deleted On"]</th>
                 </Header>
                 <Row>
-                    <td><button @onclick="@(() => RestoreModule(context))" class="btn btn-info" title="Restore">Restore</button></td>
-                    <td><ActionDialog Header="Delete Module" Message="@("Are You Sure You Wish To Permanently Delete The " + context.Title + " Module?")" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" /></td>
+                    <td><button @onclick="@(() => RestoreModule(context))" class="btn btn-info" title="Restore">@Localizer["Restore"]</button></td>
+                    <td><ActionDialog Header="Delete Module" Message="@("Are You Sure You Wish To Permanently Delete The " + context.Title + " Module?")" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" /></td>
                     <td>@PageState.Pages.Find(item => item.PageId == context.PageId).Name</td>
                     <td>@context.Title</td>
                     <td>@context.DeletedBy</td>
@@ -150,12 +151,12 @@
             await PageModuleService.DeletePageModuleAsync(module.PageModuleId);
             // check if there are any remaining module instances in the site
             _modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId);
-            
+
             if (!_modules.Exists(item => item.ModuleId == module.ModuleId))
             {
                 await ModuleService.DeleteModuleAsync(module.ModuleId);
             }
-            
+
             await logger.LogInformation("Module Permanently Deleted {Module}", module);
             await Load();
             StateHasChanged();
