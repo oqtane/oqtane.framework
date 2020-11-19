@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Modules.Admin.ModuleDefinitions
+@namespace Oqtane.Modules.Admin.ModuleDefinitions
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IFileService FileService
@@ -10,7 +10,7 @@
     <TabStrip>
         @if (_packages.Count > 0)
         {
-            <TabPanel Name="Download">
+            <TabPanel Name="Download" ResourceKey="Download">
                 <ModuleMessage Type="MessageType.Info" Message="Download one or more modules from the list below. Once you are ready click Install to complete the installation."></ModuleMessage>
                 <Pager Items="@_packages">
                     <Header>
@@ -28,11 +28,11 @@
                 </Pager>
             </TabPanel>
         }
-        <TabPanel Name="Upload">
+        <TabPanel Name="Upload" ResourceKey="Upload">
             <table class="table table-borderless">
                 <tr>
                     <td>
-                        <Label HelpText="Upload one or more module packages. Once they are uploaded click Install to complete the installation.">Module: </Label>
+                        <Label HelpText="Upload one or more module packages. Once they are uploaded click Install to complete the installation." ResourceKey="Module">Module: </Label>
                     </td>
                     <td>
                         <FileManager Filter="nupkg" ShowFiles="false" Folder="Modules" UploadMultiple="true" />

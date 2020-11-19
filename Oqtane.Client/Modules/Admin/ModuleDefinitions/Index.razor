@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Modules.Admin.ModuleDefinitions
+@namespace Oqtane.Modules.Admin.ModuleDefinitions
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IModuleDefinitionService ModuleDefinitionService
@@ -10,7 +10,7 @@
 }
 else
 {
-    <ActionLink Action="Add" Text="Install Module" />
+    <ActionLink Action="Add" Text="Install Module" ResourceKey="InstallModule" />
 
     <Pager Items="@_moduleDefinitions">
         <Header>
@@ -21,20 +21,20 @@ else
             <th style="width: 1px;">&nbsp;</th>
         </Header>
         <Row>
-            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ModuleDefinitionId.ToString())" /></td>
+            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ModuleDefinitionId.ToString())" ResourceKey="EditModule" /></td>
             <td>
                 @if (context.AssemblyName != "Oqtane.Client")
                     {
-                    <ActionDialog Header="Delete Module" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Module?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" />
+                    <ActionDialog Header="Delete Module" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Module?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" />
                     }
             </td>
             <td>@context.Name</td>
             <td>@context.Version</td>
             <td>
                 @if (UpgradeAvailable(context.ModuleDefinitionName, context.Version))
-                    {
+                {
                     <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadModule(context.ModuleDefinitionName, context.Version))>Upgrade</button>
-                    }
+                }
             </td>
         </Row>
     </Pager>
