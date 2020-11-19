@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Modules.Admin.Files
+@namespace Oqtane.Modules.Admin.Files
 @inherits ModuleBase
 @inject IFolderService FolderService
 @inject IFileService FileService
@@ -9,7 +9,7 @@
     <table class="table table-borderless">
         <tr>
             <td>
-                <Label For="parent" HelpText="Select the parent folder">Parent: </Label>
+                <Label For="parent" HelpText="Select the parent folder" ResourceKey="Parent">Parent: </Label>
             </td>
             <td>
                 <select id="parent" class="form-control" @bind="@_parentId">
@@ -26,7 +26,7 @@
         </tr>
         <tr>
             <td>
-                <Label for="name" HelpText="Enter the folder name">Name: </Label>
+                <Label for="name" HelpText="Enter the folder name" ResourceKey="Name">Name: </Label>
             </td>
             <td>
                 <input id="name" class="form-control" @bind="@_name" />
@@ -34,7 +34,7 @@
         </tr>
         <tr>
             <td colspan="2" align="center">
-                <Label For="permissions" HelpText="Select the permissions you want for the folder">Permissions: </Label>
+                <Label For="permissions" HelpText="Select the permissions you want for the folder" ResourceKey="Permissions">Permissions: </Label>
                 <PermissionGrid EntityName="@EntityNames.Folder" PermissionNames="Browse,View,Edit" Permissions="@_permissions" @ref="_permissionGrid" />
             </td>
         </tr>
@@ -46,7 +46,7 @@
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
     @if (!_isSystem && PageState.QueryString.ContainsKey("id"))
     {
-        <ActionDialog Header="Delete Folder" Message="@("Are You Sure You Wish To Delete This Folder?")" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteFolder())" />
+        <ActionDialog Header="Delete Folder" Message="@("Are You Sure You Wish To Delete This Folder?")" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteFolder())" ResourceKey="DeleteFolder" />
     }
     <br />
     <br />
