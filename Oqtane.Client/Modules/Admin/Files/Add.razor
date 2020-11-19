@@ -4,6 +4,7 @@
 @inject NavigationManager NavigationManager
 @inject IFileService FileService
 @inject IFolderService FolderService
+@inject IStringLocalizer<Add> Localizer
 
 <TabStrip>
     <TabPanel Name="Upload" Heading="Upload Files" ResourceKey="Upload Files">
@@ -17,7 +18,7 @@
                 </td>
             </tr>
         </table>
-        <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+        <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
     </TabPanel>
     <TabPanel Name="Download" Heading="Download Files" ResourceKey="DownloadFiles">
         @if (_folders != null)
@@ -46,8 +47,8 @@
                     </td>
                 </tr>
             </table>
-            <button type="button" class="btn btn-success" @onclick="Download">Download</button>
-            <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+            <button type="button" class="btn btn-success" @onclick="Download">@Localizer["Download"]</button>
+            <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
         }
     </TabPanel>
 </TabStrip>
@@ -81,10 +82,10 @@
 
         if (!Constants.UploadableFiles.Split(',')
                 .Contains(Path.GetExtension(filename).ToLower().Replace(".", "")))
-            {
-                AddModuleMessage("File Could Not Be Downloaded From Url Due To Its File Extension", MessageType.Warning);
-                return ;
-            }
+        {
+            AddModuleMessage("File Could Not Be Downloaded From Url Due To Its File Extension", MessageType.Warning);
+            return;
+        }
 
         if (!filename.IsPathOrFileValid())
         {

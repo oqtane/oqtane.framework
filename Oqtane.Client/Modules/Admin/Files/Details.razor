@@ -3,6 +3,7 @@
 @inject IFileService FileService
 @inject IFolderService FolderService
 @inject NavigationManager NavigationManager
+@inject IStringLocalizer<Details> Localizer
 
 @if (_folders != null)
 {
@@ -37,8 +38,8 @@
             </td>
         </tr>
     </table>
-    <button type="button" class="btn btn-success" @onclick="SaveFile">Save</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <button type="button" class="btn btn-success" @onclick="SaveFile">@Localizer["Save"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
     <br />
     <br />
     <AuditInfo CreatedBy="@_createdBy" CreatedOn="@_createdOn" ModifiedBy="@_modifiedBy" ModifiedOn="@_modifiedOn"></AuditInfo>

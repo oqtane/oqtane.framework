@@ -3,6 +3,7 @@
 @inject IFolderService FolderService
 @inject IFileService FileService
 @inject NavigationManager NavigationManager
+@inject IStringLocalizer<Edit> Localizer
 
 @if (_folders != null)
 {
@@ -41,7 +42,7 @@
     </table>
     @if (!_isSystem)
     {
-        <button type="button" class="btn btn-success" @onclick="SaveFolder">Save</button>
+        <button type="button" class="btn btn-success" @onclick="SaveFolder">@Localizer["Save"]</button>
     }
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
     @if (!_isSystem && PageState.QueryString.ContainsKey("id"))
