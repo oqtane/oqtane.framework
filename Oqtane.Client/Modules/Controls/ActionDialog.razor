@@ -99,8 +99,8 @@
 
         if (IsLocalizable)
         {
-            Header = Localize(nameof(Header));
-            Message = Localize(nameof(Message));
+            Header = Localize(nameof(Header), Header);
+            Message = Localize(nameof(Message), Message);
         }
 
         _authorized = IsAuthorized();
