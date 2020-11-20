@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Oqtane.Providers;
 using Oqtane.Services;
-using Oqtane.Shared;
+using Oqtane.UI;
 
 namespace Oqtane.Themes.Controls
 {
@@ -29,7 +29,7 @@ namespace Oqtane.Themes.Controls
         {
             await UserService.LogoutUserAsync(PageState.User);
 
-            if (PageState.Runtime == Runtime.Server)
+            if (PageState.Runtime == Oqtane.Shared.Runtime.Server)
             {
                 // server-side Blazor
                 var interop = new Interop(jsRuntime);
