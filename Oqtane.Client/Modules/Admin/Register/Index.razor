@@ -1,7 +1,8 @@
-﻿@namespace Oqtane.Modules.Admin.Register
+@namespace Oqtane.Modules.Admin.Register
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
+@inject IStringLocalizer<Index> Localizer
 
 @if (PageState.Site.AllowRegistration)
 {
@@ -17,27 +18,27 @@
 
             <div class="container">
                 <div class="form-group">
-                    <label for="Username" class="control-label">Username: </label>
+                    <label for="Username" class="control-label">@Localizer["Username:"] </label>
                     <input type="text" class="form-control" placeholder="Username" @bind="@_username" id="Username" />
                 </div>
                 <div class="form-group">
-                    <label for="Password" class="control-label">Password: </label>
+                    <label for="Password" class="control-label">@Localizer["Password:"] </label>
                     <input type="password" class="form-control" placeholder="Password" @bind="@_password" id="Password" />
                 </div>
                 <div class="form-group">
-                    <label for="Confirm" class="control-label">Confirm Password: </label>
+                    <label for="Confirm" class="control-label">@Localizer["Confirm Password:"] </label>
                     <input type="password" class="form-control" placeholder="Password" @bind="@_confirm" id="Confirm" />
                 </div>
                 <div class="form-group">
-                    <label for="Email" class="control-label">Email: </label>
+                    <label for="Email" class="control-label">@Localizer["Email:"] </label>
                     <input type="text" class="form-control" placeholder="Email" @bind="@_email" id="Email" />
                 </div>
                 <div class="form-group">
-                    <label for="DisplayName" class="control-label">Full Name: </label>
+                    <label for="DisplayName" class="control-label">@Localizer["Full Name:"] </label>
                     <input type="text" class="form-control" placeholder="Full Name" @bind="@_displayName" id="DisplayName" />
                 </div>
-                <button type="button" class="btn btn-primary" @onclick="Register">Register</button>
-                <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+                <button type="button" class="btn btn-primary" @onclick="Register">@Localizer["Register"]</button>
+                <button type="button" class="btn btn-secondary" @onclick="Cancel">@Localizer["Cancel"]</button>
             </div>
         </NotAuthorized>
     </AuthorizeView>

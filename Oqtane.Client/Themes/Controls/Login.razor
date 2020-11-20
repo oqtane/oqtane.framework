@@ -1,5 +1,6 @@
-﻿@namespace Oqtane.Themes.Controls
-@inherits LoginBase   
+@namespace Oqtane.Themes.Controls
+@inherits LoginBase
+@inject IStringLocalizer<Login> Localizer 
 
 <span class="app-login">
     <AuthorizeView>
@@ -7,10 +8,10 @@
             <text>...</text>
         </Authorizing>
         <Authorized>
-            <button type="button" class="btn btn-primary" @onclick="LogoutUser">Logout</button>
+            <button type="button" class="btn btn-primary" @onclick="LogoutUser">@Localizer["Logout"]</button>
         </Authorized>
         <NotAuthorized>
-            <button type="button" class="btn btn-primary" @onclick="LoginUser">Login</button>
+            <button type="button" class="btn btn-primary" @onclick="LoginUser">@Localizer["Login"]</button>
         </NotAuthorized>
     </AuthorizeView>
 </span>

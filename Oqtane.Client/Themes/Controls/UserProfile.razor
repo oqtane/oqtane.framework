@@ -1,5 +1,6 @@
-﻿@namespace Oqtane.Themes.Controls
-@inherits ThemeControlBase   
+@namespace Oqtane.Themes.Controls
+@inherits ThemeControlBase
+@inject IStringLocalizer<UserProfile> Localizer 
 
 @inject NavigationManager NavigationManager
 
@@ -14,7 +15,7 @@
         <NotAuthorized>
             @if (PageState.Site.AllowRegistration)
             {
-                <button type="button" class="btn btn-primary" @onclick="RegisterUser">Register</button>
+            <button type="button" class="btn btn-primary" @onclick="RegisterUser">@Localizer["Register"]</button>
             }
         </NotAuthorized>
     </AuthorizeView>

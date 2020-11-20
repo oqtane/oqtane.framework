@@ -1,4 +1,4 @@
-﻿@using Oqtane.Modules.HtmlText.Services
+@using Oqtane.Modules.HtmlText.Services
 @namespace Oqtane.Modules.HtmlText
 @inherits ModuleBase
 @inject IHtmlTextService HtmlTextService
@@ -7,7 +7,7 @@
 
 @if (PageState.EditMode)
 {
-    <br /><ActionLink Action="Edit" EditMode="true" /><br /><br />
+    <br /><ActionLink Action="Edit" EditMode="true" ResourceKey="Edit" /><br /><br />
 }
 
 @code {

@@ -1,17 +1,18 @@
-﻿@namespace Oqtane.Modules.Admin.Pages
+@namespace Oqtane.Modules.Admin.Pages
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IPageService PageService
 @inject IThemeService  ThemeService
+@inject IStringLocalizer<Add> Localizer
 
 <TabStrip>
-    <TabPanel Name="Settings">
+    <TabPanel Name="Settings" ResourceKey="Settings">
         @if (_themeList != null)
         {
             <table class="table table-borderless">
                 <tr>
                     <td>
-                        <Label For="Name" HelpText="Enter the page name">Name: </Label>
+                        <Label For="Name" HelpText="Enter the page name" ResourceKey="Name">Name: </Label>
                     </td>
                     <td>
                         <input id="Name" class="form-control" @bind="@_name" />
@@ -19,11 +20,11 @@
                 </tr>
                 <tr>
                     <td>
-                        <Label For="Parent" HelpText="Select the parent for the page in the site hierarchy">Parent: </Label>
+                        <Label For="Parent" HelpText="Select the parent for the page in the site hierarchy" ResourceKey="Parent">Parent: </Label>
                     </td>
                     <td>
                         <select id="Parent" class="form-control" @onchange="(e => ParentChanged(e))">
-                            <option value="-1">&lt;Site Root&gt;</option>
+                            <option value="-1">&lt;@Localizer["Site Root"]&gt;</option>
                             @foreach (Page page in _pageList)
                             {
                                 <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
@@ -33,22 +34,22 @@
                 </tr>
                 <tr>
                     <td>
-                        <Label For="Insert" HelpText="Select the location where you would like the page to be inserted in relation to other pages">Insert: </Label>
+                        <Label For="Insert" HelpText="Select the location where you would like the page to be inserted in relation to other pages" ResourceKey="Insert">Insert: </Label>
                     </td>
                     <td>
                         <select id="Insert" class="form-control" @bind="@_insert">
-                            <option value="<<">At Beginning</option>
+                            <option value="<<">@Localizer["At Beginning"]</option>
                             @if (_children != null && _children.Count > 0)
                             {
-                                <option value="<">Before</option>
-                                <option value=">">After</option>
+                                <option value="<">@Localizer["Before"]</option>
+                                <option value=">">@Localizer["After"]</option>
                             }
-                            <option value=">>">At End</option>
+                            <option value=">>">@Localizer["At End"]</option>
                         </select>
                         @if (_children != null && _children.Count > 0 && (_insert == "<" || _insert == ">"))
                         {
                             <select class="form-control" @bind="@_childid">
-                                <option value="-1">&lt;Select Page&gt;</option>
+                                <option value="-1">&lt;@Localizer["Select Page"]&gt;</option>
                                 @foreach (Page page in _children)
                                 {
                                     <option value="@(page.PageId)">@(page.Name)</option>
@@ -59,18 +60,18 @@
                 </tr>
                 <tr>
                     <td>
-                        <Label For="Navigation" HelpText="Select whether the page is part of the site navigation or hidden">Navigation? </Label>
+                        <Label For="Navigation" HelpText="Select whether the page is part of the site navigation or hidden" ResourceKey="Navigation">Navigation? </Label>
                     </td>
                     <td>
                         <select id="Navigation" class="form-control" @bind="@_isnavigation">
-                            <option value="True">Yes</option>
-                            <option value="False">No</option>
+                            <option value="True">@Localizer["Yes"]</option>
+                            <option value="False">@Localizer["No"]</option>
                         </select>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <Label For="Path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used.">Url Path: </Label>
+                        <Label For="Path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used." ResourceKey="UrlPath">Url Path: </Label>
                     </td>
                     <td>
                         <input id="Path" class="form-control" @bind="@_path" />
@@ -78,18 +79,18 @@
                 </tr>
                 <tr>
                     <td>
-                        <Label For="Url" HelpText="Optionally enter a url which this page should redirect to when a user navigates to it">Redirect: </Label>
+                        <Label For="Url" HelpText="Optionally enter a url which this page should redirect to when a user navigates to it" ResourceKey="Redirect">Redirect: </Label>
                     </td>
                     <td>
                         <input id="Url" class="form-control" @bind="@_url" />
                     </td>
                 </tr>
             </table>
-            <Section Name="Appearance">
+            <Section Name="Appearance" ResourceKey="Appearance">
                 <table class="table table-borderless">
                     <tr>
                         <td>
-                            <Label For="Title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used.">Title: </Label>
+                            <Label For="Title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used." ResourceKey="Title">Title: </Label>
                         </td>
                         <td>
                             <input id="Title" class="form-control" @bind="@_title" />
@@ -97,11 +98,11 @@
                     </tr>
                     <tr>
                         <td>
-                            <Label For="Theme" HelpText="Select the theme for this page">Theme: </Label>
+                            <Label For="Theme" HelpText="Select the theme for this page" ResourceKey="Theme">Theme: </Label>
                         </td>
                         <td>
                             <select id="Theme" class="form-control" @onchange="(e => ThemeChanged(e))">
-                                <option value="-">&lt;Inherit From Site&gt;</option>
+                                <option value="-">&lt;@Localizer["Inherit From Site"]&gt;</option>
                                 @foreach (var theme in _themes)
                                 {
                                     if (theme.TypeName == _themetype)
@@ -120,11 +121,11 @@
                     {
                         <tr>
                             <td>
-                                <Label For="Layout" HelpText="Select a layout for the page (if the selected theme supports it)">Layout: </Label>
+                                <Label For="Layout" HelpText="Select a layout for the page (if the selected theme supports it)" ResourceKey="Layout">Layout: </Label>
                             </td>
                             <td>
                                 <select id="Layout" class="form-control" @bind="@_layouttype">
-                                    <option value="-">&lt;Inherit From Site&gt;</option>
+                                    <option value="-">&lt;@Localizer["Inherit From Site"]&gt;</option>
                                     @foreach (var layout in _layouts)
                                     {
                                         if (layout.TypeName == _layouttype)
@@ -142,11 +143,11 @@
                     }
                     <tr>
                         <td>
-                            <Label For="defaultContainer" HelpText="Select the default container for the page">Default Container: </Label>
+                            <Label For="defaultContainer" HelpText="Select the default container for the page" ResourceKey="DefaultContainer">Default Container: </Label>
                         </td>
                         <td>
                             <select id="defaultContainer" class="form-control" @bind="@_containertype">
-                                <option value="-">&lt;Inherit From Site&gt;</option>
+                                <option value="-">&lt;@Localizer["Inherit From Site"]&gt;</option>
                                 @foreach (var container in _containers)
                                 {
                                     <option value="@container.TypeName">@container.Name</option>
@@ -156,7 +157,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <Label For="Icon" HelpText="Optionally provide an icon for this page which will be displayed in the site navigation">Icon: </Label>
+                            <Label For="Icon" HelpText="Optionally provide an icon for this page which will be displayed in the site navigation" ResourceKey="Icon">Icon: </Label>
                         </td>
                         <td>
                             <input id="Icon" class="form-control" @bind="@_icon" />
@@ -164,12 +165,12 @@
                     </tr>
                     <tr>
                         <td>
-                            <Label For="Personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content">Personalizable? </Label>
+                            <Label For="Personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content" ResourceKey="Personalizable">Personalizable? </Label>
                         </td>
                         <td>
                             <select id="Personalizable" class="form-control" @bind="@_ispersonalizable">
-                                <option value="True">Yes</option>
-                                <option value="False">No</option>
+                                <option value="True">@Localizer["Yes"]</option>
+                                <option value="False">@Localizer["No"]</option>
                             </select>
                         </td>
                     </tr>
@@ -177,7 +178,7 @@
             </Section>
         }
     </TabPanel>
-    <TabPanel Name="Permissions">
+    <TabPanel Name="Permissions" ResourceKey="Permissions">
         <table class="table table-borderless">
             <tr>
                 <td>
@@ -187,8 +188,8 @@
         </table>
     </TabPanel>
 </TabStrip>
-<button type="button" class="btn btn-success" @onclick="SavePage">Save</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+<button type="button" class="btn btn-success" @onclick="SavePage">@Localizer["Save"]</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
 
 @code {
     private List<Theme> _themeList;
