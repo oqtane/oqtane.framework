@@ -4,74 +4,75 @@
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject IModuleService ModuleService
 @inject ISystemService SystemService
-@inject IStringLocalizer<Index> Localizer 
+@inject IStringLocalizer<Index> Localizer
+@using System.Text.RegularExpressions
 
-    <table class="table table-borderless">
-        <tr>
-            <td>
-                <Label For="owner" HelpText="Enter the name of the organization who is developing this module. It should not contain spaces or punctuation." ResourceKey="OwnerName">Owner Name: </Label>
-            </td>
-            <td>
-                <input id="owner" class="form-control" @bind="@_owner" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="module" HelpText="Enter a name for this module. It should not contain spaces or punctuation." ResourceKey="ModuleName">Module Name: </Label>
-            </td>
-            <td>
-                <input id="module" class="form-control" @bind="@_module" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="description" HelpText="Enter s short description for the module" ResourceKey="Description">Description: </Label>
-            </td>
-            <td>
-                <textarea id="description" class="form-control" @bind="@_description" rows="3"></textarea>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="template" HelpText="Select a module template. Internal modules are created inside of the Oqtane solution. External modules are created outside of the Oqtane solution." ResourceKey="Template">Template: </Label>
-            </td>
-            <td>
-                <select id="template" class="form-control" @onchange="(e => TemplateChanged(e))">
-                    <option value="-">&lt;@Localizer["Select Template"]&gt;</option>
-                    <option value="internal">@Localizer["Internal"]</option>
-                    <option value="external">@Localizer["External"]</option>
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="reference" HelpText="Select a framework reference version" ResourceKey="FrameworkReference">Framework Reference: </Label>
-            </td>
-            <td>
-                <select id="reference" class="form-control" @bind="@_reference">
-                    @foreach (string version in Constants.ReleaseVersions.Split(','))
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <Label For="owner" HelpText="Enter the name of the organization who is developing this module. It should not contain spaces or punctuation." ResourceKey="OwnerName">Owner Name: </Label>
+        </td>
+        <td>
+            <input id="owner" class="form-control" @bind="@_owner" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="module" HelpText="Enter a name for this module. It should not contain spaces or punctuation." ResourceKey="ModuleName">Module Name: </Label>
+        </td>
+        <td>
+            <input id="module" class="form-control" @bind="@_module" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="description" HelpText="Enter s short description for the module" ResourceKey="Description">Description: </Label>
+        </td>
+        <td>
+            <textarea id="description" class="form-control" @bind="@_description" rows="3"></textarea>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="template" HelpText="Select a module template. Internal modules are created inside of the Oqtane solution. External modules are created outside of the Oqtane solution." ResourceKey="Template">Template: </Label>
+        </td>
+        <td>
+            <select id="template" class="form-control" @onchange="(e => TemplateChanged(e))">
+                <option value="-">&lt;@Localizer["Select Template"]&gt;</option>
+                <option value="internal">@Localizer["Internal"]</option>
+                <option value="external">@Localizer["External"]</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="reference" HelpText="Select a framework reference version" ResourceKey="FrameworkReference">Framework Reference: </Label>
+        </td>
+        <td>
+            <select id="reference" class="form-control" @bind="@_reference">
+                @foreach (string version in Constants.ReleaseVersions.Split(','))
+                {
+                    if (Version.Parse(version).CompareTo(Version.Parse("2.0.0")) >= 0)
                     {
-                        if (Version.Parse(version).CompareTo(Version.Parse("2.0.0")) >= 0)
-                        {
-                            <option value="@(version)">@(version)</option>
-                        }
+                        <option value="@(version)">@(version)</option>
                     }
+                }
                 <option value="local">@Localizer["Local Version"]</option>
-                </select>
+            </select>
+        </td>
+    </tr>
+    @if (!string.IsNullOrEmpty(_location))
+    {
+        <tr>
+            <td>
+                <Label For="location" HelpText="Location where the module will be created" ResourceKey="Location">Location: </Label>
+            </td>
+            <td>
+                <input id="module" class="form-control" @bind="@_location" readonly />
             </td>
         </tr>
-        @if (!string.IsNullOrEmpty(_location))
-        {
-            <tr>
-                <td>
-                    <Label For="location" HelpText="Location where the module will be created" ResourceKey="Location">Location: </Label>
-                </td>
-                <td>
-                    <input id="module" class="form-control" @bind="@_location" readonly />
-                </td>
-            </tr>
-        }
-    </table>
+    }
+</table>
 
 <button type="button" class="btn btn-success" @onclick="CreateModule">@Localizer["Create Module"]</button>
 
@@ -94,24 +95,30 @@
     {
         try
         {
-            if (!string.IsNullOrEmpty(_owner) && !string.IsNullOrEmpty(_module) && _template != "-")
+            if (IsValid(_owner) && IsValid(_module) && _template != "-")
             {
                 ShowProgressIndicator();
                 var interop = new Interop(JSRuntime);
                 await interop.RedirectBrowser(NavigateUrl(), 5);
 
-                var moduleDefinition = new ModuleDefinition { Owner = _owner.Replace(" ", ""), Name = _module.Replace(" ", ""), Description = _description, Template = _template, Version = _reference };
+                var moduleDefinition = new ModuleDefinition { Owner = _owner, Name = _module, Description = _description, Template = _template, Version = _reference };
                 await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition, ModuleState.ModuleId);
             }
             else
             {
-                AddModuleMessage("You Must Provide An Owner, Module Name, And Template", MessageType.Warning);
+                AddModuleMessage("You Must Provide A Valid Owner Name, Module Name, And Template", MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Creating Module");
         }
+    }
+
+    private bool IsValid(string name)
+    {
+        // must contain letters, underscores and digits and first character must be letter or underscore
+        return !string.IsNullOrEmpty(name) && Regex.IsMatch(name, "^[A-Za-z_][A-Za-z0-9_]*$");
     }
 
     private async void TemplateChanged(ChangeEventArgs e)
