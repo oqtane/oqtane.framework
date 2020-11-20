@@ -4,11 +4,12 @@
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject IModuleService ModuleService
 @inject ISystemService SystemService
+@inject IStringLocalizer<Index> Localizer 
 
     <table class="table table-borderless">
         <tr>
             <td>
-                <Label For="owner" HelpText="Enter the name of the organization who is developing this module. It should not contain spaces or punctuation.">Owner Name: </Label>
+                <Label For="owner" HelpText="Enter the name of the organization who is developing this module. It should not contain spaces or punctuation." ResourceKey="OwnerName">Owner Name: </Label>
             </td>
             <td>
                 <input id="owner" class="form-control" @bind="@_owner" />
@@ -16,7 +17,7 @@
         </tr>
         <tr>
             <td>
-                <Label For="module" HelpText="Enter a name for this module. It should not contain spaces or punctuation.">Module Name: </Label>
+                <Label For="module" HelpText="Enter a name for this module. It should not contain spaces or punctuation." ResourceKey="ModuleName">Module Name: </Label>
             </td>
             <td>
                 <input id="module" class="form-control" @bind="@_module" />
@@ -24,7 +25,7 @@
         </tr>
         <tr>
             <td>
-                <Label For="description" HelpText="Enter s short description for the module">Description: </Label>
+                <Label For="description" HelpText="Enter s short description for the module" ResourceKey="Description">Description: </Label>
             </td>
             <td>
                 <textarea id="description" class="form-control" @bind="@_description" rows="3"></textarea>
@@ -32,19 +33,19 @@
         </tr>
         <tr>
             <td>
-                <Label For="template" HelpText="Select a module template. Internal modules are created inside of the Oqtane solution. External modules are created outside of the Oqtane solution.">Template: </Label>
+                <Label For="template" HelpText="Select a module template. Internal modules are created inside of the Oqtane solution. External modules are created outside of the Oqtane solution." ResourceKey="Template">Template: </Label>
             </td>
             <td>
                 <select id="template" class="form-control" @onchange="(e => TemplateChanged(e))">
-                    <option value="-">&lt;Select Template&gt;</option>
-                    <option value="internal">Internal</option>
-                    <option value="external">External</option>
+                    <option value="-">&lt;@Localizer["Select Template"]&gt;</option>
+                    <option value="internal">@Localizer["Internal"]</option>
+                    <option value="external">@Localizer["External"]</option>
                 </select>
             </td>
         </tr>
         <tr>
             <td>
-                <Label For="reference" HelpText="Select a framework reference version">Framework Reference: </Label>
+                <Label For="reference" HelpText="Select a framework reference version" ResourceKey="FrameworkReference">Framework Reference: </Label>
             </td>
             <td>
                 <select id="reference" class="form-control" @bind="@_reference">
@@ -55,7 +56,7 @@
                             <option value="@(version)">@(version)</option>
                         }
                     }
-                    <option value="local">Local Version</option>
+                <option value="local">@Localizer["Local Version"]</option>
                 </select>
             </td>
         </tr>
@@ -63,7 +64,7 @@
         {
             <tr>
                 <td>
-                    <Label For="location" HelpText="Location where the module will be created">Location: </Label>
+                    <Label For="location" HelpText="Location where the module will be created" ResourceKey="Location">Location: </Label>
                 </td>
                 <td>
                     <input id="module" class="form-control" @bind="@_location" readonly />
@@ -72,7 +73,7 @@
         }
     </table>
 
-<button type="button" class="btn btn-success" @onclick="CreateModule">Create Module</button>
+<button type="button" class="btn btn-success" @onclick="CreateModule">@Localizer["Create Module"]</button>
 
 @code {
     private string _owner = string.Empty;
