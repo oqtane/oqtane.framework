@@ -1,40 +1,41 @@
-﻿@namespace Oqtane.Modules.Admin.ModuleDefinitions
+@namespace Oqtane.Modules.Admin.ModuleDefinitions
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject IPackageService PackageService
+@inject IStringLocalizer<Index> Localizer
 
 @if (_moduleDefinitions == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>@Localizer["Loading..."]</em></p>
 }
 else
 {
-    <ActionLink Action="Add" Text="Install Module" />
+    <ActionLink Action="Add" Text="Install Module" ResourceKey="InstallModule" />
 
     <Pager Items="@_moduleDefinitions">
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
-            <th>Name</th>
-            <th>Version</th>
+            <th>@Localizer["Name"]</th>
+            <th>@Localizer["Version"]</th>
             <th style="width: 1px;">&nbsp;</th>
         </Header>
         <Row>
-            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ModuleDefinitionId.ToString())" /></td>
+            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ModuleDefinitionId.ToString())" ResourceKey="EditModule" /></td>
             <td>
                 @if (context.AssemblyName != "Oqtane.Client")
-                    {
-                    <ActionDialog Header="Delete Module" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Module?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" />
-                    }
+                {
+                    <ActionDialog Header="Delete Module" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Module?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" />
+                }
             </td>
             <td>@context.Name</td>
             <td>@context.Version</td>
             <td>
                 @if (UpgradeAvailable(context.ModuleDefinitionName, context.Version))
-                    {
-                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadModule(context.ModuleDefinitionName, context.Version))>Upgrade</button>
-                    }
+                {
+                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadModule(context.ModuleDefinitionName, context.Version))>@Localizer["Upgrade"]</button>
+                }
             </td>
         </Row>
     </Pager>
