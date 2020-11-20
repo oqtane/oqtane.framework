@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Themes.Controls
+@namespace Oqtane.Themes.Controls
 @inherits ThemeControlBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
@@ -9,6 +9,7 @@
 @inject IPageModuleService PageModuleService
 @inject ILogService logger
 @inject ISettingService SettingService
+@inject IStringLocalizer<ControlPanel> Localizer 
 
 @if (_moduleDefinitions != null && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions))
 {
@@ -16,7 +17,7 @@
 
         <div class="@CardClass">
             <div class="@HeaderClass">
-                <span class="font-weight-bold">Control Panel</span>
+                <span class="font-weight-bold">@Localizer["Control Panel"]</span>
                 <button type="button" class="close" @onclick="HideControlPanel" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -27,7 +28,7 @@
                 {
                     <div class="row">
                         <div class="col">
-                            <button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Navigate("Admin"))>Admin Dashboard</button>
+                            <button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Navigate("Admin"))>@Localizer["Admin Dashboard"]</button>
                         </div>
                     </div>
 
@@ -35,18 +36,18 @@
 
                     <div class="row">
                         <div class="col text-center">
-                            <label class="control-label">Page Management: </label>
+                            <label class="control-label">@Localizer["Page Management:"] </label>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col">
-                            <button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Navigate("Add"))>Add</button>
+                            <button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Navigate("Add"))>@Localizer["Add"]</button>
                         </div>
                         <div class="col">
-                            <button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Navigate("Edit"))>Edit</button>
+                            <button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Navigate("Edit"))>@Localizer["Edit"]</button>
                         </div>
                         <div class="col">
-                            <button class="btn btn-danger btn-block mx-auto" @onclick="ConfirmDelete">Delete</button>
+                            <button class="btn btn-danger btn-block mx-auto" @onclick="ConfirmDelete">@Localizer["Delete"]</button>
                         </div>
                     </div>
                     <br />
@@ -54,13 +55,13 @@
                         @if (UserSecurity.GetPermissionStrings(PageState.Page.Permissions).FirstOrDefault(item => item.PermissionName == PermissionNames.View).Permissions.Split(';').Contains(RoleNames.Everyone))
                         {
                             <div class="col">
-                                <button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Publish("unpublish"))>Unpublish Page</button>
+                                <button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Publish("unpublish"))>@Localizer["Unpublish Page"]</button>
                             </div>
                         }
                         else
                         {
                             <div class="col">
-                                <button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Publish("publish"))>Publish Page</button>
+                                <button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Publish("publish"))>@Localizer["Publish Page"]</button>
                             </div>
                         }
                     </div>
@@ -73,15 +74,15 @@
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title">Delete Page</h5>
+                                        <h5 class="modal-title">@Localizer["Delete Page"]</h5>
                                         <button type="button" class="close" @onclick="ConfirmDelete" aria-label="Close">&times;</button>
                                     </div>
                                     <div class="modal-body">
                                         <p>Are You Sure You Want To Delete This Page?</p>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-danger" @onclick="DeletePage">Delete</button>
-                                        <button type="button" class="btn btn-secondary" @onclick="ConfirmDelete">Cancel</button>
+                                        <button type="button" class="btn btn-danger" @onclick="DeletePage">@Localizer["Delete"]</button>
+                                        <button type="button" class="btn btn-secondary" @onclick="ConfirmDelete">@Localizer["Cancel"]</button>
                                     </div>
                                 </div>
                             </div>
@@ -92,10 +93,10 @@
 
                 <div class="row">
                     <div class="col text-center">
-                        <label for="Module" class="control-label">Module Management: </label>
+                        <label for="Module" class="control-label">@Localizer["Module Management:"] </label>
                         <select class="form-control" @bind="@ModuleType">
-                            <option value="new">Add New Module</option>
-                            <option value="existing">Add Existing Module</option>
+                            <option value="new">@Localizer["Add New Module"]</option>
+                            <option value="existing">@Localizer["Add Existing Module"]</option>
                         </select>
                         @if (ModuleType == "new")
                         {
@@ -106,22 +107,22 @@
                                     {
                                         if (category == Category)
                                         {
-                                            <option value="@category" selected>@category Modules</option>
+                                            <option value="@category" selected>@category @Localizer["Modules"]</option>
                                         }
                                         else
                                         {
-                                            <option value="@category">@category Modules</option>
+                                            <option value="@category">@category @Localizer["Modules"]</option>
                                         }
                                     }
                                 </select>
                                 <select class="form-control" @onchange="(e => ModuleChanged(e))">
                                     @if (ModuleDefinitionName == "-")
                                     {
-                                        <option value="-" selected>&lt;Select Module&gt;</option>
+                                        <option value="-" selected>&lt;@Localizer["Select Module"]&gt;</option>
                                     }
                                     else
                                     {
-                                        <option value="-">&lt;Select Module&gt;</option>
+                                        <option value="-">&lt;@Localizer["Select Module"]&gt;</option>
                                     }
                                     @foreach (var moduledefinition in _moduleDefinitions)
                                     {
@@ -140,14 +141,14 @@
                         else
                         {
                             <select class="form-control" @onchange="(e => PageChanged(e))">
-                                <option value="-">&lt;Select Page&gt;</option>
+                                <option value="-">&lt;@Localizer["Select Page"]&gt;</option>
                                 @foreach (Page p in _pages)
                                 {
                                     <option value="@p.PageId">@p.Name</option>
                                 }
                             </select>
                             <select class="form-control" @bind="@ModuleId">
-                                <option value="-">&lt;Select Module&gt;</option>
+                                <option value="-">&lt;@Localizer["Select Module"]&gt;</option>
                                 @foreach (Module module in _modules)
                                 {
                                     <option value="@module.ModuleId">@module.Title</option>
@@ -158,7 +159,7 @@
                 </div>
                 <div class="row">
                     <div class="col text-center">
-                        <label for="Title" class="control-label">Title: </label>
+                        <label for="Title" class="control-label">@Localizer["Title:"] </label>
                         <input type="text" name="Title" class="form-control" @bind="@Title" />
                     </div>
                 </div>
@@ -166,7 +167,7 @@
                 {
                     <div class="row">
                         <div class="col text-center">
-                            <label for="Pane" class="control-label">Pane: </label>
+                            <label for="Pane" class="control-label">@Localizer["Pane:"] </label>
                             <select class="form-control" @bind="@Pane">
                                 @foreach (string pane in PageState.Page.Panes)
                                 {
@@ -178,7 +179,7 @@
                 }
                 <div class="row">
                     <div class="col text-center">
-                        <label for="Container" class="control-label">Container: </label>
+                        <label for="Container" class="control-label">@Localizer["Container:"] </label>
                         <select class="form-control" @bind="@ContainerType">
                             @foreach (var container in _containers)
                             {
@@ -190,7 +191,7 @@
 
                 <br />
 
-                <button type="button" class="btn btn-primary btn-block mx-auto" @onclick="@AddModule">Add Module To Page</button>
+                <button type="button" class="btn btn-primary btn-block mx-auto" @onclick="@AddModule">@Localizer["Add Module To Page"]</button>
                 @((MarkupString) Message)
             </div>
         </div>
