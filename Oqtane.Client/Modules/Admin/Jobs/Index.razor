@@ -1,15 +1,15 @@
-﻿@namespace Oqtane.Modules.Admin.Jobs
+@namespace Oqtane.Modules.Admin.Jobs
 @inherits ModuleBase
 @inject IJobService JobService
 
 @if (_jobs == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>@Localizer["Loading..."]</em></p>
 }
 else
 {
-    <ActionLink Action="Add" Text="Add Job" />
-    <ActionLink Action="Log" Class="btn btn-secondary" Text="View Logs" />
+    <ActionLink Action="Add" Text="Add Job" ResourceKey="AddJob" />
+    <ActionLink Action="Log" Class="btn btn-secondary" Text="View Logs" ResourceKey="ViewJobs" />
     <button type="button" class="btn btn-secondary" @onclick="(async () => await Refresh())">Refresh</button>
     <br /><br />
 
@@ -18,16 +18,16 @@ else
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
-            <th>Name</th>
-            <th>Status</th>
-            <th>Frequency</th>
-            <th>Next Execution</th>
+            <th>@Localizer["Name"]</th>
+            <th>@Localizer["Status"]</th>
+            <th>@Localizer["Frequency"]</th>
+            <th>@Localizer["Next Execution"]</th>
             <th style="width: 1px;">&nbsp;</th>
         </Header>
         <Row>
-            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.JobId.ToString())" /></td>
-            <td><ActionDialog Header="Delete Job" Message="@("Are You Sure You Wish To Delete This Job?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteJob(context))" /></td>
-            <td><ActionLink Action="Log" Class="btn btn-secondary" Parameters="@($"id=" + context.JobId.ToString())" /></td>
+            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.JobId.ToString())" ResourceKey="EditJob" /></td>
+            <td><ActionDialog Header="Delete Job" Message="@("Are You Sure You Wish To Delete This Job?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteJob(context))" ResourceKey="DeleteJob" /></td>
+            <td><ActionLink Action="Log" Class="btn btn-secondary" Parameters="@($"id=" + context.JobId.ToString())" ResourceKey="JobLog" /></td>
             <td>@context.Name</td>
             <td>@DisplayStatus(context.IsEnabled, context.IsExecuting)</td>
             <td>@DisplayFrequency(context.Interval, context.Frequency)</td>
@@ -35,11 +35,11 @@ else
             <td>
                 @if (context.IsStarted)
                 {
-                    <button type="button" class="btn btn-danger" @onclick="(async () => await StopJob(context.JobId))">Stop</button>
+                    <button type="button" class="btn btn-danger" @onclick="(async () => await StopJob(context.JobId))">@Localizer["Stop"]</button>
                 }
                 else
                 {
-                    <button type="button" class="btn btn-success" @onclick="(async () => await StartJob(context.JobId))">Start</button>
+                    <button type="button" class="btn btn-success" @onclick="(async () => await StartJob(context.JobId))">@Localizer["Start"]</button>
                 }
             </td>
         </Row>
