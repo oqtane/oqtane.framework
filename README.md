@@ -49,6 +49,11 @@ There is a separate [Documentation repository](https://github.com/oqtane/oqtane.
 # Roadmap
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
 
+V.2.1.0 ( Q1 2021 )
+- [ ] Complete Static Localization of Admin UI
+- [ ] EF Core Migrations for Database Installation/Upgrade
+- [ ] Support for Multiple Relational Databases ( ie. SQLite )
+
 V.2.0.0 ( released in conjuntion with .NET 5 on Nov 11, 2020 )
 - [x] Migration to .NET 5
 - [x] Static Localization ( ie. labels, help text, etc.. )
@@ -77,8 +82,6 @@ V.1.0.0 ( released in conjunction with .NET Core 3.2 on May 19, 2020 )
 - [x] Dynamic CSS/Lazy Loading
 
 Future Consideration
-- [ ] DB Migrations for Database Installation/Upgrade
-- [ ] Support for other Databases ( ie. SQLite )
 - [ ] OAuth Support
 - [ ] Site Configuration Migrations
 - [ ] Pub/Sub Event Framework
