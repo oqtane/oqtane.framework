@@ -5,7 +5,7 @@
 @if (!string.IsNullOrEmpty(_message))
 {
     <div class="@_classname" role="alert">
-        @_message
+        @((MarkupString)_message)
         @if (Type == MessageType.Error && PageState != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
         {
             @((MarkupString)"&nbsp;&nbsp;")<NavLink href="@NavigateUrl("admin/log")">View Details</NavLink>

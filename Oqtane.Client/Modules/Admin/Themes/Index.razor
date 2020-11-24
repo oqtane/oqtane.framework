@@ -86,10 +86,8 @@ else
         {
             await PackageService.DownloadPackageAsync(themename, version, "Themes");
             await logger.LogInformation("Theme Downloaded {ThemeName} {Version}", themename, version);
-            ShowProgressIndicator();
-            var interop = new Interop(JSRuntime);
-            await interop.RedirectBrowser(NavigateUrl(), 10);
             await ThemeService.InstallThemesAsync();
+            AddModuleMessage("Theme Installed Successfully. You Must <a href=\"" + NavigateUrl("admin/system") + "\">Restart</a> Your Application To Apply These Changes.", MessageType.Success);
         }
         catch (Exception ex)
         {
@@ -102,10 +100,8 @@ else
     {
         try
         {
-            ShowProgressIndicator();
-            var interop = new Interop(JSRuntime);
-            await interop.RedirectBrowser(NavigateUrl(), 10);
             await ThemeService.DeleteThemeAsync(Theme.ThemeName);
+            AddModuleMessage("Theme Deleted Successfully. You Must <a href=\"" + NavigateUrl("admin/system") + "\">Restart</a> Your Application To Apply These Changes.", MessageType.Success);
         }
         catch (Exception ex)
         {

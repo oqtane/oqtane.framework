@@ -78,14 +78,12 @@
     {
         try
         {
-            ShowProgressIndicator();
-            var interop = new Interop(JSRuntime);
-            await interop.RedirectBrowser(NavigateUrl(), 10);
             await ThemeService.InstallThemesAsync();
+            AddModuleMessage("Theme Installed Successfully. You Must <a href=\"" + NavigateUrl("admin/system") + "\">Restart</a> Your Application To Apply These Changes.", MessageType.Success);
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Installating Theme");
+            await logger.LogError(ex, "Error Installing Theme");
         }
     }
 
