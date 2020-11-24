@@ -96,7 +96,7 @@ namespace Oqtane.Controllers
         public void InstallModules()
         {
             _logger.Log(LogLevel.Information, this, LogFunction.Create, "Modules Installed");
-            _installationManager.InstallPackages("Modules", true);
+            _installationManager.InstallPackages("Modules");
         }
 
         // DELETE api/<controller>/5?siteid=x
@@ -159,9 +159,6 @@ namespace Oqtane.Controllers
                     // remove module definition
                     _moduleDefinitions.DeleteModuleDefinition(id, siteid);
                     _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Definition {ModuleDefinitionName} Deleted", moduledefinition.Name);
-
-                    // restart application
-                    _installationManager.RestartApplication();
                 }
             }
         }
@@ -205,8 +202,6 @@ namespace Oqtane.Controllers
                     resources.Add(Utilities.PathCombine("Modules", moduleDefinition.Owner + "." + moduleDefinition.Name, "Scripts", moduleDefinition.Owner + "." + moduleDefinition.Name + ".Uninstall.sql"));
                     EmbedResourceFiles(Utilities.PathCombine(rootPath, "Oqtane.Server", "Oqtane.Server.csproj"), resources);
                 }
-
-                _installationManager.RestartApplication();
             }
         }
 

@@ -86,23 +86,15 @@
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-    protected override void OnInitialized()
-    {
-        AddModuleMessage("Please Note That Once You Select The Create Module Button The Application Must Restart In Order To Complete The Process. If You Create An External Module You Will Need To Compile The Source Code And Then Relaunch Your Site In Order To Make It Functional.", MessageType.Info);
-    }
-
     private async Task CreateModule()
     {
         try
         {
             if (IsValid(_owner) && IsValid(_module) && _template != "-")
             {
-                ShowProgressIndicator();
-                var interop = new Interop(JSRuntime);
-                await interop.RedirectBrowser(NavigateUrl(), 5);
-
                 var moduleDefinition = new ModuleDefinition { Owner = _owner, Name = _module, Description = _description, Template = _template, Version = _reference };
                 await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition, ModuleState.ModuleId);
+                AddModuleMessage("The Source Code For Your Module Has Been Created And Must Be Compiled In Order To Make It Functional. Once It Has Been Compiled You Must Restart Your Application.", MessageType.Success);
             }
             else
             {

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Oqtane.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -45,7 +45,7 @@ namespace Oqtane.Controllers
         public void InstallThemes()
         {
             _logger.Log(LogLevel.Information, this, LogFunction.Create, "Themes Installed");
-            _installationManager.InstallPackages("Themes", true);
+            _installationManager.InstallPackages("Themes");
         }
 
         // DELETE api/<controller>/xxx
@@ -79,8 +79,6 @@ namespace Oqtane.Controllers
                     Directory.Delete(folder, true);
                     _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Theme Resource Folder Removed For {ThemeName}", theme.ThemeName);
                 }
-
-                _installationManager.RestartApplication();
             }
         }
 

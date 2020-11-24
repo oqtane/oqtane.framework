@@ -85,10 +85,8 @@ else
         {
             await PackageService.DownloadPackageAsync(moduledefinitionname, version, "Modules");
             await logger.LogInformation("Module Downloaded {ModuleDefinitionName} {Version}", moduledefinitionname, version);
-            ShowProgressIndicator();
-            var interop = new Interop(JSRuntime);
-            await interop.RedirectBrowser(NavigateUrl(), 10);
             await ModuleDefinitionService.InstallModuleDefinitionsAsync();
+            AddModuleMessage("Module Installed Successfully. You Must <a href=\"" + NavigateUrl("admin/system") + "\">Restart</a> Your Application To Apply These Changes.", MessageType.Success);
         }
         catch (Exception ex)
         {
@@ -101,10 +99,8 @@ else
     {
         try
         {
-            ShowProgressIndicator();
-            var interop = new Interop(JSRuntime);
-            await interop.RedirectBrowser(NavigateUrl(), 10);
             await ModuleDefinitionService.DeleteModuleDefinitionAsync(moduleDefinition.ModuleDefinitionId, moduleDefinition.SiteId);
+            AddModuleMessage("Module Deleted Successfully. You Must <a href=\"" + NavigateUrl("admin/system") + "\">Restart</a> Your Application To Apply These Changes.", MessageType.Success);
         }
         catch (Exception ex)
         {

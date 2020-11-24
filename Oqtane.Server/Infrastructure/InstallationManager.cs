@@ -26,15 +26,11 @@ namespace Oqtane.Infrastructure
             _cache = cache;
         }
 
-        public void InstallPackages(string folders, bool restart)
+        public void InstallPackages(string folders)
         {
-            var webRootPath = _environment.WebRootPath;
-
-            var install = InstallPackages(folders, webRootPath);
-
-            if (install && restart)
+            if (!InstallPackages(folders, _environment.WebRootPath))
             {
-                RestartApplication();
+                // error installing packages
             }
         }
 
