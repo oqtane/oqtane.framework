@@ -4,79 +4,87 @@
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject IModuleService ModuleService
 @inject ISystemService SystemService
+@inject ISettingService SettingService
 @inject IStringLocalizer<Index> Localizer
 @using System.Text.RegularExpressions
 
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <Label For="owner" HelpText="Enter the name of the organization who is developing this module. It should not contain spaces or punctuation." ResourceKey="OwnerName">Owner Name: </Label>
-        </td>
-        <td>
-            <input id="owner" class="form-control" @bind="@_owner" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="module" HelpText="Enter a name for this module. It should not contain spaces or punctuation." ResourceKey="ModuleName">Module Name: </Label>
-        </td>
-        <td>
-            <input id="module" class="form-control" @bind="@_module" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="description" HelpText="Enter s short description for the module" ResourceKey="Description">Description: </Label>
-        </td>
-        <td>
-            <textarea id="description" class="form-control" @bind="@_description" rows="3"></textarea>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="template" HelpText="Select a module template. Internal modules are created inside of the Oqtane solution. External modules are created outside of the Oqtane solution." ResourceKey="Template">Template: </Label>
-        </td>
-        <td>
-            <select id="template" class="form-control" @onchange="(e => TemplateChanged(e))">
-                <option value="-">&lt;@Localizer["Select Template"]&gt;</option>
-                <option value="internal">@Localizer["Internal"]</option>
-                <option value="external">@Localizer["External"]</option>
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="reference" HelpText="Select a framework reference version" ResourceKey="FrameworkReference">Framework Reference: </Label>
-        </td>
-        <td>
-            <select id="reference" class="form-control" @bind="@_reference">
-                @foreach (string version in Constants.ReleaseVersions.Split(','))
-                {
-                    if (Version.Parse(version).CompareTo(Version.Parse("2.0.0")) >= 0)
-                    {
-                        <option value="@(version)">@(version)</option>
-                    }
-                }
-                <option value="local">@Localizer["Local Version"]</option>
-            </select>
-        </td>
-    </tr>
-    @if (!string.IsNullOrEmpty(_location))
-    {
+@if (string.IsNullOrEmpty(_moduledefinitionname))
+{
+    <table class="table table-borderless">
         <tr>
             <td>
-                <Label For="location" HelpText="Location where the module will be created" ResourceKey="Location">Location: </Label>
+                <Label For="owner" HelpText="Enter the name of the organization who is developing this module. It should not contain spaces or punctuation." ResourceKey="OwnerName">Owner Name: </Label>
             </td>
             <td>
-                <input id="module" class="form-control" @bind="@_location" readonly />
+                <input id="owner" class="form-control" @bind="@_owner" />
             </td>
         </tr>
-    }
-</table>
-
-<button type="button" class="btn btn-success" @onclick="CreateModule">@Localizer["Create Module"]</button>
+        <tr>
+            <td>
+                <Label For="module" HelpText="Enter a name for this module. It should not contain spaces or punctuation." ResourceKey="ModuleName">Module Name: </Label>
+            </td>
+            <td>
+                <input id="module" class="form-control" @bind="@_module" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="description" HelpText="Enter a short description for the module" ResourceKey="Description">Description: </Label>
+            </td>
+            <td>
+                <textarea id="description" class="form-control" @bind="@_description" rows="3"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="template" HelpText="Select a module template. Internal modules are created inside of the framework solution. External modules are created outside of the framework solution." ResourceKey="Template">Template: </Label>
+            </td>
+            <td>
+                <select id="template" class="form-control" @onchange="(e => TemplateChanged(e))">
+                    <option value="-">&lt;@Localizer["Select Template"]&gt;</option>
+                    <option value="internal">@Localizer["Internal"]</option>
+                    <option value="external">@Localizer["External"]</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="reference" HelpText="Select a framework reference version" ResourceKey="FrameworkReference">Framework Reference: </Label>
+            </td>
+            <td>
+                <select id="reference" class="form-control" @bind="@_reference">
+                    @foreach (string version in Constants.ReleaseVersions.Split(','))
+                    {
+                        if (Version.Parse(version).CompareTo(Version.Parse("2.0.0")) >= 0)
+                        {
+                            <option value="@(version)">@(version)</option>
+                        }
+                    }
+                    <option value="local">@Localizer["Local Version"]</option>
+                </select>
+            </td>
+        </tr>
+        @if (!string.IsNullOrEmpty(_location))
+        {
+            <tr>
+                <td>
+                    <Label For="location" HelpText="Location where the module will be created" ResourceKey="Location">Location: </Label>
+                </td>
+                <td>
+                    <input id="module" class="form-control" @bind="@_location" readonly />
+                </td>
+            </tr>
+        }
+    </table>
+    <button type="button" class="btn btn-success" @onclick="CreateModule">@Localizer["Create Module"]</button>
+}
+else
+{
+    <button type="button" class="btn btn-success" @onclick="ActivateModule">@Localizer["Activate Module"]</button>
+}
 
 @code {
+    private string _moduledefinitionname = "";
     private string _owner = string.Empty;
     private string _module = string.Empty;
     private string _description = string.Empty;
@@ -86,6 +94,21 @@
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
+    protected override void OnInitialized()
+    {
+        _moduledefinitionname = SettingService.GetSetting(ModuleState.Settings, "ModuleDefinitionName", "");
+        if (string.IsNullOrEmpty(_moduledefinitionname))
+        {
+            _owner = ModuleState.Title;
+            _module = ModuleState.Title;
+            _description = ModuleState.Title;
+        }
+        else
+        {
+            AddModuleMessage("Once You Have Compiled The Module And Restarted The Application You Can Activate The Module Below", MessageType.Info);
+        }
+    }
+
     private async Task CreateModule()
     {
         try
@@ -93,8 +116,13 @@
             if (IsValid(_owner) && IsValid(_module) && _template != "-")
             {
                 var moduleDefinition = new ModuleDefinition { Owner = _owner, Name = _module, Description = _description, Template = _template, Version = _reference };
-                await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition, ModuleState.ModuleId);
-                AddModuleMessage("The Source Code For Your Module Has Been Created And Must Be Compiled In Order To Make It Functional. Once It Has Been Compiled You Must Restart Your Application.", MessageType.Success);
+                moduleDefinition = await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition);
+
+                var settings = ModuleState.Settings;
+                SettingService.SetSetting(settings, "ModuleDefinitionName", moduleDefinition.ModuleDefinitionName);
+                await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
+
+                AddModuleMessage("The Source Code For Your Module Has Been Created At The Location Specified Below And Must Be Compiled In Order To Make It Functional. Once It Has Been Compiled You Must <a href=\"" + NavigateUrl("admin/system") + "\">Restart</a> Your Application To Apply These Changes.", MessageType.Success);
             }
             else
             {
@@ -104,6 +132,25 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Creating Module");
+        }
+    }
+
+    private async Task ActivateModule()
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(_moduledefinitionname))
+            {
+                Module module = await ModuleService.GetModuleAsync(ModuleState.ModuleId);
+                module.ModuleDefinitionName = _moduledefinitionname;
+                await ModuleService.UpdateModuleAsync(module);
+                StateHasChanged();
+                NavigationManager.NavigateTo(NavigateUrl());
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Activating Module");
         }
     }
 
