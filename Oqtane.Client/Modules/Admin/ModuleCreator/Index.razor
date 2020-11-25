@@ -144,7 +144,7 @@ else
                 Module module = await ModuleService.GetModuleAsync(ModuleState.ModuleId);
                 module.ModuleDefinitionName = _moduledefinitionname;
                 await ModuleService.UpdateModuleAsync(module);
-                StateHasChanged();
+                ClearModuleMessage();
                 NavigationManager.NavigateTo(NavigateUrl());
             }
         }

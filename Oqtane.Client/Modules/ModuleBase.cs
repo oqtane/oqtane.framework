@@ -173,6 +173,11 @@ namespace Oqtane.Modules
             ModuleInstance.AddModuleMessage(message, type);
         }
 
+        public void ClearModuleMessage()
+        {
+            ModuleInstance.AddModuleMessage("", MessageType.Undefined);
+        }
+
         public void ShowProgressIndicator()
         {
             ModuleInstance.ShowProgressIndicator();
