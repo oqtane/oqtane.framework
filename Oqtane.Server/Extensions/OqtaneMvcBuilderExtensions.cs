@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
@@ -40,7 +40,8 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var startUps = AppDomain.CurrentDomain
                 .GetOqtaneAssemblies()
-                .SelectMany(x => x.GetInstances<IServerStartup>());
+                .SelectMany(s => s.GetInstances<IServerStartup>())
+                .OrderBy(s => s.Order);
 
             foreach (var startup in startUps)
             {

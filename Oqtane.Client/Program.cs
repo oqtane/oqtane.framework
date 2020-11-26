@@ -80,7 +80,7 @@ namespace Oqtane.Client
                 }
 
                 // register client startup services
-                var startUps = assembly.GetInstances<IClientStartup>();
+                var startUps = assembly.GetInstances<IClientStartup>().OrderBy(s => s.Order);
                 foreach (var startup in startUps)
                 {
                     startup.ConfigureServices(builder.Services);

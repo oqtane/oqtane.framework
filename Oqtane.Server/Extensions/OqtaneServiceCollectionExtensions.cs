@@ -57,7 +57,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 }
 
                 // register server startup services
-                var startUps = assembly.GetInstances<IServerStartup>();
+                var startUps = assembly.GetInstances<IServerStartup>().OrderBy(s => s.Order);
                 foreach (var startup in startUps)
                 {
                     startup.ConfigureServices(services);
@@ -67,6 +67,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     // register client startup services if running on server
                     assembly.GetInstances<IClientStartup>()
+                        .OrderBy(s => s.Order)
                         .ToList()
                         .ForEach(x => x.ConfigureServices(services));
                 }
