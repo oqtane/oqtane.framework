@@ -143,7 +143,7 @@ namespace Oqtane
             if (FeatureManager.IsEnabled("Identity"))
             {
                 services.AddSingleton<IServerStartup, IdentityStartup>();
-            }        
+            }
 
             services.Configure<IdentityOptions>(options =>
             {
