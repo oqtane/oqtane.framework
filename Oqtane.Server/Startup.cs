@@ -136,10 +136,7 @@ namespace Oqtane
                 ));
             services.AddDbContext<TenantDBContext>(options => { });
 
-            services.AddIdentityCore<IdentityUser>(options => { })
-                .AddEntityFrameworkStores<TenantDBContext>()
-                .AddSignInManager()
-                .AddDefaultTokenProviders();
+            services.AddSingleton<IServerStartup, IdentityStartup>();
 
             services.Configure<IdentityOptions>(options =>
             {
