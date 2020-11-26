@@ -140,7 +140,7 @@ namespace Oqtane
                 ));
             services.AddDbContext<TenantDBContext>(options => { });
 
-            if (FeatureManager.IsEnabledAsync("Identity").GetAwaiter().GetResult())
+            if (FeatureManager.IsEnabled("Identity"))
             {
                 services.AddSingleton<IServerStartup, IdentityStartup>();
             }        
