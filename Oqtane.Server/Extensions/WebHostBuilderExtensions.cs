@@ -1,5 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.FeatureManagement;
 using Oqtane.Infrastructure;
 
 namespace Microsoft.AspNetCore.Hosting
@@ -15,6 +16,14 @@ namespace Microsoft.AspNetCore.Hosting
                 services.Configure<LocalizationOptions>(config.GetSection("Localization"));
                 services.AddSingleton(ctx => ctx.GetService<IOptions<LocalizationOptions>>().Value);
                 services.AddTransient<ILocalizationManager, LocalizationManager>();
+            });
+        }
+
+        public static IWebHostBuilder UseFeatures(this IWebHostBuilder builder)
+        {
+            return builder.ConfigureServices((context, services) =>
+            {
+                services.AddFeatureManagement();
             });
         }
     }

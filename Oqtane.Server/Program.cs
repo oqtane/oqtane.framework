@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore;
@@ -26,6 +26,7 @@ namespace Oqtane.Server
                     .AddCommandLine(args)
                     .Build())
                 .UseStartup<Startup>()
+                .UseFeatures()
                 .ConfigureLocalizationSettings()
                 .Build();
     }

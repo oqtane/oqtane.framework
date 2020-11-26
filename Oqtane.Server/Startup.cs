@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -14,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.FeatureManagement;
 using Microsoft.OpenApi.Models;
 using Oqtane.Extensions;
 using Oqtane.Infrastructure;
@@ -32,14 +32,18 @@ namespace Oqtane
         private IWebHostEnvironment _env;
         private string[] _supportedCultures;
 
+        public IFeatureManager FeatureManager { get; }
+
         public IConfigurationRoot Configuration { get; }
 
-        public Startup(IWebHostEnvironment env, ILocalizationManager localizationManager)
+        public Startup(IWebHostEnvironment env, IFeatureManager featureManager, ILocalizationManager localizationManager)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             Configuration = builder.Build();
+
+            FeatureManager = featureManager;
 
             _supportedCultures = localizationManager.GetSupportedCultures();
 
@@ -136,7 +140,10 @@ namespace Oqtane
                 ));
             services.AddDbContext<TenantDBContext>(options => { });
 
-            services.AddSingleton<IServerStartup, IdentityStartup>();
+            if (FeatureManager.IsEnabledAsync("Identity").GetAwaiter().GetResult())
+            {
+                services.AddSingleton<IServerStartup, IdentityStartup>();
+            }        
 
             services.Configure<IdentityOptions>(options =>
             {
