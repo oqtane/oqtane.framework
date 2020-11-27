@@ -1,4 +1,5 @@
 @using System.Diagnostics.CodeAnalysis
+@using System.Globalization 
 @using System.Runtime.InteropServices
 @namespace Oqtane.UI
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -438,6 +439,8 @@
             module.UseAdminContainer = false;
             module.PaneModuleIndex = -1;
             module.PaneModuleCount = 0;
+            // Ensure that the page action is a Title case to avoid break URLs
+            action = CultureInfo.CurrentUICulture.TextInfo.ToTitleCase(action);
 
             if ((module.PageId == page.PageId || module.ModuleId == moduleid))
             {
