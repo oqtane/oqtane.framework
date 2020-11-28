@@ -29,7 +29,7 @@ namespace Oqtane.Infrastructure.Startup
 
         public virtual void AddLocalization(IServiceCollection services)
         {
-            services.AddLocalization();
+            services.AddLocalization(options => options.ResourcesPath = "Resources");
         }
     }
 }
