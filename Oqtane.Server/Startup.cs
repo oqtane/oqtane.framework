@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -17,6 +18,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Oqtane.Extensions;
 using Oqtane.Infrastructure;
+using Oqtane.Infrastructure.Startup;
 using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Services;
@@ -58,8 +60,16 @@ namespace Oqtane
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            // Register localization services
-            services.AddLocalization(options => options.ResourcesPath = "Resources");
+            var oqtaneServicesObjects = ResolveOqtaneServicesTypes();
+
+            foreach (var oqtaneServicesObject in oqtaneServicesObjects)
+            {
+                if (oqtaneServicesObject.GetType().GetMethod(nameof(IOqtaneServices.AddLocalization)).IsOverriden())
+                {
+                    oqtaneServicesObject.AddLocalization(services);
+                    break;
+                }
+            }
 
             services.AddServerSideBlazor().AddCircuitOptions(options =>
             {
@@ -130,16 +140,25 @@ namespace Oqtane
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            services.AddDbContext<MasterDBContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")
-                    .Replace("|DataDirectory|", AppContext.GetData("DataDirectory")?.ToString())
-                ));
-            services.AddDbContext<TenantDBContext>(options => { });
+            var connectionString = Configuration.GetConnectionString("DefaultConnection")
+                    .Replace("|DataDirectory|", AppContext.GetData("DataDirectory")?.ToString());
+            foreach (var oqtaneServicesObject in oqtaneServicesObjects)
+            {
+                if (oqtaneServicesObject.GetType().GetMethod(nameof(IOqtaneServices.AddDatabase)).IsOverriden())
+                {
+                    oqtaneServicesObject.AddDatabase(services, connectionString);
+                    break;
+                }
+            }
 
-            services.AddIdentityCore<IdentityUser>(options => { })
-                .AddEntityFrameworkStores<TenantDBContext>()
-                .AddSignInManager()
-                .AddDefaultTokenProviders();
+            foreach (var oqtaneServicesObject in oqtaneServicesObjects)
+            {
+                if (oqtaneServicesObject.GetType().GetMethod(nameof(IOqtaneServices.AddIdentity)).IsOverriden())
+                {
+                    oqtaneServicesObject.AddIdentity(services);
+                    break;
+                }
+            }
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -159,8 +178,14 @@ namespace Oqtane
                 options.User.RequireUniqueEmail = false;
             });
 
-            services.AddAuthentication(IdentityConstants.ApplicationScheme)
-                .AddCookie(IdentityConstants.ApplicationScheme);
+            foreach (var oqtaneServicesObject in oqtaneServicesObjects)
+            {
+                if (oqtaneServicesObject.GetType().GetMethod(nameof(IOqtaneServices.AddAuthentication)).IsOverriden())
+                {
+                    oqtaneServicesObject.AddAuthentication(services);
+                    break;
+                }
+            }
 
             services.ConfigureApplicationCookie(options =>
             {
@@ -266,6 +291,20 @@ namespace Oqtane
                 endpoints.MapControllers();
                 endpoints.MapFallbackToPage("/_Host");
             });
+        }
+
+        private static IEnumerable<IOqtaneServices> ResolveOqtaneServicesTypes()
+        {
+            var oqtaneServicesAttributes = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => a.GetCustomAttributes(typeof(OqtaneServicesAttribute), false).Length == 1)
+                .Select(a => a.GetCustomAttributes(typeof(OqtaneServicesAttribute), false).First())
+                .Cast<OqtaneServicesAttribute>();
+            var oqtaneServicesTypes = oqtaneServicesAttributes.Select(a => a.ServicesType).ToList();
+
+            // Adds default Oqtane services implementation at the end, so it can be called if there's no overriden occurs
+            oqtaneServicesTypes.Add(typeof(DefaultOqtaneServerServices));
+
+            return oqtaneServicesTypes.Select(t => Activator.CreateInstance(t) as IOqtaneServices);
         }
     }
 }
