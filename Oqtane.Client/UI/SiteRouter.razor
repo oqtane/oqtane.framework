@@ -439,6 +439,11 @@
             module.UseAdminContainer = false;
             module.PaneModuleIndex = -1;
             module.PaneModuleCount = 0;
+            // Change the action casing to lower because TextInfo.ToTitleCase() doesn't change the upper casing strings
+            if (action.ToUpper() == action)
+            {
+                action = action.ToLower();
+            }
             // Ensure that the page action is a Title case to avoid break URLs
             action = CultureInfo.CurrentUICulture.TextInfo.ToTitleCase(action);
 
