@@ -93,7 +93,7 @@
                             <label class="control-label" style="font-weight: bold">@Localizer["Password:"] </label>
                         </td>
                         <td>
-                            <input type="password" class="form-control" @bind="@_hostPassword" />
+                            <input type="password" class="@_passwordConfirmClassList" @bind="@_hostPassword" />
                         </td>
                     </tr>
                     <tr>
@@ -101,7 +101,7 @@
                             <label class="control-label" style="font-weight: bold">@Localizer["Confirm:"] </label>
                         </td>
                         <td>
-                            <input type="password" class="form-control" @bind="@_confirmPassword" />
+                            <input type="password" class="@_passwordConfirmClassList" value="@_confirmPassword" @onchange="ConfirmPassword" />
                         </td>
                     </tr>
                     <tr>
@@ -139,6 +139,7 @@
     private string _message = string.Empty;
     private string _integratedSecurityDisplay = "display: none;";
     private string _loadingDisplay = "display: none;";
+    private string _passwordConfirmClassList = "form-control";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -154,6 +155,22 @@
         _integratedSecurityDisplay = Convert.ToBoolean((string)e.Value)
             ? "display: none;"
             : string.Empty;
+    }
+
+    private void ConfirmPassword(ChangeEventArgs e)
+    {
+        _confirmPassword = (string)e.Value;
+
+        if (_hostPassword != _confirmPassword || _hostPassword.Length <= 5)
+        {
+            _passwordConfirmClassList = "form-control is-invalid";
+            _message = "Please ensure the application administrator's password and password confirmation match. Passwords must be greater than 5 characters in length";
+        }
+        else
+        {
+            _passwordConfirmClassList = "form-control is-valid";
+            _message = string.Empty;
+        }
     }
 
     private async Task Install()
