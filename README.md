@@ -51,8 +51,8 @@ This project is a work in progress and the schedule for implementing enhancement
 
 V.2.1.0 ( Q1 2021 )
 - [ ] Complete Static Localization of Admin UI
+- [ ] Cross Platform Database Support ( ie. SQLite )
 - [ ] EF Core Migrations for Database Installation/Upgrade
-- [ ] Support for Multiple Relational Databases ( ie. SQLite )
 
 V.2.0.0 ( released in conjuntion with .NET 5 on Nov 11, 2020 )
 - [x] Migration to .NET 5
