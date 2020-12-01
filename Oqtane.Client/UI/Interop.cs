@@ -1,4 +1,4 @@
-﻿using Microsoft.JSInterop;
+using Microsoft.JSInterop;
 using Oqtane.Models;
 using System.Threading.Tasks;
 
@@ -234,5 +234,32 @@ namespace Oqtane.UI
             }
         }
 
+        public async Task<string> getCulture()
+        {
+            try
+            {
+                var culture = await _jsRuntime.InvokeAsync<string>("Oqtane.Interop.getCulture");
+
+                return culture;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public Task setCulture(string culture)
+        {
+            try
+            {
+                _jsRuntime.InvokeVoidAsync("Oqtane.Interop.setCulture", culture);
+
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
+        }
     }
 }

@@ -25,13 +25,15 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        _selectedCulture = _selectedCulture = await JSRuntime.InvokeAsync<string>("oqtaneCulture.get");
+        var interop = new Interop(JSRuntime);
+        _selectedCulture = await interop.getCulture();
         _supportedCultures = await LocalizationService.GetSupportedCultures();
     }
 
     private async Task SetCultureAsync(string culture)
     {
-        await JSRuntime.InvokeVoidAsync("oqtaneCulture.set", culture);
+        var interop = new Interop(JSRuntime);
+        await interop.setCulture(culture);
 
         NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
     }

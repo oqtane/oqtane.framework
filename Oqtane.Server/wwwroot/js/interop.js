@@ -362,5 +362,11 @@ Oqtane.Interop = {
         setInterval(function () {
             window.location.href = url;
         }, wait * 1000);
+    },
+    getCulture: function () {
+        return window.localStorage['OqtaneCulture'];
+    },
+    setCulture: function (culture) {
+        window.localStorage['OqtaneCulture'] = culture;
     }
 };

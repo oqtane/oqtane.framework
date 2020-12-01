@@ -16,6 +16,7 @@ using Oqtane.Modules;
 using Oqtane.Providers;
 using Oqtane.Services;
 using Oqtane.Shared;
+using Oqtane.UI;
 
 namespace Oqtane.Client
 {
@@ -92,7 +93,8 @@ namespace Oqtane.Client
 
             var host = builder.Build();
             var jsRuntime = host.Services.GetRequiredService<IJSRuntime>();
-            var culture = await jsRuntime.InvokeAsync<string>("oqtaneCulture.get");
+            var interop = new Interop(jsRuntime);
+            var culture = await interop.getCulture();
             if (culture != null)
             {
                 var cultureInfo = CultureInfo.GetCultureInfo(culture);
