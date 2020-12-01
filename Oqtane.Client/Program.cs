@@ -5,15 +5,15 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
-using System.Threading.Tasks;
 using System.Runtime.Loader;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Modules;
 using Oqtane.Providers;
-using Oqtane.Shared;
 using Oqtane.Services;
+using Oqtane.Shared;
 
 namespace Oqtane.Client
 {
@@ -62,6 +62,7 @@ namespace Oqtane.Client
             builder.Services.AddScoped<ISiteTemplateService, SiteTemplateService>();
             builder.Services.AddScoped<ISqlService, SqlService>();
             builder.Services.AddScoped<ISystemService, SystemService>();
+            builder.Services.AddScoped<ILocalizationService, LocalizationService>();
 
             await LoadClientAssemblies(httpClient);
 

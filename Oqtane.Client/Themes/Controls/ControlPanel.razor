@@ -198,6 +198,8 @@
     </div>
 }
 
+<LanguageSwitcher />
+
 @if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions) || (PageState.Page.IsPersonalizable && PageState.User != null))
 {
     if (PageState.EditMode)

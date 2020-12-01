@@ -1,0 +1,30 @@
+@namespace Oqtane.Themes.Controls
+@inherits ThemeControlBase
+@using System.Globalization
+@inject ILocalizationService LocalizationService
+
+@if (_supportedCultures != null)
+{
+    <div class="btn-group" role="group">
+        <button id="btnCultures" type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="oi oi-globe"></span>
+        </button>
+        <div class="dropdown-menu" aria-labelledby="btnCultures">
+            @foreach (var culture in _supportedCultures)
+            {
+                <a class="dropdown-item @(_selectedCulture == culture ? "active" : String.Empty)" href="#">@CultureInfo.GetCultureInfo(culture).DisplayName</a>
+            }
+        </div>
+    </div>
+}
+
+@code{
+    private string _selectedCulture;
+    private string[] _supportedCultures;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _selectedCulture = await JSRuntime.InvokeAsync<string>("oqtaneCulture.get");
+        _supportedCultures = await LocalizationService.GetSupportedCultures();
+    }
+}

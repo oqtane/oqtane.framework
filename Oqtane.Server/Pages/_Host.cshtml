@@ -48,6 +48,12 @@
     @if (Configuration.GetSection("Runtime").Value == "WebAssembly")
     {
         <script src="_framework/blazor.webassembly.js"></script>
+        <script>
+            window.oqtaneCulture = {
+                get: () => window.localStorage['OqtaneCulture'],
+                set: (value) => window.localStorage['OqtaneCulture'] = value
+            };
+        </script>
     }
     else
     {
