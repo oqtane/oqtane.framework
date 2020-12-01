@@ -17,6 +17,7 @@
     <PackageReleaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v2.0.0</PackageReleaseNotes>
     <RootNamespace>Oqtane</RootNamespace>
     <IsPackable>true</IsPackable>
+    <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
   </PropertyGroup>
 
   <ItemGroup>

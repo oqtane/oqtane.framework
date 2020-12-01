@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.JSInterop;
 using Oqtane.Modules;
 using Oqtane.Providers;
 using Oqtane.Services;
@@ -89,6 +91,14 @@ namespace Oqtane.Client
             }
 
             var host = builder.Build();
+            var jsRuntime = host.Services.GetRequiredService<IJSRuntime>();
+            var culture = await jsRuntime.InvokeAsync<string>("oqtaneCulture.get");
+            if (culture != null)
+            {
+                var cultureInfo = CultureInfo.GetCultureInfo(culture);
+                CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+                CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+            }
 
             ServiceActivator.Configure(host.Services);
 

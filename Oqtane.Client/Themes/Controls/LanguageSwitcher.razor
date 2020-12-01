@@ -2,6 +2,7 @@
 @inherits ThemeControlBase
 @using System.Globalization
 @inject ILocalizationService LocalizationService
+@inject NavigationManager NavigationManager
 
 @if (_supportedCultures != null)
 {
@@ -12,7 +13,7 @@
         <div class="dropdown-menu" aria-labelledby="btnCultures">
             @foreach (var culture in _supportedCultures)
             {
-                <a class="dropdown-item @(_selectedCulture == culture ? "active" : String.Empty)" href="#">@CultureInfo.GetCultureInfo(culture).DisplayName</a>
+                <a class="dropdown-item @(_selectedCulture == culture ? "active" : String.Empty)" href="#" @onclick="@(async () => await SetCultureAsync(culture))">@CultureInfo.GetCultureInfo(culture).DisplayName</a>
             }
         </div>
     </div>
@@ -24,7 +25,14 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        _selectedCulture = await JSRuntime.InvokeAsync<string>("oqtaneCulture.get");
+        _selectedCulture = _selectedCulture = await JSRuntime.InvokeAsync<string>("oqtaneCulture.get");
         _supportedCultures = await LocalizationService.GetSupportedCultures();
+    }
+
+    private async Task SetCultureAsync(string culture)
+    {
+        await JSRuntime.InvokeVoidAsync("oqtaneCulture.set", culture);
+
+        NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
     }
 }
