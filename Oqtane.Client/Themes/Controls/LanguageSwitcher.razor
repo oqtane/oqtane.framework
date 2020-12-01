@@ -32,9 +32,12 @@
 
     private async Task SetCultureAsync(string culture)
     {
-        var interop = new Interop(JSRuntime);
-        await interop.setCulture(culture);
+        if (culture != CultureInfo.CurrentUICulture.Name)
+        {
+            var interop = new Interop(JSRuntime);
+            await interop.setCulture(culture);
 
-        NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+            NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+        }
     }
 }
