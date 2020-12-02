@@ -121,7 +121,7 @@
         _permissionNames = ModuleState.ModuleDefinition.PermissionNames;
         _pageId = ModuleState.PageId.ToString();
 
-        _settingsModuleType = Type.GetType(ModuleState.ModuleType);
+        _settingsModuleType = Type.GetType(ModuleState.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, PageState.Action), false, true);
         if (_settingsModuleType != null)
         {
             var moduleobject = Activator.CreateInstance(_settingsModuleType) as IModuleControl;
