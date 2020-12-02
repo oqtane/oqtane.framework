@@ -230,7 +230,7 @@
 
             if (PageState == null || reload == Reload.Site)
             {
-                page = pages.Where(item => item.Path == path).FirstOrDefault();
+                page = pages.FirstOrDefault(item => item.Path.Equals(path, StringComparison.OrdinalIgnoreCase));
             }
             else
             {
@@ -465,22 +465,23 @@
                     }
                 }
 
-                module.ModuleType = typename.Replace(Constants.ActionToken, action);
-
-                // get additional metadata from IModuleControl interface
-                typename = module.ModuleType;
-                if (Constants.DefaultModuleActions.Contains(action))
+                // ensure component exists and implements IModuleControl
+                module.ModuleType = "";
+                if (Constants.DefaultModuleActions.Contains(action, StringComparer.OrdinalIgnoreCase))
                 {
-                    // core framework module action components
                     typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, action);
                 }
-                Type moduletype = Type.GetType(typename);
-
-                // ensure component implements IModuleControl
-                if (moduletype != null && !moduletype.GetInterfaces().Contains(typeof(IModuleControl)))
+                else
                 {
-                    module.ModuleType = "";
+                    typename = typename.Replace(Constants.ActionToken, action);
                 }
+                Type moduletype = Type.GetType(typename, false, true); // case insensitive
+                if (moduletype != null && moduletype.GetInterfaces().Contains(typeof(IModuleControl)))
+                {
+                    module.ModuleType = Utilities.GetFullTypeName(moduletype.AssemblyQualifiedName); // get actual type name
+                }
+
+                // get additional metadata from IModuleControl interface
                 if (moduletype != null && module.ModuleType != "")
                 {
                     var moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;

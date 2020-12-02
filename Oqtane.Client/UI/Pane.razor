@@ -52,14 +52,7 @@ else
                     Module module = PageState.Modules.FirstOrDefault(item => item.ModuleId == PageState.ModuleId);
                     if (module != null && !module.IsDeleted)
                     {
-                        var typename = module.ModuleType;
-                        // check for core module actions component
-                        if (Constants.DefaultModuleActions.Contains(PageState.Action))
-                        {
-                            typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, PageState.Action);
-                        }
-
-                        var moduleType = Type.GetType(typename);
+                        var moduleType = Type.GetType(module.ModuleType);
                         if (moduleType != null)
                         {
                             bool authorized = false;
@@ -96,7 +89,7 @@ else
                         }
                         else
                         {
-                            // module control does not exist with name specified
+                            // module type does not exist
                         }
                     }
                 }

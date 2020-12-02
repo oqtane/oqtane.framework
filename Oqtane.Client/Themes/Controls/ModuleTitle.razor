@@ -9,21 +9,15 @@
 @code {
     private string title = "";
 
-    protected override Task OnParametersSetAsync()
+    protected override void OnParametersSet()
     {
-        title = ModuleState.Title;
-        // check for core module actions component
-        if (Constants.DefaultModuleActions.Contains(PageState.Action))
+        if (!string.IsNullOrEmpty(ModuleState.ControlTitle))
         {
-            title = PageState.Action;
+            title = ModuleState.ControlTitle;
         }
         else
         {
-            if (!string.IsNullOrEmpty(ModuleState.ControlTitle))
-            {
-                title = ModuleState.ControlTitle;
-            }
+            title = ModuleState.Title;
         }
-        return Task.CompletedTask;
     }
 }
