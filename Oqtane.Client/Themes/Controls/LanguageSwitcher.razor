@@ -14,14 +14,13 @@
         <div class="dropdown-menu" aria-labelledby="btnCultures">
             @foreach (var culture in _supportedCultures)
             {
-                <a class="dropdown-item @(_selectedCulture == culture.Name ? "active" : String.Empty)" href="#" @onclick="@(async e => await SetCultureAsync(culture.Name))">@culture.DisplayName</a>
+                <a class="dropdown-item @(CultureInfo.CurrentUICulture.Name == culture.Name ? "active" : String.Empty)" href="#" @onclick="@(async e => await SetCultureAsync(culture.Name))">@culture.DisplayName</a>
             }
         </div>
     </div>
 }
 
 @code{
-    private string _selectedCulture;
     private IEnumerable<Culture> _supportedCultures;
 
     [Parameter]
@@ -29,8 +28,6 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        var interop = new Interop(JSRuntime);
-        _selectedCulture = await interop.GetLocalStorage("OqtaneCulture");
         _supportedCultures = await LocalizationService.GetCulturesAsync();
     }
 

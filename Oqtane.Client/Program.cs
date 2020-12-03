@@ -95,12 +95,15 @@ namespace Oqtane.Client
             var jsRuntime = host.Services.GetRequiredService<IJSRuntime>();
             var interop = new Interop(jsRuntime);
             var culture = await interop.GetLocalStorage("OqtaneCulture");
-            if (culture != null)
+            var localizationService = host.Services.GetRequiredService<ILocalizationService>();
+            var cultures = await localizationService.GetCulturesAsync();
+
+            if (culture == null || !cultures.Any(c => c.Name.Equals(culture, StringComparison.OrdinalIgnoreCase)))
             {
-                var cultureInfo = CultureInfo.GetCultureInfo(culture);
-                CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
-                CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+                culture = cultures.Single(c => c.IsDefault).Name;
             }
+
+            SetCulture(culture);
 
             ServiceActivator.Configure(host.Services);
 
@@ -154,6 +157,13 @@ namespace Oqtane.Client
                     }
                 }
             }
+        }
+
+        private static void SetCulture(string culture)
+        {
+            var cultureInfo = CultureInfo.GetCultureInfo(culture);
+            CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+            CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
         }
     }
 }
