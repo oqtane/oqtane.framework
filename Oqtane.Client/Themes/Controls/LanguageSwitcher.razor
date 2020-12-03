@@ -1,6 +1,7 @@
 @namespace Oqtane.Themes.Controls
 @inherits ThemeControlBase
-@using System.Globalization
+@using System.Globalization 
+@using Oqtane.Models
 @inject ILocalizationService LocalizationService
 @inject NavigationManager NavigationManager
 
@@ -13,7 +14,7 @@
         <div class="dropdown-menu" aria-labelledby="btnCultures">
             @foreach (var culture in _supportedCultures)
             {
-                <a class="dropdown-item @(_selectedCulture == culture ? "active" : String.Empty)" href="#" @onclick="@(async e => await SetCultureAsync(culture))">@CultureInfo.GetCultureInfo(culture).DisplayName</a>
+                <a class="dropdown-item @(_selectedCulture == culture.Name ? "active" : String.Empty)" href="#" @onclick="@(async e => await SetCultureAsync(culture.Name))">@culture.DisplayName</a>
             }
         </div>
     </div>
@@ -21,7 +22,7 @@
 
 @code{
     private string _selectedCulture;
-    private string[] _supportedCultures;
+    private IEnumerable<Culture> _supportedCultures;
 
     protected override async Task OnParametersSetAsync()
     {

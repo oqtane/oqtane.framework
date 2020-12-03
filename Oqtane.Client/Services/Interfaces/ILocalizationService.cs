@@ -1,11 +1,13 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Oqtane.Models;
 
 namespace Oqtane.Services
 {
     public interface ILocalizationService
     {
-        Task<string> GetDefaultCulture();
+        Task<Culture> GetDefaultCulture();
 
-        Task<string[]> GetSupportedCultures();
+        Task<IEnumerable<Culture>> GetSupportedCultures();
     }
 }
