@@ -1,6 +1,7 @@
 @namespace Oqtane.Themes.Controls
 @inherits ThemeControlBase
-@using System.Globalization 
+@using System.Globalization
+@using Microsoft.AspNetCore.Localization; 
 @using Oqtane.Models
 @inject ILocalizationService LocalizationService
 @inject NavigationManager NavigationManager
@@ -36,7 +37,8 @@
         if (culture != CultureInfo.CurrentUICulture.Name)
         {
             var interop = new Interop(JSRuntime);
-            await interop.SetLocalStorage("OqtaneCulture", culture);
+            var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
+            await interop.SetCookie(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, 360);
 
             NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
         }

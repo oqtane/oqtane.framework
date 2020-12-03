@@ -362,11 +362,5 @@ Oqtane.Interop = {
         setInterval(function () {
             window.location.href = url;
         }, wait * 1000);
-    },
-    getLocalStorage: function (name) {
-        return window.localStorage[name];
-    },
-    setLocalStorage: function (name, value) {
-        window.localStorage[name] = value;
     }
 };

@@ -10,6 +10,7 @@ using System.Runtime.Loader;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
 using Oqtane.Modules;
@@ -94,7 +95,8 @@ namespace Oqtane.Client
             var host = builder.Build();
             var jsRuntime = host.Services.GetRequiredService<IJSRuntime>();
             var interop = new Interop(jsRuntime);
-            var culture = await interop.GetLocalStorage("OqtaneCulture");
+            var localizationCookie = await interop.GetCookie(CookieRequestCultureProvider.DefaultCookieName);
+            var culture = CookieRequestCultureProvider.ParseCookieValue(localizationCookie).UICultures[0].Value;
             var localizationService = host.Services.GetRequiredService<ILocalizationService>();
             var cultures = await localizationService.GetCulturesAsync();
 

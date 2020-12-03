@@ -1,5 +1,4 @@
 using Microsoft.JSInterop;
-using Oqtane.Models;
 using System.Threading.Tasks;
 
 namespace Oqtane.UI
@@ -226,34 +225,6 @@ namespace Oqtane.UI
                 _jsRuntime.InvokeVoidAsync(
                     "Oqtane.Interop.redirectBrowser",
                     url, wait);
-                return Task.CompletedTask;
-            }
-            catch
-            {
-                return Task.CompletedTask;
-            }
-        }
-
-        public async Task<string> GetLocalStorage(string name)
-        {
-            try
-            {
-                var value = await _jsRuntime.InvokeAsync<string>("Oqtane.Interop.getLocalStorage", name);
-
-                return value;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        public Task SetLocalStorage(string name, string value)
-        {
-            try
-            {
-                _jsRuntime.InvokeVoidAsync("Oqtane.Interop.setLocalStorage", name, value);
-
                 return Task.CompletedTask;
             }
             catch

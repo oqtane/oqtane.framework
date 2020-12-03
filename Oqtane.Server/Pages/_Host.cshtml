@@ -1,17 +1,9 @@
 ﻿@page "/"
 @namespace Oqtane.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-@using System.Globalization
-@using Microsoft.AspNetCore.Localization
 @using Microsoft.Extensions.Configuration
 @inject IConfiguration Configuration
 @model Oqtane.Pages.HostModel
-
-@{
-    // Set localization cookie
-    var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(CultureInfo.CurrentCulture, CultureInfo.CurrentUICulture));
-    HttpContext.Response.Cookies.Append(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue);
-}
 <!DOCTYPE html>
 <html>
 <head>
