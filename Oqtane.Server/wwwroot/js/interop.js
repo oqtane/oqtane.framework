@@ -363,10 +363,10 @@ Oqtane.Interop = {
             window.location.href = url;
         }, wait * 1000);
     },
-    getCulture: function () {
-        return window.localStorage['OqtaneCulture'];
+    getLocalStorage: function (name) {
+        return window.localStorage[name];
     },
-    setCulture: function (culture) {
-        window.localStorage['OqtaneCulture'] = culture;
+    setLocalStorage: function (name, value) {
+        window.localStorage[name] = value;
     }
 };

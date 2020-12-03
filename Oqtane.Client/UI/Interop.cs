@@ -234,13 +234,13 @@ namespace Oqtane.UI
             }
         }
 
-        public async Task<string> getCulture()
+        public async Task<string> GetLocalStorage(string name)
         {
             try
             {
-                var culture = await _jsRuntime.InvokeAsync<string>("Oqtane.Interop.getCulture");
+                var value = await _jsRuntime.InvokeAsync<string>("Oqtane.Interop.getLocalStorage", name);
 
-                return culture;
+                return value;
             }
             catch
             {
@@ -248,11 +248,11 @@ namespace Oqtane.UI
             }
         }
 
-        public Task setCulture(string culture)
+        public Task SetLocalStorage(string name, string value)
         {
             try
             {
-                _jsRuntime.InvokeVoidAsync("Oqtane.Interop.setCulture", culture);
+                _jsRuntime.InvokeVoidAsync("Oqtane.Interop.setLocalStorage", name, value);
 
                 return Task.CompletedTask;
             }

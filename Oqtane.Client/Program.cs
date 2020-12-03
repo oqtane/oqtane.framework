@@ -94,7 +94,7 @@ namespace Oqtane.Client
             var host = builder.Build();
             var jsRuntime = host.Services.GetRequiredService<IJSRuntime>();
             var interop = new Interop(jsRuntime);
-            var culture = await interop.getCulture();
+            var culture = await interop.GetLocalStorage("OqtaneCulture");
             if (culture != null)
             {
                 var cultureInfo = CultureInfo.GetCultureInfo(culture);

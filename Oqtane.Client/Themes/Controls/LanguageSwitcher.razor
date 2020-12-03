@@ -26,7 +26,7 @@
     protected override async Task OnParametersSetAsync()
     {
         var interop = new Interop(JSRuntime);
-        _selectedCulture = await interop.getCulture();
+        _selectedCulture = await interop.GetLocalStorage("OqtaneCulture");
         _supportedCultures = await LocalizationService.GetSupportedCultures();
     }
 
@@ -35,7 +35,7 @@
         if (culture != CultureInfo.CurrentUICulture.Name)
         {
             var interop = new Interop(JSRuntime);
-            await interop.setCulture(culture);
+            await interop.SetLocalStorage("OqtaneCulture", culture);
 
             NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
         }
