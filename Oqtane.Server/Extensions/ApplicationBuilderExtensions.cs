@@ -32,7 +32,7 @@ namespace Oqtane.Extensions
 
             app.UseRequestLocalization(options => {
                 options.SetDefaultCulture(defaultCulture)
-                    .AddSupportedUICultures(supportedCultures)
+                    .AddSupportedCultures(supportedCultures)
                     .AddSupportedUICultures(supportedCultures);
             });
 
