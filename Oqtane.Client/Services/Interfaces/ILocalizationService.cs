@@ -6,8 +6,6 @@ namespace Oqtane.Services
 {
     public interface ILocalizationService
     {
-        Task<Culture> GetDefaultCulture();
-
-        Task<IEnumerable<Culture>> GetSupportedCultures();
+        Task<IEnumerable<Culture>> GetCulturesAsync();
     }
 }

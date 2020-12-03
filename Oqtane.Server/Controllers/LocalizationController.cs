@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -18,25 +19,14 @@ namespace Oqtane.Controllers
             _localizationManager = localizationManager;
         }
 
-        // GET: api/localization/getSupportedCultures
-        [HttpGet("getSupportedCultures")]
-        public IEnumerable<Culture> GetSupportedCultures()
+        // GET: api/localization
+        [HttpGet()]
+        public IEnumerable<Culture> Get()
             => _localizationManager.GetSupportedCultures().Select(c => new Culture {
                 Name = CultureInfo.GetCultureInfo(c).Name,
-                DisplayName = CultureInfo.GetCultureInfo(c).DisplayName
+                DisplayName = CultureInfo.GetCultureInfo(c).DisplayName,
+                IsDefault = _localizationManager.GetDefaultCulture()
+                    .Equals(CultureInfo.GetCultureInfo(c).Name, StringComparison.OrdinalIgnoreCase)
             });
-
-        // GET api/localization/getDefaultCulture
-        [HttpGet("getDefaultCulture")]
-        public Culture GetDefaultCulture()
-        {
-            var culture = _localizationManager.GetDefaultCulture();
-
-            return new Culture
-            {
-                Name = CultureInfo.GetCultureInfo(culture).Name,
-                DisplayName = CultureInfo.GetCultureInfo(culture).DisplayName
-            };
-        }
     }
 }

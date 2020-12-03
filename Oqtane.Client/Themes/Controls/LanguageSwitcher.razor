@@ -31,7 +31,7 @@
     {
         var interop = new Interop(JSRuntime);
         _selectedCulture = await interop.GetLocalStorage("OqtaneCulture");
-        _supportedCultures = await LocalizationService.GetSupportedCultures();
+        _supportedCultures = await LocalizationService.GetCulturesAsync();
     }
 
     private async Task SetCultureAsync(string culture)
