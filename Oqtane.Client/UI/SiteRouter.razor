@@ -484,8 +484,19 @@
                 // get additional metadata from IModuleControl interface
                 if (moduletype != null && module.ModuleType != "")
                 {
+                    // retrieve module component resources
                     var moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
                     page.Resources = ManagePageResources(page.Resources, moduleobject.Resources);
+                    if (action.ToLower() == "settings" && module.ModuleDefinition != null)
+                    {
+                        // settings components are embedded within a framework settings module
+                        moduletype = Type.GetType(module.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, action), false, true);
+                        if (moduletype != null)
+                        {
+                            moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
+                            page.Resources = ManagePageResources(page.Resources, moduleobject.Resources);
+                        }
+                    }
 
                     // additional metadata needed for admin components
                     if (module.ModuleId == moduleid && action != "")
