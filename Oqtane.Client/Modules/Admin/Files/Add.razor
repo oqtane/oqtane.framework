@@ -7,7 +7,7 @@
 @inject IStringLocalizer<Add> Localizer
 
 <TabStrip>
-    <TabPanel Name="Upload" Heading="Upload Files" ResourceKey="Upload Files">
+    <TabPanel Name="Upload" Heading="Upload Files" ResourceKey="UploadFiles">
         <table class="table table-borderless">
             <tr>
                 <td>
@@ -38,7 +38,7 @@
                     </td>
                     <td>
                         <select id="folder" class="form-control" @bind="@_folderId">
-                            <option value="-1">&lt;Select Folder&gt;</option>
+                            <option value="-1">&lt;@Localizer["Select Folder"]&gt;</option>
                             @foreach (Folder folder in _folders)
                             {
                                 <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
