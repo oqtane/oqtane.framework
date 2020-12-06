@@ -17,6 +17,7 @@ using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Microsoft.AspNetCore.Routing.Constraints;
+using Oqtane.Extensions;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
@@ -314,9 +315,9 @@ namespace Oqtane.Controllers
         {
             string merged = "";
 
-            // parse the filename which is in the format of filename.ext.part_x_y 
+            // parse the filename which is in the format of filename.ext.part_x_y
             string token = ".part_";
-            string parts = Path.GetExtension(filename)?.Replace(token, ""); // returns "x_y"    
+            string parts = Path.GetExtension(filename)?.Replace(token, ""); // returns "x_y"
             int totalparts = int.Parse(parts?.Substring(parts.IndexOf("_") + 1));
 
             filename = Path.GetFileNameWithoutExtension(filename); // base filename
@@ -435,45 +436,33 @@ namespace Oqtane.Controllers
         [HttpGet("download/{id}")]
         public IActionResult Download(int id)
         {
-            string errorpath = Path.Combine(GetFolderPath("images"), "error.png");
-            Models.File file = _files.GetFile(id);
+            var file = _files.GetFile(id);
             if (file != null)
             {
                 if (_userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.Permissions))
                 {
-                    string filepath = Path.Combine(GetFolderPath(file.Folder), file.Name);
+                    var filepath = Path.Combine(GetFolderPath(file.Folder), file.Name);
                     if (System.IO.File.Exists(filepath))
                     {
-                        var stream = new FileStream(filepath, FileMode.Open);
-                        return File(stream, "application/octet-stream", file.Name);
+                        return PhysicalFile(filepath, file.Name.GetMimeType(), file.Name);
                     }
-                    else
-                    {
-                        _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {FileId} {FilePath}", id, filepath);
-                        HttpContext.Response.StatusCode = 404;
-                        if (System.IO.File.Exists(errorpath))
-                        {
-                            var stream = new FileStream(errorpath, FileMode.Open);
-                            return File(stream, "application/octet-stream", file.Name);
-                        }
-                    }
+
+                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {FileId} {FilePath}", id, filepath);
+                    HttpContext.Response.StatusCode = 404;
                 }
                 else
                 {
                     _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access File {FileId}", id);
                     HttpContext.Response.StatusCode = 401;
-                    var stream = new FileStream(errorpath, FileMode.Open);
-                    return File(stream, "application/octet-stream", file.Name);
                 }
             }
             else
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Not Found {FileId}", id);
                 HttpContext.Response.StatusCode = 404;
-                var stream = new FileStream(errorpath, FileMode.Open);
-                return File(stream, "application/octet-stream", file.Name);
             }
-            return null;
+            string errorPath = Path.Combine(GetFolderPath("images"), "error.png");
+            return System.IO.File.Exists(errorPath) ? PhysicalFile(errorPath, errorPath.GetMimeType()) : null;
         }
 
         private string GetFolderPath(Folder folder)
