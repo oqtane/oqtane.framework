@@ -1,7 +1,8 @@
-﻿@namespace Oqtane.Modules.Controls
+@namespace Oqtane.Modules.Controls
 @inherits ModuleControlBase
 @inject IFolderService FolderService
 @inject IFileService FileService
+@inject IStringLocalizer<FileManager> Localizer
 
 @if (_folders != null)
 {
@@ -14,7 +15,7 @@
                         <select class="form-control" @onchange="(e => FolderChanged(e))">
                             @if (string.IsNullOrEmpty(Folder))
                             {
-                                <option value="-1">&lt;Select Folder&gt;</option>
+                                <option value="-1">&lt;@Localizer["Select Folder"]&gt;</option>
                             }
                             @foreach (Folder folder in _folders)
                             {
@@ -34,7 +35,7 @@
                 {
                     <div>
                         <select class="form-control" @onchange="(e => FileChanged(e))">
-                            <option value="-1">&lt;Select File&gt;</option>
+                            <option value="-1">&lt;@Localizer["Select File"]&gt;</option>
                             @foreach (File file in _files)
                             {
                                 if (file.FileId == FileId)
@@ -62,10 +63,10 @@
                         }
                         <span id="@_progressinfoid"></span><progress id="@_progressbarid" style="width: 150px; visibility: hidden;"></progress>
                         <span class="float-right">
-                            <button type="button" class="btn btn-success" @onclick="UploadFile">Upload</button>
+                            <button type="button" class="btn btn-success" @onclick="UploadFile">@Localizer["Upload"]</button>
                             @if (ShowFiles && GetFileId() != -1)
                             {
-                                <button type="button" class="btn btn-danger" @onclick="DeleteFile">Delete</button>
+                                <button type="button" class="btn btn-danger" @onclick="DeleteFile">@Localizer["Delete"]</button>
                             }
                         </span>
                     </div>
