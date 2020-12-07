@@ -22,7 +22,7 @@ namespace Oqtane.Themes.Controls
             {
                 returnurl += "/" + PageState.Page.Path;
             }
-            NavigationManager.NavigateTo(NavigateUrl("login", "returnurl=" + returnurl));
+            NavigationManager.NavigateTo(NavigateUrl("login", "?returnurl=" + returnurl));
         }
 
         protected async Task LogoutUser()
