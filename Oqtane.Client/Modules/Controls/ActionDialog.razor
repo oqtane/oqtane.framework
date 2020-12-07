@@ -99,6 +99,7 @@
 
         if (IsLocalizable)
         {
+            Text = Localize(nameof(Text), Text);
             Header = Localize(nameof(Header), Header);
             Message = Localize(nameof(Message), Message);
         }
