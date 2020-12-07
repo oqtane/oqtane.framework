@@ -300,7 +300,7 @@
                 if (user == null)
                 {
                     // redirect to login page
-                    NavigationManager.NavigateTo(Utilities.NavigateUrl(alias.Path, "login", "returnurl=" + path));
+                    NavigationManager.NavigateTo(Utilities.NavigateUrl(alias.Path, "login", "?returnurl=" + path));
                 }
                 else
                 {
