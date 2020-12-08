@@ -45,11 +45,11 @@ else
 
         if (IsLocalizable)
         {
-            var value = Localize("Text");
             var key = $"{ResourceKey}.Text";
+            var value = Localize(key);
             if (!value.Equals(key))
             {
-                ChildContent =@<text>@Localize("Text")</text>;
+                ChildContent =@<text>@value</text>;
             }
 
             HelpText = Localize(nameof(HelpText), HelpText);

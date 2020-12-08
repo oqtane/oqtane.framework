@@ -97,12 +97,9 @@
             _iconSpan = $"<span class=\"oi oi-{IconName}\"></span>&nbsp;";
         }
 
-        if (IsLocalizable)
-        {
-            Text = Localize(nameof(Text), Text);
-            Header = Localize(nameof(Header), Header);
-            Message = Localize(nameof(Message), Message);
-        }
+        Text = Localize(nameof(Text), Text);
+        Header = Localize(nameof(Header), Header);
+        Message = Localize(nameof(Message), Message);
 
         _authorized = IsAuthorized();
     }

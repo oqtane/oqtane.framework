@@ -15,27 +15,22 @@ namespace Oqtane.Modules.Controls
 
         protected bool IsLocalizable { get; private set; }
 
-        protected string Localize(string name)
-        {
-            var key = $"{ResourceKey}.{name}";
+        protected string Localize(string name) => _localizer?[name] ?? name;
 
-            // TODO: we should have a ShowMissingResourceKeys option which developers/translators can enable to find missing translations which would display the key rather than the name    
+        protected string Localize(string propertyName, string propertyValue)
+        {
             if (!IsLocalizable)
             {
-                return name;
+                return propertyValue;
             }
 
-            return _localizer?[key] ?? name;
-        }
-
-        protected string Localize(string name, string defaultValue)
-        {
-            var key = $"{ResourceKey}.{name}";
-            var value = Localize(name);
+            var key = $"{ResourceKey}.{propertyName}";
+            var value = Localize(key);
 
             if (value == key)
             {
-                return defaultValue;
+                // Returns default property value (English version) instead of ResourceKey.PropertyName
+                return propertyValue;
             }
             else
             {
@@ -45,26 +40,21 @@ namespace Oqtane.Modules.Controls
 
         protected override void OnParametersSet()
         {
-            if (!String.IsNullOrEmpty(ResourceKey))
+            IsLocalizable = false;
+
+            if (!String.IsNullOrEmpty(ResourceKey) && ModuleState?.ModuleType != null)
             {
-                if (ModuleState?.ModuleType != null)
+                var moduleType = Type.GetType(ModuleState.ModuleType);
+                if (moduleType != null)
                 {
-                    var moduleType = Type.GetType(ModuleState.ModuleType);
-                    if (moduleType != null)
+                    using (var scope = ServiceActivator.GetScope())
                     {
-                        using (var scope = ServiceActivator.GetScope())
-                        {
-                            var localizerFactory = scope.ServiceProvider.GetService<IStringLocalizerFactory>();
-                            _localizer = localizerFactory.Create(moduleType);
-                        }
+                        var localizerFactory = scope.ServiceProvider.GetService<IStringLocalizerFactory>();
+                        _localizer = localizerFactory.Create(moduleType);
+
+                        IsLocalizable = true;
                     }
                 }
-
-                IsLocalizable = true;
-            }
-            else
-            {
-                IsLocalizable = false;
             }
         }
     }

@@ -46,11 +46,8 @@
     {
         base.OnParametersSet();
 
-        if (IsLocalizable)
-        {
-            _heading = !string.IsNullOrEmpty(Heading)
-                ? Localize(nameof(Heading), Heading)
-                : Localize(nameof(Name), Name);
-        }
+        _heading = !string.IsNullOrEmpty(Heading)
+            ? Localize(nameof(Heading), Heading)
+            : Localize(nameof(Name), Name);
     }
 }
