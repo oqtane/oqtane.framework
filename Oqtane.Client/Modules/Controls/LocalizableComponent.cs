@@ -34,7 +34,15 @@ namespace Oqtane.Modules.Controls
             }
             else
             {
-                return value;
+                if (value == String.Empty)
+                {
+                    // Returns default property value (English version)
+                    return propertyValue;
+                }
+                else
+                {
+                    return value;
+                }
             }
         }
 
