@@ -220,7 +220,7 @@
         {
             await logger.LogError(ex, "Error Loading Files {Error}", ex.Message);
 
-            _message = "Error Loading Files";
+            _message = Localizer["Error Loading Files"];
             _messagetype = MessageType.Error;
         }
     }
@@ -279,7 +279,7 @@
                 {
                     await logger.LogInformation("File Upload Succeeded {Files}", upload);
 
-                    _message = "File Upload Succeeded";
+                    _message = Localizer["File Upload Succeeded"];
                     _messagetype = MessageType.Success;
 
                     await GetFiles();
@@ -299,7 +299,7 @@
                 {
                     await logger.LogError("File Upload Failed For {Files}", result.Replace(",", ", "));
 
-                    _message = "File Upload Failed";
+                    _message = Localizer["File Upload Failed"];
                     _messagetype = MessageType.Error;
                 }
             }
@@ -307,13 +307,13 @@
             {
                 await logger.LogError(ex, "File Upload Failed {Error}", ex.Message);
 
-                _message = "File Upload Failed";
+                _message = Localizer["File Upload Failed"];
                 _messagetype = MessageType.Error;
             }
         }
         else
         {
-            _message = "You Have Not Selected A File To Upload";
+            _message = Localizer["You Have Not Selected A File To Upload"];
             _messagetype = MessageType.Warning;
         }
     }
@@ -326,7 +326,7 @@
             await FileService.DeleteFileAsync(FileId);
             await logger.LogInformation("File Deleted {File}", FileId);
 
-            _message = "File Deleted";
+            _message = Localizer["File Deleted"];
             _messagetype = MessageType.Success;
 
             await GetFiles();
@@ -338,7 +338,7 @@
         {
             await logger.LogError(ex, "Error Deleting File {File} {Error}", FileId, ex.Message);
 
-            _message = "Error Deleting File";
+            _message = Localizer["Error Deleting File"];
             _messagetype = MessageType.Error;
         }
     }
