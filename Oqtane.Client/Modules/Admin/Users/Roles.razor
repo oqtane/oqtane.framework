@@ -14,7 +14,7 @@ else
     <table class="table table-borderless">
         <tr>
             <td>
-                <Label For="user" HelpText="The user you are assigning roles to" resource="User">User: </Label>
+                <Label For="user" HelpText="The user you are assigning roles to" ResourceKey="User">User: </Label>
             </td>
             <td>
                 <input id="user" class="form-control" @bind="@name" disabled />
@@ -26,7 +26,7 @@ else
             </td>
             <td>
                 <select id="role" class="form-control" @bind="@roleid">
-                    <option value="-1">&lt;Select Role&gt;</option>
+                    <option value="-1">&lt;@Localizer["Select Role"]&gt;</option>
                     @foreach (Role role in roles)
                     {
                         <option value="@(role.RoleId)">@role.Name</option>
@@ -36,7 +36,7 @@ else
         </tr>
         <tr>
             <td>
-                <Label For="effectiveDate" HelpText="The date that this role assignment is active" resource="EffectiveDate">Effective Date: </Label>
+                <Label For="effectiveDate" HelpText="The date that this role assignment is active" ResourceKey="EffectiveDate">Effective Date: </Label>
             </td>
             <td>
                 <input id="effectiveDate" class="form-control" @bind="@effectivedate" />
