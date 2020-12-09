@@ -70,7 +70,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Packages {Error}", ex.Message);
-            AddModuleMessage("Error Loading Packages", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Packages"], MessageType.Error);
         }
     }
 
@@ -79,7 +79,7 @@
         try
         {
             await ThemeService.InstallThemesAsync();
-            AddModuleMessage("Theme Installed Successfully. You Must <a href=\"" + NavigateUrl("admin/system") + "\">Restart</a> Your Application To Apply These Changes.", MessageType.Success);
+            AddModuleMessage(Localizer["Theme Installed Successfully. You Must <a href=\"{0}\">Restart</a> Your Application To Apply These Changes.", NavigateUrl("admin/system")], MessageType.Success);
         }
         catch (Exception ex)
         {
@@ -93,13 +93,13 @@
         {
             await PackageService.DownloadPackageAsync(packageid, version, "Themes");
             await logger.LogInformation("Theme {ThemeName} {Version} Downloaded Successfully", packageid, version);
-            AddModuleMessage("Themes Downloaded Successfully. Click Install To Complete Installation.", MessageType.Success);
+            AddModuleMessage(Localizer["Themes Downloaded Successfully. Click Install To Complete Installation."], MessageType.Success);
             StateHasChanged();
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Downloading Module {ThemeName} {Version}", packageid, version);
-            AddModuleMessage("Error Downloading Theme", MessageType.Error);
+            AddModuleMessage(Localizer["Error Downloading Theme"], MessageType.Error);
         }
     }
 }

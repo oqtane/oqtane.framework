@@ -56,13 +56,13 @@ else
             }
             else
             {
-                AddModuleMessage("Tenant Cannot Be Deleted Until The Following Sites Are Deleted: " + message.Substring(2), MessageType.Warning);
+                AddModuleMessage(Localizer["Tenant Cannot Be Deleted Until The Following Sites Are Deleted: {0}", message.Substring(2)], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting Tenant {Tenant} {Error}", Tenant, ex.Message);
-            AddModuleMessage("Error Deleting Tenant", MessageType.Error);
+            AddModuleMessage(Localizer["Error Deleting Tenant"], MessageType.Error);
         }
     }
 }

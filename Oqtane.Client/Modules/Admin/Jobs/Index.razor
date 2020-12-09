@@ -119,7 +119,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting Job {Job} {Error}", job, ex.Message);
-            AddModuleMessage("Error Deleting Job", MessageType.Error);
+            AddModuleMessage(Localizer["Error Deleting Job"], MessageType.Error);
         }
     }
 

@@ -48,7 +48,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting Role {Role} {Error}", role, ex.Message);
-            AddModuleMessage("Error Deleting Role", MessageType.Error);
+            AddModuleMessage(Localizer["Error Deleting Role"], MessageType.Error);
         }
     }
 }

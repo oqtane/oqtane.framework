@@ -64,23 +64,23 @@
                     else
                     {
                         await logger.LogError("Error Resetting User Password {Username}", _username);
-                        AddModuleMessage("Error Resetting User Password. Please Ensure Password Meets Complexity Requirements.", MessageType.Error);
+                        AddModuleMessage(Localizer["Error Resetting User Password. Please Ensure Password Meets Complexity Requirements."], MessageType.Error);
                     }
                 }
                 else
                 {
-                    AddModuleMessage("Passwords Entered Do Not Match", MessageType.Warning);
+                    AddModuleMessage(Localizer["Passwords Entered Do Not Match"], MessageType.Warning);
                 }
             }
             else
             {
-                AddModuleMessage("You Must Provide A Username, Password, and Email Address", MessageType.Warning);
+                AddModuleMessage(Localizer["You Must Provide A Username, Password, and Email Address"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Resetting User Password {Username} {Error}", _username, ex.Message);
-            AddModuleMessage("Error Resetting User Password", MessageType.Error);
+            AddModuleMessage(Localizer["Error Resetting User Password"], MessageType.Error);
         }
     }
 

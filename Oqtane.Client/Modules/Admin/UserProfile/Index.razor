@@ -248,13 +248,13 @@ else
             }
             else
             {
-                AddModuleMessage("Current User Is Not Logged In", MessageType.Warning);
+                AddModuleMessage(Localizer["Current User Is Not Logged In"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading User Profile {Error}", ex.Message);
-            AddModuleMessage("Error Loading User Profile", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading User Profile"], MessageType.Error);
         }
     }
 
@@ -291,22 +291,22 @@ else
                     await UserService.UpdateUserAsync(user);
                     await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
                     await logger.LogInformation("User Profile Saved");
-                    AddModuleMessage("User Profile Updated Successfully", MessageType.Success);
+                    AddModuleMessage(Localizer["User Profile Updated Successfully"], MessageType.Success);
                 }
                 else
                 {
-                    AddModuleMessage("Passwords Entered Do Not Match", MessageType.Warning);
+                    AddModuleMessage(Localizer["Passwords Entered Do Not Match"], MessageType.Warning);
                 }
             }
             else
             {
-                AddModuleMessage("You Must Provide A Username and Email Address As Well As All Required Profile Information", MessageType.Warning);
+                AddModuleMessage(Localizer["You Must Provide A Username and Email Address As Well As All Required Profile Information"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving User Profile {Error}", ex.Message);
-            AddModuleMessage("Error Saving User Profile", MessageType.Error);
+            AddModuleMessage(Localizer["Error Saving User Profile"], MessageType.Error);
         }
     }
 

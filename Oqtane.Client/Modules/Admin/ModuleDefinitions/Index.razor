@@ -59,7 +59,7 @@ else
             if (_moduleDefinitions == null)
             {
                 await logger.LogError(ex, "Error Loading Modules {Error}", ex.Message);
-                AddModuleMessage("Error Loading Modules", MessageType.Error);
+                AddModuleMessage(Localizer["Error Loading Modules"], MessageType.Error);
             }
         }
     }
@@ -86,12 +86,12 @@ else
             await PackageService.DownloadPackageAsync(moduledefinitionname, version, "Modules");
             await logger.LogInformation("Module Downloaded {ModuleDefinitionName} {Version}", moduledefinitionname, version);
             await ModuleDefinitionService.InstallModuleDefinitionsAsync();
-            AddModuleMessage("Module Installed Successfully. You Must <a href=\"" + NavigateUrl("admin/system") + "\">Restart</a> Your Application To Apply These Changes.", MessageType.Success);
+            AddModuleMessage(Localizer["Module Installed Successfully. You Must <a href=\"{0}\">Restart</a> Your Application To Apply These Changes.", NavigateUrl("admin/system")], MessageType.Success);
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Downloading Module {ModuleDefinitionName} {Version} {Error}", moduledefinitionname, version, ex.Message);
-            AddModuleMessage("Error Downloading Module", MessageType.Error);
+            AddModuleMessage(Localizer["Error Downloading Module"], MessageType.Error);
         }
     }
 
@@ -100,12 +100,12 @@ else
         try
         {
             await ModuleDefinitionService.DeleteModuleDefinitionAsync(moduleDefinition.ModuleDefinitionId, moduleDefinition.SiteId);
-            AddModuleMessage("Module Deleted Successfully. You Must <a href=\"" + NavigateUrl("admin/system") + "\">Restart</a> Your Application To Apply These Changes.", MessageType.Success);
+            AddModuleMessage(Localizer["Module Deleted Successfully. You Must <a href=\"{0}\">Restart</a> Your Application To Apply These Changes.", NavigateUrl("admin/system")], MessageType.Success);
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting Module {ModuleDefinition} {Error}", moduleDefinition, ex.Message);
-            AddModuleMessage("Error Deleting Module", MessageType.Error);
+            AddModuleMessage(Localizer["Error Deleting Module"], MessageType.Error);
         }
     }
 }

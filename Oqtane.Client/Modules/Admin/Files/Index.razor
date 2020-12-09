@@ -73,7 +73,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Files {Error}", ex.Message);
-            AddModuleMessage("Error Loading Files", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Files"], MessageType.Error);
         }
     }
 
@@ -93,7 +93,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Files {Error}", ex.Message);
-            AddModuleMessage("Error Loading Files", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Files"], MessageType.Error);
         }
     }
 
@@ -103,14 +103,14 @@
         {
             await FileService.DeleteFileAsync(file.FileId);
             await logger.LogInformation("File Deleted {File}", file.Name);
-            AddModuleMessage("File " + file.Name + " Deleted", MessageType.Success);
+            AddModuleMessage(Localizer["File {0} Deleted", file.Name], MessageType.Success);
             await GetFiles();
             StateHasChanged();
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting File {File} {Error}", file.Name, ex.Message);
-            AddModuleMessage("Error Deleting File " + file.Name, MessageType.Error);
+            AddModuleMessage(Localizer["Error Deleting File {0}", file.Name], MessageType.Error);
         }
     }
 }

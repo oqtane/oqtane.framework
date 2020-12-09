@@ -116,7 +116,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading User Profile {Error}", ex.Message);
-            AddModuleMessage("Error Loading User Profile", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading User Profile"], MessageType.Error);
         }
     }
 
@@ -150,23 +150,23 @@
                     else
                     {
                         await logger.LogError("Error Adding User {Username} {Email}", username, email);
-                        AddModuleMessage("Error Adding User. Please Ensure Password Meets Complexity Requirements And Username Is Not Already In Use.", MessageType.Error);
+                        AddModuleMessage(Localizer["Error Adding User. Please Ensure Password Meets Complexity Requirements And Username Is Not Already In Use."], MessageType.Error);
                     }
                 }
                 else
                 {
-                    AddModuleMessage("Passwords Entered Do Not Match", MessageType.Warning);
+                    AddModuleMessage(Localizer["Passwords Entered Do Not Match"], MessageType.Warning);
                 }
             }
             else
             {
-                AddModuleMessage("You Must Provide A Username, Password, Email Address And All Required Profile Information", MessageType.Warning);
+                AddModuleMessage(Localizer["You Must Provide A Username, Password, Email Address And All Required Profile Information"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Adding User {Username} {Email} {Error}", username, email, ex.Message);
-            AddModuleMessage("Error Adding User", MessageType.Error);
+            AddModuleMessage(Localizer["Error Adding User"], MessageType.Error);
         }
     }
 
