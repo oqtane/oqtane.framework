@@ -40,16 +40,13 @@ else
     {
         base.OnParametersSet();
 
-        if (IsLocalizable)
+        if (string.IsNullOrEmpty(Heading))
         {
-            if (string.IsNullOrEmpty(Heading))
-            {
-                Name = Localize(nameof(Name), Name);
-            }
-            else
-            {
-                Heading = Localize(nameof(Heading), Heading);
-            }
+            Name = Localize(nameof(Name), Name);
+        }
+        else
+        {
+            Heading = Localize(nameof(Heading), Heading);
         }
     }
 
