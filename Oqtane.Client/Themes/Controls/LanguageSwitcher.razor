@@ -6,7 +6,7 @@
 @inject ILocalizationService LocalizationService
 @inject NavigationManager NavigationManager
 
-@if (_supportedCultures != null && Visible)
+@if (_supportedCultures != null)
 {
     <div class="btn-group" role="group">
         <button id="btnCultures" type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -23,9 +23,6 @@
 
 @code{
     private IEnumerable<Culture> _supportedCultures;
-
-    [Parameter]
-    public bool Visible { get; set; } = true;
 
     protected override async Task OnParametersSetAsync()
     {
