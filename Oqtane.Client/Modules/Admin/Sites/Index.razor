@@ -69,13 +69,13 @@ else
             }
             else
             {
-                AddModuleMessage("You Can Not Delete The Current Site", MessageType.Warning);
+                AddModuleMessage(Localizer["You Can Not Delete The Current Site"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await Log(alias, LogLevel.Error, "", ex, "Error Deleting Site {SiteId} {Error}", alias.SiteId, ex.Message);
-            AddModuleMessage("Error Deleting Site", MessageType.Error);
+            AddModuleMessage(Localizer["Error Deleting Site"], MessageType.Error);
         }
     }
 }

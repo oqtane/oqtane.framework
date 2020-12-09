@@ -56,7 +56,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Tenant {TenantId} {Error}", tenantid, ex.Message);
-            AddModuleMessage("Error Loading Tenant", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Tenant"], MessageType.Error);
         }
     }
 
@@ -80,7 +80,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving Tenant {TenantId} {Error}", tenantid, ex.Message);
-            AddModuleMessage("Error Saving Tenant", MessageType.Error);
+            AddModuleMessage(Localizer["Error Saving Tenant"], MessageType.Error);
         }
     }
 }

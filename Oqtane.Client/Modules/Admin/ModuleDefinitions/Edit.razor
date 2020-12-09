@@ -161,7 +161,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading ModuleDefinition {ModuleDefinitionId} {Error}", _moduleDefinitionId, ex.Message);
-            AddModuleMessage("Error Loading Module", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Module"], MessageType.Error);
         }
     }
 
@@ -190,7 +190,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving ModuleDefinition {ModuleDefinitionId} {Error}", _moduleDefinitionId, ex.Message);
-            AddModuleMessage("Error Saving Module", MessageType.Error);
+            AddModuleMessage(Localizer["Error Saving Module"], MessageType.Error);
         }
     }
 }

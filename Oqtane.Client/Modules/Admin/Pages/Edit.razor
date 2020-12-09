@@ -309,7 +309,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Page {PageId} {Error}", _pageId, ex.Message);
-            AddModuleMessage("Error Loading Page", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Page"], MessageType.Error);
         }
     }
 
@@ -352,7 +352,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Child Pages For Parent {PageId} {Error}", _parentid, ex.Message);
-            AddModuleMessage("Error Loading Child Pages For Parent", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Child Pages For Parent"], MessageType.Error);
         }
     }
 
@@ -378,7 +378,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", _themetype, ex.Message);
-            AddModuleMessage("Error Loading Pane Layouts For Theme", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Pane Layouts For Theme"], MessageType.Error);
         }
     }
 
@@ -424,7 +424,7 @@
 
                 if (!PagePathIsUnique(page.Path, page.SiteId, page.PageId, _pageList))
                 {
-                    AddModuleMessage($"A page with path {_path} already exists for the selected parent page. The page path needs to be unique for the selected parent.", MessageType.Warning);
+                    AddModuleMessage(Localizer["A page with path {0} already exists for the selected parent page. The page path needs to be unique for the selected parent.", _path], MessageType.Warning);
                     return;
                 }
 
@@ -497,13 +497,13 @@
             }
             else
             {
-                AddModuleMessage("You Must Provide Page Name", MessageType.Warning);
+                AddModuleMessage(Localizer["You Must Provide Page Name"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving Page {Page} {Error}", page, ex.Message);
-            AddModuleMessage("Error Saving Page", MessageType.Error);
+            AddModuleMessage(Localizer["Error Saving Page"], MessageType.Error);
         }
     }
 

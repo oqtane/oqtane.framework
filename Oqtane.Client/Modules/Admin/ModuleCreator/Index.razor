@@ -105,7 +105,7 @@ else
         }
         else
         {
-            AddModuleMessage("Once You Have Compiled The Module And Restarted The Application You Can Activate The Module Below", MessageType.Info);
+            AddModuleMessage(Localizer["Once You Have Compiled The Module And Restarted The Application You Can Activate The Module Below"], MessageType.Info);
         }
     }
 
@@ -122,11 +122,11 @@ else
                 SettingService.SetSetting(settings, "ModuleDefinitionName", moduleDefinition.ModuleDefinitionName);
                 await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
 
-                AddModuleMessage("The Source Code For Your Module Has Been Created At The Location Specified Below And Must Be Compiled In Order To Make It Functional. Once It Has Been Compiled You Must <a href=\"" + NavigateUrl("admin/system") + "\">Restart</a> Your Application To Apply These Changes.", MessageType.Success);
+                AddModuleMessage(Localizer["The Source Code For Your Module Has Been Created At The Location Specified Below And Must Be Compiled In Order To Make It Functional. Once It Has Been Compiled You Must <a href=\"{0}\">Restart</a> Your Application To Apply These Changes.", NavigateUrl("admin/system")], MessageType.Success);
             }
             else
             {
-                AddModuleMessage("You Must Provide A Valid Owner Name, Module Name, And Template", MessageType.Warning);
+                AddModuleMessage(Localizer["You Must Provide A Valid Owner Name, Module Name, And Template"], MessageType.Warning);
             }
         }
         catch (Exception ex)
@@ -187,7 +187,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Getting System Info {Error}", ex.Message);
-            AddModuleMessage("Error Getting System Info", MessageType.Error);
+            AddModuleMessage(Localizer["Error Getting System Info"], MessageType.Error);
         }
     }
 }

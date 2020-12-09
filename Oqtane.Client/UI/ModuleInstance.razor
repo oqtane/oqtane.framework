@@ -1,4 +1,5 @@
 @namespace Oqtane.UI
+@inject IStringLocalizer<ModuleInstance> Localizer
 
 <ModuleMessage Message="@_message" Type="@_messagetype" />
 <CascadingValue Value="this">
@@ -41,13 +42,13 @@
                 else
                 {
                     // module does not exist with typename specified
-                    _message = "Module Does Not Have A Component Named " + Utilities.GetTypeNameLastSegment(ModuleState.ModuleType, 0) + ".razor";
+                    _message = Localizer["Module Does Not Have A Component Named {0}.razor", Utilities.GetTypeNameLastSegment(ModuleState.ModuleType, 0)];
                     _messagetype = MessageType.Error;
                 }
             }
             else
             {
-                _message = "Module Type Is Invalid For " + ModuleState.ModuleDefinitionName;
+                _message = Localizer["Module Type Is Invalid For {0}", ModuleState.ModuleDefinitionName];
                 _messagetype = MessageType.Error;
             }
 

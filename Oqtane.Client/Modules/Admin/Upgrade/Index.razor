@@ -78,7 +78,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Executing Upgrade {Error}", ex.Message);
-            AddModuleMessage("Error Executing Upgrade", MessageType.Error);
+            AddModuleMessage(Localizer["Error Executing Upgrade"], MessageType.Error);
         }
     }
 
@@ -95,7 +95,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Downloading Framework {Error}", ex.Message);
-            AddModuleMessage("Error Downloading Framework", MessageType.Error);
+            AddModuleMessage(Localizer["Error Downloading Framework"], MessageType.Error);
         }
     }
 }

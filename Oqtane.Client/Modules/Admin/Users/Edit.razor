@@ -178,7 +178,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading User {UserId} {Error}", userid, ex.Message);
-            AddModuleMessage("Error Loading User", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading User"], MessageType.Error);
         }
     }
 
@@ -217,18 +217,18 @@ else
                 }
                 else
                 {
-                    AddModuleMessage("Passwords Entered Do Not Match", MessageType.Warning);
+                    AddModuleMessage(Localizer["Passwords Entered Do Not Match"], MessageType.Warning);
                 }
             }
             else
             {
-                AddModuleMessage("You Must Provide A Username, Password, Email Address, And All Required Profile Information", MessageType.Warning);
+                AddModuleMessage(Localizer["You Must Provide A Username, Password, Email Address, And All Required Profile Information"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving User {Username} {Email} {Error}", username, email, ex.Message);
-            AddModuleMessage("Error Saving User", MessageType.Error);
+            AddModuleMessage(Localizer["Error Saving User"], MessageType.Error);
         }
     }
 

@@ -78,7 +78,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Deleted Pages Or Modules {Error}", ex.Message);
-            AddModuleMessage("Error Loading Deleted Pages Or Modules", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Deleted Pages Or Modules"], MessageType.Error);
         }
     }
 
@@ -105,7 +105,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Restoring Deleted Page {Page} {Error}", page, ex.Message);
-            AddModuleMessage("Error Restoring Deleted Page", MessageType.Error);
+            AddModuleMessage(Localizer["Error Restoring Deleted Page"], MessageType.Error);
         }
     }
 
@@ -140,7 +140,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Restoring Deleted Module {Module} {Error}", module, ex.Message);
-            AddModuleMessage("Error Restoring Deleted Module", MessageType.Error);
+            AddModuleMessage(Localizer["Error Restoring Deleted Module"], MessageType.Error);
         }
     }
 
@@ -164,7 +164,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Permanently Deleting Module {Module} {Error}", module, ex.Message);
-            AddModuleMessage("Error Permanently Deleting Module", MessageType.Error);
+            AddModuleMessage(Localizer["Error Permanently Deleting Module"], MessageType.Error);
         }
     }
 }

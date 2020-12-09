@@ -61,7 +61,7 @@ else
             if (_themes == null)
             {
                 await logger.LogError(ex, "Error Loading Themes {Error}", ex.Message);
-                AddModuleMessage("Error Loading Themes", MessageType.Error);
+                AddModuleMessage(Localizer["Error Loading Themes"], MessageType.Error);
             }
         }
     }
@@ -87,12 +87,12 @@ else
             await PackageService.DownloadPackageAsync(themename, version, "Themes");
             await logger.LogInformation("Theme Downloaded {ThemeName} {Version}", themename, version);
             await ThemeService.InstallThemesAsync();
-            AddModuleMessage("Theme Installed Successfully. You Must <a href=\"" + NavigateUrl("admin/system") + "\">Restart</a> Your Application To Apply These Changes.", MessageType.Success);
+            AddModuleMessage(Localizer["Theme Installed Successfully. You Must <a href=\"{0}\">Restart</a> Your Application To Apply These Changes.", NavigateUrl("admin/system")], MessageType.Success);
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Downloading Theme {ThemeName} {Version} {Error}", themename, version, ex.Message);
-            AddModuleMessage("Error Downloading Theme", MessageType.Error);
+            AddModuleMessage(Localizer["Error Downloading Theme"], MessageType.Error);
         }
     }
 
@@ -101,12 +101,12 @@ else
         try
         {
             await ThemeService.DeleteThemeAsync(Theme.ThemeName);
-            AddModuleMessage("Theme Deleted Successfully. You Must <a href=\"" + NavigateUrl("admin/system") + "\">Restart</a> Your Application To Apply These Changes.", MessageType.Success);
+            AddModuleMessage(Localizer["Theme Deleted Successfully. You Must <a href=\"{0}\">Restart</a> Your Application To Apply These Changes.", NavigateUrl("admin/system")], MessageType.Success);
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting Theme {Theme} {Error}", Theme, ex.Message);
-            AddModuleMessage("Error Deleting Theme", MessageType.Error);
+            AddModuleMessage(Localizer["Error Deleting Theme"], MessageType.Error);
         }
     }
 }

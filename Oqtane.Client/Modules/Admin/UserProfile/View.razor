@@ -158,7 +158,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Users {Error}", ex.Message);
-            AddModuleMessage("Error Loading Users", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Users"], MessageType.Error);
         }
     }
 
@@ -202,13 +202,13 @@
             }
             else
             {
-                AddModuleMessage("User Does Not Exist. Please Verify That The Username Provided Is Correct.", MessageType.Warning);
+                AddModuleMessage(Localizer["User Does Not Exist. Please Verify That The Username Provided Is Correct."], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Adding Notification {Notification} {Error}", notification, ex.Message);
-            AddModuleMessage("Error Adding Notification", MessageType.Error);
+            AddModuleMessage(Localizer["Error Adding Notification"], MessageType.Error);
         }
     }
 }

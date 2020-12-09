@@ -38,7 +38,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting Page {Page} {Error}", page, ex.Message);
-            AddModuleMessage("Error Deleting Page", MessageType.Error);
+            AddModuleMessage(Localizer["Error Deleting Page"], MessageType.Error);
         }
     }
 }
