@@ -14,13 +14,13 @@ else
             <td>
                 <label>@Localizer["Level:"] </label>
                 <select class="form-control" @onchange="(e => LevelChanged(e))">
-                    <option value="-">&lt;All Levels&gt;</option>
-                    <option value="Trace">Trace</option>
-                    <option value="Debug">Debug</option>
-                    <option value="Information">Information</option>
-                    <option value="Warning">Warning</option>
-                    <option value="Error">Error</option>
-                    <option value="Critical">Critical</option>
+                    <option value="-">&lt;@Localizer["All Levels"]&gt;</option>
+                    <option value="Trace">@Localizer["Trace"]</option>
+                    <option value="Debug">@Localizer["Debug"]</option>
+                    <option value="Information">@Localizer["Information"]</option>
+                    <option value="Warning">@Localizer["Warning"]</option>
+                    <option value="Error">@Localizer["Error"]</option>
+                    <option value="Critical">@Localizer["Critical"]</option>
                 </select>
             </td>
             <td>

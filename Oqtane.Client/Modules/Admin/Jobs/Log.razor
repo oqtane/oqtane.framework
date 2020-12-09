@@ -50,17 +50,17 @@ else
         var status = string.Empty;
         if (isExecuting)
         {
-            status = "Executing";
+            status = Localizer["Executing"];
         }
         else
         {
             if (succeeded != null && succeeded.Value)
             {
-                status = "Succeeded";
+                status = Localizer["Succeeded"];
             }
             else
             {
-                status = "Failed";
+                status = Localizer["Failed"];
             }
         }
         

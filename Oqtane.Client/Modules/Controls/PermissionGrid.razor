@@ -13,7 +13,7 @@
                 <th scope="col">@Localizer["Role"]</th>
                 @foreach (PermissionString permission in _permissions)
                 {
-                    <th style="text-align: center; width: 1px;">@permission.PermissionName</th>
+                    <th style="text-align: center; width: 1px;">@Localizer[permission.PermissionName]</th>
                 }
             </tr>
             @foreach (Role role in _roles)
@@ -39,7 +39,7 @@
                     <th scope="col">@Localizer["User"]</th>
                     @foreach (PermissionString permission in _permissions)
                     {
-                        <th style="text-align: center; width: 1px;">@permission.PermissionName</th>
+                        <th style="text-align: center; width: 1px;">@Localizer[permission.PermissionName]</th>
                     }
                 </tr>
             </thead>
@@ -65,7 +65,7 @@
         <tbody>
             <tr>
                 <td class="input-group">
-                    <input type="text" name="Username" class="form-control" placeholder="Enter Username" @bind="@_username" />
+                    <input type="text" name="Username" class="form-control" placeholder="@Localizer["Enter Username"]" @bind="@_username" />
                     <button type="button" class="btn btn-primary" @onclick="AddUser">@Localizer["Add"]</button>
                 </td>
             </tr>

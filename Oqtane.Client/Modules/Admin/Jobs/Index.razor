@@ -28,7 +28,7 @@ else
         </Header>
         <Row>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.JobId.ToString())" ResourceKey="EditJob" /></td>
-            <td><ActionDialog Header="Delete Job" Message="@("Are You Sure You Wish To Delete This Job?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteJob(context))" ResourceKey="DeleteJob" /></td>
+            <td><ActionDialog Header="Delete Job" Message="Are You Sure You Wish To Delete This Job?" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteJob(context))" ResourceKey="DeleteJob" /></td>
             <td><ActionLink Action="Log" Class="btn btn-secondary" Parameters="@($"id=" + context.JobId.ToString())" ResourceKey="JobLog" /></td>
             <td>@context.Name</td>
             <td>@DisplayStatus(context.IsEnabled, context.IsExecuting)</td>
@@ -63,17 +63,17 @@ else
         var status = string.Empty;
         if (!isEnabled)
         {
-            status = "Disabled";
+            status = Localizer["Disabled"];
         }
         else
         {
             if (isExecuting)
             {
-                status = "Executing";
+                status = Localizer["Executing"];
             }
             else
             {
-                status = "Idle";
+                status = Localizer["Idle"];
             }
         }
 
@@ -83,26 +83,26 @@ else
 
     private string DisplayFrequency(int interval, string frequency)
     {
-        var result = "Every " + interval.ToString() + " ";
+        var result = $"{Localizer["Every"]} {interval.ToString()} ";
         switch (frequency)
         {
             case "m":
-                result += "Minute";
+                result += Localizer["Minute"];
                 break;
             case "H":
-                result += "Hour";
+                result += Localizer["Hour"];
                 break;
             case "d":
-                result += "Day";
+                result += Localizer["Day"];
                 break;
             case "M":
-                result += "Month";
+                result += Localizer["Month"];
                 break;
         }
 
         if (interval > 1)
         {
-            result += "s";
+            result += Localizer["s"];
         }
 
         return result;

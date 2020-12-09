@@ -26,17 +26,17 @@ else
             <td><ActionLink Action="View" Parameters="@($"name=" + WebUtility.UrlEncode(context.ThemeName))" ResourceKey="ViewTheme" /></td>
             <td>
                 @if (context.AssemblyName != "Oqtane.Client")
-                    {
-                    <ActionDialog Header="Delete Theme" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Theme?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteTheme(context))" ResourceKey="DeleteTheme" />
-                    }
+                {
+                    <ActionDialog Header="Delete Theme" Message="@Localizer["Are You Sure You Wish To Delete The {0} Theme?", context.Name]" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteTheme(context))" ResourceKey="DeleteTheme" />
+                }
             </td>
             <td>@context.Name</td>
             <td>@context.Version</td>
             <td>
                 @if (UpgradeAvailable(context.ThemeName, context.Version))
-                    {
-                <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadTheme(context.ThemeName, context.Version))>@Localizer["Upgrade"]</button>
-                    }
+                {
+                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadTheme(context.ThemeName, context.Version))>@Localizer["Upgrade"]</button>
+                }
             </td>
             <td></td>
         </Row>

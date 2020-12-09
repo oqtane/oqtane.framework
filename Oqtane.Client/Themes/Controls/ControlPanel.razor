@@ -404,17 +404,17 @@
                 await PageModuleService.AddPageModuleAsync(pageModule);
                 await PageModuleService.UpdatePageModuleOrderAsync(pageModule.PageId, pageModule.Pane);
 
-                Message = "<br /><div class=\"alert alert-success\" role=\"alert\">Module Added To Page</div>";
+                Message = $"<br /><div class=\"alert alert-success\" role=\"alert\">{Localizer["Module Added To Page"]}</div>";
                 NavigationManager.NavigateTo(NavigateUrl());
             }
             else
             {
-                Message = "<br /><div class=\"alert alert-warning\" role=\"alert\">You Must Select A Module</div>";
+                Message = $"<br /><div class=\"alert alert-warning\" role=\"alert\">{Localizer["You Must Select A Module"]}</div>";
             }
         }
         else
         {
-            Message = "<br /><div class=\"alert alert-error\" role=\"alert\">Not Authorized</div>";
+            Message = $"<br /><div class=\"alert alert-error\" role=\"alert\">{Localizer["Not Authorized"]}</div>";
         }
     }
 

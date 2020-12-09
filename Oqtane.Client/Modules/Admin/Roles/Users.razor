@@ -25,7 +25,7 @@ else
             </td>
             <td>
                 <select id="user" class="form-control" @bind="@userid">
-                    <option value="-1">&lt;Select User&gt;</option>
+                    <option value="-1">&lt;@Localizer["Select User"]&gt;</option>
                     @foreach (UserRole userrole in users)
                     {
                         <option value="@(userrole.UserId)">@userrole.User.DisplayName</option>
