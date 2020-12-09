@@ -1,5 +1,6 @@
-﻿@namespace Oqtane.Modules.Controls
+@namespace Oqtane.Modules.Controls
 @inherits ModuleControlBase
+@inject IStringLocalizer<TriStateCheckBox> Localizer 
 
 <img src="@_src" title="@_title" @onclick="SetValue" />
 
@@ -51,11 +52,11 @@
         {
             case true:
                 _src = "images/checked.png";
-                _title = "Permission Granted";
+                _title = Localizer["Permission Granted"];
                 break;
             case false:
                 _src = "images/unchecked.png";
-                _title = "Permission Denied";
+                _title = Localizer["Permission Denied"];
                 break;
             case null:
                 _src = "images/null.png";

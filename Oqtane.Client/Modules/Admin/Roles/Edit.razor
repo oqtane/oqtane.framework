@@ -60,7 +60,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Role {RoleId} {Error}", _roleid, ex.Message);
-            AddModuleMessage("Error Loading Role", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Role"], MessageType.Error);
         }
     }
 
@@ -81,7 +81,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving Role {Role} {Error}", role, ex.Message);
-            AddModuleMessage("Error Saving Role", MessageType.Error);
+            AddModuleMessage(Localizer["Error Saving Role"], MessageType.Error);
         }
     }
 }

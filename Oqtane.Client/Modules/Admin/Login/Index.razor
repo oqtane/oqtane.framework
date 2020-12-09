@@ -76,11 +76,11 @@
 
             if (user != null)
             {
-                _message = "User Account Verified Successfully. You Can Now Login With Your Username And Password Below.";
+                _message = Localizer["User Account Verified Successfully. You Can Now Login With Your Username And Password Below."];
             }
             else
             {
-                _message = "User Account Could Not Be Verified. Please Contact Your Administrator For Further Instructions.";
+                _message = Localizer["User Account Could Not Be Verified. Please Contact Your Administrator For Further Instructions."];
                 _type = MessageType.Warning;
             }
         }
@@ -109,7 +109,7 @@
             else
             {
                 await logger.LogInformation("Login Failed For Username {Username}", _username);
-                AddModuleMessage("Login Failed. Please Remember That Passwords Are Case Sensitive And User Accounts Require Email Verification When They Initially Created.", MessageType.Error);
+                AddModuleMessage(Localizer["Login Failed. Please Remember That Passwords Are Case Sensitive And User Accounts Require Email Verification When They Initially Created."], MessageType.Error);
             }
         }
         else
@@ -130,7 +130,7 @@
             else
             {
                 await logger.LogInformation("Login Failed For Username {Username}", _username);
-                AddModuleMessage("Login Failed. Please Remember That Passwords Are Case Sensitive And User Accounts Require Verification When They Are Initially Created So You May Wish To Check Your Email.", MessageType.Error);
+                AddModuleMessage(Localizer["Login Failed. Please Remember That Passwords Are Case Sensitive And User Accounts Require Verification When They Are Initially Created So You May Wish To Check Your Email."], MessageType.Error);
             }
         }
     }

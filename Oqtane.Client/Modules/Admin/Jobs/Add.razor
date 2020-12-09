@@ -129,12 +129,12 @@
             catch (Exception ex)
             {
                 await logger.LogError(ex, "Error Adding Job {Job} {Error}", job, ex.Message);
-                AddModuleMessage("Error Adding Job", MessageType.Error);
+                AddModuleMessage(Localizer["Error Adding Job"], MessageType.Error);
             }
         }
         else
         {
-            AddModuleMessage("You Must Provide The Job Name, Type, Frequency, and Retention", MessageType.Warning);
+            AddModuleMessage(Localizer["You Must Provide The Job Name, Type, Frequency, and Retention"], MessageType.Warning);
         }
     }
 

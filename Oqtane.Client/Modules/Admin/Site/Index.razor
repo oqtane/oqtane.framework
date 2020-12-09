@@ -353,7 +353,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", _themetype, ex.Message);
-            AddModuleMessage("Error Loading Pane Layouts For Theme", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Pane Layouts For Theme"], MessageType.Error);
         }
     }
 
@@ -444,18 +444,18 @@
                 }
                 else
                 {
-                    AddModuleMessage("An Alias Specified Has Already Been Used For Another Site", MessageType.Warning);
+                    AddModuleMessage(Localizer["An Alias Specified Has Already Been Used For Another Site"], MessageType.Warning);
                 }
             }
             else
             {
-                AddModuleMessage("You Must Provide A Site Name, Alias, And Default Theme/Layout/Container", MessageType.Warning);
+                AddModuleMessage(Localizer["You Must Provide A Site Name, Alias, And Default Theme/Layout/Container"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
-            AddModuleMessage("Error Saving Site", MessageType.Error);
+            AddModuleMessage(Localizer["Error Saving Site"], MessageType.Error);
         }
     }
 }
