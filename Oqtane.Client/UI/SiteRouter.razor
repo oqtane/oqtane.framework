@@ -338,10 +338,13 @@
 
     private Dictionary<string, string> ParseQueryString(string query)
     {
-        Dictionary<string, string> querystring = new Dictionary<string, string>();
+        Dictionary<string, string> querystring = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase); // case insensistive keys
         if (!string.IsNullOrEmpty(query))
         {
-            query = query.Substring(1); // ignore "?"
+            if (query.StartsWith("?"))
+            {
+                query = query.Substring(1); // ignore "?"
+            }
             foreach (string kvp in query.Split(new[] { '&' }, StringSplitOptions.RemoveEmptyEntries))
             {
                 if (kvp != "")
