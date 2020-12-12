@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Localization;
 using Oqtane.Enums;
 using Oqtane.Models;
 using Oqtane.Shared;
@@ -14,11 +15,13 @@ namespace Oqtane.Controllers
     {
         private readonly IProfileRepository _profiles;
         private readonly ILogManager _logger;
+        private readonly IStringLocalizer _localizer;
 
-        public ProfileController(IProfileRepository profiles, ILogManager logger)
+        public ProfileController(IProfileRepository profiles, ILogManager logger, IStringLocalizer<ProfileController> localizer)
         {
             _profiles = profiles;
             _logger = logger;
+            _localizer = localizer;
         }
 
         // GET: api/<controller>?siteid=x
@@ -43,7 +46,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 profile = _profiles.AddProfile(profile);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Profile Added {Profile}", profile);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, _localizer["Profile Added {Profile}"], profile);
             }
             return profile;
         }
@@ -56,7 +59,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 profile = _profiles.UpdateProfile(profile);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Profile Updated {Profile}", profile);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, _localizer["Profile Updated {Profile}"], profile);
             }
             return profile;
         }
@@ -67,7 +70,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             _profiles.DeleteProfile(id);
-            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Profile Deleted {ProfileId}", id);
+            _logger.Log(LogLevel.Information, this, LogFunction.Delete, _localizer["Profile Deleted {ProfileId}"], id);
         }
     }
 }

@@ -1,16 +1,16 @@
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
-using Oqtane.Models;
-using Microsoft.AspNetCore.Authorization;
-using Oqtane.Shared;
 using System.IO;
-using System.Reflection;
 using System.Linq;
+using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
+using Oqtane.Models;
 using Oqtane.Repository;
-using System.Text.Json;
+using Oqtane.Shared;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
@@ -23,13 +23,15 @@ namespace Oqtane.Controllers
         private readonly IInstallationManager _installationManager;
         private readonly IWebHostEnvironment _environment;
         private readonly ILogManager _logger;
+        private readonly IStringLocalizer _localizer;
 
-        public ThemeController(IThemeRepository themes, IInstallationManager installationManager, IWebHostEnvironment environment, ILogManager logger)
+        public ThemeController(IThemeRepository themes, IInstallationManager installationManager, IWebHostEnvironment environment, ILogManager logger, IStringLocalizer<ThemeController> localizer)
         {
             _themes = themes;
             _installationManager = installationManager;
             _environment = environment;
             _logger = logger;
+            _localizer = localizer;
         }
 
         // GET: api/<controller>
@@ -44,7 +46,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Host)]
         public void InstallThemes()
         {
-            _logger.Log(LogLevel.Information, this, LogFunction.Create, "Themes Installed");
+            _logger.Log(LogLevel.Information, this, LogFunction.Create, _localizer["Themes Installed"]);
             _installationManager.InstallPackages("Themes");
         }
 
@@ -69,7 +71,7 @@ namespace Oqtane.Controllers
                             System.IO.File.Delete(asset);
                         }
                     }
-                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Theme Assets Removed For {ThemeName}", theme.ThemeName);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, _localizer["Theme Assets Removed For {ThemeName}"], theme.ThemeName);
                 }
 
                 // clean up theme static resource folder
@@ -77,7 +79,7 @@ namespace Oqtane.Controllers
                 if (Directory.Exists(folder))
                 {
                     Directory.Delete(folder, true);
-                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Theme Resource Folder Removed For {ThemeName}", theme.ThemeName);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, _localizer["Theme Resource Folder Removed For {ThemeName}"], theme.ThemeName);
                 }
             }
         }

@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Localization;
 using Oqtane.Models;
 using Oqtane.Shared;
 using System.Linq;
@@ -17,13 +18,15 @@ namespace Oqtane.Controllers
         private readonly ITenantResolver _tenants;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
+        private readonly IStringLocalizer _localizer;
 
-        public SiteController(ISiteRepository sites, ITenantResolver tenants, ISyncManager syncManager, ILogManager logger)
+        public SiteController(ISiteRepository sites, ITenantResolver tenants, ISyncManager syncManager, ILogManager logger, IStringLocalizer<SiteController> localizer)
         {
             _sites = sites;
             _tenants = tenants;
             _syncManager = syncManager;
             _logger = logger;
+            _localizer = localizer;
         }
 
         // GET: api/<controller>
@@ -62,7 +65,7 @@ namespace Oqtane.Controllers
                 if (authorized)
                 {
                     site = _sites.AddSite(site);
-                    _logger.Log(site.SiteId, LogLevel.Information, this, LogFunction.Create, "Site Added {Site}", site);
+                    _logger.Log(site.SiteId, LogLevel.Information, this, LogFunction.Create, _localizer["Site Added {Site}"], site);
                 }
             }
             return site;
@@ -77,7 +80,7 @@ namespace Oqtane.Controllers
             {
                 site = _sites.UpdateSite(site);
                 _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, site.SiteId);
-                _logger.Log(site.SiteId, LogLevel.Information, this, LogFunction.Update, "Site Updated {Site}", site);
+                _logger.Log(site.SiteId, LogLevel.Information, this, LogFunction.Update, _localizer["Site Updated {Site}"], site);
             }
             return site;
         }
@@ -88,7 +91,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             _sites.DeleteSite(id);
-            _logger.Log(id, LogLevel.Information, this, LogFunction.Delete, "Site Deleted {SiteId}", id);
+            _logger.Log(id, LogLevel.Information, this, LogFunction.Delete, _localizer["Site Deleted {SiteId}"], id);
         }
     }
 }

@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Localization;
 using Oqtane.Enums;
 using Oqtane.Models;
 using Oqtane.Shared;
@@ -14,11 +15,13 @@ namespace Oqtane.Controllers
     {
         private readonly IRoleRepository _roles;
         private readonly ILogManager _logger;
+        private readonly IStringLocalizer _localizer;
 
-        public RoleController(IRoleRepository roles, ILogManager logger)
+        public RoleController(IRoleRepository roles, ILogManager logger, IStringLocalizer<RoleController> localizer)
         {
             _roles = roles;
             _logger = logger;
+            _localizer = localizer;
         }
 
         // GET: api/<controller>?siteid=x
@@ -45,7 +48,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 role = _roles.AddRole(role);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Role Added {Role}", role);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, _localizer["Role Added {Role}"], role);
             }
             return role;
         }
@@ -58,7 +61,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 role = _roles.UpdateRole(role);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Role Updated {Role}", role);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, _localizer["Role Updated {Role}"], role);
             }
             return role;
         }
@@ -69,7 +72,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             _roles.DeleteRole(id);
-            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Role Deleted {RoleId}", id);
+            _logger.Log(LogLevel.Information, this, LogFunction.Delete, _localizer["Role Deleted {RoleId}"], id);
         }
     }
 }

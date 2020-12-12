@@ -14,6 +14,7 @@ using Oqtane.Security;
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Localization;
 using System.Xml.Linq;
 using System.Text.Json;
 
@@ -30,8 +31,9 @@ namespace Oqtane.Controllers
         private readonly IWebHostEnvironment _environment;
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogManager _logger;
+        private readonly IStringLocalizer _localizer;
 
-        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, ITenantRepository tenants, ISqlRepository sql, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, IServiceProvider serviceProvider, ILogManager logger)
+        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, ITenantRepository tenants, ISqlRepository sql, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, IServiceProvider serviceProvider, ILogManager logger, IStringLocalizer<ModuleDefinitionController> localizer)
         {
             _moduleDefinitions = moduleDefinitions;
             _tenants = tenants;
@@ -41,6 +43,7 @@ namespace Oqtane.Controllers
             _environment = environment;
             _serviceProvider = serviceProvider;
             _logger = logger;
+            _localizer = localizer;
         }
 
         // GET: api/<controller>?siteid=x
@@ -69,7 +72,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access ModuleDefinition {ModuleDefinition}", moduledefinition);
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, _localizer["User Not Authorized To Access ModuleDefinition {ModuleDefinition}"], moduledefinition);
                 HttpContext.Response.StatusCode = 401;
                 return null;
             }
@@ -83,7 +86,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 _moduleDefinitions.UpdateModuleDefinition(moduleDefinition);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Module Definition Updated {ModuleDefinition}", moduleDefinition);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, _localizer["Module Definition Updated {ModuleDefinition}"], moduleDefinition);
             }
         }
 
@@ -91,7 +94,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Host)]
         public void InstallModules()
         {
-            _logger.Log(LogLevel.Information, this, LogFunction.Create, "Modules Installed");
+            _logger.Log(LogLevel.Information, this, LogFunction.Create, _localizer["Modules Installed"]);
             _installationManager.InstallPackages("Modules");
         }
 
@@ -121,11 +124,11 @@ namespace Oqtane.Controllers
                             {
                                 _sql.ExecuteScript(tenant, moduletype.Assembly, Utilities.GetTypeName(moduledefinition.ModuleDefinitionName) + ".Uninstall.sql");
                             }
-                            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "{ModuleDefinitionName} Uninstalled For Tenant {Tenant}", moduledefinition.ModuleDefinitionName, tenant.Name);
+                            _logger.Log(LogLevel.Information, this, LogFunction.Delete, _localizer["{ModuleDefinitionName} Uninstalled For Tenant {Tenant}"], moduledefinition.ModuleDefinitionName, tenant.Name);
                         }
                         catch (Exception ex)
                         {
-                            _logger.Log(LogLevel.Error, this, LogFunction.Delete, "Error Uninstalling {ModuleDefinitionName} For Tenant {Tenant} {Error}", moduledefinition.ModuleDefinitionName, tenant.Name, ex.Message);
+                            _logger.Log(LogLevel.Error, this, LogFunction.Delete, _localizer["Error Uninstalling {ModuleDefinitionName} For Tenant {Tenant} {Error}"], moduledefinition.ModuleDefinitionName, tenant.Name, ex.Message);
                         }
                     }
 
@@ -141,7 +144,7 @@ namespace Oqtane.Controllers
                                 System.IO.File.Delete(asset);
                             }
                         }
-                        _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Assets Removed For {ModuleDefinitionName}", moduledefinition.ModuleDefinitionName);
+                        _logger.Log(LogLevel.Information, this, LogFunction.Delete, _localizer["Module Assets Removed For {ModuleDefinitionName}"], moduledefinition.ModuleDefinitionName);
                     }
 
                     // clean up module static resource folder
@@ -149,12 +152,12 @@ namespace Oqtane.Controllers
                     if (Directory.Exists(folder))
                     {
                         Directory.Delete(folder, true);
-                        _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Resources Folder Removed For {ModuleDefinitionName}", moduledefinition.ModuleDefinitionName);
+                        _logger.Log(LogLevel.Information, this, LogFunction.Delete, _localizer["Module Resources Folder Removed For {ModuleDefinitionName}"], moduledefinition.ModuleDefinitionName);
                     }
 
                     // remove module definition
                     _moduleDefinitions.DeleteModuleDefinition(id, siteid);
-                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Definition {ModuleDefinitionName} Deleted", moduledefinition.Name);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, _localizer["Module Definition {ModuleDefinitionName} Deleted"], moduledefinition.Name);
                 }
             }
         }
@@ -184,7 +187,7 @@ namespace Oqtane.Controllers
                 }
 
                 ProcessTemplatesRecursively(new DirectoryInfo(templatePath), rootPath, rootFolder.Name, templatePath, moduleDefinition);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Module Definition Created {ModuleDefinition}", moduleDefinition);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, _localizer["Module Definition Created {ModuleDefinition}"], moduleDefinition);
 
                 if (moduleDefinition.Template == "internal")
                 {

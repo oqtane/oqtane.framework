@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
@@ -12,6 +12,7 @@ using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Security;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Localization;
 
 namespace Oqtane.Controllers
 {
@@ -23,14 +24,16 @@ namespace Oqtane.Controllers
         private readonly IUserPermissions _userPermissions;
         private readonly ITenantResolver _tenants;
         private readonly ILogManager _logger;
+        private readonly IStringLocalizer _localizer;
 
-        public FolderController(IWebHostEnvironment environment, IFolderRepository folders, IUserPermissions userPermissions, ITenantResolver tenants, ILogManager logger)
+        public FolderController(IWebHostEnvironment environment, IFolderRepository folders, IUserPermissions userPermissions, ITenantResolver tenants, ILogManager logger, IStringLocalizer<FolderController> localizer)
         {
             _environment = environment;
             _folders = folders;
             _userPermissions = userPermissions;
             _tenants = tenants;
             _logger = logger;
+            _localizer = localizer;
         }
 
         // GET: api/<controller>?siteid=x
@@ -59,7 +62,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Folder {Folder}", folder);
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, _localizer["User Not Authorized To Access Folder {Folder}"], folder);
                 HttpContext.Response.StatusCode = 401;
                 return null;
             }
@@ -77,14 +80,14 @@ namespace Oqtane.Controllers
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Folder {Folder}",
+                    _logger.Log(LogLevel.Error, this, LogFunction.Read, _localizer["User Not Authorized To Access Folder {Folder}"],
                         folder);
                     HttpContext.Response.StatusCode = 401;
                     return null;
                 }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "Folder not found {path}",
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, _localizer["Folder not found {path}"],
                     path);
                 HttpContext.Response.StatusCode = 401;
                 return null;
@@ -120,18 +123,18 @@ namespace Oqtane.Controllers
                         }
                         folder.Path = Utilities.PathCombine(folder.Path, Path.DirectorySeparatorChar.ToString());
                         folder = _folders.AddFolder(folder);
-                        _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Added {Folder}", folder);
+                        _logger.Log(LogLevel.Information, this, LogFunction.Create, _localizer["Folder Added {Folder}"], folder);
                     }
                     else
                     {
-                        _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Name Not Valid {Folder}", folder);
+                        _logger.Log(LogLevel.Information, this, LogFunction.Create, _localizer["Folder Name Not Valid {Folder}"], folder);
                         HttpContext.Response.StatusCode = 401;
                         folder = null;
                     }
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Add Folder {Folder}", folder);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Create, _localizer["User Not Authorized To Add Folder {Folder}"], folder);
                     HttpContext.Response.StatusCode = 401;
                     folder = null;
                 }
@@ -162,18 +165,18 @@ namespace Oqtane.Controllers
                     }
 
                     folder = _folders.UpdateFolder(folder);
-                    _logger.Log(LogLevel.Information, this, LogFunction.Update, "Folder Updated {Folder}", folder);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Update, _localizer["Folder Updated {Folder}"], folder);
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Name Not Valid {Folder}", folder);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Create, _localizer["Folder Name Not Valid {Folder}"], folder);
                     HttpContext.Response.StatusCode = 401;
                     folder = null;
                 }
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Folder {Folder}", folder);
+                _logger.Log(LogLevel.Error, this, LogFunction.Update, _localizer["User Not Authorized To Update Folder {Folder}"], folder);
                 HttpContext.Response.StatusCode = 401;
                 folder = null;
             }
@@ -198,11 +201,11 @@ namespace Oqtane.Controllers
                     }
                     order += 2;
                 }
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Folder Order Updated {SiteId} {FolderId} {ParentId}", siteid, folderid, parentid);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, _localizer["Folder Order Updated {SiteId} {FolderId} {ParentId}"], siteid, folderid, parentid);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Folder Order {SiteId} {FolderId} {ParentId}", siteid, folderid, parentid);
+                _logger.Log(LogLevel.Error, this, LogFunction.Update, _localizer["User Not Authorized To Update Folder Order {SiteId} {FolderId} {ParentId}"], siteid, folderid, parentid);
                 HttpContext.Response.StatusCode = 401;
             }
         }

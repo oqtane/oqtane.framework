@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Oqtane.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Localization;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Security.Claims;
@@ -32,8 +33,9 @@ namespace Oqtane.Controllers
         private readonly ISyncManager _syncManager;
         private readonly ISiteRepository _sites;
         private readonly ILogManager _logger;
+        private readonly IStringLocalizer _localizer;
 
-        public UserController(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantResolver tenants, INotificationRepository notifications, IFolderRepository folders, ISyncManager syncManager, ISiteRepository sites, ILogManager logger)
+        public UserController(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantResolver tenants, INotificationRepository notifications, IFolderRepository folders, ISyncManager syncManager, ISiteRepository sites, ILogManager logger, IStringLocalizer<UserController> localizer)
         {
             _users = users;
             _roles = roles;
@@ -46,6 +48,7 @@ namespace Oqtane.Controllers
             _syncManager = syncManager;
             _sites = sites;
             _logger = logger;
+            _localizer = localizer;
         }
 
         // GET api/<controller>/5?siteid=x
@@ -224,12 +227,12 @@ namespace Oqtane.Controllers
                 if (newUser != null)
                 {
                     newUser.Password = ""; // remove sensitive information
-                    _logger.Log(user.SiteId, LogLevel.Information, this, LogFunction.Create, "User Added {User}", newUser);
+                    _logger.Log(user.SiteId, LogLevel.Information, this, LogFunction.Create, _localizer["User Added {User}"], newUser);
                 }
             }
             else
             {
-                _logger.Log(user.SiteId, LogLevel.Error, this, LogFunction.Create, "User Registration Is Not Enabled For Site. User Was Not Added {User}", user);
+                _logger.Log(user.SiteId, LogLevel.Error, this, LogFunction.Create, _localizer["User Registration Is Not Enabled For Site. User Was Not Added {User}"], user);
             }
 
             return newUser;
@@ -256,11 +259,11 @@ namespace Oqtane.Controllers
                     user = _users.UpdateUser(user);
                     _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.User, user.UserId);
                     user.Password = ""; // remove sensitive information
-                    _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Updated {User}", user);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Update, _localizer["User Updated {User}"], user);
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update User {User}", user);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Update, _localizer["User Not Authorized To Update User {User}"], user);
                     HttpContext.Response.StatusCode = 401;
                     user = null;
                 }
@@ -282,7 +285,7 @@ namespace Oqtane.Controllers
                 if (result != null)
                 {
                     _users.DeleteUser(id);
-                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Deleted {UserId}", id);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, _localizer["User Deleted {UserId}"], id);
                 }
             }
         }
@@ -310,7 +313,7 @@ namespace Oqtane.Controllers
                                 loginUser.LastLoginOn = DateTime.UtcNow;
                                 loginUser.LastIPAddress = HttpContext.Connection.RemoteIpAddress.ToString();
                                 _users.UpdateUser(loginUser);
-                                _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Login Successful {Username}", user.Username);
+                                _logger.Log(LogLevel.Information, this, LogFunction.Security, _localizer["User Login Successful {Username}"], user.Username);
                                 if (setCookie)
                                 {
                                     await _identitySignInManager.SignInAsync(identityuser, isPersistent);
@@ -318,13 +321,13 @@ namespace Oqtane.Controllers
                             }
                             else
                             {
-                                _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Not Verified {Username}", user.Username);
+                                _logger.Log(LogLevel.Information, this, LogFunction.Security, _localizer["User Not Verified {Username}"], user.Username);
                             }
                         }
                     }
                     else
                     {
-                        _logger.Log(LogLevel.Error, this, LogFunction.Security, "User Login Failed {Username}", user.Username);
+                        _logger.Log(LogLevel.Error, this, LogFunction.Security, _localizer["User Login Failed {Username}"], user.Username);
                     }
                 }
             }
@@ -338,7 +341,7 @@ namespace Oqtane.Controllers
         public async Task Logout([FromBody] User user)
         {
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
-            _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Logout {Username}", (user != null) ? user.Username : "");
+            _logger.Log(LogLevel.Information, this, LogFunction.Security, _localizer["User Logout {Username}"], (user != null) ? user.Username : "");
         }
 
         // POST api/<controller>/verify
@@ -353,17 +356,17 @@ namespace Oqtane.Controllers
                     var result = await _identityUserManager.ConfirmEmailAsync(identityuser, token);
                     if (result.Succeeded)
                     {
-                        _logger.Log(LogLevel.Information, this, LogFunction.Security, "Email Verified For {Username}", user.Username);
+                        _logger.Log(LogLevel.Information, this, LogFunction.Security, _localizer["Email Verified For {Username}"], user.Username);
                     }
                     else
                     {
-                        _logger.Log(LogLevel.Error, this, LogFunction.Security, "Email Verification Failed For {Username}", user.Username);
+                        _logger.Log(LogLevel.Error, this, LogFunction.Security, _localizer["Email Verification Failed For {Username}"], user.Username);
                         user = null;
                     }
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Email Verification Failed For {Username}", user.Username);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, _localizer["Email Verification Failed For {Username}"], user.Username);
                     user = null;
                 }
             }
@@ -394,11 +397,11 @@ namespace Oqtane.Controllers
                     notification.DeliveredOn = null;
                     notification.SendOn = DateTime.UtcNow;
                     _notifications.AddNotification(notification);
-                    _logger.Log(LogLevel.Information, this, LogFunction.Security, "Password Reset Notification Sent For {Username}", user.Username);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Security, _localizer["Password Reset Notification Sent For {Username}"], user.Username);
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Password Reset Notification Failed For {Username}", user.Username);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, _localizer["Password Reset Notification Failed For {Username}"], user.Username);
                 }
             }
         }
@@ -415,18 +418,18 @@ namespace Oqtane.Controllers
                     var result = await _identityUserManager.ResetPasswordAsync(identityuser, token, user.Password);
                     if (result.Succeeded)
                     {
-                        _logger.Log(LogLevel.Information, this, LogFunction.Security, "Password Reset For {Username}", user.Username);
+                        _logger.Log(LogLevel.Information, this, LogFunction.Security, _localizer["Password Reset For {Username}"], user.Username);
                         user.Password = "";
                     }
                     else
                     {
-                        _logger.Log(LogLevel.Error, this, LogFunction.Security, "Password Reset Failed For {Username}", user.Username);
+                        _logger.Log(LogLevel.Error, this, LogFunction.Security, _localizer["Password Reset Failed For {Username}"], user.Username);
                         user = null;
                     }
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Password Reset Failed For {Username}", user.Username);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, _localizer["Password Reset Failed For {Username}"], user.Username);
                     user = null;
                 }
             }

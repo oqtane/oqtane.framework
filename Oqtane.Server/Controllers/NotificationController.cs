@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Localization;
 using Oqtane.Enums;
 using Oqtane.Models;
 using Oqtane.Shared;
@@ -16,12 +17,14 @@ namespace Oqtane.Controllers
         private readonly INotificationRepository _notifications;
         private readonly IUserPermissions _userPermissions;
         private readonly ILogManager _logger;
+        private readonly IStringLocalizer _localizer;
 
-        public NotificationController(INotificationRepository notifications, IUserPermissions userPermissions, ILogManager logger)
+        public NotificationController(INotificationRepository notifications, IUserPermissions userPermissions, ILogManager logger, IStringLocalizer<NotificationController> localizer)
         {
             _notifications = notifications;
             _userPermissions = userPermissions;
             _logger = logger;
+            _localizer = localizer;
         }
 
         // GET: api/<controller>?siteid=x&type=y&userid=z
@@ -65,7 +68,7 @@ namespace Oqtane.Controllers
             if (IsAuthorized(notification.FromUserId))
             {
                 notification = _notifications.AddNotification(notification);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Notification Added {Notification}", notification);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, _localizer["Notification Added {Notification}"], notification);
             }
             return notification;
         }
@@ -78,7 +81,7 @@ namespace Oqtane.Controllers
             if (IsAuthorized(notification.FromUserId))
             {
                 notification = _notifications.UpdateNotification(notification);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Notification Updated {Folder}", notification);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, _localizer["Notification Updated {Folder}"], notification);
             }
             return notification;
         }
@@ -92,7 +95,7 @@ namespace Oqtane.Controllers
             if (IsAuthorized(notification.FromUserId) || IsAuthorized(notification.ToUserId))
             {
                 _notifications.DeleteNotification(id);
-                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Notification Deleted {NotificationId}", id);
+                _logger.Log(LogLevel.Information, this, LogFunction.Delete, _localizer["Notification Deleted {NotificationId}"], id);
             }
         }
 

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Localization;
 using Oqtane.Models;
 using Oqtane.Shared;
 using System.Linq;
@@ -21,13 +22,15 @@ namespace Oqtane.Controllers
         private readonly IHttpContextAccessor _accessor;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
+        private readonly IStringLocalizer _localizer;
 
-        public AliasController(IAliasRepository aliases, IHttpContextAccessor accessor, ISyncManager syncManager, ILogManager logger)
+        public AliasController(IAliasRepository aliases, IHttpContextAccessor accessor, ISyncManager syncManager, ILogManager logger, IStringLocalizer<AliasController> localizer)
         {
             _aliases = aliases;
             _accessor = accessor;
             _syncManager = syncManager;
             _logger = logger;
+            _localizer = localizer;
         }
 
         // GET: api/<controller>
@@ -92,7 +95,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 alias = _aliases.AddAlias(alias);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Alias Added {Alias}", alias);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, _localizer["Alias Added {Alias}"], alias);
             }
             return alias;
         }
@@ -105,7 +108,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 alias = _aliases.UpdateAlias(alias);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Alias Updated {Alias}", alias);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, _localizer["Alias Updated {Alias}"], alias);
             }
             return alias;
         }
@@ -116,7 +119,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             _aliases.DeleteAlias(id);
-            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Alias Deleted {AliasId}", id);
+            _logger.Log(LogLevel.Information, this, LogFunction.Delete, _localizer["Alias Deleted {AliasId}"], id);
         }
     }
 }

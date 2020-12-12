@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Oqtane.Models;
 using Oqtane.Shared;
 using Oqtane.Security;
@@ -19,8 +20,9 @@ namespace Oqtane.Controllers
         private readonly ITenantResolver _tenants;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
+        private readonly IStringLocalizer _localizer;
 
-        public SettingController(ISettingRepository settings, IPageModuleRepository pageModules, IUserPermissions userPermissions, ITenantResolver tenants, ISyncManager syncManager, ILogManager logger)
+        public SettingController(ISettingRepository settings, IPageModuleRepository pageModules, IUserPermissions userPermissions, ITenantResolver tenants, ISyncManager syncManager, ILogManager logger, IStringLocalizer<SettingController> localizer)
         {
             _settings = settings;
             _pageModules = pageModules;
@@ -28,6 +30,7 @@ namespace Oqtane.Controllers
             _tenants = tenants;
             _syncManager = syncManager;
             _logger = logger;
+            _localizer = localizer;
         }
 
         // GET: api/<controller>
@@ -41,7 +44,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Settings {EntityName} {EntityId}", entityname, entityid);
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, _localizer["User Not Authorized To Access Settings {EntityName} {EntityId}"], entityname, entityid);
                 HttpContext.Response.StatusCode = 401;
             }
             return settings;
@@ -58,7 +61,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Setting {Setting}", setting);
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, _localizer["User Not Authorized To Access Setting {Setting}"], setting);
                 HttpContext.Response.StatusCode = 401;
                 return null;
             }
@@ -75,11 +78,11 @@ namespace Oqtane.Controllers
                 {
                     _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, _tenants.GetAlias().SiteId);
                 }
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Setting Added {Setting}", setting);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, _localizer["Setting Added {Setting}"], setting);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Add Setting {Setting}", setting);
+                _logger.Log(LogLevel.Error, this, LogFunction.Create, _localizer["User Not Authorized To Add Setting {Setting}"], setting);
                 HttpContext.Response.StatusCode = 401;
                 setting = null;
             }
@@ -97,11 +100,11 @@ namespace Oqtane.Controllers
                 {
                     _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, _tenants.GetAlias().SiteId);
                 }
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Setting Updated {Setting}", setting);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, _localizer["Setting Updated {Setting}"], setting);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Setting {Setting}", setting);
+                _logger.Log(LogLevel.Error, this, LogFunction.Update, _localizer["User Not Authorized To Update Setting {Setting}"], setting);
                 HttpContext.Response.StatusCode = 401;
                 setting = null;
             }
@@ -120,11 +123,11 @@ namespace Oqtane.Controllers
                 {
                     _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, _tenants.GetAlias().SiteId);
                 }
-                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Setting Deleted {Setting}", setting);
+                _logger.Log(LogLevel.Information, this, LogFunction.Delete, _localizer["Setting Deleted {Setting}"], setting);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Delete, "User Not Authorized To Delete Setting {Setting}", setting);
+                _logger.Log(LogLevel.Error, this, LogFunction.Delete, _localizer["User Not Authorized To Delete Setting {Setting}"], setting);
                 HttpContext.Response.StatusCode = 401;
             }
         }

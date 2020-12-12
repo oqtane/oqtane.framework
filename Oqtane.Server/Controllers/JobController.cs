@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Oqtane.Models;
@@ -6,6 +6,7 @@ using Oqtane.Shared;
 using System;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Localization;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
@@ -18,12 +19,14 @@ namespace Oqtane.Controllers
         private readonly IJobRepository _jobs;
         private readonly ILogManager _logger;
         private readonly IServiceProvider _serviceProvider;
+        private readonly IStringLocalizer _localizer;
 
-        public JobController(IJobRepository jobs, ILogManager logger, IServiceProvider serviceProvider)
+        public JobController(IJobRepository jobs, ILogManager logger, IServiceProvider serviceProvider, IStringLocalizer<JobController> localizer)
         {
             _jobs = jobs;
             _logger = logger;
             _serviceProvider = serviceProvider;
+            _localizer = localizer;
         }
 
         // GET: api/<controller>
@@ -50,7 +53,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 job = _jobs.AddJob(job);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Job Added {Job}", job);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, _localizer["Job Added {Job}"], job);
             }
             return job;
         }
@@ -63,7 +66,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 job = _jobs.UpdateJob(job);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Job Updated {Job}", job);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, _localizer["Job Updated {Job}"], job);
             }
             return job;
         }
@@ -74,7 +77,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             _jobs.DeleteJob(id);
-            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Job Deleted {JobId}", id);
+            _logger.Log(LogLevel.Information, this, LogFunction.Delete, _localizer["Job Deleted {JobId}"], id);
         }
 
         // GET api/<controller>/start

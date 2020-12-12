@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Localization;
 using Oqtane.Enums;
 using Oqtane.Models;
 using Oqtane.Shared;
@@ -16,13 +17,15 @@ namespace Oqtane.Controllers
         private readonly ITenantResolver _tenants;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
+        private readonly IStringLocalizer _localizer;
 
-        public UserRoleController(IUserRoleRepository userRoles, ITenantResolver tenants, ISyncManager syncManager, ILogManager logger)
+        public UserRoleController(IUserRoleRepository userRoles, ITenantResolver tenants, ISyncManager syncManager, ILogManager logger, IStringLocalizer<UserRoleController> localizer)
         {
             _userRoles = userRoles;
             _syncManager = syncManager;
             _tenants = tenants;
             _logger = logger;
+            _localizer = localizer;
         }
 
         // GET: api/<controller>?siteid=x
@@ -50,7 +53,7 @@ namespace Oqtane.Controllers
             {
                 userRole = _userRoles.AddUserRole(userRole);
                 _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.User, userRole.UserId);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "User Role Added {UserRole}", userRole);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, _localizer["User Role Added {UserRole}"], userRole);
             }
             return userRole;
         }
@@ -64,7 +67,7 @@ namespace Oqtane.Controllers
             {
                 userRole = _userRoles.UpdateUserRole(userRole);
                 _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.User, userRole.UserId);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Role Updated {UserRole}", userRole);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, _localizer["User Role Updated {UserRole}"], userRole);
             }
             return userRole;
         }
@@ -77,7 +80,7 @@ namespace Oqtane.Controllers
             UserRole userRole = _userRoles.GetUserRole(id);
             _userRoles.DeleteUserRole(id);
             _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.User, userRole.UserId);
-            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Role Deleted {UserRole}", userRole);
+            _logger.Log(LogLevel.Information, this, LogFunction.Delete, _localizer["User Role Deleted {UserRole}"], userRole);
         }
     }
 }

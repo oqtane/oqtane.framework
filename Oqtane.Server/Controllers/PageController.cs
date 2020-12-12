@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Localization;
 using Oqtane.Models;
 using Oqtane.Shared;
 using System.Linq;
@@ -23,8 +24,9 @@ namespace Oqtane.Controllers
         private readonly ITenantResolver _tenants;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
+        private readonly IStringLocalizer _localizer;
 
-        public PageController(IPageRepository pages, IModuleRepository modules, IPageModuleRepository pageModules, IUserPermissions userPermissions, ITenantResolver tenants, ISyncManager syncManager, ILogManager logger)
+        public PageController(IPageRepository pages, IModuleRepository modules, IPageModuleRepository pageModules, IUserPermissions userPermissions, ITenantResolver tenants, ISyncManager syncManager, ILogManager logger, IStringLocalizer<PageController> localizer)
         {
             _pages = pages;
             _modules = modules;
@@ -33,6 +35,7 @@ namespace Oqtane.Controllers
             _tenants = tenants;
             _syncManager = syncManager;
             _logger = logger;
+            _localizer = localizer;
         }
 
         // GET: api/<controller>?siteid=x
@@ -69,7 +72,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Page {Page}", page);
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, _localizer["User Not Authorized To Access Page {Page}"], page);
                 HttpContext.Response.StatusCode = 401;
                 return null;
             }
@@ -88,7 +91,7 @@ namespace Oqtane.Controllers
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Page {Page}", page);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Read, _localizer["User Not Authorized To Access Page {Page}"], page);
                     HttpContext.Response.StatusCode = 401;
                     return null;
                 }
@@ -123,7 +126,7 @@ namespace Oqtane.Controllers
                 {
                     page = _pages.AddPage(page);
                     _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, page.SiteId);
-                    _logger.Log(LogLevel.Information, this, LogFunction.Create, "Page Added {Page}", page);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Create, _localizer["Page Added {Page}"], page);
 
                     if (!page.Path.StartsWith("admin/"))
                     {
@@ -137,7 +140,7 @@ namespace Oqtane.Controllers
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Add Page {Page}", page);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Create, _localizer["User Not Authorized To Add Page {Page}"], page);
                     HttpContext.Response.StatusCode = 401;
                     page = null;
                 }
@@ -220,11 +223,11 @@ namespace Oqtane.Controllers
             {
                 page = _pages.UpdatePage(page);
                 _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, page.SiteId);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Updated {Page}", page);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, _localizer["Page Updated {Page}"], page);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Page {Page}", page);
+                _logger.Log(LogLevel.Error, this, LogFunction.Update, _localizer["User Not Authorized To Update Page {Page}"], page);
                 HttpContext.Response.StatusCode = 401;
                 page = null;
             }
@@ -250,11 +253,11 @@ namespace Oqtane.Controllers
                     order += 2;
                 }
                 _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, siteid);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Order Updated {SiteId} {PageId} {ParentId}", siteid, pageid, parentid);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, _localizer["Page Order Updated {SiteId} {PageId} {ParentId}"], siteid, pageid, parentid);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Page Order {SiteId} {PageId} {ParentId}", siteid, pageid, parentid);
+                _logger.Log(LogLevel.Error, this, LogFunction.Update, _localizer["User Not Authorized To Update Page Order {SiteId} {PageId} {ParentId}"], siteid, pageid, parentid);
                 HttpContext.Response.StatusCode = 401;
             }
         }
@@ -269,11 +272,11 @@ namespace Oqtane.Controllers
             {
                 _pages.DeletePage(page.PageId);
                 _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, page.SiteId);
-                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Page Deleted {PageId}", page.PageId);
+                _logger.Log(LogLevel.Information, this, LogFunction.Delete, _localizer["Page Deleted {PageId}"], page.PageId);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Delete, "User Not Authorized To Delete Page {PageId}", page.PageId);
+                _logger.Log(LogLevel.Error, this, LogFunction.Delete, _localizer["User Not Authorized To Delete Page {PageId}"], page.PageId);
                 HttpContext.Response.StatusCode = 401;
             }
         }

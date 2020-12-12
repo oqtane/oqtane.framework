@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Localization;
 using Oqtane.Models;
 using System.Collections.Generic;
 using Oqtane.Shared;
@@ -20,12 +21,14 @@ namespace Oqtane.Controllers
         private readonly ITenantRepository _tenants;
         private readonly ISqlRepository _sql;
         private readonly ILogManager _logger;
+        private readonly IStringLocalizer _localizer;
 
-        public SqlController(ITenantRepository tenants, ISqlRepository sql, ILogManager logger)
+        public SqlController(ITenantRepository tenants, ISqlRepository sql, ILogManager logger, IStringLocalizer<SqlController> localizer)
         {
             _tenants = tenants;
             _sql = sql;
             _logger = logger;
+            _localizer = localizer;
         }
 
         // POST: api/<controller>
@@ -41,7 +44,7 @@ namespace Oqtane.Controllers
                 foreach (string query in sqlquery.Query.Split("GO", StringSplitOptions.RemoveEmptyEntries))
                 {
                     SqlDataReader dr = _sql.ExecuteReader(tenant, query);
-                    _logger.Log(LogLevel.Information, this, LogFunction.Other, "Sql Query {Query} Executed on Tenant {TenantId}", query, sqlquery.TenantId);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Other, _localizer["Sql Query {Query} Executed on Tenant {TenantId}"], query, sqlquery.TenantId);
                     while (dr.Read())
                     {
                         row = new Dictionary<string, string>();
@@ -55,7 +58,7 @@ namespace Oqtane.Controllers
             }
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Other, "Sql Query {Query} Executed on Tenant {TenantId} Results In An Error {Error}", sqlquery.Query, sqlquery.TenantId, ex.Message);
+                _logger.Log(LogLevel.Error, this, LogFunction.Other, _localizer["Sql Query {Query} Executed on Tenant {TenantId} Results In An Error {Error}"], sqlquery.Query, sqlquery.TenantId, ex.Message);
             }
             sqlquery.Results = results;
             return sqlquery;

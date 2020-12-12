@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Localization;
 using Oqtane.Models;
 using System.Collections.Generic;
 using Oqtane.Enums;
@@ -14,11 +15,13 @@ namespace Oqtane.Controllers
     {
         private readonly ITenantRepository _tenants;
         private readonly ILogManager _logger;
+        private readonly IStringLocalizer _localizer;
 
-        public TenantController(ITenantRepository tenants, ILogManager logger)
+        public TenantController(ITenantRepository tenants, ILogManager logger, IStringLocalizer<TenantController> localizer)
         {
             _tenants = tenants;
             _logger = logger;
+            _localizer = localizer;
         }
 
         // GET: api/<controller>
@@ -45,7 +48,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 tenant = _tenants.AddTenant(tenant);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Tenant Added {TenantId}", tenant.TenantId);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, _localizer["Tenant Added {TenantId}"], tenant.TenantId);
             }
             return tenant;
         }
@@ -58,7 +61,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 tenant = _tenants.UpdateTenant(tenant);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Tenant Updated {TenantId}", tenant.TenantId);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, _localizer["Tenant Updated {TenantId}"], tenant.TenantId);
             }
             return tenant;
         }
@@ -69,7 +72,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             _tenants.DeleteTenant(id);
-            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Tenant Deleted {TenantId}", id);
+            _logger.Log(LogLevel.Information, this, LogFunction.Delete, _localizer["Tenant Deleted {TenantId}"], id);
         }
     }
 }

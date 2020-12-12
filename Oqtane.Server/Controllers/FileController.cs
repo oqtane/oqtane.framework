@@ -17,6 +17,7 @@ using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Microsoft.AspNetCore.Routing.Constraints;
+using Microsoft.Extensions.Localization;
 using Oqtane.Extensions;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
@@ -32,8 +33,9 @@ namespace Oqtane.Controllers
         private readonly IUserPermissions _userPermissions;
         private readonly ITenantResolver _tenants;
         private readonly ILogManager _logger;
+        private readonly IStringLocalizer _localizer;
 
-        public FileController(IWebHostEnvironment environment, IFileRepository files, IFolderRepository folders, IUserPermissions userPermissions, ITenantResolver tenants, ILogManager logger)
+        public FileController(IWebHostEnvironment environment, IFileRepository files, IFolderRepository folders, IUserPermissions userPermissions, ITenantResolver tenants, ILogManager logger, IStringLocalizer<FileController> localizer)
         {
             _environment = environment;
             _files = files;
@@ -41,6 +43,7 @@ namespace Oqtane.Controllers
             _userPermissions = userPermissions;
             _tenants = tenants;
             _logger = logger;
+            _localizer = localizer;
         }
 
         // GET: api/<controller>?folder=x
@@ -90,14 +93,14 @@ namespace Oqtane.Controllers
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Folder {folder}", folder);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Read, _localizer["User Not Authorized To Access Folder {folder}"], folder);
                     HttpContext.Response.StatusCode = 401;
                     return null;
                 }
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "Folder Not Found {SiteId} {Path}", siteId, path);
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, _localizer["Folder Not Found {SiteId} {Path}"], siteId, path);
                 HttpContext.Response.StatusCode = 404;
                 return null;
             }
@@ -118,14 +121,14 @@ namespace Oqtane.Controllers
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access File {File}", file);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Read, _localizer["User Not Authorized To Access File {File}"], file);
                     HttpContext.Response.StatusCode = 401;
                     return null;
                 }
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Not Found {FileId}", id);
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, _localizer["File Not Found {FileId}"], id);
                 HttpContext.Response.StatusCode = 404;
                 return null;
             }
@@ -151,11 +154,11 @@ namespace Oqtane.Controllers
                 }
                 file.Extension = Path.GetExtension(file.Name).ToLower().Replace(".", "");
                 file = _files.UpdateFile(file);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "File Updated {File}", file);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, _localizer["File Updated {File}"], file);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update File {File}", file);
+                _logger.Log(LogLevel.Error, this, LogFunction.Update, _localizer["User Not Authorized To Update File {File}"], file);
                 HttpContext.Response.StatusCode = 401;
                 file = null;
             }
@@ -181,17 +184,17 @@ namespace Oqtane.Controllers
                         System.IO.File.Delete(filepath);
                     }
 
-                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, "File Deleted {File}", file);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, _localizer["File Deleted {File}"], file);
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Delete, "User Not Authorized To Delete File {FileId}", id);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Delete, _localizer["User Not Authorized To Delete File {FileId}"], id);
                     HttpContext.Response.StatusCode = 401;
                 }
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Delete, "File Not Found {FileId}", id);
+                _logger.Log(LogLevel.Error, this, LogFunction.Delete, _localizer["File Not Found {FileId}"], id);
                 HttpContext.Response.StatusCode = 404;
             }
         }
@@ -206,7 +209,7 @@ namespace Oqtane.Controllers
             if (folder == null || !_userPermissions.IsAuthorized(User, PermissionNames.Edit, folder.Permissions))
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Create,
-                    "User Not Authorized To Download File {Url} {FolderId}", url, folderid);
+                    _localizer["User Not Authorized To Download File {Url} {FolderId}"], url, folderid);
                 HttpContext.Response.StatusCode = 401;
                 return file;
             }
@@ -220,7 +223,7 @@ namespace Oqtane.Controllers
                 .Contains(Path.GetExtension(filename).ToLower().Replace(".", "")))
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Create,
-                    "File Could Not Be Downloaded From Url Due To Its File Extension {Url}", url);
+                    _localizer["File Could Not Be Downloaded From Url Due To Its File Extension {Url}"], url);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
                 return file;
             }
@@ -228,7 +231,7 @@ namespace Oqtane.Controllers
             if (!filename.IsPathOrFileValid())
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Create,
-                    $"File Could Not Be Downloaded From Url Due To Its File Name Not Allowed {url}");
+                    _localizer["File Could Not Be Downloaded From Url Due To Its File Name Not Allowed {0}", url]);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
                 return file;
             }
@@ -249,7 +252,7 @@ namespace Oqtane.Controllers
             catch
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Create,
-                    "File Could Not Be Downloaded From Url {Url}", url);
+                    _localizer["File Could Not Be Downloaded From Url {Url}"], url);
             }
 
             return file;
@@ -306,7 +309,7 @@ namespace Oqtane.Controllers
             else
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Create,
-                    "User Not Authorized To Upload File {Folder} {File}", folder, file);
+                    _localizer["User Not Authorized To Upload File {Folder} {File}"], folder, file);
                 HttpContext.Response.StatusCode = 401;
             }
         }
@@ -369,7 +372,7 @@ namespace Oqtane.Controllers
 
                         // rename file now that the entire process is completed
                         System.IO.File.Move(Path.Combine(folder, filename + ".tmp"), Path.Combine(folder, filename));
-                        _logger.Log(LogLevel.Information, this, LogFunction.Create, "File Uploaded {File}", Path.Combine(folder, filename));
+                        _logger.Log(LogLevel.Information, this, LogFunction.Create, _localizer["File Uploaded {File}"], Path.Combine(folder, filename));
                     }
 
                     merged = filename;
@@ -447,18 +450,18 @@ namespace Oqtane.Controllers
                         return PhysicalFile(filepath, file.Name.GetMimeType(), file.Name);
                     }
 
-                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {FileId} {FilePath}", id, filepath);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Read, _localizer["File Does Not Exist {FileId} {FilePath}"], id, filepath);
                     HttpContext.Response.StatusCode = 404;
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access File {FileId}", id);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Read, _localizer["User Not Authorized To Access File {FileId}"], id);
                     HttpContext.Response.StatusCode = 401;
                 }
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Not Found {FileId}", id);
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, _localizer["File Not Found {FileId}"], id);
                 HttpContext.Response.StatusCode = 404;
             }
             string errorPath = Path.Combine(GetFolderPath("images"), "error.png");

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Oqtane.Modules.HtmlText.Models;
 using Oqtane.Modules.HtmlText.Repository;
@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Oqtane.Shared;
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Localization;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Controllers;
@@ -16,10 +17,12 @@ namespace Oqtane.Modules.HtmlText.Controllers
     public class HtmlTextController : ModuleControllerBase
     {
         private readonly IHtmlTextRepository _htmlText;
+        private readonly IStringLocalizer _localizer;
 
-        public HtmlTextController(IHtmlTextRepository htmlText, ILogManager logger, IHttpContextAccessor accessor) : base(logger, accessor)
+        public HtmlTextController(IHtmlTextRepository htmlText, ILogManager logger, IHttpContextAccessor accessor, IStringLocalizer<HtmlTextController> localizer) : base(logger, accessor)
         {
             _htmlText = htmlText;
+            _localizer = localizer;
         }
 
         // GET api/<controller>/5
@@ -39,7 +42,7 @@ namespace Oqtane.Modules.HtmlText.Controllers
             }
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, ex, "Get Error {Error}", ex.Message);
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, ex, _localizer["Get Error {Error}"], ex.Message);
                 throw;
             }
             return list;
@@ -55,13 +58,13 @@ namespace Oqtane.Modules.HtmlText.Controllers
                 if (ModelState.IsValid && htmlText.ModuleId == _entityId)
                 {
                     htmlText = _htmlText.AddHtmlText(htmlText);
-                    _logger.Log(LogLevel.Information, this, LogFunction.Create, "Html/Text Added {HtmlText}", htmlText);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Create, _localizer["Html/Text Added {HtmlText}"], htmlText);
                 }
                 return htmlText;
             }
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Create, ex, "Post Error {Error}", ex.Message);
+                _logger.Log(LogLevel.Error, this, LogFunction.Create, ex, _localizer["Post Error {Error}"], ex.Message);
                 throw;
             }
         }
@@ -76,13 +79,13 @@ namespace Oqtane.Modules.HtmlText.Controllers
                 if (ModelState.IsValid && htmlText.ModuleId == _entityId)
                 {
                     htmlText = _htmlText.UpdateHtmlText(htmlText);
-                    _logger.Log(LogLevel.Information, this, LogFunction.Update, "Html/Text Updated {HtmlText}", htmlText);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Update, _localizer["Html/Text Updated {HtmlText}"], htmlText);
                 }
                 return htmlText;
             }
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Update, ex, "Put Error {Error}", ex.Message);
+                _logger.Log(LogLevel.Error, this, LogFunction.Update, ex, _localizer["Put Error {Error}"], ex.Message);
                 throw;
             }
         }
@@ -97,12 +100,12 @@ namespace Oqtane.Modules.HtmlText.Controllers
                 if (id == _entityId)
                 {
                     _htmlText.DeleteHtmlText(id);
-                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Html/Text Deleted {HtmlTextId}", id);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, _localizer["Html/Text Deleted {HtmlTextId}"], id);
                 }
             }
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Delete, ex, "Delete Error {Error}", ex.Message);
+                _logger.Log(LogLevel.Error, this, LogFunction.Delete, ex, _localizer["Delete Error {Error}"], ex.Message);
                 throw;
             }
         }
