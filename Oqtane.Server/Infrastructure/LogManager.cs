@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Localization;
 using Oqtane.Enums;
 using Oqtane.Models;
 using Oqtane.Repository;
@@ -19,16 +18,14 @@ namespace Oqtane.Infrastructure
         private readonly IConfigurationRoot _config;
         private readonly IUserPermissions _userPermissions;
         private readonly IHttpContextAccessor _accessor;
-        private readonly IStringLocalizer _localizer;
 
-        public LogManager(ILogRepository logs, ITenantResolver tenantResolver, IConfigurationRoot config, IUserPermissions userPermissions, IHttpContextAccessor accessor, IStringLocalizer<LogManager> localizer)
+        public LogManager(ILogRepository logs, ITenantResolver tenantResolver, IConfigurationRoot config, IUserPermissions userPermissions, IHttpContextAccessor accessor)
         {
             _logs = logs;
             _tenantResolver = tenantResolver;
             _config = config;
             _userPermissions = userPermissions;
             _accessor = accessor;
-            _localizer = localizer;
         }
 
         public void Log(LogLevel level, object @class, LogFunction function, string message, params object[] args)
@@ -124,7 +121,6 @@ namespace Oqtane.Infrastructure
                 log.LogDate = DateTime.UtcNow;
                 log.Server = Environment.MachineName;
                 log.MessageTemplate = log.Message;
-                log.Message = _localizer[log.Message];
                 log = ProcessStructuredLog(log);
                 try
                 {

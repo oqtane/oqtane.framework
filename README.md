@@ -82,7 +82,7 @@ V.1.0.0 ( released in conjunction with .NET Core 3.2 on May 19, 2020 )
 - [x] Dynamic CSS/Lazy Loading
 
 Future Consideration
-- [ ] OAuth Support
+- [ ] Support For Additional Authentication Providers (ie. OAuth)
 - [ ] Site Configuration Migrations
 - [ ] Pub/Sub Event Framework
 - [ ] Admin UI Markup Optimization ( ie. replace tables with divs in forms )
