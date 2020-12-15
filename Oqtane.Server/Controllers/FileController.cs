@@ -66,7 +66,7 @@ namespace Oqtane.Controllers
                     {
                         foreach (string file in Directory.GetFiles(folder))
                         {
-                            files.Add(new Models.File { Name = Path.GetFileName(file), Extension = Path.GetExtension(file)?.Replace(".", "") });
+                            files.Add(new Models.File {Name = Path.GetFileName(file), Extension = Path.GetExtension(file)?.Replace(".", "")});
                         }
                     }
                 }
@@ -147,8 +147,10 @@ namespace Oqtane.Controllers
                     {
                         Directory.CreateDirectory(folderpath);
                     }
+
                     System.IO.File.Move(Path.Combine(GetFolderPath(_file.Folder), _file.Name), Path.Combine(folderpath, file.Name));
                 }
+
                 file.Extension = Path.GetExtension(file.Name).ToLower().Replace(".", "");
                 file = _files.UpdateFile(file);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "File Updated {File}", file);
@@ -221,7 +223,7 @@ namespace Oqtane.Controllers
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Create,
                     "File Could Not Be Downloaded From Url Due To Its File Extension {Url}", url);
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
+                HttpContext.Response.StatusCode = (int) HttpStatusCode.Conflict;
                 return file;
             }
 
@@ -229,7 +231,7 @@ namespace Oqtane.Controllers
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Create,
                     $"File Could Not Be Downloaded From Url Due To Its File Name Not Allowed {url}");
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
+                HttpContext.Response.StatusCode = (int) HttpStatusCode.Conflict;
                 return file;
             }
 
@@ -266,7 +268,7 @@ namespace Oqtane.Controllers
 
             if (!file.FileName.IsPathOrFileValid())
             {
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
+                HttpContext.Response.StatusCode = (int) HttpStatusCode.Conflict;
                 return;
             }
 
@@ -432,9 +434,38 @@ namespace Oqtane.Controllers
             return canaccess;
         }
 
+
+        /// <summary>
+        /// Get file with header
+        /// Content-Disposition: inline
+        /// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition
+        /// </summary>
+        /// <param name="id">File Id from Oqtane filesystem </param>
+        /// <returns>file content</returns>
+
         // GET api/<controller>/download/5
         [HttpGet("download/{id}")]
-        public IActionResult Download(int id)
+        public IActionResult DownloadInline(int id)
+        {
+            return Download(id, false);
+        }
+        /// <summary>
+        /// Get file with header
+        /// Content-Disposition: attachment; filename="filename.jpg"
+        /// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition
+        ///
+        /// </summary>
+        /// <param name="id">File Id from Oqtane filesystem</param>
+        /// <returns></returns>
+
+        // GET api/<controller>/download/5/attach
+        [HttpGet("download/{id}/attach")]
+        public IActionResult DownloadAttachment(int id)
+        {
+            return Download(id, true);
+        }
+
+        private IActionResult Download(int id, bool asAttachment)
         {
             var file = _files.GetFile(id);
             if (file != null)
@@ -444,7 +475,10 @@ namespace Oqtane.Controllers
                     var filepath = Path.Combine(GetFolderPath(file.Folder), file.Name);
                     if (System.IO.File.Exists(filepath))
                     {
-                        return PhysicalFile(filepath, file.Name.GetMimeType(), file.Name);
+                        var result = asAttachment
+                            ? PhysicalFile(filepath, file.GetMimeType(), file.Name)
+                            : PhysicalFile(filepath, file.GetMimeType());
+                        return result;
                     }
 
                     _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {FileId} {FilePath}", id, filepath);
@@ -461,8 +495,9 @@ namespace Oqtane.Controllers
                 _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Not Found {FileId}", id);
                 HttpContext.Response.StatusCode = 404;
             }
+
             string errorPath = Path.Combine(GetFolderPath("images"), "error.png");
-            return System.IO.File.Exists(errorPath) ? PhysicalFile(errorPath, errorPath.GetMimeType()) : null;
+            return System.IO.File.Exists(errorPath) ? PhysicalFile(errorPath, MimeUtilities.GetMimeType(errorPath)) : null;
         }
 
         private string GetFolderPath(Folder folder)
@@ -480,7 +515,7 @@ namespace Oqtane.Controllers
             if (!Directory.Exists(folderpath))
             {
                 string path = "";
-                var separators = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
+                var separators = new char[] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar};
                 string[] folders = folderpath.Split(separators, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string folder in folders)
                 {
@@ -501,7 +536,7 @@ namespace Oqtane.Controllers
 
             FileInfo fileinfo = new FileInfo(filepath);
             file.Extension = fileinfo.Extension.ToLower().Replace(".", "");
-            file.Size = (int)fileinfo.Length;
+            file.Size = (int) fileinfo.Length;
             file.ImageHeight = 0;
             file.ImageWidth = 0;
 
