@@ -39,7 +39,7 @@ namespace Oqtane.SiteTemplates
                 Name = "Home",
                 Parent = "",
                 Path = "",
-                Icon = "home",
+                Icon = "oi oi-home",
                 IsNavigation = true,
                 IsPersonalizable = false,
                 PagePermissions = new List<Permission> {
@@ -85,7 +85,7 @@ namespace Oqtane.SiteTemplates
                 Name = "Private",
                 Parent = "",
                 Path = "private",
-                Icon = "lock-locked",
+                Icon = "oi oi-lock-locked",
                 IsNavigation = true,
                 IsPersonalizable = false,
                 PagePermissions = new List<Permission> {
@@ -109,7 +109,7 @@ namespace Oqtane.SiteTemplates
                 Name = "My Page",
                 Parent = "",
                 Path = "mypage",
-                Icon = "target",
+                Icon = "oi oi-target",
                 IsNavigation = true,
                 IsPersonalizable = true,
                 PagePermissions = new List<Permission> {
