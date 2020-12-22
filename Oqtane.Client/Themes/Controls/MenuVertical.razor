@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Themes.Controls
+@namespace Oqtane.Themes.Controls
 @inherits MenuBase
 
 @if (MenuPages.Any())
@@ -22,7 +22,7 @@
                             }
                             @if (p.Icon != string.Empty)
                             {
-                                <span class="oi oi-@p.Icon" aria-hidden="true"></span>
+                                <span class="@p.Icon" aria-hidden="true"></span>
                             }
                             @p.Name
                         </a>

@@ -94,7 +94,11 @@
 
         if (!string.IsNullOrEmpty(IconName))
         {
-            _iconSpan = $"<span class=\"oi oi-{IconName}\"></span>&nbsp;";
+            if (!IconName.Contains(" "))
+            {
+                IconName = "oi oi-" + IconName;
+            }
+            _iconSpan = $"<span class=\"{IconName}\"></span>&nbsp;";
         }
 
         Text = Localize(nameof(Text), Text);
