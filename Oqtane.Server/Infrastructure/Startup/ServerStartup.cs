@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Oqtane.Infrastructure
 {
-    public abstract class ServerStartup : IServerStartup
+    public abstract class ServerStartup : IServerOrderedStartup
     {
         public virtual int Order { get; } = 0;
 

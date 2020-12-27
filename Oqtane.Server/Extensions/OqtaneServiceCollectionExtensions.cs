@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 using Microsoft.Extensions.Hosting;
 using Oqtane.Infrastructure;
+using Oqtane.Infrastructure.Startup;
 using Oqtane.Modules;
 using Oqtane.Services;
 using Oqtane.Shared;
@@ -57,7 +58,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 }
 
                 // register server startup services
-                var startUps = assembly.GetInstances<IServerStartup>().OrderBy(s => s.Order);
+                var startUps = assembly.GetInstances<IServerStartup>()
+                    .OrderBy(s => s, new ServerStartupComparer());
                 foreach (var startup in startUps)
                 {
                     startup.ConfigureServices(services);
@@ -67,7 +69,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     // register client startup services if running on server
                     assembly.GetInstances<IClientStartup>()
-                        .OrderBy(s => s.Order)
+                        .OrderBy(s => s, new ClientStartupComparer())
                         .ToList()
                         .ForEach(x => x.ConfigureServices(services));
                 }

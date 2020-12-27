@@ -10,6 +10,7 @@ using System.Runtime.Loader;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Oqtane.Infrastructure.Startup;
 using Oqtane.Modules;
 using Oqtane.Providers;
 using Oqtane.Shared;
@@ -80,7 +81,8 @@ namespace Oqtane.Client
                 }
 
                 // register client startup services
-                var startUps = assembly.GetInstances<IClientStartup>().OrderBy(s => s.Order);
+                var startUps = assembly.GetInstances<IClientStartup>()
+                    .OrderBy(s => s, new ClientStartupComparer());
                 foreach (var startup in startUps)
                 {
                     startup.ConfigureServices(builder.Services);

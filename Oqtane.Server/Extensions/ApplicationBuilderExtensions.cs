@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Infrastructure;
+using Oqtane.Infrastructure.Startup;
 
 namespace Oqtane.Extensions
 {
@@ -16,13 +17,13 @@ namespace Oqtane.Extensions
             var startUps = AppDomain.CurrentDomain
                 .GetOqtaneAssemblies()
                 .SelectMany(s => s.GetInstances<IServerStartup>())
-                .OrderBy(s => s.Order);
+                .OrderBy(s => s, new ServerStartupComparer());
 
             foreach (var startup in startUps)
             {
                 startup.Configure(app, env);
             }
-            
+
             return app;
         }
 

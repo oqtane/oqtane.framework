@@ -4,6 +4,7 @@ using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Oqtane.Infrastructure;
+using Oqtane.Infrastructure.Startup;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
@@ -41,7 +42,7 @@ namespace Microsoft.Extensions.DependencyInjection
             var startUps = AppDomain.CurrentDomain
                 .GetOqtaneAssemblies()
                 .SelectMany(s => s.GetInstances<IServerStartup>())
-                .OrderBy(s => s.Order);
+                .OrderBy(s => s, new ServerStartupComparer());
 
             foreach (var startup in startUps)
             {
