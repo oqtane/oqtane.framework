@@ -41,12 +41,12 @@ else
         {
             await ProfileService.DeleteProfileAsync(profileId);
             await logger.LogInformation("Profile Deleted {ProfileId}", profileId);
-            AddModuleMessage("Profile Deleted", MessageType.Success);
+            AddModuleMessage(Localizer["Profile Deleted"], MessageType.Success);
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting Profile {ProfileId} {Error}", profileId, ex.Message);
-            AddModuleMessage("Error Deleting Profile", MessageType.Error);
+            AddModuleMessage(Localizer["Error Deleting Profile"], MessageType.Error);
         }
     }
 }

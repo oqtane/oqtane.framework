@@ -11,10 +11,10 @@
             <text>...</text>
         </Authorizing>
         <Authorized>
-            <ModuleMessage Message="You Are Already Registered" Type="MessageType.Info" />            
+            <ModuleMessage Message="@Localizer["You Are Already Registered"]" Type="MessageType.Info" />            
         </Authorized>
         <NotAuthorized>
-            <ModuleMessage Message="Please Note That Registration Requires A Valid Email Address In Order To Verify Your Identity" Type="MessageType.Info" />
+            <ModuleMessage Message="@Localizer["Please Note That Registration Requires A Valid Email Address In Order To Verify Your Identity"]" Type="MessageType.Info" />
 
             <div class="container">
                 <div class="form-group">
@@ -45,7 +45,7 @@
 }
 else
 {
-    <ModuleMessage Message="Registration is Disabled For This Site" Type="MessageType.Info" />
+    <ModuleMessage Message="@Localizer["Registration is Disabled For This Site"]" Type="MessageType.Info" />
 }
 
 @code {
@@ -80,28 +80,28 @@ else
                     if (user != null)
                     {
                         await logger.LogInformation("User Created {Username} {Email}", _username, _email);
-                        AddModuleMessage("User Account Created. Please Check Your Email For Verification Instructions.", MessageType.Info);
+                        AddModuleMessage(Localizer["User Account Created. Please Check Your Email For Verification Instructions."], MessageType.Info);
                     }
                     else
                     {
                         await logger.LogError("Error Adding User {Username} {Email}", _username, _email);
-                        AddModuleMessage("Error Adding User. Please Ensure Password Meets Complexity Requirements And Username Is Not Already In Use.", MessageType.Error);
+                        AddModuleMessage(Localizer["Error Adding User. Please Ensure Password Meets Complexity Requirements And Username Is Not Already In Use."], MessageType.Error);
                     }
                 }
                 else
                 {
-                    AddModuleMessage("Passwords Entered Do Not Match", MessageType.Warning);
+                    AddModuleMessage(Localizer["Passwords Entered Do Not Match"], MessageType.Warning);
                 }
             }
             else
             {
-                AddModuleMessage("You Must Provide A Username, Password, and Email Address", MessageType.Warning);
+                AddModuleMessage(Localizer["You Must Provide A Username, Password, and Email Address"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Adding User {Username} {Email} {Error}", _username, _email, ex.Message);
-            AddModuleMessage("Error Adding User", MessageType.Error);
+            AddModuleMessage(Localizer["Error Adding User"], MessageType.Error);
         }
     }
 

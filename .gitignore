@@ -13,3 +13,4 @@ Oqtane.Server/Data/*.mdf
 Oqtane.Server/Data/*.ldf
 
 /Oqtane.Server/Properties/PublishProfiles/FolderProfile.pubxml
+Oqtane.Server/Content

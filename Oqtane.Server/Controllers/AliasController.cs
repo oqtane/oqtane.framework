@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Oqtane.Models;
@@ -62,7 +62,7 @@ namespace Oqtane.Controllers
                 for (int i = segments.Length; i > 0; i--)
                 {
                     name = string.Join("/", segments, 0, i);
-                    alias = aliases.Find(item => item.Name == name);
+                    alias = aliases.Find(item => item.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
                     if (alias != null)
                     {
                         break; // found a matching alias

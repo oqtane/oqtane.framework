@@ -16,7 +16,7 @@
                 <select id="parent" class="form-control" @bind="@_parentId">
                     @if (PageState.QueryString.ContainsKey("id"))
                     {
-                        <option value="-1">&lt;No Parent&gt;</option>
+                        <option value="-1">&lt;@Localizer["No Parent"]&gt;</option>
                     }
                     @foreach (Folder folder in _folders)
                     {
@@ -44,10 +44,10 @@
     {
         <button type="button" class="btn btn-success" @onclick="SaveFolder">@Localizer["Save"]</button>
     }
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
     @if (!_isSystem && PageState.QueryString.ContainsKey("id"))
     {
-        <ActionDialog Header="Delete Folder" Message="@("Are You Sure You Wish To Delete This Folder?")" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteFolder())" ResourceKey="DeleteFolder" />
+        <ActionDialog Header="Delete Folder" Message="Are You Sure You Wish To Delete This Folder?" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteFolder())" ResourceKey="DeleteFolder" />
     }
     <br />
     <br />
@@ -108,7 +108,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Folder {FolderId} {Error}", _folderId, ex.Message);
-            AddModuleMessage("Error Loading Folder", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Folder"], MessageType.Error);
         }
     }
 
@@ -116,13 +116,13 @@
     {
         if (_name == string.Empty || _parentId == -1)
         {
-            AddModuleMessage("Folders Must Have A Parent And A Name", MessageType.Warning);
+            AddModuleMessage(Localizer["Folders Must Have A Parent And A Name"], MessageType.Warning);
             return;
         }
 
         if (!_name.IsPathOrFileValid())
         {
-            AddModuleMessage("Folder Name Not Valid.", MessageType.Warning);
+            AddModuleMessage(Localizer["Folder Name Not Valid."], MessageType.Warning);
             return;
         }
 
@@ -170,13 +170,13 @@
             }
             else
             {
-                AddModuleMessage("An Error Was Encountered Saving The Folder", MessageType.Error);
+                AddModuleMessage(Localizer["An Error Was Encountered Saving The Folder"], MessageType.Error);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving Folder {FolderId} {Error}", _folderId, ex.Message);
-            AddModuleMessage("Error Saving Folder", MessageType.Error);
+            AddModuleMessage(Localizer["Error Saving Folder"], MessageType.Error);
         }
     }
 
@@ -204,18 +204,18 @@
                 }
                 else
                 {
-                    AddModuleMessage("Folder Has Files And Cannot Be Deleted", MessageType.Warning);
+                    AddModuleMessage(Localizer["Folder Has Files And Cannot Be Deleted"], MessageType.Warning);
                 }
             }
             else
             {
-                AddModuleMessage("Folder Has Subfolders And Cannot Be Deleted", MessageType.Warning);
+                AddModuleMessage(Localizer["Folder Has Subfolders And Cannot Be Deleted"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting Folder {Folder} {Error}", _folderId, ex.Message);
-            AddModuleMessage("Error Deleting Folder", MessageType.Error);
+            AddModuleMessage(Localizer["Error Deleting Folder"], MessageType.Error);
         }
     }
 }

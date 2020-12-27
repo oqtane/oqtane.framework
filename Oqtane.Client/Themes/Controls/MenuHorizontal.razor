@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Themes.Controls
+@namespace Oqtane.Themes.Controls
 @inherits MenuBase
 
 @if (MenuPages.Any())
@@ -19,7 +19,7 @@
                             <a class="nav-link" href="@GetUrl(p)" target="@GetTarget(p)" >
                                 @if (p.Icon != string.Empty)
                                 {
-                                    <span class="oi oi-@p.Icon" aria-hidden="true"></span>
+                                    <span class="@p.Icon" aria-hidden="true"></span>
                                 }
                                 @p.Name<span class="sr-only">(current)</span>
                             </a>
@@ -31,7 +31,7 @@
                             <a class="nav-link" href="@GetUrl(p)"  target="@GetTarget(p)" >
                                 @if (p.Icon != string.Empty)
                                 {
-                                    <span class="oi oi-@p.Icon" aria-hidden="true"></span>
+                                    <span class="@p.Icon" aria-hidden="true"></span>
                                 }
                                 @p.Name
                             </a>

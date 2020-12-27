@@ -18,7 +18,7 @@ else
         </Header>
         <Row>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.TenantId.ToString())" ResourceKey="EditTenant" /></td>
-            <td><ActionDialog Header="Delete Tenant" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Tenant?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteTenant(context))" Disabled="@(context.Name == TenantNames.Master)" ResourceKey="DeleteTenant" /></td>
+            <td><ActionDialog Header="Delete Tenant" Message="@Localizer["Are You Sure You Wish To Delete The {0} Tenant?", context.Name]" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteTenant(context))" Disabled="@(context.Name == TenantNames.Master)" ResourceKey="DeleteTenant" /></td>
             <td>@context.Name</td>
         </Row>
     </Pager>
@@ -56,13 +56,13 @@ else
             }
             else
             {
-                AddModuleMessage("Tenant Cannot Be Deleted Until The Following Sites Are Deleted: " + message.Substring(2), MessageType.Warning);
+                AddModuleMessage(Localizer["Tenant Cannot Be Deleted Until The Following Sites Are Deleted: {0}", message.Substring(2)], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting Tenant {Tenant} {Error}", Tenant, ex.Message);
-            AddModuleMessage("Error Deleting Tenant", MessageType.Error);
+            AddModuleMessage(Localizer["Error Deleting Tenant"], MessageType.Error);
         }
     }
 }

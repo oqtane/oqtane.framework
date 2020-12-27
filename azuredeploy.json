@@ -158,7 +158,8 @@
         "name": "[parameters('BlazorWebsiteName')]",
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
         "siteConfig": {
-          "webSocketsEnabled": true
+          "webSocketsEnabled": true,
+          "netFrameworkVersion": "v5.0"
         }
       },
       "resources": [

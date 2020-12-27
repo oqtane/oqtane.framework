@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
@@ -33,11 +32,9 @@ namespace Oqtane.Extensions
             var defaultCulture = localizationManager.GetDefaultCulture();
             var supportedCultures = localizationManager.GetSupportedCultures();
 
-            CultureInfo.CurrentUICulture = new CultureInfo(defaultCulture);
-
             app.UseRequestLocalization(options => {
                 options.SetDefaultCulture(defaultCulture)
-                    .AddSupportedUICultures(supportedCultures)
+                    .AddSupportedCultures(supportedCultures)
                     .AddSupportedUICultures(supportedCultures);
             });
 

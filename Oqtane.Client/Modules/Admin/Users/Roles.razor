@@ -14,7 +14,7 @@ else
     <table class="table table-borderless">
         <tr>
             <td>
-                <Label For="user" HelpText="The user you are assigning roles to" resource="User">User: </Label>
+                <Label For="user" HelpText="The user you are assigning roles to" ResourceKey="User">User: </Label>
             </td>
             <td>
                 <input id="user" class="form-control" @bind="@name" disabled />
@@ -26,7 +26,7 @@ else
             </td>
             <td>
                 <select id="role" class="form-control" @bind="@roleid">
-                    <option value="-1">&lt;Select Role&gt;</option>
+                    <option value="-1">&lt;@Localizer["Select Role"]&gt;</option>
                     @foreach (Role role in roles)
                     {
                         <option value="@(role.RoleId)">@role.Name</option>
@@ -36,7 +36,7 @@ else
         </tr>
         <tr>
             <td>
-                <Label For="effectiveDate" HelpText="The date that this role assignment is active" resource="EffectiveDate">Effective Date: </Label>
+                <Label For="effectiveDate" HelpText="The date that this role assignment is active" ResourceKey="EffectiveDate">Effective Date: </Label>
             </td>
             <td>
                 <input id="effectiveDate" class="form-control" @bind="@effectivedate" />
@@ -98,7 +98,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Roles {Error}", ex.Message);
-            AddModuleMessage("Error Loading Roles", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Roles"], MessageType.Error);
         }
     }
 
@@ -112,7 +112,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading User Roles {UserId} {Error}", userid, ex.Message);
-            AddModuleMessage("Error Loading User Roles", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading User Roles"], MessageType.Error);
         }
     }
 
@@ -173,17 +173,17 @@ else
 
                 await GetUserRoles();
                 await logger.LogInformation("User Assigned To Role {UserRole}", userrole);
-                AddModuleMessage("User Assigned To Role", MessageType.Success);
+                AddModuleMessage(Localizer["User Assigned To Role"], MessageType.Success);
             }
             else
             {
-                AddModuleMessage("You Must Select A Role", MessageType.Warning);
+                AddModuleMessage(Localizer["You Must Select A Role"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving User Roles {UserId} {Error}", userid, ex.Message);
-            AddModuleMessage("Error Saving User Roles", MessageType.Error);
+            AddModuleMessage(Localizer["Error Saving User Roles"], MessageType.Error);
         }
     }
 
@@ -194,12 +194,12 @@ else
             await UserRoleService.DeleteUserRoleAsync(UserRoleId);
             await GetUserRoles();
             await logger.LogInformation("User Removed From Role {UserRoleId}", UserRoleId);
-            AddModuleMessage("User Removed From Role", MessageType.Success);
+            AddModuleMessage(Localizer["User Removed From Role"], MessageType.Success);
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Removing User From Role {UserRoleId} {Error}", UserRoleId, ex.Message);
-            AddModuleMessage("Error Removing User From Role", MessageType.Error);
+            AddModuleMessage(Localizer["Error Removing User From Role"], MessageType.Error);
         }
     }
 }

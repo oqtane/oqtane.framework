@@ -24,7 +24,7 @@
     private string _content = string.Empty;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
-    public override string Title => "Import Module";
+    public override string Title => "Import Content";
 
     private async Task ImportModule()
     {
@@ -35,22 +35,22 @@
                 bool success = await ModuleService.ImportModuleAsync(ModuleState.ModuleId, _content);
                 if (success)
                 {
-                    AddModuleMessage("Content Imported Successfully", MessageType.Success);
+                    AddModuleMessage(Localizer["Content Imported Successfully"], MessageType.Success);
                 }
                 else
                 {
-                    AddModuleMessage("A Problem Was Encountered Importing Content. Please Ensure The Content Is Formatted Correctly For The Module.", MessageType.Warning);
+                    AddModuleMessage(Localizer["A Problem Was Encountered Importing Content. Please Ensure The Content Is Formatted Correctly For The Module."], MessageType.Warning);
                 }
             }
             catch (Exception ex)
             {
                 await logger.LogError(ex, "Error Importing Module {ModuleId} {Error}", ModuleState.ModuleId, ex.Message);
-                AddModuleMessage("Error Importing Module", MessageType.Error);
+                AddModuleMessage(Localizer["Error Importing Module"], MessageType.Error);
             }
         }
         else
         {
-            AddModuleMessage("You Must Enter Some Content To Import", MessageType.Warning);
+            AddModuleMessage(Localizer["You Must Enter Some Content To Import"], MessageType.Warning);
         }
     }
 }

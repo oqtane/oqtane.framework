@@ -1,5 +1,4 @@
-﻿using Microsoft.JSInterop;
-using Oqtane.Models;
+using Microsoft.JSInterop;
 using System.Threading.Tasks;
 
 namespace Oqtane.UI
@@ -233,6 +232,5 @@ namespace Oqtane.UI
                 return Task.CompletedTask;
             }
         }
-
     }
 }

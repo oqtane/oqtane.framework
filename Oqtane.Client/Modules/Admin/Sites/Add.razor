@@ -283,7 +283,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", _themetype, ex.Message);
-            AddModuleMessage("Error Loading Pane Layouts For Theme", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Pane Layouts For Theme"], MessageType.Error);
         }
     }
 
@@ -347,17 +347,17 @@ else
                             }
                             else
                             {
-                                AddModuleMessage("You Must Specify A Server And Database", MessageType.Error);
+                                AddModuleMessage(Localizer["You Must Specify A Server And Database"], MessageType.Error);
                             }
                         }
                         else
                         {
-                            AddModuleMessage("Invalid Host Password", MessageType.Error);
+                            AddModuleMessage(Localizer["Invalid Host Password"], MessageType.Error);
                         }
                     }
                     else
                     {
-                        AddModuleMessage("Tenant Name Is Missing Or Already Exists", MessageType.Error);
+                        AddModuleMessage(Localizer["Tenant Name Is Missing Or Already Exists"], MessageType.Error);
                     }
                 }
                 else
@@ -398,12 +398,12 @@ else
             }
             else
             {
-                AddModuleMessage(string.Join(", ", duplicates.ToArray()) + " Already Used For Another Site", MessageType.Warning);
+                AddModuleMessage(Localizer["{0} Already Used For Another Site", string.Join(", ", duplicates.ToArray())], MessageType.Warning);
             }
         }
         else
         {
-            AddModuleMessage("You Must Provide A Tenant, Site Name, Alias, Default Theme/Layout/Container, And Site Template", MessageType.Warning);
+            AddModuleMessage(Localizer["You Must Provide A Tenant, Site Name, Alias, Default Theme/Layout/Container, And Site Template"], MessageType.Warning);
         }
     }
 }

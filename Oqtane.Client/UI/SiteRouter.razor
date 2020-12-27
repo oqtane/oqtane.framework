@@ -230,7 +230,7 @@
 
             if (PageState == null || reload == Reload.Site)
             {
-                page = pages.Where(item => item.Path == path).FirstOrDefault();
+                page = pages.FirstOrDefault(item => item.Path.Equals(path, StringComparison.OrdinalIgnoreCase));
             }
             else
             {
@@ -300,7 +300,7 @@
                 if (user == null)
                 {
                     // redirect to login page
-                    NavigationManager.NavigateTo(Utilities.NavigateUrl(alias.Path, "login", "returnurl=" + path));
+                    NavigationManager.NavigateTo(Utilities.NavigateUrl(alias.Path, "login", "?returnurl=" + path));
                 }
                 else
                 {
@@ -338,10 +338,13 @@
 
     private Dictionary<string, string> ParseQueryString(string query)
     {
-        Dictionary<string, string> querystring = new Dictionary<string, string>();
+        Dictionary<string, string> querystring = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase); // case insensistive keys
         if (!string.IsNullOrEmpty(query))
         {
-            query = query.Substring(1); // ignore "?"
+            if (query.StartsWith("?"))
+            {
+                query = query.Substring(1); // ignore "?"
+            }
             foreach (string kvp in query.Split(new[] { '&' }, StringSplitOptions.RemoveEmptyEntries))
             {
                 if (kvp != "")
@@ -465,26 +468,38 @@
                     }
                 }
 
-                module.ModuleType = typename.Replace(Constants.ActionToken, action);
-
-                // get additional metadata from IModuleControl interface
-                typename = module.ModuleType;
-                if (Constants.DefaultModuleActions.Contains(action))
+                // ensure component exists and implements IModuleControl
+                module.ModuleType = "";
+                if (Constants.DefaultModuleActions.Contains(action, StringComparer.OrdinalIgnoreCase))
                 {
-                    // core framework module action components
                     typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, action);
                 }
-                Type moduletype = Type.GetType(typename);
-
-                // ensure component implements IModuleControl
-                if (moduletype != null && !moduletype.GetInterfaces().Contains(typeof(IModuleControl)))
+                else
                 {
-                    module.ModuleType = "";
+                    typename = typename.Replace(Constants.ActionToken, action);
                 }
+                Type moduletype = Type.GetType(typename, false, true); // case insensitive
+                if (moduletype != null && moduletype.GetInterfaces().Contains(typeof(IModuleControl)))
+                {
+                    module.ModuleType = Utilities.GetFullTypeName(moduletype.AssemblyQualifiedName); // get actual type name
+                }
+
+                // get additional metadata from IModuleControl interface
                 if (moduletype != null && module.ModuleType != "")
                 {
+                    // retrieve module component resources
                     var moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
                     page.Resources = ManagePageResources(page.Resources, moduleobject.Resources);
+                    if (action.ToLower() == "settings" && module.ModuleDefinition != null)
+                    {
+                        // settings components are embedded within a framework settings module
+                        moduletype = Type.GetType(module.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, action), false, true);
+                        if (moduletype != null)
+                        {
+                            moduleobject = Activator.CreateInstance(moduletype) as IModuleControl;
+                            page.Resources = ManagePageResources(page.Resources, moduleobject.Resources);
+                        }
+                    }
 
                     // additional metadata needed for admin components
                     if (module.ModuleId == moduleid && action != "")

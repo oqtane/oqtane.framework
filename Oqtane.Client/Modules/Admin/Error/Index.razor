@@ -1,6 +1,7 @@
-﻿@namespace Oqtane.Modules.Admin.Error
+@namespace Oqtane.Modules.Admin.Error
 @inherits ModuleBase
 @inject IModuleService ModuleService
+@inject IStringLocalizer<Index> Localizer
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
@@ -10,10 +11,10 @@
         Module module = await ModuleService.GetModuleAsync(ModuleState.ModuleId);
         if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
         {
-            string message = "A Problem Was Encountered Loading Module " + module.ModuleDefinitionName;
+            string message = Localizer["A Problem Was Encountered Loading Module {0}", module.ModuleDefinitionName];
             AddModuleMessage(message, MessageType.Error);
         }
-        
+
         await logger.LogCritical("Error Loading Module {Module}", module);
     }
 }
