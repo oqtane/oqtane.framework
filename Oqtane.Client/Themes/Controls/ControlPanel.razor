@@ -10,6 +10,7 @@
 @inject ILogService logger
 @inject ISettingService SettingService
 @inject IStringLocalizer<ControlPanel> Localizer
+@inject ILocalizationService LocalizationService
 
 @if (_moduleDefinitions != null && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions))
 {
@@ -317,6 +318,12 @@
             _allModuleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
             _moduleDefinitions = _allModuleDefinitions.Where(item => item.Categories.Contains(Category)).ToList();
             _categories = _allModuleDefinitions.SelectMany(m => m.Categories.Split(',')).Distinct().ToList();
+
+            var cultures = await LocalizationService.GetCulturesAsync();
+            if (cultures.Count() < 2)
+            {
+                ShowLanguageSwitcher = false;
+            }
         }
     }
 
