@@ -6,7 +6,7 @@
 @inject ILocalizationService LocalizationService
 @inject NavigationManager NavigationManager
 
-@if (_supportedCultures != null)
+@if (_supportedCultures?.Count() > 1)
 {
     <div class="btn-group" role="group">
         <button id="btnCultures" type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
