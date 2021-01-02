@@ -50,7 +50,7 @@ There is a separate [Documentation repository](https://github.com/oqtane/oqtane.
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
 
 V.2.1.0 ( Q1 2021 )
-- [ ] Complete Static Localization of Admin UI
+- [x] Complete Static Localization of Admin UI
 - [ ] Cross Platform Database Support ( ie. SQLite )
 - [ ] EF Core Migrations for Database Installation/Upgrade
 
