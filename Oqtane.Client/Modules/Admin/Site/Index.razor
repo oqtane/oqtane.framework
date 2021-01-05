@@ -130,8 +130,13 @@
     <Section Name="SMTP" ResourceKey="SMTPSettings">
         <table class="table table-borderless">
             <tr>
+                <td colspan="2">
+                    @Localizer["Please Note That SMTP Requires The Notification Job To Be Enabled In the Scheduled Jobs"]
+                </td>
+            </tr>
+            <tr>
                 <td>
-                    <Label For="host" HelpText="Enter the host name of the server" ResourceKey="Host">Host: </Label>
+                    <Label For="host" HelpText="Enter the host name of the SMTP server" ResourceKey="Host">Host: </Label>
                 </td>
                 <td>
                     <input id="host" class="form-control" @bind="@_smtphost" />
@@ -139,7 +144,7 @@
             </tr>
             <tr>
                 <td>
-                    <Label For="port" HelpText="Enter the port number for the server" ResourceKey="Port">Port: </Label>
+                    <Label For="port" HelpText="Enter the port number for the SMTP server. Please note this field is required if you provide a host name." ResourceKey="Port">Port: </Label>
                 </td>
                 <td>
                     <input id="port" class="form-control" @bind="@_smtpport" />
@@ -147,15 +152,18 @@
             </tr>
             <tr>
                 <td>
-                    <Label For="enabledSSl" HelpText="Specifiy if SSL is enabled for your server" ResourceKey="UseSsl">SSL Enabled: </Label>
+                    <Label For="enabledSSl" HelpText="Specify if SSL is required for your SMTP server" ResourceKey="UseSsl">SSL Enabled: </Label>
                 </td>
                 <td>
-                    <input id="enabledSSl" class="form-control" @bind="@_smtpssl" />
+                    <select id="enabledSSl" class="form-control" @bind="@_smtpssl">
+                        <option value="True">@Localizer["Yes"]</option>
+                        <option value="False">@Localizer["No"]</option>
+                    </select>
                 </td>
             </tr>
             <tr>
                 <td>
-                    <Label For="username" HelpText="Enter the username for the server" ResourceKey="SmptUsername">Username: </Label>
+                    <Label For="username" HelpText="Enter the username for your SMTP account. Please note that this field is required as it will be used as the Sender of the emails." ResourceKey="SmptUsername">Username: </Label>
                 </td>
                 <td>
                     <input id="username" class="form-control" @bind="@_smtpusername" />
@@ -163,7 +171,7 @@
             </tr>
             <tr>
                 <td>
-                    <Label For="password" HelpText="Enter the password for the server" ResourceKey="SmtpPassword">Password: </Label>
+                    <Label For="password" HelpText="Enter the password for your SMTP account" ResourceKey="SmtpPassword">Password: </Label>
                 </td>
                 <td>
                     <input id="password" type="password" class="form-control" @bind="@_smtppassword" />
@@ -205,7 +213,6 @@
 
     <br />
     <button type="button" class="btn btn-success" @onclick="SaveSite">@Localizer["Save"]</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
     <br />
     <br />
     <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
@@ -232,7 +239,7 @@
     private string _allowregistration;
     private string _smtphost = string.Empty;
     private string _smtpport = string.Empty;
-    private string _smtpssl = string.Empty;
+    private string _smtpssl = "False";
     private string _smtpusername = string.Empty;
     private string _smtppassword = string.Empty;
     private string _pwaisenabled;
@@ -287,7 +294,7 @@
                 var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
                 _smtphost = SettingService.GetSetting(settings, "SMTPHost", string.Empty);
                 _smtpport = SettingService.GetSetting(settings, "SMTPPort", string.Empty);
-                _smtpssl = SettingService.GetSetting(settings, "SMTPSSL", string.Empty);
+                _smtpssl = SettingService.GetSetting(settings, "SMTPSSL", "False");
                 _smtpusername = SettingService.GetSetting(settings, "SMTPUsername", string.Empty);
                 _smtppassword = SettingService.GetSetting(settings, "SMTPPassword", string.Empty);
 
@@ -437,9 +444,9 @@
                         SettingService.SetSetting(settings, "SMTPPassword", _smtppassword);
                         await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
 
-                        await logger.LogInformation("Site Saved {Site}", site);
+                        await logger.LogInformation("Site Settings Saved {Site}", site);
 
-                        NavigationManager.NavigateTo(NavigateUrl());
+                        AddModuleMessage(Localizer["Site Settings Saved"], MessageType.Success);
                     }
                 }
                 else
