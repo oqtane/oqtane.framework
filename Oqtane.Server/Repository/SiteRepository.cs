@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -525,12 +525,7 @@ namespace Oqtane.Repository
             });
             pageTemplates.Add(new PageTemplate
             {
-                Name = "Sql Management",
-                Parent = "Admin",
-                Path = "admin/sql",
-                Icon = "spreadsheet",
-                IsNavigation = false,
-                IsPersonalizable = false,
+                Name = "Sql Management", Parent = "Admin", Path = "admin/sql", Icon = Icons.Spreadsheet, IsNavigation = false, IsPersonalizable = false,
                 PagePermissions = new List<Permission>
                 {
                     new Permission(PermissionNames.View, RoleNames.Host, true),
@@ -552,12 +547,7 @@ namespace Oqtane.Repository
             });
             pageTemplates.Add(new PageTemplate
             {
-                Name = "System Info",
-                Parent = "Admin",
-                Path = "admin/system",
-                Icon = "medical-cross",
-                IsNavigation = false,
-                IsPersonalizable = false,
+                Name = "System Info", Parent = "Admin", Path = "admin/system", Icon = Icons.MedicalCross, IsNavigation = false, IsPersonalizable = false,
                 PagePermissions = new List<Permission>
                 {
                     new Permission(PermissionNames.View, RoleNames.Host, true),
