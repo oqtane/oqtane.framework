@@ -4,4 +4,4 @@ XCOPY "..\Server\bin\Debug\net5.0\[Owner].[Module].Server.Oqtane.dll" "..\..\[Ro
 XCOPY "..\Server\bin\Debug\net5.0\[Owner].[Module].Server.Oqtane.pdb" "..\..\[RootFolder]\Oqtane.Server\bin\Debug\net5.0\" /Y
 XCOPY "..\Shared\bin\Debug\net5.0\[Owner].[Module].Shared.Oqtane.dll" "..\..\[RootFolder]\Oqtane.Server\bin\Debug\net5.0\" /Y
 XCOPY "..\Shared\bin\Debug\net5.0\[Owner].[Module].Shared.Oqtane.pdb" "..\..\[RootFolder]\Oqtane.Server\bin\Debug\net5.0\" /Y
-XCOPY "..\Server\wwwroot\Modules\[Owner].[Module]\*" "..\..\[RootFolder]\Oqtane.Server\wwwroot\Modules\[Owner].[Module]\" /Y /S /I
+XCOPY "..\Server\wwwroot\*" "..\..\[RootFolder]\Oqtane.Server\wwwroot\" /Y /S /I
