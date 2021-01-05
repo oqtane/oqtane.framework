@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -47,7 +47,10 @@ namespace Oqtane.Infrastructure
                     // get site settings
                     List<Setting> sitesettings = settingRepository.GetSettings(EntityNames.Site, site.SiteId).ToList();
                     Dictionary<string, string> settings = GetSettings(sitesettings);
-                    if (settings.ContainsKey("SMTPHost") && settings["SMTPHost"] != "")
+                    if (settings.ContainsKey("SMTPHost") && settings["SMTPHost"] != "" &&
+                        settings.ContainsKey("SMTPPort") && settings["SMTPPort"] != "" &&
+                        settings.ContainsKey("SMTPSSL") && settings["SMTPSSL"] != "" &&
+                        settings.ContainsKey("SMTPUsername") && settings["SMTPUsername"] != "")
                     {
                         // construct SMTP Client 
                         var client = new SmtpClient()
@@ -112,7 +115,7 @@ namespace Oqtane.Infrastructure
                     }
                     else
                     {
-                        log += "SMTP Not Configured" + "<br />";
+                        log += "SMTP Not Configured Properly In Site Settings - Host, Port, SSL, And Username Are All Required" + "<br />";
                     }
                 }
             }
