@@ -50,7 +50,7 @@ namespace Oqtane.Infrastructure
                     if (settings.ContainsKey("SMTPHost") && settings["SMTPHost"] != "" &&
                         settings.ContainsKey("SMTPPort") && settings["SMTPPort"] != "" &&
                         settings.ContainsKey("SMTPSSL") && settings["SMTPSSL"] != "" &&
-                        settings.ContainsKey("SMTPUsername") && settings["SMTPUsername"] != "")
+                        settings.ContainsKey("SMTPSender") && settings["SMTPSender"] != "")
                     {
                         // construct SMTP Client 
                         var client = new SmtpClient()
@@ -72,7 +72,7 @@ namespace Oqtane.Infrastructure
                         foreach (Notification notification in notifications)
                         {
                             MailMessage mailMessage = new MailMessage();
-                            mailMessage.From = new MailAddress(settings["SMTPUsername"], site.Name);
+                            mailMessage.From = new MailAddress(settings["SMTPSender"], site.Name);
                             mailMessage.Subject = notification.Subject;
                             if (notification.FromUserId != null)
                             {
@@ -115,7 +115,7 @@ namespace Oqtane.Infrastructure
                     }
                     else
                     {
-                        log += "SMTP Not Configured Properly In Site Settings - Host, Port, SSL, And Username Are All Required" + "<br />";
+                        log += "SMTP Not Configured Properly In Site Settings - Host, Port, SSL, And Sender Are All Required" + "<br />";
                     }
                 }
             }
