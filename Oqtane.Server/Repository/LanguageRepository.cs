@@ -17,6 +17,12 @@ namespace Oqtane.Repository
 
         public Language AddLanguage(Language language)
         {
+            if (language.IsCurrent)
+            {
+                // Ensure all other languages are not set to current
+                _db.Language.ToList().ForEach(l => l.IsCurrent = false);
+            }
+
             _db.Language.Add(language);
             _db.SaveChanges();
 
