@@ -23,7 +23,7 @@ namespace Oqtane.Services
         {
             var languages = await GetJsonAsync<List<Language>>($"{Apiurl}?siteid={siteId}");
 
-            return languages.OrderBy(l => l.Name).ToList();
+            return languages?.OrderBy(l => l.Name).ToList() ?? Enumerable.Empty<Language>().ToList();
         }
 
         public async Task<Language> GetLanguageAsync(int languageId)
