@@ -213,6 +213,7 @@ namespace Oqtane
             services.AddTransient<ISiteTemplateRepository, SiteTemplateRepository>();
             services.AddTransient<ISqlRepository, SqlRepository>();
             services.AddTransient<IUpgradeManager, UpgradeManager>();
+            services.AddTransient<ILanguageRepository, LanguageRepository>();
 
             // load the external assemblies into the app domain, install services 
             services.AddOqtane(_runtime, _supportedCultures);
