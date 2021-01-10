@@ -9,7 +9,7 @@ CREATE TABLE [dbo].[Language](
 	[Name] [nvarchar](100) NOT NULL,
     [Code] [nvarchar](10) NOT NULL,
     [IsCurrent] [bit] NOT NULL,
-    [TenantId] [int],
+    [SiteId] [int],
 	[CreatedBy] [nvarchar](256) NOT NULL,
 	[CreatedOn] [datetime] NOT NULL,
 	[ModifiedBy] [nvarchar](256) NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE [dbo].[Language](
 )
 GO
 
-ALTER TABLE [dbo].[Language]  WITH CHECK ADD  CONSTRAINT [FK_Language_Tenant] FOREIGN KEY([TenantId])
+ALTER TABLE [dbo].[Language]  WITH CHECK ADD  CONSTRAINT [FK_Language_Tenant] FOREIGN KEY([SiteId])
 REFERENCES [dbo].[Tenant] ([TenantId])
 ON DELETE CASCADE
 GO
