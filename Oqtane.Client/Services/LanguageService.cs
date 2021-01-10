@@ -29,7 +29,7 @@ namespace Oqtane.Services
         public async Task<Language> GetLanguageAsync(int languageId)
             => await GetJsonAsync<Language>($"{Apiurl}/{languageId}");
 
-        public async Task<Language> AddRoleAsync(Language language)
+        public async Task<Language> AddLanguageAsync(Language language)
             => await PostJsonAsync<Language>(Apiurl, language);
 
         public async Task DeleteLanguageAsync(int languageId)

@@ -17,8 +17,8 @@ namespace Oqtane.Controllers
 
         public LanguageController(ILanguageRepository language, ILogManager logger)
         {
-            _languages = roles;
-            _logger = language;
+            _languages = language;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -36,9 +36,9 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 language = _languages.AddLanguage(language);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Language Added {Language}", role);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Language Added {Language}", language);
             }
-            return role;
+            return language;
         }
 
         [HttpDelete("{id}")]
