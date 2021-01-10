@@ -503,6 +503,33 @@ namespace Oqtane.Repository
             });
             pageTemplates.Add(new PageTemplate
             {
+                Name = "Language Management",
+                Parent = "Admin",
+                Path = "admin/languages",
+                Icon = Icons.Text,
+                IsNavigation = false,
+                IsPersonalizable = false,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, RoleNames.Host, true),
+                    new Permission(PermissionNames.Edit, RoleNames.Host, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Languages.Index).ToModuleDefinitionName(), Title = "Language Management", Pane = "Content",
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, RoleNames.Host, true),
+                            new Permission(PermissionNames.Edit, RoleNames.Host, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            });
+            pageTemplates.Add(new PageTemplate
+            {
                 Name = "Scheduled Jobs", Parent = "Admin", Path = "admin/jobs", Icon = Icons.Timer, IsNavigation = false, IsPersonalizable = false, 
                 PagePermissions = new List<Permission>
                 {

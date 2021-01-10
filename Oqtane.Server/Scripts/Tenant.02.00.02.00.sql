@@ -8,6 +8,7 @@ CREATE TABLE [dbo].[Language](
 	[LanguageId] [int] IDENTITY(1,1) NOT NULL,
 	[Name] [nvarchar](100) NOT NULL,
     [Code] [nvarchar](10) NOT NULL,
+    [IsCurrent] [bit] NOT NULL,
     [TenantId] [int],
 	[CreatedBy] [nvarchar](256) NOT NULL,
 	[CreatedOn] [datetime] NOT NULL,
