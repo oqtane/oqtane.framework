@@ -128,6 +128,7 @@ namespace Oqtane
             services.AddScoped<ISqlService, SqlService>();
             services.AddScoped<ISystemService, SystemService>();
             services.AddScoped<ILocalizationService, LocalizationService>();
+            services.AddScoped<ILanguageService, LanguageService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
