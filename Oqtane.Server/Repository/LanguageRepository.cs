@@ -13,22 +13,22 @@ namespace Oqtane.Repository
             _db = context;
         }
             
-        public IEnumerable<Language> GetLanguages(int siteId) => _db.Languages.Where(l => l.SiteId == siteId);
+        public IEnumerable<Language> GetLanguages(int siteId) => _db.Language.Where(l => l.SiteId == siteId);
 
         public Language AddLanguage(Language language)
         {
-            _db.Languages.Add(language);
+            _db.Language.Add(language);
             _db.SaveChanges();
 
             return language;
         }
 
-        public Language GetLanguage(int languageId) => _db.Languages.Find(languageId);
+        public Language GetLanguage(int languageId) => _db.Language.Find(languageId);
 
         public void DeleteLanguage(int languageId)
         {
-            var language = _db.Languages.Find(languageId);
-            _db.Languages.Remove(language);
+            var language = _db.Language.Find(languageId);
+            _db.Language.Remove(language);
             _db.SaveChanges();
         }
     }

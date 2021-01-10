@@ -21,7 +21,7 @@ namespace Oqtane.Repository
         public virtual DbSet<Folder> Folder { get; set; }
         public virtual DbSet<File> File { get; set; }
 
-        public virtual DbSet<Language> Languages { get; set; }
+        public virtual DbSet<Language> Language { get; set; }
 
         public TenantDBContext(ITenantResolver tenantResolver, IHttpContextAccessor accessor) : base(tenantResolver, accessor)
         {
