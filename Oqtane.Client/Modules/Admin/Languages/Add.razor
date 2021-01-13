@@ -1,6 +1,7 @@
 @namespace Oqtane.Modules.Admin.Languages
 @inherits ModuleBase
 @using System.Globalization
+@using Microsoft.AspNetCore.Localization
 @inject NavigationManager NavigationManager
 @inject ILocalizationService LocalizationService
 @inject ILanguageService LanguageService
@@ -65,6 +66,11 @@
         {
             language = await LanguageService.AddLanguageAsync(language);
 
+            if (language.IsCurrent)
+            {
+                await SetCultureAsync(language.Code);
+            }
+
             await logger.LogInformation("Language Added {Language}", language);
 
             NavigationManager.NavigateTo(NavigateUrl());
@@ -74,6 +80,18 @@
             await logger.LogError(ex, "Error Adding Language {Language} {Error}", language, ex.Message);
 
             AddModuleMessage(Localizer["Error Adding Language"], MessageType.Error);
+        }
+    }
+
+    private async Task SetCultureAsync(string culture)
+    {
+        if (culture != CultureInfo.CurrentUICulture.Name)
+        {
+            var interop = new Interop(JSRuntime);
+            var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
+            await interop.SetCookie(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, 360);
+
+            NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
         }
     }
 }
