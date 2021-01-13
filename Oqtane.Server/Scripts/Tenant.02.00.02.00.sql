@@ -21,7 +21,7 @@ CREATE TABLE [dbo].[Language](
 )
 GO
 
-ALTER TABLE [dbo].[Language]  WITH CHECK ADD  CONSTRAINT [FK_Language_Tenant] FOREIGN KEY([SiteId])
-REFERENCES [dbo].[Tenant] ([TenantId])
+ALTER TABLE [dbo].[Language]  WITH CHECK ADD  CONSTRAINT [FK_Language_Site] FOREIGN KEY([SiteId])
+REFERENCES [dbo].[Site] ([SiteId])
 ON DELETE CASCADE
 GO
