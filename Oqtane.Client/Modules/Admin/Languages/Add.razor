@@ -2,6 +2,7 @@
 @inherits ModuleBase
 @using System.Globalization
 @inject NavigationManager NavigationManager
+@inject ILocalizationService LocalizationService
 @inject ILanguageService LanguageService
 @inject IStringLocalizer<Add> Localizer
 
@@ -11,12 +12,15 @@
             <Label For="name" HelpText="Name Of The Langauage" ResourceKey="Name">Name:</Label>
         </td>
         <td>
-            <select id="_code" class="form-control" @bind="@_code">
-                @foreach (var culture in GetCultures())
-                {
-                    <option value="@culture.Name">@culture.DisplayName</option>
-                }
-            </select>
+            @if (_supportedCultures?.Count() > 1)
+            {
+                <select id="_code" class="form-control" @bind="@_code">
+                    @foreach (var culture in _supportedCultures)
+                    {
+                        <option value="@culture.Name">@culture.DisplayName</option>
+                    }
+                </select>
+            }
         </td>
     </tr>
     <tr>
@@ -31,7 +35,7 @@
         </td>
     </tr>
 </table>
-<button type="button" class="btn btn-success" @onclick="SaveLanguage">@Localizer["Save"]</button>
+<button type="button" class="btn btn-success @(_supportedCultures?.Count() > 1 ? String.Empty : "disabled")" @onclick="SaveLanguage">@Localizer["Save"]</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
 
 @code {
@@ -40,9 +44,12 @@
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-    private static IEnumerable<Culture> GetCultures()
-        => CultureInfo.GetCultures(CultureTypes.AllCultures)
-            .Select(c => new Culture { Name = c.Name, DisplayName = c.DisplayName });
+    private IEnumerable<Culture> _supportedCultures;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _supportedCultures = await LocalizationService.GetCulturesAsync();
+    }
 
     private async Task SaveLanguage()
     {
