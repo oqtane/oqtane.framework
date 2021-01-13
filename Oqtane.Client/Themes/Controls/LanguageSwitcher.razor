@@ -1,9 +1,9 @@
 @namespace Oqtane.Themes.Controls
 @inherits ThemeControlBase
 @using System.Globalization
-@using Microsoft.AspNetCore.Localization; 
+@using Microsoft.AspNetCore.Localization;
 @using Oqtane.Models
-@inject ILocalizationService LocalizationService
+@inject ILanguageService LanguageService
 @inject NavigationManager NavigationManager
 
 @if (_supportedCultures?.Count() > 1)
@@ -26,7 +26,8 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        _supportedCultures = await LocalizationService.GetCulturesAsync();
+        var languages = await LanguageService.GetLanguagesAsync(PageState.Site.SiteId);
+        _supportedCultures = languages.Select(l => new Culture { Name = l.Code, DisplayName = l.Name });
     }
 
     private async Task SetCultureAsync(string culture)
