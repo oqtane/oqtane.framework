@@ -12,8 +12,6 @@ namespace Oqtane.Controllers
     [Route(ControllerRoutes.Default)]
     public class LanguageController : Controller
     {
-        private const string HostAdminRoles = RoleNames.Host + "," + RoleNames.Admin;
-
         private readonly ILanguageRepository _languages;
         private readonly ILogManager _logger;
 
@@ -32,7 +30,7 @@ namespace Oqtane.Controllers
         public Language Get(int id) => _languages.GetLanguage(id);
 
         [HttpPost]
-        [Authorize(Roles = HostAdminRoles)]
+        [Authorize(Roles = RoleNames.Admin)]
         public Language Post([FromBody] Language language)
         {
             if (ModelState.IsValid)
@@ -44,7 +42,7 @@ namespace Oqtane.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = HostAdminRoles)]
+        [Authorize(Roles = RoleNames.Admin)]
         public void Delete(int id)
         {
             _languages.DeleteLanguage(id);
