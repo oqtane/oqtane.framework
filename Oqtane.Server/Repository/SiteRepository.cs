@@ -512,7 +512,9 @@ namespace Oqtane.Repository
                 PagePermissions = new List<Permission>
                 {
                     new Permission(PermissionNames.View, RoleNames.Host, true),
-                    new Permission(PermissionNames.Edit, RoleNames.Host, true)
+                    new Permission(PermissionNames.Edit, RoleNames.Host, true),
+                    new Permission(PermissionNames.View, RoleNames.Admin, true),
+                    new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                 }.EncodePermissions(),
                 PageTemplateModules = new List<PageTemplateModule>
                 {
@@ -522,7 +524,9 @@ namespace Oqtane.Repository
                         ModulePermissions = new List<Permission>
                         {
                             new Permission(PermissionNames.View, RoleNames.Host, true),
-                            new Permission(PermissionNames.Edit, RoleNames.Host, true)
+                            new Permission(PermissionNames.Edit, RoleNames.Host, true),
+                            new Permission(PermissionNames.View, RoleNames.Admin, true),
+                            new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                         }.EncodePermissions(),
                         Content = ""
                     }
