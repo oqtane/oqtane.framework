@@ -17,7 +17,7 @@ namespace Oqtane.Services
         }
 
         private string Apiurl => CreateApiUrl(_siteState.Alias, "Job");
-        
+
         public async Task<List<Job>> GetJobsAsync()
         {
             List<Job> jobs = await GetJsonAsync<List<Job>>(Apiurl);
@@ -52,5 +52,11 @@ namespace Oqtane.Services
         {
             await GetAsync($"{Apiurl}/stop/{jobId}");
         }
-    }
+
+        public async Task<List<string>> GetJobTypesAsync()
+        {
+            return await GetJsonAsync<List<string>>($"{Apiurl}/list");
+        }
+
+   }
 }

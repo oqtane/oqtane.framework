@@ -19,5 +19,6 @@ namespace Oqtane.Services
         Task StartJobAsync(int jobId);
 
         Task StopJobAsync(int jobId);
+        Task<List<string>> GetJobTypesAsync();
     }
 }

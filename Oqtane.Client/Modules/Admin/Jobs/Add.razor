@@ -18,7 +18,12 @@
             <Label For="type" HelpText="Enter the job type" ResourceKey="Type">Type: </Label>
         </td>
         <td>
-            <input id="type" class="form-control" @bind="@_jobType" />
+            <select id="type" class="form-control" @bind="@_jobType">
+                @foreach (var item in _jobTypeList)
+                {
+                    <option value=@item>@item</option>
+                }
+            </select>
         </td>
     </tr>
     <tr>
@@ -83,8 +88,14 @@
     private string _startDate = string.Empty;
     private string _endDate = string.Empty;
     private string _retentionHistory = "10";
+    private List<string> _jobTypeList = new();
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _jobTypeList = await JobService.GetJobTypesAsync();
+    }
 
     private async Task SaveJob()
     {

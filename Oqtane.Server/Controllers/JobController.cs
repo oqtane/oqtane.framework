@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Oqtane.Models;
 using Oqtane.Shared;
 using System;
+using System.Linq;
+using System.Reflection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Enums;
@@ -32,6 +34,18 @@ namespace Oqtane.Controllers
         public IEnumerable<Job> Get()
         {
             return _jobs.GetJobs();
+        }
+
+        // GET: api/<controller>
+        [HttpGet("list")]
+        [Authorize(Roles = RoleNames.Host)]
+        public IEnumerable<string> List()
+        {
+            var types = AppDomain.CurrentDomain
+                .GetOqtaneAssemblies()
+                .SelectMany(x => x.GetTypes<HostedServiceBase>())
+                .Select(x=>$"{x.FullName}, {x.Assembly.GetName().Name}");
+            return types;
         }
 
         // GET api/<controller>/5
