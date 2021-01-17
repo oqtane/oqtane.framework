@@ -14,7 +14,13 @@ namespace Oqtane.Infrastructure
     {
         // JobType = "Oqtane.Infrastructure.NotificationJob, Oqtane.Server"
 
-        public NotificationJob(IServiceScopeFactory serviceScopeFactory) : base(serviceScopeFactory) {}
+        public NotificationJob(IServiceScopeFactory serviceScopeFactory) : base(serviceScopeFactory)
+        {
+            Name = "Notification Job";
+            Frequency = "m"; // minute
+            Interval = 1;
+            IsEnabled = false;
+        }
 
         public override string ExecuteJob(IServiceProvider provider)
         {

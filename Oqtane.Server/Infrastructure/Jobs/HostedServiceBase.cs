@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -24,6 +24,15 @@ namespace Oqtane.Infrastructure
 
         // abstract method must be overridden
         public abstract string ExecuteJob(IServiceProvider provider);
+
+        // public properties which can be overridden and are used during auto registration of job
+        public string Name { get; set; } = "";
+        public string Frequency { get; set; } = "d"; // day
+        public int Interval { get; set; } = 1;
+        public DateTime? StartDate { get; set; } = null;
+        public DateTime? EndDate { get; set; } = null;
+        public int RetentionHistory { get; set; } = 10;
+        public bool IsEnabled { get; set; } = false;
 
         protected async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -153,27 +162,52 @@ namespace Oqtane.Infrastructure
                 // set IsExecuting to false in case this job was forcefully terminated previously 
                 using (var scope = _serviceScopeFactory.CreateScope())
                 {
-                    string jobType = Utilities.GetFullTypeName(GetType().AssemblyQualifiedName);
+                    string jobTypeName = Utilities.GetFullTypeName(GetType().AssemblyQualifiedName);
                     IJobRepository jobs = scope.ServiceProvider.GetRequiredService<IJobRepository>();
-                    Job job = jobs.GetJobs().Where(item => item.JobType == jobType).FirstOrDefault();
+                    Job job = jobs.GetJobs().Where(item => item.JobType == jobTypeName).FirstOrDefault();
                     if (job != null)
                     {
                         job.IsStarted = true;
                         job.IsExecuting = false;
                         jobs.UpdateJob(job);
                     }
+                    else
+                    {
+                        // auto registration
+                        job = new Job { JobType = jobTypeName };
+                        // optional properties
+                        var jobType = Type.GetType(jobTypeName);
+                        var jobObject = ActivatorUtilities.CreateInstance(scope.ServiceProvider, jobType) as HostedServiceBase;
+                        if (jobObject.Name != "")
+                        {
+                            job.Name = jobObject.Name;
+                        }
+                        else
+                        {
+                            job.Name = Utilities.GetTypeName(job.JobType);
+                        }
+                        job.Frequency = jobObject.Frequency;
+                        job.Interval = jobObject.Interval;
+                        job.StartDate = jobObject.StartDate;
+                        job.EndDate = jobObject.EndDate;
+                        job.RetentionHistory = jobObject.RetentionHistory;
+                        job.IsEnabled = jobObject.IsEnabled;
+                        job.IsStarted = true;
+                        job.IsExecuting = false;
+                        jobs.AddJob(job);
+                    }
+                }
+
+                _executingTask = ExecuteAsync(_cancellationTokenSource.Token);
+
+                if (_executingTask.IsCompleted)
+                {
+                    return _executingTask;
                 }
             }
             catch
             {
-                // can occur during the initial installation as there is no DBContext
-            }
-
-            _executingTask = ExecuteAsync(_cancellationTokenSource.Token);
-
-            if (_executingTask.IsCompleted)
-            {
-                return _executingTask;
+                // can occur during the initial installation because this method is called during startup and the database has not yet been created
             }
 
             return Task.CompletedTask;
