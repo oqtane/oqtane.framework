@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
@@ -20,7 +20,7 @@ namespace Oqtane.Repository
             {
                 return _db.Notification
                     .Where(item => item.SiteId == siteId)
-                    .Where(item => item.IsDelivered == false)
+                    .Where(item => item.IsDelivered == false && item.IsDeleted == false)
                     .Where(item => item.SendOn == null || item.SendOn < System.DateTime.UtcNow)
                     .ToList();
             }
