@@ -91,7 +91,15 @@ namespace Oqtane.Infrastructure
                                 // execute the job
                                 try
                                 {
-                                    log.Notes = ExecuteJob(scope.ServiceProvider);
+                                    var notes = "";
+                                    var tenants = scope.ServiceProvider.GetRequiredService<ITenantRepository>();
+                                    var siteState = scope.ServiceProvider.GetRequiredService<SiteState>();
+                                    foreach (var tenant in tenants.GetTenants())
+                                    {
+                                        siteState.Alias = new Alias { TenantId = tenant.TenantId };
+                                        notes += ExecuteJob(scope.ServiceProvider);
+                                    }
+                                    log.Notes = notes;
                                     log.Succeeded = true;
                                 }
                                 catch (Exception ex)
