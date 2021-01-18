@@ -11,5 +11,7 @@ namespace Oqtane.Repository
         File GetFile(int fileId);
         File GetFile(int fileId, bool tracking);
         void DeleteFile(int fileId);
+        string GetFilePath(int fileId);
+        string GetFilePath(File file);
     }
 }

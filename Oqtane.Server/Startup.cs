@@ -128,6 +128,7 @@ namespace Oqtane
             services.AddScoped<ISqlService, SqlService>();
             services.AddScoped<ISystemService, SystemService>();
             services.AddScoped<ILocalizationService, LocalizationService>();
+            services.AddScoped<ILanguageService, LanguageService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -213,6 +214,7 @@ namespace Oqtane
             services.AddTransient<ISiteTemplateRepository, SiteTemplateRepository>();
             services.AddTransient<ISqlRepository, SqlRepository>();
             services.AddTransient<IUpgradeManager, UpgradeManager>();
+            services.AddTransient<ILanguageRepository, LanguageRepository>();
 
             // load the external assemblies into the app domain, install services 
             services.AddOqtane(_runtime, _supportedCultures);

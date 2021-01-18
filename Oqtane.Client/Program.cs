@@ -67,6 +67,7 @@ namespace Oqtane.Client
             builder.Services.AddScoped<ISqlService, SqlService>();
             builder.Services.AddScoped<ISystemService, SystemService>();
             builder.Services.AddScoped<ILocalizationService, LocalizationService>();
+            builder.Services.AddScoped<ILanguageService, LanguageService>();
 
             await LoadClientAssemblies(httpClient);
 

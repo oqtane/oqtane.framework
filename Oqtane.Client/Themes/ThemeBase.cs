@@ -88,5 +88,10 @@ namespace Oqtane.Themes
         {
             return Utilities.ContentUrl(PageState.Alias, fileid);
         }
+
+        public string ContentUrl(int fileid, bool asAttachment)
+        {
+            return Utilities.ContentUrl(PageState.Alias, fileid, asAttachment);
+        }
     }
 }

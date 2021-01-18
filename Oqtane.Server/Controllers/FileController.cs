@@ -142,13 +142,13 @@ namespace Oqtane.Controllers
                 Models.File _file = _files.GetFile(id, false);
                 if (_file.Name != file.Name || _file.FolderId != file.FolderId)
                 {
-                    string folderpath = GetFolderPath(file.Folder);
+                    string folderpath = _folders.GetFolderPath(file.Folder);
                     if (!Directory.Exists(folderpath))
                     {
                         Directory.CreateDirectory(folderpath);
                     }
 
-                    System.IO.File.Move(Path.Combine(GetFolderPath(_file.Folder), _file.Name), Path.Combine(folderpath, file.Name));
+                    System.IO.File.Move(_files.GetFilePath(_file), Path.Combine(folderpath, file.Name));
                 }
 
                 file.Extension = Path.GetExtension(file.Name).ToLower().Replace(".", "");
@@ -177,7 +177,7 @@ namespace Oqtane.Controllers
                 {
                     _files.DeleteFile(id);
 
-                    string filepath = Path.Combine(GetFolderPath(file.Folder), file.Name);
+                    string filepath = _files.GetFilePath(file);
                     if (System.IO.File.Exists(filepath))
                     {
                         System.IO.File.Delete(filepath);
@@ -213,7 +213,7 @@ namespace Oqtane.Controllers
                 return file;
             }
 
-            string folderPath = GetFolderPath(folder);
+            string folderPath = _folders.GetFolderPath(folder);
             CreateDirectory(folderPath);
 
             string filename = url.Substring(url.LastIndexOf("/", StringComparison.Ordinal) + 1);
@@ -280,7 +280,7 @@ namespace Oqtane.Controllers
                 if (virtualFolder != null &&
                     _userPermissions.IsAuthorized(User, PermissionNames.Edit, virtualFolder.Permissions))
                 {
-                    folderPath = GetFolderPath(virtualFolder);
+                    folderPath = _folders.GetFolderPath(virtualFolder);
                 }
             }
             else
@@ -291,7 +291,7 @@ namespace Oqtane.Controllers
                 }
             }
 
-            if (folderPath != "")
+            if (!String.IsNullOrEmpty(folderPath))
             {
                 CreateDirectory(folderPath);
                 using (var stream = new FileStream(Path.Combine(folderPath, file.FileName), FileMode.Create))
@@ -472,7 +472,7 @@ namespace Oqtane.Controllers
             {
                 if (_userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.Permissions))
                 {
-                    var filepath = Path.Combine(GetFolderPath(file.Folder), file.Name);
+                    var filepath = _files.GetFilePath(file);
                     if (System.IO.File.Exists(filepath))
                     {
                         var result = asAttachment
@@ -498,11 +498,6 @@ namespace Oqtane.Controllers
 
             string errorPath = Path.Combine(GetFolderPath("images"), "error.png");
             return System.IO.File.Exists(errorPath) ? PhysicalFile(errorPath, MimeUtilities.GetMimeType(errorPath)) : null;
-        }
-
-        private string GetFolderPath(Folder folder)
-        {
-            return Utilities.PathCombine(_environment.ContentRootPath, "Content", "Tenants", _tenants.GetTenant().TenantId.ToString(), "Sites", folder.SiteId.ToString(), folder.Path);
         }
 
         private string GetFolderPath(string folder)
