@@ -26,103 +26,89 @@ namespace Oqtane.Infrastructure
         {
             string log = "";
 
-            // iterate through tenants in this installation
-            List<int> tenants = new List<int>();
-            var aliasRepository = provider.GetRequiredService<IAliasRepository>();
-            List<Alias> aliases = aliasRepository.GetAliases().ToList();
-            foreach (Alias alias in aliases)
+            // get services
+            var siteRepository = provider.GetRequiredService<ISiteRepository>();
+            var settingRepository = provider.GetRequiredService<ISettingRepository>();
+            var notificationRepository = provider.GetRequiredService<INotificationRepository>();
+
+            // iterate through sites for this tenant
+            List<Site> sites = siteRepository.GetSites().ToList();
+            foreach (Site site in sites)
             {
-                if (tenants.Contains(alias.TenantId)) continue;
-                tenants.Add(alias.TenantId);
+                log += "Processing Notifications For Site: " + site.Name + "<br />";
 
-                // use the SiteState to set the Alias explicitly so the tenant can be resolved
-                var siteState = provider.GetRequiredService<SiteState>();
-                siteState.Alias = alias;
-
-                // get services which require tenant resolution
-                var siteRepository = provider.GetRequiredService<ISiteRepository>();
-                var settingRepository = provider.GetRequiredService<ISettingRepository>();
-                var notificationRepository = provider.GetRequiredService<INotificationRepository>();
-
-                // iterate through sites for this tenant
-                List<Site> sites = siteRepository.GetSites().ToList();
-                foreach (Site site in sites)
+                // get site settings
+                List<Setting> sitesettings = settingRepository.GetSettings(EntityNames.Site, site.SiteId).ToList();
+                Dictionary<string, string> settings = GetSettings(sitesettings);
+                if (settings.ContainsKey("SMTPHost") && settings["SMTPHost"] != "" &&
+                    settings.ContainsKey("SMTPPort") && settings["SMTPPort"] != "" &&
+                    settings.ContainsKey("SMTPSSL") && settings["SMTPSSL"] != "" &&
+                    settings.ContainsKey("SMTPSender") && settings["SMTPSender"] != "")
                 {
-                    log += "Processing Notifications For Site: " + site.Name + "<br />";
-
-                    // get site settings
-                    List<Setting> sitesettings = settingRepository.GetSettings(EntityNames.Site, site.SiteId).ToList();
-                    Dictionary<string, string> settings = GetSettings(sitesettings);
-                    if (settings.ContainsKey("SMTPHost") && settings["SMTPHost"] != "" &&
-                        settings.ContainsKey("SMTPPort") && settings["SMTPPort"] != "" &&
-                        settings.ContainsKey("SMTPSSL") && settings["SMTPSSL"] != "" &&
-                        settings.ContainsKey("SMTPSender") && settings["SMTPSender"] != "")
+                    // construct SMTP Client 
+                    var client = new SmtpClient()
                     {
-                        // construct SMTP Client 
-                        var client = new SmtpClient()
-                        {
-                            DeliveryMethod = SmtpDeliveryMethod.Network,
-                            UseDefaultCredentials = false,
-                            Host = settings["SMTPHost"],
-                            Port = int.Parse(settings["SMTPPort"]),
-                            EnableSsl = bool.Parse(settings["SMTPSSL"])
-                        };
-                        if (settings["SMTPUsername"] != "" && settings["SMTPPassword"] != "")
-                        {
-                            client.Credentials = new NetworkCredential(settings["SMTPUsername"], settings["SMTPPassword"]);
-                        }
+                        DeliveryMethod = SmtpDeliveryMethod.Network,
+                        UseDefaultCredentials = false,
+                        Host = settings["SMTPHost"],
+                        Port = int.Parse(settings["SMTPPort"]),
+                        EnableSsl = bool.Parse(settings["SMTPSSL"])
+                    };
+                    if (settings["SMTPUsername"] != "" && settings["SMTPPassword"] != "")
+                    {
+                        client.Credentials = new NetworkCredential(settings["SMTPUsername"], settings["SMTPPassword"]);
+                    }
 
-                        // iterate through notifications
-                        int sent = 0;
-                        List<Notification> notifications = notificationRepository.GetNotifications(site.SiteId, -1, -1).ToList();
-                        foreach (Notification notification in notifications)
+                    // iterate through notifications
+                    int sent = 0;
+                    List<Notification> notifications = notificationRepository.GetNotifications(site.SiteId, -1, -1).ToList();
+                    foreach (Notification notification in notifications)
+                    {
+                        MailMessage mailMessage = new MailMessage();
+                        mailMessage.From = new MailAddress(settings["SMTPSender"], site.Name);
+                        mailMessage.Subject = notification.Subject;
+                        if (notification.FromUserId != null)
                         {
-                            MailMessage mailMessage = new MailMessage();
-                            mailMessage.From = new MailAddress(settings["SMTPSender"], site.Name);
-                            mailMessage.Subject = notification.Subject;
-                            if (notification.FromUserId != null)
-                            {
-                                mailMessage.Body = "From: " + notification.FromDisplayName + "<" + notification.FromEmail + ">" + "\n";
-                            }
-                            else
-                            {
-                                mailMessage.Body = "From: " + site.Name + "\n";
-                            }
-                            mailMessage.Body += "Sent: " + notification.CreatedOn + "\n";
-                            if (notification.ToUserId != null)
-                            {
-                                mailMessage.To.Add(new MailAddress(notification.ToEmail, notification.ToDisplayName));
-                                mailMessage.Body += "To: " + notification.ToDisplayName + "<" + notification.ToEmail + ">" + "\n";
-                            }
-                            else
-                            {
-                                mailMessage.To.Add(new MailAddress(notification.ToEmail));
-                                mailMessage.Body += "To: " + notification.ToEmail + "\n";
-                            }
-                            mailMessage.Body += "Subject: " + notification.Subject + "\n\n";
-                            mailMessage.Body += notification.Body;
+                            mailMessage.Body = "From: " + notification.FromDisplayName + "<" + notification.FromEmail + ">" + "\n";
+                        }
+                        else
+                        {
+                            mailMessage.Body = "From: " + site.Name + "\n";
+                        }
+                        mailMessage.Body += "Sent: " + notification.CreatedOn + "\n";
+                        if (notification.ToUserId != null)
+                        {
+                            mailMessage.To.Add(new MailAddress(notification.ToEmail, notification.ToDisplayName));
+                            mailMessage.Body += "To: " + notification.ToDisplayName + "<" + notification.ToEmail + ">" + "\n";
+                        }
+                        else
+                        {
+                            mailMessage.To.Add(new MailAddress(notification.ToEmail));
+                            mailMessage.Body += "To: " + notification.ToEmail + "\n";
+                        }
+                        mailMessage.Body += "Subject: " + notification.Subject + "\n\n";
+                        mailMessage.Body += notification.Body;
                             
-                            // send mail
-                            try
-                            {
-                                client.Send(mailMessage);
-                                sent = sent++;
-                                notification.IsDelivered = true;
-                                notification.DeliveredOn = DateTime.UtcNow;
-                                notificationRepository.UpdateNotification(notification);
-                            }
-                            catch (Exception ex)
-                            {
-                                // error
-                                log += ex.Message + "<br />";
-                            }
+                        // send mail
+                        try
+                        {
+                            client.Send(mailMessage);
+                            sent = sent++;
+                            notification.IsDelivered = true;
+                            notification.DeliveredOn = DateTime.UtcNow;
+                            notificationRepository.UpdateNotification(notification);
                         }
-                        log += "Notifications Delivered: " + sent + "<br />";
+                        catch (Exception ex)
+                        {
+                            // error
+                            log += ex.Message + "<br />";
+                        }
                     }
-                    else
-                    {
-                        log += "SMTP Not Configured Properly In Site Settings - Host, Port, SSL, And Sender Are All Required" + "<br />";
-                    }
+                    log += "Notifications Delivered: " + sent + "<br />";
+                }
+                else
+                {
+                    log += "SMTP Not Configured Properly In Site Settings - Host, Port, SSL, And Sender Are All Required" + "<br />";
                 }
             }
 
