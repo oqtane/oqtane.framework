@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>[Owner].[Module]</id>
+    <version>1.0.0</version>
+    <authors>[Owner]</authors>
+    <owners>[Owner]</owners>
+    <title>[Module]</title>
+    <description>[Module]</description>
+    <copyright>[Owner]</copyright>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
+    <iconUrl>https://www.oqtane.org/Portals/0/icon.jpg</iconUrl>
+    <tags>oqtane module</tags>
+    <releaseNotes></releaseNotes>
+    <summary></summary>
+    <dependencies>
+      <dependency id="Oqtane.Framework" version="[FrameworkVersion]" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\Client\bin\Release\net5.0\[Owner].[Module].Client.Oqtane.dll" target="lib\net5.0" /> 
+    <file src="..\Client\bin\Release\net5.0\[Owner].[Module].Client.Oqtane.pdb" target="lib\net5.0" /> 
+    <file src="..\Server\bin\Release\net5.0\[Owner].[Module].Server.Oqtane.dll" target="lib\net5.0" /> 
+    <file src="..\Server\bin\Release\net5.0\[Owner].[Module].Server.Oqtane.pdb" target="lib\net5.0" /> 
+    <file src="..\Shared\bin\Release\net5.0\[Owner].[Module].Shared.Oqtane.dll" target="lib\net5.0" /> 
+    <file src="..\Shared\bin\Release\net5.0\[Owner].[Module].Shared.Oqtane.pdb" target="lib\net5.0" /> 
+    <file src="..\Server\wwwroot\**\*.*" target="wwwroot" /> 
+  </files>
+</package>

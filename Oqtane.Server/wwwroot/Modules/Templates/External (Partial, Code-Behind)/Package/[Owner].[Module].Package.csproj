@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Client\[Owner].[Module].Client.csproj" />
+    <ProjectReference Include="..\Server\[Owner].[Module].Server.csproj" />
+    <ProjectReference Include="..\Shared\[Owner].[Module].Shared.csproj" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="IF $(ConfigurationName) == Debug (debug.cmd)" />
+    <Exec Command="IF $(ConfigurationName) == Release (release.cmd)" />
+  </Target>
+
+</Project>

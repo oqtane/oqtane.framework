@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <Version>1.0.0</Version>
+    <Product>[Owner].[Module]</Product>
+    <Authors>[Owner]</Authors>
+    <Company>[Owner]</Company>
+    <Description>[Description]</Description>
+    <Copyright>[Owner]</Copyright>
+    <AssemblyName>[Owner].[Module].Server.Oqtane</AssemblyName>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\[Owner].[Module].1.0.0.sql" />
+    <EmbeddedResource Include="Scripts\[Owner].[Module].Uninstall.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="5.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Localization" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\[Owner].[Module].Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    [ServerReference]
+    [SharedReference]
+  </ItemGroup>
+</Project>
