@@ -176,26 +176,12 @@
 
     private async Task Send()
     {
-        var notification = new Notification();
         try
         {
             var user = await UserService.GetUserAsync(username, PageState.Site.SiteId);
             if (user != null)
             {
-                notification.SiteId = PageState.Site.SiteId;
-                notification.FromUserId = PageState.User.UserId;
-                notification.FromDisplayName = PageState.User.DisplayName;
-                notification.FromEmail = PageState.User.Email;
-                notification.ToUserId = user.UserId;
-                notification.ToDisplayName = user.DisplayName;
-                notification.ToEmail = user.Email;
-                notification.Subject = subject;
-                notification.Body = body;
-                notification.ParentId = notificationid;
-                notification.CreatedOn = DateTime.UtcNow;
-                notification.IsDelivered = false;
-                notification.DeliveredOn = null;
-                notification.SendOn = DateTime.UtcNow;
+                var notification = new Notification(PageState.Site.SiteId, PageState.User, user, subject, body, notificationid);
                 notification = await NotificationService.AddNotificationAsync(notification);
                 await logger.LogInformation("Notification Created {Notification}", notification);
                 NavigationManager.NavigateTo(NavigateUrl());
@@ -207,7 +193,7 @@
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Adding Notification {Notification} {Error}", notification, ex.Message);
+            await logger.LogError(ex, "Error Adding Notification {Error}", ex.Message);
             AddModuleMessage(Localizer["Error Adding Notification"], MessageType.Error);
         }
     }

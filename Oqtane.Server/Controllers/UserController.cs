@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -146,20 +146,10 @@ namespace Oqtane.Controllers
                         newUser = _users.AddUser(user);
                         if (!verified)
                         {
-                            Notification notification = new Notification();
-                            notification.SiteId = user.SiteId;
-                            notification.FromUserId = null;
-                            notification.ToUserId = newUser.UserId;
-                            notification.ToEmail = newUser.Email;
-                            notification.Subject = "User Account Verification";
                             string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
                             string url = HttpContext.Request.Scheme + "://" + _tenants.GetAlias().Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
-                            notification.Body = "Dear " + user.DisplayName + ",\n\nIn Order To Complete The Registration Of Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
-                            notification.ParentId = null;
-                            notification.CreatedOn = DateTime.UtcNow;
-                            notification.IsDelivered = false;
-                            notification.DeliveredOn = null;
-                            notification.SendOn = DateTime.UtcNow;
+                            string body = "Dear " + user.DisplayName + ",\n\nIn Order To Complete The Registration Of Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
+                            var notification = new Notification(user.SiteId, null, newUser, "User Account Verification", body, null);
                             _notifications.AddNotification(notification);
                         }
 
@@ -379,20 +369,10 @@ namespace Oqtane.Controllers
                 IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
                 if (identityuser != null)
                 {
-                    Notification notification = new Notification();
-                    notification.SiteId = user.SiteId;
-                    notification.FromUserId = null;
-                    notification.ToUserId = user.UserId;
-                    notification.ToEmail = "";
-                    notification.Subject = "User Password Reset";
                     string token = await _identityUserManager.GeneratePasswordResetTokenAsync(identityuser);
                     string url = HttpContext.Request.Scheme + "://" + _tenants.GetAlias().Name + "/reset?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
-                    notification.Body = "Dear " + user.DisplayName + ",\n\nPlease Click The Link Displayed Below To Reset Your Password:\n\n" + url + "\n\nThank You!";
-                    notification.ParentId = null;
-                    notification.CreatedOn = DateTime.UtcNow;
-                    notification.IsDelivered = false;
-                    notification.DeliveredOn = null;
-                    notification.SendOn = DateTime.UtcNow;
+                    string body = "Dear " + user.DisplayName + ",\n\nPlease Click The Link Displayed Below To Reset Your Password:\n\n" + url + "\n\nThank You!";
+                    var notification = new Notification(user.SiteId, null, user, "User Password Reset", body, null);
                     _notifications.AddNotification(notification);
                     _logger.Log(LogLevel.Information, this, LogFunction.Security, "Password Reset Notification Sent For {Username}", user.Username);
                 }

@@ -22,16 +22,18 @@ namespace Oqtane.Infrastructure
             IsEnabled = false;
         }
 
+        // job is executed for each tenant in installation
         public override string ExecuteJob(IServiceProvider provider)
         {
             string log = "";
 
             // get services
             var siteRepository = provider.GetRequiredService<ISiteRepository>();
+            var userRepository = provider.GetRequiredService<IUserRepository>();
             var settingRepository = provider.GetRequiredService<ISettingRepository>();
             var notificationRepository = provider.GetRequiredService<INotificationRepository>();
 
-            // iterate through sites for this tenant
+            // iterate through sites for current tenant
             List<Site> sites = siteRepository.GetSites().ToList();
             foreach (Site site in sites)
             {
@@ -59,49 +61,79 @@ namespace Oqtane.Infrastructure
                         client.Credentials = new NetworkCredential(settings["SMTPUsername"], settings["SMTPPassword"]);
                     }
 
-                    // iterate through notifications
+                    // iterate through undelivered notifications
                     int sent = 0;
                     List<Notification> notifications = notificationRepository.GetNotifications(site.SiteId, -1, -1).ToList();
                     foreach (Notification notification in notifications)
                     {
-                        MailMessage mailMessage = new MailMessage();
-                        mailMessage.From = new MailAddress(settings["SMTPSender"], site.Name);
-                        mailMessage.Subject = notification.Subject;
-                        if (notification.FromUserId != null)
+                        // get sender and receiver information if not provided
+                        if ((string.IsNullOrEmpty(notification.FromEmail) || string.IsNullOrEmpty(notification.FromDisplayName)) && notification.FromUserId != null)
                         {
-                            mailMessage.Body = "From: " + notification.FromDisplayName + "<" + notification.FromEmail + ">" + "\n";
+                            var user = userRepository.GetUser(notification.FromUserId.Value);
+                            if (user != null)
+                            {
+                                notification.FromEmail = (string.IsNullOrEmpty(notification.FromEmail)) ? user.Email : notification.FromEmail;
+                                notification.FromDisplayName = (string.IsNullOrEmpty(notification.FromDisplayName)) ? user.DisplayName : notification.FromDisplayName;
+                            }
                         }
-                        else
+                        if ((string.IsNullOrEmpty(notification.ToEmail) || string.IsNullOrEmpty(notification.ToDisplayName)) && notification.ToUserId != null)
                         {
-                            mailMessage.Body = "From: " + site.Name + "\n";
+                            var user = userRepository.GetUser(notification.ToUserId.Value);
+                            if (user != null)
+                            {
+                                notification.ToEmail = (string.IsNullOrEmpty(notification.ToEmail)) ? user.Email : notification.ToEmail;
+                                notification.ToDisplayName = (string.IsNullOrEmpty(notification.ToDisplayName)) ? user.DisplayName : notification.ToDisplayName;
+                            }
                         }
-                        mailMessage.Body += "Sent: " + notification.CreatedOn + "\n";
-                        if (notification.ToUserId != null)
+
+                        // validate recipient
+                        if (string.IsNullOrEmpty(notification.ToEmail))
                         {
-                            mailMessage.To.Add(new MailAddress(notification.ToEmail, notification.ToDisplayName));
-                            mailMessage.Body += "To: " + notification.ToDisplayName + "<" + notification.ToEmail + ">" + "\n";
-                        }
-                        else
-                        {
-                            mailMessage.To.Add(new MailAddress(notification.ToEmail));
-                            mailMessage.Body += "To: " + notification.ToEmail + "\n";
-                        }
-                        mailMessage.Body += "Subject: " + notification.Subject + "\n\n";
-                        mailMessage.Body += notification.Body;
-                            
-                        // send mail
-                        try
-                        {
-                            client.Send(mailMessage);
-                            sent = sent++;
-                            notification.IsDelivered = true;
-                            notification.DeliveredOn = DateTime.UtcNow;
+                            log += "Recipient Missing For NotificationId: " + notification.NotificationId + "<br />";
+                            notification.IsDeleted = true;
                             notificationRepository.UpdateNotification(notification);
                         }
-                        catch (Exception ex)
+                        else
                         {
-                            // error
-                            log += ex.Message + "<br />";
+                            MailMessage mailMessage = new MailMessage();
+                            mailMessage.From = new MailAddress(settings["SMTPSender"], site.Name);
+                            mailMessage.Subject = notification.Subject;
+                            if (!string.IsNullOrEmpty(notification.FromEmail) && !string.IsNullOrEmpty(notification.FromDisplayName))
+                            {
+                                mailMessage.Body = "From: " + notification.FromDisplayName + "<" + notification.FromEmail + ">" + "\n";
+                            }
+                            else
+                            {
+                                mailMessage.Body = "From: " + site.Name + "\n";
+                            }
+                            mailMessage.Body += "Sent: " + notification.CreatedOn + "\n";
+                            if (!string.IsNullOrEmpty(notification.ToEmail) && !string.IsNullOrEmpty(notification.ToDisplayName))
+                            {
+                                mailMessage.To.Add(new MailAddress(notification.ToEmail, notification.ToDisplayName));
+                                mailMessage.Body += "To: " + notification.ToDisplayName + "<" + notification.ToEmail + ">" + "\n";
+                            }
+                            else
+                            {
+                                mailMessage.To.Add(new MailAddress(notification.ToEmail));
+                                mailMessage.Body += "To: " + notification.ToEmail + "\n";
+                            }
+                            mailMessage.Body += "Subject: " + notification.Subject + "\n\n";
+                            mailMessage.Body += notification.Body;
+
+                            // send mail
+                            try
+                            {
+                                client.Send(mailMessage);
+                                sent = sent++;
+                                notification.IsDelivered = true;
+                                notification.DeliveredOn = DateTime.UtcNow;
+                                notificationRepository.UpdateNotification(notification);
+                            }
+                            catch (Exception ex)
+                            {
+                                // error
+                                log += ex.Message + "<br />";
+                            }
                         }
                     }
                     log += "Notifications Delivered: " + sent + "<br />";

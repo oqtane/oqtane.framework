@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Models
@@ -23,6 +23,50 @@ namespace Oqtane.Models
         public DateTime? DeletedOn { get; set; }
         public bool IsDeleted { get; set; }
         public DateTime? SendOn { get; set; }
+
+        public Notification() {}
+
+        public Notification(int siteId, User from, User to, string subject, string body, int? parentId)
+        {
+            SiteId = siteId;
+            if (from != null)
+            {
+                FromUserId = from.UserId;
+                FromDisplayName = from.DisplayName;
+                FromEmail = from.Email;
+            }
+            if (to != null)
+            {
+                ToUserId = to.UserId;
+                ToDisplayName = to.DisplayName;
+                ToEmail = to.Email;
+            }
+            Subject = subject;
+            Body = body;
+            ParentId = parentId;
+            CreatedOn = DateTime.UtcNow;
+            IsDelivered = false;
+            DeliveredOn = null;
+            SendOn = DateTime.UtcNow;
+        }
+
+        public Notification(int siteId, string fromDisplayName, string fromEmail, string toDisplayName, string toEmail, string subject, string body)
+        {
+            SiteId = siteId;
+            FromUserId = null;
+            FromDisplayName = fromDisplayName;
+            FromEmail = fromEmail;
+            ToUserId = null;
+            ToDisplayName = toDisplayName;
+            ToEmail = toEmail;
+            Subject = subject;
+            Body = body;
+            ParentId = null;
+            CreatedOn = DateTime.UtcNow;
+            IsDelivered = false;
+            DeliveredOn = null;
+            SendOn = DateTime.UtcNow;
+        }
     }
 
 }
