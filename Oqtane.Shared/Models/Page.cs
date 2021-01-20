@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -40,6 +40,8 @@ namespace Oqtane.Models
         public int Level { get; set; }
         [NotMapped]
         public bool HasChildren { get; set; }
+        [NotMapped]
+        public bool HasNavigationChildren { get; set; }
 
         [Obsolete("This property is obsolete", false)]
         [NotMapped]

@@ -16,7 +16,7 @@
                     <li class="nav-item px-3">
                         <a href="@GetUrl(p)" class="nav-link" style="padding-left:@((p.Level + 1) * 15)px !important;" target="@GetTarget(p)">
 
-                            @if (p.HasChildren)
+                            @if (p.HasNavigationChildren)
                             {
                                 <i class="oi oi-chevron-right"></i>
                             }

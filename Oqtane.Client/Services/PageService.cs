@@ -1,4 +1,4 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Net.Http;
@@ -100,7 +100,8 @@ namespace Oqtane.Services
                 foreach (Page child in children)
                 {
                     child.Level = level + 1;
-                    child.HasChildren = pages.Any(item => item.ParentId == child.PageId);
+                    child.HasChildren = pages.Any(item => item.ParentId == child.PageId && item.IsDeleted == false);
+                    child.HasNavigationChildren = pages.Any(item => item.ParentId == child.PageId && item.IsDeleted == false && item.IsNavigation == true);
                     hierarchy.Add(child);
                     getPath(pageList, child);
                 }
