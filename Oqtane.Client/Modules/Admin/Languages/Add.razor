@@ -7,41 +7,48 @@
 @inject ILanguageService LanguageService
 @inject IStringLocalizer<Add> Localizer
 
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <Label For="name" HelpText="Name Of The Langauage" ResourceKey="Name">Name:</Label>
-        </td>
-        <td>
-            @if (_supportedCultures?.Count() > 1)
-            {
-                <select id="_code" class="form-control" @bind="@_code">
-                    @foreach (var culture in _supportedCultures)
-                    {
-                        <option value="@culture.Name">@culture.DisplayName</option>
-                    }
-                </select>
-            }
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="isCurrent" HelpText="Indicates Whether Or Not This Language Is The Default One." ResourceKey="IsCurrent">Default?</Label>
-        </td>
-        <td>
-            <select id="isCurrent" class="form-control" @bind="@_isCurrent">
-                <option value="True">@Localizer["Yes"]</option>
-                <option value="False">@Localizer["No"]</option>
-            </select>
-        </td>
-    </tr>
-</table>
-<button type="button" class="btn btn-success @(_supportedCultures?.Count() > 1 ? String.Empty : "disabled")" @onclick="SaveLanguage">@Localizer["Save"]</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+@if (_supportedCultures == null)
+{
+    <p><em>@Localizer["Loading..."]</em></p>
+}
+else
+{
+    @if (_supportedCultures?.Count() > 1)
+    {
+        <table class="table table-borderless">
+            <tr>
+                <td>
+                    <Label For="name" HelpText="Name Of The Langauage" ResourceKey="Name">Name:</Label>
+                </td>
+                <td>
+                    <select id="_code" class="form-control" @bind="@_code">
+                        @foreach (var culture in _supportedCultures)
+                        {
+                            <option value="@culture.Name">@culture.DisplayName</option>
+                        }
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Label For="default" HelpText="Indicates Whether Or Not This Language Is The Default For The Site" ResourceKey="IsDefault">Default?</Label>
+                </td>
+                <td>
+                    <select id="default" class="form-control" @bind="@_isDefault">
+                        <option value="True">@Localizer["Yes"]</option>
+                        <option value="False">@Localizer["No"]</option>
+                    </select>
+                </td>
+            </tr>
+        </table>
+        <button type="button" class="btn btn-success" @onclick="SaveLanguage">@Localizer["Save"]</button>
+    }
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+}
 
 @code {
     private string _code = string.Empty;
-    private string _isCurrent = "False";
+    private string _isDefault = "False";
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
@@ -50,6 +57,10 @@
     protected override async Task OnParametersSetAsync()
     {
         _supportedCultures = await LocalizationService.GetCulturesAsync();
+        if (_supportedCultures.Count() <= 1)
+        {
+            AddModuleMessage(Localizer["The Only Supported Culture That Has Been Defined Is English"], MessageType.Warning);
+        }
     }
 
     private async Task SaveLanguage()
@@ -59,14 +70,14 @@
             SiteId = PageState.Page.SiteId,
             Name = CultureInfo.GetCultureInfo(_code).DisplayName,
             Code = _code,
-            IsCurrent = (_isCurrent == null ? false : Boolean.Parse(_isCurrent))
+            IsDefault = (_isDefault == null ? false : Boolean.Parse(_isDefault))
         };
 
         try
         {
             language = await LanguageService.AddLanguageAsync(language);
 
-            if (language.IsCurrent)
+            if (language.IsDefault)
             {
                 await SetCultureAsync(language.Code);
             }
@@ -78,7 +89,6 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Adding Language {Language} {Error}", language, ex.Message);
-
             AddModuleMessage(Localizer["Error Adding Language"], MessageType.Error);
         }
     }

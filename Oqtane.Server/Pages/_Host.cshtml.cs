@@ -7,11 +7,28 @@ using Oqtane.Themes;
 using System;
 using System.Linq;
 using System.Reflection;
+using Microsoft.AspNetCore.Http.Extensions;
+using Oqtane.Repository;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Configuration;
 
 namespace Oqtane.Pages
 {
     public class HostModel : PageModel
     {
+        private IConfiguration _configuration;
+        private readonly SiteState _state;
+        private readonly IAliasRepository _aliases;
+        private readonly ILanguageRepository _languages;
+
+        public HostModel(IConfiguration configuration, SiteState state, IAliasRepository aliases, ILanguageRepository languages)
+        {
+            _configuration = configuration;
+            _state = state;
+            _aliases = aliases;
+            _languages = languages;
+        }
+
         public string HeadResources = "";
         public string BodyResources = "";
 
@@ -23,6 +40,24 @@ namespace Oqtane.Pages
                 ProcessHostResources(assembly);
                 ProcessModuleControls(assembly);
                 ProcessThemeControls(assembly);
+            }
+
+            // if framework is installed 
+            if (!string.IsNullOrEmpty(_configuration.GetConnectionString("DefaultConnection")))
+            {
+                Uri uri = new Uri(Request.GetDisplayUrl());
+                var alias = _aliases.GetAlias(uri.Authority + "/" + uri.LocalPath.Substring(1));
+                _state.Alias = alias;
+
+                // set default language for site
+                var language = _languages.GetLanguages(alias.SiteId).Where(item => item.IsDefault).FirstOrDefault();
+                if (language != null)
+                {
+                    HttpContext.Response.Cookies.Append(
+                        CookieRequestCultureProvider.DefaultCookieName,
+                        CookieRequestCultureProvider.MakeCookieValue(
+                            new RequestCulture(language.Code)));
+                }
             }
         }
 

@@ -12,7 +12,7 @@ namespace Oqtane.Models
 
         public string Code { get; set; }
 
-        public bool IsCurrent { get; set; }
+        public bool IsDefault { get; set; }
 
         public string CreatedBy { get; set; }
 
