@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -10,20 +10,24 @@ namespace Oqtane.Repository
 {
     public class DBContextBase :  IdentityUserContext<IdentityUser> 
     {
-        private Tenant _tenant;
+        private ITenantResolver _tenantResolver;
         private IHttpContextAccessor _accessor;
 
         public DBContextBase(ITenantResolver tenantResolver, IHttpContextAccessor accessor)
         {
-            _tenant = tenantResolver.GetTenant();
+            _tenantResolver = tenantResolver;
             _accessor = accessor;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(_tenant.DBConnectionString
-                    .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString())
-            );
+            var tenant = _tenantResolver.GetTenant();
+            if (tenant != null)
+            {
+                optionsBuilder.UseSqlServer(tenant.DBConnectionString
+                        .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString())
+                );
+            }
             base.OnConfiguring(optionsBuilder);
         }
 
