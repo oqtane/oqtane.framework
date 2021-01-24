@@ -10,12 +10,14 @@
             if (childPage.PageId == PageState.Page.PageId)
             {
                 <a class="dropdown-item active" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
-                    @childPage.Name<span class="sr-only">(current)</span>
+                    <FontIcon Value="@childPage.Icon" />
+                    @childPage.Name <span class="sr-only">(current)</span>
                 </a>
             }
             else
             {
                 <a class="dropdown-item" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
+                    <FontIcon Value="@childPage.Icon" />
                     @childPage.Name
                 </a>
             }
@@ -33,11 +35,8 @@ else
                 {
                     <li class="nav-item active">
                         <a class="nav-link" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
-                            @if (childPage.Icon != string.Empty)
-                            {
-                                <span class="@childPage.Icon" aria-hidden="true"></span>
-                            }
-                            @childPage.Name<span class="sr-only">(current)</span>
+                            <FontIcon Value="@childPage.Icon" />
+                            @childPage.Name <span class="sr-only">(current)</span>
                         </a>
                     </li>
                 }
@@ -45,10 +44,7 @@ else
                 {
                     <li class="nav-item">
                         <a class="nav-link" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
-                            @if (childPage.Icon != string.Empty)
-                            {
-                                <span class="@childPage.Icon" aria-hidden="true"></span>
-                            }
+                            <FontIcon Value="@childPage.Icon" />
                             @childPage.Name
                         </a>
                     </li>
@@ -60,7 +56,8 @@ else
                 {
                     <li class="nav-item dropdown active">
                         <a class="nav-link dropdown-toggle" href="@GetUrl(childPage)" target="@GetTarget(childPage)" id="@($"navbarDropdown{childPage.PageId}")" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            @childPage.Name<span class="sr-only">(current)</span>
+                            <FontIcon Value="@childPage.Icon" />
+                            @childPage.Name <span class="sr-only">(current)</span>
                         </a>
                         <MenuItemsHorizontal ParentPage="childPage" Pages="Pages" />
                     </li>
@@ -69,6 +66,7 @@ else
                 {
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="@GetUrl(childPage)" target="@GetTarget(childPage)" id="@($"navbarDropdown{childPage.PageId}")" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <FontIcon Value="@childPage.Icon" />
                             @childPage.Name
                         </a>
                         <MenuItemsHorizontal ParentPage="childPage" Pages="Pages" />
