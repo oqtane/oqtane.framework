@@ -20,7 +20,10 @@ namespace Oqtane.Repository
             if (language.IsDefault)
             {
                 // Ensure all other languages are not set to current
-                _db.Language.ToList().ForEach(l => l.IsDefault = false);
+                _db.Language
+                    .Where(l => l.SiteId == language.SiteId)
+                    .ToList()
+                    .ForEach(l => l.IsDefault = false);
             }
 
             _db.Language.Add(language);
