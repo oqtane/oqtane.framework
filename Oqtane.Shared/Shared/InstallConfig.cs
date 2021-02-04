@@ -1,4 +1,4 @@
-﻿namespace Oqtane.Shared
+namespace Oqtane.Shared
 {
     public class InstallConfig
     {
@@ -14,5 +14,6 @@
         public string DefaultTheme { get; set; }
         public string DefaultLayout { get; set; }
         public string DefaultContainer { get; set; }
+        public string DefaultAdminContainer { get; set; }
     }
 }

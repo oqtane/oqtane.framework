@@ -101,13 +101,12 @@ namespace Oqtane.Controllers
         public void Delete(int id, int siteid)
         {
             ModuleDefinition moduledefinition = _moduleDefinitions.GetModuleDefinition(id, siteid);
-            if (moduledefinition != null )
+            if (moduledefinition != null && Utilities.GetAssemblyName(moduledefinition.ServerManagerType) != "Oqtane.Server")
             {
-                if (!string.IsNullOrEmpty(moduledefinition.ServerManagerType) && Utilities.GetAssemblyName(moduledefinition.ServerManagerType) != "Oqtane.Server")
+                // execute uninstall logic or scripts
+                if (!string.IsNullOrEmpty(moduledefinition.ServerManagerType))
                 {
                     Type moduletype = Type.GetType(moduledefinition.ServerManagerType);
-
-                    // execute uninstall logic
                     foreach (Tenant tenant in _tenants.GetTenants())
                     {
                         try
@@ -128,34 +127,45 @@ namespace Oqtane.Controllers
                             _logger.Log(LogLevel.Error, this, LogFunction.Delete, "Error Uninstalling {ModuleDefinitionName} For Tenant {Tenant} {Error}", moduledefinition.ModuleDefinitionName, tenant.Name, ex.Message);
                         }
                     }
-
-                    // use assets.json to clean up file resources
-                    string assetfilepath = Path.Combine(_environment.WebRootPath, "Modules", Utilities.GetTypeName(moduledefinition.ModuleDefinitionName), "assets.json");
-                    if (System.IO.File.Exists(assetfilepath))
-                    {
-                        List<string> assets = JsonSerializer.Deserialize<List<string>>(System.IO.File.ReadAllText(assetfilepath));
-                        foreach(string asset in assets)
-                        {
-                            if (System.IO.File.Exists(asset))
-                            {
-                                System.IO.File.Delete(asset);
-                            }
-                        }
-                        _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Assets Removed For {ModuleDefinitionName}", moduledefinition.ModuleDefinitionName);
-                    }
-
-                    // clean up module static resource folder
-                    string folder = Path.Combine(_environment.WebRootPath, Path.Combine("Modules", Utilities.GetTypeName(moduledefinition.ModuleDefinitionName)));
-                    if (Directory.Exists(folder))
-                    {
-                        Directory.Delete(folder, true);
-                        _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Resources Folder Removed For {ModuleDefinitionName}", moduledefinition.ModuleDefinitionName);
-                    }
-
-                    // remove module definition
-                    _moduleDefinitions.DeleteModuleDefinition(id, siteid);
-                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Definition {ModuleDefinitionName} Deleted", moduledefinition.Name);
                 }
+
+                // remove module assets
+                string assetpath = Path.Combine(_environment.WebRootPath, "Modules", Utilities.GetTypeName(moduledefinition.ModuleDefinitionName));
+                if (System.IO.File.Exists(Path.Combine(assetpath, "assets.json")))
+                {
+                    // use assets.json to clean up file resources
+                    List<string> assets = JsonSerializer.Deserialize<List<string>>(System.IO.File.ReadAllText(Path.Combine(assetpath, "assets.json")));
+                    foreach(string asset in assets)
+                    {
+                        // legacy support for assets that were stored as absolute paths
+                        string filepath = asset.StartsWith("\\") ? Path.Combine(_environment.ContentRootPath, asset.Substring(1)) : asset;
+                        if (System.IO.File.Exists(filepath))
+                        {
+                            System.IO.File.Delete(filepath);
+                        }
+                    }
+                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Assets Removed For {ModuleDefinitionName}", moduledefinition.ModuleDefinitionName);
+                }
+                else
+                {
+                    // attempt to delete assemblies based on naming convention
+                    foreach(string asset in Directory.GetFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), Utilities.GetTypeName(moduledefinition.ModuleDefinitionName) + "*.*"))
+                    {
+                        System.IO.File.Delete(asset);
+                    }
+                    _logger.Log(LogLevel.Warning, this, LogFunction.Delete, "Module Assets Removed For {ModuleDefinitionName}. Please Note That Some Assets May Have Been Missed Due To A Missing Asset Manifest. An Asset Manifest Is Only Created If A Module Is Installed From A Nuget Package.", moduledefinition.Name);
+                }
+
+                // clean up module static resource folder
+                if (Directory.Exists(assetpath))
+                {
+                    Directory.Delete(assetpath, true);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Static Resources Folder Removed For {ModuleDefinitionName}", moduledefinition.ModuleDefinitionName);
+                }
+
+                // remove module definition
+                _moduleDefinitions.DeleteModuleDefinition(id);
+                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Definition {ModuleDefinitionName} Deleted", moduledefinition.Name);
             }
         }
 

@@ -28,13 +28,13 @@ namespace Oqtane.Infrastructure
 
         public void InstallPackages(string folders)
         {
-            if (!InstallPackages(folders, _environment.WebRootPath))
+            if (!InstallPackages(folders, _environment.WebRootPath, _environment.ContentRootPath))
             {
                 // error installing packages
             }
         }
 
-        public static bool InstallPackages(string folders, string webRootPath)
+        public static bool InstallPackages(string folders, string webRootPath, string contentRootPath)
         {
             bool install = false;
             string binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
@@ -79,6 +79,7 @@ namespace Oqtane.Infrastructure
                         if (frameworkversion == "" || Version.Parse(Constants.Version).CompareTo(Version.Parse(frameworkversion)) >= 0)
                         {
                             List<string> assets = new List<string>();
+                            bool manifest = false;
 
                             // module and theme packages must be in form of name.1.0.0.nupkg
                             string name = Path.GetFileNameWithoutExtension(packagename);
@@ -91,36 +92,41 @@ namespace Oqtane.Infrastructure
                                 string foldername = Path.GetDirectoryName(entry.FullName).Split(Path.DirectorySeparatorChar)[0];
                                 string filename = Path.GetFileName(entry.FullName);
 
+                                if (!manifest && filename == "assets.json")
+                                {
+                                    manifest = true;
+                                }
+
                                 switch (foldername)
                                 {
                                     case "lib":
                                         filename = Path.Combine(binFolder, filename);
                                         ExtractFile(entry, filename);
-                                        assets.Add(filename);
+                                        assets.Add(filename.Replace(contentRootPath, ""));
                                         break;
                                     case "wwwroot":
                                         filename = Path.Combine(webRootPath, Utilities.PathCombine(entry.FullName.Replace("wwwroot/", "").Split('/')));
                                         ExtractFile(entry, filename);
-                                        assets.Add(filename);
+                                        assets.Add(filename.Replace(contentRootPath, ""));
                                         break;
                                     case "runtimes":
                                         var destSubFolder = Path.GetDirectoryName(entry.FullName);
                                         filename = Path.Combine(binFolder, destSubFolder, filename);
                                         ExtractFile(entry, filename);
-                                        assets.Add(filename);
+                                        assets.Add(filename.Replace(contentRootPath, ""));
                                         break;
                                 }
                             }
 
-                            // save list of assets
-                            if (assets.Count != 0)
+                            // save dynamic list of assets
+                            if (!manifest && assets.Count != 0)
                             {
-                                string assetfilepath = Path.Combine(webRootPath, folder, name, "assets.json");
-                                if (File.Exists(assetfilepath))
+                                string manifestpath = Path.Combine(webRootPath, folder, name, "assets.json");
+                                if (File.Exists(manifestpath))
                                 {
-                                    File.Delete(assetfilepath);
+                                    File.Delete(manifestpath);
                                 }
-                                File.WriteAllText(assetfilepath, JsonSerializer.Serialize(assets));
+                                File.WriteAllText(manifestpath, JsonSerializer.Serialize(assets));
                             }
                         }
                     }

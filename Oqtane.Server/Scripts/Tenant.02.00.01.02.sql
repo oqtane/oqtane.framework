@@ -1,6 +1,6 @@
 /*  
 
-Version 2.0.0 Tenant migration script
+Version 2.0.1 Tenant migration script
 
 */
 
