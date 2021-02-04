@@ -113,7 +113,7 @@ else
     {
         try
         {
-            if (IsValid(_owner) && IsValid(_module) && _template != "-")
+            if (IsValid(_owner) && IsValid(_module) && _owner != _module && _template != "-")
             {
                 var moduleDefinition = new ModuleDefinition { Owner = _owner, Name = _module, Description = _description, Template = _template, Version = _reference };
                 moduleDefinition = await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition);
@@ -126,7 +126,7 @@ else
             }
             else
             {
-                AddModuleMessage(Localizer["You Must Provide A Valid Owner Name, Module Name, And Template"], MessageType.Warning);
+                AddModuleMessage(Localizer["You Must Provide A Valid Owner Name And Module Name ( ie. No Punctuation Or Spaces And The Values Cannot Be The Same ) And Choose A Template"], MessageType.Warning);
             }
         }
         catch (Exception ex)
