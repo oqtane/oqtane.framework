@@ -408,32 +408,6 @@ namespace Oqtane.Repository
                         Content = ""
                     }
                 }
-            }); pageTemplates.Add(new PageTemplate
-            {
-                Name = "Tenant Management",
-                Parent = "Admin",
-                Path = "admin/tenants",
-                Icon = Icons.List,
-                IsNavigation = false,
-                IsPersonalizable = false,
-                PagePermissions = new List<Permission>
-                {
-                    new Permission(PermissionNames.View, RoleNames.Host, true),
-                    new Permission(PermissionNames.Edit, RoleNames.Host, true)
-                }.EncodePermissions(),
-                PageTemplateModules = new List<PageTemplateModule>
-                {
-                    new PageTemplateModule
-                    {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Tenants.Index).ToModuleDefinitionName(), Title = "Tenant Management", Pane = "Content",
-                        ModulePermissions = new List<Permission>
-                        {
-                            new Permission(PermissionNames.View, RoleNames.Host, true),
-                            new Permission(PermissionNames.Edit, RoleNames.Host, true)
-                        }.EncodePermissions(),
-                        Content = ""
-                    }
-                }
             });
             pageTemplates.Add(new PageTemplate
             {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Models
@@ -13,6 +13,7 @@ namespace Oqtane.Models
         public string DefaultThemeType { get; set; }
         public string DefaultLayoutType { get; set; }
         public string DefaultContainerType { get; set; }
+        public string AdminContainerType { get; set; }
         public bool PwaIsEnabled { get; set; }
         public int? PwaAppIconFileId { get; set; }
         public int? PwaSplashIconFileId { get; set; }

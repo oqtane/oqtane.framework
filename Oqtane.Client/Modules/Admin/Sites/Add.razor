@@ -80,6 +80,21 @@ else
     </tr>
     <tr>
         <td>
+            <Label For="adminContainer" HelpText="Select the admin container for the site" ResourceKey="AdminContainer">Admin Container: </Label>
+        </td>
+        <td>
+            <select id="adminContainer" class="form-control" @bind="@_admincontainertype">
+                <option value="-">&lt;@Localizer["Select Container"]&gt;</option>
+                <option value="">&lt;@Localizer["Default Admin Container"]&gt;</option>
+                @foreach (var container in _containers)
+                {
+                    <option value="@container.TypeName">@container.Name</option>
+                }
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
             <Label For="siteTemplate" HelpText="Select the site template" ResourceKey="SiteTemplate">Site Template: </Label>
         </td>
         <td>
@@ -225,6 +240,7 @@ else
     private string _themetype = "-";
     private string _layouttype = "-";
     private string _containertype = "-";
+    private string _admincontainertype = "";
     private string _sitetemplatetype = "-";
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
@@ -278,6 +294,7 @@ else
             }
             _layouttype = "-";
             _containertype = "-";
+            _admincontainertype = "";
             StateHasChanged();
         }
         catch (Exception ex)
@@ -378,6 +395,7 @@ else
                     config.DefaultTheme = _themetype;
                     config.DefaultLayout = _layouttype;
                     config.DefaultContainer = _containertype;
+                    config.DefaultAdminContainer = _admincontainertype;
                     config.SiteTemplate = _sitetemplatetype;
 
                     ShowProgressIndicator();

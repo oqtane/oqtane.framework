@@ -26,7 +26,6 @@ namespace Oqtane
 {
     public class Startup
     {
-        private string _webRoot;
         private Runtime _runtime;
         private bool _useSwagger;
         private IWebHostEnvironment _env;
@@ -48,7 +47,6 @@ namespace Oqtane
             //add possibility to switch off swagger on production.
             _useSwagger = Configuration.GetSection("UseSwagger").Value != "false";
 
-            _webRoot = env.WebRootPath;
             AppDomain.CurrentDomain.SetData("DataDirectory", Path.Combine(env.ContentRootPath, "Data"));
 
             _env = env;
@@ -181,7 +179,7 @@ namespace Oqtane
             services.AddSingleton<IDatabaseManager, DatabaseManager>();
 
             // install any modules or themes ( this needs to occur BEFORE the assemblies are loaded into the app domain )
-            InstallationManager.InstallPackages("Modules,Themes", _webRoot);
+            InstallationManager.InstallPackages("Modules,Themes", _env.WebRootPath, _env.ContentRootPath);
 
             // register transient scoped core services
             services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
