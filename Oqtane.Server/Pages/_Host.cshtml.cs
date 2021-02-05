@@ -20,13 +20,20 @@ namespace Oqtane.Pages
         private IConfiguration _configuration;
         private readonly SiteState _state;
         private readonly IAliasRepository _aliases;
+        private readonly ILocalizationManager _localizationManager;
         private readonly ILanguageRepository _languages;
 
-        public HostModel(IConfiguration configuration, SiteState state, IAliasRepository aliases, ILanguageRepository languages)
+        public HostModel(
+            IConfiguration configuration,
+            SiteState state,
+            IAliasRepository aliases,
+            LocalizationManager localizationManager,
+            ILanguageRepository languages)
         {
             _configuration = configuration;
             _state = state;
             _aliases = aliases;
+            _localizationManager = localizationManager;
             _languages = languages;
         }
 
@@ -56,17 +63,11 @@ namespace Oqtane.Pages
                 {
                     var defaultLanguage = languages.Where(l => l.IsDefault).SingleOrDefault() ?? languages.First();
 
-                    HttpContext.Response.Cookies.Append(
-                        CookieRequestCultureProvider.DefaultCookieName,
-                        CookieRequestCultureProvider.MakeCookieValue(
-                            new RequestCulture(defaultLanguage.Code)));
+                    SetLocalizationCookie(defaultLanguage.Code);
                 }
                 else
                 {
-                    HttpContext.Response.Cookies.Append(
-                        CookieRequestCultureProvider.DefaultCookieName,
-                        CookieRequestCultureProvider.MakeCookieValue(
-                            new RequestCulture(_configuration.GetSection("Localization").GetValue("DefaultCulture", Constants.DefaultCulture))));
+                    SetLocalizationCookie(_localizationManager.GetDefaultCulture());
                 }
             }
         }
@@ -178,6 +179,13 @@ namespace Oqtane.Pages
             {
                 return "";
             }
+        }
+
+        private void SetLocalizationCookie(string culture)
+        {
+            HttpContext.Response.Cookies.Append(
+                CookieRequestCultureProvider.DefaultCookieName,
+                CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)));
         }
     }
 }
