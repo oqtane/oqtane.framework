@@ -2,7 +2,7 @@
 @inject IStringLocalizer<ModuleInstance> Localizer
 
 <ModuleMessage Message="@_message" Type="@_messagetype" />
-<CascadingValue Value="this">
+<CascadingValue Value="this" IsFixed="true">
     @DynamicComponent
 </CascadingValue>
 @if (_progressindicator)
