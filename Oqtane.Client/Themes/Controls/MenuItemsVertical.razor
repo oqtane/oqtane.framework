@@ -1,0 +1,61 @@
+@namespace Oqtane.Themes.Controls
+@inherits MenuItemsBase
+
+@if (ParentPage != null)
+{
+    foreach (var childPage in GetChildPages())
+    {
+        if (childPage.PageId == PageState.Page.PageId)
+        {
+            <li class="nav-item px-3" style="margin-left: @(childPage.Level * 15)px;">
+                <a class="nav-link active" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
+                    <FontIcon Value="@childPage.Icon" />
+                    @childPage.Name <span class="sr-only">(current)</span>
+                </a>
+            </li>
+        }
+        else
+        {
+            <li class="nav-item px-3" style="margin-left: @(childPage.Level * 15)px;">
+                <a class="nav-link" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
+                    <FontIcon Value="@childPage.Icon" />
+                    @childPage.Name
+                </a>
+            </li>
+        }
+        if (Pages.Any(e => e.ParentId == childPage.PageId))
+        {
+            <MenuItemsVertical ParentPage="childPage" Pages="Pages" />
+        }
+    }
+}
+else
+{
+    <ul class="nav flex-column">
+        @foreach (var childPage in GetChildPages())
+        {
+            if (childPage.PageId == PageState.Page.PageId)
+            {
+                <li class="nav-item px-3" style="margin-left: @(childPage.Level * 15)px;">
+                    <a class="nav-link active" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
+                        <FontIcon Value="@childPage.Icon" />
+                        @childPage.Name <span class="sr-only">(current)</span>
+                    </a>
+                </li>
+            }
+            else
+            {
+                <li class="nav-item px-3" style="margin-left: @(childPage.Level * 15)px;">
+                    <a class="nav-link" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
+                        <FontIcon Value="@childPage.Icon" />
+                        @childPage.Name
+                    </a>
+                </li>
+            }
+            if (Pages.Any(e => e.ParentId == childPage.PageId))
+            {
+                <MenuItemsVertical ParentPage="childPage" Pages="Pages" />
+            }
+        }
+    </ul>
+}

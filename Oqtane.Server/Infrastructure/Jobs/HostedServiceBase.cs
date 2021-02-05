@@ -181,7 +181,7 @@ namespace Oqtane.Infrastructure
                     }
                     else
                     {
-                        // auto registration
+                        // auto registration - does not run on initial installation but will run after restart
                         job = new Job { JobType = jobTypeName };
                         // optional properties
                         var jobType = Type.GetType(jobTypeName);

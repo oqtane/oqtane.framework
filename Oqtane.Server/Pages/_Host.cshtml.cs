@@ -43,8 +43,8 @@ namespace Oqtane.Pages
                 ProcessThemeControls(assembly);
             }
 
-            // if framework is installed 
-            if (!string.IsNullOrEmpty(_configuration.GetConnectionString("DefaultConnection")))
+            // if culture not specified and framework is installed 
+            if (HttpContext.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName] == null && !string.IsNullOrEmpty(_configuration.GetConnectionString("DefaultConnection")))
             {
                 var uri = new Uri(Request.GetDisplayUrl());
                 var alias = _aliases.GetAlias(uri.Authority + "/" + uri.LocalPath.Substring(1));
@@ -60,6 +60,13 @@ namespace Oqtane.Pages
                         CookieRequestCultureProvider.DefaultCookieName,
                         CookieRequestCultureProvider.MakeCookieValue(
                             new RequestCulture(defaultLanguage.Code)));
+                }
+                else
+                {
+                    HttpContext.Response.Cookies.Append(
+                        CookieRequestCultureProvider.DefaultCookieName,
+                        CookieRequestCultureProvider.MakeCookieValue(
+                            new RequestCulture(_configuration.GetSection("Localization").GetValue("DefaultCulture", Constants.DefaultCulture))));
                 }
             }
         }

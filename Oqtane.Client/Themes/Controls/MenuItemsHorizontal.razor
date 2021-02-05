@@ -1,0 +1,77 @@
+@namespace Oqtane.Themes.Controls
+@inherits MenuItemsBase
+
+@if (ParentPage != null)
+{
+    <div class="dropdown-menu" aria-labelledby="@($"navbarDropdown{ParentPage.PageId}")">
+        @foreach (var childPage in GetChildPages())
+        {
+            if (childPage.PageId == PageState.Page.PageId)
+            {
+                <a class="dropdown-item active" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
+                    <FontIcon Value="@childPage.Icon" />
+                    @childPage.Name <span class="sr-only">(current)</span>
+                </a>
+            }
+            else
+            {
+                <a class="dropdown-item" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
+                    <FontIcon Value="@childPage.Icon" />
+                    @childPage.Name
+                </a>
+            }
+        }
+    </div>
+}
+else
+{
+    <ul class="navbar-nav mr-auto">
+        @foreach (var childPage in GetChildPages())
+        {
+            if (!Pages.Any(e => e.ParentId == childPage.PageId))
+            {
+                if (childPage.PageId == PageState.Page.PageId)
+                {
+                    <li class="nav-item active">
+                        <a class="nav-link" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
+                            <FontIcon Value="@childPage.Icon" />
+                            @childPage.Name <span class="sr-only">(current)</span>
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
+                            <FontIcon Value="@childPage.Icon" />
+                            @childPage.Name
+                        </a>
+                    </li>
+                }
+            }
+            else
+            {
+                if (childPage.PageId == PageState.Page.PageId)
+                {
+                    <li class="nav-item dropdown active">
+                        <a class="nav-link dropdown-toggle" href="@GetUrl(childPage)" target="@GetTarget(childPage)" id="@($"navbarDropdown{childPage.PageId}")" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <FontIcon Value="@childPage.Icon" />
+                            @childPage.Name <span class="sr-only">(current)</span>
+                        </a>
+                        <MenuItemsHorizontal ParentPage="childPage" Pages="Pages" />
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="@GetUrl(childPage)" target="@GetTarget(childPage)" id="@($"navbarDropdown{childPage.PageId}")" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <FontIcon Value="@childPage.Icon" />
+                            @childPage.Name
+                        </a>
+                        <MenuItemsHorizontal ParentPage="childPage" Pages="Pages" />
+                    </li>
+                }
+            }
+        }
+    </ul>
+}
