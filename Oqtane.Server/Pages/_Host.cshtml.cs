@@ -27,7 +27,7 @@ namespace Oqtane.Pages
             IConfiguration configuration,
             SiteState state,
             IAliasRepository aliases,
-            LocalizationManager localizationManager,
+            ILocalizationManager localizationManager,
             ILanguageRepository languages)
         {
             _configuration = configuration;
