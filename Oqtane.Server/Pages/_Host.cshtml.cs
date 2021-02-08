@@ -59,7 +59,7 @@ namespace Oqtane.Pages
 
                 // set default language for site if the culture is not supported
                 var languages = _languages.GetLanguages(alias.SiteId);
-                if (languages.All(l => l.Code != CultureInfo.CurrentUICulture.Name))
+                if (languages.Any() && languages.All(l => l.Code != CultureInfo.CurrentUICulture.Name))
                 {
                     var defaultLanguage = languages.Where(l => l.IsDefault).SingleOrDefault() ?? languages.First();
 
