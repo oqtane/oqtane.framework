@@ -64,21 +64,24 @@
 
     private async Task InitializePwa(Interop interop)
     {
+        string url = NavigationManager.BaseUri;
+        url = url.Substring(0, url.Length - 1);
+
         // dynamically create manifest.json and add to page
         string manifest = "setTimeout(() => { " +
             "var manifest = { " +
             "\"name\": \"" + PageState.Site.Name + "\", " +
             "\"short_name\": \"" + PageState.Site.Name + "\", " +
-            "\"start_url\": \"/\", " +
+            "\"start_url\": \"" + url + "/\", " +
             "\"display\": \"standalone\", " +
             "\"background_color\": \"#fff\", " +
             "\"description\": \"" + PageState.Site.Name + "\", " +
             "\"icons\": [{ " +
-                "\"src\": \"" + Utilities.ContentUrl(PageState.Alias, PageState.Site.PwaAppIconFileId.Value) + "\", " +
+                "\"src\": \"" + url + Utilities.ContentUrl(PageState.Alias, PageState.Site.PwaAppIconFileId.Value) + "\", " +
                 "\"sizes\": \"192x192\", " +
                 "\"type\": \"image/png\" " +
                 "}, { " +
-                "\"src\": \"" + Utilities.ContentUrl(PageState.Alias, PageState.Site.PwaSplashIconFileId.Value) + "\", " +
+                "\"src\": \"" + url + Utilities.ContentUrl(PageState.Alias, PageState.Site.PwaSplashIconFileId.Value) + "\", " +
                 "\"sizes\": \"512x512\", " +
                 "\"type\": \"image/png\" " +
             "}] " +
