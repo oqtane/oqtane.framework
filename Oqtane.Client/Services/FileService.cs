@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -37,11 +37,11 @@ namespace Oqtane.Services
         {
             if (!(folderPath.EndsWith(System.IO.Path.DirectorySeparatorChar) || folderPath.EndsWith(System.IO.Path.AltDirectorySeparatorChar)))
             {
-                folderPath = Utilities.PathCombine(folderPath,"\\");
+                folderPath = Utilities.PathCombine(folderPath, System.IO.Path.DirectorySeparatorChar.ToString());
             }
-            
+
             var path = WebUtility.UrlEncode(folderPath);
-            
+
             return await GetJsonAsync<List<File>>($"{Apiurl}/{siteId}/{path}");
         }
 
