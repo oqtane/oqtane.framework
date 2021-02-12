@@ -44,7 +44,7 @@ namespace Oqtane.Shared {
         public const string MasterTenant = TenantNames.Master;
         public const string DefaultSite = "Default Site";
 
-        const string RoleObsoleteMessage = "Use the corresponding memeber from Oqtane.Shared.RoleNames";
+        const string RoleObsoleteMessage = "Use the corresponding member from Oqtane.Shared.RoleNames";
 
         [Obsolete(RoleObsoleteMessage)]
         public const string AllUsersRole = RoleNames.Everyone;
