@@ -205,7 +205,7 @@
     </TabPanel>
 </TabStrip>
 <button type="button" class="btn btn-success" @onclick="SavePage">@Localizer["Save"]</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+<button type="button" class="btn btn-secondary" @onclick="Cancel">@Localizer["Cancel"]</button>
 
 @code {
     private List<Theme> _themeList;
@@ -493,7 +493,14 @@
                 }
 
                 await logger.LogInformation("Page Saved {Page}", page);
-                NavigationManager.NavigateTo(NavigateUrl(page.Path));
+                if (PageState.QueryString.ContainsKey("cp"))
+                {
+                    NavigationManager.NavigateTo(NavigateUrl(PageState.Pages.First(item => item.PageId == int.Parse(PageState.QueryString["cp"])).Path));
+                }
+                else
+                {
+                    NavigationManager.NavigateTo(NavigateUrl(page.Path));
+                }
             }
             else
             {
@@ -504,6 +511,18 @@
         {
             await logger.LogError(ex, "Error Saving Page {Page} {Error}", page, ex.Message);
             AddModuleMessage(Localizer["Error Saving Page"], MessageType.Error);
+        }
+    }
+
+    private void Cancel()
+    {
+        if (PageState.QueryString.ContainsKey("cp"))
+        {
+            NavigationManager.NavigateTo(NavigateUrl(PageState.Pages.First(item => item.PageId == int.Parse(PageState.QueryString["cp"])).Path));
+        }
+        else
+        {
+            NavigationManager.NavigateTo(NavigateUrl());
         }
     }
 

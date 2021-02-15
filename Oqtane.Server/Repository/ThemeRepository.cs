@@ -1,7 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Extensions.Caching.Memory;
 using Oqtane.Models;
 using Oqtane.Shared;
 using Oqtane.Themes;
@@ -10,7 +12,12 @@ namespace Oqtane.Repository
 {
     public class ThemeRepository : IThemeRepository
     {
-        private List<Theme> _themes; // lazy load
+        private readonly IMemoryCache _cache;
+
+        public ThemeRepository(IMemoryCache cache)
+        {
+            _cache = cache;
+        }
 
         public IEnumerable<Theme> GetThemes()
         {
@@ -19,12 +26,14 @@ namespace Oqtane.Repository
 
         private List<Theme> LoadThemes()
         {
-            if (_themes == null)
+            // get module definitions
+            List<Theme> themes = _cache.GetOrCreate("themes", entry =>
             {
-                // get themes
-                _themes = LoadThemesFromAssemblies();
-            }
-            return _themes;
+                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+                return LoadThemesFromAssemblies();
+            });
+
+            return themes;
         }
 
         private List<Theme> LoadThemesFromAssemblies()
@@ -35,7 +44,10 @@ namespace Oqtane.Repository
             var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
             foreach (Assembly assembly in assemblies)
             {
-                themes = LoadThemesFromAssembly(themes, assembly);
+                if (System.IO.File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), Utilities.GetTypeName(assembly.FullName) + ".dll")))
+                {
+                    themes = LoadThemesFromAssembly(themes, assembly);
+                }
             }
 
             return themes;
@@ -142,6 +154,11 @@ namespace Oqtane.Repository
                 themes[index] = theme;
             }
             return themes;
+        }
+
+        public void DeleteTheme(string ThemeName)
+        {
+            _cache.Remove("themes");
         }
     }
 }

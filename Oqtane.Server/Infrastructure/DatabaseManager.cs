@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -244,14 +244,6 @@ namespace Oqtane.Infrastructure
                         db.Tenant.Add(tenant);
                         db.SaveChanges();
                         _cache.Remove("tenants");
-
-                        if (install.TenantName == TenantNames.Master)
-                        {
-                            var job = new Job { Name = "Notification Job", JobType = "Oqtane.Infrastructure.NotificationJob, Oqtane.Server", Frequency = "m", Interval = 1, StartDate = null, EndDate = null, IsEnabled = false, IsStarted = false, IsExecuting = false, NextExecution = null, RetentionHistory = 10, CreatedBy = "", CreatedOn = DateTime.UtcNow, ModifiedBy = "", ModifiedOn = DateTime.UtcNow };
-                            db.Job.Add(job);
-                            db.SaveChanges();
-                            _cache.Remove("jobs");
-                        }
                     }
                     else
                     {

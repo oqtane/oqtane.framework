@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
 
@@ -20,6 +20,8 @@ namespace Oqtane.Repository
         public virtual DbSet<Notification> Notification { get; set; }
         public virtual DbSet<Folder> Folder { get; set; }
         public virtual DbSet<File> File { get; set; }
+
+        public virtual DbSet<Language> Language { get; set; }
 
         public TenantDBContext(ITenantResolver tenantResolver, IHttpContextAccessor accessor) : base(tenantResolver, accessor)
         {

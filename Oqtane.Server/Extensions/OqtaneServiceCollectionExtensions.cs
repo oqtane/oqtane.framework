@@ -178,7 +178,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static Assembly ResolveDependencies(AssemblyLoadContext context, AssemblyName name)
         {
-            var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location) + "\\" + name.Name + ".dll";
+            var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location) + Path.DirectorySeparatorChar + name.Name + ".dll";
             if (File.Exists(assemblyPath))
             {
                 return context.LoadFromStream(new MemoryStream(File.ReadAllBytes(assemblyPath)));

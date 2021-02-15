@@ -47,7 +47,7 @@ else
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         try
         {
@@ -100,7 +100,8 @@ else
         try
         {
             await ModuleDefinitionService.DeleteModuleDefinitionAsync(moduleDefinition.ModuleDefinitionId, moduleDefinition.SiteId);
-            AddModuleMessage(Localizer["Module Deleted Successfully. You Must <a href=\"{0}\">Restart</a> Your Application To Apply These Changes.", NavigateUrl("admin/system")], MessageType.Success);
+            AddModuleMessage(Localizer["Module Deleted Successfully"], MessageType.Success);
+            StateHasChanged();
         }
         catch (Exception ex)
         {

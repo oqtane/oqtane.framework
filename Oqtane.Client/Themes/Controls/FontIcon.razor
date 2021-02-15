@@ -1,0 +1,12 @@
+@namespace Oqtane.Themes.Controls
+@inherits ThemeControlBase
+
+@if (!string.IsNullOrWhiteSpace(Value))
+{
+    <span class="@Value" aria-hidden="true"></span>
+}
+
+@code {
+    [Parameter()]
+    public string Value { get; set; }
+}

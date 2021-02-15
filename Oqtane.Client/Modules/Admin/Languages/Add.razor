@@ -1,0 +1,107 @@
+@namespace Oqtane.Modules.Admin.Languages
+@inherits ModuleBase
+@using System.Globalization
+@using Microsoft.AspNetCore.Localization
+@inject NavigationManager NavigationManager
+@inject ILocalizationService LocalizationService
+@inject ILanguageService LanguageService
+@inject IStringLocalizer<Add> Localizer
+
+@if (_supportedCultures == null)
+{
+    <p><em>@Localizer["Loading..."]</em></p>
+}
+else
+{
+    @if (_supportedCultures?.Count() > 1)
+    {
+        <table class="table table-borderless">
+            <tr>
+                <td>
+                    <Label For="name" HelpText="Name Of The Langauage" ResourceKey="Name">Name:</Label>
+                </td>
+                <td>
+                    <select id="_code" class="form-control" @bind="@_code">
+                        @foreach (var culture in _supportedCultures)
+                        {
+                            <option value="@culture.Name">@culture.DisplayName</option>
+                        }
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Label For="default" HelpText="Indicates Whether Or Not This Language Is The Default For The Site" ResourceKey="IsDefault">Default?</Label>
+                </td>
+                <td>
+                    <select id="default" class="form-control" @bind="@_isDefault">
+                        <option value="True">@Localizer["Yes"]</option>
+                        <option value="False">@Localizer["No"]</option>
+                    </select>
+                </td>
+            </tr>
+        </table>
+        <button type="button" class="btn btn-success" @onclick="SaveLanguage">@Localizer["Save"]</button>
+    }
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+}
+
+@code {
+    private string _code = string.Empty;
+    private string _isDefault = "False";
+
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+
+    private IEnumerable<Culture> _supportedCultures;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _supportedCultures = await LocalizationService.GetCulturesAsync();
+        if (_supportedCultures.Count() <= 1)
+        {
+            AddModuleMessage(Localizer["The Only Supported Culture That Has Been Defined Is English"], MessageType.Warning);
+        }
+    }
+
+    private async Task SaveLanguage()
+    {
+        var language = new Language
+        {
+            SiteId = PageState.Page.SiteId,
+            Name = CultureInfo.GetCultureInfo(_code).DisplayName,
+            Code = _code,
+            IsDefault = (_isDefault == null ? false : Boolean.Parse(_isDefault))
+        };
+
+        try
+        {
+            language = await LanguageService.AddLanguageAsync(language);
+
+            if (language.IsDefault)
+            {
+                await SetCultureAsync(language.Code);
+            }
+
+            await logger.LogInformation("Language Added {Language}", language);
+
+            NavigationManager.NavigateTo(NavigateUrl());
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Adding Language {Language} {Error}", language, ex.Message);
+            AddModuleMessage(Localizer["Error Adding Language"], MessageType.Error);
+        }
+    }
+
+    private async Task SetCultureAsync(string culture)
+    {
+        if (culture != CultureInfo.CurrentUICulture.Name)
+        {
+            var interop = new Interop(JSRuntime);
+            var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
+            await interop.SetCookie(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, 360);
+
+            NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+        }
+    }
+}

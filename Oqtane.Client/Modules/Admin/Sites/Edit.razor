@@ -20,14 +20,6 @@
         </tr>
         <tr>
             <td>
-                <Label For="tenant" HelpText="Enter the tenant for the site" ResourceKey="Tenant">Tenant: </Label>
-            </td>
-            <td>
-                <input id="tenant" class="form-control" @bind="@_tenant" readonly />
-            </td>
-        </tr>
-        <tr>
-            <td>
                 <Label For="alias" HelpText="Enter the alias for the server" ResourceKey="Aliases">Aliases: </Label>
             </td>
             <td>
@@ -88,6 +80,21 @@
         </tr>
         <tr>
             <td>
+                <Label For="defaultAdminContainer" HelpText="Select the default admin container for the site" ResourceKey="DefaultAdminContainer">Default Admin Container: </Label>
+            </td>
+            <td>
+                <select id="defaultAdminContainer" class="form-control" @bind="@_admincontainertype">
+                    <option value="-">&lt;@Localizer["Select Container"]&gt;</option>
+                    <option value="">&lt;@Localizer["Default Admin Container"]&gt;</option>
+                    @foreach (var container in _containers)
+                    {
+                        <option value="@container.TypeName">@container.Name</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <Label For="isDeleted" HelpText="Has this site been deleted?" ResourceKey="IsDeleted">Is Deleted? </Label>
             </td>
             <td>
@@ -95,6 +102,23 @@
                     <option value="True">@Localizer["Yes"]</option>
                     <option value="False">@Localizer["No"]</option>
                 </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="tenant" HelpText="The tenant for the site" ResourceKey="Tenant">Tenant: </Label>
+            </td>
+            <td>
+                <input id="tenant" class="form-control" @bind="@_tenant" readonly />
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <Label For="connectionstring" HelpText="The database connection string" ResourceKey="ConnectionString">Connection String: </Label>
+            </td>
+            <td>
+                <textarea id="connectionstring" class="form-control" @bind="@_connectionstring" rows="3" readonly></textarea>
             </td>
         </tr>
     </table>
@@ -114,13 +138,12 @@
     private List<ThemeControl> _containers = new List<ThemeControl>();
     private Alias _alias;
     private string _name = string.Empty;
-    private List<Tenant> _tenantList;
-    private string _tenant = string.Empty;
     private List<Alias> _aliasList;
     private string _urls = string.Empty;
     private string _themetype;
     private string _layouttype;
-    private string _containertype;
+    private string _containertype = "-";
+    private string _admincontainertype = "-";
     private string _createdby;
     private DateTime _createdon;
     private string _modifiedby;
@@ -128,6 +151,8 @@
     private string _deletedby;
     private DateTime? _deletedon;
     private string _isdeleted;
+    private string _tenant = string.Empty;
+    private string _connectionstring = string.Empty;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
@@ -144,8 +169,6 @@
             if (site != null)
             {
                 _name = site.Name;
-                _tenantList = await TenantService.GetTenantsAsync();
-                _tenant = _tenantList.Find(item => item.TenantId == site.TenantId).Name;
 
                 foreach (Alias alias in _aliasList.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
                 {
@@ -158,6 +181,7 @@
                 _layouttype = site.DefaultLayoutType;
                 _containers = ThemeService.GetContainerControls(_themeList, _themetype);
                 _containertype = site.DefaultContainerType;
+                _admincontainertype = site.AdminContainerType;
                 _createdby = site.CreatedBy;
                 _createdon = site.CreatedOn;
                 _modifiedby = site.ModifiedBy;
@@ -165,6 +189,14 @@
                 _deletedby = site.DeletedBy;
                 _deletedon = site.DeletedOn;
                 _isdeleted = site.IsDeleted.ToString();
+
+                List<Tenant> tenants = await TenantService.GetTenantsAsync();
+                Tenant tenant = tenants.Find(item => item.TenantId == site.TenantId);
+                if (tenant != null)
+                {
+                    _tenant = tenant.Name;
+                    _connectionstring = tenant.DBConnectionString;
+                }
 
                 _initialized = true;
             }
@@ -193,6 +225,7 @@
             }
             _layouttype = "-";
             _containertype = "-";
+            _admincontainertype = "";
             StateHasChanged();
         }
         catch (Exception ex)
@@ -228,6 +261,7 @@
                         site.DefaultThemeType = _themetype;
                         site.DefaultLayoutType = _layouttype ?? string.Empty;
                         site.DefaultContainerType = _containertype;
+                        site.AdminContainerType = _admincontainertype;
                         site.IsDeleted = (_isdeleted == null || Boolean.Parse(_isdeleted));
 
                         site = await SiteService.UpdateSiteAsync(site);

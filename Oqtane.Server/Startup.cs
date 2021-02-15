@@ -26,7 +26,6 @@ namespace Oqtane
 {
     public class Startup
     {
-        private string _webRoot;
         private Runtime _runtime;
         private bool _useSwagger;
         private IWebHostEnvironment _env;
@@ -48,7 +47,6 @@ namespace Oqtane
             //add possibility to switch off swagger on production.
             _useSwagger = Configuration.GetSection("UseSwagger").Value != "false";
 
-            _webRoot = env.WebRootPath;
             AppDomain.CurrentDomain.SetData("DataDirectory", Path.Combine(env.ContentRootPath, "Data"));
 
             _env = env;
@@ -128,13 +126,11 @@ namespace Oqtane
             services.AddScoped<ISqlService, SqlService>();
             services.AddScoped<ISystemService, SystemService>();
             services.AddScoped<ILocalizationService, LocalizationService>();
+            services.AddScoped<ILanguageService, LanguageService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            services.AddDbContext<MasterDBContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")
-                    .Replace("|DataDirectory|", AppContext.GetData("DataDirectory")?.ToString())
-                ));
+            services.AddDbContext<MasterDBContext>(options => { });
             services.AddDbContext<TenantDBContext>(options => { });
 
             services.AddIdentityCore<IdentityUser>(options => { })
@@ -183,7 +179,7 @@ namespace Oqtane
             services.AddSingleton<IDatabaseManager, DatabaseManager>();
 
             // install any modules or themes ( this needs to occur BEFORE the assemblies are loaded into the app domain )
-            InstallationManager.InstallPackages("Modules,Themes", _webRoot);
+            InstallationManager.InstallPackages("Modules,Themes", _env.WebRootPath, _env.ContentRootPath);
 
             // register transient scoped core services
             services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
@@ -213,6 +209,7 @@ namespace Oqtane
             services.AddTransient<ISiteTemplateRepository, SiteTemplateRepository>();
             services.AddTransient<ISqlRepository, SqlRepository>();
             services.AddTransient<IUpgradeManager, UpgradeManager>();
+            services.AddTransient<ILanguageRepository, LanguageRepository>();
 
             // load the external assemblies into the app domain, install services 
             services.AddOqtane(_runtime, _supportedCultures);

@@ -15,10 +15,10 @@
     </tr>
     <tr>
         <td>
-            <Label For="type" HelpText="Enter the job type" ResourceKey="Type">Type: </Label>
+            <Label For="type" HelpText="The fully qualified job type name" ResourceKey="Type">Type: </Label>
         </td>
         <td>
-            <input id="type" class="form-control" @bind="@_jobType" />
+            <input id="type" class="form-control" @bind="@_jobType" readonly />
         </td>
     </tr>
     <tr>

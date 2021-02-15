@@ -1,18 +1,32 @@
-﻿using System;
+using System;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace Oqtane.Repository
 {
     public class MasterDBContext : DbContext
     {
         private IHttpContextAccessor _accessor;
+        private IConfiguration _configuration;
 
-        public MasterDBContext(DbContextOptions<MasterDBContext> options, IHttpContextAccessor accessor) : base(options)
+        public MasterDBContext(DbContextOptions<MasterDBContext> options, IHttpContextAccessor accessor, IConfiguration configuration) : base(options)
         {
             _accessor = accessor;
+            _configuration = configuration;
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!string.IsNullOrEmpty(_configuration.GetConnectionString("DefaultConnection")))
+            {
+                optionsBuilder.UseSqlServer(_configuration.GetConnectionString("DefaultConnection")
+                    .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString())
+                );
+            }
+            base.OnConfiguring(optionsBuilder);
         }
 
         public virtual DbSet<Alias> Alias { get; set; }

@@ -38,7 +38,7 @@ else
                 <Label For="effectiveDate" HelpText="The date that this role assignment is active" ResourceKey="EffectiveDate">Effective Date: </Label>
             </td>
             <td>
-                <input id="effectiveDate" class="form-control" @bind="@effectivedate" />
+                <input type="date" id="effectiveDate" class="form-control" @bind="@effectivedate" />
             </td>
         </tr>
         <tr>
@@ -46,7 +46,7 @@ else
                 <Label For="expiryDate" HelpText="The date that this role assignment expires" ResourceKey="ExpiryDate">Expiry Date: </Label>
             </td>
             <td>
-                <input id="expiryDate" class="form-control" @bind="@expirydate" />
+                <input type="date" id="expiryDate" class="form-control" @bind="@expirydate" />
             </td>
         </tr>
     </table>
@@ -75,8 +75,8 @@ else
     private string name = string.Empty;
     private List<UserRole> users;
     private int userid = -1;
-    private string effectivedate = string.Empty;
-    private string expirydate = string.Empty;
+    private DateTime? effectivedate = null;
+    private DateTime? expirydate = null;
     private List<UserRole> userroles;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
@@ -89,7 +89,10 @@ else
             Role role = await RoleService.GetRoleAsync(roleid);
             name = role.Name;
             users = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
-            users = users.Where(item => item.Role.Name == RoleNames.Registered).ToList();
+            users = users
+                .Where(u => u.Role.Name == RoleNames.Registered)
+                .OrderBy(u => u.User.DisplayName)
+                .ToList();
             await GetUserRoles();
         }
         catch (Exception ex)
@@ -122,23 +125,8 @@ else
                 var userrole = userroles.Where(item => item.UserId == userid && item.RoleId == roleid).FirstOrDefault();
                 if (userrole != null)
                 {
-                    if (string.IsNullOrEmpty(effectivedate))
-                    {
-                        userrole.EffectiveDate = null;
-                    }
-                    else
-                    {
-                        userrole.EffectiveDate = DateTime.Parse(effectivedate);
-                    }
-
-                    if (string.IsNullOrEmpty(expirydate))
-                    {
-                        userrole.ExpiryDate = null;
-                    }
-                    else
-                    {
-                        userrole.ExpiryDate = DateTime.Parse(expirydate);
-                    }
+                    userrole.EffectiveDate = effectivedate;
+                    userrole.ExpiryDate = expirydate;
                     await UserRoleService.UpdateUserRoleAsync(userrole);
                 }
                 else
@@ -146,24 +134,8 @@ else
                     userrole = new UserRole();
                     userrole.UserId = userid;
                     userrole.RoleId = roleid;
-
-                    if (string.IsNullOrEmpty(effectivedate))
-                    {
-                        userrole.EffectiveDate = null;
-                    }
-                    else
-                    {
-                        userrole.EffectiveDate = DateTime.Parse(effectivedate);
-                    }
-
-                    if (string.IsNullOrEmpty(expirydate))
-                    {
-                        userrole.ExpiryDate = null;
-                    }
-                    else
-                    {
-                        userrole.ExpiryDate = DateTime.Parse(expirydate);
-                    }
+                    userrole.EffectiveDate = effectivedate;
+                    userrole.ExpiryDate = expirydate;
 
                     await UserRoleService.AddUserRoleAsync(userrole);
                 }

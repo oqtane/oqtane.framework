@@ -7,6 +7,7 @@
 @inject ISettingService SettingService
 @inject IStringLocalizer<Index> Localizer
 @using System.Text.RegularExpressions
+@using System.IO;
 
 @if (string.IsNullOrEmpty(_moduledefinitionname))
 {
@@ -113,7 +114,7 @@ else
     {
         try
         {
-            if (IsValid(_owner) && IsValid(_module) && _template != "-")
+            if (IsValid(_owner) && IsValid(_module) && _owner != _module && _template != "-")
             {
                 var moduleDefinition = new ModuleDefinition { Owner = _owner, Name = _module, Description = _description, Template = _template, Version = _reference };
                 moduleDefinition = await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition);
@@ -126,7 +127,7 @@ else
             }
             else
             {
-                AddModuleMessage(Localizer["You Must Provide A Valid Owner Name, Module Name, And Template"], MessageType.Warning);
+                AddModuleMessage(Localizer["You Must Provide A Valid Owner Name And Module Name ( ie. No Punctuation Or Spaces And The Values Cannot Be The Same ) And Choose A Template"], MessageType.Warning);
             }
         }
         catch (Exception ex)
@@ -171,14 +172,18 @@ else
                 Dictionary<string, string> systeminfo = await SystemService.GetSystemInfoAsync();
                 if (systeminfo != null)
                 {
-                    string[] path = systeminfo["serverpath"].Split('\\');
+                    string[] path = systeminfo["serverpath"].Split(Path.DirectorySeparatorChar);
                     if (_template == "internal")
                     {
-                        _location = string.Join("\\", path, 0, path.Length - 1) + "\\Oqtane.Client\\Modules\\" + _owner + "." + _module;
+                        _location = string.Join(Path.DirectorySeparatorChar, path, 0, path.Length - 1) +
+                            Path.DirectorySeparatorChar + "Oqtane.Client" +
+                            Path.DirectorySeparatorChar + "Modules" +
+                            Path.DirectorySeparatorChar + _owner + "." + _module;
                     }
                     else
                     {
-                        _location = string.Join("\\", path, 0, path.Length - 2) + "\\" + _owner + "." + _module;
+                        _location = string.Join(Path.DirectorySeparatorChar, path, 0, path.Length - 2) +
+                            Path.DirectorySeparatorChar + _owner + "." + _module;
                     }
                 }
             }
