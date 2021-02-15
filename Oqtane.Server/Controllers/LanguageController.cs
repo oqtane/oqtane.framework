@@ -22,11 +22,9 @@ namespace Oqtane.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = RoleNames.Registered)]
         public IEnumerable<Language> Get(string siteid) => _languages.GetLanguages(int.Parse(siteid));
 
         [HttpGet("{id}")]
-        [Authorize(Roles = RoleNames.Registered)]
         public Language Get(int id) => _languages.GetLanguage(id);
 
         [HttpPost]
