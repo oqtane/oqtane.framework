@@ -537,11 +537,10 @@ namespace Oqtane.Controllers
 
             //svg has no image and height, the attributes for svg are held in the XML viewport
             if(file.Extension != "svg")
-            {
+            { 
                 if (Constants.ImageFiles.Split(',').Contains(file.Extension.ToLower()))
                 {
                     FileStream stream = new FileStream(filepath, FileMode.Open, FileAccess.Read);
- 
                     using (var image = Image.FromStream(stream))
                     {
                         file.ImageHeight = image.Height;
