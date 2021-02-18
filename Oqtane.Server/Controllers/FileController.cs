@@ -546,9 +546,8 @@ namespace Oqtane.Controllers
                         file.ImageHeight = image.Height;
                         file.ImageWidth = image.Width;
                     }
+                    stream.Close();
                 }
-
-                stream.Close();
             }
 
             return file;
