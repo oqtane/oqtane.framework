@@ -28,6 +28,7 @@ namespace Oqtane.Themes.Controls
         protected async Task LogoutUser()
         {
             await UserService.LogoutUserAsync(PageState.User);
+            PageState.User = null;
 
             if (PageState.Runtime == Oqtane.Shared.Runtime.Server)
             {
