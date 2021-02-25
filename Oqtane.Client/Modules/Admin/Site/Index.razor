@@ -420,6 +420,13 @@
                             site.LogoFileId = logofileid;
                         }
 
+
+                        var faviconFieldId = _faviconfilemanager.GetFileId();
+                        if (faviconFieldId != -1)
+                        {
+                            site.FaviconFileId = faviconFieldId;
+                        }
+
                         site.DefaultThemeType = _themetype;
                         site.DefaultLayoutType = (_layouttype == "-" ? string.Empty : _layouttype);
                         site.DefaultContainerType = _containertype;
