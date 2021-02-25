@@ -42,7 +42,7 @@
             <td><a href="@(ContentUrl(context.FileId))" target="_new">@context.Name</a></td>
             <td>@context.ModifiedOn</td>
             <td>@context.Extension.ToUpper() @Localizer["File"]</td>
-            <td>@(context.Size / 1000) KB</td>
+            <td>@string.Format("{0:0.00}", ((decimal)context.Size / 1000)) KB</td>
         </Row>
     </Pager>
     @if (_files.Count == 0)
