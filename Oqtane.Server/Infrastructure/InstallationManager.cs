@@ -126,6 +126,10 @@ namespace Oqtane.Infrastructure
                                 {
                                     File.Delete(manifestpath);
                                 }
+                                if (!Directory.Exists(Path.GetDirectoryName(manifestpath)))
+                                {
+                                    Directory.CreateDirectory(Path.GetDirectoryName(manifestpath));
+                                }
                                 File.WriteAllText(manifestpath, JsonSerializer.Serialize(assets));
                             }
                         }
