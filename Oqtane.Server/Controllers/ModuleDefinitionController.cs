@@ -135,6 +135,7 @@ namespace Oqtane.Controllers
                 {
                     // use assets.json to clean up file resources
                     List<string> assets = JsonSerializer.Deserialize<List<string>>(System.IO.File.ReadAllText(Path.Combine(assetpath, "assets.json")));
+                    assets.Reverse();
                     foreach(string asset in assets)
                     {
                         // legacy support for assets that were stored as absolute paths
@@ -142,6 +143,10 @@ namespace Oqtane.Controllers
                         if (System.IO.File.Exists(filepath))
                         {
                             System.IO.File.Delete(filepath);
+                            if (!Directory.EnumerateFiles(Path.GetDirectoryName(filepath)).Any())
+                            {
+                                Directory.Delete(Path.GetDirectoryName(filepath));
+                            }
                         }
                     }
                     _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Assets Removed For {ModuleDefinitionName}", moduledefinition.ModuleDefinitionName);
