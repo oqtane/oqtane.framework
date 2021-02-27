@@ -1,12 +1,13 @@
-﻿@namespace Oqtane.Modules.Admin.Jobs
+@namespace Oqtane.Modules.Admin.Jobs
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IJobService JobService
+@inject IStringLocalizer<Edit> Localizer
 
 <table class="table table-borderless">
     <tr>
         <td>
-            <Label For="name" HelpText="Enter the job name">Name: </Label>
+            <Label For="name" HelpText="Enter the job name" ResourceKey="Name">Name: </Label>
         </td>
         <td>
             <input id="name" class="form-control" @bind="@_name" />
@@ -14,40 +15,40 @@
     </tr>
     <tr>
         <td>
-            <Label For="type" HelpText="Enter the job type">Type: </Label>
+            <Label For="type" HelpText="The fully qualified job type name" ResourceKey="Type">Type: </Label>
         </td>
         <td>
-            <input id="type" class="form-control" @bind="@_jobType" />
+            <input id="type" class="form-control" @bind="@_jobType" readonly />
         </td>
     </tr>
     <tr>
         <td>
-            <Label For="enabled" HelpText="Select whether you want the job enabled or not">Enabled? </Label>
+            <Label For="enabled" HelpText="Select whether you want the job enabled or not" ResourceKey="Enabled">Enabled? </Label>
         </td>
         <td>
             <select id="enabled" class="form-control" @bind="@_isEnabled">
-                <option value="True">Yes</option>
-                <option value="False">No</option>
+                <option value="True">@Localizer["Yes"]</option>
+                <option value="False">@Localizer["No"]</option>
             </select>
         </td>
     </tr>
     <tr>
         <td>
-            <Label For="runs-every" HelpText="Select how often you want the job to run">Runs Every: </Label>
+            <Label For="runs-every" HelpText="Select how often you want the job to run" ResourceKey="RunsEvery">Runs Every: </Label>
         </td>
         <td>
             <input id="runs-every" class="form-control" @bind="@_interval" />
             <select id="runs-every" class="form-control" @bind="@_frequency">
-                <option value="m">Minute(s)</option>
-                <option value="H">Hour(s)</option>
-                <option value="d">Day(s)</option>
-                <option value="M">Month(s)</option>
+                <option value="m">@Localizer["Minute(s)"]</option>
+                <option value="H">@Localizer["Hour(s)"]</option>
+                <option value="d">@Localizer["Day(s)"]</option>
+                <option value="M">@Localizer["Month(s)"]</option>
             </select>
         </td>
     </tr>
     <tr>
         <td>
-            <Label For="starting" HelpText="What time do you want the job to start">Starting: </Label>
+            <Label For="starting" HelpText="What time do you want the job to start" ResourceKey="Starting">Starting: </Label>
         </td>
         <td>
             <input id="starting" class="form-control" @bind="@_startDate" />
@@ -55,7 +56,7 @@
     </tr>
     <tr>
         <td>
-            <Label For="ending" HelpText="When do you want the job to end">Ending: </Label>
+            <Label For="ending" HelpText="When do you want the job to end" ResourceKey="Ending">Ending: </Label>
         </td>
         <td>
             <input id="ending" class="form-control" @bind="@_endDate" />
@@ -63,7 +64,7 @@
     </tr>
     <tr>
         <td>
-            <Label For="retention" HelpText="Number of log entries to retain for this job">Retention Log (Items): </Label>
+            <Label For="retention" HelpText="Number of log entries to retain for this job" ResourceKey="RetentionLog">Retention Log (Items): </Label>
         </td>
         <td>
             <input id="retention" class="form-control" @bind="@_retentionHistory" />
@@ -71,15 +72,15 @@
     </tr>
     <tr>
         <td>
-            <Label For="next" HelpText="Next execution for this job.">Next Execution: </Label>
+            <Label For="next" HelpText="Next execution for this job." ResourceKey="NextExecution">Next Execution: </Label>
         </td>
         <td>
             <input id="next" class="form-control" @bind="@_nextExecution" />
         </td>
     </tr>
 </table>
-<button type="button" class="btn btn-success" @onclick="SaveJob">Save</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+<button type="button" class="btn btn-success" @onclick="SaveJob">@Localizer["Save"]</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
 
 @code {
     private int _jobId;
@@ -117,7 +118,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Job {JobId} {Error}", _jobId, ex.Message);
-            AddModuleMessage("Error Loading Job", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Job"], MessageType.Error);
         }
     }
 
@@ -158,7 +159,7 @@
             {
                 job.NextExecution = DateTime.Parse(_nextExecution);
             }
-            
+
             job.RetentionHistory = int.Parse(_retentionHistory);
 
             try
@@ -170,12 +171,12 @@
             catch (Exception ex)
             {
                 await logger.LogError(ex, "Error Udate Job {Job} {Error}", job, ex.Message);
-                AddModuleMessage("Error Updating Job", MessageType.Error);
+                AddModuleMessage(Localizer["Error Updating Job"], MessageType.Error);
             }
         }
         else
         {
-            AddModuleMessage("You Must Provide The Job Name, Type, Frequency, and Retention", MessageType.Warning);
+            AddModuleMessage(Localizer["You Must Provide The Job Name, Type, Frequency, and Retention"], MessageType.Warning);
         }
     }
 

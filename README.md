@@ -18,7 +18,7 @@ Please note that this project is owned by the .NET Foundation and is governed by
    
 - Install the latest edition (v16.8 or higher) of [Visual Studio 2019](https://visualstudio.microsoft.com/vs/) (Community, Professional, or Enterprise Editions) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you do not have a SQL Server installation available already and you wish to use LocalDB for development, you must also install the **.NET desktop development workload**.  
 
-- Download a release or Clone the Oqtane source code to your local system. Open the **Oqtane.sln** solution file and Build the solution. 
+- Download a release or Clone the Oqtane source code to your local system. Open the **Oqtane.sln** solution file and Build the solution. Make sure you specify Oqtane.Server as the Startup Project and then Run the application.
 
 **Using Version 1:**
 
@@ -26,7 +26,7 @@ Please note that this project is owned by the .NET Foundation and is governed by
    
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/vs) (Community, Professional, or Enterprise Editions) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you do not have a SQL Server installation available already and you wish to use LocalDB for development, you must also install the **.NET desktop development workload**.  
 
-- Download a release or Clone the Oqtane source code from a v1.x Tag to your local system. Open the **Oqtane.sln** solution file and Build the solution. 
+- Download a release or Clone the Oqtane source code from a v1.x Tag to your local system. Open the **Oqtane.sln** solution file and Build the solution. Make sure you specify Oqtane.Server as the Startup Project and then Run the application.
 
 **Installing an official release:**
 
@@ -48,6 +48,11 @@ There is a separate [Documentation repository](https://github.com/oqtane/oqtane.
 
 # Roadmap
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
+
+V.2.1.0 ( Q1 2021 )
+- [x] Complete Static Localization of Admin UI
+- [ ] Cross Platform Database Support ( ie. SQLite ) - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
+- [ ] EF Core Migrations for Database Installation/Upgrade - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
 
 V.2.0.0 ( released in conjuntion with .NET 5 on Nov 11, 2020 )
 - [x] Migration to .NET 5
@@ -77,9 +82,7 @@ V.1.0.0 ( released in conjunction with .NET Core 3.2 on May 19, 2020 )
 - [x] Dynamic CSS/Lazy Loading
 
 Future Consideration
-- [ ] DB Migrations for Database Installation/Upgrade
-- [ ] Support for other Databases ( ie. SQLite )
-- [ ] OAuth Support
+- [ ] Support For Additional Authentication Providers (ie. OAuth)
 - [ ] Site Configuration Migrations
 - [ ] Pub/Sub Event Framework
 - [ ] Admin UI Markup Optimization ( ie. replace tables with divs in forms )

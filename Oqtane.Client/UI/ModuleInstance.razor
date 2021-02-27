@@ -1,7 +1,8 @@
-﻿@namespace Oqtane.UI
+@namespace Oqtane.UI
+@inject IStringLocalizer<ModuleInstance> Localizer
 
 <ModuleMessage Message="@_message" Type="@_messagetype" />
-<CascadingValue Value="this">
+<CascadingValue Value="this" IsFixed="true">
     @DynamicComponent
 </CascadingValue>
 @if (_progressindicator)
@@ -28,17 +29,10 @@
     {
         DynamicComponent = builder =>
         {
-            string typename = ModuleState.ModuleType;
-            // check for core module actions component
-            if (Constants.DefaultModuleActions.Contains(PageState.Action))
-            {
-                typename = Constants.DefaultModuleActionsTemplate.Replace(Constants.ActionToken, PageState.Action);
-            }
-
             Type moduleType = null;
-            if (typename != null)
+            if (!string.IsNullOrEmpty(ModuleState.ModuleType))
             {
-                moduleType = Type.GetType(typename);
+                moduleType = Type.GetType(ModuleState.ModuleType);
 
                 if (moduleType != null)
                 {
@@ -48,13 +42,13 @@
                 else
                 {
                     // module does not exist with typename specified
-                    _message = "Module Does Not Have A Component Named " + Utilities.GetTypeNameLastSegment(typename, 0) + ".razor";
+                    _message = Localizer["Module Does Not Have A Component Named {0}.razor", Utilities.GetTypeNameLastSegment(ModuleState.ModuleType, 0)];
                     _messagetype = MessageType.Error;
                 }
             }
             else
             {
-                _message = "Something is wrong with moduletype";
+                _message = Localizer["Module Type Is Invalid For {0}", ModuleState.ModuleDefinitionName];
                 _messagetype = MessageType.Error;
             }
 

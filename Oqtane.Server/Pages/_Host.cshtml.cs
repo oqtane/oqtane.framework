@@ -5,13 +5,38 @@ using Oqtane.Modules;
 using Oqtane.Models;
 using Oqtane.Themes;
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using Microsoft.AspNetCore.Http.Extensions;
+using Oqtane.Repository;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Configuration;
 
 namespace Oqtane.Pages
 {
     public class HostModel : PageModel
     {
+        private IConfiguration _configuration;
+        private readonly SiteState _state;
+        private readonly IAliasRepository _aliases;
+        private readonly ILocalizationManager _localizationManager;
+        private readonly ILanguageRepository _languages;
+
+        public HostModel(
+            IConfiguration configuration,
+            SiteState state,
+            IAliasRepository aliases,
+            ILocalizationManager localizationManager,
+            ILanguageRepository languages)
+        {
+            _configuration = configuration;
+            _state = state;
+            _aliases = aliases;
+            _localizationManager = localizationManager;
+            _languages = languages;
+        }
+
         public string HeadResources = "";
         public string BodyResources = "";
 
@@ -23,6 +48,27 @@ namespace Oqtane.Pages
                 ProcessHostResources(assembly);
                 ProcessModuleControls(assembly);
                 ProcessThemeControls(assembly);
+            }
+
+            // if culture not specified and framework is installed 
+            if (HttpContext.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName] == null && !string.IsNullOrEmpty(_configuration.GetConnectionString("DefaultConnection")))
+            {
+                var uri = new Uri(Request.GetDisplayUrl());
+                var alias = _aliases.GetAlias(uri.Authority + "/" + uri.LocalPath.Substring(1));
+                _state.Alias = alias;
+
+                // set default language for site if the culture is not supported
+                var languages = _languages.GetLanguages(alias.SiteId);
+                if (languages.Any() && languages.All(l => l.Code != CultureInfo.CurrentUICulture.Name))
+                {
+                    var defaultLanguage = languages.Where(l => l.IsDefault).SingleOrDefault() ?? languages.First();
+
+                    SetLocalizationCookie(defaultLanguage.Code);
+                }
+                else
+                {
+                    SetLocalizationCookie(_localizationManager.GetDefaultCulture());
+                }
             }
         }
 
@@ -133,6 +179,13 @@ namespace Oqtane.Pages
             {
                 return "";
             }
+        }
+
+        private void SetLocalizationCookie(string culture)
+        {
+            HttpContext.Response.Cookies.Append(
+                CookieRequestCultureProvider.DefaultCookieName,
+                CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)));
         }
     }
 }

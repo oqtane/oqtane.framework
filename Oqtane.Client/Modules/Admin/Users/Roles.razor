@@ -1,19 +1,20 @@
-﻿@namespace Oqtane.Modules.Admin.Users
+@namespace Oqtane.Modules.Admin.Users
 @inherits ModuleBase
 @inject IRoleService RoleService
 @inject IUserService UserService
 @inject IUserRoleService UserRoleService
+@inject IStringLocalizer<Roles> Localizer
 
 @if (userroles == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>@Localizer["Loading..."]</em></p>
 }
 else
 {
     <table class="table table-borderless">
         <tr>
             <td>
-                <Label For="user" HelpText="The user you are assigning roles to">User: </Label>
+                <Label For="user" HelpText="The user you are assigning roles to" ResourceKey="User">User: </Label>
             </td>
             <td>
                 <input id="user" class="form-control" @bind="@name" disabled />
@@ -21,11 +22,11 @@ else
         </tr>
         <tr>
             <td>
-                <Label For="role" HelpText="Select a role">Role: </Label>
+                <Label For="role" HelpText="Select a role" ResourceKey="Role">Role: </Label>
             </td>
             <td>
                 <select id="role" class="form-control" @bind="@roleid">
-                    <option value="-1">&lt;Select Role&gt;</option>
+                    <option value="-1">&lt;@Localizer["Select Role"]&gt;</option>
                     @foreach (Role role in roles)
                     {
                         <option value="@(role.RoleId)">@role.Name</option>
@@ -35,7 +36,7 @@ else
         </tr>
         <tr>
             <td>
-                <Label For="effectiveDate" HelpText="The date that this role assignment is active">Effective Date: </Label>
+                <Label For="effectiveDate" HelpText="The date that this role assignment is active" ResourceKey="EffectiveDate">Effective Date: </Label>
             </td>
             <td>
                 <input id="effectiveDate" class="form-control" @bind="@effectivedate" />
@@ -43,30 +44,30 @@ else
         </tr>
         <tr>
             <td>
-                <Label For="expiryDate" HelpText="The date that this role assignment expires">Expiry Date: </Label>
+                <Label For="expiryDate" HelpText="The date that this role assignment expires" ResourceKey="ExpiryDate">Expiry Date: </Label>
             </td>
             <td>
                 <input id="expiryDate" class="form-control" @bind="@expirydate" />
             </td>
         </tr>
     </table>
-    <button type="button" class="btn btn-success" @onclick="SaveUserRole">Save</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <button type="button" class="btn btn-success" @onclick="SaveUserRole">@Localizer["Save"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
 
     <hr class="app-rule" />
     <p align="center">
         <Pager Items="@userroles">
             <Header>
-                <th>Roles</th>
+                <th>@Localizer["Roles"]</th>
                 <th>&nbsp;</th>
             </Header>
             <Row>
                 <td>@context.Role.Name</td>
                 <td>
                     @if (context.Role.Name != RoleNames.Registered)
-                        {
-                        <button type="button" class="btn btn-danger" @onclick=@(async () => await DeleteUserRole(context.UserRoleId))>Delete</button>
-                        }
+                     {
+                        <button type="button" class="btn btn-danger" @onclick=@(async () => await DeleteUserRole(context.UserRoleId))>@Localizer["Delete"]</button>
+                     }
                 </td>
             </Row>
         </Pager>
@@ -97,7 +98,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Roles {Error}", ex.Message);
-            AddModuleMessage("Error Loading Roles", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Roles"], MessageType.Error);
         }
     }
 
@@ -111,7 +112,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading User Roles {UserId} {Error}", userid, ex.Message);
-            AddModuleMessage("Error Loading User Roles", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading User Roles"], MessageType.Error);
         }
     }
 
@@ -172,17 +173,17 @@ else
 
                 await GetUserRoles();
                 await logger.LogInformation("User Assigned To Role {UserRole}", userrole);
-                AddModuleMessage("User Assigned To Role", MessageType.Success);
+                AddModuleMessage(Localizer["User Assigned To Role"], MessageType.Success);
             }
             else
             {
-                AddModuleMessage("You Must Select A Role", MessageType.Warning);
+                AddModuleMessage(Localizer["You Must Select A Role"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving User Roles {UserId} {Error}", userid, ex.Message);
-            AddModuleMessage("Error Saving User Roles", MessageType.Error);
+            AddModuleMessage(Localizer["Error Saving User Roles"], MessageType.Error);
         }
     }
 
@@ -193,12 +194,12 @@ else
             await UserRoleService.DeleteUserRoleAsync(UserRoleId);
             await GetUserRoles();
             await logger.LogInformation("User Removed From Role {UserRoleId}", UserRoleId);
-            AddModuleMessage("User Removed From Role", MessageType.Success);
+            AddModuleMessage(Localizer["User Removed From Role"], MessageType.Success);
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Removing User From Role {UserRoleId} {Error}", UserRoleId, ex.Message);
-            AddModuleMessage("Error Removing User From Role", MessageType.Error);
+            AddModuleMessage(Localizer["Error Removing User From Role"], MessageType.Error);
         }
     }
 }

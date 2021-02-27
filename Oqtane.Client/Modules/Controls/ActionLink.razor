@@ -91,15 +91,15 @@
 
         if (!string.IsNullOrEmpty(IconName))
         {
-            _iconSpan = $"<span class=\"oi oi-{IconName}\"></span>{(IconOnly ? "" : "&nbsp")}";
+            if (!IconName.Contains(" "))
+            {
+                IconName = "oi oi-" + IconName;
+            }
+            _iconSpan = $"<span class=\"{IconName}\"></span>{(IconOnly ? "" : "&nbsp")}";
 
         }
 
-        if (IsLocalizable)
-        {
-            _text = Localize(nameof(Text));
-        }
-
+        _text = Localize(nameof(Text), _text);
         _url = EditUrl(Action, _parameters);
         _authorized = IsAuthorized();
     }

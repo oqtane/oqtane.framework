@@ -3,38 +3,33 @@
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject IServiceProvider ServiceProvider
+@inject IStringLocalizer<Index> Localizer
 
 @if (_message != string.Empty)
 {
     <ModuleMessage Message="@_message" Type="@_type" />
 }
 <AuthorizeView>
-    <Authorizing>
-        <text>...</text>
-    </Authorizing>
-    <Authorized>
-        <ModuleMessage Message="You Are Already Logged In" Type="MessageType.Info" />
-    </Authorized>
     <NotAuthorized>
         <div class="container Oqtane-Modules-Admin-Login">
             <div class="form-group">
-                <label for="Username" class="control-label">Username: </label>
+                <label for="Username" class="control-label">@Localizer["Username:"] </label>
                 <input type="text" name="Username" class="form-control username" placeholder="Username" @bind="@_username" id="Username" />
             </div>
             <div class="form-group">
-                <label for="Password" class="control-label">Password: </label>
+                <label for="Password" class="control-label">@Localizer["Password:"] </label>
                 <input type="password" name="Password" class="form-control password" placeholder="Password" @bind="@_password" id="Password" />
             </div>
             <div class="form-group">
                 <div class="form-check form-check-inline">
-                    <label class="form-check-label" for="Remember">Remember Me?</label>&nbsp;
+                    <label class="form-check-label" for="Remember">@Localizer["Remember Me?"]</label>&nbsp;
                     <input type="checkbox" class="form-check-input" name="Remember" @bind="@_remember" id="Remember" />
                 </div>
             </div>
-            <button type="button" class="btn btn-primary" @onclick="Login">Login</button>
-            <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+            <button type="button" class="btn btn-primary" @onclick="Login">@Localizer["Login"]</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">@Localizer["Cancel"]</button>
             <br /><br />
-            <button type="button" class="btn btn-secondary" @onclick="Forgot">Forgot Password</button>
+            <button type="button" class="btn btn-secondary" @onclick="Forgot">@Localizer["Forgot Password"]</button>
         </div>
     </NotAuthorized>
 </AuthorizeView>
@@ -75,11 +70,11 @@
 
             if (user != null)
             {
-                _message = "User Account Verified Successfully. You Can Now Login With Your Username And Password Below.";
+                _message = Localizer["User Account Verified Successfully. You Can Now Login With Your Username And Password Below."];
             }
             else
             {
-                _message = "User Account Could Not Be Verified. Please Contact Your Administrator For Further Instructions.";
+                _message = Localizer["User Account Could Not Be Verified. Please Contact Your Administrator For Further Instructions."];
                 _type = MessageType.Warning;
             }
         }
@@ -87,7 +82,7 @@
 
     private async Task Login()
     {
-        if (PageState.Runtime == Runtime.Server)
+        if (PageState.Runtime == Oqtane.Shared.Runtime.Server)
         {
             // server-side Blazor
             var user = new User();
@@ -108,7 +103,7 @@
             else
             {
                 await logger.LogInformation("Login Failed For Username {Username}", _username);
-                AddModuleMessage("Login Failed. Please Remember That Passwords Are Case Sensitive And User Accounts Require Email Verification When They Initially Created.", MessageType.Error);
+                AddModuleMessage(Localizer["Login Failed. Please Remember That Passwords Are Case Sensitive And User Accounts Require Email Verification When They Initially Created."], MessageType.Error);
             }
         }
         else
@@ -129,7 +124,7 @@
             else
             {
                 await logger.LogInformation("Login Failed For Username {Username}", _username);
-                AddModuleMessage("Login Failed. Please Remember That Passwords Are Case Sensitive And User Accounts Require Verification When They Are Initially Created So You May Wish To Check Your Email.", MessageType.Error);
+                AddModuleMessage(Localizer["Login Failed. Please Remember That Passwords Are Case Sensitive And User Accounts Require Verification When They Are Initially Created So You May Wish To Check Your Email."], MessageType.Error);
             }
         }
     }

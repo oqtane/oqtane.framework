@@ -17,6 +17,7 @@ using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Microsoft.AspNetCore.Routing.Constraints;
+using Oqtane.Extensions;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
@@ -65,7 +66,7 @@ namespace Oqtane.Controllers
                     {
                         foreach (string file in Directory.GetFiles(folder))
                         {
-                            files.Add(new Models.File { Name = Path.GetFileName(file), Extension = Path.GetExtension(file)?.Replace(".", "") });
+                            files.Add(new Models.File {Name = Path.GetFileName(file), Extension = Path.GetExtension(file)?.Replace(".", "")});
                         }
                     }
                 }
@@ -141,13 +142,15 @@ namespace Oqtane.Controllers
                 Models.File _file = _files.GetFile(id, false);
                 if (_file.Name != file.Name || _file.FolderId != file.FolderId)
                 {
-                    string folderpath = GetFolderPath(file.Folder);
+                    string folderpath = _folders.GetFolderPath(file.Folder);
                     if (!Directory.Exists(folderpath))
                     {
                         Directory.CreateDirectory(folderpath);
                     }
-                    System.IO.File.Move(Path.Combine(GetFolderPath(_file.Folder), _file.Name), Path.Combine(folderpath, file.Name));
+
+                    System.IO.File.Move(_files.GetFilePath(_file), Path.Combine(folderpath, file.Name));
                 }
+
                 file.Extension = Path.GetExtension(file.Name).ToLower().Replace(".", "");
                 file = _files.UpdateFile(file);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "File Updated {File}", file);
@@ -174,7 +177,7 @@ namespace Oqtane.Controllers
                 {
                     _files.DeleteFile(id);
 
-                    string filepath = Path.Combine(GetFolderPath(file.Folder), file.Name);
+                    string filepath = _files.GetFilePath(file);
                     if (System.IO.File.Exists(filepath))
                     {
                         System.IO.File.Delete(filepath);
@@ -210,7 +213,7 @@ namespace Oqtane.Controllers
                 return file;
             }
 
-            string folderPath = GetFolderPath(folder);
+            string folderPath = _folders.GetFolderPath(folder);
             CreateDirectory(folderPath);
 
             string filename = url.Substring(url.LastIndexOf("/", StringComparison.Ordinal) + 1);
@@ -220,7 +223,7 @@ namespace Oqtane.Controllers
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Create,
                     "File Could Not Be Downloaded From Url Due To Its File Extension {Url}", url);
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
+                HttpContext.Response.StatusCode = (int) HttpStatusCode.Conflict;
                 return file;
             }
 
@@ -228,7 +231,7 @@ namespace Oqtane.Controllers
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Create,
                     $"File Could Not Be Downloaded From Url Due To Its File Name Not Allowed {url}");
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
+                HttpContext.Response.StatusCode = (int) HttpStatusCode.Conflict;
                 return file;
             }
 
@@ -265,7 +268,7 @@ namespace Oqtane.Controllers
 
             if (!file.FileName.IsPathOrFileValid())
             {
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
+                HttpContext.Response.StatusCode = (int) HttpStatusCode.Conflict;
                 return;
             }
 
@@ -277,7 +280,7 @@ namespace Oqtane.Controllers
                 if (virtualFolder != null &&
                     _userPermissions.IsAuthorized(User, PermissionNames.Edit, virtualFolder.Permissions))
                 {
-                    folderPath = GetFolderPath(virtualFolder);
+                    folderPath = _folders.GetFolderPath(virtualFolder);
                 }
             }
             else
@@ -288,7 +291,7 @@ namespace Oqtane.Controllers
                 }
             }
 
-            if (folderPath != "")
+            if (!String.IsNullOrEmpty(folderPath))
             {
                 CreateDirectory(folderPath);
                 using (var stream = new FileStream(Path.Combine(folderPath, file.FileName), FileMode.Create))
@@ -314,9 +317,9 @@ namespace Oqtane.Controllers
         {
             string merged = "";
 
-            // parse the filename which is in the format of filename.ext.part_x_y 
+            // parse the filename which is in the format of filename.ext.part_x_y
             string token = ".part_";
-            string parts = Path.GetExtension(filename)?.Replace(token, ""); // returns "x_y"    
+            string parts = Path.GetExtension(filename)?.Replace(token, ""); // returns "x_y"
             int totalparts = int.Parse(parts?.Substring(parts.IndexOf("_") + 1));
 
             filename = Path.GetFileNameWithoutExtension(filename); // base filename
@@ -431,54 +434,70 @@ namespace Oqtane.Controllers
             return canaccess;
         }
 
+
+        /// <summary>
+        /// Get file with header
+        /// Content-Disposition: inline
+        /// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition
+        /// </summary>
+        /// <param name="id">File Id from Oqtane filesystem </param>
+        /// <returns>file content</returns>
+
         // GET api/<controller>/download/5
         [HttpGet("download/{id}")]
-        public IActionResult Download(int id)
+        public IActionResult DownloadInline(int id)
         {
-            string errorpath = Path.Combine(GetFolderPath("images"), "error.png");
-            Models.File file = _files.GetFile(id);
+            return Download(id, false);
+        }
+        /// <summary>
+        /// Get file with header
+        /// Content-Disposition: attachment; filename="filename.jpg"
+        /// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition
+        ///
+        /// </summary>
+        /// <param name="id">File Id from Oqtane filesystem</param>
+        /// <returns></returns>
+
+        // GET api/<controller>/download/5/attach
+        [HttpGet("download/{id}/attach")]
+        public IActionResult DownloadAttachment(int id)
+        {
+            return Download(id, true);
+        }
+
+        private IActionResult Download(int id, bool asAttachment)
+        {
+            var file = _files.GetFile(id);
             if (file != null)
             {
                 if (_userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.Permissions))
                 {
-                    string filepath = Path.Combine(GetFolderPath(file.Folder), file.Name);
+                    var filepath = _files.GetFilePath(file);
                     if (System.IO.File.Exists(filepath))
                     {
-                        var stream = new FileStream(filepath, FileMode.Open);
-                        return File(stream, "application/octet-stream", file.Name);
+                        var result = asAttachment
+                            ? PhysicalFile(filepath, file.GetMimeType(), file.Name)
+                            : PhysicalFile(filepath, file.GetMimeType());
+                        return result;
                     }
-                    else
-                    {
-                        _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {FileId} {FilePath}", id, filepath);
-                        HttpContext.Response.StatusCode = 404;
-                        if (System.IO.File.Exists(errorpath))
-                        {
-                            var stream = new FileStream(errorpath, FileMode.Open);
-                            return File(stream, "application/octet-stream", file.Name);
-                        }
-                    }
+
+                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {FileId} {FilePath}", id, filepath);
+                    HttpContext.Response.StatusCode = 404;
                 }
                 else
                 {
                     _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access File {FileId}", id);
                     HttpContext.Response.StatusCode = 401;
-                    var stream = new FileStream(errorpath, FileMode.Open);
-                    return File(stream, "application/octet-stream", file.Name);
                 }
             }
             else
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Not Found {FileId}", id);
                 HttpContext.Response.StatusCode = 404;
-                var stream = new FileStream(errorpath, FileMode.Open);
-                return File(stream, "application/octet-stream", file.Name);
             }
-            return null;
-        }
 
-        private string GetFolderPath(Folder folder)
-        {
-            return Utilities.PathCombine(_environment.ContentRootPath, "Content", "Tenants", _tenants.GetTenant().TenantId.ToString(), "Sites", folder.SiteId.ToString(), folder.Path);
+            string errorPath = Path.Combine(GetFolderPath("images"), "error.png");
+            return System.IO.File.Exists(errorPath) ? PhysicalFile(errorPath, MimeUtilities.GetMimeType(errorPath)) : null;
         }
 
         private string GetFolderPath(string folder)
@@ -491,7 +510,7 @@ namespace Oqtane.Controllers
             if (!Directory.Exists(folderpath))
             {
                 string path = "";
-                var separators = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
+                var separators = new char[] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar};
                 string[] folders = folderpath.Split(separators, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string folder in folders)
                 {
@@ -512,7 +531,7 @@ namespace Oqtane.Controllers
 
             FileInfo fileinfo = new FileInfo(filepath);
             file.Extension = fileinfo.Extension.ToLower().Replace(".", "");
-            file.Size = (int)fileinfo.Length;
+            file.Size = (int) fileinfo.Length;
             file.ImageHeight = 0;
             file.ImageWidth = 0;
 

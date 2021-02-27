@@ -1,15 +1,16 @@
-﻿@namespace Oqtane.Modules.Admin.Files
+@namespace Oqtane.Modules.Admin.Files
 @inherits ModuleBase
 @inject IFileService FileService
 @inject IFolderService FolderService
 @inject NavigationManager NavigationManager
+@inject IStringLocalizer<Details> Localizer
 
 @if (_folders != null)
 {
     <table class="table table-borderless">
         <tr>
             <td>
-                <Label for="name" HelpText="The name of the file">Name: </Label>
+                <Label for="name" HelpText="The name of the file" ResourceKey="Name">Name: </Label>
             </td>
             <td>
                 <input id="name" class="form-control" @bind="@_name" />
@@ -17,7 +18,7 @@
         </tr>
         <tr>
             <td>
-                <Label For="parent" HelpText="The folder where the file is located">Folder: </Label>
+                <Label For="parent" HelpText="The folder where the file is located" ResourceKey="Folder">Folder: </Label>
             </td>
             <td>
                 <select id="parent" class="form-control" @bind="@_folderId">
@@ -30,15 +31,15 @@
         </tr>
         <tr>
             <td>
-                <Label for="size" HelpText="The size of the file (in bytes)">Size: </Label>
+                <Label for="size" HelpText="The size of the file (in bytes)" ResourceKey="Size">Size: </Label>
             </td>
             <td>
                 <input id="size" class="form-control" @bind="@_size" readonly />
             </td>
         </tr>
     </table>
-    <button type="button" class="btn btn-success" @onclick="SaveFile">Save</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <button type="button" class="btn btn-success" @onclick="SaveFile">@Localizer["Save"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
     <br />
     <br />
     <AuditInfo CreatedBy="@_createdBy" CreatedOn="@_createdOn" ModifiedBy="@_modifiedBy" ModifiedOn="@_modifiedOn"></AuditInfo>
@@ -80,7 +81,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading File {FileId} {Error}", _fileId, ex.Message);
-            AddModuleMessage("Error Loading File", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading File"], MessageType.Error);
         }
     }
 
@@ -99,13 +100,13 @@
             }
             else
             {
-                AddModuleMessage("File Name Not Valid", MessageType.Warning);
+                AddModuleMessage(Localizer["File Name Not Valid"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving File {FileId} {Error}", _fileId, ex.Message);
-            AddModuleMessage("Error Saving File", MessageType.Error);
+            AddModuleMessage(Localizer["Error Saving File"], MessageType.Error);
         }
     }
 }

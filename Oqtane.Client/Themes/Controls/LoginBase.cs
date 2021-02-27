@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -22,14 +22,15 @@ namespace Oqtane.Themes.Controls
             {
                 returnurl += "/" + PageState.Page.Path;
             }
-            NavigationManager.NavigateTo(NavigateUrl("login", "returnurl=" + returnurl));
+            NavigationManager.NavigateTo(NavigateUrl("login", "?returnurl=" + returnurl));
         }
 
         protected async Task LogoutUser()
         {
             await UserService.LogoutUserAsync(PageState.User);
+            PageState.User = null;
 
-            if (PageState.Runtime == Runtime.Server)
+            if (PageState.Runtime == Oqtane.Shared.Runtime.Server)
             {
                 // server-side Blazor
                 var interop = new Interop(jsRuntime);

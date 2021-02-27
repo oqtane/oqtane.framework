@@ -1,41 +1,42 @@
-﻿@namespace Oqtane.Modules.Admin.Logs
+@namespace Oqtane.Modules.Admin.Logs
 @inherits ModuleBase
 @inject ILogService LogService
+@inject IStringLocalizer<Index> Localizer 
 
 @if (_logs == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>@Localizer["Loading..."]</em></p>
 }
 else
 {
     <table class="table table-borderless">
         <tr>
             <td>
-                <label>Level: </label>
+                <label>@Localizer["Level:"] </label>
                 <select class="form-control" @onchange="(e => LevelChanged(e))">
-                    <option value="-">&lt;All Levels&gt;</option>
-                    <option value="Trace">Trace</option>
-                    <option value="Debug">Debug</option>
-                    <option value="Information">Information</option>
-                    <option value="Warning">Warning</option>
-                    <option value="Error">Error</option>
-                    <option value="Critical">Critical</option>
+                    <option value="-">&lt;@Localizer["All Levels"]&gt;</option>
+                    <option value="Trace">@Localizer["Trace"]</option>
+                    <option value="Debug">@Localizer["Debug"]</option>
+                    <option value="Information">@Localizer["Information"]</option>
+                    <option value="Warning">@Localizer["Warning"]</option>
+                    <option value="Error">@Localizer["Error"]</option>
+                    <option value="Critical">@Localizer["Critical"]</option>
                 </select>
             </td>
             <td>
-                <label>Function: </label>
+                <label>@Localizer["Function:"] </label>
                 <select class="form-control" @onchange="(e => FunctionChanged(e))">
-                    <option value="-">&lt;All Functions&gt;</option>
-                    <option value="Create">Create</option>
-                    <option value="Read">Read</option>
-                    <option value="Update">Update</option>
-                    <option value="Delete">Delete</option>
-                    <option value="Security">Security</option>
-                    <option value="Other">Other</option>
+                    <option value="-">&lt;@Localizer["All Functions"]&gt;</option>
+                    <option value="Create">@Localizer["Create"]</option>
+                    <option value="Read">@Localizer["Read"]</option>
+                    <option value="Update">@Localizer["Update"]</option>
+                    <option value="Delete">@Localizer["Delete"]</option>
+                    <option value="Security">@Localizer["Security"]</option>
+                    <option value="Other">@Localizer["Other"]</option>
                 </select>
             </td>
             <td>
-                <label>Rows: </label>
+                <label>@Localizer["Rows:"] </label>
                 <select class="form-control" @onchange="(e => RowsChanged(e))">
                     <option value="10">10</option>
                     <option value="50">50</option>
@@ -50,13 +51,13 @@ else
         <Pager Items="@_logs">
             <Header>
                 <th style="width: 1px;">&nbsp;</th>
-                <th>Date</th>
-                <th>Level</th>
-                <th>Feature</th>
-                <th>Function</th>
+                <th>@Localizer["Date"]</th>
+                <th>@Localizer["Level"]</th>
+                <th>@Localizer["Feature"]</th>
+                <th>@Localizer["Function"]</th>
             </Header>
             <Row>
-                <td class="@GetClass(context.Function)"><ActionLink Action="Detail" Parameters="@($"id=" + context.LogId.ToString())" /></td>
+                <td class="@GetClass(context.Function)"><ActionLink Action="Detail" Parameters="@($"id=" + context.LogId.ToString())" ResourceKey="LogDetails" /></td>
                 <td class="@GetClass(context.Function)">@context.LogDate</td>
                 <td class="@GetClass(context.Function)">@context.Level</td>
                 <td class="@GetClass(context.Function)">@context.Feature</td>
@@ -66,7 +67,7 @@ else
     }
     else
     {
-        <p><em>No Logs Match The Criteria Specified</em></p>
+        <p><em>@Localizer["No Logs Match The Criteria Specified"]</em></p>
     }
 }
 
@@ -87,7 +88,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Logs {Error}", ex.Message);
-            AddModuleMessage("Error Loading Logs", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Logs"], MessageType.Error);
         }
     }
 
@@ -102,7 +103,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Logs {Error}", ex.Message);
-            AddModuleMessage("Error Loading Logs", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Logs"], MessageType.Error);
         }
     }
 
@@ -117,7 +118,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Logs {Error}", ex.Message);
-            AddModuleMessage("Error Loading Logs", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Logs"], MessageType.Error);
         }
     }
 
@@ -133,7 +134,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Logs {Error}", ex.Message);
-            AddModuleMessage("Error Loading Logs", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Logs"], MessageType.Error);
         }
     }
 

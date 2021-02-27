@@ -3,6 +3,43 @@
 @typeparam TableItem
 
 <p>
+    @if (Toolbar == "Top")
+    {
+        <div class="mx-auto text-center">
+            @if (_endPage > 1)
+            {
+                <button class="btn btn-secondary mr-1" @onclick=@(async () => UpdateList(1))><span class="oi oi-media-step-backward" title="first" aria-hidden="true"></span></button>
+            }
+            @if (_page > _maxPages)
+            {
+                <button class="btn btn-secondary mr-1" @onclick=@(async () => SetPagerSize("back"))><span class="oi oi-media-skip-backward" title="back" aria-hidden="true"></span></button>
+            }
+            @if (_endPage > 1)
+            {
+                <button class="btn btn-secondary mr-1" @onclick=@(async () => NavigateToPage("previous"))><span class="oi oi-chevron-left" title="previous" aria-hidden="true"></span></button>
+                @for (int i = _startPage; i <= _endPage; i++)
+                {
+                    var pager = i;
+                    <button class="btn @((pager == _page) ? "btn-primary" : "btn-link")" @onclick=@(async () => UpdateList(pager))>
+                        @pager
+                    </button>
+                }
+                <button class="btn btn-secondary mr-1" @onclick=@(async () => NavigateToPage("next"))><span class="oi oi-chevron-right" title="next" aria-hidden="true"></span></button>
+            }
+            @if (_endPage < _pages)
+            {
+                <button class="btn btn-secondary mr-1" @onclick=@(async () => SetPagerSize("forward"))><span class="oi oi-media-skip-forward" title="forward" aria-hidden="true"></span></button>
+            }
+            @if (_endPage > 1)
+            {
+                <button class="btn btn-secondary mr-1" @onclick=@(async () => UpdateList(_pages))><span class="oi oi-media-step-forward" title="last" aria-hidden="true"></span></button>
+            }
+            @if (_endPage > 1)
+            {
+                <span class="btn btn-link disabled">Page @_page of @_pages</span>
+            }
+        </div>
+    }
     @if (Format == "Table")
     {
         <table class="@Class">
@@ -35,32 +72,43 @@
             }
         </div>
     }
-    <div class="mx-auto text-center">
-        @if (_page > _maxPages)
-        {
-            <button class="btn btn-secondary" @onclick=@(async () => SetPagerSize("back"))><span class="oi oi-media-skip-backward" title="back" aria-hidden="true"></span></button>
-        }
-        @if (_endPage > 1)
-        {
-            <button class="btn btn-secondary" @onclick=@(async () => NavigateToPage("previous"))><span class="oi oi-chevron-left" title="previous" aria-hidden="true"></span></button>
-            @for (int i = _startPage; i <= _endPage; i++)
+    @if (Toolbar == "Bottom")
+    {
+        <div class="mx-auto text-center">
+            @if (_endPage > 1)
             {
-                var pager = i;
-                <button class="btn @((pager == _page) ? "btn-primary" : "btn-link")" @onclick=@(async () => UpdateList(pager))>
-                    @pager
-                </button>
+                <button class="btn btn-secondary mr-1" @onclick=@(async () => UpdateList(1))><span class="oi oi-media-step-backward" title="first" aria-hidden="true"></span></button>
             }
-            <button class="btn btn-secondary" @onclick=@(async () => NavigateToPage("next"))><span class="oi oi-chevron-right" title="next" aria-hidden="true"></span></button>
-        }
-        @if (_endPage < _pages)
-        {
-            <button class="btn btn-secondary" @onclick=@(async () => SetPagerSize("forward"))><span class="oi oi-media-skip-forward" title="forward" aria-hidden="true"></span></button>
-        }
-        @if (_endPage > 1)
-        {
-            <span class="btn btn-link disabled">Page @_page of @_pages</span>
-        }
-    </div>
+            @if (_page > _maxPages)
+            {
+                <button class="btn btn-secondary mr-1" @onclick=@(async () => SetPagerSize("back"))><span class="oi oi-media-skip-backward" title="back" aria-hidden="true"></span></button>
+            }
+            @if (_endPage > 1)
+            {
+                <button class="btn btn-secondary mr-1" @onclick=@(async () => NavigateToPage("previous"))><span class="oi oi-chevron-left" title="previous" aria-hidden="true"></span></button>
+                @for (int i = _startPage; i <= _endPage; i++)
+                {
+                    var pager = i;
+                    <button class="btn @((pager == _page) ? "btn-primary" : "btn-link")" @onclick=@(async () => UpdateList(pager))>
+                        @pager
+                    </button>
+                }
+                <button class="btn btn-secondary mr-1" @onclick=@(async () => NavigateToPage("next"))><span class="oi oi-chevron-right" title="next" aria-hidden="true"></span></button>
+            }
+            @if (_endPage < _pages)
+            {
+                <button class="btn btn-secondary mr-1" @onclick=@(async () => SetPagerSize("forward"))><span class="oi oi-media-skip-forward" title="forward" aria-hidden="true"></span></button>
+            }
+            @if (_endPage > 1)
+            {
+                <button class="btn btn-secondary mr-1" @onclick=@(async () => UpdateList(_pages))><span class="oi oi-media-step-forward" title="last" aria-hidden="true"></span></button>
+            }
+            @if (_endPage > 1)
+            {
+                <span class="btn btn-link disabled">Page @_page of @_pages</span>
+            }
+        </div>
+    }
 </p>
 
 @code {
@@ -73,6 +121,9 @@
 
     [Parameter]
     public string Format { get; set; }
+
+    [Parameter]
+    public string Toolbar { get; set; }
 
     [Parameter]
     public RenderFragment Header { get; set; }
@@ -102,6 +153,11 @@
         if (string.IsNullOrEmpty(Format))
         {
             Format = "Table";
+        }
+
+        if (string.IsNullOrEmpty(Toolbar))
+        {
+            Toolbar = "Top";
         }
 
         if (string.IsNullOrEmpty(Class))

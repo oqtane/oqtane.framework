@@ -1,14 +1,15 @@
-﻿@namespace Oqtane.Modules.Admin.ModuleDefinitions
+@namespace Oqtane.Modules.Admin.ModuleDefinitions
 @inherits ModuleBase
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject NavigationManager NavigationManager
+@inject IStringLocalizer<Edit> Localizer
 
 <TabStrip>
-    <TabPanel Name="Definition">
+    <TabPanel Name="Definition" ResourceKey="Definition">
         <table class="table table-borderless">
             <tr>
                 <td>
-                    <Label For="name" HelpText="The name of the module">Name: </Label>
+                    <Label For="name" HelpText="The name of the module" ResourceKey="Name">Name: </Label>
                 </td>
                 <td>
                     <input id="name" class="form-control" @bind="@_name" />
@@ -16,7 +17,7 @@
             </tr>
             <tr>
                 <td>
-                    <Label For="description" HelpText="The description of the module">Description: </Label>
+                    <Label For="description" HelpText="The description of the module" ResourceKey="Description">Description: </Label>
                 </td>
                 <td>
                     <textarea id="description" class="form-control" @bind="@_description" rows="2"></textarea>
@@ -24,18 +25,18 @@
             </tr>
             <tr>
                 <td>
-                    <Label For="categories" HelpText="Comma delimited list of module categories">Categories: </Label>
+                    <Label For="categories" HelpText="Comma delimited list of module categories" ResourceKey="Categories">Categories: </Label>
                 </td>
                 <td>
                     <input id="categories" class="form-control" @bind="@_categories" />
                 </td>
             </tr>
         </table>
-        <Section Name="Information">
+        <Section Name="Information" ResourceKey="Information">
             <table class="table table-borderless">
                 <tr>
                     <td>
-                        <Label For="moduledefinitionname" HelpText="The internal name of the module">Internal Name: </Label>
+                        <Label For="moduledefinitionname" HelpText="The internal name of the module" ResourceKey="InternalName">Internal Name: </Label>
                     </td>
                     <td>
                         <input id="moduledefinitionname" class="form-control" @bind="@_moduledefinitionname" disabled />
@@ -43,7 +44,7 @@
                 </tr>
                 <tr>
                     <td>
-                        <Label For="version" HelpText="The version of the module">Version: </Label>
+                        <Label For="version" HelpText="The version of the module" ResourceKey="Version">Version: </Label>
                     </td>
                     <td>
                         <input id="version" class="form-control" @bind="@_version" disabled />
@@ -51,7 +52,7 @@
                 </tr>
                 <tr>
                     <td>
-                        <Label For="owner" HelpText="The owner or creator of the module">Owner: </Label>
+                        <Label For="owner" HelpText="The owner or creator of the module" ResourceKey="Owner">Owner: </Label>
                     </td>
                     <td>
                         <input id="owner" class="form-control" @bind="@_owner" disabled />
@@ -59,7 +60,7 @@
                 </tr>
                 <tr>
                     <td>
-                        <Label For="url" HelpText="The reference url of the module">Reference Url: </Label>
+                        <Label For="url" HelpText="The reference url of the module" ResourceKey="ReferenceUrl">Reference Url: </Label>
                     </td>
                     <td>
                         <input id="url" class="form-control" @bind="@_url" disabled />
@@ -67,7 +68,7 @@
                 </tr>
                 <tr>
                     <td>
-                        <Label For="contact" HelpText="The contact for the module">Contact: </Label>
+                        <Label For="contact" HelpText="The contact for the module" ResourceKey="Contact">Contact: </Label>
                     </td>
                     <td>
                         <input id="contact" class="form-control" @bind="@_contact" disabled />
@@ -75,7 +76,7 @@
                 </tr>
                 <tr>
                     <td>
-                        <Label For="license" HelpText="The module license terms">License: </Label>
+                        <Label For="license" HelpText="The module license terms" ResourceKey="License">License: </Label>
                     </td>
                     <td>
                         <textarea id="license" class="form-control" @bind="@_license" rows="5" disabled></textarea>
@@ -83,7 +84,7 @@
                 </tr>
                 <tr>
                     <td>
-                        <Label For="runtimes" HelpText="The Blazor runtimes which this module supports">Runtimes: </Label>
+                        <Label For="runtimes" HelpText="The Blazor runtimes which this module supports" ResourceKey="Runtimes">Runtimes: </Label>
                     </td>
                     <td>
                         <input id="runtimes" class="form-control" @bind="@_runtimes" disabled />
@@ -92,7 +93,7 @@
             </table>
         </Section>
     </TabPanel>
-    <TabPanel Name="Permissions">
+    <TabPanel Name="Permissions" ResourceKey="Permissions">
         <table class="table table-borderless">
             <tr>
                 <td>
@@ -102,9 +103,10 @@
         </table>
     </TabPanel>
 </TabStrip>
-<button type="button" class="btn btn-success" @onclick="SaveModuleDefinition">Save</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
-<br /><br />
+<button type="button" class="btn btn-success" @onclick="SaveModuleDefinition">@Localizer["Save"]</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+<br />
+<br />
 <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon"></AuditInfo>
 
 @code {
@@ -159,7 +161,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading ModuleDefinition {ModuleDefinitionId} {Error}", _moduleDefinitionId, ex.Message);
-            AddModuleMessage("Error Loading Module", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Module"], MessageType.Error);
         }
     }
 
@@ -188,7 +190,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving ModuleDefinition {ModuleDefinitionId} {Error}", _moduleDefinitionId, ex.Message);
-            AddModuleMessage("Error Saving Module", MessageType.Error);
+            AddModuleMessage(Localizer["Error Saving Module"], MessageType.Error);
         }
     }
 }

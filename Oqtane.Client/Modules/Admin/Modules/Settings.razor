@@ -1,18 +1,20 @@
-﻿@namespace Oqtane.Modules.Admin.Modules
+@namespace Oqtane.Modules.Admin.Modules
+@using Oqtane.Interfaces
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IThemeService ThemeService
 @inject IModuleService ModuleService
 @inject IPageModuleService PageModuleService
+@inject IStringLocalizer<Settings> Localizer
 
 <TabStrip>
-    <TabPanel Name="Settings" Heading="Module Settings">
+    <TabPanel Name="Settings" Heading="Module Settings" ResourceKey="ModuleSettings">
         @if (_containers != null)
         {
             <table class="table table-borderless">
                 <tr>
                     <td>
-                        <Label For="title" HelpText="Enter the title of the module">Title: </Label>
+                        <Label For="title" HelpText="Enter the title of the module" ResourceKey="Title">Title: </Label>
                     </td>
                     <td>
                         <input id="title" type="text" name="Title" class="form-control" @bind="@_title" />
@@ -20,11 +22,11 @@
                 </tr>
                 <tr>
                     <td>
-                        <Label For="container" HelpText="Select the module's container">Container: </Label>
+                        <Label For="container" HelpText="Select the module's container" ResourceKey="Container">Container: </Label>
                     </td>
                     <td>
                         <select id="container" class="form-control" @bind="@_containerType">
-                            <option value="-">&lt;Inherit From Page Or Site&gt;</option>
+                            <option value="-">&lt;@Localizer["Inherit From Page Or Site"]&gt;</option>
                             @foreach (var container in _containers)
                             {
                                 <option value="@container.TypeName">@container.Name</option>
@@ -34,18 +36,18 @@
                 </tr>
                 <tr>
                     <td>
-                        <Label For="allpages" HelpText="Indicate if this module should be displayed on all pages">Display On All Pages? </Label>
+                        <Label For="allpages" HelpText="Indicate if this module should be displayed on all pages" ResourceKey="DisplayOnAllPages">Display On All Pages? </Label>
                     </td>
                     <td>
                         <select id="allpages" class="form-control" @bind="@_allPages">
-                            <option value="True">Yes</option>
-                            <option value="False">No</option>
+                            <option value="True">@Localizer["Yes"]</option>
+                            <option value="False">@Localizer["No"]</option>
                         </select>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <Label For="page" HelpText="The page that the module is on">Page: </Label>
+                        <Label For="page" HelpText="The page that the module is on" ResourceKey="Page">Page: </Label>
                     </td>
                     <td>
                         <select id="page" class="form-control" @bind="@_pageId">
@@ -62,7 +64,7 @@
             </table>
         }
     </TabPanel>
-    <TabPanel Name="Permissions">
+    <TabPanel Name="Permissions" ResourceKey="Permissions">
         @if (_permissions != null)
         {
             <table class="table table-borderless">
@@ -76,13 +78,13 @@
     </TabPanel>
     @if (_settingsModuleType != null)
     {
-        <TabPanel Name="ModuleSettings" Heading="@_settingstitle">
+        <TabPanel Name="ModuleSettings" Heading="@_settingstitle" ResourceKey="Module Settings">
             @DynamicComponent
         </TabPanel>
     }
 </TabStrip>
-<button type="button" class="btn btn-success" @onclick="SaveModule">Save</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+<button type="button" class="btn btn-success" @onclick="SaveModule">@Localizer["Save"]</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
 
 @code {
     private List<ThemeControl> _containers = new List<ThemeControl>();
@@ -120,7 +122,7 @@
         _permissionNames = ModuleState.ModuleDefinition.PermissionNames;
         _pageId = ModuleState.PageId.ToString();
 
-        _settingsModuleType = Type.GetType(ModuleState.ModuleType);
+        _settingsModuleType = Type.GetType(ModuleState.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, PageState.Action), false, true);
         if (_settingsModuleType != null)
         {
             var moduleobject = Activator.CreateInstance(_settingsModuleType) as IModuleControl;
@@ -136,7 +138,7 @@
                 builder.AddComponentReferenceCapture(1, inst => { _settings = Convert.ChangeType(inst, _settingsModuleType); });
                 builder.CloseComponent();
             };
-        }
+       }
     }
 
     private async Task SaveModule()
@@ -161,15 +163,16 @@
         module.Permissions = _permissionGrid.GetPermissions();
         await ModuleService.UpdateModuleAsync(module);
 
-        if (_settingsModuleType != null)
+        
+        if (_settings is ISettingsControl control)
         {
-            var moduleType = Type.GetType(ModuleState.ModuleType);
-            if (moduleType != null)
-            {
-                moduleType.GetMethod("UpdateSettings")?.Invoke(_settings, null); // method must be public in settings component
-            }
+             await control.UpdateSettings();
         }
-
+        else
+        {
+            // Compatibility 2.0 fallback
+            _settings?.GetType().GetMethod("UpdateSettings")?.Invoke(_settings, null); // method must be public in settings component
+        }
         NavigationManager.NavigateTo(NavigateUrl());
     }
 

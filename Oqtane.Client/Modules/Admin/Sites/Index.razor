@@ -1,8 +1,9 @@
-﻿@namespace Oqtane.Modules.Admin.Sites
+@namespace Oqtane.Modules.Admin.Sites
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IAliasService AliasService
 @inject ISiteService SiteService
+@inject IStringLocalizer<Index> Localizer
 
 @if (_sites == null)
 {
@@ -10,17 +11,17 @@
 }
 else
 {
-    <ActionLink Action="Add" Text="Add Site" />
+    <ActionLink Action="Add" Text="Add Site" ResourceKey="AddSite" />
 
     <Pager Items="@_sites">
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
-            <th>Name</th>
+            <th>@Localizer["Name"]</th>
         </Header>
         <Row>
-            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.AliasId.ToString())" /></td>
-            <td><ActionDialog Header="Delete Site" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Site?")" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteSite(context))" /></td>
+            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.AliasId.ToString())" ResourceKey="EditSite" /></td>
+            <td><ActionDialog Header="Delete Site" Message="@Localizer["Are You Sure You Wish To Delete The {0} Site?", context.Name]" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteSite(context))" ResourceKey="DeleteSite" /></td>
             <td><a href="@(_scheme + context.Name)">@context.Name</a></td>
         </Row>
     </Pager>
@@ -57,24 +58,24 @@ else
                 SiteService.SetAlias(alias);
                 await SiteService.DeleteSiteAsync(alias.SiteId);
                 await Log(alias, LogLevel.Information, "", null, "Site Deleted {SiteId}", alias.SiteId);
-                
+
                 var aliases = await AliasService.GetAliasesAsync();
                 foreach (Alias a in aliases.Where(item => item.SiteId == alias.SiteId && item.TenantId == alias.TenantId))
                 {
                     await AliasService.DeleteAliasAsync(a.AliasId);
                 }
-                
+
                 NavigationManager.NavigateTo(NavigateUrl());
             }
             else
             {
-                AddModuleMessage("You Can Not Delete The Current Site", MessageType.Warning);
+                AddModuleMessage(Localizer["You Can Not Delete The Current Site"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await Log(alias, LogLevel.Error, "", ex, "Error Deleting Site {SiteId} {Error}", alias.SiteId, ex.Message);
-            AddModuleMessage("Error Deleting Site", MessageType.Error);
+            AddModuleMessage(Localizer["Error Deleting Site"], MessageType.Error);
         }
     }
 }

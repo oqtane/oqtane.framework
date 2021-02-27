@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Modules.Admin.Sites
+@namespace Oqtane.Modules.Admin.Sites
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject ITenantService TenantService
@@ -8,17 +8,18 @@
 @inject ISiteTemplateService SiteTemplateService
 @inject IUserService UserService
 @inject IInstallationService InstallationService
+@inject IStringLocalizer<Add> Localizer
 
 @if (_tenants == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>@Localizer["Loading..."]</em></p>
 }
 else
 {
 <table class="table table-borderless">
     <tr>
         <td>
-            <Label For="name" HelpText="Enter the name of the site">Site Name: </Label>
+            <Label For="name" HelpText="Enter the name of the site" ResourceKey="Name">Site Name: </Label>
         </td>
         <td>
             <input id="name" class="form-control" @bind="@_name" />
@@ -26,7 +27,7 @@ else
     </tr>
     <tr>
         <td>
-            <Label For="alias" HelpText="Enter the alias for the server">Aliases: </Label>
+            <Label For="alias" HelpText="Enter the alias for the server" ResourceKey="Aliases">Aliases: </Label>
         </td>
         <td>
             <textarea id="alias" class="form-control" @bind="@_urls" rows="3"></textarea>
@@ -34,11 +35,11 @@ else
     </tr>
     <tr>
         <td>
-            <Label For="defaultTheme" HelpText="Select the default theme for the website">Default Theme: </Label>
+            <Label For="defaultTheme" HelpText="Select the default theme for the website" ResourceKey="DefaultTheme">Default Theme: </Label>
         </td>
         <td>
             <select id="defaultTheme" class="form-control" @onchange="(e => ThemeChanged(e))">
-                <option value="-">&lt;Select Theme&gt;</option>
+                <option value="-">&lt;@Localizer["Select Theme"]&gt;</option>
                 @foreach (var theme in _themes)
                 {
                     <option value="@theme.TypeName">@theme.Name</option>
@@ -50,11 +51,11 @@ else
     {
         <tr>
             <td>
-                <Label For="defaultLayout" HelpText="Select the default layout for the site">Default Layout: </Label>
+                <Label For="defaultLayout" HelpText="Select the default layout for the site" ResourceKey="DefaultLayout">Default Layout: </Label>
             </td>
             <td>
                 <select id="defaultLayout" class="form-control" @bind="@_layouttype">
-                    <option value="-">&lt;Select Layout&gt;</option>
+                    <option value="-">&lt;@Localizer["Select Layout"]&gt;</option>
                     @foreach (var layout in _layouts)
                     {
                         <option value="@(layout.TypeName)">@(layout.Name)</option>
@@ -65,11 +66,11 @@ else
     }
     <tr>
         <td>
-            <Label For="defaultContainer" HelpText="Select the default container for the site">Default Container: </Label>
+            <Label For="defaultContainer" HelpText="Select the default container for the site" ResourceKey="DefaultContainer">Default Container: </Label>
         </td>
         <td>
             <select id="defaultContainer" class="form-control" @bind="@_containertype">
-                <option value="-">&lt;Select Container&gt;</option>
+                <option value="-">&lt;@Localizer["Select Container"]&gt;</option>
                 @foreach (var container in _containers)
                 {
                     <option value="@container.TypeName">@container.Name</option>
@@ -79,11 +80,26 @@ else
     </tr>
     <tr>
         <td>
-            <Label For="siteTemplate" HelpText="Select the site template">Site Template: </Label>
+            <Label For="adminContainer" HelpText="Select the admin container for the site" ResourceKey="AdminContainer">Admin Container: </Label>
+        </td>
+        <td>
+            <select id="adminContainer" class="form-control" @bind="@_admincontainertype">
+                <option value="-">&lt;@Localizer["Select Container"]&gt;</option>
+                <option value="">&lt;@Localizer["Default Admin Container"]&gt;</option>
+                @foreach (var container in _containers)
+                {
+                    <option value="@container.TypeName">@container.Name</option>
+                }
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="siteTemplate" HelpText="Select the site template" ResourceKey="SiteTemplate">Site Template: </Label>
         </td>
         <td>
             <select id="siteTemplate" class="form-control" @bind="@_sitetemplatetype">
-                <option value="-">&lt;Select Site Template&gt;</option>
+                <option value="-">&lt;@Localizer["Select Site Template"]&gt;</option>
                 @foreach (SiteTemplate siteTemplate in _siteTemplates)
                 {
                     <option value="@siteTemplate.TypeName">@siteTemplate.Name</option>
@@ -93,12 +109,12 @@ else
     </tr>
     <tr>
         <td>
-            <Label For="tenant" HelpText="Select the tenant for the site">Tenant: </Label>
+            <Label For="tenant" HelpText="Select the tenant for the site" ResourceKey="Tenant">Tenant: </Label>
         </td>
         <td>
             <select id="tenant" class="form-control" @onchange="(e => TenantChanged(e))">
-                <option value="-">&lt;Select Tenant&gt;</option>
-                <option value="+">&lt;Create New Tenant&gt;</option>
+                <option value="-">&lt;@Localizer["Select Tenant"]&gt;</option>
+                <option value="+">&lt;@Localizer["Create New Tenant"]&gt;</option>
                 @foreach (Tenant tenant in _tenants)
                 {
                     <option value="@tenant.TenantId">@tenant.Name</option>
@@ -115,7 +131,7 @@ else
         </tr>
         <tr>
             <td>
-                <Label For="name" HelpText="Enter the name for the tenant">Tenant Name: </Label>
+                <Label For="name" HelpText="Enter the name for the tenant" ResourceKey="TenantName">Tenant Name: </Label>
             </td>
             <td>
                 <input id="name" class="form-control" @bind="@_tenantname" />
@@ -123,18 +139,18 @@ else
         </tr>
         <tr>
             <td>
-                <Label For="databaseType" HelpText="Select the database type for the tenant">Database Type: </Label>
+                <Label For="databaseType" HelpText="Select the database type for the tenant" ResourceKey="DatabaseType">Database Type: </Label>
             </td>
             <td>
                 <select id="databaseType" class="custom-select" @bind="@_databasetype">
-                    <option value="LocalDB">Local Database</option>
-                    <option value="SQLServer">SQL Server</option>
+                    <option value="LocalDB">@Localizer["Local Database"]</option>
+                    <option value="SQLServer">@Localizer["SQL Server"]</option>
                 </select>
             </td>
         </tr>
         <tr>
             <td>
-                <Label For="server" HelpText="Enter the server for the tenant">Server: </Label>
+                <Label For="server" HelpText="Enter the server for the tenant" ResourceKey="DatabaseServer">Server: </Label>
             </td>
             <td>
                 <input id="server" type="text" class="form-control" @bind="@_server" />
@@ -142,7 +158,7 @@ else
         </tr>
         <tr>
             <td>
-                <Label For="database" HelpText="Enter the database for the tenant">Database: </Label>
+                <Label For="database" HelpText="Enter the database for the tenant" ResourceKey="Database">Database: </Label>
             </td>
             <td>
                 <input id="database" type="text" class="form-control" @bind="@_database" />
@@ -150,12 +166,12 @@ else
         </tr>
         <tr>
             <td>
-                <Label For="integratedSecurity" HelpText="Select if you want integrated security or not">Integrated Security: </Label>
+                <Label For="integratedSecurity" HelpText="Select if you want integrated security or not" ResourceKey="IntegratedSecurity">Integrated Security: </Label>
             </td>
             <td>
                 <select id="integratedSecurity" class="custom-select" @onchange="SetIntegratedSecurity">
-                    <option value="true" selected>True</option>
-                    <option value="false">False</option>
+                    <option value="true" selected>@Localizer["True"]</option>
+                    <option value="false">@Localizer["False"]</option>
                 </select>
             </td>
         </tr>
@@ -163,7 +179,7 @@ else
         {
             <tr>
                 <td>
-                    <Label For="username" HelpText="Enter the username for the integrated security">Database Username: </Label>
+                    <Label For="username" HelpText="Enter the username for the integrated security" ResourceKey="DatabaseUsername">Database Username: </Label>
                 </td>
                 <td>
                     <input id="username" type="text" class="form-control" @bind="@_username" />
@@ -171,7 +187,7 @@ else
             </tr>
             <tr>
                 <td>
-                    <Label For="password" HelpText="Enter the password for the integrated security">Database Password: </Label>
+                    <Label For="password" HelpText="Enter the password for the integrated security" ResourceKey="DatabasePassword">Database Password: </Label>
                 </td>
                 <td>
                     <input id="password" type="password" class="form-control" @bind="@_password" />
@@ -180,7 +196,7 @@ else
         }
         <tr>
             <td>
-                <Label For="hostUsername" HelpText="Enter the username of the host for this site">Host Username:</Label>
+                <Label For="hostUsername" HelpText="Enter the username of the host for this site" ResourceKey="HostUsername">Host Username:</Label>
             </td>
             <td>
                 <input id="hostUsername" class="form-control" @bind="@_hostusername" readonly />
@@ -188,7 +204,7 @@ else
         </tr>
         <tr>
             <td>
-                <Label For="hostPassword" HelpText="Enter the password for the host of this site">Host Password:</Label>
+                <Label For="hostPassword" HelpText="Enter the password for the host of this site" ResourceKey="HostPassword">Host Password:</Label>
             </td>
             <td>
                 <input id="hostPassword" type="password" class="form-control" @bind="@_hostpassword" />
@@ -196,8 +212,8 @@ else
         </tr>
     }
 </table>
-    <button type="button" class="btn btn-success" @onclick="SaveSite">Save</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <button type="button" class="btn btn-success" @onclick="SaveSite">@Localizer["Save"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
 }
 
 @code {
@@ -224,6 +240,7 @@ else
     private string _themetype = "-";
     private string _layouttype = "-";
     private string _containertype = "-";
+    private string _admincontainertype = "";
     private string _sitetemplatetype = "-";
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
@@ -277,12 +294,13 @@ else
             }
             _layouttype = "-";
             _containertype = "-";
+            _admincontainertype = "";
             StateHasChanged();
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", _themetype, ex.Message);
-            AddModuleMessage("Error Loading Pane Layouts For Theme", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Pane Layouts For Theme"], MessageType.Error);
         }
     }
 
@@ -346,17 +364,17 @@ else
                             }
                             else
                             {
-                                AddModuleMessage("You Must Specify A Server And Database", MessageType.Error);
+                                AddModuleMessage(Localizer["You Must Specify A Server And Database"], MessageType.Error);
                             }
                         }
                         else
                         {
-                            AddModuleMessage("Invalid Host Password", MessageType.Error);
+                            AddModuleMessage(Localizer["Invalid Host Password"], MessageType.Error);
                         }
                     }
                     else
                     {
-                        AddModuleMessage("Tenant Name Is Missing Or Already Exists", MessageType.Error);
+                        AddModuleMessage(Localizer["Tenant Name Is Missing Or Already Exists"], MessageType.Error);
                     }
                 }
                 else
@@ -377,6 +395,7 @@ else
                     config.DefaultTheme = _themetype;
                     config.DefaultLayout = _layouttype;
                     config.DefaultContainer = _containertype;
+                    config.DefaultAdminContainer = _admincontainertype;
                     config.SiteTemplate = _sitetemplatetype;
 
                     ShowProgressIndicator();
@@ -397,12 +416,12 @@ else
             }
             else
             {
-                AddModuleMessage(string.Join(", ", duplicates.ToArray()) + " Already Used For Another Site", MessageType.Warning);
+                AddModuleMessage(Localizer["{0} Already Used For Another Site", string.Join(", ", duplicates.ToArray())], MessageType.Warning);
             }
         }
         else
         {
-            AddModuleMessage("You Must Provide A Tenant, Site Name, Alias, Default Theme/Layout/Container, And Site Template", MessageType.Warning);
+            AddModuleMessage(Localizer["You Must Provide A Tenant, Site Name, Alias, Default Theme/Layout/Container, And Site Template"], MessageType.Warning);
         }
     }
 }

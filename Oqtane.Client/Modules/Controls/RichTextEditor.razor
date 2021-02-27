@@ -1,5 +1,6 @@
-﻿@namespace Oqtane.Modules.Controls
+@namespace Oqtane.Modules.Controls
 @inherits ModuleControlBase
+@inject IStringLocalizer<RichTextEditor> Localizer 
 
 <div class="row" style="margin-bottom: 50px;">
     <div class="col">
@@ -12,12 +13,12 @@
                     <br />
                 }
                 <div class="row justify-content-center" style="margin-bottom: 20px;">
-                    <button type="button" class="btn btn-secondary" @onclick="RefreshRichText">Synchronize Content</button>&nbsp;&nbsp;
-                    <button type="button" class="btn btn-primary" @onclick="InsertImage">Insert Image</button>
+                    <button type="button" class="btn btn-secondary" @onclick="RefreshRichText">@Localizer["Synchronize Content"]</button>&nbsp;&nbsp;
+                    <button type="button" class="btn btn-primary" @onclick="InsertImage">@Localizer["Insert Image"]</button>
                     @if (_filemanagervisible)
                     {
                         @((MarkupString)"&nbsp;&nbsp;")
-                        <button type="button" class="btn btn-secondary" @onclick="CloseFileManager">Close</button>
+                <button type="button" class="btn btn-secondary" @onclick="CloseFileManager">@Localizer["Close"]</button>
                     }
                 </div>
                 <div class="row">
@@ -61,9 +62,9 @@
                     </div>
                 </div>
             </TabPanel>
-            <TabPanel Name="Raw" Heading="Raw HTML Editor">
+            <TabPanel Name="Raw" Heading="Raw HTML Editor" ResourceKey="HtmlEditor">
                 <div class="row justify-content-center" style="margin-bottom: 20px;">
-                    <button type="button" class="btn btn-secondary" @onclick="RefreshRawHtml">Synchronize Content</button>
+                    <button type="button" class="btn btn-secondary" @onclick="RefreshRawHtml">@Localizer["Synchronize Content"]</button>
                 </div>
                 @if (ReadOnly)
                 {
@@ -193,7 +194,7 @@
             }
             else
             {
-                _message = "You Must Select An Image To Insert";
+                _message = Localizer["You Must Select An Image To Insert"];
             }
         }
         else

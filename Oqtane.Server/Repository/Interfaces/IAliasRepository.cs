@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
@@ -9,6 +9,7 @@ namespace Oqtane.Repository
         Alias AddAlias(Alias alias);
         Alias UpdateAlias(Alias alias);
         Alias GetAlias(int aliasId);
+        Alias GetAlias(string name);
         void DeleteAlias(int aliasId);
     }
 }

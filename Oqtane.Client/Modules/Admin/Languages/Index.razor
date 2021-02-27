@@ -1,0 +1,56 @@
+@namespace Oqtane.Modules.Admin.Languages
+@inherits ModuleBase
+@inject ILanguageService LanguageService
+@inject IStringLocalizer<Index> Localizer
+
+@if (_languages == null)
+{
+    <p><em>@Localizer["Loading..."]</em></p>
+}
+else
+{
+    <ActionLink Action="Add" Text="Add Language" ResourceKey="AddLanguage" />
+
+    <Pager Items="@_languages">
+        <Header>
+            <th style="width: 1px;">&nbsp;</th>
+            <th>@Localizer["Name"]</th>
+            <th>@Localizer["Code"]</th>
+            <th>@Localizer["Default?"]</th>
+        </Header>
+        <Row>
+            <td><ActionDialog Header="Delete Langauge" Message="@Localizer["Are You Sure You Wish To Delete The {0} Language?", context.Name]" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteLanguage(context))" Disabled="@(context.IsDefault)" ResourceKey="DeleteLanguage" /></td>
+            <td>@context.Name</td>
+            <td>@context.Code</td>
+            <td><TriStateCheckBox Value="@(context.IsDefault)" Disabled="true"></TriStateCheckBox></td>
+        </Row>
+    </Pager>
+}
+
+@code {
+    private List<Language> _languages;
+
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _languages = await LanguageService.GetLanguagesAsync(PageState.Site.SiteId);
+    }
+
+    private async Task DeleteLanguage(Language language)
+    {
+        try
+        {
+            await LanguageService.DeleteLanguageAsync(language.LanguageId);
+            await logger.LogInformation("Language Deleted {Language}", language);
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Language {Language} {Error}", language, ex.Message);
+
+            AddModuleMessage(Localizer["Error Deleting Language"], MessageType.Error);
+        }
+    }
+}

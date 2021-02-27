@@ -1,4 +1,4 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System.Threading.Tasks;
 using System.Net.Http;
 using Oqtane.Shared;
@@ -24,6 +24,11 @@ namespace Oqtane.Services
         public async Task<Installation> Upgrade()
         {
             return await GetJsonAsync<Installation>($"{ApiUrl}/upgrade");
+        }
+
+        public async Task RestartAsync()
+        {
+            await PostAsync($"{ApiUrl}/restart");
         }
     }
 }

@@ -1,8 +1,9 @@
-﻿@namespace Oqtane.Modules.Admin.Sql
+@namespace Oqtane.Modules.Admin.Sql
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject ITenantService TenantService
 @inject ISqlService SqlService
+@inject IStringLocalizer<Index> Localizer
 
 @if (_tenants == null)
 {
@@ -13,11 +14,11 @@ else
     <table class="table table-borderless">
         <tr>
             <td>
-                <Label For="tenant" HelpText="Select the tenant for the SQL server">Tenant: </Label>
+                <Label For="tenant" HelpText="Select the tenant for the SQL server" ResourceKey="Tenant">Tenant: </Label>
             </td>
             <td>
                 <select id="teneant" class="form-control" @bind="_tenantid">
-                    <option value="-1">&lt;Select Tenant&gt;</option>
+                    <option value="-1">&lt;@Localizer["Select Tenant"]&gt;</option>
                     @foreach (Tenant tenant in _tenants)
                     {
                         <option value="@tenant.TenantId">@tenant.Name</option>
@@ -27,15 +28,16 @@ else
         </tr>
         <tr>
             <td>
-                <Label For="sqlQeury" HelpText="Enter the query for the SQL server">SQL Query: </Label>
+                <Label For="sqlQeury" HelpText="Enter the query for the SQL server" ResourceKey="SqlQuery">SQL Query: </Label>
             </td>
             <td>
                 <textarea id="sqlQeury" class="form-control" @bind="@_sql" rows="5"></textarea>
             </td>
         </tr>
     </table>
-    <button type="button" class="btn btn-success" @onclick="Execute">Execute</button>
-    <br /><br />
+    <button type="button" class="btn btn-success" @onclick="Execute">@Localizer["Execute"]</button>
+    <br />
+    <br />
     @if (!string.IsNullOrEmpty(_results))
     {
         @((MarkupString)_results)
@@ -65,7 +67,7 @@ else
         }
         else
         {
-            AddModuleMessage("You Must Select A Tenant And Provide A SQL Query", MessageType.Warning);
+            AddModuleMessage(Localizer["You Must Select A Tenant And Provide A SQL Query"], MessageType.Warning);
         }
     }
 
@@ -78,34 +80,34 @@ else
             {
                 table = "<div class=\"table-responsive\">";
                 table += "<table class=\"table table-bordered\"><thead><tr>";
-                
+
                 foreach (KeyValuePair<string, string> kvp in item)
                 {
                     table += "<th scope=\"col\">" + kvp.Key + "</th>";
                 }
-                
+
                 table += "</tr></thead><tbody>";
             }
-            
+
             table += "<tr>";
-            
+
             foreach (KeyValuePair<string, string> kvp in item)
             {
                 table += "<td>" + kvp.Value + "</td>";
             }
-            
+
             table += "</tr>";
         }
-        
+
         if (table != string.Empty)
         {
             table += "</tbody></table></div>";
         }
         else
         {
-            table = "No Results Returned";
+            table = Localizer["No Results Returned"];
         }
-        
+
         return table;
     }
 }

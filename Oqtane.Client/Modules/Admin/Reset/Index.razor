@@ -1,23 +1,24 @@
-﻿@namespace Oqtane.Modules.Admin.Reset
+@namespace Oqtane.Modules.Admin.Reset
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
+@inject IStringLocalizer<Index> Localizer
 
 <div class="container">
     <div class="form-group">
-        <label for="Username" class="control-label">Username: </label>
+        <label for="Username" class="control-label">@Localizer["Username:"] </label>
         <input type="text" class="form-control" placeholder="Username" @bind="@_username" readonly id="Username"/>
     </div>
     <div class="form-group">
-        <label for="Password" class="control-label">Password: </label>
+        <label for="Password" class="control-label">@Localizer["Password:"] </label>
         <input type="password" class="form-control" placeholder="Password" @bind="@_password" id="Password"/>
     </div>
     <div class="form-group">
-        <label for="Confirm" class="control-label">Confirm Password: </label>
+        <label for="Confirm" class="control-label">@Localizer["Confirm Password:"] </label>
         <input type="password" class="form-control" placeholder="Password" @bind="@_confirm" id="Confirm"/>
     </div>
-    <button type="button" class="btn btn-primary" @onclick="Reset">Reset Password</button>
-    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+    <button type="button" class="btn btn-primary" @onclick="Reset">@Localizer["Reset Password"]</button>
+    <button type="button" class="btn btn-secondary" @onclick="Cancel">@Localizer["Cancel"]</button>
 </div>
 
 @code {
@@ -63,23 +64,23 @@
                     else
                     {
                         await logger.LogError("Error Resetting User Password {Username}", _username);
-                        AddModuleMessage("Error Resetting User Password. Please Ensure Password Meets Complexity Requirements.", MessageType.Error);
+                        AddModuleMessage(Localizer["Error Resetting User Password. Please Ensure Password Meets Complexity Requirements."], MessageType.Error);
                     }
                 }
                 else
                 {
-                    AddModuleMessage("Passwords Entered Do Not Match", MessageType.Warning);
+                    AddModuleMessage(Localizer["Passwords Entered Do Not Match"], MessageType.Warning);
                 }
             }
             else
             {
-                AddModuleMessage("You Must Provide A Username, Password, and Email Address", MessageType.Warning);
+                AddModuleMessage(Localizer["You Must Provide A Username, Password, and Email Address"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Resetting User Password {Username} {Error}", _username, ex.Message);
-            AddModuleMessage("Error Resetting User Password", MessageType.Error);
+            AddModuleMessage(Localizer["Error Resetting User Password"], MessageType.Error);
         }
     }
 

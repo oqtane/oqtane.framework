@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Oqtane.Models;
@@ -50,29 +50,13 @@ namespace Oqtane.Controllers
         [HttpGet("name/{**name}")]
         public Alias Get(string name, string sync)
         {
-            List<Alias> aliases = _aliases.GetAliases().ToList(); // cached
             Alias alias = null;
+
             if (_accessor.HttpContext != null)
             {
                 name = (name == "~") ? "" : name;
                 name = _accessor.HttpContext.Request.Host.Value + "/" + WebUtility.UrlDecode(name);
-                var segments = name.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-
-                // iterate segments in reverse order
-                for (int i = segments.Length; i > 0; i--)
-                {
-                    name = string.Join("/", segments, 0, i);
-                    alias = aliases.Find(item => item.Name == name);
-                    if (alias != null)
-                    {
-                        break; // found a matching alias
-                    }
-                }
-            }
-            if (alias == null && aliases.Any())
-            {
-                // use first alias if name does not exist
-                alias = aliases.FirstOrDefault();
+                alias = _aliases.GetAlias(name);
             }
 
             // get sync events
@@ -81,6 +65,7 @@ namespace Oqtane.Controllers
                 alias.SyncDate = DateTime.UtcNow;
                 alias.SyncEvents = _syncManager.GetSyncEvents(alias.TenantId, DateTime.ParseExact(sync, "yyyyMMddHHmmssfff", CultureInfo.InvariantCulture));
             }
+
             return alias;
         }
         

@@ -1,19 +1,20 @@
-﻿@namespace Oqtane.Modules.Admin.Jobs
+@namespace Oqtane.Modules.Admin.Jobs
 @inherits ModuleBase
 @inject IJobLogService JobLogService
+@inject IStringLocalizer<Log> Localizer
 
 @if (_jobLogs == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>@Localizer["Loading..."]</em></p>
 }
 else
 {
 <Pager Items="@_jobLogs">
     <Header>
-        <th>Name</th>
-        <th>Status</th>
-        <th>Started</th>
-        <th>Finished</th>
+        <th>@Localizer["Name"]</th>
+        <th>@Localizer["Status"]</th>
+        <th>@Localizer["Started"]</th>
+        <th>@Localizer["Finished"]</th>
     </Header>
     <Row>
         <td>@context.Job.Name</td>
@@ -49,17 +50,17 @@ else
         var status = string.Empty;
         if (isExecuting)
         {
-            status = "Executing";
+            status = Localizer["Executing"];
         }
         else
         {
             if (succeeded != null && succeeded.Value)
             {
-                status = "Succeeded";
+                status = Localizer["Succeeded"];
             }
             else
             {
-                status = "Failed";
+                status = Localizer["Failed"];
             }
         }
         

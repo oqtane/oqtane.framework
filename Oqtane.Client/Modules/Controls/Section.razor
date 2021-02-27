@@ -16,13 +16,14 @@
 <div class="d-flex">
     <hr class="app-rule" />
 </div>
-<div class="collapse" id="@Name">
+<div class="collapse @_show" id="@Name">
     @ChildContent
 </div>
 
 @code {
     private string _heading = string.Empty;
     private string _expanded = string.Empty;
+    private string _show = string.Empty;
 
     [Parameter]
     public RenderFragment ChildContent { get; set; }
@@ -40,17 +41,15 @@
     {
         _heading = (!string.IsNullOrEmpty(Heading)) ? Heading : Name;
         _expanded = (!string.IsNullOrEmpty(Expanded)) ? Expanded : "false";
+        if (_expanded == "true") { _show = "show"; }
     }
 
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
 
-        if (IsLocalizable)
-        {
-            _heading = !string.IsNullOrEmpty(Heading)
-                ? Localize(nameof(Heading))
-                : Localize(nameof(Name));
-        }
+        _heading = !string.IsNullOrEmpty(Heading)
+            ? Localize(nameof(Heading), Heading)
+            : Localize(nameof(Name), Name);
     }
 }

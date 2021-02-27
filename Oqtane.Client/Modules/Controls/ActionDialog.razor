@@ -94,14 +94,16 @@
 
         if (!string.IsNullOrEmpty(IconName))
         {
-            _iconSpan = $"<span class=\"oi oi-{IconName}\"></span>&nbsp;";
+            if (!IconName.Contains(" "))
+            {
+                IconName = "oi oi-" + IconName;
+            }
+            _iconSpan = $"<span class=\"{IconName}\"></span>&nbsp;";
         }
 
-        if (IsLocalizable)
-        {
-            Header = Localize(nameof(Header));
-            Message = Localize(nameof(Message));
-        }
+        Text = Localize(nameof(Text), Text);
+        Header = Localize(nameof(Header), Header);
+        Message = Localize(nameof(Message), Message);
 
         _authorized = IsAuthorized();
     }

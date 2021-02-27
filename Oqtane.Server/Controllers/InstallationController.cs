@@ -68,6 +68,14 @@ namespace Oqtane.Controllers
             return installation;
         }
 
+        // GET api/<controller>/restart
+        [HttpPost("restart")]
+        [Authorize(Roles = RoleNames.Host)]
+        public void Restart()
+        {
+            _installationManager.RestartApplication();
+        }
+
         // GET api/<controller>/load
         [HttpGet("load")]
         public IActionResult Load()

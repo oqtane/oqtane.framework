@@ -1,38 +1,39 @@
-﻿@namespace Oqtane.Modules.Admin.ModuleDefinitions
+@namespace Oqtane.Modules.Admin.ModuleDefinitions
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IFileService FileService
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject IPackageService PackageService
+@inject IStringLocalizer<Add> Localizer
 
 @if (_packages != null)
 {
     <TabStrip>
         @if (_packages.Count > 0)
         {
-            <TabPanel Name="Download">
+            <TabPanel Name="Download" ResourceKey="Download">
                 <ModuleMessage Type="MessageType.Info" Message="Download one or more modules from the list below. Once you are ready click Install to complete the installation."></ModuleMessage>
                 <Pager Items="@_packages">
                     <Header>
-                        <th>Name</th>
-                        <th>Version</th>
+                        <th>@Localizer["Name"]</th>
+                        <th>@Localizer["Version"]</th>
                         <th style="width: 1px"></th>
                     </Header>
                     <Row>
                         <td>@context.Name</td>
                         <td>@context.Version</td>
                         <td>
-                            <button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadModule(context.PackageId, context.Version))>Download</button>
+                            <button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadModule(context.PackageId, context.Version))>@Localizer["Download"]</button>
                         </td>
                     </Row>
                 </Pager>
             </TabPanel>
         }
-        <TabPanel Name="Upload">
+        <TabPanel Name="Upload" ResourceKey="Upload">
             <table class="table table-borderless">
                 <tr>
                     <td>
-                        <Label HelpText="Upload one or more module packages. Once they are uploaded click Install to complete the installation.">Module: </Label>
+                        <Label HelpText="Upload one or more module packages. Once they are uploaded click Install to complete the installation." ResourceKey="Module">Module: </Label>
                     </td>
                     <td>
                         <FileManager Filter="nupkg" ShowFiles="false" Folder="Modules" UploadMultiple="true" />
@@ -42,8 +43,8 @@
         </TabPanel>
     </TabStrip>
 
-    <button type="button" class="btn btn-success" @onclick="InstallModules">Install</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <button type="button" class="btn btn-success" @onclick="InstallModules">@Localizer["Install"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
 }
 
 @code {
@@ -69,7 +70,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Packages {Error}", ex.Message);
-            AddModuleMessage("Error Loading Packages", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Packages"], MessageType.Error);
         }
     }
 
@@ -77,14 +78,12 @@
     {
         try
         {
-            ShowProgressIndicator();
-            var interop = new Interop(JSRuntime);
-            await interop.RedirectBrowser(NavigateUrl(), 10);
             await ModuleDefinitionService.InstallModuleDefinitionsAsync();
+            AddModuleMessage(Localizer["Module Installed Successfully. You Must <a href=\"{0}\">Restart</a> Your Application To Apply These Changes.", NavigateUrl("admin/system")], MessageType.Success);
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Installating Module");
+            await logger.LogError(ex, "Error Installing Module");
         }
     }
 
@@ -94,13 +93,13 @@
         {
             await PackageService.DownloadPackageAsync(packageid, version, "Modules");
             await logger.LogInformation("Module {ModuleDefinitionName} {Version} Downloaded Successfully", packageid, version);
-            AddModuleMessage("Modules Downloaded Successfully. Click Install To Complete Installation.", MessageType.Success);
+            AddModuleMessage(Localizer["Modules Downloaded Successfully. Click Install To Complete Installation."], MessageType.Success);
             StateHasChanged();
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Downloading Module {ModuleDefinitionName} {Version}", packageid, version);
-            AddModuleMessage("Error Downloading Module", MessageType.Error);
+            AddModuleMessage(Localizer["Error Downloading Module"], MessageType.Error);
         }
     }
 }
