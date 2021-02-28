@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -10,7 +9,6 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -130,8 +128,7 @@ namespace Oqtane
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            services.AddDataProtection();
-            services.AddSingleton<DataProtector>();
+            services.AddOqtaneDataProtection();
 
             services.AddDbContext<MasterDBContext>(options => { });
             services.AddDbContext<TenantDBContext>(options => { });

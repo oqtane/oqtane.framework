@@ -15,7 +15,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
 using Oqtane.Modules;
 using Oqtane.Providers;
-using Oqtane.Security;
 using Oqtane.Services;
 using Oqtane.Shared;
 using Oqtane.UI;
@@ -70,8 +69,7 @@ namespace Oqtane.Client
             builder.Services.AddScoped<ILocalizationService, LocalizationService>();
             builder.Services.AddScoped<ILanguageService, LanguageService>();
 
-            builder.Services.AddDataProtection();
-            builder.Services.AddSingleton<DataProtector>();
+            builder.Services.AddOqtaneDataProtection();
 
             await LoadClientAssemblies(httpClient);
 
