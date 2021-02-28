@@ -130,6 +130,9 @@ namespace Oqtane
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
+            services.AddDataProtection();
+            services.AddSingleton<DataProtector>();
+
             services.AddDbContext<MasterDBContext>(options => { });
             services.AddDbContext<TenantDBContext>(options => { });
 

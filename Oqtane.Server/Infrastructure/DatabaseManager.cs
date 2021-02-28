@@ -11,11 +11,12 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using Oqtane.Enums;
 using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Repository;
+using Oqtane.Security;
 using Oqtane.Shared;
-using Oqtane.Enums;
 using File = System.IO.File;
 
 namespace Oqtane.Infrastructure
@@ -25,12 +26,14 @@ namespace Oqtane.Infrastructure
         private readonly IConfigurationRoot _config;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IMemoryCache _cache;
+        private readonly DataProtector _dataProtector;
 
-        public DatabaseManager(IConfigurationRoot config, IServiceScopeFactory serviceScopeFactory, IMemoryCache cache)
+        public DatabaseManager(IConfigurationRoot config, IServiceScopeFactory serviceScopeFactory, IMemoryCache cache, DataProtector dataProtector)
         {
             _config = config;
             _serviceScopeFactory = serviceScopeFactory;
             _cache = cache;
+            _dataProtector = dataProtector;
         }
 
         public bool IsInstalled()
@@ -240,7 +243,8 @@ namespace Oqtane.Infrastructure
                     Tenant tenant;
                     if (install.IsNewTenant)
                     {
-                        tenant = new Tenant { Name = install.TenantName, DBConnectionString = DenormalizeConnectionString(install.ConnectionString), CreatedBy = "", CreatedOn = DateTime.UtcNow, ModifiedBy = "", ModifiedOn = DateTime.UtcNow };
+                        var protectedConnectionString = _dataProtector.Protect(DenormalizeConnectionString(install.ConnectionString));
+                        tenant = new Tenant { Name = install.TenantName, DBConnectionString = protectedConnectionString, CreatedBy = "", CreatedOn = DateTime.UtcNow, ModifiedBy = "", ModifiedOn = DateTime.UtcNow };
                         db.Tenant.Add(tenant);
                         db.SaveChanges();
                         _cache.Remove("tenants");
@@ -279,6 +283,8 @@ namespace Oqtane.Infrastructure
                 {
                     foreach (var tenant in db.Tenant.ToList())
                     {
+                        tenant.DBConnectionString = _dataProtector.Unprotect(tenant.DBConnectionString);
+
                         MigrateScriptNamingConvention("Tenant", tenant.DBConnectionString);
 
                         var upgradeConfig = DeployChanges.To.SqlDatabase(NormalizeConnectionString(tenant.DBConnectionString))
@@ -349,6 +355,9 @@ namespace Oqtane.Infrastructure
                                     if (index != (versions.Length - 1))
                                     {
                                         if (index == -1) index = 0;
+
+                                        tenant.DBConnectionString = _dataProtector.Unprotect(tenant.DBConnectionString);
+
                                         for (int i = index; i < versions.Length; i++)
                                         {
                                             try
