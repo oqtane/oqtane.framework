@@ -48,7 +48,7 @@ else
 
     @if (_logs.Any())
     {
-        <Pager Items="@_logs">
+        <Pager Items="@_logs" PageSize="@_rows" >
             <Header>
                 <th style="width: 1px;">&nbsp;</th>
                 <th>@Localizer["Date"]</th>
