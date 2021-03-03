@@ -31,9 +31,12 @@
                     <td>@context.DeletedOn</td>
                 </Row>
             </Pager>
-            <div style="text-align:right; visibility : @IsDeleteAllPagesVisible">
-                <ActionDialog Header="Delete All Pages" Message="@Localizer["Are You Sure You Wish To Permanently Delete All Pages?", "Delete All Pages"]" Action="Delete All Pages" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteAllPages())" ResourceKey="DeleteAllPages" />
-            </div>
+            @if (_pages.Any())
+            {
+                <div style="text-align:right;">
+                    <ActionDialog Header="Delete All Pages" Message="@Localizer["Are You Sure You Wish To Permanently Delete All Pages?", "Delete All Pages"]" Action="Delete All Pages" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteAllPages())" ResourceKey="DeleteAllPages" />
+                </div>
+            }
         }
     </TabPanel>
     <TabPanel Name="Modules" ResourceKey="Modules">
@@ -62,9 +65,12 @@
                     <td>@context.DeletedOn</td>
                 </Row>
             </Pager>
-            <div style="text-align:right; visibility : @IsDeleteAllModulesVisible" >
-                <ActionDialog Header="Delete All Modules" Message="@Localizer["Are You Sure You Wish To Permanently Delete All Modules?", "Delete All Modules"]" Action="Delete All Modules" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteAllModules())" ResourceKey="DeleteAllModules" />
-            </div>
+            @if (_modules.Any())
+            {
+                <div style="text-align:right;">
+                    <ActionDialog Header="Delete All Modules" Message="@Localizer["Are You Sure You Wish To Permanently Delete All Modules?", "Delete All Modules"]" Action="Delete All Modules" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteAllModules())" ResourceKey="DeleteAllModules" />
+                </div>
+            }
 
         }
     </TabPanel>
@@ -75,22 +81,6 @@
     private List<Module> _modules;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
-
-    protected string IsDeleteAllPagesVisible
-    {
-        get
-        {
-            return _pages.Count == 0 ? "hidden" : "visible";
-        }
-    }
-
-    protected string IsDeleteAllModulesVisible
-    {
-        get {
-            return _modules.Count == 0 ? "hidden" : "visible" ;
-        }
-    }
-
 
     protected override async Task OnInitializedAsync()
     {
