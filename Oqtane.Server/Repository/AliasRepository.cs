@@ -62,11 +62,11 @@ namespace Oqtane.Repository
                 alias = aliases.Find(item => item.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
                 if (alias != null)
                 {
-                    break; // found a matching alias
+                    return alias; // found a matching alias
                 }
             }
-
-            return alias;
+            // return default alias
+            return aliases.FirstOrDefault();
         }
 
         public void DeleteAlias(int aliasId)
