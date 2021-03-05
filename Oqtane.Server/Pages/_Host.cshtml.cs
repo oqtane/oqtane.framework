@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Oqtane.Repository;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
+using Oqtane.Enums;
 
 namespace Oqtane.Pages
 {
@@ -22,13 +23,15 @@ namespace Oqtane.Pages
         private readonly IAliasRepository _aliases;
         private readonly ILocalizationManager _localizationManager;
         private readonly ILanguageRepository _languages;
+        private readonly ILogManager _logger;
 
         public HostModel(
             IConfiguration configuration,
             SiteState state,
             IAliasRepository aliases,
             ILocalizationManager localizationManager,
-            ILanguageRepository languages)
+            ILanguageRepository languages,
+            ILogManager logger)
         {
             _configuration = configuration;
             _state = state;
@@ -55,6 +58,13 @@ namespace Oqtane.Pages
             {
                 var uri = new Uri(Request.GetDisplayUrl());
                 var alias = _aliases.GetAlias(uri.Authority + "/" + uri.LocalPath.Substring(1));
+                if (alias == null)
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "Site Not Found {Alias}", alias);
+
+                    return;
+                }
+
                 _state.Alias = alias;
 
                 // set default language for site if the culture is not supported
