@@ -85,28 +85,38 @@ else
 }
 
 @code {
-    private string _moduledefinitionname = "";
+    private string _moduledefinitionname = string.Empty;
     private string _owner = string.Empty;
     private string _module = string.Empty;
     private string _description = string.Empty;
     private string _template = "-";
     public string _reference = Constants.Version;
     private string _location = string.Empty;
+    private Dictionary<string, string> _systeminfo;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        _moduledefinitionname = SettingService.GetSetting(ModuleState.Settings, "ModuleDefinitionName", "");
-        if (string.IsNullOrEmpty(_moduledefinitionname))
+        try
         {
-            _owner = ModuleState.Title;
-            _module = ModuleState.Title;
-            _description = ModuleState.Title;
+            _moduledefinitionname = SettingService.GetSetting(ModuleState.Settings, "ModuleDefinitionName", "");
+            _systeminfo = await SystemService.GetSystemInfoAsync();
+
+            if (string.IsNullOrEmpty(_moduledefinitionname))
+            {
+                _owner = ModuleState.Title;
+                _module = ModuleState.Title;
+                _description = ModuleState.Title;
+            }
+            else
+            {
+                AddModuleMessage(Localizer["Once You Have Compiled The Module And Restarted The Application You Can Activate The Module Below"], MessageType.Info);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            AddModuleMessage(Localizer["Once You Have Compiled The Module And Restarted The Application You Can Activate The Module Below"], MessageType.Info);
+            await logger.LogError(ex, "Error Loading Module Creator");
         }
     }
 
@@ -122,6 +132,8 @@ else
                 var settings = ModuleState.Settings;
                 SettingService.SetSetting(settings, "ModuleDefinitionName", moduleDefinition.ModuleDefinitionName);
                 await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
+
+                GetLocation();
 
                 AddModuleMessage(Localizer["The Source Code For Your Module Has Been Created At The Location Specified Below And Must Be Compiled In Order To Make It Functional. Once It Has Been Compiled You Must <a href=\"{0}\">Restart</a> Your Application To Apply These Changes.", NavigateUrl("admin/system")], MessageType.Success);
             }
@@ -161,38 +173,31 @@ else
         return !string.IsNullOrEmpty(name) && Regex.IsMatch(name, "^[A-Za-z_][A-Za-z0-9_]*$");
     }
 
-    private async void TemplateChanged(ChangeEventArgs e)
+    private void TemplateChanged(ChangeEventArgs e)
     {
-        try
+        _template = (string)e.Value;
+        GetLocation();
+    }
+
+    private void GetLocation()
+    {
+        _location = string.Empty;
+        if (_template != "-" && _systeminfo != null && _systeminfo.ContainsKey("serverpath"))
         {
-            _location = string.Empty;
-            _template = (string)e.Value;
-            if (_template != "-")
+            string[] path = _systeminfo["serverpath"].Split(Path.DirectorySeparatorChar);
+            if (_template == "internal")
             {
-                Dictionary<string, string> systeminfo = await SystemService.GetSystemInfoAsync();
-                if (systeminfo != null)
-                {
-                    string[] path = systeminfo["serverpath"].Split(Path.DirectorySeparatorChar);
-                    if (_template == "internal")
-                    {
-                        _location = string.Join(Path.DirectorySeparatorChar, path, 0, path.Length - 1) +
-                            Path.DirectorySeparatorChar + "Oqtane.Client" +
-                            Path.DirectorySeparatorChar + "Modules" +
-                            Path.DirectorySeparatorChar + _owner + "." + _module;
-                    }
-                    else
-                    {
-                        _location = string.Join(Path.DirectorySeparatorChar, path, 0, path.Length - 2) +
-                            Path.DirectorySeparatorChar + _owner + "." + _module;
-                    }
-                }
+                _location = string.Join(Path.DirectorySeparatorChar, path, 0, path.Length - 1) +
+                    Path.DirectorySeparatorChar + "Oqtane.Client" +
+                    Path.DirectorySeparatorChar + "Modules" +
+                    Path.DirectorySeparatorChar + _owner + "." + _module;
             }
-            StateHasChanged();
+            else
+            {
+                _location = string.Join(Path.DirectorySeparatorChar, path, 0, path.Length - 2) +
+                    Path.DirectorySeparatorChar + _owner + "." + _module;
+            }
         }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Getting System Info {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error Getting System Info"], MessageType.Error);
-        }
+        StateHasChanged();
     }
 }
