@@ -8,14 +8,14 @@
         {
             if (childPage.PageId == PageState.Page.PageId)
             {
-                <a class="dropdown-item active" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
+                <a class="nav-link active px-3" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
                     <FontIcon Value="@childPage.Icon" />
                     @childPage.Name <span class="sr-only">(current)</span>
                 </a>
             }
             else
             {
-                <a class="dropdown-item" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
+                <a class="nav-link px-3" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
                     <FontIcon Value="@childPage.Icon" />
                     @childPage.Name
                 </a>
