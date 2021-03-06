@@ -4,11 +4,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Oqtane.Extensions;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
 {
-    public class DBContextBase :  IdentityUserContext<IdentityUser> 
+    public class DBContextBase :  IdentityUserContext<IdentityUser>
     {
         private ITenantResolver _tenantResolver;
         private IHttpContextAccessor _accessor;
@@ -24,9 +25,9 @@ namespace Oqtane.Repository
             var tenant = _tenantResolver.GetTenant();
             if (tenant != null)
             {
-                optionsBuilder.UseSqlServer(tenant.DBConnectionString
-                        .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString())
-                );
+                var connectionString = tenant.DBConnectionString
+                    .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString());
+                optionsBuilder.UseOqtaneDatabase(connectionString);
             }
             base.OnConfiguring(optionsBuilder);
         }

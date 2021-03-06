@@ -4,13 +4,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
 using Microsoft.Extensions.Configuration;
+using Oqtane.Extensions;
 
 namespace Oqtane.Repository
 {
     public class MasterDBContext : DbContext
     {
-        private IHttpContextAccessor _accessor;
-        private IConfiguration _configuration;
+        private readonly IHttpContextAccessor _accessor;
+        private readonly IConfiguration _configuration;
 
         public MasterDBContext(DbContextOptions<MasterDBContext> options, IHttpContextAccessor accessor, IConfiguration configuration) : base(options)
         {
@@ -20,11 +21,12 @@ namespace Oqtane.Repository
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (!string.IsNullOrEmpty(_configuration.GetConnectionString("DefaultConnection")))
+            if (!String.IsNullOrEmpty(_configuration.GetConnectionString("DefaultConnection")))
             {
-                optionsBuilder.UseSqlServer(_configuration.GetConnectionString("DefaultConnection")
-                    .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString())
-                );
+                var connectionString = _configuration.GetConnectionString("DefaultConnection")
+                    .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString());
+
+                optionsBuilder.UseOqtaneDatabase(connectionString);
             }
             base.OnConfiguring(optionsBuilder);
         }
