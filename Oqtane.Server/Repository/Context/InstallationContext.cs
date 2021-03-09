@@ -1,10 +1,11 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
+using Oqtane.Extensions;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
 {
-    
+
     public class InstallationContext : DbContext
     {
         private readonly string _connectionString;
@@ -15,7 +16,7 @@ namespace Oqtane.Repository
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseSqlServer(_connectionString);
+            => optionsBuilder.UseOqtaneDatabase(_connectionString);
 
         public virtual DbSet<Alias> Alias { get; set; }
         public virtual DbSet<Tenant> Tenant { get; set; }
