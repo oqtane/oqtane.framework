@@ -9,14 +9,14 @@
             if (childPage.PageId == PageState.Page.PageId)
             {
                 <a class="nav-link active px-3" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
-                    <FontIcon Value="@childPage.Icon" />
-                    @childPage.Name <span class="sr-only">(current)</span>
+                        <span class="@childPage.Icon" aria-hidden="true" />
+                        @childPage.Name <span class="sr-only">(current)</span>
                 </a>
             }
             else
             {
                 <a class="nav-link px-3" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
-                    <FontIcon Value="@childPage.Icon" />
+                    <span class="@childPage.Icon" aria-hidden="true" />
                     @childPage.Name
                 </a>
             }
@@ -34,7 +34,7 @@ else
                 {
                     <li class="nav-item active">
                         <a class="nav-link" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
-                            <FontIcon Value="@childPage.Icon" />
+                            <span class="@childPage.Icon" aria-hidden="true" />
                             @childPage.Name <span class="sr-only">(current)</span>
                         </a>
                     </li>
@@ -43,7 +43,7 @@ else
                 {
                     <li class="nav-item">
                         <a class="nav-link" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
-                            <FontIcon Value="@childPage.Icon" />
+                            <span class="@childPage.Icon" aria-hidden="true" />
                             @childPage.Name
                         </a>
                     </li>
@@ -55,7 +55,7 @@ else
                 {
                     <li class="nav-item dropdown active">
                         <a class="nav-link dropdown-toggle" href="@GetUrl(childPage)" target="@GetTarget(childPage)" id="@($"navbarDropdown{childPage.PageId}")" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <FontIcon Value="@childPage.Icon" />
+                            <span class="@childPage.Icon" aria-hidden="true" />
                             @childPage.Name <span class="sr-only">(current)</span>
                         </a>
                         <MenuItemsHorizontal ParentPage="childPage" Pages="Pages" />
@@ -65,7 +65,7 @@ else
                 {
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="@GetUrl(childPage)" target="@GetTarget(childPage)" id="@($"navbarDropdown{childPage.PageId}")" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <FontIcon Value="@childPage.Icon" />
+                            <span class="@childPage.Icon" aria-hidden="true" />
                             @childPage.Name
                         </a>
                         <MenuItemsHorizontal ParentPage="childPage" Pages="Pages" />
