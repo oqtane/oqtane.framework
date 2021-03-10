@@ -48,7 +48,7 @@ else
 
     @if (_logs.Any())
     {
-        <Pager Items="@_logs">
+        <Pager TableItem="Log" Items="@_logs">
             <Header>
                 <th style="width: 1px;">&nbsp;</th>
                 <th>@Localizer["Date"]</th>
@@ -141,6 +141,10 @@ else
     private async Task GetLogs()
     {
         _logs = await LogService.GetLogsAsync(PageState.Site.SiteId, ((_level == "-") ? string.Empty : _level), ((_function == "-") ? string.Empty : _function), int.Parse(_rows));
+        await InvokeAsync(() =>
+        {
+            base.StateHasChanged();
+        });
     }
 
     private string GetClass(string function)
