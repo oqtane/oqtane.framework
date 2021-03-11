@@ -1,13 +1,14 @@
-﻿@namespace Oqtane.Modules.Admin.Modules
+@namespace Oqtane.Modules.Admin.Modules
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IModuleService ModuleService
+@inject IStringLocalizer<Export> Localizer
 
 <table class="table table-borderless">
     <tbody>
         <tr>
             <td>
-                <Label For="content" HelpText="Enter the module content">Content: </Label>
+                <Label For="content" HelpText="Enter the module content" ResourceKey="Content">Content: </Label>
             </td>
             <td>
                 <textarea id="content" class="form-control" @bind="@_content" rows="5"></textarea>
@@ -15,15 +16,15 @@
         </tr>
     </tbody>
 </table>
-<button type="button" class="btn btn-success" @onclick="ExportModule">Export</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+<button type="button" class="btn btn-success" @onclick="ExportModule">@Localizer["Export"]</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
 
 
 @code {
     private string _content = string.Empty;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
-    public override string Title => "Export Module";
+    public override string Title => "Export Content";
 
 
     private async Task ExportModule()

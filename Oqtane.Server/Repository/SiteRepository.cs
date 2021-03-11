@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -408,32 +408,6 @@ namespace Oqtane.Repository
                         Content = ""
                     }
                 }
-            }); pageTemplates.Add(new PageTemplate
-            {
-                Name = "Tenant Management",
-                Parent = "Admin",
-                Path = "admin/tenants",
-                Icon = Icons.List,
-                IsNavigation = false,
-                IsPersonalizable = false,
-                PagePermissions = new List<Permission>
-                {
-                    new Permission(PermissionNames.View, RoleNames.Host, true),
-                    new Permission(PermissionNames.Edit, RoleNames.Host, true)
-                }.EncodePermissions(),
-                PageTemplateModules = new List<PageTemplateModule>
-                {
-                    new PageTemplateModule
-                    {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Tenants.Index).ToModuleDefinitionName(), Title = "Tenant Management", Pane = "Content",
-                        ModulePermissions = new List<Permission>
-                        {
-                            new Permission(PermissionNames.View, RoleNames.Host, true),
-                            new Permission(PermissionNames.Edit, RoleNames.Host, true)
-                        }.EncodePermissions(),
-                        Content = ""
-                    }
-                }
             });
             pageTemplates.Add(new PageTemplate
             {
@@ -503,6 +477,37 @@ namespace Oqtane.Repository
             });
             pageTemplates.Add(new PageTemplate
             {
+                Name = "Language Management",
+                Parent = "Admin",
+                Path = "admin/languages",
+                Icon = Icons.Text,
+                IsNavigation = false,
+                IsPersonalizable = false,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, RoleNames.Host, true),
+                    new Permission(PermissionNames.Edit, RoleNames.Host, true),
+                    new Permission(PermissionNames.View, RoleNames.Admin, true),
+                    new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Languages.Index).ToModuleDefinitionName(), Title = "Language Management", Pane = "Content",
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, RoleNames.Host, true),
+                            new Permission(PermissionNames.Edit, RoleNames.Host, true),
+                            new Permission(PermissionNames.View, RoleNames.Admin, true),
+                            new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            });
+            pageTemplates.Add(new PageTemplate
+            {
                 Name = "Scheduled Jobs", Parent = "Admin", Path = "admin/jobs", Icon = Icons.Timer, IsNavigation = false, IsPersonalizable = false, 
                 PagePermissions = new List<Permission>
                 {
@@ -525,12 +530,7 @@ namespace Oqtane.Repository
             });
             pageTemplates.Add(new PageTemplate
             {
-                Name = "Sql Management",
-                Parent = "Admin",
-                Path = "admin/sql",
-                Icon = "spreadsheet",
-                IsNavigation = false,
-                IsPersonalizable = false,
+                Name = "Sql Management", Parent = "Admin", Path = "admin/sql", Icon = Icons.Spreadsheet, IsNavigation = false, IsPersonalizable = false,
                 PagePermissions = new List<Permission>
                 {
                     new Permission(PermissionNames.View, RoleNames.Host, true),
@@ -552,12 +552,7 @@ namespace Oqtane.Repository
             });
             pageTemplates.Add(new PageTemplate
             {
-                Name = "System Info",
-                Parent = "Admin",
-                Path = "admin/system",
-                Icon = "medical-cross",
-                IsNavigation = false,
-                IsPersonalizable = false,
+                Name = "System Info", Parent = "Admin", Path = "admin/system", Icon = Icons.MedicalCross, IsNavigation = false, IsPersonalizable = false,
                 PagePermissions = new List<Permission>
                 {
                     new Permission(PermissionNames.View, RoleNames.Host, true),

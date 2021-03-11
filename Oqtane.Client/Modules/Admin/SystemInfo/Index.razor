@@ -1,11 +1,13 @@
-﻿@namespace Oqtane.Modules.Admin.SystemInfo
+@namespace Oqtane.Modules.Admin.SystemInfo
 @inherits ModuleBase
 @inject ISystemService SystemService
+@inject IInstallationService InstallationService
+@inject IStringLocalizer<Index> Localizer
 
 <table class="table table-borderless">
     <tr>
         <td>
-            <Label For="version" HelpText="Framework Version">Framework Version: </Label>
+            <Label For="version" HelpText="Framework Version" ResourceKey="FrameworkVersion">Framework Version: </Label>
         </td>
         <td>
             <input id="version" class="form-control" @bind="@_version" readonly />
@@ -13,7 +15,7 @@
     </tr>
     <tr>
         <td>
-            <Label For="runtime" HelpText="Blazor Runtime (Server or WebAssembly)">Blazor Runtime: </Label>
+            <Label For="runtime" HelpText="Blazor Runtime (Server or WebAssembly)" ResourceKey="BlazorRunime">Blazor Runtime: </Label>
         </td>
         <td>
             <input id="runtime" class="form-control" @bind="@_runtime" readonly />
@@ -21,7 +23,7 @@
     </tr>
     <tr>
         <td>
-            <Label For="clrversion" HelpText="Common Language Runtime Version">CLR Version: </Label>
+            <Label For="clrversion" HelpText="Common Language Runtime Version" ResourceKey="ClrVerion">CLR Version: </Label>
         </td>
         <td>
             <input id="clrversion" class="form-control" @bind="@_clrversion" readonly />
@@ -29,7 +31,7 @@
     </tr>
     <tr>
         <td>
-            <Label For="osversion" HelpText="Operating System Version">OS Version: </Label>
+            <Label For="osversion" HelpText="Operating System Version" ResourceKey="OsVersion">OS Version: </Label>
         </td>
         <td>
             <input id="osversion" class="form-control" @bind="@_osversion" readonly />
@@ -37,7 +39,7 @@
     </tr>
     <tr>
         <td>
-            <Label For="serverpath" HelpText="Server Path">Server Path: </Label>
+            <Label For="serverpath" HelpText="Server Path" ResourceKey="ServerPath">Server Path: </Label>
         </td>
         <td>
             <input id="serverpath" class="form-control" @bind="@_serverpath" readonly />
@@ -45,14 +47,15 @@
     </tr>
     <tr>
         <td>
-            <Label For="servertime" HelpText="Server Time">Server Time: </Label>
+            <Label For="servertime" HelpText="Server Time" ResourceKey="ServerTime">Server Time: </Label>
         </td>
         <td>
             <input id="servertime" class="form-control" @bind="@_servertime" readonly />
         </td>
     </tr>
 </table>
-<a class="btn btn-primary" href="swagger/index.html" target="_new">Access Framework API</a>
+<a class="btn btn-primary" href="swagger/index.html" target="_new">@Localizer["Access Framework API"]</a>&nbsp;
+<ActionDialog Header="Restart Application" Message="Are You Sure You Wish To Restart The Application?" Action="Restart Application" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await RestartApplication())" ResourceKey="RestartApplication" />
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
@@ -76,6 +79,21 @@
             _osversion = systeminfo["osversion"];
             _serverpath = systeminfo["serverpath"];
             _servertime = systeminfo["servertime"];
+        }
+    }
+
+    private async Task RestartApplication()
+    {
+        try
+        {
+            ShowProgressIndicator();
+            var interop = new Interop(JSRuntime);
+            await interop.RedirectBrowser(NavigateUrl(""), 10);
+            await InstallationService.RestartAsync();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Restarting Application");
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Modules.Admin.Dashboard
+@namespace Oqtane.Modules.Admin.Dashboard
 @inherits ModuleBase
 @inject IPageService PageService
 @inject IUserService UserService
@@ -11,7 +11,7 @@
             string url = NavigateUrl(p.Path);
             <div class="col-md-2 mx-auto text-center">
                 <NavLink class="nav-link" href="@url" Match="NavLinkMatch.All">
-                    <h2><span class="oi oi-@p.Icon" aria-hidden="true"></span></h2>@p.Name
+                    <h2><span class="@p.Icon" aria-hidden="true"></span></h2>@p.Name
                 </NavLink>
             </div>
         }

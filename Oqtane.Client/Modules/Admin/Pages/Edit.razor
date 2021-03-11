@@ -1,17 +1,18 @@
-﻿@namespace Oqtane.Modules.Admin.Pages
+@namespace Oqtane.Modules.Admin.Pages
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IPageService PageService
 @inject IThemeService  ThemeService
+@inject IStringLocalizer<Edit> Localizer
 
 <TabStrip>
-    <TabPanel Name="Settings">
+    <TabPanel Name="Settings" ResourceKey="Settings">
         @if (_themeList != null)
         {
             <table class="table table-borderless">
                 <tr>
                     <td>
-                        <Label For="Name" HelpText="Enter the page name">Name: </Label>
+                        <Label For="Name" HelpText="Enter the page name" ResourceKey="Name">Name: </Label>
                     </td>
                     <td>
                         <input id="Name" class="form-control" @bind="@_name" />
@@ -19,11 +20,11 @@
                 </tr>
                 <tr>
                     <td>
-                        <Label For="Parent" HelpText="Select the parent for the page in the site hierarchy">Parent: </Label>
+                        <Label For="Parent" HelpText="Select the parent for the page in the site hierarchy" ResourceKey="Parent">Parent: </Label>
                     </td>
                     <td>
                         <select id="Parent" class="form-control" @onchange="(e => ParentChanged(e))">
-                            <option value="-1">&lt;Site Root&gt;</option>
+                            <option value="-1">&lt;@Localizer["Site Root"]&gt;</option>
                             @foreach (Page page in _pageList)
                             {
                                 if (page.PageId.ToString() == _parentid)
@@ -40,26 +41,26 @@
                 </tr>
                 <tr>
                     <td>
-                        <Label For="Move" HelpText="Select the location where you would like the page to be moved in relation to other pages">Move: </Label>
+                        <Label For="Move" HelpText="Select the location where you would like the page to be moved in relation to other pages" ResourceKey="Move">Move: </Label>
                     </td>
                     <td>
                         <select id="Move" class="form-control" @bind="@_insert">
                             @if (_parentid == _currentparentid)
                             {
-                                <option value="=">&lt;Maintain Current Location&gt;</option>
+                                <option value="=">&lt;@Localizer["Maintain Current Location"]&gt;</option>
                             }
-                            <option value="<<">To Beginning</option>
+                            <option value="<<">@Localizer["To Beginning"]</option>
                             @if (_children != null && _children.Count > 0)
                             {
-                                <option value="<">Before</option>
-                                <option value=">">After</option>
+                                <option value="<">@Localizer["Before"]</option>
+                                <option value=">">@Localizer["After"]</option>
                             }
-                            <option value=">>">To End</option>
+                            <option value=">>">@Localizer["To End"]</option>
                         </select>
                         @if (_children != null && _children.Count > 0 && (_insert == "<" || _insert == ">"))
                         {
                             <select class="form-control" @bind="@_childid">
-                                <option value="-1">&lt;Select Page&gt;</option>
+                                <option value="-1">&lt;@Localizer["Select Page"]&gt;</option>
                                 @foreach (Page page in _children)
                                 {
                                     <option value="@(page.PageId)">@(page.Name)</option>
@@ -70,18 +71,18 @@
                 </tr>
                 <tr>
                     <td>
-                        <Label For="Navigation" HelpText="Select whether the page is part of the site navigation or hidden">Navigation? </Label>
+                        <Label For="Navigation" HelpText="Select whether the page is part of the site navigation or hidden" ResourceKey="Navigation">Navigation? </Label>
                     </td>
                     <td>
                         <select id="Navigation" class="form-control" @bind="@_isnavigation">
-                            <option value="True">Yes</option>
-                            <option value="False">No</option>
+                            <option value="True">@Localizer["Yes"]</option>
+                            <option value="False">@Localizer["No"]</option>
                         </select>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <Label For="Path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used.">Url Path: </Label>
+                        <Label For="Path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used." ResourceKey="UrlPath">Url Path: </Label>
                     </td>
                     <td>
                         <input id="Path" class="form-control" @bind="@_path" />
@@ -89,18 +90,18 @@
                 </tr>
                 <tr>
                     <td>
-                        <Label For="Url" HelpText="Optionally enter a url which this page should redirect to when a user navigates to it">Redirect: </Label>
+                        <Label For="Url" HelpText="Optionally enter a url which this page should redirect to when a user navigates to it" ResourceKey="Redirect">Redirect: </Label>
                     </td>
                     <td>
                         <input id="Url" class="form-control" @bind="@_url" />
                     </td>
                 </tr>
             </table>
-            <Section Name="Appearance">
+            <Section Name="Appearance" ResourceKey="Appearance">
                 <table class="table table-borderless">
                     <tr>
                         <td>
-                            <Label For="Title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used.">Title: </Label>
+                            <Label For="Title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used." ResourceKey="Title">Title: </Label>
                         </td>
                         <td>
                             <input id="Title" class="form-control" @bind="@_title" />
@@ -108,7 +109,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <Label For="Theme" HelpText="Select the theme for this page">Theme: </Label>
+                            <Label For="Theme" HelpText="Select the theme for this page" ResourceKey="Theme">Theme: </Label>
                         </td>
                         <td>
                             <select id="Theme" class="form-control" @onchange="(e => ThemeChanged(e))">
@@ -131,11 +132,11 @@
                     {
                         <tr>
                             <td>
-                                <Label For="Layout" HelpText="Select a layout for the page (if the selected theme supports it)">Layout: </Label>
+                                <Label For="Layout" HelpText="Select a layout for the page (if the selected theme supports it)" ResourceKey="Layout">Layout: </Label>
                             </td>
                             <td>
                                 <select id="Layout" class="form-control" @bind="@_layouttype">
-                                    <option value="-">&lt;Inherit From Site&gt;</option>
+                                    <option value="-">&lt;@Localizer["Inherit From Site"]&gt;</option>
                                     @foreach (var layout in _layouts)
                                     {
                                         if (layout.TypeName == _layouttype)
@@ -153,11 +154,11 @@
                     }
                     <tr>
                         <td>
-                            <Label For="defaultContainer" HelpText="Select the default container for the page">Default Container: </Label>
+                            <Label For="defaultContainer" HelpText="Select the default container for the page" ResourceKey="DefaultContainer">Default Container: </Label>
                         </td>
                         <td>
                             <select id="defaultContainer" class="form-control" @bind="@_containertype">
-                                <option value="-">&lt;Inherit From Site&gt;</option>
+                                <option value="-">&lt;@Localizer["Inherit From Site"]&gt;</option>
                                 @foreach (var container in _containers)
                                 {
                                     <option value="@container.TypeName">@container.Name</option>
@@ -167,7 +168,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <Label For="Icon" HelpText="Optionally provide an icon for this page which will be displayed in the site navigation">Icon: </Label>
+                            <Label For="Icon" HelpText="Optionally provide an icon class name for this page which will be displayed in the site navigation" ResourceKey="Icon">Icon: </Label>
                         </td>
                         <td>
                             <input id="Icon" class="form-control" @bind="@_icon" />
@@ -175,12 +176,12 @@
                     </tr>
                     <tr>
                         <td>
-                            <Label For="Personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content">Personalizable? </Label>
+                            <Label For="Personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content" ResourceKey="Personalizable">Personalizable? </Label>
                         </td>
                         <td>
                             <select id="Personalizable" class="form-control" @bind="@_ispersonalizable">
-                                <option value="True">Yes</option>
-                                <option value="False">No</option>
+                                <option value="True">@Localizer["Yes"]</option>
+                                <option value="False">@Localizer["No"]</option>
                             </select>
                         </td>
                     </tr>
@@ -190,7 +191,7 @@
             <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
         }
     </TabPanel>
-    <TabPanel Name="Permissions">
+    <TabPanel Name="Permissions" ResourceKey="Permissions">
         @if (_permissions != null)
         {
             <table class="table table-borderless">
@@ -203,8 +204,8 @@
         }
     </TabPanel>
 </TabStrip>
-<button type="button" class="btn btn-success" @onclick="SavePage">Save</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+<button type="button" class="btn btn-success" @onclick="SavePage">@Localizer["Save"]</button>
+<button type="button" class="btn btn-secondary" @onclick="Cancel">@Localizer["Cancel"]</button>
 
 @code {
     private List<Theme> _themeList;
@@ -308,7 +309,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Page {PageId} {Error}", _pageId, ex.Message);
-            AddModuleMessage("Error Loading Page", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Page"], MessageType.Error);
         }
     }
 
@@ -351,7 +352,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Child Pages For Parent {PageId} {Error}", _parentid, ex.Message);
-            AddModuleMessage("Error Loading Child Pages For Parent", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Child Pages For Parent"], MessageType.Error);
         }
     }
 
@@ -377,7 +378,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", _themetype, ex.Message);
-            AddModuleMessage("Error Loading Pane Layouts For Theme", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Pane Layouts For Theme"], MessageType.Error);
         }
     }
 
@@ -423,7 +424,7 @@
 
                 if (!PagePathIsUnique(page.Path, page.SiteId, page.PageId, _pageList))
                 {
-                    AddModuleMessage($"A page with path {_path} already exists for the selected parent page. The page path needs to be unique for the selected parent.", MessageType.Warning);
+                    AddModuleMessage(Localizer["A page with path {0} already exists for the selected parent page. The page path needs to be unique for the selected parent.", _path], MessageType.Warning);
                     return;
                 }
 
@@ -492,17 +493,36 @@
                 }
 
                 await logger.LogInformation("Page Saved {Page}", page);
-                NavigationManager.NavigateTo(NavigateUrl(page.Path));
+                if (PageState.QueryString.ContainsKey("cp"))
+                {
+                    NavigationManager.NavigateTo(NavigateUrl(PageState.Pages.First(item => item.PageId == int.Parse(PageState.QueryString["cp"])).Path));
+                }
+                else
+                {
+                    NavigationManager.NavigateTo(NavigateUrl(page.Path));
+                }
             }
             else
             {
-                AddModuleMessage("You Must Provide Page Name", MessageType.Warning);
+                AddModuleMessage(Localizer["You Must Provide Page Name"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving Page {Page} {Error}", page, ex.Message);
-            AddModuleMessage("Error Saving Page", MessageType.Error);
+            AddModuleMessage(Localizer["Error Saving Page"], MessageType.Error);
+        }
+    }
+
+    private void Cancel()
+    {
+        if (PageState.QueryString.ContainsKey("cp"))
+        {
+            NavigationManager.NavigateTo(NavigateUrl(PageState.Pages.First(item => item.PageId == int.Parse(PageState.QueryString["cp"])).Path));
+        }
+        else
+        {
+            NavigationManager.NavigateTo(NavigateUrl());
         }
     }
 

@@ -1,15 +1,13 @@
-﻿using Oqtane.Shared;
 using System;
-using Oqtane.Models;
-using System.Text.Json;
-using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
+using System.Text.Json;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Oqtane.Enums;
+using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Security;
-// ReSharper disable StringIndexOfIsCultureSpecific.2
-// ReSharper disable StringIndexOfIsCultureSpecific.1
+using Oqtane.Shared;
 
 namespace Oqtane.Infrastructure
 {

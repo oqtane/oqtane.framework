@@ -116,7 +116,12 @@ namespace Oqtane.Modules
 
         public string ContentUrl(int fileid)
         {
-            return Utilities.ContentUrl(PageState.Alias, fileid);
+            return ContentUrl(fileid, false);
+        }
+
+        public string ContentUrl(int fileid, bool asAttachment)
+        {
+            return Utilities.ContentUrl(PageState.Alias, fileid, asAttachment);
         }
 
         public virtual Dictionary<string, string> GetUrlParameters(string parametersTemplate = "")
@@ -171,6 +176,11 @@ namespace Oqtane.Modules
         public void AddModuleMessage(string message, MessageType type)
         {
             ModuleInstance.AddModuleMessage(message, type);
+        }
+
+        public void ClearModuleMessage()
+        {
+            ModuleInstance.AddModuleMessage("", MessageType.Undefined);
         }
 
         public void ShowProgressIndicator()

@@ -1,19 +1,23 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
-using System.Threading.Tasks;
 using System.Runtime.Loader;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.JSInterop;
 using Oqtane.Modules;
 using Oqtane.Providers;
-using Oqtane.Shared;
 using Oqtane.Services;
+using Oqtane.Shared;
+using Oqtane.UI;
 
 namespace Oqtane.Client
 {
@@ -62,6 +66,8 @@ namespace Oqtane.Client
             builder.Services.AddScoped<ISiteTemplateService, SiteTemplateService>();
             builder.Services.AddScoped<ISqlService, SqlService>();
             builder.Services.AddScoped<ISystemService, SystemService>();
+            builder.Services.AddScoped<ILocalizationService, LocalizationService>();
+            builder.Services.AddScoped<ILanguageService, LanguageService>();
 
             await LoadClientAssemblies(httpClient);
 
@@ -88,6 +94,19 @@ namespace Oqtane.Client
             }
 
             var host = builder.Build();
+            var jsRuntime = host.Services.GetRequiredService<IJSRuntime>();
+            var interop = new Interop(jsRuntime);
+            var localizationCookie = await interop.GetCookie(CookieRequestCultureProvider.DefaultCookieName);
+            var culture = CookieRequestCultureProvider.ParseCookieValue(localizationCookie).UICultures[0].Value;
+            var localizationService = host.Services.GetRequiredService<ILocalizationService>();
+            var cultures = await localizationService.GetCulturesAsync();
+
+            if (culture == null || !cultures.Any(c => c.Name.Equals(culture, StringComparison.OrdinalIgnoreCase)))
+            {
+                culture = cultures.Single(c => c.IsDefault).Name;
+            }
+
+            SetCulture(culture);
 
             ServiceActivator.Configure(host.Services);
 
@@ -141,6 +160,13 @@ namespace Oqtane.Client
                     }
                 }
             }
+        }
+
+        private static void SetCulture(string culture)
+        {
+            var cultureInfo = CultureInfo.GetCultureInfo(culture);
+            CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+            CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
         }
     }
 }

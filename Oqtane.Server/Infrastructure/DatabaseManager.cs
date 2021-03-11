@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -168,9 +168,10 @@ namespace Oqtane.Infrastructure
                     var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString();
                     if (!Directory.Exists(dataDirectory)) Directory.CreateDirectory(dataDirectory);
 
-                    using (var dbc = new DbContext(new DbContextOptionsBuilder().UseSqlServer(NormalizeConnectionString(install.ConnectionString)).Options))
+                    var connectionString = NormalizeConnectionString(install.ConnectionString);
+                    using (var dbc = new DbContext(new DbContextOptionsBuilder().UseOqtaneDatabase(connectionString).Options))
                     {
-                        // create empty database if it does not exist       
+                        // create empty database if it does not exist
                         dbc.Database.EnsureCreated();
                         result.Success = true;
                     }
@@ -235,7 +236,7 @@ namespace Oqtane.Infrastructure
 
             if (!string.IsNullOrEmpty(install.TenantName) && !string.IsNullOrEmpty(install.Aliases))
             {
-                using (var db = new InstallationContext(NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey)))) 
+                using (var db = new InstallationContext(NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey))))
                 {
                     Tenant tenant;
                     if (install.IsNewTenant)
@@ -244,14 +245,6 @@ namespace Oqtane.Infrastructure
                         db.Tenant.Add(tenant);
                         db.SaveChanges();
                         _cache.Remove("tenants");
-
-                        if (install.TenantName == TenantNames.Master)
-                        {
-                            var job = new Job { Name = "Notification Job", JobType = "Oqtane.Infrastructure.NotificationJob, Oqtane.Server", Frequency = "m", Interval = 1, StartDate = null, EndDate = null, IsEnabled = false, IsStarted = false, IsExecuting = false, NextExecution = null, RetentionHistory = 10, CreatedBy = "", CreatedOn = DateTime.UtcNow, ModifiedBy = "", ModifiedOn = DateTime.UtcNow };
-                            db.Job.Add(job);
-                            db.SaveChanges();
-                            _cache.Remove("jobs");
-                        }
                     }
                     else
                     {
@@ -282,7 +275,7 @@ namespace Oqtane.Infrastructure
             using (var scope = _serviceScopeFactory.CreateScope())
             {
                 var upgrades = scope.ServiceProvider.GetRequiredService<IUpgradeManager>();
-  
+
                 using (var db = new InstallationContext(NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey))))
                 {
                     foreach (var tenant in db.Tenant.ToList())

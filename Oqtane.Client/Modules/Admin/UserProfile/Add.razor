@@ -1,15 +1,16 @@
-﻿@namespace Oqtane.Modules.Admin.UserProfile
+@namespace Oqtane.Modules.Admin.UserProfile
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject INotificationService NotificationService
+@inject IStringLocalizer<Add> Localizer
 
 @if (PageState.User != null)
 {
     <table class="table table-borderless">
         <tr>
             <td>
-                <Label For="to" HelpText="Enter the username you wish to send a message to">To: </Label>
+                <Label For="to" HelpText="Enter the username you wish to send a message to" ResourceKey="To">To: </Label>
             </td>
             <td>
                 <input id="to" class="form-control" @bind="@username" />
@@ -17,7 +18,7 @@
         </tr>
         <tr>
             <td>
-                <Label For="subject" HelpText="Enter the subject of the message">Subject: </Label>
+                <Label For="subject" HelpText="Enter the subject of the message" ResourceKey="Subject">Subject: </Label>
             </td>
             <td>
                 <input id="subject" class="form-control" @bind="@subject" />
@@ -25,15 +26,15 @@
         </tr>
         <tr>
             <td>
-                <Label For="message" HelpText="Enter the message">Message: </Label>
+                <Label For="message" HelpText="Enter the message" ResourceKey="Message">Message: </Label>
             </td>
             <td>
                 <textarea id="message" class="form-control" @bind="@body" rows="5" />
             </td>
         </tr>
     </table>
-    <button type="button" class="btn btn-primary" @onclick="Send">Send</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <button type="button" class="btn btn-primary" @onclick="Send">@Localizer["Send"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
 }
 
 @code {
@@ -47,39 +48,25 @@
 
     private async Task Send()
     {
-        var notification = new Notification();
         try
         {
             var user = await UserService.GetUserAsync(username, PageState.Site.SiteId);
             if (user != null)
             {
-                notification.SiteId = PageState.Site.SiteId;
-                notification.FromUserId = PageState.User.UserId;
-                notification.FromDisplayName = PageState.User.DisplayName;
-                notification.FromEmail = PageState.User.Email;
-                notification.ToUserId = user.UserId;
-                notification.ToDisplayName = user.DisplayName;
-                notification.ToEmail = user.Email;
-                notification.Subject = subject;
-                notification.Body = body;
-                notification.ParentId = null;
-                notification.CreatedOn = DateTime.UtcNow;
-                notification.IsDelivered = false;
-                notification.DeliveredOn = null;
-                notification.SendOn = DateTime.UtcNow;
+                var notification = new Notification(PageState.Site.SiteId, PageState.User, user, subject, body, null);
                 notification = await NotificationService.AddNotificationAsync(notification);
                 await logger.LogInformation("Notification Created {Notification}", notification);
                 NavigationManager.NavigateTo(NavigateUrl());
             }
             else
             {
-                AddModuleMessage("User Does Not Exist. Please Verify That The Username Provided Is Correct.", MessageType.Warning);
+                AddModuleMessage(Localizer["User Does Not Exist. Please Verify That The Username Provided Is Correct."], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Adding Notification {Notification} {Error}", notification, ex.Message);
-            AddModuleMessage("Error Adding Notification", MessageType.Error);
+            await logger.LogError(ex, "Error Adding Notification {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error Adding Notification"], MessageType.Error);
         }
     }
 

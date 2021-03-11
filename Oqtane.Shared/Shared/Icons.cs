@@ -1,9 +1,9 @@
-﻿namespace Oqtane.Shared
+namespace Oqtane.Shared
 {
     //Open Iconic icons set
     public static class Icons
     {
-        private const string Prefix = ""; //oi- 
+        private const string Prefix = "oi oi-";  
         public const string AccountLogin = Prefix + "account-login";
         public const string AccountLogout = Prefix + "account-logout";
         public const string ActionRedo = Prefix + "action-redo";

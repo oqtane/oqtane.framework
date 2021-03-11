@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Shared;
+using File = Oqtane.Models.File;
 
 namespace Oqtane.Repository
 {
@@ -11,11 +13,13 @@ namespace Oqtane.Repository
     {
         private TenantDBContext _db;
         private readonly IPermissionRepository _permissions;
+        private readonly IFolderRepository _folderRepository;
 
-        public FileRepository(TenantDBContext context, IPermissionRepository permissions)
+        public FileRepository(TenantDBContext context, IPermissionRepository permissions, IFolderRepository folderRepository)
         {
             _db = context;
             _permissions = permissions;
+            _folderRepository = folderRepository;
         }
 
         public IEnumerable<File> GetFiles(int folderId)
@@ -73,6 +77,20 @@ namespace Oqtane.Repository
             File file = _db.File.Find(fileId);
             _db.File.Remove(file);
             _db.SaveChanges();
+        }
+
+        public string GetFilePath(int fileId)
+        {
+            var file = _db.File.Find(fileId);
+            return GetFilePath(file);
+        }
+
+        public string GetFilePath(File file)
+        {
+            if (file == null) return null;
+            var folder = file.Folder ?? _db.Folder.Find(file.FolderId);
+            var filepath = Path.Combine(_folderRepository.GetFolderPath(folder), file.Name);
+            return filepath;
         }
     }
 }

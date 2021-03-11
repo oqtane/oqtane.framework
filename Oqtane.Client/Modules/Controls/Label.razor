@@ -43,10 +43,12 @@ else
 
         _openLabel += ">";
 
-        if (IsLocalizable)
+        var text = Localize("Text", String.Empty);
+        if (text != String.Empty)
         {
-            ChildContent =@<text>@Localize("Text")</text>;
-            HelpText = Localize(nameof(HelpText));
+            ChildContent =@<text>@text</text>;
         }
+
+        HelpText = Localize(nameof(HelpText), HelpText);
     }
 }

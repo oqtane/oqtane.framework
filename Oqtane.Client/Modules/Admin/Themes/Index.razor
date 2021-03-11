@@ -1,9 +1,10 @@
-﻿@namespace Oqtane.Modules.Admin.Themes
+@namespace Oqtane.Modules.Admin.Themes
 @using System.Net
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IThemeService ThemeService
 @inject IPackageService PackageService
+@inject IStringLocalizer<Index> Localizer
 
 @if (_themes == null)
 {
@@ -17,25 +18,25 @@ else
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
-            <th scope="col">Name</th>
-            <th scope="col">Version</th>
+            <th scope="col">@Localizer["Name"]</th>
+            <th scope="col">@Localizer["Version"]</th>
             <th>&nbsp;</th>
         </Header>
         <Row>
-            <td><ActionLink Action="View" Parameters="@($"name=" + WebUtility.UrlEncode(context.ThemeName))" /></td>
+            <td><ActionLink Action="View" Parameters="@($"name=" + WebUtility.UrlEncode(context.ThemeName))" ResourceKey="ViewTheme" /></td>
             <td>
                 @if (context.AssemblyName != "Oqtane.Client")
-                    {
-                    <ActionDialog Header="Delete Theme" Message="@("Are You Sure You Wish To Delete The " + context.Name + " Theme?")" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteTheme(context))" />
-                    }
+                {
+                    <ActionDialog Header="Delete Theme" Message="@Localizer["Are You Sure You Wish To Delete The {0} Theme?", context.Name]" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteTheme(context))" ResourceKey="DeleteTheme" />
+                }
             </td>
             <td>@context.Name</td>
             <td>@context.Version</td>
             <td>
                 @if (UpgradeAvailable(context.ThemeName, context.Version))
-                    {
-                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadTheme(context.ThemeName, context.Version))>Upgrade</button>
-                    }
+                {
+                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadTheme(context.ThemeName, context.Version))>@Localizer["Upgrade"]</button>
+                }
             </td>
             <td></td>
         </Row>
@@ -48,7 +49,7 @@ else
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         try
         {
@@ -60,7 +61,7 @@ else
             if (_themes == null)
             {
                 await logger.LogError(ex, "Error Loading Themes {Error}", ex.Message);
-                AddModuleMessage("Error Loading Themes", MessageType.Error);
+                AddModuleMessage(Localizer["Error Loading Themes"], MessageType.Error);
             }
         }
     }
@@ -85,15 +86,13 @@ else
         {
             await PackageService.DownloadPackageAsync(themename, version, "Themes");
             await logger.LogInformation("Theme Downloaded {ThemeName} {Version}", themename, version);
-            ShowProgressIndicator();
-            var interop = new Interop(JSRuntime);
-            await interop.RedirectBrowser(NavigateUrl(), 10);
             await ThemeService.InstallThemesAsync();
+            AddModuleMessage(Localizer["Theme Installed Successfully. You Must <a href=\"{0}\">Restart</a> Your Application To Apply These Changes.", NavigateUrl("admin/system")], MessageType.Success);
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Downloading Theme {ThemeName} {Version} {Error}", themename, version, ex.Message);
-            AddModuleMessage("Error Downloading Theme", MessageType.Error);
+            AddModuleMessage(Localizer["Error Downloading Theme"], MessageType.Error);
         }
     }
 
@@ -101,15 +100,14 @@ else
     {
         try
         {
-            ShowProgressIndicator();
-            var interop = new Interop(JSRuntime);
-            await interop.RedirectBrowser(NavigateUrl(), 10);
             await ThemeService.DeleteThemeAsync(Theme.ThemeName);
+            AddModuleMessage(Localizer["Theme Deleted Successfully"], MessageType.Success);
+            StateHasChanged();
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting Theme {Theme} {Error}", Theme, ex.Message);
-            AddModuleMessage("Error Deleting Theme", MessageType.Error);
+            AddModuleMessage(Localizer["Error Deleting Theme"], MessageType.Error);
         }
     }
 }

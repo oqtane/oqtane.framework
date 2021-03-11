@@ -1,31 +1,32 @@
-﻿@namespace Oqtane.Modules.Admin.Files
+@namespace Oqtane.Modules.Admin.Files
 @using System.IO
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IFileService FileService
 @inject IFolderService FolderService
+@inject IStringLocalizer<Add> Localizer
 
 <TabStrip>
-    <TabPanel Name="Upload" Heading="Upload Files">
+    <TabPanel Name="Upload" Heading="Upload Files" ResourceKey="UploadFiles">
         <table class="table table-borderless">
             <tr>
                 <td>
-                    <Label For="upload" HelpText="Upload the file you want">Upload: </Label>
+                    <Label For="upload" HelpText="Upload the file you want" ResourceKey="Upload">Upload: </Label>
                 </td>
                 <td>
                     <FileManager UploadMultiple="true" ShowFiles="false" FolderId="@_folderId" />
                 </td>
             </tr>
         </table>
-        <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+        <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
     </TabPanel>
-    <TabPanel Name="Download" Heading="Download Files">
+    <TabPanel Name="Download" Heading="Download Files" ResourceKey="DownloadFiles">
         @if (_folders != null)
         {
             <table class="table table-borderless">
                 <tr>
                     <td>
-                        <Label For="url" HelpText="Enter the url of the file you wish to download">Url: </Label>
+                        <Label For="url" HelpText="Enter the url of the file you wish to download" ResourceKey="Url">Url: </Label>
                     </td>
                     <td>
                         <input id="url" class="form-control" @bind="@url" />
@@ -33,11 +34,11 @@
                 </tr>
                 <tr>
                     <td>
-                        <Label For="folder" HelpText="Select the folder to save the file in">Folder: </Label>
+                        <Label For="folder" HelpText="Select the folder to save the file in" ResourceKey="Folder">Folder: </Label>
                     </td>
                     <td>
                         <select id="folder" class="form-control" @bind="@_folderId">
-                            <option value="-1">&lt;Select Folder&gt;</option>
+                            <option value="-1">&lt;@Localizer["Select Folder"]&gt;</option>
                             @foreach (Folder folder in _folders)
                             {
                                 <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
@@ -46,8 +47,8 @@
                     </td>
                 </tr>
             </table>
-            <button type="button" class="btn btn-success" @onclick="Download">Download</button>
-            <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+            <button type="button" class="btn btn-success" @onclick="Download">@Localizer["Download"]</button>
+            <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
         }
     </TabPanel>
 </TabStrip>
@@ -73,7 +74,7 @@
     {
         if (url == string.Empty || _folderId == -1)
         {
-            AddModuleMessage("You Must Enter A Url And Select A Folder", MessageType.Warning);
+            AddModuleMessage(Localizer["You Must Enter A Url And Select A Folder"], MessageType.Warning);
             return;
         }
 
@@ -81,14 +82,14 @@
 
         if (!Constants.UploadableFiles.Split(',')
                 .Contains(Path.GetExtension(filename).ToLower().Replace(".", "")))
-            {
-                AddModuleMessage("File Could Not Be Downloaded From Url Due To Its File Extension", MessageType.Warning);
-                return ;
-            }
+        {
+            AddModuleMessage(Localizer["File Could Not Be Downloaded From Url Due To Its File Extension"], MessageType.Warning);
+            return;
+        }
 
         if (!filename.IsPathOrFileValid())
         {
-            AddModuleMessage("You Must Enter A Url With A Valid File Name", MessageType.Warning);
+            AddModuleMessage(Localizer["You Must Enter A Url With A Valid File Name"], MessageType.Warning);
             return;
         }
 
@@ -96,12 +97,12 @@
         {
             await FileService.UploadFileAsync(url, _folderId);
             await logger.LogInformation("File Downloaded Successfully From Url {Url}", url);
-            AddModuleMessage("File Downloaded Successfully From Url", MessageType.Success);
+            AddModuleMessage(Localizer["File Downloaded Successfully From Url"], MessageType.Success);
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Downloading File From Url {Url} {Error}", url, ex.Message);
-            AddModuleMessage("Error Downloading File From Url. Please Verify That The Url Is Valid.", MessageType.Error);
+            AddModuleMessage(Localizer["Error Downloading File From Url. Please Verify That The Url Is Valid."], MessageType.Error);
         }
     }
 }

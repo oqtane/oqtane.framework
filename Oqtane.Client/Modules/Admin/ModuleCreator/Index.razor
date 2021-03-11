@@ -4,11 +4,17 @@
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject IModuleService ModuleService
 @inject ISystemService SystemService
+@inject ISettingService SettingService
+@inject IStringLocalizer<Index> Localizer
+@using System.Text.RegularExpressions
+@using System.IO;
 
+@if (string.IsNullOrEmpty(_moduledefinitionname))
+{
     <table class="table table-borderless">
         <tr>
             <td>
-                <Label For="owner" HelpText="Enter the name of the organization who is developing this module. It should not contain spaces or punctuation.">Owner Name: </Label>
+                <Label For="owner" HelpText="Enter the name of the organization who is developing this module. It should not contain spaces or punctuation." ResourceKey="OwnerName">Owner Name: </Label>
             </td>
             <td>
                 <input id="owner" class="form-control" @bind="@_owner" />
@@ -16,7 +22,7 @@
         </tr>
         <tr>
             <td>
-                <Label For="module" HelpText="Enter a name for this module. It should not contain spaces or punctuation.">Module Name: </Label>
+                <Label For="module" HelpText="Enter a name for this module. It should not contain spaces or punctuation." ResourceKey="ModuleName">Module Name: </Label>
             </td>
             <td>
                 <input id="module" class="form-control" @bind="@_module" />
@@ -24,7 +30,7 @@
         </tr>
         <tr>
             <td>
-                <Label For="description" HelpText="Enter s short description for the module">Description: </Label>
+                <Label For="description" HelpText="Enter a short description for the module" ResourceKey="Description">Description: </Label>
             </td>
             <td>
                 <textarea id="description" class="form-control" @bind="@_description" rows="3"></textarea>
@@ -32,19 +38,19 @@
         </tr>
         <tr>
             <td>
-                <Label For="template" HelpText="Select a module template. Internal modules are created inside of the Oqtane solution. External modules are created outside of the Oqtane solution.">Template: </Label>
+                <Label For="template" HelpText="Select a module template. Internal modules are created inside of the framework solution. External modules are created outside of the framework solution." ResourceKey="Template">Template: </Label>
             </td>
             <td>
                 <select id="template" class="form-control" @onchange="(e => TemplateChanged(e))">
-                    <option value="-">&lt;Select Template&gt;</option>
-                    <option value="internal">Internal</option>
-                    <option value="external">External</option>
+                    <option value="-">&lt;@Localizer["Select Template"]&gt;</option>
+                    <option value="internal">@Localizer["Internal"]</option>
+                    <option value="external">@Localizer["External"]</option>
                 </select>
             </td>
         </tr>
         <tr>
             <td>
-                <Label For="reference" HelpText="Select a framework reference version">Framework Reference: </Label>
+                <Label For="reference" HelpText="Select a framework reference version" ResourceKey="FrameworkReference">Framework Reference: </Label>
             </td>
             <td>
                 <select id="reference" class="form-control" @bind="@_reference">
@@ -55,7 +61,7 @@
                             <option value="@(version)">@(version)</option>
                         }
                     }
-                    <option value="local">Local Version</option>
+                    <option value="local">@Localizer["Local Version"]</option>
                 </select>
             </td>
         </tr>
@@ -63,7 +69,7 @@
         {
             <tr>
                 <td>
-                    <Label For="location" HelpText="Location where the module will be created">Location: </Label>
+                    <Label For="location" HelpText="Location where the module will be created" ResourceKey="Location">Location: </Label>
                 </td>
                 <td>
                     <input id="module" class="form-control" @bind="@_location" readonly />
@@ -71,40 +77,69 @@
             </tr>
         }
     </table>
-
-<button type="button" class="btn btn-success" @onclick="CreateModule">Create Module</button>
+    <button type="button" class="btn btn-success" @onclick="CreateModule">@Localizer["Create Module"]</button>
+}
+else
+{
+    <button type="button" class="btn btn-success" @onclick="ActivateModule">@Localizer["Activate Module"]</button>
+}
 
 @code {
+    private string _moduledefinitionname = string.Empty;
     private string _owner = string.Empty;
     private string _module = string.Empty;
     private string _description = string.Empty;
     private string _template = "-";
     public string _reference = Constants.Version;
     private string _location = string.Empty;
+    private Dictionary<string, string> _systeminfo;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        AddModuleMessage("Please Note That Once You Select The Create Module Button The Application Must Restart In Order To Complete The Process. If You Create An External Module You Will Need To Compile The Source Code And Then Relaunch Your Site In Order To Make It Functional.", MessageType.Info);
+        try
+        {
+            _moduledefinitionname = SettingService.GetSetting(ModuleState.Settings, "ModuleDefinitionName", "");
+            _systeminfo = await SystemService.GetSystemInfoAsync();
+
+            if (string.IsNullOrEmpty(_moduledefinitionname))
+            {
+                _owner = ModuleState.Title;
+                _module = ModuleState.Title;
+                _description = ModuleState.Title;
+            }
+            else
+            {
+                AddModuleMessage(Localizer["Once You Have Compiled The Module And Restarted The Application You Can Activate The Module Below"], MessageType.Info);
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Module Creator");
+        }
     }
 
     private async Task CreateModule()
     {
         try
         {
-            if (!string.IsNullOrEmpty(_owner) && !string.IsNullOrEmpty(_module) && _template != "-")
+            if (IsValid(_owner) && IsValid(_module) && _owner != _module && _template != "-")
             {
-                ShowProgressIndicator();
-                var interop = new Interop(JSRuntime);
-                await interop.RedirectBrowser(NavigateUrl(), 5);
+                var moduleDefinition = new ModuleDefinition { Owner = _owner, Name = _module, Description = _description, Template = _template, Version = _reference };
+                moduleDefinition = await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition);
 
-                var moduleDefinition = new ModuleDefinition { Owner = _owner.Replace(" ", ""), Name = _module.Replace(" ", ""), Description = _description, Template = _template, Version = _reference };
-                await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition, ModuleState.ModuleId);
+                var settings = ModuleState.Settings;
+                SettingService.SetSetting(settings, "ModuleDefinitionName", moduleDefinition.ModuleDefinitionName);
+                await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
+
+                GetLocation();
+
+                AddModuleMessage(Localizer["The Source Code For Your Module Has Been Created At The Location Specified Below And Must Be Compiled In Order To Make It Functional. Once It Has Been Compiled You Must <a href=\"{0}\">Restart</a> Your Application To Apply These Changes.", NavigateUrl("admin/system")], MessageType.Success);
             }
             else
             {
-                AddModuleMessage("You Must Provide An Owner, Module Name, And Template", MessageType.Warning);
+                AddModuleMessage(Localizer["You Must Provide A Valid Owner Name And Module Name ( ie. No Punctuation Or Spaces And The Values Cannot Be The Same ) And Choose A Template"], MessageType.Warning);
             }
         }
         catch (Exception ex)
@@ -113,34 +148,56 @@
         }
     }
 
-    private async void TemplateChanged(ChangeEventArgs e)
+    private async Task ActivateModule()
     {
         try
         {
-            _location = string.Empty;
-            _template = (string)e.Value;
-            if (_template != "-")
+            if (!string.IsNullOrEmpty(_moduledefinitionname))
             {
-                Dictionary<string, string> systeminfo = await SystemService.GetSystemInfoAsync();
-                if (systeminfo != null)
-                {
-                    string[] path = systeminfo["serverpath"].Split('\\');
-                    if (_template == "internal")
-                    {
-                        _location = string.Join("\\", path, 0, path.Length - 1) + "\\Oqtane.Client\\Modules\\" + _owner + "." + _module;
-                    }
-                    else
-                    {
-                        _location = string.Join("\\", path, 0, path.Length - 2) + "\\" + _owner + "." + _module;
-                    }
-                }
+                Module module = await ModuleService.GetModuleAsync(ModuleState.ModuleId);
+                module.ModuleDefinitionName = _moduledefinitionname;
+                await ModuleService.UpdateModuleAsync(module);
+                ClearModuleMessage();
+                NavigationManager.NavigateTo(NavigateUrl());
             }
-            StateHasChanged();
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Getting System Info {Error}", ex.Message);
-            AddModuleMessage("Error Getting System Info", MessageType.Error);
+            await logger.LogError(ex, "Error Activating Module");
         }
+    }
+
+    private bool IsValid(string name)
+    {
+        // must contain letters, underscores and digits and first character must be letter or underscore
+        return !string.IsNullOrEmpty(name) && Regex.IsMatch(name, "^[A-Za-z_][A-Za-z0-9_]*$");
+    }
+
+    private void TemplateChanged(ChangeEventArgs e)
+    {
+        _template = (string)e.Value;
+        GetLocation();
+    }
+
+    private void GetLocation()
+    {
+        _location = string.Empty;
+        if (_template != "-" && _systeminfo != null && _systeminfo.ContainsKey("serverpath"))
+        {
+            string[] path = _systeminfo["serverpath"].Split(Path.DirectorySeparatorChar);
+            if (_template == "internal")
+            {
+                _location = string.Join(Path.DirectorySeparatorChar, path, 0, path.Length - 1) +
+                    Path.DirectorySeparatorChar + "Oqtane.Client" +
+                    Path.DirectorySeparatorChar + "Modules" +
+                    Path.DirectorySeparatorChar + _owner + "." + _module;
+            }
+            else
+            {
+                _location = string.Join(Path.DirectorySeparatorChar, path, 0, path.Length - 2) +
+                    Path.DirectorySeparatorChar + _owner + "." + _module;
+            }
+        }
+        StateHasChanged();
     }
 }

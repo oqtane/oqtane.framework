@@ -2,97 +2,98 @@
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IProfileService ProfileService
+@inject IStringLocalizer<Edit> Localizer
 
-    <table class="table table-borderless">
-        <tr>
-            <td>
-                <Label For="name" HelpText="The name of this profile item">Name: </Label>
-            </td>
-            <td>
-                <input id="name" class="form-control" @bind="@_name" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="title" HelpText="The title of the profile item to display to the user">Title: </Label>
-            </td>
-            <td>
-                <input id="title" class="form-control" @bind="@_title" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="description" HelpText="The help text displayed to the user for this profile item">Description: </Label>
-            </td>
-            <td>
-                <textarea id="description" class="form-control" @bind="@_description" rows="5"></textarea>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="category" HelpText="The category of this profile item (for grouping)">Category: </Label>
-            </td>
-            <td>
-                <input id="category" class="form-control" @bind="@_category" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="order" HelpText="The index order of where this profile item should be displayed">Order: </Label>
-            </td>
-            <td>
-                <input id="order" class="form-control" @bind="@_vieworder" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="length" HelpText="The max number of characters this profile item should accept (enter zero for unlimited)">Length: </Label>
-            </td>
-            <td>
-                <input id="length" class="form-control" @bind="@_maxlength" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="defaultVal" HelpText="The default value for this profile item">Default Value: </Label>
-            </td>
-            <td>
-                <input id="defaultVal" class="form-control" @bind="@_defaultvalue" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="options" HelpText="A comma delimited list of options the user can select from">Options: </Label>
-            </td>
-            <td>
-                <input id="options" class="form-control" @bind="@_options" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="required" HelpText="Should a user be required to provide a value for this profile item?">Required? </Label>
-            </td>
-            <td>
-                <select id="required" class="form-control" @bind="@_isrequired">
-                    <option value="True">Yes</option>
-                    <option value="False">No</option>
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="private" HelpText="Should this profile item be visible to all users?">Private? </Label>
-            </td>
-            <td>
-                <select id="private" class="form-control" @bind="@_isprivate">
-                    <option value="True">Yes</option>
-                    <option value="False">No</option>
-                </select>
-            </td>
-        </tr>
-    </table>
-<button type="button" class="btn btn-success" @onclick="SaveProfile">Save</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <Label For="name" HelpText="The name of this profile item" ResourceKey="Name">Name: </Label>
+        </td>
+        <td>
+            <input id="name" class="form-control" @bind="@_name" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="title" HelpText="The title of the profile item to display to the user" ResourceKey="Title">Title: </Label>
+        </td>
+        <td>
+            <input id="title" class="form-control" @bind="@_title" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="description" HelpText="The help text displayed to the user for this profile item" ResourceKey="Description">Description: </Label>
+        </td>
+        <td>
+            <textarea id="description" class="form-control" @bind="@_description" rows="5"></textarea>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="category" HelpText="The category of this profile item (for grouping)" ResourceKey="Category">Category: </Label>
+        </td>
+        <td>
+            <input id="category" class="form-control" @bind="@_category" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="order" HelpText="The index order of where this profile item should be displayed" ResourceKey="Order">Order: </Label>
+        </td>
+        <td>
+            <input id="order" class="form-control" @bind="@_vieworder" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="length" HelpText="The max number of characters this profile item should accept (enter zero for unlimited)" ResourceKey="Length">Length: </Label>
+        </td>
+        <td>
+            <input id="length" class="form-control" @bind="@_maxlength" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="defaultVal" HelpText="The default value for this profile item" ResourceKey="DefaultValue">Default Value: </Label>
+        </td>
+        <td>
+            <input id="defaultVal" class="form-control" @bind="@_defaultvalue" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="options" HelpText="A comma delimited list of options the user can select from" ResourceKey="Options">Options: </Label>
+        </td>
+        <td>
+            <input id="options" class="form-control" @bind="@_options" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="required" HelpText="Should a user be required to provide a value for this profile item?" ResourceKey="Required">Required? </Label>
+        </td>
+        <td>
+            <select id="required" class="form-control" @bind="@_isrequired">
+                <option value="True">@Localizer["Yes"]</option>
+                <option value="False">@Localizer["No"]</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="private" HelpText="Should this profile item be visible to all users?" ResourceKey="Private">Private? </Label>
+        </td>
+        <td>
+            <select id="private" class="form-control" @bind="@_isprivate">
+                <option value="True">@Localizer["Yes"]</option>
+                <option value="False">@Localizer["No"]</option>
+            </select>
+        </td>
+    </tr>
+</table>
+<button type="button" class="btn btn-success" @onclick="SaveProfile">@Localizer["Save"]</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
 
 @code {
     private int _profileid = -1;
@@ -137,7 +138,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Profile {ProfileId} {Error}", _profileid, ex.Message);
-            AddModuleMessage("Error Loading Profile", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Profile"], MessageType.Error);
         }
     }
 
@@ -169,7 +170,8 @@
             if (_profileid != -1)
             {
                 profile = await ProfileService.UpdateProfileAsync(profile);
-            }else
+            }
+            else
             {
                 profile = await ProfileService.AddProfileAsync(profile);
             }
@@ -180,7 +182,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving Profile {ProfleId} {Error}", _profileid, ex.Message);
-            AddModuleMessage("Error Saving Profile", MessageType.Error);
+            AddModuleMessage(Localizer["Error Saving Profile"], MessageType.Error);
         }
     }
 }

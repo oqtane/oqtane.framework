@@ -1,4 +1,4 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -49,9 +49,9 @@ namespace Oqtane.Services
             await DeleteAsync($"{Apiurl}/{moduleDefinitionId}?siteid={siteId}");
         }
 
-        public async Task CreateModuleDefinitionAsync(ModuleDefinition moduleDefinition, int moduleId)
+        public async Task<ModuleDefinition> CreateModuleDefinitionAsync(ModuleDefinition moduleDefinition)
         {
-            await PostJsonAsync($"{Apiurl}?moduleid={moduleId}", moduleDefinition);
+            return await PostJsonAsync($"{Apiurl}", moduleDefinition);
         }
     }
 }

@@ -1,0 +1,44 @@
+@namespace Oqtane.Themes.Controls
+@inherits ThemeControlBase
+@using System.Globalization
+@using Microsoft.AspNetCore.Localization
+@using Oqtane.Models
+@inject ILanguageService LanguageService
+@inject NavigationManager NavigationManager
+
+@if (_supportedCultures?.Count() > 1)
+{
+    <div class="btn-group" role="group">
+        <button id="btnCultures" type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="oi oi-globe"></span>
+        </button>
+        <div class="dropdown-menu" aria-labelledby="btnCultures">
+            @foreach (var culture in _supportedCultures)
+            {
+                <a class="dropdown-item @(CultureInfo.CurrentUICulture.Name == culture.Name ? "active" : String.Empty)" href="#" @onclick="@(async e => await SetCultureAsync(culture.Name))">@culture.DisplayName</a>
+            }
+        </div>
+    </div>
+}
+
+@code{
+    private IEnumerable<Culture> _supportedCultures;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var languages = await LanguageService.GetLanguagesAsync(PageState.Site.SiteId);
+        _supportedCultures = languages.Select(l => new Culture { Name = l.Code, DisplayName = l.Name });
+    }
+
+    private async Task SetCultureAsync(string culture)
+    {
+        if (culture != CultureInfo.CurrentUICulture.Name)
+        {
+            var interop = new Interop(JSRuntime);
+            var localizationCookieValue = CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture));
+            await interop.SetCookie(CookieRequestCultureProvider.DefaultCookieName, localizationCookieValue, 360);
+
+            NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+        }
+    }
+}

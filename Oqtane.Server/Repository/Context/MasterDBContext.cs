@@ -1,18 +1,34 @@
-﻿using System;
+using System;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
+using Microsoft.Extensions.Configuration;
+using Oqtane.Extensions;
 
 namespace Oqtane.Repository
 {
     public class MasterDBContext : DbContext
     {
-        private IHttpContextAccessor _accessor;
+        private readonly IHttpContextAccessor _accessor;
+        private readonly IConfiguration _configuration;
 
-        public MasterDBContext(DbContextOptions<MasterDBContext> options, IHttpContextAccessor accessor) : base(options)
+        public MasterDBContext(DbContextOptions<MasterDBContext> options, IHttpContextAccessor accessor, IConfiguration configuration) : base(options)
         {
             _accessor = accessor;
+            _configuration = configuration;
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!String.IsNullOrEmpty(_configuration.GetConnectionString("DefaultConnection")))
+            {
+                var connectionString = _configuration.GetConnectionString("DefaultConnection")
+                    .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString());
+
+                optionsBuilder.UseOqtaneDatabase(connectionString);
+            }
+            base.OnConfiguring(optionsBuilder);
         }
 
         public virtual DbSet<Alias> Alias { get; set; }
@@ -23,38 +39,7 @@ namespace Oqtane.Repository
 
         public override int SaveChanges()
         {
-            ChangeTracker.DetectChanges();
-
-            string username = "";
-            if (_accessor.HttpContext != null && _accessor.HttpContext.User.Identity.Name != null)
-            {
-                username = _accessor.HttpContext.User.Identity.Name;
-            }
-            DateTime date = DateTime.UtcNow;
-
-            var created = ChangeTracker.Entries()
-                .Where(x => x.State == EntityState.Added);
-
-            foreach (var item in created)
-            {
-                if (item.Entity is IAuditable)
-                {
-                    item.CurrentValues[nameof(IAuditable.CreatedBy)] = username;
-                    item.CurrentValues[nameof(IAuditable.CreatedOn)] = date;
-                }
-            }
-
-            var modified = ChangeTracker.Entries()
-                .Where(x => x.State == EntityState.Modified || x.State == EntityState.Added);
-
-            foreach (var item in modified)
-            {
-                if (item.Entity is IAuditable)
-                {
-                    item.CurrentValues[nameof(IAuditable.ModifiedBy)] = username;
-                    item.CurrentValues[nameof(IAuditable.ModifiedOn)] = date;
-                }
-            }
+            DbContextUtils.SaveChanges(this, _accessor);
 
             return base.SaveChanges();
         }

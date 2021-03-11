@@ -1,16 +1,17 @@
-﻿@using Oqtane.Modules.HtmlText.Services
+@using Oqtane.Modules.HtmlText.Services
 @using Oqtane.Modules.HtmlText.Models
 @using Oqtane.Modules.Controls
 @namespace Oqtane.Modules.HtmlText
 @inherits ModuleBase
 @inject IHtmlTextService HtmlTextService
 @inject NavigationManager NavigationManager
+@inject IStringLocalizer<Edit> Localizer
 
 @if (_content != null)
 {
     <RichTextEditor Content="@_content" @ref="@RichTextEditorHtml"></RichTextEditor>
-    <button type="button" class="btn btn-success" @onclick="SaveContent">Save</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <button type="button" class="btn btn-success" @onclick="SaveContent">@Localizer["Save"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
     @if (!string.IsNullOrEmpty(_content))
     {
         <br />
@@ -91,7 +92,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving Content {Error}", ex.Message);
-            AddModuleMessage("Error Saving Content", MessageType.Error);
+            AddModuleMessage(Localizer["Error Saving Content"], MessageType.Error);
         }
     }
 }

@@ -1,37 +1,38 @@
-﻿@namespace Oqtane.UI
+@namespace Oqtane.UI
 @inject NavigationManager NavigationManager
 @inject IInstallationService InstallationService
 @inject ISiteService SiteService
 @inject IUserService UserService
 @inject IJSRuntime JSRuntime
+@inject IStringLocalizer<Installer> Localizer
 
 <div class="container">
     <div class="row">
         <div class="mx-auto text-center">
             <img src="oqtane-black.png" />
-            <div style="font-weight: bold">Version: @Constants.Version</div>
+            <div style="font-weight: bold">@Localizer["Version:"] @Constants.Version</div>
         </div>
     </div>
     <hr class="app-rule" />
     <div class="row justify-content-center">
         <div class="col text-center">
-            <h2>Database Configuration</h2><br />
+            <h2>@Localizer["Database Configuration"]</h2><br />
             <table class="form-group" cellpadding="4" cellspacing="4" style="margin: auto;">
                 <tbody>
                     <tr>
                         <td>
-                            <label class="control-label" style="font-weight: bold">Database Type: </label>
+                            <label class="control-label" style="font-weight: bold">@Localizer["Database Type:"] </label>
                         </td>
                         <td>
                             <select class="custom-select" @bind="@_databaseType">
-                                <option value="LocalDB">Local Database</option>
-                                <option value="SQLServer">SQL Server</option>
+                                <option value="LocalDB">@Localizer["Local Database"]</option>
+                                <option value="SQLServer">@Localizer["SQL Server"]</option>
                             </select>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <label class="control-label" style="font-weight: bold">Server: </label>
+                            <label class="control-label" style="font-weight: bold">@Localizer["Server:"] </label>
                         </td>
                         <td>
                             <input type="text" class="form-control" @bind="@_serverName" />
@@ -39,7 +40,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <label class="control-label" style="font-weight: bold">Database: </label>
+                            <label class="control-label" style="font-weight: bold">@Localizer["Database:"] </label>
                         </td>
                         <td>
                             <input type="text" class="form-control" @bind="@_databaseName" />
@@ -47,18 +48,18 @@
                     </tr>
                     <tr>
                         <td>
-                            <label class="control-label" style="font-weight: bold">Integrated Security: </label>
+                            <label class="control-label" style="font-weight: bold">@Localizer["Integrated Security:"] </label>
                         </td>
                         <td>
                             <select class="custom-select" @onchange="SetIntegratedSecurity">
-                                <option value="true" selected>True</option>
-                                <option value="false">False</option>
+                                <option value="true" selected>@Localizer["True"]</option>
+                                <option value="false">@Localizer["False"]</option>
                             </select>
                         </td>
                     </tr>
                     <tr style="@_integratedSecurityDisplay">
                         <td>
-                            <label class="control-label" style="font-weight: bold">Username: </label>
+                            <label class="control-label" style="font-weight: bold">@Localizer["Username:"] </label>
                         </td>
                         <td>
                             <input type="text" class="form-control" @bind="@_username" />
@@ -66,7 +67,7 @@
                     </tr>
                     <tr style="@_integratedSecurityDisplay">
                         <td>
-                            <label class="control-label" style="font-weight: bold">Password: </label>
+                            <label class="control-label" style="font-weight: bold">@Localizer["Password:"] </label>
                         </td>
                         <td>
                             <input type="password" class="form-control" @bind="@_password" />
@@ -76,12 +77,12 @@
             </table>
         </div>
         <div class="col text-center">
-            <h2>Application Administrator</h2><br />
+            <h2>@Localizer["Application Administrator"]</h2><br />
             <table class="form-group" cellpadding="4" cellspacing="4" style="margin: auto;">
                 <tbody>
                     <tr>
                         <td>
-                            <label class="control-label" style="font-weight: bold">Username: </label>
+                            <label class="control-label" style="font-weight: bold">@Localizer["Username:"] </label>
                         </td>
                         <td>
                             <input type="text" class="form-control" @bind="@_hostUsername" readonly />
@@ -89,7 +90,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <label class="control-label" style="font-weight: bold">Password: </label>
+                            <label class="control-label" style="font-weight: bold">@Localizer["Password:"] </label>
                         </td>
                         <td>
                             <input type="password" class="form-control" @bind="@_hostPassword" />
@@ -97,7 +98,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <label class="control-label" style="font-weight: bold">Confirm: </label>
+                            <label class="control-label" style="font-weight: bold">@Localizer["Confirm:"] </label>
                         </td>
                         <td>
                             <input type="password" class="form-control" @bind="@_confirmPassword" />
@@ -105,7 +106,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <label class="control-label" style="font-weight: bold">Email: </label>
+                            <label class="control-label" style="font-weight: bold">@Localizer["Email:"] </label>
                         </td>
                         <td>
                             <input type="text" class="form-control" @bind="@_hostEmail" />
@@ -118,7 +119,7 @@
     <hr class="app-rule" />
     <div class="row">
         <div class="mx-auto text-center">
-            <button type="button" class="btn btn-success" @onclick="Install">Install Now</button><br /><br />
+            <button type="button" class="btn btn-success" @onclick="Install">@Localizer["Install Now"]</button><br /><br />
             <ModuleMessage Message="@_message" Type="MessageType.Error"></ModuleMessage>
         </div>
         <div class="app-progress-indicator" style="@_loadingDisplay"></div>
@@ -207,7 +208,7 @@
         }
         else
         {
-            _message = "Please Enter All Fields And Ensure Passwords Match And Are Greater Than 5 Characters In Length";
+            _message = Localizer["Please Enter All Fields And Ensure Passwords Match And Are Greater Than 5 Characters In Length"];
         }
     }
 

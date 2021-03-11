@@ -1,15 +1,16 @@
-﻿@namespace Oqtane.Modules.Admin.UserProfile
+@namespace Oqtane.Modules.Admin.UserProfile
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject INotificationService NotificationService
+@inject IStringLocalizer<View> Localizer
 
 @if (PageState.User != null)
 {
     <table class="table table-borderless">
         <tr>
             <td>
-                <label class="control-label">@title: </label>
+                <label class="control-label">@Localizer["Title:"] </label>
             </td>
             @if (title == "From")
             {
@@ -26,7 +27,7 @@
         </tr>
         <tr>
             <td>
-                <label class="control-label">Subject: </label>
+                <label class="control-label">@Localizer["Subject:"] </label>
             </td>
             @if (title == "From")
             {
@@ -45,7 +46,7 @@
         {
             <tr>
                 <td>
-                    <label class="control-label">Date: </label>
+                    <label class="control-label">@Localizer["Date:"] </label>
                 </td>
                 <td>
                     <input class="form-control" @bind="@createdon" readonly />
@@ -56,7 +57,7 @@
         {
             <tr>
                 <td>
-                    <label class="control-label">Message: </label>
+                    <label class="control-label">@Localizer["Message:"] </label>
                 </td>
                 <td>
                     <textarea class="form-control" @bind="@body" rows="5" readonly />
@@ -67,7 +68,7 @@
         {
             <tr>
                 <td>
-                    <label class="control-label">Message: </label>
+                    <label class="control-label">@Localizer["Message:"] </label>
                 </td>
                 <td>
                     <textarea class="form-control" @bind="@body" rows="5" />
@@ -79,24 +80,26 @@
 
     @if (reply != string.Empty)
     {
-        <button type="button" class="btn btn-primary" @onclick="Send">Send</button> }
+        <button type="button" class="btn btn-primary" @onclick="Send">@Localizer["Send"]</button>
+    }
     else
     {
         if (title == "From")
         {
-            <button type="button" class="btn btn-primary" @onclick="Reply">Reply</button>}
+            <button type="button" class="btn btn-primary" @onclick="Reply">@Localizer["Reply"]</button>
+        }
     }
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
     <br />
     <br />
     @if (title == "To")
     {
         <div class="control-group">
-            <label class="control-label">Original Message </label>
+            <label class="control-label">@Localizer["Original Message"] </label>
             <textarea class="form-control" @bind="@reply" rows="5" readonly />
         </div>
-        }
     }
+}
 
 @code {
     private int notificationid;
@@ -155,7 +158,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Users {Error}", ex.Message);
-            AddModuleMessage("Error Loading Users", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading Users"], MessageType.Error);
         }
     }
 
@@ -173,39 +176,25 @@
 
     private async Task Send()
     {
-        var notification = new Notification();
         try
         {
             var user = await UserService.GetUserAsync(username, PageState.Site.SiteId);
             if (user != null)
             {
-                notification.SiteId = PageState.Site.SiteId;
-                notification.FromUserId = PageState.User.UserId;
-                notification.FromDisplayName = PageState.User.DisplayName;
-                notification.FromEmail = PageState.User.Email;
-                notification.ToUserId = user.UserId;
-                notification.ToDisplayName = user.DisplayName;
-                notification.ToEmail = user.Email;
-                notification.Subject = subject;
-                notification.Body = body;
-                notification.ParentId = notificationid;
-                notification.CreatedOn = DateTime.UtcNow;
-                notification.IsDelivered = false;
-                notification.DeliveredOn = null;
-                notification.SendOn = DateTime.UtcNow;
+                var notification = new Notification(PageState.Site.SiteId, PageState.User, user, subject, body, notificationid);
                 notification = await NotificationService.AddNotificationAsync(notification);
                 await logger.LogInformation("Notification Created {Notification}", notification);
                 NavigationManager.NavigateTo(NavigateUrl());
             }
             else
             {
-                AddModuleMessage("User Does Not Exist. Please Verify That The Username Provided Is Correct.", MessageType.Warning);
+                AddModuleMessage(Localizer["User Does Not Exist. Please Verify That The Username Provided Is Correct."], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Adding Notification {Notification} {Error}", notification, ex.Message);
-            AddModuleMessage("Error Adding Notification", MessageType.Error);
+            await logger.LogError(ex, "Error Adding Notification {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error Adding Notification"], MessageType.Error);
         }
     }
 }

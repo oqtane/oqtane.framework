@@ -1,9 +1,10 @@
-﻿@namespace Oqtane.Modules.Admin.Users
+@namespace Oqtane.Modules.Admin.Users
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject IProfileService ProfileService
 @inject ISettingService SettingService
+@inject IStringLocalizer<Edit> Localizer
 
 @if (PageState.User != null && photofileid != -1)
 {
@@ -14,13 +15,13 @@ else
     <br />
 }
 <TabStrip>
-    <TabPanel Name="Identity">
+    <TabPanel Name="Identity" ResourceKey="Identity">
         @if (profiles != null)
         {
             <table class="table table-borderless">
                 <tr>
                     <td>
-                        <label class="control-label">Username: </label>
+                        <label class="control-label">@Localizer["Username:"] </label>
                     </td>
                     <td>
                         <input class="form-control" @bind="@username" readonly />
@@ -28,7 +29,7 @@ else
                 </tr>
                 <tr>
                     <td>
-                        <label class="control-label">Password: </label>
+                        <label class="control-label">@Localizer["Password:"] </label>
                     </td>
                     <td>
                         <input type="password" class="form-control" @bind="@password" />
@@ -36,7 +37,7 @@ else
                 </tr>
                 <tr>
                     <td>
-                        <label class="control-label">Confirm Password: </label>
+                        <label class="control-label">@Localizer["Confirm Password:"] </label>
                     </td>
                     <td>
                         <input type="password" class="form-control" @bind="@confirm" />
@@ -44,7 +45,7 @@ else
                 </tr>
                 <tr>
                     <td>
-                        <label class="control-label">Email: </label>
+                        <label class="control-label">@Localizer["Email:"] </label>
                     </td>
                     <td>
                         <input class="form-control" @bind="@email" />
@@ -52,7 +53,7 @@ else
                 </tr>
                 <tr>
                     <td>
-                        <label class="control-label">Full Name: </label>
+                        <label class="control-label">@Localizer["Full Name:"] </label>
                     </td>
                     <td>
                         <input class="form-control" @bind="@displayname" />
@@ -60,7 +61,7 @@ else
                 </tr>
                 <tr>
                     <td>
-                        <label class="control-label">Photo: </label>
+                        <label class="control-label">@Localizer["Photo:"] </label>
                     </td>
                     <td>
                         <FileManager FileId="@photofileid" @ref="filemanager" />
@@ -68,58 +69,59 @@ else
                 </tr>
                 <tr>
                     <td>
-                        <label class="control-label">Is Deleted? </label>
+                        <label class="control-label">@Localizer["Is Deleted?"] </label>
                     </td>
                     <td>
                         <select class="form-control" @bind="@isdeleted">
-                            <option value="True">Yes</option>
-                            <option value="False">No</option>
+                            <option value="True">@Localizer["Yes"]</option>
+                            <option value="False">@Localizer["No"]</option>
                         </select>
                     </td>
                 </tr>
             </table>
         }
     </TabPanel>
-    <TabPanel Name="Profile">
+    <TabPanel Name="Profile" ResourceKey="Profile">
         @if (profiles != null)
         {
-        <table class="table table-borderless">
-            @foreach (Profile profile in profiles)
-            {
-                var p = profile;
-                if (p.Category != category)
+            <table class="table table-borderless">
+                @foreach (Profile profile in profiles)
                 {
+                    var p = profile;
+                    if (p.Category != category)
+                    {
+                        <tr>
+                            <th colspan="2" style="text-align: center;">
+                                @p.Category
+                            </th>
+                        </tr>
+                        category = p.Category;
+                    }
                     <tr>
-                        <th colspan="2" style="text-align: center;">
-                            @p.Category
-                        </th>
+                        <td>
+                            <Label For="@p.Name" HelpText="@p.Description">@p.Title</Label>
+                        </td>
+                        <td>
+                            @if (p.IsRequired)
+                            {
+                                <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
+                            }
+                            else
+                            {
+                                <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                            }
+                        </td>
                     </tr>
-                    category = p.Category;
                 }
-                <tr>
-                    <td>
-                        <Label For="@p.Name" HelpText="@p.Description">@p.Title</Label>
-                    </td>
-                    <td>
-                        @if (p.IsRequired)
-                        {
-                            <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
-                        }
-                        else
-                        {
-                            <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
-                        }
-                    </td>
-                </tr>
-            }
-        </table>
+            </table>
         }
     </TabPanel>
 </TabStrip>
 
-<button type="button" class="btn btn-primary" @onclick="SaveUser">Save</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
-<br /><br />
+<button type="button" class="btn btn-primary" @onclick="SaveUser">@Localizer["Save"]</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+<br />
+<br />
 <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>
 
 @code {
@@ -176,7 +178,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading User {UserId} {Error}", userid, ex.Message);
-            AddModuleMessage("Error Loading User", MessageType.Error);
+            AddModuleMessage(Localizer["Error Loading User"], MessageType.Error);
         }
     }
 
@@ -215,18 +217,18 @@ else
                 }
                 else
                 {
-                    AddModuleMessage("Passwords Entered Do Not Match", MessageType.Warning);
+                    AddModuleMessage(Localizer["Passwords Entered Do Not Match"], MessageType.Warning);
                 }
             }
             else
             {
-                AddModuleMessage("You Must Provide A Username, Password, Email Address, And All Required Profile Information", MessageType.Warning);
+                AddModuleMessage(Localizer["You Must Provide A Username, Password, Email Address, And All Required Profile Information"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving User {Username} {Email} {Error}", username, email, ex.Message);
-            AddModuleMessage("Error Saving User", MessageType.Error);
+            AddModuleMessage(Localizer["Error Saving User"], MessageType.Error);
         }
     }
 
@@ -246,7 +248,7 @@ else
         }
         return valid;
     }
-    
+
     private void ProfileChanged(ChangeEventArgs e, string SettingName)
     {
         var value = (string)e.Value;

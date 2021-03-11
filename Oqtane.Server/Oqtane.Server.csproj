@@ -2,9 +2,8 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <LangVersion>7.3</LangVersion>
     <Configurations>Debug;Release</Configurations>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <Product>Oqtane</Product>
     <Authors>Shaun Walker</Authors>
     <Company>.NET Foundation</Company>
@@ -13,7 +12,7 @@
     <PackageProjectUrl>https://www.oqtane.org</PackageProjectUrl>
     <RepositoryUrl>https://github.com/oqtane</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <PackageReleaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v2.0.0</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v2.0.1</PackageReleaseNotes>
     <RootNamespace>Oqtane</RootNamespace>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
@@ -34,6 +33,9 @@
     <EmbeddedResource Include="Scripts\Tenant.01.00.01.01.sql" />
     <EmbeddedResource Include="Scripts\Tenant.01.00.02.01.sql" />
     <EmbeddedResource Include="Scripts\Tenant.02.00.00.01.sql" />
+    <EmbeddedResource Include="Scripts\Tenant.02.00.01.01.sql" />
+    <EmbeddedResource Include="Scripts\Tenant.02.00.01.02.sql" />
+    <EmbeddedResource Include="Scripts\Tenant.02.00.01.03.sql" />
     <EmbeddedResource Include="Modules\HtmlText\Scripts\HtmlText.1.0.0.sql" />
     <EmbeddedResource Include="Modules\HtmlText\Scripts\HtmlText.Uninstall.sql" />
   </ItemGroup>

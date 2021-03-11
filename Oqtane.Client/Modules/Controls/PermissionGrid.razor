@@ -1,7 +1,8 @@
-﻿@namespace Oqtane.Modules.Controls
+@namespace Oqtane.Modules.Controls
 @inherits ModuleControlBase
 @inject IRoleService RoleService
 @inject IUserService UserService
+@inject IStringLocalizer<PermissionGrid> Localizer 
 
 @if (_permissions != null)
 {
@@ -9,10 +10,10 @@
     <table class="table" style="width: 50%; min-width: 250px;">
         <tbody>
             <tr>
-                <th scope="col">Role</th>
+                <th scope="col">@Localizer["Role"]</th>
                 @foreach (PermissionString permission in _permissions)
                 {
-                    <th style="text-align: center; width: 1px;">@permission.PermissionName</th>
+                    <th style="text-align: center; width: 1px;">@Localizer[permission.PermissionName]</th>
                 }
             </tr>
             @foreach (Role role in _roles)
@@ -35,10 +36,10 @@
         <table class="table" style="width: 50%; min-width: 250px;">
             <thead>
                 <tr>
-                    <th scope="col">User</th>
+                    <th scope="col">@Localizer["User"]</th>
                     @foreach (PermissionString permission in _permissions)
                     {
-                        <th style="text-align: center; width: 1px;">@permission.PermissionName</th>
+                        <th style="text-align: center; width: 1px;">@Localizer[permission.PermissionName]</th>
                     }
                 </tr>
             </thead>
@@ -64,8 +65,8 @@
         <tbody>
             <tr>
                 <td class="input-group">
-                    <input type="text" name="Username" class="form-control" placeholder="Enter Username" @bind="@_username" />
-                    <button type="button" class="btn btn-primary" @onclick="AddUser">Add</button>
+                    <input type="text" name="Username" class="form-control" placeholder="@Localizer["Enter Username"]" @bind="@_username" />
+                    <button type="button" class="btn btn-primary" @onclick="AddUser">@Localizer["Add"]</button>
                 </td>
             </tr>
         </tbody>
@@ -179,7 +180,7 @@
             }
             catch
             {
-                _message = "Username Does Not Exist";
+                _message = Localizer["Username Does Not Exist"];
             }
         }
 
