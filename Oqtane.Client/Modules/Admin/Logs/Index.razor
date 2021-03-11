@@ -12,8 +12,8 @@ else
     <table class="table table-borderless">
         <tr>
             <td>
-                <label>@Localizer["Level:"] </label>
-                <select class="form-control" @onchange="(e => LevelChanged(e))">
+                <Label For="level" HelpText="Select the log level for event log items" ResourceKey="Level">Level: </Label><br /><br />
+                <select id="level" class="form-control" @onchange="(e => LevelChanged(e))">
                     <option value="-">&lt;@Localizer["All Levels"]&gt;</option>
                     <option value="Trace">@Localizer["Trace"]</option>
                     <option value="Debug">@Localizer["Debug"]</option>
@@ -24,8 +24,8 @@ else
                 </select>
             </td>
             <td>
-                <label>@Localizer["Function:"] </label>
-                <select class="form-control" @onchange="(e => FunctionChanged(e))">
+                <Label For="function" HelpText="Select the function for event log items" ResourceKey="Function">Function: </Label><br /><br />
+                <select id="function" class="form-control" @onchange="(e => FunctionChanged(e))">
                     <option value="-">&lt;@Localizer["All Functions"]&gt;</option>
                     <option value="Create">@Localizer["Create"]</option>
                     <option value="Read">@Localizer["Read"]</option>
@@ -36,8 +36,8 @@ else
                 </select>
             </td>
             <td>
-                <label>@Localizer["Maximum Records:"] </label>
-                <select class="form-control" @onchange="(e => RowsChanged(e))">
+                <Label For="rows" HelpText="Select the maximum number of event log items to review. Please note that if you choose more than 10 items the information will be split into pages." ResourceKey="Rows">Maximum Items: </Label><br /><br />
+                <select id="rows" class="form-control" @onchange="(e => RowsChanged(e))">
                     <option value="10">10</option>
                     <option value="50">50</option>
                     <option value="100">100</option>
