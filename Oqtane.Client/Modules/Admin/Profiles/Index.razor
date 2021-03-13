@@ -30,7 +30,7 @@ else
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         await GetProfilesAsync();
     }
@@ -56,5 +56,7 @@ else
     }
 
     private async Task GetProfilesAsync()
-        => _profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
+    {
+        _profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
+    }
 }
