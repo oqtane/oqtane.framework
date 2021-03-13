@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
@@ -12,6 +12,7 @@ namespace Oqtane.Repository
         Folder GetFolder(int folderId, bool tracking);
         Folder GetFolder(int siteId, string path);
         void DeleteFolder(int folderId);
+        void DeleteUserFolder(int userId);
         string GetFolderPath(int folderId);
         string GetFolderPath(Folder folder);
     }
