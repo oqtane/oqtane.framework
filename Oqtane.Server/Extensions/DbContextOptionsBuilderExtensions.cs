@@ -8,6 +8,7 @@ namespace Oqtane.Extensions
         public static DbContextOptionsBuilder UseOqtaneDatabase([NotNull] this DbContextOptionsBuilder optionsBuilder, string connectionString)
         {
             optionsBuilder.UseSqlServer(connectionString);
+            //optionsBuilder.UseSqlite("Data Source=Oqtane.db");
 
             return optionsBuilder;
         }

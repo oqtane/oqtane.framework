@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
@@ -23,7 +24,7 @@ namespace Oqtane.Repository
 
         public virtual DbSet<Language> Language { get; set; }
 
-        public TenantDBContext(ITenantResolver tenantResolver, IHttpContextAccessor accessor) : base(tenantResolver, accessor)
+        public TenantDBContext(ITenantResolver tenantResolver, IHttpContextAccessor accessor, IConfiguration configuration) : base(tenantResolver, accessor, configuration)
         {
             // DBContextBase handles multi-tenant database connections
         }
