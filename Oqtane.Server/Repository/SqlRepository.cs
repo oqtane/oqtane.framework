@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Data;
-using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Data.SqlClient;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
@@ -59,8 +59,8 @@ namespace Oqtane.Repository
 
         public int ExecuteNonQuery(Tenant tenant, string query)
         {
-            SqlConnection conn = new SqlConnection(FormatConnectionString(tenant.DBConnectionString));
-            SqlCommand cmd = conn.CreateCommand();
+            var conn = new SqlConnection(FormatConnectionString(tenant.DBConnectionString));
+            var cmd = conn.CreateCommand();
             using (conn)
             {
                 PrepareCommand(conn, cmd, query);

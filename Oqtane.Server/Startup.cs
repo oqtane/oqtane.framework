@@ -130,6 +130,7 @@ namespace Oqtane
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
+            services.AddScoped<IDbConfig, DbConfig>();
             services.AddDbContext<MasterDBContext>(options => { });
             services.AddDbContext<TenantDBContext>(options => { });
 
@@ -211,7 +212,7 @@ namespace Oqtane
             services.AddTransient<IUpgradeManager, UpgradeManager>();
             services.AddTransient<ILanguageRepository, LanguageRepository>();
 
-            // load the external assemblies into the app domain, install services 
+            // load the external assemblies into the app domain, install services
             services.AddOqtane(_runtime, _supportedCultures);
 
             services.AddMvc()

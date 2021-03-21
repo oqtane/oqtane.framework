@@ -10,7 +10,7 @@ namespace Oqtane.Modules.HtmlText.Repository
     {
         public virtual DbSet<HtmlTextInfo> HtmlText { get; set; }
 
-        public HtmlTextContext(ITenantResolver tenantResolver, IHttpContextAccessor accessor, IConfiguration configuration) : base(tenantResolver, accessor, configuration)
+        public HtmlTextContext(IDbConfig dbConfig, ITenantResolver tenantResolver) : base(dbConfig, tenantResolver)
         {
             // ContextBase handles multi-tenant database connections
         }

@@ -20,6 +20,9 @@
     <Compile Remove="wwwroot\Modules\Templates\**" />
     <Content Remove="wwwroot\Modules\Templates\**" />
     <EmbeddedResource Remove="wwwroot\Modules\Templates\**" />
+    <Compile Remove="bin\**" />
+    <EmbeddedResource Remove="bin\**" />
+    <Content Remove="bin\**" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Scripts\Master.00.00.00.00.sql" />
@@ -36,14 +39,12 @@
     <EmbeddedResource Include="Scripts\Tenant.02.00.01.01.sql" />
     <EmbeddedResource Include="Scripts\Tenant.02.00.01.02.sql" />
     <EmbeddedResource Include="Scripts\Tenant.02.00.01.03.sql" />
-    <EmbeddedResource Include="Modules\HtmlText\Scripts\HtmlText.1.0.0.sql" />
-    <EmbeddedResource Include="Modules\HtmlText\Scripts\HtmlText.Uninstall.sql" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="dbup" Version="4.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="5.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.4" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="2.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.4">
       <PrivateAssets>all</PrivateAssets>
@@ -66,6 +67,9 @@
     <UpgradeFiles Include="$(ProjectDir)bin\Release\net5.0\Oqtane.Upgrade.pdb" />
     <UpgradeFiles Include="$(ProjectDir)bin\Release\net5.0\Oqtane.Upgrade.runtimeconfig.json" />
     <TemplateFiles Include="$(ProjectDir)wwwroot\Modules\Templates\**\*.*" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="bin\**" />
   </ItemGroup>
   <Target Name="AddPayloadsFolder" AfterTargets="Publish">
     <Copy SourceFiles="@(UpgradeFiles)" DestinationFiles="@(UpgradeFiles->'$(PublishDir)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false" />

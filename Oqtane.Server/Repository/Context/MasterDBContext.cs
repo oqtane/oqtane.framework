@@ -1,31 +1,42 @@
 using System;
-using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
 using Microsoft.Extensions.Configuration;
 using Oqtane.Extensions;
 
+// ReSharper disable BuiltInTypeReferenceStyleForMemberAccess
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable CheckNamespace
+
 namespace Oqtane.Repository
 {
     public class MasterDBContext : DbContext
     {
-        private readonly IHttpContextAccessor _accessor;
-        private readonly IConfiguration _configuration;
+        private readonly IDbConfig _dbConfig;
 
-        public MasterDBContext(DbContextOptions<MasterDBContext> options, IHttpContextAccessor accessor, IConfiguration configuration) : base(options)
+        public MasterDBContext(DbContextOptions<MasterDBContext> options, IDbConfig dbConfig) : base(options)
         {
-            _accessor = accessor;
-            _configuration = configuration;
+            _dbConfig = dbConfig;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (!String.IsNullOrEmpty(_configuration.GetConnectionString("DefaultConnection")))
-            {
-                var connectionString = _configuration.GetConnectionString("DefaultConnection")
-                    .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString());
+            var connectionString = _dbConfig.ConnectionString;
+            var configuration = _dbConfig.Configuration;
 
+            if(string.IsNullOrEmpty(connectionString) && configuration != null)
+            {
+                if (!String.IsNullOrEmpty(configuration.GetConnectionString("DefaultConnection")))
+                {
+                    connectionString = configuration.GetConnectionString("DefaultConnection")
+                        .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString());
+                }
+
+            }
+
+            if (!string.IsNullOrEmpty(connectionString))
+            {
                 optionsBuilder.UseOqtaneDatabase(connectionString);
             }
             base.OnConfiguring(optionsBuilder);
@@ -39,7 +50,7 @@ namespace Oqtane.Repository
 
         public override int SaveChanges()
         {
-            DbContextUtils.SaveChanges(this, _accessor);
+            DbContextUtils.SaveChanges(this, _dbConfig.Accessor);
 
             return base.SaveChanges();
         }

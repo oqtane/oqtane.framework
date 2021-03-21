@@ -22,5 +22,8 @@ namespace Oqtane.Repository
         public virtual DbSet<Tenant> Tenant { get; set; }
         public virtual DbSet<ModuleDefinition> ModuleDefinition { get; set; }
         public virtual DbSet<Job> Job { get; set; }
+        public virtual DbSet<JobLog> JobLog { get; set; }
+
+
     }
 }

@@ -1,5 +1,5 @@
-﻿using System.Data.SqlClient;
-using System.Reflection;
+﻿using System.Reflection;
+using Microsoft.Data.SqlClient;
 using Oqtane.Models;
 
 namespace Oqtane.Repository

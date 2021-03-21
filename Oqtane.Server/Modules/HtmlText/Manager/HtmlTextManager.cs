@@ -1,40 +1,64 @@
-﻿using Oqtane.Infrastructure;
+﻿using System;
+using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Modules.HtmlText.Models;
 using Oqtane.Modules.HtmlText.Repository;
 using System.Net;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Oqtane.Enums;
+// ReSharper disable ConvertToUsingDeclaration
 
 namespace Oqtane.Modules.HtmlText.Manager
 {
-    public class HtmlTextManager : IInstallable, IPortable
+    public class HtmlTextManager : IMigratable, IPortable
     {
-        private IHtmlTextRepository _htmlTexts;
-        private ISqlRepository _sql;
+        private readonly IHtmlTextRepository _htmlText;
+        private readonly ISqlRepository _sql;
 
-        public HtmlTextManager(IHtmlTextRepository htmltexts, ISqlRepository sql)
+        public HtmlTextManager(IHtmlTextRepository htmlText, ISqlRepository sql)
         {
-            _htmlTexts = htmltexts;
+            _htmlText = htmlText;
             _sql = sql;
         }
 
-        public bool Install(Tenant tenant, string version)
+        public bool Migrate(Tenant tenant, MigrationType migrationType)
         {
-            return _sql.ExecuteScript(tenant, GetType().Assembly, "HtmlText." + version + ".sql");
-        }
+            var result = true;
 
-        public bool Uninstall(Tenant tenant)
-        {
-            return _sql.ExecuteScript(tenant, GetType().Assembly, "HtmlText.Uninstall.sql");
+            var dbConfig = new DbConfig(null, null) {ConnectionString = tenant.DBConnectionString};
+            using (var db = new HtmlTextContext(dbConfig, null))
+            {
+                try
+                {
+                    var migrator = db.GetService<IMigrator>();
+                    if (migrationType == MigrationType.Down)
+                    {
+                        migrator.Migrate(Migration.InitialDatabase);
+                    }
+                    else
+                    {
+                        migrator.Migrate();
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    result = false;
+                }
+
+            }
+            return result;
         }
 
         public string ExportModule(Module module)
         {
             string content = "";
-            HtmlTextInfo htmltext = _htmlTexts.GetHtmlText(module.ModuleId);
-            if (htmltext != null)
+            var htmlText = _htmlText.GetHtmlText(module.ModuleId);
+            if (htmlText != null)
             {
-                content = WebUtility.HtmlEncode(htmltext.Content);
+                content = WebUtility.HtmlEncode(htmlText.Content);
             }
             return content;
         }
@@ -42,18 +66,18 @@ namespace Oqtane.Modules.HtmlText.Manager
         public void ImportModule(Module module, string content, string version)
         {
             content = WebUtility.HtmlDecode(content);
-            HtmlTextInfo htmltext = _htmlTexts.GetHtmlText(module.ModuleId);
-            if (htmltext != null)
+            var htmlText = _htmlText.GetHtmlText(module.ModuleId);
+            if (htmlText != null)
             {
-                htmltext.Content = content;
-                _htmlTexts.UpdateHtmlText(htmltext);
+                htmlText.Content = content;
+                _htmlText.UpdateHtmlText(htmlText);
             }
             else
             {
-                htmltext = new HtmlTextInfo();
-                htmltext.ModuleId = module.ModuleId;
-                htmltext.Content = content;
-                _htmlTexts.AddHtmlText(htmltext);
+                htmlText = new HtmlTextInfo();
+                htmlText.ModuleId = module.ModuleId;
+                htmlText.Content = content;
+                _htmlText.AddHtmlText(htmlText);
             }
         }
     }

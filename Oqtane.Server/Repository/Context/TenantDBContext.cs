@@ -24,7 +24,7 @@ namespace Oqtane.Repository
 
         public virtual DbSet<Language> Language { get; set; }
 
-        public TenantDBContext(ITenantResolver tenantResolver, IHttpContextAccessor accessor, IConfiguration configuration) : base(tenantResolver, accessor, configuration)
+        public TenantDBContext(IDbConfig dbConfig, ITenantResolver tenantResolver) : base(dbConfig, tenantResolver)
         {
             // DBContextBase handles multi-tenant database connections
         }
