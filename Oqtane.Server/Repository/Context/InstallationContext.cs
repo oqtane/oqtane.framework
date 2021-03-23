@@ -9,14 +9,16 @@ namespace Oqtane.Repository
     public class InstallationContext : DbContext
     {
         private readonly string _connectionString;
+        private readonly string _databaseType;
 
-        public InstallationContext(string connectionString)
+        public InstallationContext(string databaseType, string connectionString)
         {
             _connectionString = connectionString;
+            _databaseType = databaseType;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseOqtaneDatabase(_connectionString);
+            => optionsBuilder.UseOqtaneDatabase(_databaseType, _connectionString);
 
         public virtual DbSet<Alias> Alias { get; set; }
         public virtual DbSet<Tenant> Tenant { get; set; }

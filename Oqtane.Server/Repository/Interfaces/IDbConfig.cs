@@ -10,5 +10,6 @@ namespace Oqtane.Repository
         public IConfiguration Configuration { get; }
 
         public string ConnectionString { get; set; }
+        public string DatabaseType { get; set; }
     }
 }

@@ -12,7 +12,7 @@ namespace Oqtane.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             //Drop Column from Page table
-            if (migrationBuilder.ActiveProvider != "Microsoft.EntityFrameworkCore.Sqlite")
+            if (migrationBuilder.ActiveProvider == "Microsoft.EntityFrameworkCore.SqlServer")
             {
                 var pageEntityBuilder = new PageEntityBuilder(migrationBuilder);
                 pageEntityBuilder.DropColumn("EditMode");

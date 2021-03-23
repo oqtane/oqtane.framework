@@ -12,7 +12,7 @@ using Oqtane.Enums;
 
 namespace Oqtane.Modules.HtmlText.Manager
 {
-    public class HtmlTextManager : IMigratable, IPortable
+    public class HtmlTextManager : MigratableModuleBase, IInstallable, IPortable
     {
         private readonly IHtmlTextRepository _htmlText;
         private readonly ISqlRepository _sql;
@@ -21,35 +21,6 @@ namespace Oqtane.Modules.HtmlText.Manager
         {
             _htmlText = htmlText;
             _sql = sql;
-        }
-
-        public bool Migrate(Tenant tenant, MigrationType migrationType)
-        {
-            var result = true;
-
-            var dbConfig = new DbConfig(null, null) {ConnectionString = tenant.DBConnectionString};
-            using (var db = new HtmlTextContext(dbConfig, null))
-            {
-                try
-                {
-                    var migrator = db.GetService<IMigrator>();
-                    if (migrationType == MigrationType.Down)
-                    {
-                        migrator.Migrate(Migration.InitialDatabase);
-                    }
-                    else
-                    {
-                        migrator.Migrate();
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    result = false;
-                }
-
-            }
-            return result;
         }
 
         public string ExportModule(Module module)
@@ -79,6 +50,18 @@ namespace Oqtane.Modules.HtmlText.Manager
                 htmlText.Content = content;
                 _htmlText.AddHtmlText(htmlText);
             }
+        }
+
+        public bool Install(Tenant tenant, string version)
+        {
+            var dbConfig = new DbConfig(null, null) {ConnectionString = tenant.DBConnectionString, DatabaseType = tenant.DBType};
+            return Migrate(new HtmlTextContext(dbConfig, null), tenant, MigrationType.Up);
+        }
+
+        public bool Uninstall(Tenant tenant)
+        {
+            var dbConfig = new DbConfig(null, null) {ConnectionString = tenant.DBConnectionString, DatabaseType = tenant.DBType};
+            return Migrate(new HtmlTextContext(dbConfig, null), tenant, MigrationType.Down);
         }
     }
 }

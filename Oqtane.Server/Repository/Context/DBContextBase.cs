@@ -7,48 +7,62 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Oqtane.Extensions;
 using Oqtane.Models;
+using Oqtane.Shared;
+
 // ReSharper disable BuiltInTypeReferenceStyleForMemberAccess
 
 namespace Oqtane.Repository
 {
     public class DBContextBase :  IdentityUserContext<IdentityUser>
     {
-        private readonly IDbConfig _dbConfig;
         private readonly ITenantResolver _tenantResolver;
+        private readonly IHttpContextAccessor _accessor;
+        private readonly IConfiguration _configuration;
+        private string _connectionString;
+        private string _databaseType;
+
+        public DBContextBase(ITenantResolver tenantResolver, IHttpContextAccessor httpContextAccessor)
+        {
+            _connectionString = String.Empty;
+            _tenantResolver = tenantResolver;
+            _accessor = httpContextAccessor;
+        }
 
         public DBContextBase(IDbConfig dbConfig, ITenantResolver tenantResolver)
         {
-            _dbConfig = dbConfig;
+            _accessor = dbConfig.Accessor;
+            _configuration = dbConfig.Configuration;
+            _connectionString = dbConfig.ConnectionString;
+            _databaseType = dbConfig.DatabaseType;
             _tenantResolver = tenantResolver;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var connectionString = _dbConfig.ConnectionString;
-
-            if (string.IsNullOrEmpty(connectionString) && _tenantResolver != null)
+            if (string.IsNullOrEmpty(_connectionString) && _tenantResolver != null)
             {
                 var tenant = _tenantResolver.GetTenant();
-                var configuration = _dbConfig.Configuration;
 
                 if (tenant != null)
                 {
-                    connectionString = tenant.DBConnectionString
+                    _connectionString = tenant.DBConnectionString
                         .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString());
+                    _databaseType = tenant.DBType;
                 }
                 else
                 {
-                    if (!String.IsNullOrEmpty(configuration.GetConnectionString("DefaultConnection")))
+                    if (!String.IsNullOrEmpty(_configuration.GetConnectionString("DefaultConnection")))
                     {
-                        connectionString = configuration.GetConnectionString("DefaultConnection")
+                        _connectionString = _configuration.GetConnectionString("DefaultConnection")
                             .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString());
                     }
+                    _databaseType = _configuration.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey];
                 }
             }
 
-            if (!string.IsNullOrEmpty(connectionString))
+            if (!string.IsNullOrEmpty(_connectionString) && !string.IsNullOrEmpty(_databaseType))
             {
-                optionsBuilder.UseOqtaneDatabase(connectionString);
+                optionsBuilder.UseOqtaneDatabase(_databaseType, _connectionString);
             }
 
             base.OnConfiguring(optionsBuilder);
@@ -56,7 +70,7 @@ namespace Oqtane.Repository
 
         public override int SaveChanges()
         {
-            DbContextUtils.SaveChanges(this, _dbConfig.Accessor);
+            DbContextUtils.SaveChanges(this, _accessor);
 
             return base.SaveChanges();
         }

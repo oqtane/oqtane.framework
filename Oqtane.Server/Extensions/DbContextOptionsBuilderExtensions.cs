@@ -5,10 +5,18 @@ namespace Oqtane.Extensions
 {
     public static class DbContextOptionsBuilderExtensions
     {
-        public static DbContextOptionsBuilder UseOqtaneDatabase([NotNull] this DbContextOptionsBuilder optionsBuilder, string connectionString)
+        public static DbContextOptionsBuilder UseOqtaneDatabase([NotNull] this DbContextOptionsBuilder optionsBuilder, string databaseType, string connectionString)
         {
-            optionsBuilder.UseSqlServer(connectionString);
-            //optionsBuilder.UseSqlite("Data Source=Oqtane.db");
+            switch (databaseType)
+            {
+                case "SqlServer":
+                    optionsBuilder.UseSqlServer(connectionString);
+
+                    break;
+                case "Sqlite":
+                    optionsBuilder.UseSqlite(connectionString);
+                    break;
+            }
 
             return optionsBuilder;
         }

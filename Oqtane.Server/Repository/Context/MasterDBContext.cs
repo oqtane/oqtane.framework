@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
 using Microsoft.Extensions.Configuration;
 using Oqtane.Extensions;
+using Oqtane.Shared;
 
 // ReSharper disable BuiltInTypeReferenceStyleForMemberAccess
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -24,6 +25,7 @@ namespace Oqtane.Repository
         {
             var connectionString = _dbConfig.ConnectionString;
             var configuration = _dbConfig.Configuration;
+            var databaseType = _dbConfig.DatabaseType;
 
             if(string.IsNullOrEmpty(connectionString) && configuration != null)
             {
@@ -33,11 +35,12 @@ namespace Oqtane.Repository
                         .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString());
                 }
 
+                databaseType = configuration.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey];
             }
 
             if (!string.IsNullOrEmpty(connectionString))
             {
-                optionsBuilder.UseOqtaneDatabase(connectionString);
+                optionsBuilder.UseOqtaneDatabase(databaseType, connectionString);
             }
             base.OnConfiguring(optionsBuilder);
         }

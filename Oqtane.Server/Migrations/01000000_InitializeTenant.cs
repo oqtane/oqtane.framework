@@ -21,6 +21,12 @@ namespace Oqtane.Migrations
             pageEntityBuilder.Create();
             pageEntityBuilder.AddIndex("IX_Page", new [] {"SiteId", "Path", "UserId"}, true);
 
+            //Add Column to Page table (for Sql Server only) we will drop it later for Sql Server only
+            if (migrationBuilder.ActiveProvider == "Microsoft.EntityFrameworkCore.SqlServer")
+            {
+                pageEntityBuilder.AddBooleanColumn("EditMode");
+            }
+
             //Create Module table
             var moduleEntityBuilder = new ModuleEntityBuilder(migrationBuilder);
             moduleEntityBuilder.Create();
