@@ -19,7 +19,7 @@ namespace Oqtane.Migrations
             migrationBuilder.Sql(
                 @"
                     UPDATE Tenant
-                    SET DBType = 'SqlServer'
+                    SET DBType = 'Oqtane.Repository.Databases.SqlServerDatabase, Oqtane.Server'
                 ");
 
         }

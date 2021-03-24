@@ -1,5 +1,10 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Oqtane.Interfaces;
+// ReSharper disable ConvertToUsingDeclaration
 
 namespace Oqtane.Extensions
 {
@@ -7,16 +12,10 @@ namespace Oqtane.Extensions
     {
         public static DbContextOptionsBuilder UseOqtaneDatabase([NotNull] this DbContextOptionsBuilder optionsBuilder, string databaseType, string connectionString)
         {
-            switch (databaseType)
-            {
-                case "SqlServer":
-                    optionsBuilder.UseSqlServer(connectionString);
+            var type = Type.GetType(databaseType);
+            var database = Activator.CreateInstance(type) as IDatabase;
 
-                    break;
-                case "Sqlite":
-                    optionsBuilder.UseSqlite(connectionString);
-                    break;
-            }
+            database.UseDatabase(optionsBuilder, connectionString);
 
             return optionsBuilder;
         }

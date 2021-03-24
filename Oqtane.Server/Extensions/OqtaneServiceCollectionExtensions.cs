@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 using Microsoft.Extensions.Hosting;
 using Oqtane.Infrastructure;
+using Oqtane.Interfaces;
 using Oqtane.Modules;
 using Oqtane.Services;
 using Oqtane.Shared;
@@ -43,6 +44,17 @@ namespace Microsoft.Extensions.DependencyInjection
                     {
                         var serviceType = Type.GetType(implementationType.AssemblyQualifiedName.Replace(implementationType.Name, $"I{implementationType.Name}"));
                         services.AddScoped(serviceType ?? implementationType, implementationType);
+                    }
+                }
+
+                // dynamically register database providers
+                var databaseTypes = assembly.GetInterfaces<IDatabase>();
+                foreach (var databaseType in databaseTypes)
+                {
+                    if (databaseType.AssemblyQualifiedName != null)
+                    {
+                        var serviceType = Type.GetType("Oqtane.Interfaces.IDatabase, Oqtane.Shared");
+                        services.AddScoped(serviceType ?? databaseType, databaseType);
                     }
                 }
 

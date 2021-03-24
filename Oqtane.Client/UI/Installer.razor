@@ -1,3 +1,4 @@
+@using Oqtane.Interfaces
 @namespace Oqtane.UI
 @inject NavigationManager NavigationManager
 @inject IInstallationService InstallationService
@@ -5,6 +6,7 @@
 @inject IUserService UserService
 @inject IJSRuntime JSRuntime
 @inject IStringLocalizer<Installer> Localizer
+@inject IEnumerable<IDatabase> Databases
 
 <div class="container">
     <div class="row">
@@ -25,9 +27,12 @@
                         </td>
                         <td>
                             <select class="custom-select" @bind="@_databaseType">
-                                <option value="LocalDB">@Localizer["Local Database"]</option>
-                                <option value="SQLServer">@Localizer["SQL Server"]</option>
-                                <option value="Sqlite">@Localizer["Sqlite"]</option>
+                                @{
+                                    foreach (var database in Databases)
+                                    {
+                                        <option value="@database.Name">@Localizer[@database.FriendlyName]</option>
+                                    }
+                                }
                             </select>
                         </td>
                     </tr>
@@ -148,8 +153,6 @@
     private string _hostEmail = string.Empty;
     private string _message = string.Empty;
     private string _integratedSecurityDisplay = "display: none;";
-    private string _fileFieldsDisplay = "display: none;";
-    private string _serverFieldsDisplay = "display: none;";
     private string _loadingDisplay = "display: none;";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -176,10 +179,12 @@
             StateHasChanged();
 
             var connectionstring = "";
+            var fullyQualifiedType = "";
             switch (_databaseType)
             {
                 case "LocalDB":
                     connectionstring = "Data Source=" + _serverName + ";AttachDbFilename=|DataDirectory|\\" + _databaseName + ".mdf;Initial Catalog=" + _databaseName + ";Integrated Security=SSPI;";
+                    fullyQualifiedType = "Oqtane.Repository.Databases.LocalDbDatabase, Oqtane.Server";
                     break;
                 case "SQLServer":
                     connectionstring = "Data Source=" + _serverName + ";Initial Catalog=" + _databaseName + ";";
@@ -191,9 +196,11 @@
                     {
                         connectionstring += "User ID=" + _username + ";Password=" + _password;
                     }
+                    fullyQualifiedType = "Oqtane.Repository.Databases.SqlServerDatabase, Oqtane.Server";
                     break;
                 case "Sqlite":
                     connectionstring = "Data Source=" + _fileName;
+                    fullyQualifiedType = "Oqtane.Repository.Databases.SqliteDatabase, Oqtane.Server";
                     break;
             }
 
@@ -201,7 +208,7 @@
 
             var config = new InstallConfig
             {
-                DatabaseType = _databaseType,
+                DatabaseType = fullyQualifiedType,
                 ConnectionString = connectionstring,
                 Aliases = uri.Authority,
                 HostEmail = _hostEmail,
@@ -211,6 +218,8 @@
                 IsNewTenant = true,
                 SiteName = Constants.DefaultSite
             };
+            
+            
 
             var installation = await InstallationService.Install(config);
             if (installation.Success)

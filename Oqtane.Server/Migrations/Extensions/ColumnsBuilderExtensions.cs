@@ -9,8 +9,9 @@ namespace Oqtane.Migrations.Extensions
         public static OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(this ColumnsBuilder table, string name)
         {
             return table.Column<int>(name: name, nullable: false)
-                            .Annotation("SqlServer:Identity", "1, 1")
-                            .Annotation("Sqlite:Autoincrement", true);
+                        .Annotation("SqlServer:Identity", "1, 1")
+                        .Annotation("Sqlite:Autoincrement", true)
+                        .Annotation("MySql:ValueGeneratedOnAdd", true);
         }
 
         public static OperationBuilder<AddColumnOperation> AddBooleanColumn(this ColumnsBuilder table, string name, bool nullable = false)

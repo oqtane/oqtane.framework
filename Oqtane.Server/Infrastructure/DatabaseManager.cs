@@ -234,18 +234,18 @@ namespace Oqtane.Infrastructure
 
             if (!string.IsNullOrEmpty(install.TenantName) && !string.IsNullOrEmpty(install.Aliases))
             {
-                using (var db = new InstallationContext(install.DatabaseType, NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey))))
+                using (var db = GetInstallationContext())
                 {
                     Tenant tenant;
                     if (install.IsNewTenant)
                     {
                         tenant = new Tenant { Name = install.TenantName,
-                                        DBConnectionString = DenormalizeConnectionString(install.ConnectionString),
-                                        DBType = install.DatabaseType,
-                                        CreatedBy = "",
-                                        CreatedOn = DateTime.UtcNow,
-                                        ModifiedBy = "",
-                                        ModifiedOn = DateTime.UtcNow };
+                            DBConnectionString = DenormalizeConnectionString(install.ConnectionString),
+                            DBType = install.DatabaseType,
+                            CreatedBy = "",
+                            CreatedOn = DateTime.UtcNow,
+                            ModifiedBy = "",
+                            ModifiedOn = DateTime.UtcNow };
                         db.Tenant.Add(tenant);
                         db.SaveChanges();
                         _cache.Remove("tenants");
@@ -274,6 +274,14 @@ namespace Oqtane.Infrastructure
             return result;
         }
 
+        private InstallationContext GetInstallationContext()
+        {
+            var databaseType = _config.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey];
+            var connectionString = NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey));
+
+            return new InstallationContext(databaseType, connectionString);
+        }
+
         private Installation MigrateTenants(InstallConfig install)
         {
             var result = new Installation { Success = false, Message = string.Empty };
@@ -284,9 +292,7 @@ namespace Oqtane.Infrastructure
             {
                 var upgrades = scope.ServiceProvider.GetRequiredService<IUpgradeManager>();
 
-                var databaseType = _config.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey];
-                var connectionString = NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey));
-                using (var db = new InstallationContext(databaseType, connectionString))
+                using (var db = GetInstallationContext())
                 {
                     foreach (var tenant in db.Tenant.ToList())
                     {
@@ -347,9 +353,8 @@ namespace Oqtane.Infrastructure
                         if (moduleType != null)
                         {
                             var versions = moduleDefinition.ReleaseVersions.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                            var databaseType = _config.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey];
-                            var connectionString = NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey));
-                            using (var db = new InstallationContext(databaseType, connectionString))                            {
+                            using (var db = GetInstallationContext())
+                            {
                                 foreach (var tenant in db.Tenant.ToList())
                                 {
                                     var index = Array.FindIndex(versions, item => item == moduleDefinition.Version);
