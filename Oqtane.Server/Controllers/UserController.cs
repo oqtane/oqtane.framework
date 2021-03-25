@@ -271,6 +271,7 @@ namespace Oqtane.Controllers
 
                 if (result != null)
                 {
+                    _folders.DeleteUserFolder(id);
                     _users.DeleteUser(id);
                     _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Deleted {UserId}", id);
                 }
