@@ -30,9 +30,9 @@ else
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
-        _profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
+        await GetProfilesAsync();
     }
 
     private async Task DeleteProfile(int profileId)
@@ -41,12 +41,22 @@ else
         {
             await ProfileService.DeleteProfileAsync(profileId);
             await logger.LogInformation("Profile Deleted {ProfileId}", profileId);
+
             AddModuleMessage(Localizer["Profile Deleted"], MessageType.Success);
+
+            await GetProfilesAsync();
+
+            StateHasChanged();
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting Profile {ProfileId} {Error}", profileId, ex.Message);
             AddModuleMessage(Localizer["Error Deleting Profile"], MessageType.Error);
         }
+    }
+
+    private async Task GetProfilesAsync()
+    {
+        _profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
     }
 }
