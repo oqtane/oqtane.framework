@@ -118,45 +118,37 @@ namespace Oqtane.Repository
                 );
 
                 // layouts
-                if (!theme.Layouts.Any())
-                //Only load the Layouts once
-                {
-                    Type[] layouttypes = themeTypes
+                Type[] layouttypes = themeTypes
                     .Where(item => item.GetInterfaces().Contains(typeof(ILayoutControl))).ToArray();
-                    foreach (Type layouttype in layouttypes)
-                    {
-                        var layoutobject = Activator.CreateInstance(layouttype) as IThemeControl;
-                        theme.Layouts.Add(
-                            new ThemeControl
-                            {
-                                TypeName = layouttype.FullName + ", " + themeControlType.Assembly.GetName().Name,
-                                Name = (string.IsNullOrEmpty(layoutobject.Name)) ? Utilities.GetTypeNameLastSegment(layouttype.FullName, 0) : layoutobject.Name,
-                                Thumbnail = layoutobject.Thumbnail,
-                                Panes = layoutobject.Panes
-                            }
-                        );
-                    }
+                foreach (Type layouttype in layouttypes)
+                {
+                    var layoutobject = Activator.CreateInstance(layouttype) as IThemeControl;
+                    theme.Layouts.Add(
+                        new ThemeControl
+                        {
+                            TypeName = layouttype.FullName + ", " + themeControlType.Assembly.GetName().Name,
+                            Name = (string.IsNullOrEmpty(layoutobject.Name)) ? Utilities.GetTypeNameLastSegment(layouttype.FullName, 0) : layoutobject.Name,
+                            Thumbnail = layoutobject.Thumbnail,
+                            Panes = layoutobject.Panes
+                        }
+                    );
                 }
 
                 // containers
-                if (!theme.Containers.Any())
-                //Only load the Containers once
-                {
-                    Type[] containertypes = themeTypes
+                Type[] containertypes = themeTypes
                     .Where(item => item.GetInterfaces().Contains(typeof(IContainerControl))).ToArray();
-                    foreach (Type containertype in containertypes)
-                    {
-                        var containerobject = Activator.CreateInstance(containertype) as IThemeControl;
-                        theme.Containers.Add(
-                            new ThemeControl
-                            {
-                                TypeName = containertype.FullName + ", " + themeControlType.Assembly.GetName().Name,
-                                Name = (string.IsNullOrEmpty(containerobject.Name)) ? Utilities.GetTypeNameLastSegment(containertype.FullName, 0) : containerobject.Name,
-                                Thumbnail = containerobject.Thumbnail,
-                                Panes = ""
-                            }
-                        );
-                    }
+                foreach (Type containertype in containertypes)
+                {
+                    var containerobject = Activator.CreateInstance(containertype) as IThemeControl;
+                    theme.Containers.Add(
+                        new ThemeControl
+                        {
+                            TypeName = containertype.FullName + ", " + themeControlType.Assembly.GetName().Name,
+                            Name = (string.IsNullOrEmpty(containerobject.Name)) ? Utilities.GetTypeNameLastSegment(containertype.FullName, 0) : containerobject.Name,
+                            Thumbnail = containerobject.Thumbnail,
+                            Panes = ""
+                        }
+                    );
                 }
 
                 themes[index] = theme;
