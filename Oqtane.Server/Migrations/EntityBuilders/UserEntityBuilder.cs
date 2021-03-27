@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Oqtane.Interfaces;
 using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -13,7 +14,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private const string _entityTableName = "User";
         private readonly PrimaryKey<UserEntityBuilder> _primaryKey = new("PK_User", x => x.UserId);
 
-        public UserEntityBuilder(MigrationBuilder migrationBuilder) : base(migrationBuilder)
+        public UserEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;
@@ -21,7 +22,7 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override UserEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            UserId = table.AddAutoIncrementColumn("UserId");
+            UserId = ActiveDatabase.AddAutoIncrementColumn(table,"UserId");
             Username = table.AddStringColumn("Username", 256);
             DisplayName = table.AddStringColumn("DisplayName", 50);
             Email = table.AddStringColumn("Email", 256);

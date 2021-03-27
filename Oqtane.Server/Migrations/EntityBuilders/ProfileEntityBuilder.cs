@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Oqtane.Interfaces;
 using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -14,7 +15,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private readonly PrimaryKey<ProfileEntityBuilder> _primaryKey = new("PK_Profile", x => x.ProfileId);
         private readonly ForeignKey<ProfileEntityBuilder> _siteForeignKey = new("FK_Profile_Sites", x => x.SiteId, "Site", "SiteId", ReferentialAction.Cascade);
 
-        public ProfileEntityBuilder(MigrationBuilder migrationBuilder) : base(migrationBuilder)
+        public ProfileEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;
@@ -23,7 +24,7 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override ProfileEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            ProfileId = table.AddAutoIncrementColumn("ProfileId");
+            ProfileId = ActiveDatabase.AddAutoIncrementColumn(table,"ProfileId");
             SiteId = table.AddIntegerColumn("SiteId", true);
             Name = table.AddStringColumn("Name", 50);
             Title = table.AddStringColumn("Title", 50);

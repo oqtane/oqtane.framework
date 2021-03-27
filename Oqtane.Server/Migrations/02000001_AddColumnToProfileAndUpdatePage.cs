@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Oqtane.Interfaces;
 using Oqtane.Migrations.EntityBuilders;
 using Oqtane.Repository;
 
@@ -7,25 +9,28 @@ namespace Oqtane.Migrations
 {
     [DbContext(typeof(TenantDBContext))]
     [Migration("Tenant.02.00.00.01")]
-    public class AddColumnToProfileAndUpdatePage : Migration
+    public class AddColumnToProfileAndUpdatePage : MultiDatabaseMigration
     {
+        public AddColumnToProfileAndUpdatePage(IEnumerable<IOqtaneDatabase> databases) : base(databases)
+        {
+        }
+
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             //Add Column to Profile table
-            var profileEntityBuilder = new ProfileEntityBuilder(migrationBuilder);
+            var profileEntityBuilder = new ProfileEntityBuilder(migrationBuilder, ActiveDatabase);
             profileEntityBuilder.AddStringColumn("Options", 2000, true);
 
-            ///Update new field
             migrationBuilder.Sql(
                 @"
                     UPDATE Profile
                     SET Options = ''
                 ");
 
-            //Alter Column in Page table
-            if (migrationBuilder.ActiveProvider != "Microsoft.EntityFrameworkCore.Sqlite")
+            //Alter Column in Page table for Sql Server
+            if (ActiveDatabase.Name == "SqlServer" || ActiveDatabase.Name == "LocalDB")
             {
-                var pageEntityBuilder = new PageEntityBuilder(migrationBuilder);
+                var pageEntityBuilder = new PageEntityBuilder(migrationBuilder, ActiveDatabase);
                 pageEntityBuilder.DropIndex("IX_Page");
                 pageEntityBuilder.AlterStringColumn("Path", 256);
                 pageEntityBuilder.AddIndex("IX_Page", new [] {"SiteId", "Path", "UserId"}, true);
@@ -35,13 +40,13 @@ namespace Oqtane.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             //Drop Column from Profile table
-            var profileEntityBuilder = new ProfileEntityBuilder(migrationBuilder);
+            var profileEntityBuilder = new ProfileEntityBuilder(migrationBuilder, ActiveDatabase);
             profileEntityBuilder.DropColumn("Options");
 
             //Alter Column in Page table
-            if (migrationBuilder.ActiveProvider != "Microsoft.EntityFrameworkCore.Sqlite")
+            if (ActiveDatabase.Name == "SqlServer" || ActiveDatabase.Name == "LocalDB")
             {
-                var pageEntityBuilder = new PageEntityBuilder(migrationBuilder);
+                var pageEntityBuilder = new PageEntityBuilder(migrationBuilder, ActiveDatabase);
                 pageEntityBuilder.DropIndex("IX_Page");
                 pageEntityBuilder.AlterStringColumn("Path", 50);
                 pageEntityBuilder.AddIndex("IX_Page", new [] {"SiteId", "Path", "UserId"}, true);

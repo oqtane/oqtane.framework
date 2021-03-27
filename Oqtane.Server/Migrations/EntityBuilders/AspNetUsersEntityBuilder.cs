@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Oqtane.Interfaces;
 using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -13,7 +14,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private const string _entityTableName = "AspNetUsers";
         private readonly PrimaryKey<AspNetUsersEntityBuilder> _primaryKey = new("PK_AspNetUsers", x => x.Id);
 
-        public AspNetUsersEntityBuilder(MigrationBuilder migrationBuilder) : base(migrationBuilder)
+        public AspNetUsersEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;

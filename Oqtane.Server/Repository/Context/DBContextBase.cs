@@ -1,10 +1,16 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Oqtane.Extensions;
+using Oqtane.Interfaces;
+using Oqtane.Migrations.Framework;
+using Oqtane.Repository.Databases.Interfaces;
 using Oqtane.Shared;
 
 // ReSharper disable BuiltInTypeReferenceStyleForMemberAccess
@@ -32,11 +38,16 @@ namespace Oqtane.Repository
             _configuration = dbConfig.Configuration;
             _connectionString = dbConfig.ConnectionString;
             _databaseType = dbConfig.DatabaseType;
+            Databases = dbConfig.Databases;
             _tenantResolver = tenantResolver;
         }
 
+        public IEnumerable<IOqtaneDatabase> Databases { get; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            optionsBuilder.ReplaceService<IMigrationsAssembly, MultiDatabaseMigrationsAssembly>();
+
             if (string.IsNullOrEmpty(_connectionString) && _tenantResolver != null)
             {
                 var tenant = _tenantResolver.GetTenant();
@@ -60,7 +71,14 @@ namespace Oqtane.Repository
 
             if (!string.IsNullOrEmpty(_connectionString) && !string.IsNullOrEmpty(_databaseType))
             {
-                optionsBuilder.UseOqtaneDatabase(_databaseType, _connectionString);
+                if (Databases != null)
+                {
+                    optionsBuilder.UseOqtaneDatabase(Databases.Single(d => d.Name == _databaseType), _connectionString);
+                }
+                else
+                {
+                    optionsBuilder.UseOqtaneDatabase(_databaseType, _connectionString);
+                }
             }
 
             base.OnConfiguring(optionsBuilder);

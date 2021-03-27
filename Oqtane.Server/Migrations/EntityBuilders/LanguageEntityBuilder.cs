@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Oqtane.Interfaces;
 using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -14,7 +15,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private readonly PrimaryKey<LanguageEntityBuilder> _primaryKey = new("PK_Language", x => x.LanguageId);
         private readonly ForeignKey<LanguageEntityBuilder> _siteForeignKey = new("FK_Language_Site", x => x.SiteId, "Site", "SiteId", ReferentialAction.Cascade);
 
-        public LanguageEntityBuilder(MigrationBuilder migrationBuilder) : base(migrationBuilder)
+        public LanguageEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;
@@ -23,7 +24,7 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override LanguageEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            LanguageId = table.AddAutoIncrementColumn("LanguageId");
+            LanguageId = ActiveDatabase.AddAutoIncrementColumn(table,"LanguageId");
             SiteId = table.AddIntegerColumn("SiteId");
             Name = table.AddStringColumn("Name", 100);
             Code = table.AddStringColumn("Code", 10);

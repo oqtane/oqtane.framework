@@ -13,6 +13,7 @@ using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
 using Oqtane.Enums;
+using Oqtane.Interfaces;
 using File = System.IO.File;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -172,11 +173,16 @@ namespace Oqtane.Infrastructure
 
                     var connectionString = NormalizeConnectionString(install.ConnectionString);
                     var databaseType = install.DatabaseType;
-                    using (var dbc = new DbContext(new DbContextOptionsBuilder().UseOqtaneDatabase(databaseType, connectionString).Options))
+                    using (var scope = _serviceScopeFactory.CreateScope())
                     {
-                        // create empty database if it does not exist
-                        dbc.Database.EnsureCreated();
-                        result.Success = true;
+                        var databases = scope.ServiceProvider.GetServices<IOqtaneDatabase>();
+
+                        using (var dbc = new DbContext(new DbContextOptionsBuilder().UseOqtaneDatabase(databases.Single(d => d.Name == databaseType), connectionString).Options))
+                        {
+                            // create empty database if it does not exist
+                            dbc.Database.EnsureCreated();
+                            result.Success = true;
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -198,26 +204,31 @@ namespace Oqtane.Infrastructure
 
             if (install.TenantName == TenantNames.Master)
             {
-                try
+                using (var scope = _serviceScopeFactory.CreateScope())
                 {
-                    var dbConfig = new DbConfig(null, null) {ConnectionString = install.ConnectionString, DatabaseType = install.DatabaseType};
+                    var databases = scope.ServiceProvider.GetServices<IOqtaneDatabase>();
 
-                    using (var masterDbContext = new MasterDBContext(new DbContextOptions<MasterDBContext>(), dbConfig))
+                    try
                     {
-                        // Push latest model into database
-                        masterDbContext.Database.Migrate();
-                        result.Success = true;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    result.Message = ex.Message;
-                }
+                        var dbConfig = new DbConfig(null, null, databases) {ConnectionString = install.ConnectionString, DatabaseType = install.DatabaseType};
 
-                if (result.Success)
-                {
-                    UpdateConnectionString(install.ConnectionString);
-                    UpdateDatabaseType(install.DatabaseType);
+                        using (var masterDbContext = new MasterDBContext(new DbContextOptions<MasterDBContext>(), dbConfig))
+                        {
+                            // Push latest model into database
+                            masterDbContext.Database.Migrate();
+                            result.Success = true;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        result.Message = ex.Message;
+                    }
+
+                    if (result.Success)
+                    {
+                        UpdateConnectionString(install.ConnectionString);
+                        UpdateDatabaseType(install.DatabaseType);
+                    }
                 }
             }
             else
@@ -234,38 +245,56 @@ namespace Oqtane.Infrastructure
 
             if (!string.IsNullOrEmpty(install.TenantName) && !string.IsNullOrEmpty(install.Aliases))
             {
-                using (var db = GetInstallationContext())
+                using (var scope = _serviceScopeFactory.CreateScope())
                 {
-                    Tenant tenant;
-                    if (install.IsNewTenant)
-                    {
-                        tenant = new Tenant { Name = install.TenantName,
-                            DBConnectionString = DenormalizeConnectionString(install.ConnectionString),
-                            DBType = install.DatabaseType,
-                            CreatedBy = "",
-                            CreatedOn = DateTime.UtcNow,
-                            ModifiedBy = "",
-                            ModifiedOn = DateTime.UtcNow };
-                        db.Tenant.Add(tenant);
-                        db.SaveChanges();
-                        _cache.Remove("tenants");
-                    }
-                    else
-                    {
-                        tenant = db.Tenant.FirstOrDefault(item => item.Name == install.TenantName);
-                    }
+                    var databases = scope.ServiceProvider.GetServices<IOqtaneDatabase>();
 
-                    foreach (var aliasName in install.Aliases.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    using (var db = GetInstallationContext(databases))
                     {
-                        if (tenant != null)
+                        Tenant tenant;
+                        if (install.IsNewTenant)
                         {
-                            var alias = new Alias { Name = aliasName, TenantId = tenant.TenantId, SiteId = -1, CreatedBy = "", CreatedOn = DateTime.UtcNow, ModifiedBy = "", ModifiedOn = DateTime.UtcNow };
-                            db.Alias.Add(alias);
+                            tenant = new Tenant
+                            {
+                                Name = install.TenantName,
+                                DBConnectionString = DenormalizeConnectionString(install.ConnectionString),
+                                DBType = install.DatabaseType,
+                                CreatedBy = "",
+                                CreatedOn = DateTime.UtcNow,
+                                ModifiedBy = "",
+                                ModifiedOn = DateTime.UtcNow
+                            };
+                            db.Tenant.Add(tenant);
+                            db.SaveChanges();
+                            _cache.Remove("tenants");
+                        }
+                        else
+                        {
+                            tenant = db.Tenant.FirstOrDefault(item => item.Name == install.TenantName);
                         }
 
-                        db.SaveChanges();
+                        foreach (var aliasName in install.Aliases.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            if (tenant != null)
+                            {
+                                var alias = new Alias
+                                {
+                                    Name = aliasName,
+                                    TenantId = tenant.TenantId,
+                                    SiteId = -1,
+                                    CreatedBy = "",
+                                    CreatedOn = DateTime.UtcNow,
+                                    ModifiedBy = "",
+                                    ModifiedOn = DateTime.UtcNow
+                                };
+                                db.Alias.Add(alias);
+                            }
+
+                            db.SaveChanges();
+                        }
+
+                        _cache.Remove("aliases");
                     }
-                    _cache.Remove("aliases");
                 }
             }
 
@@ -274,12 +303,12 @@ namespace Oqtane.Infrastructure
             return result;
         }
 
-        private InstallationContext GetInstallationContext()
+        private InstallationContext GetInstallationContext(IEnumerable<IOqtaneDatabase> databases)
         {
             var databaseType = _config.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey];
             var connectionString = NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey));
 
-            return new InstallationContext(databaseType, connectionString);
+            return new InstallationContext(databases.Single(d => d.Name == databaseType), connectionString);
         }
 
         private Installation MigrateTenants(InstallConfig install)
@@ -291,14 +320,15 @@ namespace Oqtane.Infrastructure
             using (var scope = _serviceScopeFactory.CreateScope())
             {
                 var upgrades = scope.ServiceProvider.GetRequiredService<IUpgradeManager>();
+                var databases = scope.ServiceProvider.GetServices<IOqtaneDatabase>();
 
-                using (var db = GetInstallationContext())
+                using (var db = GetInstallationContext(databases))
                 {
                     foreach (var tenant in db.Tenant.ToList())
                     {
                         try
                         {
-                            var dbConfig = new DbConfig(null, null) {ConnectionString = install.ConnectionString, DatabaseType = install.DatabaseType};
+                            var dbConfig = new DbConfig(null, null, databases) {ConnectionString = install.ConnectionString, DatabaseType = install.DatabaseType};
                             using (var tenantDbContext = new TenantDBContext(dbConfig, null))
                             {
                                 // Push latest model into database
@@ -345,6 +375,8 @@ namespace Oqtane.Infrastructure
             {
                 var moduleDefinitions = scope.ServiceProvider.GetRequiredService<IModuleDefinitionRepository>();
                 var sql = scope.ServiceProvider.GetRequiredService<ISqlRepository>();
+                var databases = scope.ServiceProvider.GetServices<IOqtaneDatabase>();
+
                 foreach (var moduleDefinition in moduleDefinitions.GetModuleDefinitions())
                 {
                     if (!string.IsNullOrEmpty(moduleDefinition.ReleaseVersions) && !string.IsNullOrEmpty(moduleDefinition.ServerManagerType))
@@ -353,7 +385,7 @@ namespace Oqtane.Infrastructure
                         if (moduleType != null)
                         {
                             var versions = moduleDefinition.ReleaseVersions.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                            using (var db = GetInstallationContext())
+                            using (var db = GetInstallationContext(databases))
                             {
                                 foreach (var tenant in db.Tenant.ToList())
                                 {

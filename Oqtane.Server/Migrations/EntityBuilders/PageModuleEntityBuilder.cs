@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Oqtane.Interfaces;
 using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -15,7 +16,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private readonly ForeignKey<PageModuleEntityBuilder> _moduleForeignKey = new("FK_PageModule_Module", x => x.ModuleId, "Module", "ModuleId", ReferentialAction.NoAction);
         private readonly ForeignKey<PageModuleEntityBuilder> _pageForeignKey = new("FK_PageModule_Page", x => x.PageId, "Page", "PageId", ReferentialAction.Cascade);
 
-        public PageModuleEntityBuilder(MigrationBuilder migrationBuilder) : base(migrationBuilder)
+        public PageModuleEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;
@@ -25,7 +26,7 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override PageModuleEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            PageModuleId = table.AddAutoIncrementColumn("PageModuleId");
+            PageModuleId = ActiveDatabase.AddAutoIncrementColumn(table,"PageModuleId");
             PageId = table.AddIntegerColumn("PageId");
             ModuleId = table.AddIntegerColumn("ModuleId");
             Title = table.AddStringColumn("Title", 200);

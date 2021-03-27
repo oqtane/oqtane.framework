@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore.Infrastructure;
+﻿using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Oqtane.Interfaces;
 using Oqtane.Migrations.EntityBuilders;
 using Oqtane.Repository;
 
@@ -7,43 +9,47 @@ namespace Oqtane.Migrations
 {
     [DbContext(typeof(MasterDBContext))]
     [Migration("Master.01.00.01.00")]
-    public class AddAdditionalIndexesInMaster : Migration
+    public class AddAdditionalIndexesInMaster : MultiDatabaseMigration
     {
+        public AddAdditionalIndexesInMaster(IEnumerable<IOqtaneDatabase> databases) : base(databases)
+        {
+        }
+
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             //Update Tenant table
-            var tenantEntityBuilder = new TenantEntityBuilder(migrationBuilder);
+            var tenantEntityBuilder = new TenantEntityBuilder(migrationBuilder, ActiveDatabase);
             tenantEntityBuilder.AddIndex("IX_Tenant", "Name");
 
             //Update Alias table
-            var aliasEntityBuilder = new AliasEntityBuilder(migrationBuilder);
+            var aliasEntityBuilder = new AliasEntityBuilder(migrationBuilder, ActiveDatabase);
             aliasEntityBuilder.AddIndex("IX_Alias", "Name");
 
             //Update ModuleDefinitions Table
-            var moduleDefinitionsEntityBuilder = new ModuleDefinitionsEntityBuilder(migrationBuilder);
+            var moduleDefinitionsEntityBuilder = new ModuleDefinitionsEntityBuilder(migrationBuilder, ActiveDatabase);
             moduleDefinitionsEntityBuilder.AddIndex("IX_ModuleDefinition", "ModuleDefinitionName");
 
             //Update Job Table
-            var jobEntityBuilder = new JobEntityBuilder(migrationBuilder);
+            var jobEntityBuilder = new JobEntityBuilder(migrationBuilder, ActiveDatabase);
             jobEntityBuilder.AddIndex("IX_Job", "JobType");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             //Update Tenant table
-            var tenantEntityBuilder = new TenantEntityBuilder(migrationBuilder);
+            var tenantEntityBuilder = new TenantEntityBuilder(migrationBuilder, ActiveDatabase);
             tenantEntityBuilder.DropIndex("IX_Tenant");
 
             //Update Alias table
-            var aliasEntityBuilder = new AliasEntityBuilder(migrationBuilder);
+            var aliasEntityBuilder = new AliasEntityBuilder(migrationBuilder, ActiveDatabase);
             aliasEntityBuilder.DropIndex("IX_Alias");
 
             //Update ModuleDefinitions Table
-            var moduleDefinitionsEntityBuilder = new ModuleDefinitionsEntityBuilder(migrationBuilder);
+            var moduleDefinitionsEntityBuilder = new ModuleDefinitionsEntityBuilder(migrationBuilder, ActiveDatabase);
             moduleDefinitionsEntityBuilder.DropIndex("IX_ModuleDefinition");
 
             //Update Job Table
-            var jobEntityBuilder = new JobEntityBuilder(migrationBuilder);
+            var jobEntityBuilder = new JobEntityBuilder(migrationBuilder, ActiveDatabase);
             jobEntityBuilder.DropIndex("IX_Job");
         }
     }

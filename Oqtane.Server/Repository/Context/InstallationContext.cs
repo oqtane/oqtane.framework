@@ -1,7 +1,12 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Oqtane.Extensions;
+using Oqtane.Interfaces;
 using Oqtane.Models;
+
+// ReSharper disable CheckNamespace
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace Oqtane.Repository
 {
@@ -9,16 +14,16 @@ namespace Oqtane.Repository
     public class InstallationContext : DbContext
     {
         private readonly string _connectionString;
-        private readonly string _databaseType;
+        private readonly IOqtaneDatabase _database;
 
-        public InstallationContext(string databaseType, string connectionString)
+        public InstallationContext(IOqtaneDatabase database, string connectionString)
         {
             _connectionString = connectionString;
-            _databaseType = databaseType;
+            _database = database;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseOqtaneDatabase(_databaseType, _connectionString);
+            => optionsBuilder.UseOqtaneDatabase(_database, _connectionString);
 
         public virtual DbSet<Alias> Alias { get; set; }
         public virtual DbSet<Tenant> Tenant { get; set; }

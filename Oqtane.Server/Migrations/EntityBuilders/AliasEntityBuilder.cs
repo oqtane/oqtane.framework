@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Oqtane.Interfaces;
 using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -14,7 +15,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private readonly PrimaryKey<AliasEntityBuilder> _primaryKey = new("PK_Alias", x => x.AliasId);
         private readonly ForeignKey<AliasEntityBuilder> _tenantForeignKey = new("FK_Alias_Tenant", x => x.TenantId, "Tenant", "TenantId", ReferentialAction.Cascade);
 
-        public AliasEntityBuilder(MigrationBuilder migrationBuilder) : base(migrationBuilder)
+        public AliasEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;
@@ -23,7 +24,7 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override AliasEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            AliasId = table.AddAutoIncrementColumn("AliasId");
+            AliasId = ActiveDatabase.AddAutoIncrementColumn(table,"AliasId");
             Name = table.AddStringColumn("Name", 200);
             TenantId = table.AddIntegerColumn("TenantId");
             SiteId = table.AddIntegerColumn("SiteId");

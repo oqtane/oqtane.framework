@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Oqtane.Interfaces;
 using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -14,7 +15,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private readonly PrimaryKey<NotificationEntityBuilder> _primaryKey = new("PK_Notification", x => x.NotificationId);
         private readonly ForeignKey<NotificationEntityBuilder> _siteForeignKey = new("FK_Notification_Site", x => x.SiteId, "Site", "SiteId", ReferentialAction.Cascade);
 
-        public NotificationEntityBuilder(MigrationBuilder migrationBuilder) : base(migrationBuilder)
+        public NotificationEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;
@@ -23,7 +24,7 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override NotificationEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            NotificationId = table.AddAutoIncrementColumn("NotificationId");
+            NotificationId = ActiveDatabase.AddAutoIncrementColumn(table,"NotificationId");
             SiteId = table.AddIntegerColumn("SiteId");
             FromUserId = table.AddIntegerColumn("FromUserId", true);
             ToUserId = table.AddIntegerColumn("ToUserId", true);

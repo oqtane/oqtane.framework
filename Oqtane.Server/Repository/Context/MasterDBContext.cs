@@ -1,9 +1,14 @@
 using System;
-using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Oqtane.Models;
 using Microsoft.Extensions.Configuration;
 using Oqtane.Extensions;
+using Oqtane.Interfaces;
+using Oqtane.Migrations.Framework;
+using Oqtane.Repository.Databases.Interfaces;
 using Oqtane.Shared;
 
 // ReSharper disable BuiltInTypeReferenceStyleForMemberAccess
@@ -12,17 +17,22 @@ using Oqtane.Shared;
 
 namespace Oqtane.Repository
 {
-    public class MasterDBContext : DbContext
+    public class MasterDBContext : DbContext, IMultiDatabase
     {
         private readonly IDbConfig _dbConfig;
 
         public MasterDBContext(DbContextOptions<MasterDBContext> options, IDbConfig dbConfig) : base(options)
         {
             _dbConfig = dbConfig;
+            Databases = dbConfig.Databases;
         }
+
+        public IEnumerable<IOqtaneDatabase> Databases { get; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            optionsBuilder.ReplaceService<IMigrationsAssembly, MultiDatabaseMigrationsAssembly>();
+
             var connectionString = _dbConfig.ConnectionString;
             var configuration = _dbConfig.Configuration;
             var databaseType = _dbConfig.DatabaseType;
@@ -38,10 +48,18 @@ namespace Oqtane.Repository
                 databaseType = configuration.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey];
             }
 
-            if (!string.IsNullOrEmpty(connectionString))
+            if (!string.IsNullOrEmpty(connectionString) && !string.IsNullOrEmpty(databaseType))
             {
-                optionsBuilder.UseOqtaneDatabase(databaseType, connectionString);
+                if (Databases != null)
+                {
+                    optionsBuilder.UseOqtaneDatabase(Databases.Single(d => d.Name == databaseType), connectionString);
+                }
+                else
+                {
+                    optionsBuilder.UseOqtaneDatabase(databaseType, connectionString);
+                }
             }
+
             base.OnConfiguring(optionsBuilder);
         }
 

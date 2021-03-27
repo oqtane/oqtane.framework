@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Oqtane.Interfaces;
 using Oqtane.Migrations.Extensions;
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -13,7 +14,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private readonly PrimaryKey<JobLogEntityBuilder> _primaryKey = new("PK_JobLog", x => x.JobLogId);
         private readonly ForeignKey<JobLogEntityBuilder> _jobLogForeignKey = new("FK_JobLog_Job", x => x.JobId, "Job", "JobId", ReferentialAction.Cascade);
 
-        public JobLogEntityBuilder(MigrationBuilder migrationBuilder) : base(migrationBuilder)
+        public JobLogEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;
@@ -22,7 +23,7 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override JobLogEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            JobLogId = table.AddAutoIncrementColumn("JobLogId");
+            JobLogId = ActiveDatabase.AddAutoIncrementColumn(table,"JobLogId");
             JobId = table.AddIntegerColumn("JobId");
             StartDate = table.AddDateTimeColumn("StartDate");
             FinishDate = table.AddDateTimeColumn("FinishDate", true);

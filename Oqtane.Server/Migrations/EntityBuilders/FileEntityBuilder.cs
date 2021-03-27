@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Oqtane.Interfaces;
 using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -14,7 +15,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private readonly PrimaryKey<FileEntityBuilder> _primaryKey = new("PK_File", x => x.FileId);
         private readonly ForeignKey<FileEntityBuilder> _folderForeignKey = new("FK_File_Folder", x => x.FolderId, "Folder", "FolderId", ReferentialAction.Cascade);
 
-        public FileEntityBuilder(MigrationBuilder migrationBuilder) : base(migrationBuilder)
+        public FileEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;
@@ -23,7 +24,7 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override FileEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            FileId = table.AddAutoIncrementColumn("FileId");
+            FileId = ActiveDatabase.AddAutoIncrementColumn(table,"FileId");
             FolderId = table.AddIntegerColumn("FolderId");
             Name = table.AddStringColumn("Name", 50);
             Extension = table.AddStringColumn("Extension", 50);

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Oqtane.Interfaces;
 using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -14,7 +15,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private readonly PrimaryKey<AspNetUserClaimsEntityBuilder> _primaryKey = new("PK_AspNetUserClaims", x => x.Id);
         private readonly ForeignKey<AspNetUserClaimsEntityBuilder> _aspNetUsersForeignKey = new("FK_AspNetUserClaims_AspNetUsers_UserId", x => x.UserId, "AspNetUsers", "Id", ReferentialAction.Cascade);
 
-        public AspNetUserClaimsEntityBuilder(MigrationBuilder migrationBuilder) : base(migrationBuilder)
+        public AspNetUserClaimsEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;
@@ -23,7 +24,7 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override AspNetUserClaimsEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            Id = table.AddAutoIncrementColumn("Id");
+            Id = ActiveDatabase.AddAutoIncrementColumn(table,"Id");
             UserId = table.AddStringColumn("UserId", 450);
             ClaimType = table.AddMaxStringColumn("ClaimType", true);
             ClaimValue = table.AddMaxStringColumn("ClaimValue", true);

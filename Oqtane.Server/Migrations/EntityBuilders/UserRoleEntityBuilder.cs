@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Oqtane.Interfaces;
 using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -15,7 +16,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private readonly ForeignKey<UserRoleEntityBuilder> _userForeignKey = new("FK_UserRole_User", x => x.UserId, "User", "UserId", ReferentialAction.Cascade);
         private readonly ForeignKey<UserRoleEntityBuilder> _roleForeignKey = new("FK_UserRole_Role", x => x.RoleId, "Role", "RoleId", ReferentialAction.NoAction);
 
-        public UserRoleEntityBuilder(MigrationBuilder migrationBuilder) : base(migrationBuilder)
+        public UserRoleEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;
@@ -25,7 +26,7 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override UserRoleEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            UserRoleId = table.AddAutoIncrementColumn("UserRoleId");
+            UserRoleId = ActiveDatabase.AddAutoIncrementColumn(table,"UserRoleId");
             UserId = table.AddIntegerColumn("UserId");
             RoleId = table.AddIntegerColumn("RoleId");
             EffectiveDate = table.AddDateTimeColumn("EffectiveDate", true);

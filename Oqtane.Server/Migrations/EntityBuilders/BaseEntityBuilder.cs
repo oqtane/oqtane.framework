@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Oqtane.Interfaces;
 using Oqtane.Migrations.Extensions;
 
 namespace Oqtane.Migrations.EntityBuilders
@@ -10,9 +11,10 @@ namespace Oqtane.Migrations.EntityBuilders
     {
         private readonly MigrationBuilder _migrationBuilder;
 
-        protected BaseEntityBuilder(MigrationBuilder migrationBuilder)
+        protected BaseEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database)
         {
             _migrationBuilder = migrationBuilder;
+            ActiveDatabase = database;
             ForeignKeys = new List<ForeignKey<TEntityBuilder>>();
         }
 
@@ -23,8 +25,9 @@ namespace Oqtane.Migrations.EntityBuilders
             {
                 table.AddForeignKey(foreignKey);
             }
-
         }
+
+        protected IOqtaneDatabase ActiveDatabase { get; }
 
         protected abstract TEntityBuilder BuildTable(ColumnsBuilder table);
 

@@ -87,7 +87,7 @@ namespace Oqtane.Client
                 }
 
                 // dynamically register database providers
-                var databaseTypes = assembly.GetInterfaces<IDatabase>();
+                var databaseTypes = assembly.GetInterfaces<IOqtaneDatabase>();
                 foreach (var databaseType in databaseTypes)
                 {
                     if (databaseType.AssemblyQualifiedName != null)

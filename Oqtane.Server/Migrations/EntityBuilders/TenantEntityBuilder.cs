@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Oqtane.Interfaces;
 using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -13,7 +14,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private const string _entityTableName = "Tenant";
         private readonly PrimaryKey<TenantEntityBuilder> _primaryKey = new("PK_Tenant", x => x.TenantId);
 
-        public TenantEntityBuilder(MigrationBuilder migrationBuilder): base(migrationBuilder)
+        public TenantEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database): base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;
@@ -21,7 +22,7 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override TenantEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            TenantId = table.AddAutoIncrementColumn("TenantId");
+            TenantId = ActiveDatabase.AddAutoIncrementColumn(table,"TenantId");
             Name = table.AddStringColumn("Name", 100);
             DBConnectionString = table.AddStringColumn("DBConnectionString", 1024);
             Version = table.AddStringColumn("Version", 50, true);

@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Oqtane.Interfaces;
 using Oqtane.Migrations.EntityBuilders;
 using Oqtane.Repository;
 
@@ -7,12 +9,16 @@ namespace Oqtane.Migrations
 {
     [DbContext(typeof(TenantDBContext))]
     [Migration("Tenant.01.00.01.01")]
-    public class AddAdditionColumnToNotifications : Migration
+    public class AddAdditionColumnToNotifications : MultiDatabaseMigration
     {
+        public AddAdditionColumnToNotifications(IEnumerable<IOqtaneDatabase> databases) : base(databases)
+        {
+        }
+
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             //Add Column to Notification table
-            var notificationEntityBuilder = new NotificationEntityBuilder(migrationBuilder);
+            var notificationEntityBuilder = new NotificationEntityBuilder(migrationBuilder, ActiveDatabase);
             notificationEntityBuilder.AddDateTimeColumn("SendOn", true);
 
             migrationBuilder.Sql(
@@ -26,7 +32,7 @@ namespace Oqtane.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             //Drop Column from Notification table
-            var notificationEntityBuilder = new NotificationEntityBuilder(migrationBuilder);
+            var notificationEntityBuilder = new NotificationEntityBuilder(migrationBuilder, ActiveDatabase);
             notificationEntityBuilder.DropColumn("SendOn");
         }
     }

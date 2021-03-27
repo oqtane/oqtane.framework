@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Oqtane.Interfaces;
 using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -13,7 +14,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private const string _entityTableName = "Job";
         private readonly PrimaryKey<JobEntityBuilder> _primaryKey = new("PK_Job", x => x.JobId);
 
-        public JobEntityBuilder(MigrationBuilder migrationBuilder) : base(migrationBuilder)
+        public JobEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;
@@ -21,7 +22,7 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override JobEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            JobId = table.AddAutoIncrementColumn("JobId");
+            JobId = ActiveDatabase.AddAutoIncrementColumn(table,"JobId");
             Name = table.AddStringColumn("Name", 200);
             JobType = table.AddStringColumn("JobType", 200);
             Frequency = table.AddStringColumn("Frequency", 1);

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Oqtane.Interfaces;
 using Oqtane.Migrations.Extensions;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -10,7 +11,7 @@ namespace Oqtane.Migrations.EntityBuilders
 {
     public abstract class AuditableBaseEntityBuilder<TEntityBuilder> : BaseEntityBuilder<TEntityBuilder> where TEntityBuilder : BaseEntityBuilder<TEntityBuilder>
     {
-        protected AuditableBaseEntityBuilder(MigrationBuilder migrationBuilder) : base (migrationBuilder)
+        protected AuditableBaseEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base (migrationBuilder, database)
         {
         }
 

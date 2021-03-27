@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Oqtane.Interfaces;
 using Oqtane.Migrations.EntityBuilders;
 using Oqtane.Migrations.Extensions;
 using Oqtane.Repository;
@@ -9,52 +11,57 @@ namespace Oqtane.Migrations
 {
     [DbContext(typeof(MasterDBContext))]
     [Migration("Master.01.00.00.00")]
-    public class InitializeMaster : Migration
+    public class InitializeMaster : MultiDatabaseMigration
     {
+        public InitializeMaster(IEnumerable<IOqtaneDatabase> databases) : base(databases)
+        {
+        }
+
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             //Create Tenant table
-            var tenantEntityBuilder = new TenantEntityBuilder(migrationBuilder);
+            var tenantEntityBuilder = new TenantEntityBuilder(migrationBuilder, ActiveDatabase);
             tenantEntityBuilder.Create();
 
             //Create Alias table
-            var aliasEntityBuilder = new AliasEntityBuilder(migrationBuilder);
+            var aliasEntityBuilder = new AliasEntityBuilder(migrationBuilder, ActiveDatabase);
             aliasEntityBuilder.Create();
 
             //Create ModuleDefinitions Table
-            var moduleDefinitionsEntityBuilder = new ModuleDefinitionsEntityBuilder(migrationBuilder);
+            var moduleDefinitionsEntityBuilder = new ModuleDefinitionsEntityBuilder(migrationBuilder, ActiveDatabase);
             moduleDefinitionsEntityBuilder.Create();
 
             //Create Job Table
-            var jobEntityBuilder = new JobEntityBuilder(migrationBuilder);
+            var jobEntityBuilder = new JobEntityBuilder(migrationBuilder, ActiveDatabase);
             jobEntityBuilder.Create();
 
             //Create JobLog Table
-            var jobLogEntityBuilder = new JobLogEntityBuilder(migrationBuilder);
+            var jobLogEntityBuilder = new JobLogEntityBuilder(migrationBuilder, ActiveDatabase);
             jobLogEntityBuilder.Create();
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             //Drop Alias table
-            var aliasEntityBuilder = new AliasEntityBuilder(migrationBuilder);
+            var aliasEntityBuilder = new AliasEntityBuilder(migrationBuilder, ActiveDatabase);
             aliasEntityBuilder.Drop();
 
             //Drop JobLog Table
-            var jobLogEntityBuilder = new JobLogEntityBuilder(migrationBuilder);
+            var jobLogEntityBuilder = new JobLogEntityBuilder(migrationBuilder, ActiveDatabase);
             jobLogEntityBuilder.Drop();
 
             //Drop Tenant table
-            var tenantEntityBuilder = new TenantEntityBuilder(migrationBuilder);
+            var tenantEntityBuilder = new TenantEntityBuilder(migrationBuilder, ActiveDatabase);
             tenantEntityBuilder.Drop();
 
             //Drop ModuleDefinitions Table
-            var moduleDefinitionsEntityBuilder = new ModuleDefinitionsEntityBuilder(migrationBuilder);
+            var moduleDefinitionsEntityBuilder = new ModuleDefinitionsEntityBuilder(migrationBuilder, ActiveDatabase);
             moduleDefinitionsEntityBuilder.Drop();
 
             //Drop Job Table
-            var jobEntityBuilder = new JobEntityBuilder(migrationBuilder);
+            var jobEntityBuilder = new JobEntityBuilder(migrationBuilder, ActiveDatabase);
             jobEntityBuilder.Drop();
         }
+
     }
 }

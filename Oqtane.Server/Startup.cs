@@ -130,10 +130,6 @@ namespace Oqtane
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            services.AddScoped<IDbConfig, DbConfig>();
-            services.AddDbContext<MasterDBContext>(options => { });
-            services.AddDbContext<TenantDBContext>(options => { });
-
             services.AddIdentityCore<IdentityUser>(options => { })
                 .AddEntityFrameworkStores<TenantDBContext>()
                 .AddSignInManager()
@@ -214,6 +210,10 @@ namespace Oqtane
 
             // load the external assemblies into the app domain, install services
             services.AddOqtane(_runtime, _supportedCultures);
+            services.AddScoped<IDbConfig, DbConfig>();
+            services.AddDbContext<MasterDBContext>(options => { });
+            services.AddDbContext<TenantDBContext>(options => { });
+
 
             services.AddMvc()
                 .AddNewtonsoftJson()
