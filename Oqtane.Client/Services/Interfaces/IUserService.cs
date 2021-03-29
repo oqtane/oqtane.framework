@@ -1,4 +1,4 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System.Threading.Tasks;
 
 namespace Oqtane.Services
@@ -13,7 +13,7 @@ namespace Oqtane.Services
 
         Task<User> UpdateUserAsync(User user);
 
-        Task DeleteUserAsync(int userId);
+        Task DeleteUserAsync(int userId, int siteId);
 
         Task<User> LoginUserAsync(User user, bool setCookie, bool isPersistent);
 
