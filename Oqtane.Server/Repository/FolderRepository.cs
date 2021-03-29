@@ -90,15 +90,7 @@ namespace Oqtane.Repository
             _db.Folder.Remove(folder);
             _db.SaveChanges();
         }
-        public void DeleteUserFolder(int userId)
-        {
-            string userFolderPath = Utilities.PathCombine("Users", userId.ToString(), System.IO.Path.DirectorySeparatorChar.ToString());
-            List<int> folderIdsToDelete = new List<int>(_db.Folder.Where(a => a.Path == userFolderPath).Select(a => a.FolderId));
-            foreach (int folderId in folderIdsToDelete)
-            {
-                DeleteFolder(folderId);
-            }
-        }
+
         public string GetFolderPath(int folderId)
         {
             Folder folder = _db.Folder.Find(folderId);
