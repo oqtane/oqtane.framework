@@ -36,7 +36,7 @@
         <tr>
             <td colspan="2" align="center">
                 <Label For="permissions" HelpText="Select the permissions you want for the folder" ResourceKey="Permissions">Permissions: </Label>
-                <PermissionGrid EntityName="@EntityNames.Folder" PermissionNames="Browse,View,Edit" Permissions="@_permissions" @ref="_permissionGrid" />
+                <PermissionGrid EntityName="@EntityNames.Folder" PermissionNames="@(PermissionNames.Browse + "," + PermissionNames.View + "," + PermissionNames.Edit)" Permissions="@_permissions" @ref="_permissionGrid" />
             </td>
         </tr>
     </table>

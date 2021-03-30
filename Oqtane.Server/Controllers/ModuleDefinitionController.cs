@@ -13,8 +13,6 @@ using Oqtane.Repository;
 using Oqtane.Security;
 using System;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-using System.Xml.Linq;
 using System.Text.Json;
 
 namespace Oqtane.Controllers
@@ -174,6 +172,20 @@ namespace Oqtane.Controllers
             }
         }
 
+        // GET: api/<controller>/templates
+        [HttpGet("templates")]
+        [Authorize(Roles = RoleNames.Host)]
+        public List<string> Get()
+        {
+            var templates = new List<String>();
+            string templatePath = Utilities.PathCombine(_environment.WebRootPath, "Modules", "Templates", Path.DirectorySeparatorChar.ToString());
+            foreach (string directory in Directory.GetDirectories(templatePath))
+            {
+                templates.Add(directory.Replace(templatePath, ""));
+            }
+            return templates;
+        }
+
         // POST api/<controller>?moduleid=x
         [HttpPost]
         [Authorize(Roles = RoleNames.Host)]
@@ -185,30 +197,12 @@ namespace Oqtane.Controllers
                 DirectoryInfo rootFolder = Directory.GetParent(_environment.ContentRootPath);
                 string templatePath = Utilities.PathCombine(_environment.WebRootPath, "Modules", "Templates", moduleDefinition.Template,Path.DirectorySeparatorChar.ToString());
 
-                if (moduleDefinition.Template == "internal")
-                {
-                    rootPath = Utilities.PathCombine(rootFolder.FullName,Path.DirectorySeparatorChar.ToString());
-                    moduleDefinition.ModuleDefinitionName = moduleDefinition.Owner + "." + moduleDefinition.Name + ", Oqtane.Client";
-                    moduleDefinition.ServerManagerType = moduleDefinition.Owner + "." + moduleDefinition.Name + ".Manager." + moduleDefinition.Name + "Manager, Oqtane.Server";
-                }
-                else
-                {
-                    rootPath = Utilities.PathCombine(rootFolder.Parent.FullName , moduleDefinition.Owner + "." + moduleDefinition.Name,Path.DirectorySeparatorChar.ToString());
-                    moduleDefinition.ModuleDefinitionName = moduleDefinition.Owner + "." + moduleDefinition.Name + ", " + moduleDefinition.Owner + "." + moduleDefinition.Name + ".Client.Oqtane";                    
-                    moduleDefinition.ServerManagerType = moduleDefinition.Owner + "." + moduleDefinition.Name + ".Manager." + moduleDefinition.Name + "Manager, " + moduleDefinition.Owner + "." + moduleDefinition.Name + ".Server.Oqtane";
-                }
+                rootPath = Utilities.PathCombine(rootFolder.Parent.FullName , moduleDefinition.Owner + "." + moduleDefinition.Name,Path.DirectorySeparatorChar.ToString());
+                moduleDefinition.ModuleDefinitionName = moduleDefinition.Owner + "." + moduleDefinition.Name + ", " + moduleDefinition.Owner + "." + moduleDefinition.Name + ".Client.Oqtane";                    
+                moduleDefinition.ServerManagerType = moduleDefinition.Owner + "." + moduleDefinition.Name + ".Manager." + moduleDefinition.Name + "Manager, " + moduleDefinition.Owner + "." + moduleDefinition.Name + ".Server.Oqtane";
 
                 ProcessTemplatesRecursively(new DirectoryInfo(templatePath), rootPath, rootFolder.Name, templatePath, moduleDefinition);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Module Definition Created {ModuleDefinition}", moduleDefinition);
-
-                if (moduleDefinition.Template == "internal")
-                {
-                    // add embedded resources to project file
-                    List<string> resources = new List<string>();
-                    resources.Add(Utilities.PathCombine("Modules", moduleDefinition.Owner + "." + moduleDefinition.Name, "Scripts", moduleDefinition.Owner + "." + moduleDefinition.Name + ".1.0.0.sql"));
-                    resources.Add(Utilities.PathCombine("Modules", moduleDefinition.Owner + "." + moduleDefinition.Name, "Scripts", moduleDefinition.Owner + "." + moduleDefinition.Name + ".Uninstall.sql"));
-                    EmbedResourceFiles(Utilities.PathCombine(rootPath, "Oqtane.Server", "Oqtane.Server.csproj"), resources);
-                }
             }
 
             return moduleDefinition;
@@ -268,20 +262,6 @@ namespace Oqtane.Controllers
                     ProcessTemplatesRecursively(folder, rootPath, rootFolder, templatePath, moduleDefinition);
                 }
             }
-        }
-
-        private void EmbedResourceFiles(string projectfile, List<string> resources)
-        {
-            XDocument project = XDocument.Load(projectfile);
-            var itemGroup = project.Descendants("ItemGroup").Descendants("EmbeddedResource").FirstOrDefault().Parent;
-            if (itemGroup != null)
-            {
-                foreach (var resource in resources)
-                {
-                    itemGroup.Add(new XElement("EmbeddedResource", new XAttribute("Include", resource)));
-                }
-            }
-            project.Save(projectfile);
         }
     }
 }
