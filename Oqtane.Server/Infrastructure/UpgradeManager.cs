@@ -25,14 +25,12 @@ namespace Oqtane.Infrastructure
 
         public void Upgrade(Tenant tenant, string version)
         {
-            // core framework upgrade logic - note that you can check if current tenant is Master if you only want to execute logic once
-            var pageTemplates = new List<PageTemplate>();
-
+            // core framework upgrade logic - note that you can check if current tenant is Master if you only want to execute the logic once
             switch (version)
             {
                 case "0.9.0":
-                    // add a page to all existing sites on upgrade
-
+                    // this code is commented out on purpose - it provides an example of how to programmatically add a page to all existing sites on upgrade
+                    var pageTemplates = new List<PageTemplate>();
                     //pageTemplates.Add(new PageTemplate
                     //{
                     //    Name = "Test",
@@ -68,7 +66,12 @@ namespace Oqtane.Infrastructure
                 case "2.0.2":
                     if (tenant.Name == TenantNames.Master)
                     {
-                        Directory.Delete(Utilities.PathCombine(_environment.WebRootPath, "Modules", "Templates", "Internal", Path.DirectorySeparatorChar.ToString()), true);
+                        // remove Internal module template files as they are no longer supported
+                        var internalTemplatePath = Utilities.PathCombine(_environment.WebRootPath, "Modules", "Templates", "Internal", Path.DirectorySeparatorChar.ToString());
+                        if (Directory.Exists(internalTemplatePath))
+                        {
+                            Directory.Delete(internalTemplatePath, true);
+                        }
                     }
                     break;
             }

@@ -55,8 +55,7 @@ namespace Oqtane.Controllers
         [HttpGet("installed")]
         public Installation IsInstalled()
         {
-            bool isInstalled = _databaseManager.IsInstalled();
-            return new Installation {Success = isInstalled, Message = string.Empty};
+            return _databaseManager.IsInstalled();
         }
 
         [HttpGet("upgrade")]
