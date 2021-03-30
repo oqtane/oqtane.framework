@@ -130,7 +130,14 @@ namespace Oqtane.Controllers
                         var instance = Activator.CreateInstance(type) as IModule;
                         foreach (string name in instance.ModuleDefinition.Dependencies.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                         {
-                            if (!list.Contains(name)) list.Insert(0, name);
+                            if (System.IO.File.Exists(Path.Combine(binFolder, name + ".dll")))
+                            {
+                                if (!list.Contains(name)) list.Insert(0, name);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Module " + instance.ModuleDefinition.ModuleDefinitionName + " dependency " + name + ".dll does not exist");
+                            }
                         }
                     }
                     foreach (var type in assembly.GetTypes().Where(item => item.GetInterfaces().Contains(typeof(ITheme))))
@@ -138,7 +145,14 @@ namespace Oqtane.Controllers
                         var instance = Activator.CreateInstance(type) as ITheme;
                         foreach (string name in instance.Theme.Dependencies.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                         {
-                            if (!list.Contains(name)) list.Insert(0, name);
+                            if (System.IO.File.Exists(Path.Combine(binFolder, name + ".dll")))
+                            {
+                                if (!list.Contains(name)) list.Insert(0, name);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Theme " + instance.Theme.ThemeName + " dependency " + name + ".dll does not exist" );
+                            }
                         }
                     }
                 }

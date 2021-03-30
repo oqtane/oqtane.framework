@@ -13,5 +13,6 @@ namespace Oqtane.Services
         Task InstallModuleDefinitionsAsync();
         Task DeleteModuleDefinitionAsync(int moduleDefinitionId, int siteId);
         Task<ModuleDefinition> CreateModuleDefinitionAsync(ModuleDefinition moduleDefinition);
+        Task<List<string>> GetModuleDefinitionTemplatesAsync();
     }
 }

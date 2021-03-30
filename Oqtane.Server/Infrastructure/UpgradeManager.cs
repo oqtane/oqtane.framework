@@ -1,9 +1,11 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Oqtane.Infrastructure
@@ -12,11 +14,13 @@ namespace Oqtane.Infrastructure
     {
         private readonly IAliasRepository _aliases;
         private readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly IWebHostEnvironment _environment;
 
-        public UpgradeManager(IAliasRepository aliases, IServiceScopeFactory serviceScopeFactory)
+        public UpgradeManager(IAliasRepository aliases, IServiceScopeFactory serviceScopeFactory, IWebHostEnvironment environment)
         {
             _aliases = aliases;
             _serviceScopeFactory = serviceScopeFactory;
+            _environment = environment;
         }
 
         public void Upgrade(Tenant tenant, string version)
@@ -60,6 +64,12 @@ namespace Oqtane.Infrastructure
                     //    }
                     //});
                     CreateSitePages(tenant, pageTemplates);
+                    break;
+                case "2.0.2":
+                    if (tenant.Name == TenantNames.Master)
+                    {
+                        Directory.Delete(Utilities.PathCombine(_environment.WebRootPath, "Modules", "Templates", "Internal", Path.DirectorySeparatorChar.ToString()), true);
+                    }
                     break;
             }
         }

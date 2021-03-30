@@ -53,5 +53,11 @@ namespace Oqtane.Services
         {
             return await PostJsonAsync($"{Apiurl}", moduleDefinition);
         }
+
+        public async Task<List<string>> GetModuleDefinitionTemplatesAsync()
+        {
+            List<string> templates = await GetJsonAsync<List<string>>($"{Apiurl}/templates");
+            return templates;
+        }
     }
 }
