@@ -37,7 +37,9 @@
 
     @if (Model.Message != "")
     {
-        @Model.Message
+        <div class="app-alert">
+            @Model.Message
+        </div>
     }
 
     <script src="js/interop.js"></script>
