@@ -34,7 +34,7 @@
             @if (_pages.Any())
             {
                 <div style="text-align:right;">
-                    <ActionDialog Header="Delete All Pages" Message="@Localizer["Are You Sure You Wish To Permanently Delete All Pages?", "Delete All Pages"]" Action="Delete All Pages" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteAllPages())" ResourceKey="DeleteAllPages" />
+                    <ActionDialog Header="Delete All Pages" Message="Are You Sure You Wish To Permanently Delete All Pages?" Action="Delete All Pages" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteAllPages())" ResourceKey="DeleteAllPages" />
                 </div>
             }
         }
@@ -68,7 +68,7 @@
             @if (_modules.Any())
             {
                 <div style="text-align:right;">
-                    <ActionDialog Header="Delete All Modules" Message="@Localizer["Are You Sure You Wish To Permanently Delete All Modules?", "Delete All Modules"]" Action="Delete All Modules" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteAllModules())" ResourceKey="DeleteAllModules" />
+                    <ActionDialog Header="Delete All Modules" Message="Are You Sure You Wish To Permanently Delete All Modules?" Action="Delete All Modules" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteAllModules())" ResourceKey="DeleteAllModules" />
                 </div>
             }
 
