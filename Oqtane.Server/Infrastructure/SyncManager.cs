@@ -1,4 +1,4 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +17,7 @@ namespace Oqtane.Infrastructure
 
         public List<SyncEvent> GetSyncEvents(int tenantId, DateTime lastSyncDate)
         {
-            return SyncEvents.Where(item => item.TenantId == tenantId && item.ModifiedOn >= lastSyncDate).ToList();
+            return SyncEvents.Where(item => (item.TenantId == tenantId || item.TenantId == -1) && item.ModifiedOn >= lastSyncDate).ToList();
         }
 
         public void AddSyncEvent(int tenantId, string entityName, int entityId)
