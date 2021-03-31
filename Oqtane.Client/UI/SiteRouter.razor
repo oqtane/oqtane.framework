@@ -80,7 +80,7 @@
         var urlparameters = string.Empty;
         var editmode = false;
         var reload = Reload.None;
-        var lastsyncdate = DateTime.UtcNow;
+        var lastsyncdate = DateTime.UtcNow.AddHours(-1);
         var runtime = GetRuntime();
 
         Uri uri = new Uri(_absoluteUri);
@@ -107,9 +107,14 @@
         SiteState.Alias = alias; // set state for services
         lastsyncdate = alias.SyncDate;
 
-        // process any sync events for site 
+        // process any sync events  
         if (reload != Reload.Site && alias.SyncEvents.Any())
         {
+            // if running on WebAssembly reload the client application if the server application was restarted
+            if (runtime == Shared.Runtime.WebAssembly && PageState != null && alias.SyncEvents.Exists(item => item.TenantId == -1))
+            {
+                NavigationManager.NavigateTo(uri.Scheme + "://" + uri.Authority + "?reload", true);
+            }
             if (alias.SyncEvents.Exists(item => item.EntityName == EntityNames.Site && item.EntityId == alias.SiteId))
             {
                 reload = Reload.Site;
