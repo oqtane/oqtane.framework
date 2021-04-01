@@ -55,7 +55,7 @@
             {
                 var notification = new Notification(PageState.Site.SiteId, PageState.User, user, subject, body, null);
                 notification = await NotificationService.AddNotificationAsync(notification);
-                await logger.LogInformation("Notification Created {Notification}", notification);
+                await logger.LogInformation("Notification Created {NotificationId}", notification.NotificationId);
                 NavigationManager.NavigateTo(NavigateUrl());
             }
             else

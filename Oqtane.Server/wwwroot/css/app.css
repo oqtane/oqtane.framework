@@ -1,4 +1,4 @@
-﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -123,6 +123,13 @@ app {
     box-shadow: inherit;
     padding: inherit;
     vertical-align: inherit;
+}
+
+.app-alert {
+    padding: 20px;
+    background-color: #f44336; /* red */
+    color: white;
+    margin-bottom: 15px;
 }
 
 /* Tooltips */
