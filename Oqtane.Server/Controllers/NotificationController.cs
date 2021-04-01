@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Oqtane.Enums;
@@ -65,7 +65,7 @@ namespace Oqtane.Controllers
             if (IsAuthorized(notification.FromUserId))
             {
                 notification = _notifications.AddNotification(notification);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Notification Added {Notification}", notification);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Notification Added {NotificationId}", notification.NotificationId);
             }
             return notification;
         }
@@ -78,7 +78,7 @@ namespace Oqtane.Controllers
             if (IsAuthorized(notification.FromUserId))
             {
                 notification = _notifications.UpdateNotification(notification);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Notification Updated {Folder}", notification);
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Notification Updated {NotificationId}", notification.NotificationId);
             }
             return notification;
         }
