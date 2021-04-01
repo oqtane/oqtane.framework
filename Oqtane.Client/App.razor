@@ -1,31 +1,39 @@
-﻿@inject IInstallationService InstallationService
+@inject IInstallationService InstallationService
 
 @if (_initialized)
 {
-    @if (!_installed)
+    @if (!_installation.Success)
     {
         <Installer />
     }
     else
     {
-        <CascadingAuthenticationState>
-            <CascadingValue Value="@PageState">
-                <SiteRouter OnStateChange="@ChangeState" />
-            </CascadingValue>
-        </CascadingAuthenticationState>
+        @if (string.IsNullOrEmpty(_installation.Message))
+        {
+            <CascadingAuthenticationState>
+                <CascadingValue Value="@PageState">
+                    <SiteRouter OnStateChange="@ChangeState" />
+                </CascadingValue>
+            </CascadingAuthenticationState>
+        }
+        else
+        {
+            <div class="app-alert">
+                @_installation.Message
+            </div> 
+        }
     }
 }
 
 @code {
+    private Installation _installation;
     private bool _initialized;
-    private bool _installed;
 
     private PageState PageState { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
-        var installation = await InstallationService.IsInstalled();
-        _installed = installation.Success;
+        _installation = await InstallationService.IsInstalled();
         _initialized = true;
     }
 

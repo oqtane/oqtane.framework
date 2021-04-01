@@ -111,7 +111,6 @@ namespace Oqtane.Controllers
             return null;
         }
 
-        //TODO shoud be moved to another layer
         private async Task<User> CreateUser(User user)
         {
             User newUser = null;
@@ -261,18 +260,50 @@ namespace Oqtane.Controllers
         // DELETE api/<controller>/5?siteid=x
         [HttpDelete("{id}")]
         [Authorize(Roles = RoleNames.Admin)]
-        public async Task Delete(int id)
+        public async Task Delete(int id, string siteid)
         {
-            IdentityUser identityuser = await _identityUserManager.FindByNameAsync(_users.GetUser(id).Username);
-            
-            if (identityuser != null)
+            User user = _users.GetUser(id);
+            if (user != null)
             {
-                var result = await _identityUserManager.DeleteAsync(identityuser);
-
-                if (result != null)
+                // remove user roles for site
+                foreach (UserRole userrole in _userRoles.GetUserRoles(user.UserId, Int32.Parse(siteid)).ToList())
                 {
-                    _users.DeleteUser(id);
-                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Deleted {UserId}", id);
+                    _userRoles.DeleteUserRole(userrole.UserRoleId);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Role Deleted {UserRole}", userrole);
+                }
+
+                // remove user folder for site
+                var folder = _folders.GetFolder(Int32.Parse(siteid), Utilities.PathCombine("Users", user.UserId.ToString(), Path.DirectorySeparatorChar.ToString()));
+                if (folder != null)
+                {
+                    if (Directory.Exists(_folders.GetFolderPath(folder)))
+                    {
+                        Directory.Delete(_folders.GetFolderPath(folder), true);
+                    }
+                    _folders.DeleteFolder(folder.FolderId);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Folder Deleted {Folder}", folder);
+                }
+
+                // delete user if they are not a member of any other sites
+                if (!_userRoles.GetUserRoles(user.UserId, -1).Any())
+                {
+                    // get identity user
+                    IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
+                    if (identityuser != null)
+                    {
+                        // delete identity user
+                        var result = await _identityUserManager.DeleteAsync(identityuser);
+                        if (result != null)
+                        {
+                            // delete user
+                            _users.DeleteUser(user.UserId);
+                            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Deleted {UserId}", user.UserId);
+                        }
+                        else
+                        {
+                            _logger.Log(LogLevel.Error, this, LogFunction.Delete, "Error Deleting User {UserId}", user.UserId, result.ToString());
+                        }
+                    }
                 }
             }
         }

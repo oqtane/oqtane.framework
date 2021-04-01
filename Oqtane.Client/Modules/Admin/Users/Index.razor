@@ -85,7 +85,7 @@ else
             var user = await UserService.GetUserAsync(UserRole.UserId, PageState.Site.SiteId);
             if (user != null)
             {
-                await UserService.DeleteUserAsync(user.UserId);
+                await UserService.DeleteUserAsync(user.UserId, PageState.Site.SiteId);
                 await logger.LogInformation("User Deleted {User}", UserRole.User);
                 StateHasChanged();
             }

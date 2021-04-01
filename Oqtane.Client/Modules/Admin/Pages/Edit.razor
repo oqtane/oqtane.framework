@@ -23,18 +23,11 @@
                         <Label For="Parent" HelpText="Select the parent for the page in the site hierarchy" ResourceKey="Parent">Parent: </Label>
                     </td>
                     <td>
-                        <select id="Parent" class="form-control" @onchange="(e => ParentChanged(e))">
+                        <select id="Parent" class="form-control" value="@_parentid" @onchange="(e => ParentChanged(e))">
                             <option value="-1">&lt;@Localizer["Site Root"]&gt;</option>
                             @foreach (Page page in _pageList)
                             {
-                                if (page.PageId.ToString() == _parentid)
-                                {
-                                    <option value="@(page.PageId)" selected>@(new string('-', page.Level * 2))@(page.Name)</option>
-                                }
-                                else
-                                {
-                                    <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
-                                }
+                                <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
                             }
                         </select>
                     </td>
@@ -112,18 +105,11 @@
                             <Label For="Theme" HelpText="Select the theme for this page" ResourceKey="Theme">Theme: </Label>
                         </td>
                         <td>
-                            <select id="Theme" class="form-control" @onchange="(e => ThemeChanged(e))">
-                                <option value="-">&lt;Inherit From Site&gt;</option>
+                            <select id="Theme" class="form-control" value="@_themetype" @onchange="(e => ThemeChanged(e))">
+                                <option value="-">&lt;@Localizer["Inherit From Site"]&gt;</option>
                                 @foreach (var theme in _themes)
                                 {
-                                    if (theme.TypeName == _themetype)
-                                    {
-                                        <option value="@theme.TypeName" selected>@theme.Name</option>
-                                    }
-                                    else
-                                    {
-                                        <option value="@theme.TypeName">@theme.Name</option>
-                                    }
+                                    <option value="@theme.TypeName">@theme.Name</option>
                                 }
                             </select>
                         </td>
