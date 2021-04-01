@@ -113,7 +113,7 @@
             // if running on WebAssembly reload the client application if the server application was restarted
             if (runtime == Shared.Runtime.WebAssembly && PageState != null && alias.SyncEvents.Exists(item => item.TenantId == -1))
             {
-                NavigationManager.NavigateTo(uri.Scheme + "://" + uri.Authority + "?reload", true);
+                NavigationManager.NavigateTo(_absoluteUri + (!_absoluteUri.Contains("?") ? "?" : "&") + "reload", true);
             }
             if (alias.SyncEvents.Exists(item => item.EntityName == EntityNames.Site && item.EntityId == alias.SiteId))
             {
