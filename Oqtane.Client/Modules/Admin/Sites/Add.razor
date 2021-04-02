@@ -326,6 +326,7 @@ else
                             var connectionString = _selectedDatabase.BuildConnectionString();
                             if (connectionString != "")
                             {
+                                config.DatabaseType = _databaseType;
                                 config.ConnectionString = connectionString;
                                 config.HostPassword = _hostpassword;
                                 config.HostEmail = user.Email;
