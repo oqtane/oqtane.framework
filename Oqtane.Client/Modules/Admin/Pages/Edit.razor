@@ -27,7 +27,10 @@
                             <option value="-1">&lt;@Localizer["Site Root"]&gt;</option>
                             @foreach (Page page in _pageList)
                             {
-                                <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
+                                if (page.PageId != _pageId)
+                                {
+                                    <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
+                                }
                             }
                         </select>
                     </td>
