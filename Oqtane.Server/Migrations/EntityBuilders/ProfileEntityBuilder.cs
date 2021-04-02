@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Interfaces;
-using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -24,17 +23,17 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override ProfileEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            ProfileId = ActiveDatabase.AddAutoIncrementColumn(table,"ProfileId");
-            SiteId = table.AddIntegerColumn("SiteId", true);
-            Name = table.AddStringColumn("Name", 50);
-            Title = table.AddStringColumn("Title", 50);
-            Description = table.AddStringColumn("Description", 256, true);
-            Category = table.AddStringColumn("Category", 50);
-            ViewOrder = table.AddIntegerColumn("ViewOrder");
-            MaxLength = table.AddIntegerColumn("MaxLength");
-            DefaultValue = table.AddStringColumn("DefaultValue", 2000, true);
-            IsRequired = table.AddBooleanColumn("IsRequired");
-            IsPrivate = table.AddBooleanColumn("IsPrivate");
+            ProfileId = AddAutoIncrementColumn(table,"ProfileId");
+            SiteId = AddIntegerColumn(table,"SiteId", true);
+            Name = AddStringColumn(table,"Name", 50);
+            Title = AddStringColumn(table,"Title", 50);
+            Description = AddStringColumn(table,"Description", 256, true);
+            Category = AddStringColumn(table,"Category", 50);
+            ViewOrder = AddIntegerColumn(table,"ViewOrder");
+            MaxLength = AddIntegerColumn(table,"MaxLength");
+            DefaultValue = AddStringColumn(table,"DefaultValue", 2000, true);
+            IsRequired = AddBooleanColumn(table,"IsRequired");
+            IsPrivate = AddBooleanColumn(table,"IsPrivate");
 
             AddAuditableColumns(table);
 

@@ -1,9 +1,8 @@
-using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Interfaces;
-using Oqtane.Migrations.Extensions;
+
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -17,9 +16,9 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected void AddDeletableColumns(ColumnsBuilder table)
         {
-            DeletedBy = table.AddStringColumn("DeletedBy", 256, true);
-            DeletedOn = table.AddDateTimeColumn("DeletedOn", true);
-            IsDeleted = table.AddBooleanColumn("IsDeleted");
+            DeletedBy = AddStringColumn(table,"DeletedBy", 256, true);
+            DeletedOn = AddDateTimeColumn(table,"DeletedOn", true);
+            IsDeleted = AddBooleanColumn(table,"IsDeleted");
         }
 
         public OperationBuilder<AddColumnOperation> DeletedBy { get; private set; }

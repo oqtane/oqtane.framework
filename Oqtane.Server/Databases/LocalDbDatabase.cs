@@ -12,8 +12,8 @@ namespace Oqtane.Databases
 
         private static readonly List<ConnectionStringField> _connectionStringFields = new()
         {
-            new() {Name = "Server", FriendlyName = "Server", Value = "(LocalDb)\\MSSQLLocalDB"},
-            new() {Name = "Database", FriendlyName = "Database", Value = "Oqtane-{{Date}}"}
+            new() {Name = "Server", FriendlyName = "Server", Value = "(LocalDb)\\MSSQLLocalDB", HelpText="Enter the database server"},
+            new() {Name = "Database", FriendlyName = "Database", Value = "Oqtane-{{Date}}", HelpText="Enter the name of the database"}
         };
 
         public LocalDbDatabase() :base(_name, _friendlyName, _connectionStringFields) { }

@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Interfaces;
-using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -24,22 +23,22 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override LogEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            LogId = ActiveDatabase.AddAutoIncrementColumn(table,"LogId");
-            SiteId = table.AddIntegerColumn("SiteId", true);
-            LogDate = table.AddDateTimeColumn("LogDate");
-            PageId = table.AddIntegerColumn("PageId", true);
-            ModuleId = table.AddIntegerColumn("ModuleId", true);
-            UserId = table.AddIntegerColumn("UserId", true);
-            Url = table.AddStringColumn("Url", 2048);
-            Server = table.AddStringColumn("Server", 200);
-            Category = table.AddStringColumn("Category", 200);
-            Feature = table.AddStringColumn("Feature", 200);
-            Function = table.AddStringColumn("Function", 20);
-            Level = table.AddStringColumn("Level", 20);
-            Message = table.AddMaxStringColumn("Message");
-            MessageTemplate = table.AddMaxStringColumn("MessageTemplate");
-            Exception = table.AddMaxStringColumn("Exception", true);
-            Properties = table.AddMaxStringColumn("Properties", true);
+            LogId = AddAutoIncrementColumn(table,"LogId");
+            SiteId = AddIntegerColumn(table,"SiteId", true);
+            LogDate = AddDateTimeColumn(table,"LogDate");
+            PageId = AddIntegerColumn(table,"PageId", true);
+            ModuleId = AddIntegerColumn(table,"ModuleId", true);
+            UserId = AddIntegerColumn(table,"UserId", true);
+            Url = AddStringColumn(table,"Url", 2048);
+            Server = AddStringColumn(table,"Server", 200);
+            Category = AddStringColumn(table,"Category", 200);
+            Feature = AddStringColumn(table,"Feature", 200);
+            Function = AddStringColumn(table,"Function", 20);
+            Level = AddStringColumn(table,"Level", 20);
+            Message = AddMaxStringColumn(table,"Message");
+            MessageTemplate = AddMaxStringColumn(table,"MessageTemplate");
+            Exception = AddMaxStringColumn(table,"Exception", true);
+            Properties = AddMaxStringColumn(table,"Properties", true);
 
             return this;
         }

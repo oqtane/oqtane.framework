@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Interfaces;
-using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -26,11 +25,11 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override UserRoleEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            UserRoleId = ActiveDatabase.AddAutoIncrementColumn(table,"UserRoleId");
-            UserId = table.AddIntegerColumn("UserId");
-            RoleId = table.AddIntegerColumn("RoleId");
-            EffectiveDate = table.AddDateTimeColumn("EffectiveDate", true);
-            ExpiryDate = table.AddDateTimeColumn("ExpiryDate", true);
+            UserRoleId = AddAutoIncrementColumn(table,"UserRoleId");
+            UserId = AddIntegerColumn(table,"UserId");
+            RoleId = AddIntegerColumn(table,"RoleId");
+            EffectiveDate = AddDateTimeColumn(table,"EffectiveDate", true);
+            ExpiryDate = AddDateTimeColumn(table,"ExpiryDate", true);
 
             AddAuditableColumns(table);
 

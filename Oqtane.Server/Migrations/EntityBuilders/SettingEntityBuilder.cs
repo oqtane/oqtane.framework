@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Interfaces;
-using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -22,11 +21,11 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override SettingEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            SettingId = ActiveDatabase.AddAutoIncrementColumn(table,"SettingId");
-            EntityName = table.AddStringColumn("EntityName", 50);
-            EntityId = table.AddIntegerColumn("EntityId");
-            SettingName = table.AddStringColumn("SettingName", 50);
-            SettingValue = table.AddMaxStringColumn("SettingValue");
+            SettingId = AddAutoIncrementColumn(table,"SettingId");
+            EntityName = AddStringColumn(table,"EntityName", 50);
+            EntityId = AddIntegerColumn(table,"EntityId");
+            SettingName = AddStringColumn(table,"SettingName", 50);
+            SettingValue = AddMaxStringColumn(table,"SettingValue");
 
             AddAuditableColumns(table);
 

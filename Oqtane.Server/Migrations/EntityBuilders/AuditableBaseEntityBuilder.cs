@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Interfaces;
-using Oqtane.Migrations.Extensions;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable MemberCanBePrivate.Global
@@ -17,10 +16,10 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected void AddAuditableColumns(ColumnsBuilder table)
         {
-            CreatedBy = table.AddStringColumn("CreatedBy", 256);
-            CreatedOn = table.AddDateTimeColumn("CreatedOn");
-            ModifiedBy = table.AddStringColumn("ModifiedBy", 256);
-            ModifiedOn = table.AddDateTimeColumn("ModifiedOn");
+            CreatedBy = AddStringColumn(table,"CreatedBy", 256);
+            CreatedOn = AddDateTimeColumn(table,"CreatedOn");
+            ModifiedBy = AddStringColumn(table,"ModifiedBy", 256);
+            ModifiedOn = AddDateTimeColumn(table,"ModifiedOn");
         }
 
 

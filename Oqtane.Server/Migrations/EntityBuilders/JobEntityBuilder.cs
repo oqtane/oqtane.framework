@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Interfaces;
-using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -22,18 +21,18 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override JobEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            JobId = ActiveDatabase.AddAutoIncrementColumn(table,"JobId");
-            Name = table.AddStringColumn("Name", 200);
-            JobType = table.AddStringColumn("JobType", 200);
-            Frequency = table.AddStringColumn("Frequency", 1);
-            Interval = table.AddIntegerColumn("Interval");
-            StartDate = table.AddDateTimeColumn("StartDate", true);
-            EndDate = table.AddDateTimeColumn("EndDate", true);
-            IsEnabled = table.AddBooleanColumn("IsEnabled");
-            IsStarted = table.AddBooleanColumn("IsStarted");
-            IsExecuting = table.AddBooleanColumn("IsExecuting");
-            NextExecution = table.AddDateTimeColumn("NextExecution", true);
-            RetentionHistory = table.AddIntegerColumn("RetentionHistory");
+            JobId = AddAutoIncrementColumn(table,"JobId");
+            Name = AddStringColumn(table,"Name", 200);
+            JobType = AddStringColumn(table,"JobType", 200);
+            Frequency = AddStringColumn(table,"Frequency", 1);
+            Interval = AddIntegerColumn(table,"Interval");
+            StartDate = AddDateTimeColumn(table,"StartDate", true);
+            EndDate = AddDateTimeColumn(table,"EndDate", true);
+            IsEnabled = AddBooleanColumn(table,"IsEnabled");
+            IsStarted = AddBooleanColumn(table,"IsStarted");
+            IsExecuting = AddBooleanColumn(table,"IsExecuting");
+            NextExecution = AddDateTimeColumn(table,"NextExecution", true);
+            RetentionHistory = AddIntegerColumn(table,"RetentionHistory");
 
             AddAuditableColumns(table);
 

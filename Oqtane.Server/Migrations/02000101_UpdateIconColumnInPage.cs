@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Oqtane.Interfaces;
+using Oqtane.Migrations.EntityBuilders;
 using Oqtane.Repository;
 
 namespace Oqtane.Migrations
@@ -17,12 +18,9 @@ namespace Oqtane.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             ///Update Icon Field in Page
-            migrationBuilder.Sql(
-                @"
-                    UPDATE Page
-                    SET Icon = 'oi oi-' + Icon
-                    WHERE Icon <> ''
-                ");
+            var pageEntityBuilder = new PageEntityBuilder(migrationBuilder, ActiveDatabase);
+            var updateSql = ActiveDatabase.ConcatenateSql("'oi oi-'", $"{ActiveDatabase.RewriteName("Icon")}");
+            pageEntityBuilder.UpdateColumn("Icon", updateSql, $"{ActiveDatabase.RewriteName("Icon")} <> ''" );
         }
     }
 }

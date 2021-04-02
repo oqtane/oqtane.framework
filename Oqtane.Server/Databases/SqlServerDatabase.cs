@@ -10,15 +10,16 @@ namespace Oqtane.Databases
     public class SqlServerDatabase : SqlServerDatabaseBase
     {
         private static string _friendlyName => "SQL Server";
+
         private static string _name => "SqlServer";
 
         private static readonly List<ConnectionStringField> _connectionStringFields = new()
         {
-            new() {Name = "Server", FriendlyName = "Server", Value = "."},
-            new() {Name = "Database", FriendlyName = "Database", Value = "Oqtane-{{Date}}"},
-            new() {Name = "IntegratedSecurity", FriendlyName = "Integrated Security", Value = "true"},
-            new() {Name = "Uid", FriendlyName = "User Id", Value = ""},
-            new() {Name = "Pwd", FriendlyName = "Password", Value = ""}
+            new() {Name = "Server", FriendlyName = "Server", Value = ".", HelpText="Enter the database server"},
+            new() {Name = "Database", FriendlyName = "Database", Value = "Oqtane-{{Date}}", HelpText="Enter the name of the database"},
+            new() {Name = "IntegratedSecurity", FriendlyName = "Integrated Security", Value = "true", HelpText="Select if you want integrated security or not"},
+            new() {Name = "Uid", FriendlyName = "User Id", Value = "", HelpText="Enter the username to use for the database"},
+            new() {Name = "Pwd", FriendlyName = "Password", Value = "", HelpText="Enter the password to use for the database"}
         };
 
         public SqlServerDatabase() :base(_name, _friendlyName, _connectionStringFields) { }

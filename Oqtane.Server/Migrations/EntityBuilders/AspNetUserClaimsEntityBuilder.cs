@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Interfaces;
-using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -24,10 +23,10 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override AspNetUserClaimsEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            Id = ActiveDatabase.AddAutoIncrementColumn(table,"Id");
-            UserId = table.AddStringColumn("UserId", 450);
-            ClaimType = table.AddMaxStringColumn("ClaimType", true);
-            ClaimValue = table.AddMaxStringColumn("ClaimValue", true);
+            Id = AddAutoIncrementColumn(table,"Id");
+            UserId = AddStringColumn(table,"UserId", 450);
+            ClaimType = AddMaxStringColumn(table,"ClaimType", true);
+            ClaimValue = AddMaxStringColumn(table,"ClaimValue", true);
 
             return this;
         }

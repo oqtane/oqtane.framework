@@ -1,8 +1,6 @@
 using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Migrations.EntityBuilders;
 
 namespace Oqtane.Migrations

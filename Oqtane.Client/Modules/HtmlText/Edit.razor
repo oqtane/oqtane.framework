@@ -80,7 +80,7 @@
             }
             else
             {
-                htmltext = new HtmlTextInfo();
+                htmltext = new HtmlText();
                 htmltext.ModuleId = ModuleState.ModuleId;
                 htmltext.Content = content;
                 await HtmlTextService.AddHtmlTextAsync(htmltext);

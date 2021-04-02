@@ -84,6 +84,19 @@ namespace Oqtane.Repository
             base.OnConfiguring(optionsBuilder);
         }
 
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            if (Databases != null)
+            {
+                var database = Databases.Single(d => d.Name == _databaseType);
+
+                database.UpdateIdentityStoreTableNames(builder);
+            }
+
+        }
+
         public override int SaveChanges()
         {
             DbContextUtils.SaveChanges(this, _accessor);

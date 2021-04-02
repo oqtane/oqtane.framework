@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Interfaces;
-using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -24,13 +23,13 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override FileEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            FileId = ActiveDatabase.AddAutoIncrementColumn(table,"FileId");
-            FolderId = table.AddIntegerColumn("FolderId");
-            Name = table.AddStringColumn("Name", 50);
-            Extension = table.AddStringColumn("Extension", 50);
-            Size = table.AddIntegerColumn("Size");
-            ImageHeight = table.AddIntegerColumn("ImageHeight");
-            ImageWidth = table.AddIntegerColumn("ImageWidth");
+            FileId = AddAutoIncrementColumn(table,"FileId");
+            FolderId = AddIntegerColumn(table,"FolderId");
+            Name = AddStringColumn(table,"Name", 50);
+            Extension = AddStringColumn(table,"Extension", 50);
+            Size = AddIntegerColumn(table,"Size");
+            ImageHeight = AddIntegerColumn(table,"ImageHeight");
+            ImageWidth = AddIntegerColumn(table,"ImageWidth");
 
             AddAuditableColumns(table);
             AddDeletableColumns(table);

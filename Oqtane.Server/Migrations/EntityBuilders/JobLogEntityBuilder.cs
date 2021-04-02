@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Interfaces;
-using Oqtane.Migrations.Extensions;
+
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
@@ -23,12 +23,12 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override JobLogEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            JobLogId = ActiveDatabase.AddAutoIncrementColumn(table,"JobLogId");
-            JobId = table.AddIntegerColumn("JobId");
-            StartDate = table.AddDateTimeColumn("StartDate");
-            FinishDate = table.AddDateTimeColumn("FinishDate", true);
-            Succeeded = table.AddBooleanColumn("Succeeded", true);
-            Notes = table.AddMaxStringColumn("Notes", true);
+            JobLogId = AddAutoIncrementColumn(table,"JobLogId");
+            JobId = AddIntegerColumn(table,"JobId");
+            StartDate = AddDateTimeColumn(table,"StartDate");
+            FinishDate = AddDateTimeColumn(table,"FinishDate", true);
+            Succeeded = AddBooleanColumn(table,"Succeeded", true);
+            Notes = AddMaxStringColumn(table,"Notes", true);
 
             return this;
         }

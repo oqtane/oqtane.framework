@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Interfaces;
 using Oqtane.Migrations;
 using Oqtane.Migrations.EntityBuilders;
-using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -26,9 +25,9 @@ namespace Oqtane.Modules.HtmlText.Migrations.EntityBuilders
 
         protected override HtmlTextEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            HtmlTextId = ActiveDatabase.AddAutoIncrementColumn(table,"HtmlTextId");
-            ModuleId = table.AddIntegerColumn("ModuleId");
-            Content = table.AddMaxStringColumn("Content");
+            HtmlTextId = AddAutoIncrementColumn(table,"HtmlTextId");
+            ModuleId = AddIntegerColumn(table,"ModuleId");
+            Content = AddMaxStringColumn(table,"Content");
 
             AddAuditableColumns(table);
 

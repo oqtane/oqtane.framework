@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Interfaces;
-using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -24,10 +23,10 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override ModuleEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            ModuleId = ActiveDatabase.AddAutoIncrementColumn(table,"ModuleId");
-            SiteId = table.AddIntegerColumn("SiteId");
-            ModuleDefinitionName = table.AddStringColumn("ModuleDefinitionName", 200);
-            AllPages = table.AddBooleanColumn("AllPages");
+            ModuleId = AddAutoIncrementColumn(table,"ModuleId");
+            SiteId = AddIntegerColumn(table,"SiteId");
+            ModuleDefinitionName = AddStringColumn(table,"ModuleDefinitionName", 200);
+            AllPages = AddBooleanColumn(table,"AllPages");
 
             AddAuditableColumns(table);
 

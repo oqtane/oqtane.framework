@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Interfaces;
-using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -24,17 +23,17 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override NotificationEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            NotificationId = ActiveDatabase.AddAutoIncrementColumn(table,"NotificationId");
-            SiteId = table.AddIntegerColumn("SiteId");
-            FromUserId = table.AddIntegerColumn("FromUserId", true);
-            ToUserId = table.AddIntegerColumn("ToUserId", true);
-            ToEmail = table.AddStringColumn("ToEmail", 256);
-            ParentId = table.AddIntegerColumn("ParentId", true);
-            Subject = table.AddStringColumn("Subject", 256);
-            Body = table.AddMaxStringColumn("Body");
-            CreatedOn = table.AddDateTimeColumn("CreatedOn");
-            IsDelivered = table.AddBooleanColumn("IsDelivered");
-            DeliveredOn = table.AddDateTimeColumn("DeliveredOn", true);
+            NotificationId = AddAutoIncrementColumn(table,"NotificationId");
+            SiteId = AddIntegerColumn(table,"SiteId");
+            FromUserId = AddIntegerColumn(table,"FromUserId", true);
+            ToUserId = AddIntegerColumn(table,"ToUserId", true);
+            ToEmail = AddStringColumn(table,"ToEmail", 256);
+            ParentId = AddIntegerColumn(table,"ParentId", true);
+            Subject = AddStringColumn(table,"Subject", 256);
+            Body = AddMaxStringColumn(table,"Body");
+            CreatedOn = AddDateTimeColumn(table,"CreatedOn");
+            IsDelivered = AddBooleanColumn(table,"IsDelivered");
+            DeliveredOn = AddDateTimeColumn(table,"DeliveredOn", true);
 
             AddDeletableColumns(table);
 

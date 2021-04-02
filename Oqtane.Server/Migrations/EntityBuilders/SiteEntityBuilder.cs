@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Interfaces;
-using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -22,18 +21,18 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override SiteEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            SiteId = ActiveDatabase.AddAutoIncrementColumn(table,"SiteId");
-            TenantId = table.AddIntegerColumn("TenantId");
-            Name = table.AddStringColumn("Name", 200);
-            LogoFileId = table.AddIntegerColumn("LogoFileId", true);
-            FaviconFileId = table.AddIntegerColumn("FaviconFileId", true);
-            DefaultThemeType = table.AddStringColumn("DefaultThemeType", 200);
-            DefaultLayoutType = table.AddStringColumn("DefaultLayoutType", 200);
-            DefaultContainerType = table.AddStringColumn("DefaultContainerType", 200);
-            PwaIsEnabled = table.AddBooleanColumn("PwaIsEnabled");
-            PwaAppIconFileId = table.AddIntegerColumn("PwaAppIconFileId", true);
-            PwaSplashIconFileId = table.AddIntegerColumn("PwaSplashIconFileId", true);
-            AllowRegistration = table.AddBooleanColumn("AllowRegistration");
+            SiteId = AddAutoIncrementColumn(table,"SiteId");
+            TenantId = AddIntegerColumn(table,"TenantId");
+            Name = AddStringColumn(table,"Name", 200);
+            LogoFileId = AddIntegerColumn(table,"LogoFileId", true);
+            FaviconFileId = AddIntegerColumn(table,"FaviconFileId", true);
+            DefaultThemeType = AddStringColumn(table,"DefaultThemeType", 200);
+            DefaultLayoutType = AddStringColumn(table,"DefaultLayoutType", 200);
+            DefaultContainerType = AddStringColumn(table,"DefaultContainerType", 200);
+            PwaIsEnabled = AddBooleanColumn(table,"PwaIsEnabled");
+            PwaAppIconFileId = AddIntegerColumn(table,"PwaAppIconFileId", true);
+            PwaSplashIconFileId = AddIntegerColumn(table,"PwaSplashIconFileId", true);
+            AllowRegistration = AddBooleanColumn(table,"AllowRegistration");
 
             AddAuditableColumns(table);
             AddDeletableColumns(table);

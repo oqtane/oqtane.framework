@@ -1,4 +1,5 @@
 @namespace Oqtane.Modules.Admin.Sites
+@using Oqtane.Interfaces
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject ITenantService TenantService
@@ -9,6 +10,7 @@
 @inject IUserService UserService
 @inject IInstallationService InstallationService
 @inject IStringLocalizer<Add> Localizer
+@inject IEnumerable<IOqtaneDatabase> Databases
 
 @if (_tenants == null)
 {
@@ -122,7 +124,7 @@ else
             </select>
         </td>
     </tr>
-    @if (_tenantid == "+")
+    @if (_tenantId == "+")
     {
         <tr>
             <td colspan="2">
@@ -134,7 +136,7 @@ else
                 <Label For="name" HelpText="Enter the name for the tenant" ResourceKey="TenantName">Tenant Name: </Label>
             </td>
             <td>
-                <input id="name" class="form-control" @bind="@_tenantname" />
+                <input id="name" class="form-control" @bind="@_tenantName" />
             </td>
         </tr>
         <tr>
@@ -142,64 +144,67 @@ else
                 <Label For="databaseType" HelpText="Select the database type for the tenant" ResourceKey="DatabaseType">Database Type: </Label>
             </td>
             <td>
-                <select id="databaseType" class="custom-select" @bind="@_databasetype">
-                    <option value="LocalDB">@Localizer["Local Database"]</option>
-                    <option value="SQLServer">@Localizer["SQL Server"]</option>
+                <select id="databaseType" class="custom-select" @bind="@_databaseType">
+                    @{
+                        foreach (var database in Databases)
+                        {
+                            <option value="@database.Name">@Localizer[@database.FriendlyName]</option>
+                        }
+                    }
                 </select>
             </td>
         </tr>
-        <tr>
-            <td>
-                <Label For="server" HelpText="Enter the server for the tenant" ResourceKey="DatabaseServer">Server: </Label>
-            </td>
-            <td>
-                <input id="server" type="text" class="form-control" @bind="@_server" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="database" HelpText="Enter the database for the tenant" ResourceKey="Database">Database: </Label>
-            </td>
-            <td>
-                <input id="database" type="text" class="form-control" @bind="@_database" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="integratedSecurity" HelpText="Select if you want integrated security or not" ResourceKey="IntegratedSecurity">Integrated Security: </Label>
-            </td>
-            <td>
-                <select id="integratedSecurity" class="custom-select" @onchange="SetIntegratedSecurity">
-                    <option value="true" selected>@Localizer["True"]</option>
-                    <option value="false">@Localizer["False"]</option>
-                </select>
-            </td>
-        </tr>
-        @if (!_integratedsecurity)
         {
-            <tr>
-                <td>
-                    <Label For="username" HelpText="Enter the username for the integrated security" ResourceKey="DatabaseUsername">Database Username: </Label>
-                </td>
-                <td>
-                    <input id="username" type="text" class="form-control" @bind="@_username" />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="password" HelpText="Enter the password for the integrated security" ResourceKey="DatabasePassword">Database Password: </Label>
-                </td>
-                <td>
-                    <input id="password" type="password" class="form-control" @bind="@_password" />
-                </td>
-            </tr>
+            _selectedDatabase = Databases.Single(d => d.Name == _databaseType);
+            foreach (var field in _selectedDatabase.ConnectionStringFields)
+            {
+                var fieldId = field.Name.ToLowerInvariant();
+                if (field.Name != "IntegratedSecurity")
+                {
+                    var isVisible = "";
+                    var fieldType = (field.Name == "Pwd") ? "password" : "text";
+                    if ((field.Name == "Uid" || field.Name == "Pwd") && _selectedDatabase.Name != "MySQL" )
+                    {
+                        var intSecurityField = _selectedDatabase.ConnectionStringFields.Single(f => f.Name == "IntegratedSecurity");
+                        if (intSecurityField != null)
+                        {
+                            isVisible = (Convert.ToBoolean(intSecurityField.Value)) ? "display: none;" : "";
+                        }
+                    }
+
+                    field.Value = field.Value.Replace("{{Date}}", DateTime.UtcNow.ToString("yyyyMMddHHmm"));
+                    
+                    <tr style="@isVisible">
+                        <td>
+                            <Label For="@fieldId" HelpText="@field.HelpText" ResourceKey="@field.Name">@Localizer[$"{field.FriendlyName}:"]</Label>
+                        </td>
+                        <td>
+                            <input id="@fieldId" type="@fieldType" class="form-control" @bind="@field.Value" />
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td>
+                            <Label For="@fieldId" HelpText="@field.HelpText" ResourceKey="@field.Name">@Localizer[$"{field.FriendlyName}:"]</Label>
+                        </td>
+                        <td>
+                            <select id="@fieldId" class="custom-select" @bind="@field.Value">
+                                <option value="true" selected>@Localizer["True"]</option>
+                                <option value="false">@Localizer["False"]</option>
+                            </select>
+                        </td>
+                    </tr>
+                }
+            }
         }
         <tr>
             <td>
                 <Label For="hostUsername" HelpText="Enter the username of the host for this site" ResourceKey="HostUsername">Host Username:</Label>
             </td>
             <td>
-                <input id="hostUsername" class="form-control" @bind="@_hostusername" readonly />
+                <input id="hostUsername" class="form-control" @bind="@_hostUserName" readonly />
             </td>
         </tr>
         <tr>
@@ -223,16 +228,13 @@ else
     private List<ThemeControl> _containers = new List<ThemeControl>();
     private List<SiteTemplate> _siteTemplates;
     private List<Tenant> _tenants;
-    private string _tenantid = "-";
+    private string _tenantId = "-";
 
-    private string _tenantname = string.Empty;
-    private string _databasetype = "LocalDB";
-    private string _server = "(LocalDb)\\MSSQLLocalDB";
-    private string _database = "Oqtane-" + DateTime.UtcNow.ToString("yyyyMMddHHmm");
-    private string _username = string.Empty;
-    private string _password = string.Empty;
-    private bool _integratedsecurity = true;
-    private string _hostusername = UserNames.Host;
+    private string _tenantName = string.Empty;
+    private IOqtaneDatabase _selectedDatabase;
+    private string _databaseType = "LocalDB";
+
+    private string _hostUserName = UserNames.Host;
     private string _hostpassword = string.Empty;
 
     private string _name = string.Empty;
@@ -256,23 +258,10 @@ else
 
     private void TenantChanged(ChangeEventArgs e)
     {
-        _tenantid = (string)e.Value;
-        if (string.IsNullOrEmpty(_tenantname))
+        _tenantId = (string)e.Value;
+        if (string.IsNullOrEmpty(_tenantName))
         {
-            _tenantname = _name;
-        }
-        StateHasChanged();
-    }
-
-    private void SetIntegratedSecurity(ChangeEventArgs e)
-    {
-        if (Convert.ToBoolean((string)e.Value))
-        {
-            _integratedsecurity = true;
-        }
-        else
-        {
-            _integratedsecurity = false;
+            _tenantName = _name;
         }
         StateHasChanged();
     }
@@ -306,7 +295,7 @@ else
 
     private async Task SaveSite()
     {
-        if (_tenantid != "-" && _name != string.Empty && _urls != string.Empty && _themetype != "-" && (_layouts.Count == 0 || _layouttype != "-") && _containertype != "-" && _sitetemplatetype != "-")
+        if (_tenantId != "-" && _name != string.Empty && _urls != string.Empty && _themetype != "-" && (_layouts.Count == 0 || _layouttype != "-") && _containertype != "-" && _sitetemplatetype != "-")
         {
             var duplicates = new List<string>();
             var aliases = await AliasService.GetAliasesAsync();
@@ -322,9 +311,9 @@ else
             {
                 InstallConfig config = new InstallConfig();
 
-                if (_tenantid == "+")
+                if (_tenantId == "+")
                 {
-                    if (!string.IsNullOrEmpty(_tenantname) && _tenants.FirstOrDefault(item => item.Name == _tenantname) == null)
+                    if (!string.IsNullOrEmpty(_tenantName) && _tenants.FirstOrDefault(item => item.Name == _tenantName) == null)
                     {
                         // validate host credentials
                         var user = new User();
@@ -334,32 +323,14 @@ else
                         user = await UserService.LoginUserAsync(user, false, false);
                         if (user.IsAuthenticated)
                         {
-                            if (!string.IsNullOrEmpty(_server) && !string.IsNullOrEmpty(_database))
+                            var connectionString = _selectedDatabase.BuildConnectionString();
+                            if (connectionString != "")
                             {
-                                var connectionString = string.Empty;
-                                if (_databasetype == "LocalDB")
-                                {
-                                    connectionString = "Data Source=" + _server + ";AttachDbFilename=|DataDirectory|\\" + _database + ".mdf;Initial Catalog=" + _database + ";Integrated Security=SSPI;";
-                                }
-                                else
-                                {
-                                    connectionString = "Data Source=" + _server + ";Initial Catalog=" + _database + ";";
-
-                                    if (_integratedsecurity)
-                                    {
-                                        connectionString += "Integrated Security=SSPI;";
-                                    }
-                                    else
-                                    {
-                                        connectionString += "User ID=" + _username + ";Password=" + _password;
-                                    }
-                                }
-
                                 config.ConnectionString = connectionString;
                                 config.HostPassword = _hostpassword;
                                 config.HostEmail = user.Email;
                                 config.HostName = user.DisplayName;
-                                config.TenantName = _tenantname;
+                                config.TenantName = _tenantName;
                                 config.IsNewTenant = true;
                             }
                             else
@@ -379,7 +350,7 @@ else
                 }
                 else
                 {
-                    var tenant = _tenants.FirstOrDefault(item => item.TenantId == int.Parse(_tenantid));
+                    var tenant = _tenants.FirstOrDefault(item => item.TenantId == int.Parse(_tenantId));
                     if (tenant != null)
                     {
                         config.TenantName = tenant.Name;

@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Interfaces;
-using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -22,10 +21,10 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override TenantEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            TenantId = ActiveDatabase.AddAutoIncrementColumn(table,"TenantId");
-            Name = table.AddStringColumn("Name", 100);
-            DBConnectionString = table.AddStringColumn("DBConnectionString", 1024);
-            Version = table.AddStringColumn("Version", 50, true);
+            TenantId = AddAutoIncrementColumn(table,"TenantId");
+            Name = AddStringColumn(table,"Name", 100);
+            DBConnectionString = AddStringColumn(table,"DBConnectionString", 1024);
+            Version = AddStringColumn(table,"Version", 50, true);
 
             AddAuditableColumns(table);
 

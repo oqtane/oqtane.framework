@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Interfaces;
-using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -24,10 +23,10 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override AliasEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            AliasId = ActiveDatabase.AddAutoIncrementColumn(table,"AliasId");
-            Name = table.AddStringColumn("Name", 200);
-            TenantId = table.AddIntegerColumn("TenantId");
-            SiteId = table.AddIntegerColumn("SiteId");
+            AliasId = AddAutoIncrementColumn(table,"AliasId");
+            Name = AddStringColumn(table, "Name", 200);
+            TenantId = AddIntegerColumn(table, "TenantId");
+            SiteId = AddIntegerColumn(table, "SiteId");
 
             AddAuditableColumns(table);
 

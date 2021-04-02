@@ -21,11 +21,8 @@ namespace Oqtane.Migrations
             var profileEntityBuilder = new ProfileEntityBuilder(migrationBuilder, ActiveDatabase);
             profileEntityBuilder.AddStringColumn("Options", 2000, true);
 
-            migrationBuilder.Sql(
-                @"
-                    UPDATE Profile
-                    SET Options = ''
-                ");
+            //Update new column
+            profileEntityBuilder.UpdateColumn("Options", "''");
 
             //Alter Column in Page table for Sql Server
             if (ActiveDatabase.Name == "SqlServer" || ActiveDatabase.Name == "LocalDB")

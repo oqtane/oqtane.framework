@@ -22,19 +22,12 @@ namespace Oqtane.Migrations
             siteEntityBuilder.AddStringColumn("AdminContainerType", 200, true);
 
             //Update new column
-            migrationBuilder.Sql(
-                @"
-                    UPDATE Site
-                    SET AdminContainerType = ''
-                ");
+            siteEntityBuilder.UpdateColumn("AdminContainerType", "''");
+
 
             //Delete records from Page
-            migrationBuilder.Sql(
-                @"
-                    DELETE FROM Page
-                    WHERE Path = 'admin/tenants'
-                ");
-
+            var pageEntityBuilder = new PageEntityBuilder(migrationBuilder, ActiveDatabase);
+            pageEntityBuilder.DeleteFromTable($"{ActiveDatabase.RewriteName("Path")} = 'admin/tenants'");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

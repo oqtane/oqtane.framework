@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Oqtane.Interfaces;
 using Oqtane.Migrations.EntityBuilders;
-using Oqtane.Migrations.Extensions;
 using Oqtane.Repository;
 
 namespace Oqtane.Migrations

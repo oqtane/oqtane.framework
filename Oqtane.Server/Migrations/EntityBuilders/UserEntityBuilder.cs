@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Interfaces;
-using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -22,13 +21,13 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override UserEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            UserId = ActiveDatabase.AddAutoIncrementColumn(table,"UserId");
-            Username = table.AddStringColumn("Username", 256);
-            DisplayName = table.AddStringColumn("DisplayName", 50);
-            Email = table.AddStringColumn("Email", 256);
-            PhotoFileId = table.AddIntegerColumn("PhotoFileId", true);
-            LastLoginOn = table.AddDateTimeColumn("LastLoginOn", true);
-            LastIPAddress = table.AddStringColumn("LastIpAddress", 50);
+            UserId = AddAutoIncrementColumn(table,"UserId");
+            Username = AddStringColumn(table,"Username", 256);
+            DisplayName = AddStringColumn(table,"DisplayName", 50);
+            Email = AddStringColumn(table,"Email", 256);
+            PhotoFileId = AddIntegerColumn(table,"PhotoFileId", true);
+            LastLoginOn = AddDateTimeColumn(table,"LastLoginOn", true);
+            LastIPAddress = AddStringColumn(table,"LastIpAddress", 50);
 
             AddAuditableColumns(table);
             AddDeletableColumns(table);

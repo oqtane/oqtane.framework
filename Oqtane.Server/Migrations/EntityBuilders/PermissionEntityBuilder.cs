@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Interfaces;
-using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -28,14 +27,14 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override PermissionEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            PermissionId = ActiveDatabase.AddAutoIncrementColumn(table,"PermissionId");
-            SiteId = table.AddIntegerColumn("SiteId");
-            EntityName = table.AddStringColumn("EntityName", 50);
-            EntityId = table.AddIntegerColumn("EntityId");
-            PermissionName = table.AddStringColumn("PermissionName", 50);
-            RoleId = table.AddIntegerColumn("RoleId", true);
-            UserId = table.AddIntegerColumn("UserId", true);
-            IsAuthorized = table.AddBooleanColumn("IsAuthorized");
+            PermissionId = AddAutoIncrementColumn(table,"PermissionId");
+            SiteId = AddIntegerColumn(table,"SiteId");
+            EntityName = AddStringColumn(table,"EntityName", 50);
+            EntityId = AddIntegerColumn(table,"EntityId");
+            PermissionName = AddStringColumn(table,"PermissionName", 50);
+            RoleId = AddIntegerColumn(table,"RoleId", true);
+            UserId = AddIntegerColumn(table,"UserId", true);
+            IsAuthorized = AddBooleanColumn(table,"IsAuthorized");
 
             AddAuditableColumns(table);
 

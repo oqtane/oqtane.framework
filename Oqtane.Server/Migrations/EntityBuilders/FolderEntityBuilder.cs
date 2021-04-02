@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Interfaces;
-using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -24,13 +23,13 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override FolderEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            FolderId = ActiveDatabase.AddAutoIncrementColumn(table,"FolderId");
-            SiteId = table.AddIntegerColumn("SiteId");
-            ParentId = table.AddIntegerColumn("ParentId", true);
-            Name = table.AddStringColumn("Name", 50);
-            Path = table.AddStringColumn("Path", 50);
-            Order = table.AddIntegerColumn("Order");
-            IsSystem = table.AddBooleanColumn("IsSystem");
+            FolderId = AddAutoIncrementColumn(table,"FolderId");
+            SiteId = AddIntegerColumn(table,"SiteId");
+            ParentId = AddIntegerColumn(table,"ParentId", true);
+            Name = AddStringColumn(table,"Name", 50);
+            Path = AddStringColumn(table,"Path", 50);
+            Order = AddIntegerColumn(table,"Order");
+            IsSystem = AddBooleanColumn(table,"IsSystem");
 
             AddAuditableColumns(table);
             AddDeletableColumns(table);

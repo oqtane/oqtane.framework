@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Interfaces;
-using Oqtane.Migrations.Extensions;
+// ReSharper disable BuiltInTypeReferenceStyleForMemberAccess
 
 namespace Oqtane.Migrations.EntityBuilders
 {
@@ -18,15 +20,6 @@ namespace Oqtane.Migrations.EntityBuilders
             ForeignKeys = new List<ForeignKey<TEntityBuilder>>();
         }
 
-        private void AddKeys(CreateTableBuilder<TEntityBuilder> table)
-        {
-            table.AddPrimaryKey(PrimaryKey);
-            foreach (var foreignKey in ForeignKeys)
-            {
-                table.AddForeignKey(foreignKey);
-            }
-        }
-
         protected IOqtaneDatabase ActiveDatabase { get; }
 
         protected abstract TEntityBuilder BuildTable(ColumnsBuilder table);
@@ -37,15 +30,91 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected List<ForeignKey<TEntityBuilder>> ForeignKeys { get; }
 
+        private string RewriteName(string name)
+        {
+            return ActiveDatabase.RewriteName(name);
+        }
+
+
+        // Column Operations
+
+        protected OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(ColumnsBuilder table, string name)
+        {
+            return  ActiveDatabase.AddAutoIncrementColumn(table, RewriteName(name));
+        }
+
         public void AddBooleanColumn(string name)
         {
-            _migrationBuilder.AddColumn<bool>(name, EntityTableName);
+            _migrationBuilder.AddColumn<bool>(RewriteName(name), RewriteName(EntityTableName));
+        }
+
+        protected OperationBuilder<AddColumnOperation> AddBooleanColumn(ColumnsBuilder table, string name, bool nullable = false)
+        {
+            return table.Column<bool>(name: RewriteName(name), nullable: nullable);
         }
 
         public void AddDateTimeColumn(string name, bool nullable = false)
         {
-            _migrationBuilder.AddColumn<DateTime>(name, EntityTableName, nullable: nullable);
+            _migrationBuilder.AddColumn<DateTime>(RewriteName(name), RewriteName(EntityTableName), nullable: nullable);
         }
+
+        protected OperationBuilder<AddColumnOperation> AddDateTimeColumn(ColumnsBuilder table, string name, bool nullable = false)
+        {
+            return table.Column<DateTime>(name: RewriteName(name), nullable: nullable);
+        }
+
+        public void AddDateTimeOffsetColumn(string name, bool nullable = false)
+        {
+            _migrationBuilder.AddColumn<DateTimeOffset>(RewriteName(name), RewriteName(EntityTableName), nullable: nullable);
+        }
+
+        protected OperationBuilder<AddColumnOperation> AddDateTimeOffsetColumn(ColumnsBuilder table, string name, bool nullable = false)
+        {
+            return table.Column<DateTimeOffset>(name: RewriteName(name), nullable: nullable);
+        }
+
+        public void AddIntegerColumn(string name, bool nullable = false)
+        {
+            _migrationBuilder.AddColumn<int>(RewriteName(name), RewriteName(EntityTableName), nullable: nullable);
+        }
+
+        protected OperationBuilder<AddColumnOperation> AddIntegerColumn(ColumnsBuilder table, string name, bool nullable = false)
+        {
+            return table.Column<int>(name: RewriteName(name), nullable: nullable);
+        }
+
+        public void AddMaxStringColumn(string name, int length, bool nullable = false)
+        {
+            _migrationBuilder.AddColumn<string>(RewriteName(name), RewriteName(EntityTableName), nullable: nullable, unicode: true);
+        }
+
+        protected OperationBuilder<AddColumnOperation> AddMaxStringColumn(ColumnsBuilder table, string name, bool nullable = false)
+        {
+            return table.Column<string>(name: RewriteName(name), nullable: nullable, unicode: true);
+        }
+
+        public void AddStringColumn(string name, int length, bool nullable = false)
+        {
+            _migrationBuilder.AddColumn<string>(RewriteName(name), RewriteName(EntityTableName), maxLength: length, nullable: nullable, unicode: true);
+        }
+
+        protected OperationBuilder<AddColumnOperation> AddStringColumn(ColumnsBuilder table, string name, int length, bool nullable = false)
+        {
+            return table.Column<string>(name: RewriteName(name), maxLength: length, nullable: nullable, unicode: true);
+        }
+
+        public void AlterStringColumn(string name, int length, bool nullable = false)
+        {
+            _migrationBuilder.AlterColumn<string>(RewriteName(name), RewriteName(EntityTableName), maxLength: length, nullable: nullable);
+        }
+
+        public void DropColumn(string name)
+        {
+            _migrationBuilder.DropColumn(RewriteName(name), RewriteName(EntityTableName));
+        }
+
+
+        //Index Operations
 
         /// <summary>
         /// Creates a Migration to add an Index to the Entity (table)
@@ -56,9 +125,9 @@ namespace Oqtane.Migrations.EntityBuilders
         public virtual void AddIndex(string indexName, string columnName, bool isUnique = false)
         {
             _migrationBuilder.CreateIndex(
-                name: indexName,
-                table: EntityTableName,
-                column: columnName,
+                name: RewriteName(indexName),
+                table: RewriteName(EntityTableName),
+                column: RewriteName(columnName),
                 unique: isUnique);
         }
 
@@ -66,46 +135,15 @@ namespace Oqtane.Migrations.EntityBuilders
         /// Creates a Migration to add an Index to the Entity (table)
         /// </summary>
         /// <param name="indexName">The name of the Index to create</param>
-        /// <param name="columnName">The names of the columns to add to the index</param>
+        /// <param name="columnNames">The names of the columns to add to the index</param>
         /// <param name="isUnique">A flag that determines if the Index should be Unique</param>
         public virtual void AddIndex(string indexName, string[] columnNames, bool isUnique = false)
         {
             _migrationBuilder.CreateIndex(
-                name: indexName,
-                table: EntityTableName,
-                columns: columnNames,
+                name: RewriteName(indexName),
+                table: RewriteName(EntityTableName),
+                columns: columnNames.Select(RewriteName).ToArray(),
                 unique: isUnique);
-        }
-
-        public void AddStringColumn(string name, int length, bool nullable = false)
-        {
-            _migrationBuilder.AddColumn<string>(name, EntityTableName, maxLength: length, nullable: nullable);
-        }
-
-        public void AlterStringColumn(string name, int length, bool nullable = false)
-        {
-            _migrationBuilder.AlterColumn<string>(name, EntityTableName, maxLength: length, nullable: nullable);
-        }
-
-        /// <summary>
-        /// Creates a Migration to Create the Entity (table)
-        /// </summary>
-        public void Create()
-        {
-            _migrationBuilder.CreateTable(EntityTableName, BuildTable, null, AddKeys);
-        }
-
-        /// <summary>
-        /// Creates a Migration to Drop the Entity (table)
-        /// </summary>
-        public void Drop()
-        {
-            _migrationBuilder.DropTable(EntityTableName);
-        }
-
-        public void DropColumn(string name)
-        {
-            _migrationBuilder.DropColumn(name, EntityTableName);
         }
 
         /// <summary>
@@ -114,7 +152,90 @@ namespace Oqtane.Migrations.EntityBuilders
         /// <param name="indexName">The name of the Index to drop</param>
         public virtual void DropIndex(string indexName)
         {
-            _migrationBuilder.DropIndex(indexName, EntityTableName);
+            _migrationBuilder.DropIndex(RewriteName(indexName), RewriteName(EntityTableName));
+        }
+
+
+        // Key Operations
+
+        private void AddKeys(CreateTableBuilder<TEntityBuilder> table)
+        {
+            AddPrimaryKey(table, PrimaryKey);
+            foreach (var foreignKey in ForeignKeys)
+            {
+                AddForeignKey(table, foreignKey);
+            }
+        }
+
+        public void AddPrimaryKey(CreateTableBuilder<TEntityBuilder> table, PrimaryKey<TEntityBuilder> primaryKey)
+        {
+            table.PrimaryKey(RewriteName(primaryKey.Name), primaryKey.Columns);
+        }
+
+        public void AddForeignKey(CreateTableBuilder<TEntityBuilder> table, ForeignKey<TEntityBuilder> foreignKey)
+        {
+            table.ForeignKey(
+                name: RewriteName(foreignKey.Name),
+                column: foreignKey.Column,
+                principalTable: RewriteName(foreignKey.PrincipalTable),
+                principalColumn: RewriteName(foreignKey.PrincipalColumn),
+                onDelete: foreignKey.OnDeleteAction);
+        }
+
+        public void DropForeignKey(ForeignKey<TEntityBuilder> foreignKey)
+        {
+            DropForeignKey(RewriteName(foreignKey.Name));
+        }
+
+        public void DropForeignKey(string keyName)
+        {
+            _migrationBuilder.DropForeignKey(RewriteName(keyName), RewriteName(EntityTableName));
+        }
+
+
+        // Table Operations
+
+        /// <summary>
+        /// Creates a Migration to Create the Entity (table)
+        /// </summary>
+        public void Create()
+        {
+            _migrationBuilder.CreateTable(RewriteName(EntityTableName), BuildTable, null, AddKeys);
+        }
+
+        /// <summary>
+        /// Creates a Migration to Drop the Entity (table)
+        /// </summary>
+        public void Drop()
+        {
+            _migrationBuilder.DropTable(RewriteName(EntityTableName));
+        }
+
+
+        //Sql Operations
+
+        public void DeleteFromTable(string condition = "")
+        {
+            var deleteSql = $"DELETE FROM {RewriteName(EntityTableName)} ";
+
+            if(!string.IsNullOrEmpty(condition))
+            {
+                deleteSql +=  $"WHERE {condition}";
+            }
+            _migrationBuilder.Sql(deleteSql);
+        }
+
+        public void UpdateColumn(string columnName, string value, string condition = "")
+        {
+            var updateValue = value;
+
+            var updateSql = $"UPDATE {RewriteName(EntityTableName)} SET {RewriteName(columnName)} = {value} ";
+
+            if(!string.IsNullOrEmpty(condition))
+            {
+                updateSql += $"WHERE {condition}";
+            }
+            _migrationBuilder.Sql(updateSql);
         }
     }
 }

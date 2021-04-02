@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Interfaces;
-using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -24,12 +23,12 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override RoleEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            RoleId = ActiveDatabase.AddAutoIncrementColumn(table,"RoleId");
-            SiteId = table.AddIntegerColumn("SiteId", true);
-            Name = table.AddStringColumn("Name", 256);
-            Description = table.AddStringColumn("Description", 256);
-            IsAutoAssigned = table.AddBooleanColumn("IsAutoAssigned");
-            IsSystem = table.AddBooleanColumn("IsSystem");
+            RoleId = AddAutoIncrementColumn(table,"RoleId");
+            SiteId = AddIntegerColumn(table,"SiteId", true);
+            Name = AddStringColumn(table,"Name", 256);
+            Description = AddStringColumn(table,"Description", 256);
+            IsAutoAssigned = AddBooleanColumn(table,"IsAutoAssigned");
+            IsSystem = AddBooleanColumn(table,"IsSystem");
 
             AddAuditableColumns(table);
 

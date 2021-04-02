@@ -1,38 +1,34 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
-using Oqtane.Interfaces;
 using Oqtane.Models;
+using Oqtane.Shared;
 
 namespace Oqtane.Repository.Databases
 {
-    public class SqliteDatabase : IOqtaneDatabase
+    public class SqliteDatabase : OqtaneDatabaseBase
     {
-        public SqliteDatabase()
+        private static string _friendlyName => "Sqlite";
+
+        private static string _name => "Sqlite";
+
+        private static readonly List<ConnectionStringField> _connectionStringFields = new()
         {
-            ConnectionStringFields = new List<ConnectionStringField>()
-            {
-                new() {Name = "Server", FriendlyName = "File Name", Value = "Oqtane-{{Date}}.db"}
-            };
-        }
+            new() {Name = "Server", FriendlyName = "File Name", Value = "Oqtane-{{Date}}.db", HelpText="Enter the file name to use for the database"}
+        };
 
-        public string FriendlyName => Name;
+        public SqliteDatabase() :base(_name, _friendlyName, _connectionStringFields) { }
 
-        public string Name => "Sqlite";
+        public override string Provider => "Microsoft.EntityFrameworkCore.Sqlite";
 
-        public string Provider => "Microsoft.EntityFrameworkCore.Sqlite";
-
-        public List<ConnectionStringField> ConnectionStringFields { get; }
-
-        public OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(ColumnsBuilder table, string name)
+        public override OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(ColumnsBuilder table, string name)
         {
             return table.Column<int>(name: name, nullable: false).Annotation("Sqlite:Autoincrement", true);
         }
 
-        public string BuildConnectionString()
+        public override string BuildConnectionString()
         {
             var connectionstring = String.Empty;
 
@@ -46,7 +42,22 @@ namespace Oqtane.Repository.Databases
             return connectionstring;
         }
 
-        public DbContextOptionsBuilder UseDatabase(DbContextOptionsBuilder optionsBuilder, string connectionString)
+        public override string ConcatenateSql(params string[] values)
+        {
+            var returnValue = String.Empty;
+            for (var i = 0; i < values.Length; i++)
+            {
+                if (i > 0)
+                {
+                    returnValue += " || ";
+                }
+                returnValue += values[i];
+            }
+
+            return returnValue;
+        }
+
+        public override DbContextOptionsBuilder UseDatabase(DbContextOptionsBuilder optionsBuilder, string connectionString)
         {
             return optionsBuilder.UseSqlite(connectionString);
         }

@@ -16,6 +16,6 @@ namespace Oqtane.Modules.HtmlText.Repository
         {
         }
 
-        public virtual DbSet<HtmlTextInfo> HtmlText { get; set; }
+        public virtual DbSet<Models.HtmlText> HtmlText { get; set; }
     }
 }

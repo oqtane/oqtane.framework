@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Interfaces;
-using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -24,28 +23,28 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override PageEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            PageId = ActiveDatabase.AddAutoIncrementColumn(table,"PageId");
-            SiteId = table.AddIntegerColumn("SiteId");
+            PageId = AddAutoIncrementColumn(table,"PageId");
+            SiteId = AddIntegerColumn(table,"SiteId");
             if (ActiveDatabase.Name == "SqlServer" || ActiveDatabase.Name == "LocalDB")
             {
-                Path = table.AddStringColumn("Path", 50);
+                Path = AddStringColumn(table,"Path", 50);
             }
             else
             {
-                Path = table.AddStringColumn("Path", 256);
+                Path = AddStringColumn(table,"Path", 256);
             }
-            Name = table.AddStringColumn("Name", 50);
-            Title = table.AddStringColumn("Title", 200, true);
-            ThemeType = table.AddStringColumn("ThemeType", 200, true);
-            Icon = table.AddStringColumn("Icon", 50);
-            ParentId = table.AddIntegerColumn("ParentId", true);
-            Order = table.AddIntegerColumn("Order");
-            IsNavigation = table.AddBooleanColumn("IsNavigation");
-            Url = table.AddStringColumn("Url", 500, true);
-            LayoutType = table.AddStringColumn("LayoutType", 200);
-            UserId = table.AddIntegerColumn("UserId", true);
-            IsPersonalizable = table.AddBooleanColumn("IsPersonalizable");
-            DefaultContainerType = table.AddStringColumn("DefaultContainerType", 200, true);
+            Name = AddStringColumn(table,"Name", 50);
+            Title = AddStringColumn(table,"Title", 200, true);
+            ThemeType = AddStringColumn(table,"ThemeType", 200, true);
+            Icon = AddStringColumn(table,"Icon", 50);
+            ParentId = AddIntegerColumn(table,"ParentId", true);
+            Order = AddIntegerColumn(table,"Order");
+            IsNavigation = AddBooleanColumn(table,"IsNavigation");
+            Url = AddStringColumn(table,"Url", 500, true);
+            LayoutType = AddStringColumn(table,"LayoutType", 200);
+            UserId = AddIntegerColumn(table,"UserId", true);
+            IsPersonalizable = AddBooleanColumn(table,"IsPersonalizable");
+            DefaultContainerType = AddStringColumn(table,"DefaultContainerType", 200, true);
 
             AddAuditableColumns(table);
             AddDeletableColumns(table);

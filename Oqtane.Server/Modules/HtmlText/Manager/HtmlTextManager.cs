@@ -48,7 +48,7 @@ namespace Oqtane.Modules.HtmlText.Manager
             }
             else
             {
-                htmlText = new HtmlTextInfo();
+                htmlText = new Models.HtmlText();
                 htmlText.ModuleId = module.ModuleId;
                 htmlText.Content = content;
                 _htmlText.AddHtmlText(htmlText);

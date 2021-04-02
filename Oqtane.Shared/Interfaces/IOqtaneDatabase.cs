@@ -20,6 +20,12 @@ namespace Oqtane.Interfaces
 
         public string BuildConnectionString();
 
+        public string ConcatenateSql(params string[] values);
+
+        public string RewriteName(string name);
+
+        public void UpdateIdentityStoreTableNames(ModelBuilder builder);
+
         public DbContextOptionsBuilder UseDatabase(DbContextOptionsBuilder optionsBuilder, string connectionString);
     }
 }

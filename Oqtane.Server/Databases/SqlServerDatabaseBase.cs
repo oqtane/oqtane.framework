@@ -2,36 +2,27 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Oqtane.Databases;
 using Oqtane.Interfaces;
 using Oqtane.Models;
+using Oqtane.Shared;
 
 namespace Oqtane.Repository.Databases
 {
-    public abstract class SqlServerDatabaseBase : IOqtaneDatabase
+    public abstract class SqlServerDatabaseBase : OqtaneDatabaseBase
     {
-        protected SqlServerDatabaseBase(string name, string friendlyName, List<ConnectionStringField> connectionStringFields)
+        protected SqlServerDatabaseBase(string name, string friendlyName, List<ConnectionStringField> connectionStringFields) : base(name, friendlyName, connectionStringFields)
         {
-            Name = name;
-            FriendlyName = friendlyName;
-            ConnectionStringFields = connectionStringFields;
         }
 
-        public  string FriendlyName { get; }
+        public override string Provider => "Microsoft.EntityFrameworkCore.SqlServer";
 
-        public string Name { get; }
-
-        public string Provider => "Microsoft.EntityFrameworkCore.SqlServer";
-
-        public List<ConnectionStringField> ConnectionStringFields { get; }
-
-        public OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(ColumnsBuilder table, string name)
+        public override OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(ColumnsBuilder table, string name)
         {
             return table.Column<int>(name: name, nullable: false).Annotation("SqlServer:Identity", "1, 1");
         }
 
-        public abstract string BuildConnectionString();
-
-        public DbContextOptionsBuilder UseDatabase(DbContextOptionsBuilder optionsBuilder, string connectionString)
+        public override DbContextOptionsBuilder UseDatabase(DbContextOptionsBuilder optionsBuilder, string connectionString)
         {
             return optionsBuilder.UseSqlServer(connectionString);
         }

@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Interfaces;
-using Oqtane.Migrations.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -24,11 +23,11 @@ namespace Oqtane.Migrations.EntityBuilders
 
         protected override LanguageEntityBuilder BuildTable(ColumnsBuilder table)
         {
-            LanguageId = ActiveDatabase.AddAutoIncrementColumn(table,"LanguageId");
-            SiteId = table.AddIntegerColumn("SiteId");
-            Name = table.AddStringColumn("Name", 100);
-            Code = table.AddStringColumn("Code", 10);
-            IsDefault = table.AddBooleanColumn("IsDefault");
+            LanguageId = AddAutoIncrementColumn(table,"LanguageId");
+            SiteId = AddIntegerColumn(table,"SiteId");
+            Name = AddStringColumn(table,"Name", 100);
+            Code = AddStringColumn(table,"Code", 10);
+            IsDefault = AddBooleanColumn(table,"IsDefault");
 
             AddAuditableColumns(table);
 

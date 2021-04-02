@@ -4,39 +4,36 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using MySql.EntityFrameworkCore.Metadata;
-using Oqtane.Interfaces;
 using Oqtane.Models;
+using Oqtane.Shared;
 
 namespace Oqtane.Database.MySQL
 {
-    public class MySQLDatabase : IOqtaneDatabase
+    public class MySQLDatabase : OqtaneDatabaseBase
     {
-        public MySQLDatabase()
+        private static string _friendlyName => "MySQL";
+
+        private static string _name => "MySQL";
+
+        private static readonly List<ConnectionStringField> _connectionStringFields = new()
         {
-            ConnectionStringFields = new List<ConnectionStringField>()
-            {
-                new() {Name = "Server", FriendlyName = "Server", Value = "127.0.0.1"},
-                new() {Name = "Port", FriendlyName = "Port", Value = "3306"},
-                new() {Name = "Database", FriendlyName = "Database", Value = "Oqtane-{{Date}}"},
-                new() {Name = "Uid", FriendlyName = "User Id", Value = ""},
-                new() {Name = "Pwd", FriendlyName = "Password", Value = ""}
-            };
-        }
+            new() {Name = "Server", FriendlyName = "Server", Value = "127.0.0.1", HelpText="Enter the database server"},
+            new() {Name = "Port", FriendlyName = "Port", Value = "3306", HelpText="Enter the port used to connect to the server"},
+            new() {Name = "Database", FriendlyName = "Database", Value = "Oqtane-{{Date}}", HelpText="Enter the name of the database"},
+            new() {Name = "Uid", FriendlyName = "User Id", Value = "", HelpText="Enter the username to use for the database"},
+            new() {Name = "Pwd", FriendlyName = "Password", Value = "", HelpText="Enter the password to use for the database"}
+        };
 
-        public string FriendlyName => Name;
+        public MySQLDatabase() :base(_name, _friendlyName, _connectionStringFields) { }
 
-        public string Name => "MySQL";
+        public override string Provider => "MySql.EntityFrameworkCore";
 
-        public string Provider => "MySql.EntityFrameworkCore";
-
-        public List<ConnectionStringField> ConnectionStringFields { get; }
-
-        public OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(ColumnsBuilder table, string name)
+        public override OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(ColumnsBuilder table, string name)
         {
             return table.Column<int>(name: name, nullable: false).Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn);
         }
 
-        public string BuildConnectionString()
+        public override string BuildConnectionString()
         {
             var connectionString = String.Empty;
 
@@ -58,7 +55,25 @@ namespace Oqtane.Database.MySQL
             return connectionString;
         }
 
-        public DbContextOptionsBuilder UseDatabase(DbContextOptionsBuilder optionsBuilder, string connectionString)
+        public override string ConcatenateSql(params string[] values)
+        {
+            var returnValue = "CONCAT(";
+            for (var i = 0; i < values.Length; i++)
+            {
+                if (i > 0)
+                {
+                    returnValue += ",";
+                }
+                returnValue += values[i];
+            }
+
+            returnValue += ")";
+
+            return returnValue;
+        }
+
+
+        public override DbContextOptionsBuilder UseDatabase(DbContextOptionsBuilder optionsBuilder, string connectionString)
         {
             return optionsBuilder.UseMySQL(connectionString);
         }
