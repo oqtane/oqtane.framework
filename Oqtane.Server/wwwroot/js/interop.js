@@ -362,5 +362,8 @@ Oqtane.Interop = {
         setInterval(function () {
             window.location.href = url;
         }, wait * 1000);
+    },
+    formValid: function (formRef) {
+        return formRef.checkValidity();
     }
 };

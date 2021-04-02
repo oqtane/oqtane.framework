@@ -605,7 +605,7 @@ namespace Oqtane.Repository
 
         public Site AddSite(Site site)
         {
-            
+            site.SiteGuid = System.Guid.NewGuid().ToString();
             _db.Site.Add(site);
             _db.SaveChanges();
             CreateSite(site);

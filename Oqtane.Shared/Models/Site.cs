@@ -18,6 +18,7 @@ namespace Oqtane.Models
         public int? PwaAppIconFileId { get; set; }
         public int? PwaSplashIconFileId { get; set; }
         public bool AllowRegistration { get; set; }
+        public string SiteGuid { get; set; }
 
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
