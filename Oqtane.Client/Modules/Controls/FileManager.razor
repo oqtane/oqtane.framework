@@ -12,21 +12,14 @@
                 @if (ShowFolders || FolderId <= 0)
                 {
                     <div>
-                        <select class="form-control" @onchange="(e => FolderChanged(e))">
+                        <select class="form-control" value="@FolderId" @onchange="(e => FolderChanged(e))">
                             @if (string.IsNullOrEmpty(Folder))
                             {
                                 <option value="-1">&lt;@Localizer["Select Folder"]&gt;</option>
                             }
                             @foreach (Folder folder in _folders)
                             {
-                                if (folder.FolderId == FolderId)
-                                {
-                                    <option value="@(folder.FolderId)" selected>@(new string('-', folder.Level * 2))@(folder.Name)</option>
-                                }
-                                else
-                                {
-                                    <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
-                                }
+                                <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
                             }
                         </select>
                     </div>
@@ -34,18 +27,11 @@
                 @if (ShowFiles)
                 {
                     <div>
-                        <select class="form-control" @onchange="(e => FileChanged(e))">
+                        <select class="form-control" value="@FileId" @onchange="(e => FileChanged(e))">
                             <option value="-1">&lt;@Localizer["Select File"]&gt;</option>
                             @foreach (File file in _files)
                             {
-                                if (file.FileId == FileId)
-                                {
-                                    <option value="@(file.FileId)" selected>@(file.Name)</option>
-                                }
-                                else
-                                {
-                                    <option value="@(file.FileId)">@(file.Name)</option>
-                                }
+                                <option value="@(file.FileId)">@(file.Name)</option>
                             }
                         </select>
                     </div>
