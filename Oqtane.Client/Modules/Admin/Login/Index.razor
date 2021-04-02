@@ -11,10 +11,10 @@
 }
 <AuthorizeView>
     <NotAuthorized>
-        <div class="container Oqtane-Modules-Admin-Login">
+        <div class="container Oqtane-Modules-Admin-Login" @onkeypress="@(e => KeyPressed(e))">
             <div class="form-group">
                 <label for="Username" class="control-label">@Localizer["Username:"] </label>
-                <input type="text" name="Username" class="form-control username" placeholder="Username" @bind="@_username" id="Username" />
+                <input type="text" @ref="username" name="Username" class="form-control username" placeholder="Username" @bind="@_username" id="Username" />
             </div>
             <div class="form-group">
                 <label for="Password" class="control-label">@Localizer["Password:"] </label>
@@ -41,6 +41,7 @@
     private string _username = string.Empty;
     private string _password = string.Empty;
     private bool _remember = false;
+    private ElementReference username;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
 
@@ -77,6 +78,14 @@
                 _message = Localizer["User Account Could Not Be Verified. Please Contact Your Administrator For Further Instructions."];
                 _type = MessageType.Warning;
             }
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await username.FocusAsync();
         }
     }
 
@@ -156,5 +165,13 @@
         }
 
         StateHasChanged();
+    }
+
+    private async Task KeyPressed(KeyboardEventArgs e)
+    {
+        if (e.Code == "Enter" || e.Code == "NumpadEnter")
+        {
+            await Login();
+        }
     }
 }
