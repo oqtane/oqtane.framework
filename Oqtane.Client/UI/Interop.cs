@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using System.Threading.Tasks;
 
@@ -230,6 +231,20 @@ namespace Oqtane.UI
             catch
             {
                 return Task.CompletedTask;
+            }
+        }
+
+        public ValueTask<bool> FormValid(ElementReference form)
+        {
+            try
+            {
+                return _jsRuntime.InvokeAsync<bool>(
+                    "Oqtane.Interop.formValid",
+                    form);
+            }
+            catch
+            {
+                return new ValueTask<bool>(Task.FromResult(false));
             }
         }
     }
