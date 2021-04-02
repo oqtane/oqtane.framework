@@ -110,9 +110,7 @@ else
 
             if (string.IsNullOrEmpty(_moduledefinitionname))
             {
-                _owner = ModuleState.Title;
-                _module = ModuleState.Title;
-                _description = ModuleState.Title;
+                AddModuleMessage(Localizer["Please Note That The Module Creator Is Only Intended To Be Used In A Development Environment"], MessageType.Info);
             }
             else
             {
