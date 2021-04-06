@@ -6,7 +6,7 @@
 
 @if (_useadminborder)
 {
-    <div class="@_paneadminborder">
+    <div class="app-pane-admin-border">
         @((MarkupString)_panetitle)
         @DynamicComponent
     </div>
@@ -18,7 +18,6 @@ else
 
 @code {
     private bool _useadminborder = false;
-    private string _paneadminborder = "app-pane-admin-border";
     private string _panetitle = "";
 
     [CascadingParameter]
@@ -31,7 +30,7 @@ else
 
     protected override void OnParametersSet()
     {
-        if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions) && Name != PaneNames.Admin)
+        if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions) && PageState.Action == Constants.DefaultAction)
         {
             _useadminborder = true;
             _panetitle = "<div class=\"app-pane-admin-title\">" + Name + " Pane</div>";
