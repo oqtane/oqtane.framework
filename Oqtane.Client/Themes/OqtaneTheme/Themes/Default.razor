@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Themes.OqtaneTheme
+@namespace Oqtane.Themes.OqtaneTheme
 @inherits ThemeBase
 
 <main role="main">
@@ -8,16 +8,11 @@
             <div class="controls-group"><UserProfile /> <Login /> <ControlPanel /></div>
         </div>
     </nav>
-    <div class="content container">
-        <PaneLayout />
-        <div class="row px-4">
-            <Pane Name="Admin" />
-        </div>
-    </div>
+    <PaneLayout />
 </main>
 
 @code {
-    public override string Name => "Default";
+    public override string Name => "Default Theme";
 
     public override string Panes => string.Empty;
 

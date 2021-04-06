@@ -1,20 +1,90 @@
-﻿@namespace Oqtane.Themes.OqtaneTheme
+@namespace Oqtane.Themes.OqtaneTheme
 @inherits LayoutBase
 
-<div class="row px-4">
-    <Pane Name="Top" />
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <Pane Name="Content" />
+        </div>
+    </div>
 </div>
-<div class="row px-4">
-    <div class="col-sm"><Pane Name="Left" /></div>
-    <div class="col-sm"><Pane Name="Content" /></div>
-    <div class="col-sm"><Pane Name="Right" /></div>
+<Pane Name="Top Full Width" />
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <Pane Name="Top 100%" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <Pane Name="Left 50%" />
+        </div>
+        <div class="col-md-6">
+            <Pane Name="Right 50%" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <Pane Name="Left 33%" />
+        </div>
+        <div class="col-md-4">
+            <Pane Name="Center 33%" />
+        </div>
+        <div class="col-md-4">
+            <Pane Name="Right 33%" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <Pane Name="Left Outer 25%" />
+        </div>
+        <div class="col-md-3">
+            <Pane Name="Left Inner 25%" />
+        </div>
+        <div class="col-md-3">
+            <Pane Name="Right Inner 25%" />
+        </div>
+        <div class="col-md-3">
+            <Pane Name="Right Outer 25%" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <Pane Name="Left 25%" />
+        </div>
+        <div class="col-md-6">
+            <Pane Name="Center 50%" />
+        </div>
+        <div class="col-md-3">
+            <Pane Name="Right 25%" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <Pane Name="Left Sidebar 66%" />
+        </div>
+        <div class="col-md-4">
+            <Pane Name="Right Sidebar 33%" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <Pane Name="Left Sidebar 33%" />
+        </div>
+        <div class="col-md-8">
+            <Pane Name="Right Sidebar 66%" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <Pane Name="Bottom 100%" />
+        </div>
+    </div>
 </div>
-<div class="row px-4">
-    <Pane Name="Bottom" />
-</div>
+<Pane Name="Bottom Full Width" />
 
 @code {
     public override string Name => "Multiple Panes";
 
-    public override string Panes => "Top,Left,Content,Right,Bottom";
+    public override string Panes => "Content, Top Full Width,Top 100%,Left 50%,Right 50%,Left 33%,Center 33%,Right 33%,Left Outer 25%,Left Inner 25%,Right Inner 25%,Right Outer 25%,Left 25%,Center 50%,Right 25%,Left Sidebar 66%,Right Sidebar 33%,Left Sidebar 33%,Right Sidebar 66%,Bottom 100%,Bottom Full Width";
 }
