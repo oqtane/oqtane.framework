@@ -1,0 +1,20 @@
+﻿@namespace [Owner].[Theme]
+@inherits ContainerBase
+
+<div class="container">
+    <div class="row px-4">
+        <div class="d-flex flex-nowrap">
+            <ModuleActions /><h2><ModuleTitle /></h2>
+        </div>
+        <hr class="app-rule" />
+    </div>
+    <div class="row px-4">
+        <div class="container">
+            <ModuleInstance />
+        </div>
+    </div>
+</div>
+
+@code {
+    public override string Name => "Container1";
+}
