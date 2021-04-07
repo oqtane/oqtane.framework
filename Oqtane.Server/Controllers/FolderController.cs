@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
@@ -69,6 +69,10 @@ namespace Oqtane.Controllers
         public Folder GetByPath(int siteId, string path)
         {
             var folderPath = WebUtility.UrlDecode(path);
+            if (!(folderPath.EndsWith(System.IO.Path.DirectorySeparatorChar) || folderPath.EndsWith(System.IO.Path.AltDirectorySeparatorChar)))
+            {
+                folderPath = Utilities.PathCombine(folderPath, System.IO.Path.DirectorySeparatorChar.ToString());
+            }
             Folder folder = _folders.GetFolder(siteId, folderPath);
             if (folder != null)
                 if (_userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.Permissions))
