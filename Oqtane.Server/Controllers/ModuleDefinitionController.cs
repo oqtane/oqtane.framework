@@ -175,9 +175,9 @@ namespace Oqtane.Controllers
         // GET: api/<controller>/templates
         [HttpGet("templates")]
         [Authorize(Roles = RoleNames.Host)]
-        public List<string> Get()
+        public List<string> GetTemplates()
         {
-            var templates = new List<String>();
+            var templates = new List<string>();
             string templatePath = Utilities.PathCombine(_environment.WebRootPath, "Modules", "Templates", Path.DirectorySeparatorChar.ToString());
             foreach (string directory in Directory.GetDirectories(templatePath))
             {
@@ -186,7 +186,7 @@ namespace Oqtane.Controllers
             return templates;
         }
 
-        // POST api/<controller>?moduleid=x
+        // POST api/<controller>
         [HttpPost]
         [Authorize(Roles = RoleNames.Host)]
         public ModuleDefinition Post([FromBody] ModuleDefinition moduleDefinition)
