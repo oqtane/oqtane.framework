@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace Oqtane.Models
@@ -14,6 +14,7 @@ namespace Oqtane.Models
             Contact = "";
             License = "";
             Dependencies = "";
+            Template = "";
         }
 
         public string ThemeName { get; set; }
@@ -28,6 +29,7 @@ namespace Oqtane.Models
         public List<ThemeControl> Themes { get; set; }
         public List<ThemeControl> Layouts { get; set; }
         public List<ThemeControl> Containers { get; set; }
+        public string Template { get; set; }
 
         //[Obsolete("This property is obsolete. Use Themes instead.", false)]
         public string ThemeControls { get; set; }
