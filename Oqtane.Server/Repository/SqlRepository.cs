@@ -5,6 +5,9 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Data.SqlClient;
 using Oqtane.Models;
+// ReSharper disable ConvertToUsingDeclaration
+// ReSharper disable InvertIf
+// ReSharper disable BuiltInTypeReferenceStyleForMemberAccess
 
 namespace Oqtane.Repository
 {
@@ -13,34 +16,40 @@ namespace Oqtane.Repository
 
         public void ExecuteScript(Tenant tenant, string script)
         {
-            // execute script in curent tenant
-            foreach (string query in script.Split("GO", StringSplitOptions.RemoveEmptyEntries))
+            // execute script in current tenant
+            foreach (var query in script.Split("GO", StringSplitOptions.RemoveEmptyEntries))
             {
                 ExecuteNonQuery(tenant, query);
             }
         }
 
-        public bool ExecuteScript(Tenant tenant, Assembly assembly, string filename)
+        public bool ExecuteScript(string connectionString, Assembly assembly, string fileName)
         {
-            // script must be included as an Embedded Resource within an assembly
-            bool success = true;
-            string script = "";
+            var success = true;
+            var script = GetScriptFromAssembly(assembly, fileName);
 
-            if (assembly != null)
+            if (!string.IsNullOrEmpty(script))
             {
-                string name = assembly.GetManifestResourceNames().FirstOrDefault(item => item.EndsWith("." + filename));
-                if (name != null)
+                try
                 {
-                    Stream resourceStream = assembly.GetManifestResourceStream(name);
-                    if (resourceStream != null)
+                    foreach (var query in script.Split("GO", StringSplitOptions.RemoveEmptyEntries))
                     {
-                        using (var reader = new StreamReader(resourceStream))
-                        {
-                            script = reader.ReadToEnd();
-                        }
+                        ExecuteNonQuery(connectionString, query);
                     }
                 }
+                catch
+                {
+                    success = false;
+                }
             }
+
+            return success;
+        }
+
+        public bool ExecuteScript(Tenant tenant, Assembly assembly, string fileName)
+        {
+            var success = true;
+            var script = GetScriptFromAssembly(assembly, fileName);
 
             if (!string.IsNullOrEmpty(script))
             {
@@ -59,12 +68,26 @@ namespace Oqtane.Repository
 
         public int ExecuteNonQuery(Tenant tenant, string query)
         {
-            var conn = new SqlConnection(FormatConnectionString(tenant.DBConnectionString));
+            return ExecuteNonQuery(tenant.DBConnectionString, query);
+        }
+
+        public SqlDataReader ExecuteReader(Tenant tenant, string query)
+        {
+            SqlConnection conn = new SqlConnection(FormatConnectionString(tenant.DBConnectionString));
+            SqlCommand cmd = conn.CreateCommand();
+            PrepareCommand(conn, cmd, query);
+            var dr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+            return dr;
+        }
+
+        private int ExecuteNonQuery(string connectionString, string query)
+        {
+            var conn = new SqlConnection(FormatConnectionString(connectionString));
             var cmd = conn.CreateCommand();
             using (conn)
             {
                 PrepareCommand(conn, cmd, query);
-                int val = -1;
+                var val = -1;
                 try
                 {
                     val = cmd.ExecuteNonQuery();
@@ -77,13 +100,28 @@ namespace Oqtane.Repository
             }
         }
 
-        public SqlDataReader ExecuteReader(Tenant tenant, string query)
+        private string GetScriptFromAssembly(Assembly assembly, string fileName)
         {
-            SqlConnection conn = new SqlConnection(FormatConnectionString(tenant.DBConnectionString));
-            SqlCommand cmd = conn.CreateCommand();
-            PrepareCommand(conn, cmd, query);
-            var dr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
-            return dr;
+            // script must be included as an Embedded Resource within an assembly
+            var script = "";
+
+            if (assembly != null)
+            {
+                var name = assembly.GetManifestResourceNames().FirstOrDefault(item => item.EndsWith("." + fileName));
+                if (name != null)
+                {
+                    var resourceStream = assembly.GetManifestResourceStream(name);
+                    if (resourceStream != null)
+                    {
+                        using (var reader = new StreamReader(resourceStream))
+                        {
+                            script = reader.ReadToEnd();
+                        }
+                    }
+                }
+            }
+
+            return script;
         }
 
         private void PrepareCommand(SqlConnection conn, SqlCommand cmd, string query)

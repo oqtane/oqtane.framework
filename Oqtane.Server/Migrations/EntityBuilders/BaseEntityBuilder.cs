@@ -83,29 +83,29 @@ namespace Oqtane.Migrations.EntityBuilders
             return table.Column<int>(name: RewriteName(name), nullable: nullable);
         }
 
-        public void AddMaxStringColumn(string name, int length, bool nullable = false)
+        public void AddMaxStringColumn(string name, int length, bool nullable = false, bool unicode = true)
         {
-            _migrationBuilder.AddColumn<string>(RewriteName(name), RewriteName(EntityTableName), nullable: nullable, unicode: true);
+            _migrationBuilder.AddColumn<string>(RewriteName(name), RewriteName(EntityTableName), nullable: nullable, unicode: unicode);
         }
 
-        protected OperationBuilder<AddColumnOperation> AddMaxStringColumn(ColumnsBuilder table, string name, bool nullable = false)
+        protected OperationBuilder<AddColumnOperation> AddMaxStringColumn(ColumnsBuilder table, string name, bool nullable = false, bool unicode = true)
         {
-            return table.Column<string>(name: RewriteName(name), nullable: nullable, unicode: true);
+            return table.Column<string>(name: RewriteName(name), nullable: nullable, unicode: unicode);
         }
 
-        public void AddStringColumn(string name, int length, bool nullable = false)
+        public void AddStringColumn(string name, int length, bool nullable = false, bool unicode = true)
         {
-            _migrationBuilder.AddColumn<string>(RewriteName(name), RewriteName(EntityTableName), maxLength: length, nullable: nullable, unicode: true);
+            _migrationBuilder.AddColumn<string>(RewriteName(name), RewriteName(EntityTableName), maxLength: length, nullable: nullable, unicode: unicode);
         }
 
-        protected OperationBuilder<AddColumnOperation> AddStringColumn(ColumnsBuilder table, string name, int length, bool nullable = false)
+        protected OperationBuilder<AddColumnOperation> AddStringColumn(ColumnsBuilder table, string name, int length, bool nullable = false, bool unicode = true)
         {
-            return table.Column<string>(name: RewriteName(name), maxLength: length, nullable: nullable, unicode: true);
+            return table.Column<string>(name: RewriteName(name), maxLength: length, nullable: nullable, unicode: unicode);
         }
 
-        public void AlterStringColumn(string name, int length, bool nullable = false)
+        public void AlterStringColumn(string name, int length, bool nullable = false, bool unicode = true)
         {
-            _migrationBuilder.AlterColumn<string>(RewriteName(name), RewriteName(EntityTableName), maxLength: length, nullable: nullable);
+            _migrationBuilder.AlterColumn<string>(RewriteName(name), RewriteName(EntityTableName), maxLength: length, nullable: nullable, unicode: unicode);
         }
 
         public void DropColumn(string name)

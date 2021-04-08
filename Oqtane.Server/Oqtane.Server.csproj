@@ -39,6 +39,8 @@
     <EmbeddedResource Include="Scripts\Tenant.02.00.01.01.sql" />
     <EmbeddedResource Include="Scripts\Tenant.02.00.01.02.sql" />
     <EmbeddedResource Include="Scripts\Tenant.02.00.01.03.sql" />
+    <EmbeddedResource Include="Scripts\MigrateMaster.sql" />
+    <EmbeddedResource Include="Scripts\MigrateTenant.sql" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="5.0.4" />

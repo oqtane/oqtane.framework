@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -75,7 +76,13 @@ namespace Oqtane.Infrastructure
             if (install == null)
             {
                 // startup or silent installation
-                install = new InstallConfig { ConnectionString = _config.GetConnectionString(SettingKeys.ConnectionStringKey), TenantName = TenantNames.Master, IsNewTenant = false };
+                install = new InstallConfig
+                {
+                    ConnectionString = _config.GetConnectionString(SettingKeys.ConnectionStringKey),
+                    TenantName = TenantNames.Master,
+                    DatabaseType = _config.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey],
+                    IsNewTenant = false
+                };
 
                 if (!IsInstalled())
                 {
@@ -207,6 +214,7 @@ namespace Oqtane.Infrastructure
                 using (var scope = _serviceScopeFactory.CreateScope())
                 {
                     var databases = scope.ServiceProvider.GetServices<IOqtaneDatabase>();
+                    var sql = scope.ServiceProvider.GetRequiredService<ISqlRepository>();
 
                     try
                     {
@@ -214,6 +222,10 @@ namespace Oqtane.Infrastructure
 
                         using (var masterDbContext = new MasterDBContext(new DbContextOptions<MasterDBContext>(), dbConfig))
                         {
+                            if (IsInstalled() && (install.DatabaseType == "SqlServer" || install.DatabaseType == "LocalDB"))
+                            {
+                                UpgradeSqlServer(sql, install.ConnectionString, true);
+                            }
                             // Push latest model into database
                             masterDbContext.Database.Migrate();
                             result.Success = true;
@@ -303,14 +315,6 @@ namespace Oqtane.Infrastructure
             return result;
         }
 
-        private InstallationContext GetInstallationContext(IEnumerable<IOqtaneDatabase> databases)
-        {
-            var databaseType = _config.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey];
-            var connectionString = NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey));
-
-            return new InstallationContext(databases.Single(d => d.Name == databaseType), connectionString);
-        }
-
         private Installation MigrateTenants(InstallConfig install)
         {
             var result = new Installation { Success = false, Message = string.Empty };
@@ -321,6 +325,7 @@ namespace Oqtane.Infrastructure
             {
                 var upgrades = scope.ServiceProvider.GetRequiredService<IUpgradeManager>();
                 var databases = scope.ServiceProvider.GetServices<IOqtaneDatabase>();
+                var sql = scope.ServiceProvider.GetRequiredService<ISqlRepository>();
 
                 using (var db = GetInstallationContext(databases))
                 {
@@ -328,9 +333,14 @@ namespace Oqtane.Infrastructure
                     {
                         try
                         {
-                            var dbConfig = new DbConfig(null, null, databases) {ConnectionString = install.ConnectionString, DatabaseType = install.DatabaseType};
+                            var dbConfig = new DbConfig(null, null, databases) {ConnectionString = tenant.DBConnectionString, DatabaseType = tenant.DBType};
                             using (var tenantDbContext = new TenantDBContext(dbConfig, null))
                             {
+                                if (install.DatabaseType == "SqlServer" || install.DatabaseType == "LocalDB")
+                                {
+                                    UpgradeSqlServer(sql, tenant.DBConnectionString, false);
+                                }
+
                                 // Push latest model into database
                                 tenantDbContext.Database.Migrate();
                                 result.Success = true;
@@ -551,36 +561,6 @@ namespace Oqtane.Infrastructure
             return result;
         }
 
-        private string NormalizeConnectionString(string connectionString)
-        {
-            var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString();
-            connectionString = connectionString.Replace("|DataDirectory|", dataDirectory);
-            return connectionString;
-        }
-
-        private string DenormalizeConnectionString(string connectionString)
-        {
-            var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString();
-            connectionString = connectionString.Replace(dataDirectory ?? String.Empty, "|DataDirectory|");
-            return connectionString;
-        }
-
-        public void UpdateConnectionString(string connectionString)
-        {
-            connectionString = DenormalizeConnectionString(connectionString);
-            if (_config.GetConnectionString(SettingKeys.ConnectionStringKey) != connectionString)
-            {
-                AddOrUpdateAppSetting($"{SettingKeys.ConnectionStringsSection}:{SettingKeys.ConnectionStringKey}", connectionString);
-                _config.Reload();
-            }
-        }
-
-        public void UpdateDatabaseType(string databaseType)
-        {
-            AddOrUpdateAppSetting($"{SettingKeys.DatabaseSection}:{SettingKeys.DatabaseTypeKey}", databaseType);
-            _config.Reload();
-        }
-
         public void AddOrUpdateAppSetting<T>(string sectionPathKey, T value)
         {
             try
@@ -598,6 +578,36 @@ namespace Oqtane.Infrastructure
             {
                 Console.WriteLine("Error writing app settings | {0}", ex);
             }
+        }
+
+        private string DenormalizeConnectionString(string connectionString)
+        {
+            var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString();
+            connectionString = connectionString.Replace(dataDirectory ?? String.Empty, "|DataDirectory|");
+            return connectionString;
+        }
+
+        private InstallationContext GetInstallationContext(IEnumerable<IOqtaneDatabase> databases)
+        {
+            var databaseType = _config.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey];
+            var connectionString = NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey));
+
+            return new InstallationContext(databases.Single(d => d.Name == databaseType), connectionString);
+        }
+
+        private string GetInstallationConfig(string key, string defaultValue)
+        {
+            var value = _config.GetSection(SettingKeys.InstallationSection).GetValue(key, defaultValue);
+            // double fallback to default value - allow hold sample keys in config
+            if (string.IsNullOrEmpty(value)) value = defaultValue;
+            return value;
+        }
+
+        private string NormalizeConnectionString(string connectionString)
+        {
+            var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString();
+            connectionString = connectionString.Replace("|DataDirectory|", dataDirectory);
+            return connectionString;
         }
 
         private void SetValueRecursively<T>(string sectionPathKey, dynamic jsonObj, T value)
@@ -619,12 +629,27 @@ namespace Oqtane.Infrastructure
             }
         }
 
-        private string GetInstallationConfig(string key, string defaultValue)
+        public void UpdateConnectionString(string connectionString)
         {
-            var value = _config.GetSection(SettingKeys.InstallationSection).GetValue(key, defaultValue);
-            // double fallback to default value - allow hold sample keys in config
-            if (string.IsNullOrEmpty(value)) value = defaultValue;
-            return value;
+            connectionString = DenormalizeConnectionString(connectionString);
+            if (_config.GetConnectionString(SettingKeys.ConnectionStringKey) != connectionString)
+            {
+                AddOrUpdateAppSetting($"{SettingKeys.ConnectionStringsSection}:{SettingKeys.ConnectionStringKey}", connectionString);
+                _config.Reload();
+            }
+        }
+
+        public void UpdateDatabaseType(string databaseType)
+        {
+            AddOrUpdateAppSetting($"{SettingKeys.DatabaseSection}:{SettingKeys.DatabaseTypeKey}", databaseType);
+            _config.Reload();
+        }
+
+        public void UpgradeSqlServer(ISqlRepository sql, string connectionString, bool isMaster)
+        {
+            var script = (isMaster) ? "MigrateMaster.sql" : "MigrateTenant.sql";
+
+            sql.ExecuteScript(connectionString, Assembly.GetExecutingAssembly(), script);
         }
     }
 }
