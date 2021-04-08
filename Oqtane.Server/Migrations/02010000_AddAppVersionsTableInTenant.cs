@@ -53,8 +53,12 @@ namespace Oqtane.Migrations
             }
 
             //Version 2.1.0
+            var appVersions = RewriteName("AppVersions");
+            var version = RewriteName("Version");
+            var appledDate = RewriteName("AppliedDate");
+
             migrationBuilder.Sql($@"
-                INSERT INTO AppVersions(Version, AppliedDate)
+                INSERT INTO {appVersions}({version}, {appledDate})
                     VALUES('02.01.00', '{DateTime.UtcNow:u}')
             ");
         }

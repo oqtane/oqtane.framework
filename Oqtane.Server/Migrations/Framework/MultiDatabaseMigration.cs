@@ -15,5 +15,10 @@ namespace Oqtane.Migrations
         }
 
         protected IOqtaneDatabase ActiveDatabase => _databases.FirstOrDefault(d => d.Provider == ActiveProvider);
+
+        protected string RewriteName(string name)
+        {
+            return ActiveDatabase.RewriteName(name);
+        }
     }
 }
