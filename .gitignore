@@ -16,7 +16,3 @@ Oqtane.Server/Data/*.ldf
 
 /Oqtane.Server/Properties/PublishProfiles/FolderProfile.pubxml
 Oqtane.Server/Content
-Oqtane.Client/Resources
-Oqtane.Server/wwwroot/Modules
-Oqtane.Server/wwwroot/Themes
-/Oqtane.Server/wwwroot/_content/Placeholder.txt
