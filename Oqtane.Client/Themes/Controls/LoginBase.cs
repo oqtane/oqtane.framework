@@ -3,7 +3,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Oqtane.Providers;
+using Oqtane.Security;
 using Oqtane.Services;
+using Oqtane.Shared;
 using Oqtane.UI;
 
 namespace Oqtane.Themes.Controls
@@ -29,13 +31,14 @@ namespace Oqtane.Themes.Controls
         {
             await UserService.LogoutUserAsync(PageState.User);
             PageState.User = null;
+            bool authorizedtoviewpage = UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, PageState.Page.Permissions);
 
             if (PageState.Runtime == Oqtane.Shared.Runtime.Server)
             {
                 // server-side Blazor
                 var interop = new Interop(jsRuntime);
                 string antiforgerytoken = await interop.GetElementByName("__RequestVerificationToken");
-                var fields = new { __RequestVerificationToken = antiforgerytoken, returnurl = (PageState.Alias.Path + "/" + PageState.Page.Path) };
+                var fields = new { __RequestVerificationToken = antiforgerytoken, returnurl = !authorizedtoviewpage ? PageState.Alias.Path : PageState.Alias.Path + "/" + PageState.Page.Path };
                 await interop.SubmitForm($"/{PageState.Alias.AliasId}/pages/logout/", fields);
             }
             else
@@ -43,7 +46,7 @@ namespace Oqtane.Themes.Controls
                 // client-side Blazor
                 var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
                 authstateprovider.NotifyAuthenticationChanged();
-                NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "reload"));
+                NavigationManager.NavigateTo(NavigateUrl(!authorizedtoviewpage ? PageState.Alias.Path : PageState.Page.Path, "reload"));
             }
         }
     }
