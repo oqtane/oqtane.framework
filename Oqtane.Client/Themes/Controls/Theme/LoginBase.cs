@@ -5,15 +5,17 @@ using Microsoft.JSInterop;
 using Oqtane.Providers;
 using Oqtane.Services;
 using Oqtane.UI;
+using Oqtane.Security;
+using Oqtane.Shared;
 
 namespace Oqtane.Themes.Controls
 {
     public class LoginBase : ThemeControlBase
     {
-        [Inject] public NavigationManager NavigationManager {get;set;}
-        [Inject]public IUserService UserService {get;set;}
-        [Inject]public IJSRuntime jsRuntime {get;set;}
-        [Inject]public IServiceProvider ServiceProvider {get;set;}
+        [Inject] public NavigationManager NavigationManager { get; set; }
+        [Inject] public IUserService UserService { get; set; }
+        [Inject] public IJSRuntime jsRuntime { get; set; }
+        [Inject] public IServiceProvider ServiceProvider { get; set; }
 
         protected void LoginUser()
         {
@@ -29,21 +31,24 @@ namespace Oqtane.Themes.Controls
         {
             await UserService.LogoutUserAsync(PageState.User);
             PageState.User = null;
+            bool authorizedtoviewpage = UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, PageState.Page.Permissions);
 
             if (PageState.Runtime == Oqtane.Shared.Runtime.Server)
             {
                 // server-side Blazor
                 var interop = new Interop(jsRuntime);
                 string antiforgerytoken = await interop.GetElementByName("__RequestVerificationToken");
-                var fields = new { __RequestVerificationToken = antiforgerytoken, returnurl = (PageState.Alias.Path + "/" + PageState.Page.Path) };
+                var fields = new { __RequestVerificationToken = antiforgerytoken, returnurl = !authorizedtoviewpage ? PageState.Alias.Path : PageState.Alias.Path + "/" + PageState.Page.Path };
                 await interop.SubmitForm($"/{PageState.Alias.AliasId}/pages/logout/", fields);
+
             }
             else
             {
                 // client-side Blazor
                 var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
                 authstateprovider.NotifyAuthenticationChanged();
-                NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "reload"));
+                NavigationManager.NavigateTo(NavigateUrl(!authorizedtoviewpage ? PageState.Alias.Path : PageState.Page.Path, "reload"));
+
             }
         }
     }
