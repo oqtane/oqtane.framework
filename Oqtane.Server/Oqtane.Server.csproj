@@ -20,9 +20,9 @@
     <Compile Remove="wwwroot\Modules\Templates\**" />
     <Content Remove="wwwroot\Modules\Templates\**" />
     <EmbeddedResource Remove="wwwroot\Modules\Templates\**" />
-    <Compile Remove="bin\**" />
-    <EmbeddedResource Remove="bin\**" />
-    <Content Remove="bin\**" />
+    <Compile Remove="wwwroot\Themes\Templates\**" />
+    <Content Remove="wwwroot\Themes\Templates\**" />
+    <EmbeddedResource Remove="wwwroot\Themes\Templates\**" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Scripts\Master.00.00.00.00.sql" />
