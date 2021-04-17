@@ -129,19 +129,19 @@ namespace Oqtane.Client
 
                 foreach (ZipArchiveEntry entry in archive.Entries)
                 {
-                    if (!assemblies.Contains(Path.GetFileNameWithoutExtension(entry.Name)))
+                    if (!assemblies.Contains(Path.GetFileNameWithoutExtension(entry.FullName)))
                     {
                         using (var memoryStream = new MemoryStream())
                         {
                             entry.Open().CopyTo(memoryStream);
                             byte[] file = memoryStream.ToArray();
-                            switch (Path.GetExtension(entry.Name))
+                            switch (Path.GetExtension(entry.FullName))
                             {
                                 case ".dll":
-                                    dlls.Add(entry.Name, file);
+                                    dlls.Add(entry.FullName, file);
                                     break;
                                 case ".pdb":
-                                    pdbs.Add(entry.Name, file);
+                                    pdbs.Add(entry.FullName, file);
                                     break;
                             }
                         }

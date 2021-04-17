@@ -1,4 +1,5 @@
 @namespace Oqtane.Modules.Admin.Pages
+@using Oqtane.Interfaces
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IPageService PageService
@@ -109,7 +110,6 @@
                         </td>
                         <td>
                             <select id="Theme" class="form-control" value="@_themetype" @onchange="(e => ThemeChanged(e))">
-                                <option value="-">&lt;@Localizer["Inherit From Site"]&gt;</option>
                                 @foreach (var theme in _themes)
                                 {
                                     <option value="@theme.TypeName">@theme.Name</option>
@@ -117,37 +117,13 @@
                             </select>
                         </td>
                     </tr>
-                    @if (_layouts.Count > 0)
-                    {
-                        <tr>
-                            <td>
-                                <Label For="Layout" HelpText="Select a layout for the page (if the selected theme supports it)" ResourceKey="Layout">Layout: </Label>
-                            </td>
-                            <td>
-                                <select id="Layout" class="form-control" @bind="@_layouttype">
-                                    <option value="-">&lt;@Localizer["Inherit From Site"]&gt;</option>
-                                    @foreach (var layout in _layouts)
-                                    {
-                                        if (layout.TypeName == _layouttype)
-                                        {
-                                            <option value="@(layout.TypeName)" selected>@(layout.Name)</option>
-                                        }
-                                        else
-                                        {
-                                            <option value="@(layout.TypeName)">@(layout.Name)</option>
-                                        }
-                                    }
-                                </select>
-                            </td>
-                        </tr>
-                    }
                     <tr>
                         <td>
                             <Label For="defaultContainer" HelpText="Select the default container for the page" ResourceKey="DefaultContainer">Default Container: </Label>
                         </td>
                         <td>
                             <select id="defaultContainer" class="form-control" @bind="@_containertype">
-                                <option value="-">&lt;@Localizer["Inherit From Site"]&gt;</option>
+                                <option value="-">&lt;@Localizer["Select Container"]&gt;</option>
                                 @foreach (var container in _containers)
                                 {
                                     <option value="@container.TypeName">@container.Name</option>
@@ -192,14 +168,21 @@
             </table>
         }
     </TabPanel>
+    @if (_themeSettingsType != null)
+    {
+        <TabPanel Name="ThemeSettings" Heading="Theme Settings" ResourceKey="ThemeSettings">
+            @ThemeSettingsComponent
+        </TabPanel>
+    }
 </TabStrip>
 <button type="button" class="btn btn-success" @onclick="SavePage">@Localizer["Save"]</button>
 <button type="button" class="btn btn-secondary" @onclick="Cancel">@Localizer["Cancel"]</button>
 
 @code {
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+
     private List<Theme> _themeList;
     private List<ThemeControl> _themes = new List<ThemeControl>();
-    private List<ThemeControl> _layouts = new List<ThemeControl>();
     private List<ThemeControl> _containers = new List<ThemeControl>();
     private List<Page> _pageList;
     private int _pageId;
@@ -214,8 +197,7 @@
     private string _isnavigation;
     private string _url;
     private string _ispersonalizable;
-    private string _themetype = "-";
-    private string _layouttype = "-";
+    private string _themetype;
     private string _containertype = "-";
     private string _icon;
     private string _permissions = null;
@@ -225,12 +207,10 @@
     private DateTime _modifiedon;
     private string _deletedby;
     private DateTime? _deletedon;
-
-#pragma warning disable 649
     private PermissionGrid _permissionGrid;
-#pragma warning restore 649
-
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+    private Type _themeSettingsType;
+    private object _themeSettings;
+    private RenderFragment ThemeSettingsComponent { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -269,21 +249,15 @@
                 _url = page.Url;
                 _ispersonalizable = page.IsPersonalizable.ToString();
                 _themetype = page.ThemeType;
-                if (_themetype == PageState.Site.DefaultThemeType)
+                if (string.IsNullOrEmpty(_themetype))
                 {
-                    _themetype = "-";
+                    _themetype = PageState.Site.DefaultThemeType;
                 }
-                _layouts = ThemeService.GetLayoutControls(_themeList, page.ThemeType);
-                _layouttype = page.LayoutType;
-                if (_layouttype == PageState.Site.DefaultLayoutType)
-                {
-                    _layouttype = "-";
-                }
-                _containers = ThemeService.GetContainerControls(_themeList, page.ThemeType);
+                _containers = ThemeService.GetContainerControls(_themeList, _themetype);
                 _containertype = page.DefaultContainerType;
                 if (string.IsNullOrEmpty(_containertype))
                 {
-                    _containertype = "-";
+                    _containertype = PageState.Site.DefaultContainerType;
                 }
                 _icon = page.Icon;
                 _permissions = page.Permissions;
@@ -293,6 +267,8 @@
                 _modifiedon = page.ModifiedOn;
                 _deletedby = page.DeletedBy;
                 _deletedon = page.DeletedOn;
+
+                ThemeSettings();
             }
         }
         catch (Exception ex)
@@ -350,18 +326,9 @@
         try
         {
             _themetype = (string)e.Value;
-            if (_themetype != "-")
-            {
-                _layouts = ThemeService.GetLayoutControls(_themeList, _themetype);
-                _containers = ThemeService.GetContainerControls(_themeList, _themetype);
-            }
-            else
-            {
-                _layouts = new List<ThemeControl>();
-                _containers = new List<ThemeControl>();
-            }
-            _layouttype = "-";
+            _containers = ThemeService.GetContainerControls(_themeList, _themetype);
             _containertype = "-";
+            ThemeSettings();
             StateHasChanged();
         }
         catch (Exception ex)
@@ -371,12 +338,31 @@
         }
     }
 
+    private void ThemeSettings()
+    {
+        _themeSettingsType = null;
+        var theme = _themeList.FirstOrDefault(item => item.Themes.Any(themecontrol => themecontrol.TypeName.Equals(_themetype)));
+        if (theme != null && !string.IsNullOrEmpty(theme.ThemeSettingsType))
+        {
+            _themeSettingsType = Type.GetType(theme.ThemeSettingsType);
+            if (_themeSettingsType != null)
+            {
+                ThemeSettingsComponent = builder =>
+                {
+                    builder.OpenComponent(0, _themeSettingsType);
+                    builder.AddComponentReferenceCapture(1, inst => { _themeSettings = Convert.ChangeType(inst, _themeSettingsType); });
+                    builder.CloseComponent();
+                };
+            }
+        }
+    }
+
     private async Task SavePage()
     {
         Page page = null;
         try
         {
-            if (_name != string.Empty)
+            if (_name != string.Empty && !string.IsNullOrEmpty(_themetype) && _containertype != "-")
             {
                 page = PageState.Pages.FirstOrDefault(item => item.PageId == _pageId);
                 string currentPath = page.Path;
@@ -445,11 +431,6 @@
                 {
                     page.ThemeType = string.Empty;
                 }
-                page.LayoutType = (_layouttype != "-") ? _layouttype : string.Empty;
-                if (!string.IsNullOrEmpty(page.LayoutType) && page.LayoutType == PageState.Site.DefaultLayoutType)
-                {
-                    page.LayoutType = string.Empty;
-                }
                 page.DefaultContainerType = (_containertype != "-") ? _containertype : string.Empty;
                 if (!string.IsNullOrEmpty(page.DefaultContainerType) && page.DefaultContainerType == PageState.Site.DefaultContainerType)
                 {
@@ -481,6 +462,11 @@
                     }
                 }
 
+                if (_themeSettingsType != null && _themeSettings is ISettingsControl themeSettingsControl)
+                {
+                    await themeSettingsControl.UpdateSettings();
+                }
+
                 await logger.LogInformation("Page Saved {Page}", page);
                 if (PageState.QueryString.ContainsKey("cp"))
                 {
@@ -493,7 +479,7 @@
             }
             else
             {
-                AddModuleMessage(Localizer["You Must Provide Page Name"], MessageType.Warning);
+                AddModuleMessage(Localizer["You Must Provide Page Name, Theme, and Container"], MessageType.Warning);
             }
         }
         catch (Exception ex)

@@ -9,7 +9,7 @@
                 {
                     @if (IsAuthorized(tabPanel))
                     {
-                        <li class="nav-item">
+                        <li class="nav-item" @key="tabPanel.Name">
                             @if (tabPanel.Name == ActiveTab)
                             {
                                 <a class="nav-link active" data-toggle="tab" href="#@tabPanel.Name" role="tab" @onclick:preventDefault="true">
@@ -35,7 +35,7 @@
 </CascadingValue>
 
 @code {
-    private List<TabPanel> _tabPanels = new List<TabPanel>();
+    private List<TabPanel> _tabPanels;
 
     [Parameter]
     public RenderFragment ChildContent { get; set; } // contains the TabPanels
@@ -51,14 +51,22 @@
         }
     }
 
+    protected override void OnParametersSet()
+    {
+        _tabPanels = new List<TabPanel>();
+    }
+
     internal void AddTabPanel(TabPanel tabPanel)
     {
-        _tabPanels.Add(tabPanel);
-        if (string.IsNullOrEmpty(ActiveTab))
+        if (!_tabPanels.Exists(item => item.Name == tabPanel.Name))
         {
-            ActiveTab = tabPanel.Name;
+            _tabPanels.Add(tabPanel);
+            if (string.IsNullOrEmpty(ActiveTab))
+            {
+                ActiveTab = tabPanel.Name;
+            }
+            StateHasChanged();
         }
-        StateHasChanged();
     }
 
     private bool IsAuthorized(TabPanel tabPanel)

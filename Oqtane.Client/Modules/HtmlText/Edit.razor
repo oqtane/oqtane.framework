@@ -4,12 +4,13 @@
 @namespace Oqtane.Modules.HtmlText
 @inherits ModuleBase
 @inject IHtmlTextService HtmlTextService
+@inject ISettingService SettingService
 @inject NavigationManager NavigationManager
 @inject IStringLocalizer<Edit> Localizer
 
 @if (_content != null)
 {
-    <RichTextEditor Content="@_content" @ref="@RichTextEditorHtml"></RichTextEditor>
+    <RichTextEditor Content="@_content" AllowFileManagement="@_allowfilemanagement" @ref="@RichTextEditorHtml"></RichTextEditor>
     <button type="button" class="btn btn-success" @onclick="SaveContent">@Localizer["Save"]</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
     @if (!string.IsNullOrEmpty(_content))
@@ -26,13 +27,14 @@
     public override string Title => "Edit Html/Text";
 
     public override List<Resource> Resources => new List<Resource>()
-    {
+{
         new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" },
         new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill1.3.6.bubble.css" },
         new Resource { ResourceType = ResourceType.Stylesheet, Url = "css/quill/quill1.3.6.snow.css" }
     };
 
     private RichTextEditor RichTextEditorHtml;
+    private bool _allowfilemanagement;
     private string _content = null;
     private string _createdby;
     private DateTime _createdon;
@@ -43,6 +45,8 @@
     {
         try
         {
+            _allowfilemanagement = bool.Parse(SettingService.GetSetting(ModuleState.Settings, "AllowFileManagement", "true"));
+
             var htmltext = await HtmlTextService.GetHtmlTextAsync(ModuleState.ModuleId);
             if (htmltext != null)
             {

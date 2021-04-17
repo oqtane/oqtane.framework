@@ -41,6 +41,7 @@
     <EmbeddedResource Include="Scripts\Tenant.02.00.01.03.sql" />
     <EmbeddedResource Include="Scripts\Tenant.02.00.02.01.sql" />
     <EmbeddedResource Include="Scripts\Tenant.02.00.02.02.sql" />
+    <EmbeddedResource Include="Scripts\Tenant.02.00.02.03.sql" />
     <EmbeddedResource Include="Modules\HtmlText\Scripts\HtmlText.1.0.0.sql" />
     <EmbeddedResource Include="Modules\HtmlText\Scripts\HtmlText.Uninstall.sql" />
   </ItemGroup>

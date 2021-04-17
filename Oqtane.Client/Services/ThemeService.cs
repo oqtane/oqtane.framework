@@ -29,10 +29,10 @@ namespace Oqtane.Services
             return themes.SelectMany(item => item.Themes).ToList();
         }
 
+        //[Obsolete("This method is deprecated.", false)]
         public List<ThemeControl> GetLayoutControls(List<Theme> themes, string themeName)
         {
-            return themes.Where(item => Utilities.GetTypeName(themeName).StartsWith(Utilities.GetTypeName(item.ThemeName)))
-                .SelectMany(item => item.Layouts).ToList();
+            return null;
         }
 
         public List<ThemeControl> GetContainerControls(List<Theme> themes, string themeName)

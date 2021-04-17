@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Oqtane.Models;
@@ -19,16 +19,18 @@ namespace Oqtane.Controllers
         private readonly IPageRepository _pages;
         private readonly IModuleRepository _modules;
         private readonly IPageModuleRepository _pageModules;
+        private readonly ISettingRepository _settings;
         private readonly IUserPermissions _userPermissions;
         private readonly ITenantResolver _tenants;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
 
-        public PageController(IPageRepository pages, IModuleRepository modules, IPageModuleRepository pageModules, IUserPermissions userPermissions, ITenantResolver tenants, ISyncManager syncManager, ILogManager logger)
+        public PageController(IPageRepository pages, IModuleRepository modules, IPageModuleRepository pageModules, ISettingRepository settings, IUserPermissions userPermissions, ITenantResolver tenants, ISyncManager syncManager, ILogManager logger)
         {
             _pages = pages;
             _modules = modules;
             _pageModules = pageModules;
+            _settings = settings;
             _userPermissions = userPermissions;
             _tenants = tenants;
             _syncManager = syncManager;
@@ -39,11 +41,15 @@ namespace Oqtane.Controllers
         [HttpGet]
         public IEnumerable<Page> Get(string siteid)
         {
+            List<Setting> settings = _settings.GetSettings(EntityNames.Page).ToList();
+
             List<Page> pages = new List<Page>();
             foreach (Page page in _pages.GetPages(int.Parse(siteid)))
             {
                 if (_userPermissions.IsAuthorized(User,PermissionNames.View, page.Permissions))
                 {
+                    page.Settings = settings.Where(item => item.EntityId == page.PageId)
+                        .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
                     pages.Add(page);
                 }
             }
@@ -65,6 +71,8 @@ namespace Oqtane.Controllers
             }
             if (_userPermissions.IsAuthorized(User,PermissionNames.View, page.Permissions))
             {
+                page.Settings = _settings.GetSettings(EntityNames.Page, page.PageId)
+                        .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
                 return page;
             }
             else
@@ -84,6 +92,8 @@ namespace Oqtane.Controllers
             {
                 if (_userPermissions.IsAuthorized(User,PermissionNames.View, page.Permissions))
                 {
+                    page.Settings = _settings.GetSettings(EntityNames.Page, page.PageId)
+                            .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
                     return page;
                 }
                 else
@@ -164,7 +174,6 @@ namespace Oqtane.Controllers
                 page.IsNavigation = false;
                 page.Url = "";
                 page.ThemeType = parent.ThemeType;
-                page.LayoutType = parent.LayoutType;
                 page.DefaultContainerType = parent.DefaultContainerType;
                 page.Icon = parent.Icon;
                 page.Permissions = new List<Permission> {
