@@ -1,6 +1,6 @@
 @namespace Oqtane.UI
 
-<CascadingValue Value="@_moduleState" IsFixed="true">
+<CascadingValue Value="@ModuleState" IsFixed="true">
     @if (_useadminborder)
     {
         <div class="app-pane-admin-border">
@@ -14,22 +14,20 @@
 </CascadingValue>
 
 @code {
-    private Module _moduleState;
     private bool _useadminborder = false;
 
     [CascadingParameter]
     protected PageState PageState { get; set; }
 
     [Parameter]
-    public Module Module { get; set; }
+    public Module ModuleState { get; set; }
 
     RenderFragment DynamicComponent { get; set; }
 
     protected override void OnParametersSet()
     {
-        _moduleState = Module; // passed in from Pane component
-        string container = _moduleState.ContainerType;
-        if (PageState.ModuleId != -1 && _moduleState.UseAdminContainer)
+        string container = ModuleState.ContainerType;
+        if (PageState.ModuleId != -1 && ModuleState.UseAdminContainer)
         {
             container = (!string.IsNullOrEmpty(PageState.Site.AdminContainerType)) ? PageState.Site.AdminContainerType : Constants.DefaultAdminContainer;
         }

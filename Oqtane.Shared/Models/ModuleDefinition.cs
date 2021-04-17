@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Models
@@ -21,6 +21,7 @@ namespace Oqtane.Models
             ControlTypeRoutes = "";
             ReleaseVersions = "";
             DefaultAction = "";
+            SettingsType = "";
             Runtimes = "";
             Template = "";
         }
@@ -60,6 +61,8 @@ namespace Oqtane.Models
         public string ReleaseVersions { get; set; }
         [NotMapped]
         public string DefaultAction { get; set; }
+        [NotMapped]
+        public string SettingsType { get; set; } // added in 2.0.2
 
         // internal properties
         [NotMapped]

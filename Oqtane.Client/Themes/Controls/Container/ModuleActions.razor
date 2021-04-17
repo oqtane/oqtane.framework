@@ -22,21 +22,24 @@
                     </li>
                 }
             }
-            <li class="dropdown-submenu">
-                <a class="dropdown-item" onclick="return subMenu(this)">
-                    <span class="@Icons.AccountLogin" aria-hidden="true"></span>&nbsp;Move To &gt;
-                </a>
-                <ul class="dropdown-menu">
-                    @foreach (var action in Actions.Where(item => item.Name.Contains("Pane")))
-                    {
-                        <li>
-                            <a class="dropdown-item" @onclick="(async () => await ModuleAction(action))">
-                                <span class="@action.Icon" aria-hidden="true"></span>&nbsp;@action.Name
-                            </a>
-                        </li>
-                    }
-                </ul>
-            </li>
+            @if (Actions.Where(item => item.Name.Contains("Pane")).Any())
+            {
+                <li class="dropdown-submenu">
+                    <a class="dropdown-item" onclick="return subMenu(this)">
+                        <span class="@Icons.AccountLogin" aria-hidden="true"></span>&nbsp;Move To &gt;
+                    </a>
+                    <ul class="dropdown-menu">
+                        @foreach (var action in Actions.Where(item => item.Name.Contains("Pane")))
+                        {
+                            <li>
+                                <a class="dropdown-item" @onclick="(async () => await ModuleAction(action))">
+                                    <span class="@action.Icon" aria-hidden="true"></span>&nbsp;@action.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </li>
+            }
         </ul>
     </div>
 }

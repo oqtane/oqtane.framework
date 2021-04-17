@@ -30,15 +30,11 @@ else
     [Parameter]
     public SecurityAccessLevel? Security { get; set; } // optional - can be used to specify SecurityAccessLevel
 
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-        Parent.AddTabPanel((TabPanel)this);
-    }
-
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
+
+        Parent.AddTabPanel((TabPanel)this);
 
         if (string.IsNullOrEmpty(Heading))
         {

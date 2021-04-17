@@ -1,0 +1,49 @@
+@namespace Oqtane.Modules.HtmlText
+@inherits ModuleBase
+@inject ISettingService SettingService
+@implements Oqtane.Interfaces.ISettingsControl
+@inject IStringLocalizer<Settings> Localizer
+
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <Label For="files" ResourceKey="Allow File Management" HelpText="Specify If Editors Can Upload and Select Files">Allow File Management: </Label>
+        </td>
+        <td>
+            <select id="files" class="form-control" @bind="@_allowfilemanagement">
+                <option value="true">@Localizer["Yes"]</option>
+                <option value="false">@Localizer["No"]</option>
+            </select>
+        </td>
+    </tr>
+</table>
+
+@code {
+    private string _allowfilemanagement;
+
+    protected override void OnInitialized()
+    {
+        try
+        {
+            _allowfilemanagement = SettingService.GetSetting(ModuleState.Settings, "AllowFileManagement", "true");
+        }
+        catch (Exception ex)
+        {
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+
+    public async Task UpdateSettings()
+    {
+        try
+        {
+            var settings = ModuleState.Settings;
+            settings = SettingService.SetSetting(settings, "AllowFileManagement", _allowfilemanagement);
+            await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
+        }
+        catch (Exception ex)
+        {
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+}

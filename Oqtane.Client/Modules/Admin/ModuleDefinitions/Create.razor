@@ -1,4 +1,4 @@
-@namespace Oqtane.Modules.Admin.ModuleCreator
+@namespace Oqtane.Modules.Admin.ModuleDefinitions
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IModuleDefinitionService ModuleDefinitionService
@@ -9,7 +9,7 @@
 @using System.Text.RegularExpressions
 @using System.IO;
 
-@if (string.IsNullOrEmpty(_moduledefinitionname) && _systeminfo != null && _templates != null)
+@if (_systeminfo != null && _templates != null)
 {
     <table class="table table-borderless">
         <tr>
@@ -80,14 +80,10 @@
         }
     </table>
     <button type="button" class="btn btn-success" @onclick="CreateModule">@Localizer["Create Module"]</button>
-}
-else
-{
-    <button type="button" class="btn btn-success" @onclick="ActivateModule">@Localizer["Activate Module"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
 }
 
 @code {
-    private string _moduledefinitionname = string.Empty;
     private string _owner = string.Empty;
     private string _module = string.Empty;
     private string _description = string.Empty;
@@ -104,18 +100,9 @@ else
     {
         try
         {
-            _moduledefinitionname = SettingService.GetSetting(ModuleState.Settings, "ModuleDefinitionName", "");
             _systeminfo = await SystemService.GetSystemInfoAsync();
             _templates = await ModuleDefinitionService.GetModuleDefinitionTemplatesAsync();
-
-            if (string.IsNullOrEmpty(_moduledefinitionname))
-            {
-                AddModuleMessage(Localizer["Please Note That The Module Creator Is Only Intended To Be Used In A Development Environment"], MessageType.Info);
-            }
-            else
-            {
-                AddModuleMessage(Localizer["Once You Have Compiled The Module And Restarted The Application You Can Activate The Module Below"], MessageType.Info);
-            }
+            AddModuleMessage(Localizer["Please Note That The Module Creator Is Only Intended To Be Used In A Development Environment"], MessageType.Info);
         }
         catch (Exception ex)
         {
@@ -131,14 +118,8 @@ else
             {
                 var moduleDefinition = new ModuleDefinition { Owner = _owner, Name = _module, Description = _description, Template = _template, Version = _reference };
                 moduleDefinition = await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition);
-
-                var settings = ModuleState.Settings;
-                SettingService.SetSetting(settings, "ModuleDefinitionName", moduleDefinition.ModuleDefinitionName);
-                await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
-
                 GetLocation();
-
-                AddModuleMessage(Localizer["The Source Code For Your Module Has Been Created At The Location Specified Below And Must Be Compiled In Order To Make It Functional. Once It Has Been Compiled You Must <a href=\"{0}\">Restart</a> Your Application To Apply These Changes.", NavigateUrl("admin/system")], MessageType.Success);
+                AddModuleMessage(Localizer["The Source Code For Your Module Has Been Created At The Location Specified Below And Must Be Compiled In Order To Make It Functional. Once It Has Been Compiled You Must <a href=\"{0}\">Restart</a> Your Application To Activate The Module.", NavigateUrl("admin/system")], MessageType.Success);
             }
             else
             {
@@ -148,24 +129,6 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Creating Module");
-        }
-    }
-
-    private async Task ActivateModule()
-    {
-        try
-        {
-            if (!string.IsNullOrEmpty(_moduledefinitionname))
-            {
-                Module module = await ModuleService.GetModuleAsync(ModuleState.ModuleId);
-                module.ModuleDefinitionName = _moduledefinitionname;
-                await ModuleService.UpdateModuleAsync(module);
-                NavigationManager.NavigateTo(NavigateUrl(), true);
-            }
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Activating Module");
         }
     }
 

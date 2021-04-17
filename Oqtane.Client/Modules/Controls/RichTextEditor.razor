@@ -6,21 +6,24 @@
     <div class="col">
         <TabStrip>
             <TabPanel Name="Rich" Heading="Rich Text Editor">
-                @if (_filemanagervisible)
+                @if (AllowFileManagement)
                 {
-                    <FileManager @ref="_fileManager" Filter="@Constants.ImageFiles" />
-                    <ModuleMessage Message="@_message" Type="MessageType.Warning"></ModuleMessage>
-                    <br />
-                }
-                <div class="row justify-content-center" style="margin-bottom: 20px;">
-                    <button type="button" class="btn btn-secondary" @onclick="RefreshRichText">@Localizer["Synchronize Content"]</button>&nbsp;&nbsp;
-                    <button type="button" class="btn btn-primary" @onclick="InsertImage">@Localizer["Insert Image"]</button>
                     @if (_filemanagervisible)
                     {
-                        @((MarkupString)"&nbsp;&nbsp;")
-                <button type="button" class="btn btn-secondary" @onclick="CloseFileManager">@Localizer["Close"]</button>
+                        <FileManager @ref="_fileManager" Filter="@Constants.ImageFiles" />
+                        <ModuleMessage Message="@_message" Type="MessageType.Warning"></ModuleMessage>
+                        <br />
                     }
-                </div>
+                    <div class="row justify-content-center" style="margin-bottom: 20px;">
+                        <button type="button" class="btn btn-secondary" @onclick="RefreshRichText">@Localizer["Synchronize Content"]</button>&nbsp;&nbsp;
+                        <button type="button" class="btn btn-primary" @onclick="InsertImage">@Localizer["Insert Image"]</button>
+                        @if (_filemanagervisible)
+                        {
+                            @((MarkupString)"&nbsp;&nbsp;")
+                            <button type="button" class="btn btn-secondary" @onclick="CloseFileManager">@Localizer["Close"]</button>
+                        }
+                    </div>
+                }
                 <div class="row">
                     <div class="col">
                         <div @ref="@_toolBar">
@@ -106,6 +109,9 @@
 
     [Parameter]
     public string DebugLevel { get; set; } = "info";
+
+    [Parameter]
+    public bool AllowFileManagement { get; set; } = true;
 
     public override List<Resource> Resources => new List<Resource>()
     {

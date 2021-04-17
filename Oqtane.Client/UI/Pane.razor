@@ -124,7 +124,7 @@ else
     private void CreateComponent(RenderTreeBuilder builder, Module module)
     {
         builder.OpenComponent(0, Type.GetType(Constants.ContainerComponent));
-        builder.AddAttribute(1, "Module", module);
+        builder.AddAttribute(1, "ModuleState", module);
         builder.SetKey(module.PageModuleId);
         builder.CloseComponent();
     }

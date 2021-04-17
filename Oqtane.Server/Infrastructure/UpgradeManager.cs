@@ -91,7 +91,14 @@ namespace Oqtane.Infrastructure
                 var internalTemplatePath = Utilities.PathCombine(_environment.WebRootPath, "Modules", "Templates", "Internal", Path.DirectorySeparatorChar.ToString());
                 if (Directory.Exists(internalTemplatePath))
                 {
-                    Directory.Delete(internalTemplatePath, true);
+                    try
+                    {
+                        Directory.Delete(internalTemplatePath, true);
+                    }
+                    catch
+                    {
+                        // error deleting directory
+                    }
                 }
             }
 
