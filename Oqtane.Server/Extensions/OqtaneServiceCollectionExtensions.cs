@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Oqtane.Infrastructure;
@@ -96,9 +95,8 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        internal static IServiceCollection AddOqtaneSingletonServices(this IServiceCollection services, IConfigurationRoot configurationRoot)
+        internal static IServiceCollection AddOqtaneSingletonServices(this IServiceCollection services)
         {
-            services.AddSingleton(configurationRoot);
             services.AddSingleton<IInstallationManager, InstallationManager>();
             services.AddSingleton<ISyncManager, SyncManager>();
             services.AddSingleton<IDatabaseManager, DatabaseManager>();

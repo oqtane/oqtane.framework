@@ -82,7 +82,8 @@ namespace Oqtane
             services.AddTransient<IUserClaimsPrincipalFactory<IdentityUser>, ClaimsPrincipalFactory<IdentityUser>>();
 
             // register singleton scoped core services
-            services.AddOqtaneSingletonServices(Configuration);
+            services.AddSingleton(Configuration)
+                .AddOqtaneSingletonServices();
 
             // install any modules or themes ( this needs to occur BEFORE the assemblies are loaded into the app domain )
             InstallationManager.InstallPackages("Modules,Themes", _env.WebRootPath, _env.ContentRootPath);
