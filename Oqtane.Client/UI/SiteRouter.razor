@@ -384,21 +384,15 @@
                 page.ThemeType = site.DefaultThemeType;
             }
 
-            if (string.IsNullOrEmpty(page.LayoutType))
-            {
-                page.LayoutType = site.DefaultLayoutType;
-            }
-
             page.Panes = new List<string>();
             page.Resources = new List<Resource>();
 
-            string panes = "";
+            string panes = PaneNames.Admin;
             Type themetype = Type.GetType(page.ThemeType);
             if (themetype == null)
             {
                 // fallback
                 page.ThemeType = Constants.DefaultTheme;
-                page.LayoutType = Constants.DefaultLayout;
                 themetype = Type.GetType(Constants.DefaultTheme);
             }
             if (themetype != null)
@@ -406,24 +400,13 @@
                 var themeobject = Activator.CreateInstance(themetype) as IThemeControl;
                 if (themeobject != null)
                 {
-                    panes = themeobject.Panes;
+                    if (!string.IsNullOrEmpty(themeobject.Panes))
+                    {
+                        panes = themeobject.Panes;
+                    }
                     page.Resources = ManagePageResources(page.Resources, themeobject.Resources);
                 }
             }
-
-            if (!string.IsNullOrEmpty(page.LayoutType))
-            {
-                Type layouttype = Type.GetType(page.LayoutType);
-                if (layouttype != null)
-                {
-                    var layoutobject = Activator.CreateInstance(layouttype) as IThemeControl;
-                    if (layoutobject != null)
-                    {
-                        panes = layoutobject.Panes;
-                    }
-                }
-            }
-
             page.Panes = panes.Replace(";", ",").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
         }
         catch

@@ -745,7 +745,6 @@ namespace Oqtane.Repository
                     Url = "",
                     IsNavigation = pagetemplate.IsNavigation,
                     ThemeType = "",
-                    LayoutType = "",
                     DefaultContainerType = "",
                     Icon = pagetemplate.Icon,
                     Permissions = pagetemplate.PagePermissions,

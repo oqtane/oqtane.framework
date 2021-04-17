@@ -1,5 +1,5 @@
 namespace Oqtane.Shared {
     public class PaneNames {
-        public const string Admin = "Content";
+        public const string Admin = "Admin";
     }
 }

@@ -90,7 +90,6 @@ namespace Oqtane.Infrastructure
                         install.HostName = UserNames.Host;
                         install.SiteTemplate = GetInstallationConfig(SettingKeys.SiteTemplateKey, Constants.DefaultSiteTemplate);
                         install.DefaultTheme = GetInstallationConfig(SettingKeys.DefaultThemeKey, Constants.DefaultTheme);
-                        install.DefaultLayout = GetInstallationConfig(SettingKeys.DefaultLayoutKey, Constants.DefaultLayout);
                         install.DefaultContainer = GetInstallationConfig(SettingKeys.DefaultContainerKey, Constants.DefaultContainer);
                         install.SiteName = Constants.DefaultSite;
                         install.IsNewTenant = true;
@@ -122,10 +121,6 @@ namespace Oqtane.Infrastructure
                     if (string.IsNullOrEmpty(install.DefaultTheme))
                     {
                         install.DefaultTheme = GetInstallationConfig(SettingKeys.DefaultThemeKey, Constants.DefaultTheme);
-                        if (string.IsNullOrEmpty(install.DefaultLayout))
-                        {
-                            install.DefaultLayout = GetInstallationConfig(SettingKeys.DefaultLayoutKey, Constants.DefaultLayout);
-                        }
                     }
                     if (string.IsNullOrEmpty(install.DefaultContainer))
                     {
@@ -438,7 +433,6 @@ namespace Oqtane.Infrastructure
                             Name = install.SiteName,
                             LogoFileId = null,
                             DefaultThemeType = install.DefaultTheme,
-                            DefaultLayoutType = install.DefaultLayout,
                             DefaultContainerType = install.DefaultContainer,
                             SiteTemplateType = install.SiteTemplate
                         };

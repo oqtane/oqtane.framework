@@ -8,7 +8,7 @@
 @inject IStringLocalizer<Settings> Localizer
 
 <TabStrip>
-    <TabPanel Name="Settings" Heading="Module Settings" ResourceKey="ModuleSettings">
+    <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings">
         @if (_containers != null)
         {
             <table class="table table-borderless">
@@ -26,7 +26,6 @@
                     </td>
                     <td>
                         <select id="container" class="form-control" @bind="@_containerType">
-                            <option value="-">&lt;@Localizer["Inherit From Page Or Site"]&gt;</option>
                             @foreach (var container in _containers)
                             {
                                 <option value="@container.TypeName">@container.Name</option>
@@ -47,7 +46,7 @@
                 </tr>
                 <tr>
                     <td>
-                        <Label For="page" HelpText="The page that the module is on" ResourceKey="Page">Page: </Label>
+                        <Label For="page" HelpText="The page that the module is located on" ResourceKey="Page">Page: </Label>
                     </td>
                     <td>
                         <select id="page" class="form-control" @bind="@_pageId">
@@ -76,10 +75,16 @@
             </table>
         }
     </TabPanel>
-    @if (_settingsModuleType != null)
+    @if (_moduleSettingsType != null)
     {
-        <TabPanel Name="ModuleSettings" Heading="@_settingstitle" ResourceKey="Module Settings">
-            @DynamicComponent
+        <TabPanel Name="ModuleSettings" Heading="@_moduleSettingsTitle" ResourceKey="ModuleSettings">
+            @ModuleSettingsComponent
+        </TabPanel>
+    }
+    @if (_containerSettingsType != null)
+    {
+        <TabPanel Name="ContainerSettings" Heading="Container Settings" ResourceKey="ContainerSettings">
+            @ContainerSettingsComponent
         </TabPanel>
     }
 </TabStrip>
@@ -87,6 +92,10 @@
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
 
 @code {
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
+    public override string Title => "Module Settings";
+
+    private List<Theme> _themes;
     private List<ThemeControl> _containers = new List<ThemeControl>();
     private string _title;
     private string _containerType;
@@ -95,50 +104,65 @@
     private string _permissions = null;
     private string _pageId;
     private PermissionGrid _permissionGrid;
-    private Type _settingsModuleType;
-    private string _settingstitle = "Other Settings";
-    private object _settings;
-
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
-    public override string Title => "Module Settings";
-
-    private RenderFragment DynamicComponent { get; set; }
+    private Type _moduleSettingsType;
+    private object _moduleSettings;
+    private string _moduleSettingsTitle = "Module Settings";
+    private RenderFragment ModuleSettingsComponent { get; set; }
+    private Type _containerSettingsType;
+    private object _containerSettings;
+    private RenderFragment ContainerSettingsComponent { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         _title = ModuleState.Title;
-        _containers = ThemeService.GetContainerControls(await ThemeService.GetThemesAsync(), PageState.Page.ThemeType);
+        _themes = await ThemeService.GetThemesAsync();
+        _containers = ThemeService.GetContainerControls(_themes, PageState.Page.ThemeType);
         _containerType = ModuleState.ContainerType;
-        if (!string.IsNullOrEmpty(PageState.Page.DefaultContainerType) && _containerType == PageState.Page.DefaultContainerType)
-        {
-            _containerType = "-";
-        }
-        if (_containerType == PageState.Site.DefaultContainerType)
-        {
-            _containerType = "-";
-        }
         _allPages = ModuleState.AllPages.ToString();
         _permissions = ModuleState.Permissions;
         _permissionNames = ModuleState.ModuleDefinition.PermissionNames;
         _pageId = ModuleState.PageId.ToString();
 
-        _settingsModuleType = Type.GetType(ModuleState.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, PageState.Action), false, true);
-        if (_settingsModuleType != null)
+        if (!string.IsNullOrEmpty(ModuleState.ModuleDefinition.SettingsType))
         {
-            var moduleobject = Activator.CreateInstance(_settingsModuleType) as IModuleControl;
-            _settingstitle = moduleobject.Title;
-            if (string.IsNullOrEmpty(_settingstitle))
+            // module settings type explicitly declared in IModule interface
+            _moduleSettingsType = Type.GetType(ModuleState.ModuleDefinition.SettingsType);
+        }
+        else
+        {
+            // legacy support - module settings type determined by convention ( ie. existence of a "Settings.razor" component in module )
+            _moduleSettingsType = Type.GetType(ModuleState.ModuleDefinition.ControlTypeTemplate.Replace(Constants.ActionToken, PageState.Action), false, true);
+        }
+        if (_moduleSettingsType != null)
+        {
+            var moduleobject = Activator.CreateInstance(_moduleSettingsType) as IModuleControl;
+            if (!string.IsNullOrEmpty(moduleobject.Title))
             {
-                _settingstitle = "Other Settings";
+                _moduleSettingsTitle = moduleobject.Title;
             }
 
-            DynamicComponent = builder =>
+            ModuleSettingsComponent = builder =>
             {
-                builder.OpenComponent(0, _settingsModuleType);
-                builder.AddComponentReferenceCapture(1, inst => { _settings = Convert.ChangeType(inst, _settingsModuleType); });
+                builder.OpenComponent(0, _moduleSettingsType);
+                builder.AddComponentReferenceCapture(1, inst => { _moduleSettings = Convert.ChangeType(inst, _moduleSettingsType); });
                 builder.CloseComponent();
             };
-       }
+        }
+
+        var theme = _themes.FirstOrDefault(item => item.Containers.Any(themecontrol => themecontrol.TypeName.Equals(_containerType)));
+        if (theme != null && !string.IsNullOrEmpty(theme.ContainerSettingsType))
+        {
+            _containerSettingsType = Type.GetType(theme.ContainerSettingsType);
+            if (_containerSettingsType != null)
+            {
+                ContainerSettingsComponent = builder =>
+                {
+                    builder.OpenComponent(0, _containerSettingsType);
+                    builder.AddComponentReferenceCapture(1, inst => { _containerSettings = Convert.ChangeType(inst, _containerSettingsType); });
+                    builder.CloseComponent();
+                };
+            }
+        }
     }
 
     private async Task SaveModule()
@@ -163,16 +187,25 @@
         module.Permissions = _permissionGrid.GetPermissions();
         await ModuleService.UpdateModuleAsync(module);
 
-        
-        if (_settings is ISettingsControl control)
+        if (_moduleSettingsType != null)
         {
-             await control.UpdateSettings();
+            if (_moduleSettings is ISettingsControl moduleSettingsControl)
+            {
+                // module settings updated using explicit interface
+                await moduleSettingsControl.UpdateSettings();
+            }
+            else
+            {
+                // legacy support - module settings updated by convention ( ie. by calling a public method named "UpdateSettings" in settings component )
+                _moduleSettings?.GetType().GetMethod("UpdateSettings")?.Invoke(_moduleSettings, null);
+            }
         }
-        else
+
+        if (_containerSettingsType != null && _containerSettings is ISettingsControl containerSettingsControl)
         {
-            // Compatibility 2.0 fallback
-            _settings?.GetType().GetMethod("UpdateSettings")?.Invoke(_settings, null); // method must be public in settings component
+            await containerSettingsControl.UpdateSettings();
         }
+
         NavigationManager.NavigateTo(NavigateUrl());
     }
 

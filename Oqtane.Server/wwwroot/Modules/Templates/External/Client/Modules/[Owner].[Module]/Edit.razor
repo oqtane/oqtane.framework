@@ -74,7 +74,7 @@
     {
         try
         {
-            if (string.IsNullOrEmpty(_name))
+            if (!string.IsNullOrEmpty(_name))
             {
                 if (PageState.Action == "Add")
                 {

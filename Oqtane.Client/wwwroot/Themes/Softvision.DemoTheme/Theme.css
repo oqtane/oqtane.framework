@@ -47,14 +47,7 @@ body {
 }
 
 div.app-moduleactions a.dropdown-toggle, div.app-moduleactions div.dropdown-menu {
-    color:#ffffff;
-}
-
-.footer {
-    padding-top: 15px;
-    min-height: 40px;
-    text-align: center;
-    color: #ffffff;
+    color:#000000;
 }
 
 @media (max-width: 767px) {

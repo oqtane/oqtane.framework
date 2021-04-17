@@ -41,7 +41,6 @@ namespace Oqtane
             Configuration = builder.Build();
 
             _supportedCultures = localizationManager.GetSupportedCultures();
-
             _runtime = (Configuration.GetSection("Runtime").Value == "WebAssembly") ? Runtime.WebAssembly : Runtime.Server;
 
             //add possibility to switch off swagger on production.

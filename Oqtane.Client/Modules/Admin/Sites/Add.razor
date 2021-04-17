@@ -47,23 +47,6 @@ else
             </select>
         </td>
     </tr>
-    @if (_layouts.Count > 0)
-    {
-        <tr>
-            <td>
-                <Label For="defaultLayout" HelpText="Select the default layout for the site" ResourceKey="DefaultLayout">Default Layout: </Label>
-            </td>
-            <td>
-                <select id="defaultLayout" class="form-control" @bind="@_layouttype">
-                    <option value="-">&lt;@Localizer["Select Layout"]&gt;</option>
-                    @foreach (var layout in _layouts)
-                    {
-                        <option value="@(layout.TypeName)">@(layout.Name)</option>
-                    }
-                </select>
-            </td>
-        </tr>
-    }
     <tr>
         <td>
             <Label For="defaultContainer" HelpText="Select the default container for the site" ResourceKey="DefaultContainer">Default Container: </Label>
@@ -219,7 +202,6 @@ else
 @code {
     private List<Theme> _themeList;
     private List<ThemeControl> _themes = new List<ThemeControl>();
-    private List<ThemeControl> _layouts = new List<ThemeControl>();
     private List<ThemeControl> _containers = new List<ThemeControl>();
     private List<SiteTemplate> _siteTemplates;
     private List<Tenant> _tenants;
@@ -238,7 +220,6 @@ else
     private string _name = string.Empty;
     private string _urls = string.Empty;
     private string _themetype = "-";
-    private string _layouttype = "-";
     private string _containertype = "-";
     private string _admincontainertype = "";
     private string _sitetemplatetype = "-";
@@ -284,29 +265,26 @@ else
             _themetype = (string)e.Value;
             if (_themetype != "-")
             {
-                _layouts = ThemeService.GetLayoutControls(_themeList, _themetype);
                 _containers = ThemeService.GetContainerControls(_themeList, _themetype);
             }
             else
             {
-                _layouts = new List<ThemeControl>();
                 _containers = new List<ThemeControl>();
             }
-            _layouttype = "-";
             _containertype = "-";
             _admincontainertype = "";
             StateHasChanged();
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", _themetype, ex.Message);
-            AddModuleMessage(Localizer["Error Loading Pane Layouts For Theme"], MessageType.Error);
+            await logger.LogError(ex, "Error Loading Containers For Theme {ThemeType} {Error}", _themetype, ex.Message);
+            AddModuleMessage(Localizer["Error Loading Containers For Theme"], MessageType.Error);
         }
     }
 
     private async Task SaveSite()
     {
-        if (_tenantid != "-" && _name != string.Empty && _urls != string.Empty && _themetype != "-" && (_layouts.Count == 0 || _layouttype != "-") && _containertype != "-" && _sitetemplatetype != "-")
+        if (_tenantid != "-" && _name != string.Empty && _urls != string.Empty && _themetype != "-" && _containertype != "-" && _sitetemplatetype != "-")
         {
             var duplicates = new List<string>();
             var aliases = await AliasService.GetAliasesAsync();
@@ -393,7 +371,6 @@ else
                     config.SiteName = _name;
                     config.Aliases = _urls.Replace("\n", ",");
                     config.DefaultTheme = _themetype;
-                    config.DefaultLayout = _layouttype;
                     config.DefaultContainer = _containertype;
                     config.DefaultAdminContainer = _admincontainertype;
                     config.SiteTemplate = _sitetemplatetype;
@@ -421,7 +398,7 @@ else
         }
         else
         {
-            AddModuleMessage(Localizer["You Must Provide A Tenant, Site Name, Alias, Default Theme/Layout/Container, And Site Template"], MessageType.Warning);
+            AddModuleMessage(Localizer["You Must Provide A Tenant, Site Name, Alias, Default Theme/Container, And Site Template"], MessageType.Warning);
         }
     }
 }
