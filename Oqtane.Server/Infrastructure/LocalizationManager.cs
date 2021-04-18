@@ -1,5 +1,8 @@
-using System.Collections.Generic;
+using System;
+using System.Collections;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Options;
 using Oqtane.Shared;
@@ -19,28 +22,32 @@ namespace Oqtane.Infrastructure
         }
 
         public string GetDefaultCulture()
-            => string.IsNullOrEmpty(_localizationOptions.DefaultCulture)
+            => String.IsNullOrEmpty(_localizationOptions.DefaultCulture)
                 ? DefaultCulture
                 : _localizationOptions.DefaultCulture;
 
         public string[] GetSupportedCultures()
-        { 
-            List<string> cultures = new List<string>();
-            foreach(var file in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "*.resources.dll", SearchOption.AllDirectories))
-            {
-                if (!cultures.Contains(Path.GetFileName(Path.GetDirectoryName(file))))
-                {
-                    cultures.Add(Path.GetFileName(Path.GetDirectoryName(file)));
-                }
-            }
-            if (cultures.Count == 0)
+        {
+            var supportedCultures = GetCulturesNamesFromSatelliteAssemblies();
+            if (supportedCultures.IsNullOrEmpty())
             {
                 return SupportedCultures;
             }
             else
             {
-                return cultures.ToArray();
+                return supportedCultures;
             }
+        }
+
+        private static string[] GetCulturesNamesFromSatelliteAssemblies()
+        {
+            var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            var cultures = CultureInfo.GetCultures(CultureTypes.AllCultures);
+
+            return cultures
+                .Where(c => !c.Equals(CultureInfo.InvariantCulture) && Directory.Exists(Path.Combine(assemblyPath, c.Name)))
+                .Select(c => c.Name)
+                .ToArray();
         }
     }
 }
