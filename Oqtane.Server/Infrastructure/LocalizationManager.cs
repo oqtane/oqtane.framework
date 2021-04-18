@@ -26,12 +26,9 @@ namespace Oqtane.Infrastructure
         public string[] GetSupportedCultures()
         { 
             List<string> cultures = new List<string>();
-            foreach(var file in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "*.resources.dll", SearchOption.AllDirectories))
+            foreach(var file in Directory.EnumerateFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Oqtane.Client.resources.dll", SearchOption.AllDirectories))
             {
-                if (!cultures.Contains(Path.GetFileName(Path.GetDirectoryName(file))))
-                {
-                    cultures.Add(Path.GetFileName(Path.GetDirectoryName(file)));
-                }
+                cultures.Add(Path.GetFileName(Path.GetDirectoryName(file)));
             }
             if (cultures.Count == 0)
             {
