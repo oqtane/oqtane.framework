@@ -38,6 +38,8 @@ namespace Oqtane.Themes.Controls
                 // server-side Blazor
                 var interop = new Interop(jsRuntime);
                 string antiforgerytoken = await interop.GetElementByName("__RequestVerificationToken");
+
+                // If not authorized to view page then route to home
                 var fields = new { __RequestVerificationToken = antiforgerytoken, returnurl = !authorizedtoviewpage ? PageState.Alias.Path : PageState.Alias.Path + "/" + PageState.Page.Path };
                 await interop.SubmitForm($"/{PageState.Alias.AliasId}/pages/logout/", fields);
             }
@@ -46,6 +48,8 @@ namespace Oqtane.Themes.Controls
                 // client-side Blazor
                 var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
                 authstateprovider.NotifyAuthenticationChanged();
+
+                // If not authorized to view page then route to home
                 NavigationManager.NavigateTo(NavigateUrl(!authorizedtoviewpage ? PageState.Alias.Path : PageState.Page.Path, "reload"));
             }
         }
