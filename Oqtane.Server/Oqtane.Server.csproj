@@ -74,13 +74,15 @@
     <UpgradeFiles Include="$(ProjectDir)bin\Release\net5.0\Oqtane.Upgrade.dll" />
     <UpgradeFiles Include="$(ProjectDir)bin\Release\net5.0\Oqtane.Upgrade.pdb" />
     <UpgradeFiles Include="$(ProjectDir)bin\Release\net5.0\Oqtane.Upgrade.runtimeconfig.json" />
-    <TemplateFiles Include="$(ProjectDir)wwwroot\Modules\Templates\**\*.*" />
+    <ModuleTemplateFiles Include="$(ProjectDir)wwwroot\Modules\Templates\**\*.*" />
+    <ThemeTemplateFiles Include="$(ProjectDir)wwwroot\Themes\Templates\**\*.*" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="bin\**" />
   </ItemGroup>
   <Target Name="AddPayloadsFolder" AfterTargets="Publish">
     <Copy SourceFiles="@(UpgradeFiles)" DestinationFiles="@(UpgradeFiles->'$(PublishDir)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false" />
-    <Copy SourceFiles="@(TemplateFiles)" DestinationFiles="@(TemplateFiles->'$(PublishDir)wwwroot\Modules\Templates\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false" />
+    <Copy SourceFiles="@(ModuleTemplateFiles)" DestinationFiles="@(ModuleTemplateFiles->'$(PublishDir)wwwroot\Modules\Templates\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false" />
+    <Copy SourceFiles="@(ThemeTemplateFiles)" DestinationFiles="@(ThemeTemplateFiles->'$(PublishDir)wwwroot\Themes\Templates\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false" />
   </Target>
 </Project>
