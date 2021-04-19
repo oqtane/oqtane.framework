@@ -9,7 +9,7 @@
 @using System.Text.RegularExpressions
 @using System.IO;
 
-@if (string.IsNullOrEmpty(_moduledefinitionname))
+@if (string.IsNullOrEmpty(_moduledefinitionname) && _systeminfo != null && _templates != null)
 {
     <table class="table table-borderless">
         <tr>
@@ -38,13 +38,15 @@
         </tr>
         <tr>
             <td>
-                <Label For="template" HelpText="Select a module template. Internal modules are created inside of the framework solution. External modules are created outside of the framework solution." ResourceKey="Template">Template: </Label>
+                <Label For="template" HelpText="Select a module template. Templates are located in the wwwroot/Modules/Templates folder on the server." ResourceKey="Template">Template: </Label>
             </td>
             <td>
                 <select id="template" class="form-control" @onchange="(e => TemplateChanged(e))">
                     <option value="-">&lt;@Localizer["Select Template"]&gt;</option>
-                    <option value="internal">@Localizer["Internal"]</option>
-                    <option value="external">@Localizer["External"]</option>
+                    @foreach (string template in _templates)
+                    {
+                        <option value="@template">@template</option>
+                    }
                 </select>
             </td>
         </tr>
@@ -90,9 +92,11 @@ else
     private string _module = string.Empty;
     private string _description = string.Empty;
     private string _template = "-";
-    public string _reference = Constants.Version;
+    private string _reference = Constants.Version;
     private string _location = string.Empty;
+
     private Dictionary<string, string> _systeminfo;
+    private List<string> _templates;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
@@ -102,12 +106,11 @@ else
         {
             _moduledefinitionname = SettingService.GetSetting(ModuleState.Settings, "ModuleDefinitionName", "");
             _systeminfo = await SystemService.GetSystemInfoAsync();
+            _templates = await ModuleDefinitionService.GetModuleDefinitionTemplatesAsync();
 
             if (string.IsNullOrEmpty(_moduledefinitionname))
             {
-                _owner = ModuleState.Title;
-                _module = ModuleState.Title;
-                _description = ModuleState.Title;
+                AddModuleMessage(Localizer["Please Note That The Module Creator Is Only Intended To Be Used In A Development Environment"], MessageType.Info);
             }
             else
             {
@@ -185,18 +188,8 @@ else
         if (_template != "-" && _systeminfo != null && _systeminfo.ContainsKey("serverpath"))
         {
             string[] path = _systeminfo["serverpath"].Split(Path.DirectorySeparatorChar);
-            if (_template == "internal")
-            {
-                _location = string.Join(Path.DirectorySeparatorChar, path, 0, path.Length - 1) +
-                    Path.DirectorySeparatorChar + "Oqtane.Client" +
-                    Path.DirectorySeparatorChar + "Modules" +
-                    Path.DirectorySeparatorChar + _owner + "." + _module;
-            }
-            else
-            {
-                _location = string.Join(Path.DirectorySeparatorChar, path, 0, path.Length - 2) +
-                    Path.DirectorySeparatorChar + _owner + "." + _module;
-            }
+            _location = string.Join(Path.DirectorySeparatorChar, path, 0, path.Length - 2) +
+                Path.DirectorySeparatorChar + _owner + "." + _module;
         }
         StateHasChanged();
     }

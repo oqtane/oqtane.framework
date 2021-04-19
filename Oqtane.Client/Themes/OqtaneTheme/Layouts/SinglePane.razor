@@ -1,0 +1,16 @@
+@namespace Oqtane.Themes.OqtaneTheme
+@inherits LayoutBase
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <Pane Name="Content" />
+        </div>
+    </div>
+</div>
+
+@code {
+    public override string Name => "Single Pane";
+
+    public override string Panes => "Content";
+}

@@ -37,26 +37,29 @@ namespace Oqtane.Infrastructure
             _cache = cache;
         }
 
-        public bool IsInstalled()
+        public Installation IsInstalled()
         {
-            var defaultConnectionString = NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey));
-            var result = !string.IsNullOrEmpty(defaultConnectionString);
-            if (result)
+            var result = new Installation { Success = false, Message = string.Empty };
+            if (!string.IsNullOrEmpty(_config.GetConnectionString(SettingKeys.ConnectionStringKey)))
             {
+                result.Success = true;
                 using (var scope = _serviceScopeFactory.CreateScope())
                 {
                     var db = scope.ServiceProvider.GetRequiredService<MasterDBContext>();
-                    result = db.Database.CanConnect();
-                    if (result)
+                    if (db.Database.CanConnect())
                     {
                         try
                         {
-                            result = db.Tenant.Any();
+                            var provisioned = db.Tenant.Any();
                         }
                         catch
                         {
-                            result = false;
+                            result.Message = "Master Database Not Installed Correctly";
                         }
+                    }
+                    else
+                    {
+                        result.Message = "Cannot Connect To Master Database";
                     }
                 }
             }
@@ -84,7 +87,8 @@ namespace Oqtane.Infrastructure
                     IsNewTenant = false
                 };
 
-                if (!IsInstalled())
+                var installation = IsInstalled();
+                if (!installation.Success)
                 {
                     install.Aliases = GetInstallationConfig(SettingKeys.DefaultAliasKey, string.Empty);
                     install.HostPassword = GetInstallationConfig(SettingKeys.HostPasswordKey, string.Empty);
@@ -104,6 +108,14 @@ namespace Oqtane.Infrastructure
                     else
                     {
                         // silent installation is missing required information
+                        install.ConnectionString = "";
+                    }
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(installation.Message))
+                    {
+                        // problem with prior installation
                         install.ConnectionString = "";
                     }
                 }

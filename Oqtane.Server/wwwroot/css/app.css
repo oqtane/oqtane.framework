@@ -1,4 +1,4 @@
-﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -90,6 +90,17 @@ app {
     color: gray;
 }
 
+.app-moduleactions .dropdown-submenu {
+    position: relative;
+}
+
+    .app-moduleactions .dropdown-submenu > .dropdown-menu {
+        top: 0;
+        left: 100%;
+        margin-top: 0px;
+        margin-left: 0px;
+    }
+
 .app-progress-indicator {
     background: rgba(0,0,0,0.2) url('../loading.gif') no-repeat 50% 50%;
     width: 100%;
@@ -123,6 +134,13 @@ app {
     box-shadow: inherit;
     padding: inherit;
     vertical-align: inherit;
+}
+
+.app-alert {
+    padding: 20px;
+    background-color: #f44336; /* red */
+    color: white;
+    margin-bottom: 15px;
 }
 
 /* Tooltips */

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -76,7 +76,7 @@ namespace Oqtane.Themes.Controls
                 {
                     if (pane != ModuleState.Pane)
                     {
-                        actionList.Add(new ActionViewModel {Icon = Icons.AccountLogin, Name = "Move To " + pane + " Pane", Action = async (s, m) => await MoveToPane(s, pane, m)});
+                        actionList.Add(new ActionViewModel {Icon = Icons.AccountLogin, Name = pane + " Pane", Action = async (s, m) => await MoveToPane(s, pane, m)});
                     }
                 }
             }

@@ -1,11 +1,21 @@
 @namespace Oqtane.UI
 
 <CascadingValue Value="@_moduleState" IsFixed="true">
-    @DynamicComponent
+    @if (_useadminborder)
+    {
+        <div class="app-pane-admin-border">
+            @DynamicComponent
+        </div>
+    }
+    else
+    {
+        @DynamicComponent
+    }
 </CascadingValue>
 
 @code {
     private Module _moduleState;
+    private bool _useadminborder = false;
 
     [CascadingParameter]
     protected PageState PageState { get; set; }
@@ -22,6 +32,15 @@
         if (PageState.ModuleId != -1 && _moduleState.UseAdminContainer)
         {
             container = (!string.IsNullOrEmpty(PageState.Site.AdminContainerType)) ? PageState.Site.AdminContainerType : Constants.DefaultAdminContainer;
+        }
+
+        if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions) && PageState.Action == Constants.DefaultAction)
+        {
+            _useadminborder = true;
+        }
+        else
+        {
+            _useadminborder = false;
         }
 
         DynamicComponent = builder =>

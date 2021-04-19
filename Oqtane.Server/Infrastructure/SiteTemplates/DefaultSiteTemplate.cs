@@ -48,7 +48,7 @@ namespace Oqtane.SiteTemplates
                     new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                 }.EncodePermissions() ,
                 PageTemplateModules = new List<PageTemplateModule> {
-                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Welcome To Oqtane...", Pane = "Content", 
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Welcome To Oqtane...", Pane = PaneNames.Admin, 
                         ModulePermissions = new List<Permission> {
                             new Permission(PermissionNames.View, RoleNames.Everyone, true),
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -70,7 +70,7 @@ namespace Oqtane.SiteTemplates
                         "<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>" +
                         "<p>THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>"
                     },
-                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Secure Content", Pane = "Content",
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Secure Content", Pane = PaneNames.Admin,
                         ModulePermissions = new List<Permission> {
                             new Permission(PermissionNames.View, RoleNames.Registered, true),
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -94,7 +94,7 @@ namespace Oqtane.SiteTemplates
                     new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                 }.EncodePermissions(),
                 PageTemplateModules = new List<PageTemplateModule> {
-                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Secure Content", Pane = "Content",
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Secure Content", Pane = PaneNames.Admin,
                         ModulePermissions = new List<Permission> {
                             new Permission(PermissionNames.View, RoleNames.Registered, true),
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -118,7 +118,7 @@ namespace Oqtane.SiteTemplates
                     new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                 }.EncodePermissions(),
                 PageTemplateModules = new List<PageTemplateModule> {
-                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "My Page", Pane = "Content",
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "My Page", Pane = PaneNames.Admin,
                         ModulePermissions = new List<Permission> {
                             new Permission(PermissionNames.View, RoleNames.Everyone, true),
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
