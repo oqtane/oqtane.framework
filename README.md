@@ -53,6 +53,9 @@ V.2.1.0 ( Q1 2021 )
 - [ ] Cross Platform Database Support ( ie. SQLite ) - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
 - [ ] EF Core Migrations for Database Installation/Upgrade - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
 
+V.2.0.2 ( Apr 19, 2021 )
+- [x] Assorted fixes and user experience improvements
+
 V.2.0.1 ( Feb 27, 2021 )
 - [x] Complete Static Localization of Admin UI
 
