@@ -295,7 +295,7 @@ else
 
     private async Task SaveSite()
     {
-        if (_tenantId != "-" && _name != string.Empty && _urls != string.Empty && _themetype != "-" && (_layouts.Count == 0 || _layouttype != "-") && _containertype != "-" && _sitetemplatetype != "-")
+        if (_tenantId != "-" && _name != string.Empty && _urls != string.Empty && _themetype != "-" && _containertype != "-" && _sitetemplatetype != "-")
         {
             var duplicates = new List<string>();
             var aliases = await AliasService.GetAliasesAsync();
