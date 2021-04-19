@@ -39,6 +39,7 @@ namespace Oqtane.Pages
 
         public string HeadResources = "";
         public string BodyResources = "";
+        public string Message = "";
 
         public void OnGet()
         {
@@ -54,20 +55,28 @@ namespace Oqtane.Pages
             if (HttpContext.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName] == null && !string.IsNullOrEmpty(_configuration.GetConnectionString("DefaultConnection")))
             {
                 var uri = new Uri(Request.GetDisplayUrl());
-                var alias = _aliases.GetAlias(uri.Authority + "/" + uri.LocalPath.Substring(1));
-                _state.Alias = alias;
-
-                // set default language for site if the culture is not supported
-                var languages = _languages.GetLanguages(alias.SiteId);
-                if (languages.Any() && languages.All(l => l.Code != CultureInfo.CurrentUICulture.Name))
+                var hostname = uri.Authority + "/" + uri.LocalPath.Substring(1);
+                var alias = _aliases.GetAlias(hostname);
+                if (alias != null)
                 {
-                    var defaultLanguage = languages.Where(l => l.IsDefault).SingleOrDefault() ?? languages.First();
+                    _state.Alias = alias;
 
-                    SetLocalizationCookie(defaultLanguage.Code);
+                    // set default language for site if the culture is not supported
+                    var languages = _languages.GetLanguages(alias.SiteId);
+                    if (languages.Any() && languages.All(l => l.Code != CultureInfo.CurrentUICulture.Name))
+                    {
+                        var defaultLanguage = languages.Where(l => l.IsDefault).SingleOrDefault() ?? languages.First();
+
+                        SetLocalizationCookie(defaultLanguage.Code);
+                    }
+                    else
+                    {
+                        SetLocalizationCookie(_localizationManager.GetDefaultCulture());
+                    }
                 }
                 else
                 {
-                    SetLocalizationCookie(_localizationManager.GetDefaultCulture());
+                    Message = $"No Matching Alias For Host Name {hostname}";
                 }
             }
         }

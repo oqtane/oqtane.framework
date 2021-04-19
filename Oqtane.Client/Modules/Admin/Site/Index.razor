@@ -7,146 +7,126 @@
 @inject IThemeService  ThemeService
 @inject ISettingService  SettingService
 @inject IStringLocalizer<Index> Localizer
+@inject INotificationService NotificationService
 
 @if (_initialized)
 {
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <Label For="name" HelpText="Enter the site name" ResourceKey="Name">Name: </Label>
-        </td>
-        <td>
-            <input id="name" class="form-control" @bind="@_name" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="tenant" HelpText="Enter the tenant for the site" ResourceKey="Tenant">Tenant: </Label>
-        </td>
-        <td>
-            <input id="tenant" class="form-control" @bind="@_tenant" readonly />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="alias" HelpText="Enter the alias for the server" ResourceKey="Aliases">Aliases: </Label>
-        </td>
-        <td>
-            <textarea id="alias" class="form-control" @bind="@_urls" rows="3"></textarea>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="logo" HelpText="Upload a logo for the site" ResourceKey="Logo">Logo: </Label>
-        </td>
-        <td>
-            <FileManager FileId="@_logofileid" Filter="@Constants.ImageFiles" @ref="_logofilemanager" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="favicon" HelpText="Select Your default icon" ResourceKey="FavoriteIcon">Favicon: </Label>
-        </td>
-        <td>
-            <FileManager FileId="@_faviconfileid" Filter="ico" @ref="_faviconfilemanager" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="defaultTheme" HelpText="Select the sites default theme" ResourceKey="DefaultTheme">Default Theme: </Label>
-        </td>
-        <td>
-            <select id="defaultTheme" class="form-control" @onchange="(e => ThemeChanged(e))">
-                <option value="-">&lt;@Localizer["Select Theme"]&gt;</option>
-                @foreach (var theme in _themes)
-                {
-                    if (theme.TypeName == _themetype)
-                    {
-                        <option value="@theme.TypeName" selected>@theme.Name</option>
-                    }
-                    else
-                    {
-                        <option value="@theme.TypeName">@theme.Name</option>
-                    }
-                }
-            </select>
-        </td>
-    </tr>
-    @if (_layouts.Count > 0)
-    {
+    <table class="table table-borderless">
         <tr>
             <td>
-                <Label For="defaultLayout" HelpText="Select the sites default layout" ResourceKey="DefaultLayout">Default Layout: </Label>
+                <Label For="name" HelpText="Enter the site name" ResourceKey="Name">Name: </Label>
             </td>
             <td>
-                <select id="defaultLayout" class="form-control" @bind="@_layouttype">
-                    <option value="-">&lt;@Localizer["Select Layout"]&gt;</option>
-                    @foreach (var layout in _layouts)
+                <input id="name" class="form-control" @bind="@_name" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="tenant" HelpText="Enter the tenant for the site" ResourceKey="Tenant">Tenant: </Label>
+            </td>
+            <td>
+                <input id="tenant" class="form-control" @bind="@_tenant" readonly />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="alias" HelpText="Enter the alias for the server" ResourceKey="Aliases">Aliases: </Label>
+            </td>
+            <td>
+                <textarea id="alias" class="form-control" @bind="@_urls" rows="3"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="allowRegister" HelpText="Do you want the users to be able to register for an account on the site" ResourceKey="AllowRegistration">Allow User Registration? </Label>
+            </td>
+            <td>
+                <select id="allowRegister" class="form-control" @bind="@_allowregistration">
+                    <option value="True">@Localizer["Yes"]</option>
+                    <option value="False">@Localizer["No"]</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="isDeleted" HelpText="Is this site deleted?" ResourceKey="IsDeleted">Is Deleted? </Label>
+            </td>
+            <td>
+                <select id="isDeleted" class="form-control" @bind="@_isdeleted">
+                    <option value="True">@Localizer["Yes"]</option>
+                    <option value="False">@Localizer["No"]</option>
+                </select>
+            </td>
+        </tr>
+    </table>
+    <Section Name="Appearance" Heading="Appearance" ResourceKey="Appearance">
+    <table class="table table-borderless">
+        <tr>
+            <td>
+                <Label For="logo" HelpText="Specify a logo for the site" ResourceKey="Logo">Logo: </Label>
+            </td>
+            <td>
+                <FileManager FileId="@_logofileid" Filter="@Constants.ImageFiles" @ref="_logofilemanager" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="favicon" HelpText="Specify a Favicon" ResourceKey="FavoriteIcon">Favicon: </Label>
+            </td>
+            <td>
+                <FileManager FileId="@_faviconfileid" Filter="ico" @ref="_faviconfilemanager" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="defaultTheme" HelpText="Select the sites default theme" ResourceKey="DefaultTheme">Default Theme: </Label>
+            </td>
+            <td>
+                <select id="defaultTheme" class="form-control" value="@_themetype" @onchange="(e => ThemeChanged(e))">
+                    <option value="-">&lt;@Localizer["Select Theme"]&gt;</option>
+                    @foreach (var theme in _themes)
                     {
-                        <option value="@(layout.TypeName)">@(layout.Name)</option>
+                        <option value="@theme.TypeName">@theme.Name</option>
                     }
                 </select>
             </td>
         </tr>
-    }
-    <tr>
-        <td>
-            <Label For="defaultContainer" HelpText="Select the default container for the site" ResourceKey="DefaultContainer">Default Container: </Label>
-        </td>
-        <td>
-            <select id="defaultContainer" class="form-control" @bind="@_containertype">
-                <option value="-">&lt;@Localizer["Select Container"]&gt;</option>
-                @foreach (var container in _containers)
-                {
-                    <option value="@container.TypeName">@container.Name</option>
-                }
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="defaultAdminContainer" HelpText="Select the default admin container for the site" ResourceKey="DefaultAdminContainer">Default Admin Container: </Label>
-        </td>
-        <td>
-            <select id="defaultAdminContainer" class="form-control" @bind="@_admincontainertype">
-                <option value="-">&lt;@Localizer["Select Container"]&gt;</option>
-                <option value="">&lt;@Localizer["Default Admin Container"]&gt;</option>
-                @foreach (var container in _containers)
-                {
-                    <option value="@container.TypeName">@container.Name</option>
-                }
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="allowRegister" HelpText="Do you want the users to be able to register for an account on the site" ResourceKey="AllowRegistration">Allow User Registration? </Label>
-        </td>
-        <td>
-            <select id="allowRegister" class="form-control" @bind="@_allowregistration">
-                <option value="True">@Localizer["Yes"]</option>
-                <option value="False">@Localizer["No"]</option>
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="isDeleted" HelpText="Is this site deleted?" ResourceKey="IsDeleted">Is Deleted? </Label>
-        </td>
-        <td>
-            <select id="isDeleted" class="form-control" @bind="@_isdeleted">
-                <option value="True">@Localizer["Yes"]</option>
-                <option value="False">@Localizer["No"]</option>
-            </select>
-        </td>
-    </tr>
-</table>
-
+        <tr>
+            <td>
+                <Label For="defaultContainer" HelpText="Select the default container for the site" ResourceKey="DefaultContainer">Default Container: </Label>
+            </td>
+            <td>
+                <select id="defaultContainer" class="form-control" @bind="@_containertype">
+                    <option value="-">&lt;@Localizer["Select Container"]&gt;</option>
+                    @foreach (var container in _containers)
+                    {
+                        <option value="@container.TypeName">@container.Name</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="defaultAdminContainer" HelpText="Select the default admin container for the site" ResourceKey="DefaultAdminContainer">Default Admin Container: </Label>
+            </td>
+            <td>
+                <select id="defaultAdminContainer" class="form-control" @bind="@_admincontainertype">
+                    <option value="-">&lt;@Localizer["Select Container"]&gt;</option>
+                    <option value="">&lt;@Localizer["Default Admin Container"]&gt;</option>
+                    @foreach (var container in _containers)
+                    {
+                        <option value="@container.TypeName">@container.Name</option>
+                    }
+                </select>
+            </td>
+        </tr>
+    </table>
+    </Section>
     <Section Name="SMTP" Heading="SMTP Settings" ResourceKey="SMTPSettings">
         <table class="table table-borderless">
             <tr>
                 <td colspan="2">
-                    @Localizer["Please Note That SMTP Requires The Notification Job To Be Enabled In the Scheduled Jobs"]
+                    <strong>@Localizer["Please Note That SMTP Requires The Notification Job To Be Enabled In Scheduled Jobs"]</strong>
                 </td>
             </tr>
             <tr>
@@ -201,6 +181,8 @@
                 </td>
             </tr>
         </table>
+        <button type="button" class="btn btn-secondary" @onclick="SendEmail">@Localizer["Test SMTP Configuration"]</button>
+        <br /><br />
     </Section>
     <Section Name="PWA" Heading="Progressive Web Application Settings" ResourceKey="PWASettings">
         <table class="table table-borderless">
@@ -245,7 +227,6 @@
     private bool _initialized = false;
     private List<Theme> _themeList;
     private List<ThemeControl> _themes = new List<ThemeControl>();
-    private List<ThemeControl> _layouts = new List<ThemeControl>();
     private List<ThemeControl> _containers = new List<ThemeControl>();
     private string _name = string.Empty;
     private List<Tenant> _tenantList;
@@ -257,7 +238,6 @@
     private int _faviconfileid = -1;
     private FileManager _faviconfilemanager;
     private string _themetype = "-";
-    private string _layouttype = "-";
     private string _containertype = "-";
     private string _admincontainertype = "-";
     private string _allowregistration;
@@ -310,8 +290,6 @@
 
                 _themes = ThemeService.GetThemeControls(_themeList);
                 _themetype = site.DefaultThemeType;
-                _layouts = ThemeService.GetLayoutControls(_themeList, _themetype);
-                _layouttype = site.DefaultLayoutType;
                 _containers = ThemeService.GetContainerControls(_themeList, _themetype);
                 _containertype = site.DefaultContainerType;
                 _admincontainertype = site.AdminContainerType;
@@ -372,15 +350,12 @@
             _themetype = (string)e.Value;
             if (_themetype != "-")
             {
-                _layouts = ThemeService.GetLayoutControls(_themeList, _themetype);
                 _containers = ThemeService.GetContainerControls(_themeList, _themetype);
             }
             else
             {
-                _layouts = new List<ThemeControl>();
                 _containers = new List<ThemeControl>();
             }
-            _layouttype = "-";
             _containertype = "-";
             _admincontainertype = "";
             StateHasChanged();
@@ -396,7 +371,7 @@
     {
         try
         {
-            if (_name != string.Empty && _urls != string.Empty && _themetype != "-" && (_layouts.Count == 0 || _layouttype != "-") && _containertype != "-")
+            if (_name != string.Empty && _urls != string.Empty && _themetype != "-" && _containertype != "-")
             {
                 var unique = true;
                 foreach (string name in _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
@@ -428,7 +403,6 @@
                         }
 
                         site.DefaultThemeType = _themetype;
-                        site.DefaultLayoutType = (_layouttype == "-" ? string.Empty : _layouttype);
                         site.DefaultContainerType = _containertype;
                         site.AdminContainerType = _admincontainertype;
                         site.AllowRegistration = (_allowregistration == null ? true : Boolean.Parse(_allowregistration));
@@ -482,7 +456,6 @@
                         await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
 
                         await logger.LogInformation("Site Settings Saved {Site}", site);
-
                         AddModuleMessage(Localizer["Site Settings Saved"], MessageType.Success);
                     }
                 }
@@ -493,7 +466,7 @@
             }
             else
             {
-                AddModuleMessage(Localizer["You Must Provide A Site Name, Alias, And Default Theme/Layout/Container"], MessageType.Warning);
+                AddModuleMessage(Localizer["You Must Provide A Site Name, Alias, And Default Theme/Container"], MessageType.Warning);
             }
         }
         catch (Exception ex)
@@ -501,5 +474,37 @@
             await logger.LogError(ex, "Error Saving Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
             AddModuleMessage(Localizer["Error Saving Site"], MessageType.Error);
         }
+    }
+
+    private async Task SendEmail()
+    {
+        if (_smtphost != "" && _smtpport != "" && _smtpsender != "")
+        {
+            try
+            {
+                var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
+                SettingService.SetSetting(settings, "SMTPHost", _smtphost);
+                SettingService.SetSetting(settings, "SMTPPort", _smtpport);
+                SettingService.SetSetting(settings, "SMTPSSL", _smtpssl);
+                SettingService.SetSetting(settings, "SMTPUsername", _smtpusername);
+                SettingService.SetSetting(settings, "SMTPPassword", _smtppassword);
+                SettingService.SetSetting(settings, "SMTPSender", _smtpsender);
+                await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
+                await logger.LogInformation("Site SMTP Settings Saved");
+
+                await NotificationService.AddNotificationAsync(new Notification(PageState.Site.SiteId, PageState.User.DisplayName, PageState.User.Email, PageState.User.DisplayName, PageState.User.Email, PageState.Site.Name + " SMTP Configuration Test", "SMTP Server Is Configured Correctly."));
+                AddModuleMessage(Localizer["SMTP Settings Saved And A Message Has Been Sent To The Email Address Associated To Your User Account... Please Wait A Few Minutes For Delivery. If You Do Not Receive The Email Please Review The Notification Job In Scheduled Jobs For Any Log Details."], MessageType.Info);
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Testing SMTP Configuration");
+                AddModuleMessage(Localizer["Error Testing SMTP Configuration"], MessageType.Error);
+            }
+        }
+        else
+        {
+            AddModuleMessage(Localizer["You Must Specify The SMTP Host, Port, And Sender"], MessageType.Warning);
+        }
+
     }
 }

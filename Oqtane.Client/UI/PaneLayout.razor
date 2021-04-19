@@ -1,25 +1,5 @@
-﻿@namespace Oqtane.UI
-
-@DynamicComponent
+@namespace Oqtane.UI
 
 @code {
-    [CascadingParameter]
-    protected PageState PageState { get; set; }
-
-    RenderFragment DynamicComponent { get; set; }
-
-    protected override void OnParametersSet()
-    {
-        DynamicComponent = builder =>
-        {
-            var layoutType = Type.GetType(PageState.Page.LayoutType);
-            if (layoutType == null)
-            {
-                // fallback
-                layoutType = Type.GetType(Constants.DefaultLayout);
-            }
-            builder.OpenComponent(0, layoutType);
-            builder.CloseComponent();
-        };
-    }
+    // panelayouts are deprecated - this component is included for backward compatibility
 }

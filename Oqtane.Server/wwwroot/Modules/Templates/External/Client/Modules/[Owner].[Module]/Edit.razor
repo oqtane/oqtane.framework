@@ -1,0 +1,107 @@
+@using Oqtane.Modules.Controls
+@using [Owner].[Module].Services
+@using [Owner].[Module].Models
+
+@namespace [Owner].[Module]
+@inherits ModuleBase
+@inject I[Module]Service [Module]Service
+@inject NavigationManager NavigationManager
+
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <Label For="name" HelpText="Enter a name">Name: </Label>
+        </td>
+        <td>
+            <input id="name" class="form-control" @bind="@_name" />
+        </td>
+    </tr>
+</table>
+<button type="button" class="btn btn-success" @onclick="Save">Save</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+<br />
+<br />
+@if (PageState.Action == "Edit")
+{
+    <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon"></AuditInfo>
+}
+
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
+
+    public override string Actions => "Add,Edit";
+
+    public override string Title => "Manage [Module]";
+
+    public override List<Resource> Resources => new List<Resource>()
+    {
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" }
+    };
+
+    int _id;
+    string _name;
+    string _createdby;
+    DateTime _createdon;
+    string _modifiedby;
+    DateTime _modifiedon;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (PageState.Action == "Edit")
+            {
+                _id = Int32.Parse(PageState.QueryString["id"]);
+                [Module] [Module] = await [Module]Service.Get[Module]Async(_id, ModuleState.ModuleId);
+                if ([Module] != null)
+                {
+                    _name = [Module].Name;
+                    _createdby = [Module].CreatedBy;
+                    _createdon = [Module].CreatedOn;
+                    _modifiedby = [Module].ModifiedBy;
+                    _modifiedon = [Module].ModifiedOn;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading [Module] {[Module]Id} {Error}", _id, ex.Message);
+            AddModuleMessage("Error Loading [Module]", MessageType.Error);
+        }
+    }
+
+    private async Task Save()
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(_name))
+            {
+                if (PageState.Action == "Add")
+                {
+                    [Module] [Module] = new [Module]();
+                    [Module].ModuleId = ModuleState.ModuleId;
+                    [Module].Name = _name;
+                    [Module] = await [Module]Service.Add[Module]Async([Module]);
+                    await logger.LogInformation("[Module] Added {[Module]}", [Module]);
+                }
+                else
+                {
+                    [Module] [Module] = await [Module]Service.Get[Module]Async(_id, ModuleState.ModuleId);
+                    [Module].Name = _name;
+                    await [Module]Service.Update[Module]Async([Module]);
+                    await logger.LogInformation("[Module] Updated {[Module]}", [Module]);
+                }
+                NavigationManager.NavigateTo(NavigateUrl());
+            }
+            else
+            {
+                AddModuleMessage("The Name Is Required", MessageType.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Saving [Module] {Error}", ex.Message);
+            AddModuleMessage("Error Saving [Module]", MessageType.Error);
+        }
+    }
+}

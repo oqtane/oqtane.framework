@@ -31,6 +31,12 @@
                     <td>@context.DeletedOn</td>
                 </Row>
             </Pager>
+            @if (_pages.Any())
+            {
+                <div style="text-align:right;">
+                    <ActionDialog Header="Delete All Pages" Message="Are You Sure You Wish To Permanently Delete All Pages?" Action="Delete All Pages" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteAllPages())" ResourceKey="DeleteAllPages" />
+                </div>
+            }
         }
     </TabPanel>
     <TabPanel Name="Modules" ResourceKey="Modules">
@@ -59,6 +65,13 @@
                     <td>@context.DeletedOn</td>
                 </Row>
             </Pager>
+            @if (_modules.Any())
+            {
+                <div style="text-align:right;">
+                    <ActionDialog Header="Delete All Modules" Message="Are You Sure You Wish To Permanently Delete All Modules?" Action="Delete All Modules" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteAllModules())" ResourceKey="DeleteAllModules" />
+                </div>
+            }
+
         }
     </TabPanel>
 </TabStrip>
@@ -126,6 +139,28 @@
         }
     }
 
+    private async Task DeleteAllPages()
+    {
+        try
+        {
+            foreach (Page page in _pages)
+            {
+                await PageService.DeletePageAsync(page.PageId);
+                await logger.LogInformation("Page Permanently Deleted {Page}", page);
+            }
+
+            await logger.LogInformation("Pages Permanently Deleted");
+            await Load();
+            StateHasChanged();
+            NavigationManager.NavigateTo(NavigateUrl());
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Permanently Deleting Pages {Error}", ex.Message);
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+
     private async Task RestoreModule(Module module)
     {
         try
@@ -165,6 +200,33 @@
         {
             await logger.LogError(ex, "Error Permanently Deleting Module {Module} {Error}", module, ex.Message);
             AddModuleMessage(Localizer["Error Permanently Deleting Module"], MessageType.Error);
+        }
+    }
+
+    private async Task DeleteAllModules()
+    {
+        try
+        {
+            foreach (Module module in _modules)
+            {
+                await PageModuleService.DeletePageModuleAsync(module.PageModuleId);
+                // check if there are any remaining module instances in the site
+                _modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId);
+
+                if (!_modules.Exists(item => item.ModuleId == module.ModuleId))
+                {
+                    await ModuleService.DeleteModuleAsync(module.ModuleId);
+                }
+            }
+
+            await logger.LogInformation("Modules Permanently Deleted");
+            await Load();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Permanently Deleting Modules {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error Permanently Deleting Modules"], MessageType.Error);
         }
     }
 }

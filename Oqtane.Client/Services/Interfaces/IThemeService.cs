@@ -1,4 +1,4 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -12,5 +12,7 @@ namespace Oqtane.Services
         List<ThemeControl> GetContainerControls(List<Theme> themes, string themeName);
         Task InstallThemesAsync();
         Task DeleteThemeAsync(string themeName);
+        Task<Theme> CreateThemeAsync(Theme theme);
+        Task<List<string>> GetThemeTemplatesAsync();
     }
 }

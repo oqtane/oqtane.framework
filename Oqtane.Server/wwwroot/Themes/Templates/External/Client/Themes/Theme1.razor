@@ -1,0 +1,109 @@
+﻿@namespace [Owner].[Theme]
+@inherits ThemeBase
+
+<main role="main">
+    <nav class="navbar navbar-expand-md navbar-dark bg-primary fixed-top">
+        <Logo /><Menu Orientation="Horizontal" />
+        <div class="controls ml-md-auto">
+            <div class="controls-group"><UserProfile /> <Login /> <ControlPanel /></div>
+        </div>
+    </nav>
+    <div class="content">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <Pane Name="@PaneNames.Admin" />
+            </div>
+        </div>
+    </div>
+    <Pane Name="Top Full Width" />
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <Pane Name="Top 100%" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <Pane Name="Left 50%" />
+            </div>
+            <div class="col-md-6">
+                <Pane Name="Right 50%" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <Pane Name="Left 33%" />
+            </div>
+            <div class="col-md-4">
+                <Pane Name="Center 33%" />
+            </div>
+            <div class="col-md-4">
+                <Pane Name="Right 33%" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <Pane Name="Left Outer 25%" />
+            </div>
+            <div class="col-md-3">
+                <Pane Name="Left Inner 25%" />
+            </div>
+            <div class="col-md-3">
+                <Pane Name="Right Inner 25%" />
+            </div>
+            <div class="col-md-3">
+                <Pane Name="Right Outer 25%" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <Pane Name="Left 25%" />
+            </div>
+            <div class="col-md-6">
+                <Pane Name="Center 50%" />
+            </div>
+            <div class="col-md-3">
+                <Pane Name="Right 25%" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                <Pane Name="Left Sidebar 66%" />
+            </div>
+            <div class="col-md-4">
+                <Pane Name="Right Sidebar 33%" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <Pane Name="Left Sidebar 33%" />
+            </div>
+            <div class="col-md-8">
+                <Pane Name="Right Sidebar 66%" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <Pane Name="Bottom 100%" />
+            </div>
+        </div>
+    </div>
+    <Pane Name="Bottom Full Width" />
+    </div>
+</main>
+
+@code {
+    public override string Name => "Theme1";
+
+    public override string Panes => PaneNames.Admin + ",Top Full Width,Top 100%,Left 50%,Right 50%,Left 33%,Center 33%,Right 33%,Left Outer 25%,Left Inner 25%,Right Inner 25%,Right Outer 25%,Left 25%,Center 50%,Right 25%,Left Sidebar 66%,Right Sidebar 33%,Left Sidebar 33%,Right Sidebar 66%,Bottom 100%,Bottom Full Width";
+
+    public override List<Resource> Resources => new List<Resource>()
+    {
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = "https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css", Integrity = "sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk", CrossOrigin = "anonymous" },
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = ThemePath() + "Theme.css" },
+        new Resource { ResourceType = ResourceType.Script, Bundle = "Bootstrap", Url = "https://code.jquery.com/jquery-3.5.1.slim.min.js", Integrity = "sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj", CrossOrigin = "anonymous" },
+        new Resource { ResourceType = ResourceType.Script, Bundle = "Bootstrap", Url = "https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js", Integrity = "sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo", CrossOrigin = "anonymous" },
+        new Resource { ResourceType = ResourceType.Script, Bundle = "Bootstrap", Url = "https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js", Integrity = "sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI", CrossOrigin = "anonymous" }
+    };
+}

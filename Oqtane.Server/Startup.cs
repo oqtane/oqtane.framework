@@ -41,7 +41,6 @@ namespace Oqtane
             Configuration = builder.Build();
 
             _supportedCultures = localizationManager.GetSupportedCultures();
-
             _runtime = (Configuration.GetSection("Runtime").Value == "WebAssembly") ? Runtime.WebAssembly : Runtime.Server;
 
             //add possibility to switch off swagger on production.
@@ -226,7 +225,7 @@ namespace Oqtane
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ISyncManager sync)
         {
             ServiceActivator.Configure(app.ApplicationServices);
 
@@ -264,6 +263,9 @@ namespace Oqtane
                 endpoints.MapControllers();
                 endpoints.MapFallbackToPage("/_Host");
             });
+
+            // create a sync event to identify server application startup
+            sync.AddSyncEvent(-1, "Application", -1);
         }
     }
 }

@@ -11,13 +11,13 @@ namespace Oqtane.Models
         public int? LogoFileId { get; set; }
         public int? FaviconFileId { get; set; }
         public string DefaultThemeType { get; set; }
-        public string DefaultLayoutType { get; set; }
         public string DefaultContainerType { get; set; }
         public string AdminContainerType { get; set; }
         public bool PwaIsEnabled { get; set; }
         public int? PwaAppIconFileId { get; set; }
         public int? PwaSplashIconFileId { get; set; }
         public bool AllowRegistration { get; set; }
+        public string SiteGuid { get; set; }
 
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
@@ -29,5 +29,9 @@ namespace Oqtane.Models
 
         [NotMapped]
         public string SiteTemplateType { get; set; }
+
+        [NotMapped]
+        [Obsolete("This property is deprecated.", false)]
+        public string DefaultLayoutType { get; set; }
     }
 }

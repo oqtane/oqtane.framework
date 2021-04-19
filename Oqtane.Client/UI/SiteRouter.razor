@@ -80,7 +80,7 @@
         var urlparameters = string.Empty;
         var editmode = false;
         var reload = Reload.None;
-        var lastsyncdate = DateTime.UtcNow;
+        var lastsyncdate = DateTime.UtcNow.AddHours(-1);
         var runtime = GetRuntime();
 
         Uri uri = new Uri(_absoluteUri);
@@ -107,9 +107,14 @@
         SiteState.Alias = alias; // set state for services
         lastsyncdate = alias.SyncDate;
 
-        // process any sync events for site 
+        // process any sync events  
         if (reload != Reload.Site && alias.SyncEvents.Any())
         {
+            // if running on WebAssembly reload the client application if the server application was restarted
+            if (runtime == Shared.Runtime.WebAssembly && PageState != null && alias.SyncEvents.Exists(item => item.TenantId == -1))
+            {
+                NavigationManager.NavigateTo(_absoluteUri + (!_absoluteUri.Contains("?") ? "?" : "&") + "reload", true);
+            }
             if (alias.SyncEvents.Exists(item => item.EntityName == EntityNames.Site && item.EntityId == alias.SiteId))
             {
                 reload = Reload.Site;
@@ -379,21 +384,15 @@
                 page.ThemeType = site.DefaultThemeType;
             }
 
-            if (string.IsNullOrEmpty(page.LayoutType))
-            {
-                page.LayoutType = site.DefaultLayoutType;
-            }
-
             page.Panes = new List<string>();
             page.Resources = new List<Resource>();
 
-            string panes = "";
+            string panes = PaneNames.Admin;
             Type themetype = Type.GetType(page.ThemeType);
             if (themetype == null)
             {
                 // fallback
                 page.ThemeType = Constants.DefaultTheme;
-                page.LayoutType = Constants.DefaultLayout;
                 themetype = Type.GetType(Constants.DefaultTheme);
             }
             if (themetype != null)
@@ -401,24 +400,13 @@
                 var themeobject = Activator.CreateInstance(themetype) as IThemeControl;
                 if (themeobject != null)
                 {
-                    panes = themeobject.Panes;
+                    if (!string.IsNullOrEmpty(themeobject.Panes))
+                    {
+                        panes = themeobject.Panes;
+                    }
                     page.Resources = ManagePageResources(page.Resources, themeobject.Resources);
                 }
             }
-
-            if (!string.IsNullOrEmpty(page.LayoutType))
-            {
-                Type layouttype = Type.GetType(page.LayoutType);
-                if (layouttype != null)
-                {
-                    var layoutobject = Activator.CreateInstance(layouttype) as IThemeControl;
-                    if (layoutobject != null)
-                    {
-                        panes = layoutobject.Panes;
-                    }
-                }
-            }
-
             page.Panes = panes.Replace(";", ",").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
         }
         catch

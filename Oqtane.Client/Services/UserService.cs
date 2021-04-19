@@ -1,4 +1,4 @@
-﻿using Oqtane.Shared;
+using Oqtane.Shared;
 using Oqtane.Models;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -36,9 +36,9 @@ namespace Oqtane.Services
             return await PutJsonAsync<User>($"{Apiurl}/{user.UserId}", user);
         }
 
-        public async Task DeleteUserAsync(int userId)
+        public async Task DeleteUserAsync(int userId, int siteId)
         {
-            await DeleteAsync($"{Apiurl}/{userId}");
+            await DeleteAsync($"{Apiurl}/{userId}?siteid={siteId}");
         }
 
         public async Task<User> LoginUserAsync(User user, bool setCookie, bool isPersistent)
