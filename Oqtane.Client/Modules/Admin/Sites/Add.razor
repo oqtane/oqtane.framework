@@ -124,7 +124,7 @@ else
             </select>
         </td>
     </tr>
-    @if (_tenantId == "+")
+    @if (_tenantid == "+")
     {
         <tr>
             <td colspan="2">
@@ -228,7 +228,7 @@ else
     private List<ThemeControl> _containers = new List<ThemeControl>();
     private List<SiteTemplate> _siteTemplates;
     private List<Tenant> _tenants;
-    private string _tenantId = "-";
+    private string _tenantid = "-";
 
     private string _tenantName = string.Empty;
     private IOqtaneDatabase _selectedDatabase;
@@ -258,7 +258,7 @@ else
 
     private void TenantChanged(ChangeEventArgs e)
     {
-        _tenantId = (string)e.Value;
+        _tenantid = (string)e.Value;
         if (string.IsNullOrEmpty(_tenantName))
         {
             _tenantName = _name;
@@ -295,7 +295,7 @@ else
 
     private async Task SaveSite()
     {
-        if (_tenantId != "-" && _name != string.Empty && _urls != string.Empty && _themetype != "-" && _containertype != "-" && _sitetemplatetype != "-")
+        if (_tenantid != "-" && _name != string.Empty && _urls != string.Empty && _themetype != "-" && _containertype != "-" && _sitetemplatetype != "-")
         {
             var duplicates = new List<string>();
             var aliases = await AliasService.GetAliasesAsync();
@@ -311,7 +311,7 @@ else
             {
                 InstallConfig config = new InstallConfig();
 
-                if (_tenantId == "+")
+                if (_tenantid == "+")
                 {
                     if (!string.IsNullOrEmpty(_tenantName) && _tenants.FirstOrDefault(item => item.Name == _tenantName) == null)
                     {
@@ -351,7 +351,7 @@ else
                 }
                 else
                 {
-                    var tenant = _tenants.FirstOrDefault(item => item.TenantId == int.Parse(_tenantId));
+                    var tenant = _tenants.FirstOrDefault(item => item.TenantId == int.Parse(_tenantid));
                     if (tenant != null)
                     {
                         config.TenantName = tenant.Name;
