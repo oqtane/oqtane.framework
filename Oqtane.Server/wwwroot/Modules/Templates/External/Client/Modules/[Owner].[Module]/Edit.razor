@@ -74,22 +74,29 @@
     {
         try
         {
-            if (PageState.Action == "Add")
+            if (!string.IsNullOrEmpty(_name))
             {
-                [Module] [Module] = new [Module]();
-                [Module].ModuleId = ModuleState.ModuleId;
-                [Module].Name = _name;
-                [Module] = await [Module]Service.Add[Module]Async([Module]);
-                await logger.LogInformation("[Module] Added {[Module]}", [Module]);
+                if (PageState.Action == "Add")
+                {
+                    [Module] [Module] = new [Module]();
+                    [Module].ModuleId = ModuleState.ModuleId;
+                    [Module].Name = _name;
+                    [Module] = await [Module]Service.Add[Module]Async([Module]);
+                    await logger.LogInformation("[Module] Added {[Module]}", [Module]);
+                }
+                else
+                {
+                    [Module] [Module] = await [Module]Service.Get[Module]Async(_id, ModuleState.ModuleId);
+                    [Module].Name = _name;
+                    await [Module]Service.Update[Module]Async([Module]);
+                    await logger.LogInformation("[Module] Updated {[Module]}", [Module]);
+                }
+                NavigationManager.NavigateTo(NavigateUrl());
             }
             else
             {
-                [Module] [Module] = await [Module]Service.Get[Module]Async(_id, ModuleState.ModuleId);
-                [Module].Name = _name;
-                await [Module]Service.Update[Module]Async([Module]);
-                await logger.LogInformation("[Module] Updated {[Module]}", [Module]);
+                AddModuleMessage("The Name Is Required", MessageType.Warning);
             }
-            NavigationManager.NavigateTo(NavigateUrl());
         }
         catch (Exception ex)
         {

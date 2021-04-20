@@ -1,0 +1,49 @@
+@namespace Oqtane.Themes.OqtaneTheme
+@inherits ModuleBase
+@implements Oqtane.Interfaces.ISettingsControl
+@inject ISettingService SettingService
+@attribute [OqtaneIgnore]
+
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <Label For="title" ResourceKey="Title" HelpText="Specify If The Page Footer Should Be Displayed">Display Footer?</Label>
+        </td>
+        <td>
+            <select id="title" class="form-control" @bind="@_footer">
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </select>
+        </td>
+    </tr>
+</table>
+
+@code {
+    private string _footer = "false";
+
+    protected override void OnInitialized()
+    {
+        try
+        {
+            _footer = SettingService.GetSetting(PageState.Page.Settings, GetType().Namespace + ":Footer", "false");
+        }
+        catch (Exception ex)
+        {
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+
+    public async Task UpdateSettings()
+    {
+        try
+        {
+            var settings = PageState.Page.Settings;
+            settings = SettingService.SetSetting(settings, GetType().Namespace + ":Footer", _footer);
+            await SettingService.UpdatePageSettingsAsync(settings, PageState.Page.PageId);
+        }
+        catch (Exception ex)
+        {
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+}

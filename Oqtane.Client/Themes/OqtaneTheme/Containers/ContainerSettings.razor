@@ -1,0 +1,113 @@
+@namespace Oqtane.Themes.OqtaneTheme
+@inherits ModuleBase
+@implements Oqtane.Interfaces.ISettingsControl
+@inject ISettingService SettingService
+@attribute [OqtaneIgnore]
+
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <Label For="title" ResourceKey="Title" HelpText="Specify If The Module Title Should Be Displayed">Display Title?</Label>
+        </td>
+        <td>
+            <select id="title" class="form-control" @bind="@_title">
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="background\" ResourceKey="Background" HelpText="Optionally Specify A Background Color For The Container">Background Color:</Label>
+        </td>
+        <td>
+            <select id="background" class="form-control" @bind="@_background">
+                <option value="">None</option>
+                <option value="bg-primary">Primary</option>
+                <option value="bg-secondary">Secondary</option>
+                <option value="bg-success">Success</option>
+                <option value="bg-danger">Danger</option>
+                <option value="bg-warning">Warning</option>
+                <option value="bg-info">Info</option>
+                <option value="bg-light">Light</option>
+                <option value="bg-dark">Dark</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="text" ResourceKey="Text" HelpText="Optionally Specify A Text Color For The Container">Text Color:</Label>
+        </td>
+        <td>
+            <select id="text" class="form-control" @bind="@_text">
+                <option value="">None</option>
+                <option value="text-primary">Primary</option>
+                <option value="text-secondary">Secondary</option>
+                <option value="text-success">Success</option>
+                <option value="text-danger">Danger</option>
+                <option value="text-warning">Warning</option>
+                <option value="text-info">Info</option>
+                <option value="text-light">Light</option>
+                <option value="text-dark">Dark</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="border" ResourceKey="Border" HelpText="Optionally Specify A Border For The Container">Border Color:</Label>
+        </td>
+        <td>
+            <select id="border" class="form-control" @bind="@_border">
+                <option value="">None</option>
+                <option value="border">Default</option>
+                <option value="border border-primary">Primary</option>
+                <option value="border border-secondary">Secondary</option>
+                <option value="border border-success">Success</option>
+                <option value="border border-danger">Danger</option>
+                <option value="border border-warning">Warning</option>
+                <option value="border border-info">Info</option>
+                <option value="border border-light">Light</option>
+                <option value="border border-dark">Dark</option>
+            </select>
+        </td>
+    </tr>
+</table>
+
+@code {
+    private string _title = "true";
+    private string _background = "";
+    private string _text = "";
+    private string _border = "";
+
+    protected override void OnInitialized()
+    {
+        try
+        {
+            _title = SettingService.GetSetting(ModuleState.Settings, GetType().Namespace + ":Title", "true");
+            _background = SettingService.GetSetting(ModuleState.Settings, GetType().Namespace + ":Background", "");
+            _text = SettingService.GetSetting(ModuleState.Settings, GetType().Namespace + ":Text", "");
+            _border = SettingService.GetSetting(ModuleState.Settings, GetType().Namespace + ":Border", "");
+        }
+        catch (Exception ex)
+        {
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+
+    public async Task UpdateSettings()
+    {
+        try
+        {
+            var settings = ModuleState.Settings;
+            settings = SettingService.SetSetting(settings, GetType().Namespace + ":Title", _title);
+            settings = SettingService.SetSetting(settings, GetType().Namespace + ":Background", _background);
+            settings = SettingService.SetSetting(settings, GetType().Namespace + ":Text", _text);
+            settings = SettingService.SetSetting(settings, GetType().Namespace + ":Border", _border);
+            await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
+        }
+        catch (Exception ex)
+        {
+            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+}

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -15,7 +15,6 @@ namespace Oqtane.Models
         public int Order { get; set; }
         public string Url { get; set; }
         public string ThemeType { get; set; }
-        public string LayoutType { get; set; }
         public string DefaultContainerType { get; set; }
         public string Icon { get; set; }
         public bool IsNavigation { get; set; }
@@ -37,12 +36,19 @@ namespace Oqtane.Models
         [NotMapped]
         public string Permissions { get; set; }
         [NotMapped]
+        public Dictionary<string, string> Settings { get; set; }
+        [NotMapped]
         public int Level { get; set; }
         [NotMapped]
         public bool HasChildren { get; set; }
 
-        [Obsolete("This property is obsolete", false)]
+        [Obsolete("This property is deprecated", false)]
         [NotMapped]
         public bool EditMode { get; set; }
+
+        [Obsolete("This property is deprecated", false)]
+        [NotMapped]
+        public string LayoutType { get; set; }
+
     }
 }

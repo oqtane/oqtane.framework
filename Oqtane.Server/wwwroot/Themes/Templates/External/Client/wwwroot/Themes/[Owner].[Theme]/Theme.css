@@ -1,0 +1,83 @@
+﻿/* Oqtane Styles */
+
+body {
+    padding-top: 7rem;
+}
+
+.controls {
+    z-index: 2000;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    margin-right: 10px;
+}
+
+.app-menu .nav-item {
+    font-size: 0.9rem;
+    padding-bottom: 0.5rem;
+}
+
+.app-menu .nav-item a {
+    border-radius: 4px;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    line-height: 3rem;
+}
+
+.app-menu .nav-item a.active {
+    background-color: rgba(255,255,255,0.25);
+    color: white;
+}
+
+.app-menu .nav-item a:hover {
+    background-color: rgba(255,255,255,0.1);
+    color: white;
+}
+
+.app-menu .nav-link .oi {
+    width: 1.5rem;
+    font-size: 1.1rem;
+    vertical-align: text-top;
+    top: -2px;
+}
+
+.navbar-toggler {
+    background-color: rgba(255, 255, 255, 0.1);
+    margin-left: auto;
+}
+
+div.app-moduleactions a.dropdown-toggle, div.app-moduleactions div.dropdown-menu {
+    color:#000000;
+}
+
+@media (max-width: 767px) {
+
+    .app-menu {
+        width: 100%
+    }
+
+    .navbar {
+        position: fixed;
+        top: 60px;
+        width: 100%;
+    }
+
+    .controls {
+        height: 60px;
+        top: 15px;
+        position: fixed;
+        top: 0px;
+        width: 100%;
+        background-color: rgb(0, 0, 0);
+    }
+
+    .controls-group {
+        float: right;
+        margin-right: 25px;
+    }
+
+    .content {
+        position: relative;
+        top: 60px;
+    }
+}

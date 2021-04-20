@@ -12,7 +12,8 @@ namespace Oqtane.Shared {
         public const string ContainerComponent = "Oqtane.UI.ContainerBuilder, Oqtane.Client";
 
         public const string DefaultTheme = "Oqtane.Themes.OqtaneTheme.Default, Oqtane.Client";
-        public const string DefaultLayout = "Oqtane.Themes.OqtaneTheme.SinglePane, Oqtane.Client";
+        [Obsolete("DefaultLayout is deprecated")]
+        public const string DefaultLayout = "";
         public const string DefaultContainer = "Oqtane.Themes.OqtaneTheme.Container, Oqtane.Client";
         public const string DefaultAdminContainer = "Oqtane.Themes.AdminContainer, Oqtane.Client";
 

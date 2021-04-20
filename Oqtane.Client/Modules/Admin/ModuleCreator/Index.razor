@@ -100,7 +100,7 @@ else
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         try
         {
@@ -110,9 +110,7 @@ else
 
             if (string.IsNullOrEmpty(_moduledefinitionname))
             {
-                _owner = ModuleState.Title;
-                _module = ModuleState.Title;
-                _description = ModuleState.Title;
+                AddModuleMessage(Localizer["Please Note That The Module Creator Is Only Intended To Be Used In A Development Environment"], MessageType.Info);
             }
             else
             {
@@ -162,8 +160,7 @@ else
                 Module module = await ModuleService.GetModuleAsync(ModuleState.ModuleId);
                 module.ModuleDefinitionName = _moduledefinitionname;
                 await ModuleService.UpdateModuleAsync(module);
-                ClearModuleMessage();
-                NavigationManager.NavigateTo(NavigateUrl());
+                NavigationManager.NavigateTo(NavigateUrl(), true);
             }
         }
         catch (Exception ex)

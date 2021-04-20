@@ -12,6 +12,7 @@ using Oqtane.Modules;
 using Oqtane.Shared;
 using Oqtane.Themes;
 using Microsoft.Extensions.Caching.Memory;
+using System.Collections.Generic;
 
 namespace Oqtane.Controllers
 {
@@ -180,6 +181,7 @@ namespace Oqtane.Controllers
                             }
                         }
                     }
+
                     return memoryStream.ToArray();
                 }
             });

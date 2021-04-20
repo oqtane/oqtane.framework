@@ -90,6 +90,17 @@ app {
     color: gray;
 }
 
+.app-moduleactions .dropdown-submenu {
+    position: relative;
+}
+
+    .app-moduleactions .dropdown-submenu > .dropdown-menu {
+        top: 0;
+        left: 100%;
+        margin-top: 0px;
+        margin-left: 0px;
+    }
+
 .app-progress-indicator {
     background: rgba(0,0,0,0.2) url('../loading.gif') no-repeat 50% 50%;
     width: 100%;

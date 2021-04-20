@@ -63,7 +63,7 @@ namespace Oqtane.Repository
             {
                 // Check if type should be ignored
                 if (themeControlType.IsOqtaneIgnore() || 
-                    themeControlType.GetInterfaces().Contains(typeof(ILayoutControl)) || 
+                    themeControlType.GetInterfaces().Contains(typeof(ILayoutControl)) || // deprecated 
                     themeControlType.GetInterfaces().Contains(typeof(IContainerControl))) continue;
 
                 // create namespace root typename
@@ -98,7 +98,6 @@ namespace Oqtane.Repository
                     // set internal properties
                     theme.ThemeName = qualifiedThemeType;
                     theme.Themes = new List<ThemeControl>();
-                    theme.Layouts = new List<ThemeControl>();
                     theme.Containers = new List<ThemeControl>();
                     theme.AssemblyName = assembly.FullName.Split(",")[0];
                     themes.Add(theme);
@@ -113,26 +112,9 @@ namespace Oqtane.Repository
                         TypeName = themeControlType.FullName + ", " + themeControlType.Assembly.GetName().Name,
                         Name = theme.Name + " - " + ((string.IsNullOrEmpty(themecontrolobject.Name)) ? Utilities.GetTypeNameLastSegment(themeControlType.FullName, 0) : themecontrolobject.Name),
                         Thumbnail = themecontrolobject.Thumbnail,
-                        Panes = themecontrolobject.Panes
+                        Panes = (!string.IsNullOrEmpty(themecontrolobject.Panes)) ? themecontrolobject.Panes : PaneNames.Admin
                     }
                 );
-
-                // layouts
-                Type[] layouttypes = themeTypes
-                    .Where(item => item.GetInterfaces().Contains(typeof(ILayoutControl))).ToArray();
-                foreach (Type layouttype in layouttypes)
-                {
-                    var layoutobject = Activator.CreateInstance(layouttype) as IThemeControl;
-                    theme.Layouts.Add(
-                        new ThemeControl
-                        {
-                            TypeName = layouttype.FullName + ", " + themeControlType.Assembly.GetName().Name,
-                            Name = (string.IsNullOrEmpty(layoutobject.Name)) ? Utilities.GetTypeNameLastSegment(layouttype.FullName, 0) : layoutobject.Name,
-                            Thumbnail = layoutobject.Thumbnail,
-                            Panes = layoutobject.Panes
-                        }
-                    );
-                }
 
                 // containers
                 Type[] containertypes = themeTypes

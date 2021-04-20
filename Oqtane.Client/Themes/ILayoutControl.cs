@@ -1,4 +1,4 @@
-﻿namespace Oqtane.Themes
+namespace Oqtane.Themes
 {
     public interface ILayoutControl
     {

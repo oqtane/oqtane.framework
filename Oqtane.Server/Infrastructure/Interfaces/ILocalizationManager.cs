@@ -1,4 +1,4 @@
-﻿namespace Oqtane.Infrastructure
+namespace Oqtane.Infrastructure
 {
     public interface ILocalizationManager
     {

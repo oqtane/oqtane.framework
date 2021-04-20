@@ -1,27 +1,44 @@
 @namespace Oqtane.UI
 
-<CascadingValue Value="@_moduleState" IsFixed="true">
-    @DynamicComponent
+<CascadingValue Value="@ModuleState" IsFixed="true">
+    @if (_useadminborder)
+    {
+        <div class="app-pane-admin-border">
+            @DynamicComponent
+        </div>
+    }
+    else
+    {
+        @DynamicComponent
+    }
 </CascadingValue>
 
 @code {
-    private Module _moduleState;
+    private bool _useadminborder = false;
 
     [CascadingParameter]
     protected PageState PageState { get; set; }
 
     [Parameter]
-    public Module Module { get; set; }
+    public Module ModuleState { get; set; }
 
     RenderFragment DynamicComponent { get; set; }
 
     protected override void OnParametersSet()
     {
-        _moduleState = Module; // passed in from Pane component
-        string container = _moduleState.ContainerType;
-        if (PageState.ModuleId != -1 && _moduleState.UseAdminContainer)
+        string container = ModuleState.ContainerType;
+        if (PageState.ModuleId != -1 && ModuleState.UseAdminContainer)
         {
             container = (!string.IsNullOrEmpty(PageState.Site.AdminContainerType)) ? PageState.Site.AdminContainerType : Constants.DefaultAdminContainer;
+        }
+
+        if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions) && PageState.Action == Constants.DefaultAction)
+        {
+            _useadminborder = true;
+        }
+        else
+        {
+            _useadminborder = false;
         }
 
         DynamicComponent = builder =>
