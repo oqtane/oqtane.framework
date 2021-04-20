@@ -65,8 +65,8 @@ namespace Oqtane.Repository
                     break; // found a matching alias
                 }
             }
-
-            return alias;
+            // return fallback alias
+            return alias ?? aliases.Find(item => item.Name.Equals("*"));
         }
 
         public void DeleteAlias(int aliasId)
