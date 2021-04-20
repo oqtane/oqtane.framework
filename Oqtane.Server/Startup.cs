@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -65,7 +66,8 @@ namespace Oqtane
             services.AddOqtaneAuthorizationPolicies();
 
             // register scoped core services
-            services.AddOqtaneScopedServices();
+            services.AddScoped<IAuthorizationHandler, PermissionHandler>()
+                .AddOqtaneScopedServices();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
