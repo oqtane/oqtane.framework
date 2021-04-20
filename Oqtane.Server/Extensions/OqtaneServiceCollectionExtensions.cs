@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Oqtane.Infrastructure;
+using Oqtane.Interfaces;
 using Oqtane.Modules;
 using Oqtane.Repository;
 using Oqtane.Security;
@@ -34,13 +35,9 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IServiceCollection AddOqtaneDbContext(this IServiceCollection services)
         {
+            services.AddScoped<IDbConfig, DbConfig>();
             services.AddDbContext<MasterDBContext>(options => { });
             services.AddDbContext<TenantDBContext>(options => { });
-
-            services.AddIdentityCore<IdentityUser>(options => { })
-                .AddEntityFrameworkStores<TenantDBContext>()
-                .AddSignInManager()
-                .AddDefaultTokenProviders();
 
             return services;
         }
@@ -235,6 +232,17 @@ namespace Microsoft.Extensions.DependencyInjection
                     {
                         var serviceType = Type.GetType(implementationType.AssemblyQualifiedName.Replace(implementationType.Name, $"I{implementationType.Name}"));
                         services.AddScoped(serviceType ?? implementationType, implementationType);
+                    }
+                }
+
+                // dynamically register database providers
+                var databaseTypes = assembly.GetInterfaces<IOqtaneDatabase>();
+                foreach (var databaseType in databaseTypes)
+                {
+                    if (databaseType.AssemblyQualifiedName != null)
+                    {
+                        var serviceType = Type.GetType("Oqtane.Interfaces.IOqtaneDatabase, Oqtane.Shared");
+                        services.AddScoped(serviceType ?? databaseType, databaseType);
                     }
                 }
 

@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Oqtane.Extensions;
 using Oqtane.Infrastructure;
+using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Shared;
 
@@ -68,7 +69,10 @@ namespace Oqtane
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            services.AddOqtaneDbContext();
+            services.AddIdentityCore<IdentityUser>(options => { })
+                .AddEntityFrameworkStores<TenantDBContext>()
+                .AddSignInManager()
+                .AddDefaultTokenProviders();
 
             services.ConfigureOqtaneIdentityOptions();
 
@@ -90,8 +94,10 @@ namespace Oqtane
             // register transient scoped core services
             services.AddOqtaneTransientServices();
 
-            // load the external assemblies into the app domain, install services 
+            // load the external assemblies into the app domain, install services
             services.AddOqtane(_runtime, _supportedCultures);
+            services.AddOqtaneDbContext();
+
 
             services.AddMvc()
                 .AddNewtonsoftJson()

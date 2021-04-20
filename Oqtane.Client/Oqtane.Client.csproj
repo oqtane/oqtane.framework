@@ -5,7 +5,7 @@
     <OutputType>Exe</OutputType>
     <RazorLangVersion>3.0</RazorLangVersion>
     <Configurations>Debug;Release</Configurations>
-    <Version>2.0.1</Version>
+    <Version>2.0.2</Version>
     <Product>Oqtane</Product>
     <Authors>Shaun Walker</Authors>
     <Company>.NET Foundation</Company>
@@ -14,25 +14,18 @@
     <PackageProjectUrl>https://www.oqtane.org</PackageProjectUrl>
     <RepositoryUrl>https://github.com/oqtane</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <PackageReleaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v2.0.1</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v2.0.2</PackageReleaseNotes>
     <RootNamespace>Oqtane</RootNamespace>
     <IsPackable>true</IsPackable>
     <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="Modules\Admin\ModuleCreator\Templates\**" />
-    <Content Remove="Modules\Admin\ModuleCreator\Templates\**" />
-    <EmbeddedResource Remove="Modules\Admin\ModuleCreator\Templates\**" />
-    <None Remove="Modules\Admin\ModuleCreator\Templates\**" />
-  </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="5.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.0" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="5.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="5.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.4" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="5.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Localization" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Localization" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Localization" Version="5.0.4" />
     <PackageReference Include="System.Net.Http.Json" Version="5.0.0" />
   </ItemGroup>
 

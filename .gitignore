@@ -13,6 +13,7 @@ msbuild.binlog
 Oqtane.Server/appsettings.json
 Oqtane.Server/Data/*.mdf
 Oqtane.Server/Data/*.ldf
+Oqtane.Server/Data/*.db
 
 /Oqtane.Server/Properties/PublishProfiles/FolderProfile.pubxml
 Oqtane.Server/Content

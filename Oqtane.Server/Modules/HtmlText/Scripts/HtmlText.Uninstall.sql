@@ -1,2 +1,2 @@
-﻿DROP TABLE [dbo].[HtmlText]
+DROP TABLE [dbo].[HtmlText]
 GO

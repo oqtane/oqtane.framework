@@ -7,6 +7,7 @@ namespace Oqtane.Models
         public int TenantId { get; set; }
         public string Name { get; set; }
         public string DBConnectionString { get; set; }
+        public string DBType { get; set; }
         public string Version { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
