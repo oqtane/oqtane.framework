@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
+using Oqtane.Interfaces;
 using Oqtane.Modules;
 using Oqtane.Providers;
 using Oqtane.Services;
@@ -74,14 +75,25 @@ namespace Oqtane.Client
             var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
             foreach (var assembly in assemblies)
             {
-                // dynamically register module services 
-                var implementationTypes = assembly.GetInterfaces<IService>(); 
+                // dynamically register module services
+                var implementationTypes = assembly.GetInterfaces<IService>();
                 foreach (var implementationType in implementationTypes)
                 {
                     if (implementationType.AssemblyQualifiedName != null)
                     {
                         var serviceType = Type.GetType(implementationType.AssemblyQualifiedName.Replace(implementationType.Name, $"I{implementationType.Name}"));
                         builder.Services.AddScoped(serviceType ?? implementationType, implementationType);
+                    }
+                }
+
+                // dynamically register database providers
+                var databaseTypes = assembly.GetInterfaces<IOqtaneDatabase>();
+                foreach (var databaseType in databaseTypes)
+                {
+                    if (databaseType.AssemblyQualifiedName != null)
+                    {
+                        var serviceType = Type.GetType("Oqtane.Interfaces.IDatabase, Oqtane.Shared");
+                        builder.Services.AddScoped(serviceType ?? databaseType, databaseType);
                     }
                 }
 
@@ -115,7 +127,7 @@ namespace Oqtane.Client
 
         private static async Task LoadClientAssemblies(HttpClient http)
         {
-            // get list of loaded assemblies on the client 
+            // get list of loaded assemblies on the client
             var assemblies = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.GetName().Name).ToList();
 
             // get assemblies from server and load into client app domain

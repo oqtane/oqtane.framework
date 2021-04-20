@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <Configurations>Debug;Release</Configurations>
-    <Version>2.0.1</Version>
+    <Version>2.0.2</Version>
     <Product>Oqtane</Product>
     <Authors>Shaun Walker</Authors>
     <Company>.NET Foundation</Company>
@@ -12,7 +12,7 @@
     <PackageProjectUrl>https://www.oqtane.org</PackageProjectUrl>
     <RepositoryUrl>https://github.com/oqtane</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <PackageReleaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v2.0.1</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v2.0.2</PackageReleaseNotes>
     <RootNamespace>Oqtane</RootNamespace>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
@@ -44,20 +44,29 @@
     <EmbeddedResource Include="Scripts\Tenant.02.00.02.03.sql" />
     <EmbeddedResource Include="Modules\HtmlText\Scripts\HtmlText.1.0.0.sql" />
     <EmbeddedResource Include="Modules\HtmlText\Scripts\HtmlText.Uninstall.sql" />
+    <EmbeddedResource Include="Scripts\MigrateMaster.sql" />
+    <EmbeddedResource Include="Scripts\MigrateTenant.sql" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="dbup" Version="4.4.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="5.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Localization" Version="5.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="5.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.4" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="2.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Localization" Version="5.0.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
-    <PackageReference Include="System.Drawing.Common" Version="5.0.0" />
+    <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Oqtane.Client\Oqtane.Client.csproj" />
+    <ProjectReference Include="..\Oqtane.Database.MySQL\Oqtane.Database.MySQL.csproj" />
+    <ProjectReference Include="..\Oqtane.Database.PostgreSQL\Oqtane.Database.PostgreSQL.csproj" />
+    <ProjectReference Include="..\Oqtane.Database.Sqlite\Oqtane.Database.Sqlite.csproj" />
     <ProjectReference Include="..\Oqtane.Shared\Oqtane.Shared.csproj" />
     <ProjectReference Include="..\Oqtane.Upgrade\Oqtane.Upgrade.csproj" />
   </ItemGroup>
@@ -66,9 +75,11 @@
     <UpgradeFiles Include="$(ProjectDir)bin\Release\net5.0\Oqtane.Upgrade.dll" />
     <UpgradeFiles Include="$(ProjectDir)bin\Release\net5.0\Oqtane.Upgrade.pdb" />
     <UpgradeFiles Include="$(ProjectDir)bin\Release\net5.0\Oqtane.Upgrade.runtimeconfig.json" />
-    <TemplateFiles Include="$(ProjectDir)wwwroot\Modules\Templates\**\*.*" />
+    <ModuleTemplateFiles Include="$(ProjectDir)wwwroot\Modules\Templates\**\*.*" />
+    <ThemeTemplateFiles Include="$(ProjectDir)wwwroot\Themes\Templates\**\*.*" />
   </ItemGroup>
   <Target Name="AddPayloadsFolder" AfterTargets="Publish">
     <Copy SourceFiles="@(UpgradeFiles)" DestinationFiles="@(UpgradeFiles->'$(PublishDir)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false" />
-    <Copy SourceFiles="@(TemplateFiles)" DestinationFiles="@(TemplateFiles->'$(PublishDir)wwwroot\Modules\Templates\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false" />
+    <Copy SourceFiles="@(ModuleTemplateFiles)" DestinationFiles="@(ModuleTemplateFiles->'$(PublishDir)wwwroot\Modules\Templates\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false" />
+    <Copy SourceFiles="@(ThemeTemplateFiles)" DestinationFiles="@(ThemeTemplateFiles->'$(PublishDir)wwwroot\Themes\Templates\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false" />
   </Target></Project>
