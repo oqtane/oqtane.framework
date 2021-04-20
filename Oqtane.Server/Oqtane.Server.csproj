@@ -25,25 +25,6 @@
     <EmbeddedResource Remove="wwwroot\Themes\Templates\**" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Scripts\Master.00.00.00.00.sql" />
-    <EmbeddedResource Include="Scripts\Master.00.09.00.00.sql" />
-    <EmbeddedResource Include="Scripts\Master.01.00.01.00.sql" />
-    <EmbeddedResource Include="Scripts\Tenant.00.00.00.00.sql" />
-    <EmbeddedResource Include="Scripts\Tenant.00.09.00.00.sql" />
-    <EmbeddedResource Include="Scripts\Tenant.00.09.01.00.sql" />
-    <EmbeddedResource Include="Scripts\Tenant.00.09.02.00.sql" />
-    <EmbeddedResource Include="Scripts\Tenant.01.00.01.00.sql" />
-    <EmbeddedResource Include="Scripts\Tenant.01.00.01.01.sql" />
-    <EmbeddedResource Include="Scripts\Tenant.01.00.02.01.sql" />
-    <EmbeddedResource Include="Scripts\Tenant.02.00.00.01.sql" />
-    <EmbeddedResource Include="Scripts\Tenant.02.00.01.01.sql" />
-    <EmbeddedResource Include="Scripts\Tenant.02.00.01.02.sql" />
-    <EmbeddedResource Include="Scripts\Tenant.02.00.01.03.sql" />
-    <EmbeddedResource Include="Scripts\Tenant.02.00.02.01.sql" />
-    <EmbeddedResource Include="Scripts\Tenant.02.00.02.02.sql" />
-    <EmbeddedResource Include="Scripts\Tenant.02.00.02.03.sql" />
-    <EmbeddedResource Include="Modules\HtmlText\Scripts\HtmlText.1.0.0.sql" />
-    <EmbeddedResource Include="Modules\HtmlText\Scripts\HtmlText.Uninstall.sql" />
     <EmbeddedResource Include="Scripts\MigrateMaster.sql" />
     <EmbeddedResource Include="Scripts\MigrateTenant.sql" />
   </ItemGroup>
