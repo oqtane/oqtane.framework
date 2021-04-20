@@ -19,7 +19,6 @@ using Oqtane.Security;
 using Oqtane.Services;
 using Oqtane.Shared;
 
-// ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class OqtaneServiceCollectionExtensions
