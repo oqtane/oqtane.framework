@@ -1,4 +1,4 @@
-﻿CREATE TABLE [dbo].[HtmlText](
+CREATE TABLE [dbo].[HtmlText](
 	[HtmlTextId] [int] IDENTITY(1,1) NOT NULL,
 	[ModuleId] [int] NOT NULL,
 	[Content] [nvarchar](max) NOT NULL,

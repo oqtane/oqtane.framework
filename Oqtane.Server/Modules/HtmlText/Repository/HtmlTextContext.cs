@@ -1,17 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 using Oqtane.Modules.HtmlText.Models;
 using Oqtane.Repository;
-using Microsoft.AspNetCore.Http;
+using Oqtane.Interfaces;
+using Oqtane.Repository.Databases.Interfaces;
+
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace Oqtane.Modules.HtmlText.Repository
 {
-    public class HtmlTextContext : DBContextBase, IService
+    public class HtmlTextContext : DBContextBase, IService, IMultiDatabase
     {
-        public virtual DbSet<HtmlTextInfo> HtmlText { get; set; }
-
-        public HtmlTextContext(ITenantResolver tenantResolver, IHttpContextAccessor accessor) : base(tenantResolver, accessor)
+        public HtmlTextContext(IDbConfig dbConfig, ITenantResolver tenantResolver) : base(dbConfig, tenantResolver)
         {
-            // ContextBase handles multi-tenant database connections
         }
+
+        public virtual DbSet<Models.HtmlText> HtmlText { get; set; }
     }
 }

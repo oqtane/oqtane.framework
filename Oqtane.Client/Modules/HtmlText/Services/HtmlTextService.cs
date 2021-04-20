@@ -19,18 +19,18 @@ namespace Oqtane.Modules.HtmlText.Services
 
         private string ApiUrl => CreateApiUrl(_siteState.Alias, "HtmlText");
 
-        public async Task<HtmlTextInfo> GetHtmlTextAsync(int moduleId)
+        public async Task<Models.HtmlText> GetHtmlTextAsync(int moduleId)
         {
-            var htmltext = await GetJsonAsync<List<HtmlTextInfo>>(CreateAuthorizationPolicyUrl($"{ApiUrl}/{moduleId}", moduleId));
+            var htmltext = await GetJsonAsync<List<Models.HtmlText>>(CreateAuthorizationPolicyUrl($"{ApiUrl}/{moduleId}", moduleId));
             return htmltext.FirstOrDefault();
         }
 
-        public async Task AddHtmlTextAsync(HtmlTextInfo htmlText)
+        public async Task AddHtmlTextAsync(Models.HtmlText htmlText)
         {
             await PostJsonAsync(CreateAuthorizationPolicyUrl($"{ApiUrl}", htmlText.ModuleId), htmlText);
         }
 
-        public async Task UpdateHtmlTextAsync(HtmlTextInfo htmlText)
+        public async Task UpdateHtmlTextAsync(Models.HtmlText htmlText)
         {
             await PutJsonAsync(CreateAuthorizationPolicyUrl($"{ApiUrl}/{htmlText.HtmlTextId}", htmlText.ModuleId), htmlText);
         }
