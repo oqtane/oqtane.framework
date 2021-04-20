@@ -2,8 +2,6 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
-using Oqtane.Databases;
-using Oqtane.Interfaces;
 using Oqtane.Models;
 using Oqtane.Shared;
 

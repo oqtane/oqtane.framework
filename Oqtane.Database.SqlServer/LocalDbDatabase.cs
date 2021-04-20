@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Oqtane.Models;
-using Oqtane.Repository.Databases;
 
-namespace Oqtane.Databases
+namespace Oqtane.Repository.Databases
 {
     public class LocalDbDatabase : SqlServerDatabaseBase
     {
