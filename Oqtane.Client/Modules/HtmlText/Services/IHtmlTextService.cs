@@ -6,11 +6,11 @@ namespace Oqtane.Modules.HtmlText.Services
 {
     public interface IHtmlTextService 
     {
-        Task<HtmlTextInfo> GetHtmlTextAsync(int ModuleId);
+        Task<Models.HtmlText> GetHtmlTextAsync(int ModuleId);
 
-        Task AddHtmlTextAsync(HtmlTextInfo htmltext);
+        Task AddHtmlTextAsync(Models.HtmlText htmltext);
 
-        Task UpdateHtmlTextAsync(HtmlTextInfo htmltext);
+        Task UpdateHtmlTextAsync(Models.HtmlText htmltext);
 
         Task DeleteHtmlTextAsync(int ModuleId);
     }

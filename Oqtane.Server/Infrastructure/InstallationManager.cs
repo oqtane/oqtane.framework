@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Oqtane.Shared;
+// ReSharper disable AssignNullToNotNullAttribute
 
 namespace Oqtane.Infrastructure
 {

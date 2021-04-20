@@ -5,8 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Modules.HtmlText.Models
 {
-    [Table("HtmlText")]
-    public class HtmlTextInfo : IAuditable
+    public class HtmlText : IAuditable
     {
         [Key]
         public int HtmlTextId { get; set; }

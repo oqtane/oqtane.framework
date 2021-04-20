@@ -6,7 +6,7 @@ using Oqtane.Models;
 
 namespace Oqtane.Repository
 {
-    public class DbContextUtils
+    public static class DbContextUtils
     {
         public static void SaveChanges(DbContext context, IHttpContextAccessor accessor)
         {

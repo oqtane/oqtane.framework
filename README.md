@@ -49,7 +49,7 @@ There is a separate [Documentation repository](https://github.com/oqtane/oqtane.
 # Roadmap
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
 
-V.2.1.0 ( Q1 2021 )
+V.2.1.0 ( May 2021 )
 - [ ] Cross Platform Database Support ( ie. SQLite ) - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
 - [ ] EF Core Migrations for Database Installation/Upgrade - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
 
