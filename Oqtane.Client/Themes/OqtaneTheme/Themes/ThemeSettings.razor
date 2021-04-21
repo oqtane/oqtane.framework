@@ -7,10 +7,10 @@
 <table class="table table-borderless">
     <tr>
         <td>
-            <Label For="title" ResourceKey="Title" HelpText="Specify If The Page Footer Should Be Displayed">Display Footer?</Label>
+            <Label For="footer" ResourceKey="Footer" HelpText="Specify If A Footer Should Always Be Displayed In A Fixed Location At The Bottom Of The Browser Window">Display Fixed Footer?</Label>
         </td>
         <td>
-            <select id="title" class="form-control" @bind="@_footer">
+            <select id="footer" class="form-control" @bind="@_footer">
                 <option value="true">Yes</option>
                 <option value="false">No</option>
             </select>
