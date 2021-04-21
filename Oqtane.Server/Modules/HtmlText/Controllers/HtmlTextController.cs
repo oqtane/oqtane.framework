@@ -25,12 +25,12 @@ namespace Oqtane.Modules.HtmlText.Controllers
         // GET api/<controller>/5
         [HttpGet("{id}")]
         [Authorize(Policy = PolicyNames.ViewModule)]
-        public List<HtmlTextInfo> Get(int id)
+        public List<Models.HtmlText> Get(int id)
         {
-            var list = new List<HtmlTextInfo>();
+            var list = new List<Models.HtmlText>();
             try
             {
-                HtmlTextInfo htmlText = null;
+                Models.HtmlText htmlText = null;
                 if (_entityId == id)
                 {
                     htmlText = _htmlText.GetHtmlText(id);
@@ -48,7 +48,7 @@ namespace Oqtane.Modules.HtmlText.Controllers
         // POST api/<controller>
         [HttpPost]
         [Authorize(Policy = PolicyNames.EditModule)]
-        public HtmlTextInfo Post([FromBody] HtmlTextInfo htmlText)
+        public Models.HtmlText Post([FromBody] Models.HtmlText htmlText)
         {
             try
             {
@@ -69,7 +69,7 @@ namespace Oqtane.Modules.HtmlText.Controllers
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Policy = PolicyNames.EditModule)]
-        public HtmlTextInfo Put(int id, [FromBody] HtmlTextInfo htmlText)
+        public Models.HtmlText Put(int id, [FromBody] Models.HtmlText htmlText)
         {
             try
             {

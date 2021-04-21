@@ -6,11 +6,8 @@ using Oqtane.Shared;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Enums;
-using System.Data.SqlClient;
-using System.Data;
-using System.Dynamic;
-using Newtonsoft.Json;
 using System;
+using Microsoft.Data.SqlClient;
 
 namespace Oqtane.Controllers
 {
