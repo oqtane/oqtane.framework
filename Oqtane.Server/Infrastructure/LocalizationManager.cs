@@ -48,6 +48,7 @@ namespace Oqtane.Infrastructure
                 .Where(c => !c.Equals(CultureInfo.InvariantCulture) && Directory.Exists(Path.Combine(assemblyPath, c.Name)))
                 .Select(c => c.Name)
                 .Union(DefaultSupportedCultures)
+                .OrderBy(c => c)
                 .ToArray();
         }
     }
