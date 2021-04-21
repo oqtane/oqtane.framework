@@ -12,7 +12,7 @@ namespace Oqtane.Infrastructure
     public class LocalizationManager : ILocalizationManager
     {
         private static readonly string DefaultCulture = Constants.DefaultCulture;
-        private static readonly string[] SupportedCultures = new[] { DefaultCulture };
+        private static readonly string[] DefaultSupportedCultures = new[] { DefaultCulture };
 
         private readonly LocalizationOptions _localizationOptions;
 
@@ -31,7 +31,7 @@ namespace Oqtane.Infrastructure
             var supportedCultures = GetCulturesNamesFromSatelliteAssemblies();
             if (supportedCultures.IsNullOrEmpty())
             {
-                return SupportedCultures;
+                return DefaultSupportedCultures;
             }
             else
             {
@@ -47,6 +47,7 @@ namespace Oqtane.Infrastructure
             return cultures
                 .Where(c => !c.Equals(CultureInfo.InvariantCulture) && Directory.Exists(Path.Combine(assemblyPath, c.Name)))
                 .Select(c => c.Name)
+                .Union(DefaultSupportedCultures)
                 .ToArray();
         }
     }
