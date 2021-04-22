@@ -27,7 +27,6 @@ namespace Oqtane.Migrations.EntityBuilders
             LogoFileId = AddIntegerColumn(table,"LogoFileId", true);
             FaviconFileId = AddIntegerColumn(table,"FaviconFileId", true);
             DefaultThemeType = AddStringColumn(table,"DefaultThemeType", 200);
-            DefaultLayoutType = AddStringColumn(table,"DefaultLayoutType", 200);
             DefaultContainerType = AddStringColumn(table,"DefaultContainerType", 200);
             PwaIsEnabled = AddBooleanColumn(table,"PwaIsEnabled");
             PwaAppIconFileId = AddIntegerColumn(table,"PwaAppIconFileId", true);
@@ -51,8 +50,6 @@ namespace Oqtane.Migrations.EntityBuilders
         public OperationBuilder<AddColumnOperation> FaviconFileId { get; private set; }
 
         public OperationBuilder<AddColumnOperation> DefaultThemeType { get; private set; }
-
-        public OperationBuilder<AddColumnOperation> DefaultLayoutType { get; private set; }
 
         public OperationBuilder<AddColumnOperation> DefaultContainerType { get; private set; }
 

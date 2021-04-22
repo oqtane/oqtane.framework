@@ -41,7 +41,6 @@ namespace Oqtane.Migrations.EntityBuilders
             Order = AddIntegerColumn(table,"Order");
             IsNavigation = AddBooleanColumn(table,"IsNavigation");
             Url = AddStringColumn(table,"Url", 500, true);
-            LayoutType = AddStringColumn(table,"LayoutType", 200);
             UserId = AddIntegerColumn(table,"UserId", true);
             IsPersonalizable = AddBooleanColumn(table,"IsPersonalizable");
             DefaultContainerType = AddStringColumn(table,"DefaultContainerType", 200, true);
@@ -72,8 +71,6 @@ namespace Oqtane.Migrations.EntityBuilders
         public OperationBuilder<AddColumnOperation> IsNavigation { get; private set; }
 
         public OperationBuilder<AddColumnOperation> Url { get; private set; }
-
-        public OperationBuilder<AddColumnOperation> LayoutType { get; private set; }
 
         public OperationBuilder<AddColumnOperation> UserId { get; private set; }
 
