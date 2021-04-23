@@ -1,4 +1,4 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Linq;
@@ -22,7 +22,12 @@ namespace Oqtane.Services
 
         public async Task<List<Role>> GetRolesAsync(int siteId)
         {
-            List<Role> roles = await GetJsonAsync<List<Role>>($"{Apiurl}?siteid={siteId}");
+            return await GetRolesAsync(siteId, false);
+        }
+
+        public async Task<List<Role>> GetRolesAsync(int siteId, bool includeGlobalRoles)
+        {
+            List<Role> roles = await GetJsonAsync<List<Role>>($"{Apiurl}?siteid={siteId}&global={includeGlobalRoles}");
             return roles.OrderBy(item => item.Name).ToList();
         }
 

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Oqtane.Enums;
@@ -21,12 +21,16 @@ namespace Oqtane.Controllers
             _logger = logger;
         }
 
-        // GET: api/<controller>?siteid=x
+        // GET: api/<controller>?siteid=x&global=true/false
         [HttpGet]
         [Authorize(Roles = RoleNames.Registered)]
-        public IEnumerable<Role> Get(string siteid)
+        public IEnumerable<Role> Get(string siteid, string global)
         {
-            return _roles.GetRoles(int.Parse(siteid));
+            if (string.IsNullOrEmpty(global))
+            {
+                global = "false";
+            }
+            return _roles.GetRoles(int.Parse(siteid), bool.Parse(global));
         }
 
         // GET api/<controller>/5

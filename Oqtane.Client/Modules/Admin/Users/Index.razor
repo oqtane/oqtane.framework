@@ -13,10 +13,15 @@
 }
 else
 {
-    <ActionLink Action="Add" Text="Add User" ResourceKey="AddUser" />
-
-    <div class="d-flex p-1">
-        <input class="form-control mr-4" @bind="@_search" /><button class="btn btn-outline-primary ml-1" @onclick="OnSearch">@Localizer["Search"]</button>
+    <div class="form-row">
+        <div class="col">
+            <ActionLink Action="Add" Text="Add User" ResourceKey="AddUser" />
+        </div>
+        <div class="col">
+            <div class="input-group flex-nowrap">
+                <input class="form-control" @bind="@_search" />&nbsp;<button class="btn btn-secondary" @onclick="OnSearch">@Localizer["Search"]</button>
+            </div>
+        </div>
     </div>
 
     <Pager Items="@userroles">
@@ -31,7 +36,10 @@ else
                 <ActionLink Action="Edit" Parameters="@($"id=" + context.UserId.ToString())" ResourceKey="EditUser" />
             </td>
             <td>
-                <ActionDialog Header="Delete User" Message="@Localizer["Are You Sure You Wish To Delete {0}?", context.User.DisplayName]" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteUser(context))" ResourceKey="DeleteUser" />
+                @if (context.Role.Name != RoleNames.Host)
+                {
+                    <ActionDialog Header="Delete User" Message="@Localizer["Are You Sure You Wish To Delete {0}?", context.User.DisplayName]" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteUser(context))" ResourceKey="DeleteUser" />
+                }
             </td>
             <td>
                 <ActionLink Action="Roles" Parameters="@($"id=" + context.UserId.ToString())" ResourceKey="Roles" />
@@ -57,19 +65,19 @@ else
 
     private List<UserRole> Search(string search)
     {
+        var results = allroles.Where(item => item.Role.Name == RoleNames.Registered || (item.Role.Name == RoleNames.Host && UserSecurity.IsAuthorized(PageState.User, RoleNames.Host)));
+
         if (string.IsNullOrEmpty(_search))
         {
-            return allroles.Where(item => item.Role.Name == RoleNames.Registered).ToList();
+            results = results.Where(item => 
+                (
+                    item.User.Username.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    item.User.Email.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    item.User.DisplayName.Contains(search, StringComparison.OrdinalIgnoreCase)
+                )
+            );
         }
-        return allroles
-            .Where(item => item.Role.Name == RoleNames.Registered &&
-                           (
-                               item.User.Username.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                               item.User.Email.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                               item.User.DisplayName.Contains(search, StringComparison.OrdinalIgnoreCase)
-                               )
-            )
-            .ToList();
+        return results.ToList();
     }
 
     private async Task OnSearch()

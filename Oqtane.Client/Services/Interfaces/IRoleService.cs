@@ -1,4 +1,4 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -7,6 +7,8 @@ namespace Oqtane.Services
     public interface IRoleService
     {
         Task<List<Role>> GetRolesAsync(int siteId);
+
+        Task<List<Role>> GetRolesAsync(int siteId, bool includeGlobalRoles);
 
         Task<Role> GetRoleAsync(int roleId);
 
