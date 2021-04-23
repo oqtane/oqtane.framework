@@ -38,7 +38,7 @@ namespace Oqtane.Infrastructure
         public static bool InstallPackages(string folders, string webRootPath, string contentRootPath)
         {
             bool install = false;
-            string binFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
+            string binPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
 
             foreach (string folder in folders.Split(','))
             {
@@ -82,40 +82,37 @@ namespace Oqtane.Infrastructure
                             List<string> assets = new List<string>();
                             bool manifest = false;
 
-                            // module and theme packages must be in form of name.1.0.0.nupkg
+                            // packages are in form of name.1.0.0.nupkg or name.culture.1.0.0.nupkg
                             string name = Path.GetFileNameWithoutExtension(packagename);
                             string[] segments = name?.Split('.');
-                            if (segments != null) name = string.Join('.', segments, 0, segments.Length - 3);
+                            if (segments != null) name = string.Join('.', segments, 0, segments.Length - 3); // remove version information
 
                             // deploy to appropriate locations
                             foreach (ZipArchiveEntry entry in archive.Entries)
                             {
-                                string foldername = Path.GetDirectoryName(entry.FullName).Split(Path.DirectorySeparatorChar)[0];
-                                string filename = Path.GetFileName(entry.FullName);
+                                string filename = "";
 
-                                if (!manifest && filename == "assets.json")
+                                // evaluate entry root folder
+                                switch (entry.FullName.Split('/')[0])
                                 {
-                                    manifest = true;
+                                    case "lib": // lib/net5.0/...
+                                        filename = ExtractFile(entry, binPath, 2);
+                                        break;
+                                    case "wwwroot": // wwwroot/...
+                                        filename = ExtractFile(entry, webRootPath, 1);
+                                        break;
+                                    case "runtimes": // runtimes/name/...
+                                        filename = ExtractFile(entry, binPath, 0);
+                                        break;
                                 }
 
-                                switch (foldername)
+                                if (filename != "")
                                 {
-                                    case "lib":
-                                        filename = Path.Combine(binFolder, filename);
-                                        ExtractFile(entry, filename);
-                                        assets.Add(filename.Replace(contentRootPath, ""));
-                                        break;
-                                    case "wwwroot":
-                                        filename = Path.Combine(webRootPath, Utilities.PathCombine(entry.FullName.Replace("wwwroot/", "").Split('/')));
-                                        ExtractFile(entry, filename);
-                                        assets.Add(filename.Replace(contentRootPath, ""));
-                                        break;
-                                    case "runtimes":
-                                        var destSubFolder = Path.GetDirectoryName(entry.FullName);
-                                        filename = Path.Combine(binFolder, destSubFolder, filename);
-                                        ExtractFile(entry, filename);
-                                        assets.Add(filename.Replace(contentRootPath, ""));
-                                        break;
+                                    assets.Add(filename.Replace(contentRootPath, ""));
+                                    if (!manifest && Path.GetFileName(filename) == "assets.json")
+                                    {
+                                        manifest = true;
+                                    }
                                 }
                             }
 
@@ -145,21 +142,25 @@ namespace Oqtane.Infrastructure
             return install;
         }
 
-        private static void ExtractFile(ZipArchiveEntry entry, string filename)
+        private static string ExtractFile(ZipArchiveEntry entry, string folder, int ignoreLeadingSegments)
         {
-            if (!Directory.Exists(Path.GetDirectoryName(filename)))
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(filename));
-            }
+            string[] segments = entry.FullName.Split('/'); // ZipArchiveEntries always use unix path separator
+            string filename = Path.Combine(folder, string.Join(Path.DirectorySeparatorChar, segments, ignoreLeadingSegments, segments.Length - ignoreLeadingSegments));
 
             try
             {
+                if (!Directory.Exists(Path.GetDirectoryName(filename)))
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(filename));
+                }
                 entry.ExtractToFile(filename, true);
             }
             catch
             {
                 // an error occurred extracting the file
+                filename = "";
             }
+            return filename;
         }
 
         public void UpgradeFramework()
