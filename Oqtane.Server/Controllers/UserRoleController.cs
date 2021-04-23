@@ -52,13 +52,17 @@ namespace Oqtane.Controllers
             var role = _roles.GetRole(userRole.RoleId);
             if (ModelState.IsValid && (User.IsInRole(RoleNames.Host) || role.Name != RoleNames.Host))
             {
+                userRole = _userRoles.AddUserRole(userRole);
+                _logger.Log(LogLevel.Information, this, LogFunction.Create, "User Role Added {UserRole}", userRole);
+
                 if (role.Name == RoleNames.Host)
                 {
+                    // host roles can only exist at global level - remove all site specific user roles
                     _userRoles.DeleteUserRoles(userRole.UserId);
+                    _logger.Log(LogLevel.Information, this, LogFunction.Create, "User Roles Deleted For UserId {UserId}", userRole.UserId);
                 }
-                userRole = _userRoles.AddUserRole(userRole);
+
                 _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.User, userRole.UserId);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "User Role Added {UserRole}", userRole);
             }
             return userRole;
         }
@@ -87,13 +91,20 @@ namespace Oqtane.Controllers
             if (User.IsInRole(RoleNames.Host) || userRole.Role.Name != RoleNames.Host)
             {
                 _userRoles.DeleteUserRole(id);
+                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Role Deleted {UserRole}", userRole);
+
                 if (userRole.Role.Name == RoleNames.Host)
                 {
+                    // add site specific user roles to preserve user access
                     var role = _roles.GetRoles(_tenants.GetAlias().SiteId).FirstOrDefault(item => item.Name == RoleNames.Registered);
-                    _userRoles.AddUserRole(new UserRole { UserId = userRole.UserId, RoleId = role.RoleId, EffectiveDate = null, ExpiryDate = null });
+                    userRole = _userRoles.AddUserRole(new UserRole { UserId = userRole.UserId, RoleId = role.RoleId, EffectiveDate = null, ExpiryDate = null });
+                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Role Added {UserRole}", userRole);
+                    role = _roles.GetRoles(_tenants.GetAlias().SiteId).FirstOrDefault(item => item.Name == RoleNames.Admin);
+                    userRole = _userRoles.AddUserRole(new UserRole { UserId = userRole.UserId, RoleId = role.RoleId, EffectiveDate = null, ExpiryDate = null });
+                    _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Role Added {UserRole}", userRole);
                 }
+
                 _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.User, userRole.UserId);
-                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Role Deleted {UserRole}", userRole);
             }
         }
     }
