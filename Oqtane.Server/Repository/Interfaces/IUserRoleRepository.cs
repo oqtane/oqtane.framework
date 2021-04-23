@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
@@ -11,5 +11,6 @@ namespace Oqtane.Repository
         UserRole UpdateUserRole(UserRole userRole);
         UserRole GetUserRole(int userRoleId);
         void DeleteUserRole(int userRoleId);
+        void DeleteUserRoles(int userId);
     }
 }
