@@ -71,6 +71,6 @@ namespace Oqtane.Shared {
 
         public static readonly string SatelliteAssemblyExtension = ".resources.dll";
 
-        public static readonly string DefaultCulture = CultureInfo.InstalledUICulture.Name;
+        public static readonly string DefaultCulture = "en";
     }
 }
