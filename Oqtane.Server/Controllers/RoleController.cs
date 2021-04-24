@@ -28,7 +28,7 @@ namespace Oqtane.Controllers
         {
             if (string.IsNullOrEmpty(global))
             {
-                global = "false";
+                global = "False";
             }
             return _roles.GetRoles(int.Parse(siteid), bool.Parse(global));
         }
@@ -72,8 +72,12 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Admin)]
         public void Delete(int id)
         {
-            _roles.DeleteRole(id);
-            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Role Deleted {RoleId}", id);
+            var role = _roles.GetRole(id);
+            if (!role.IsSystem)
+            {
+                _roles.DeleteRole(id);
+                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Role Deleted {RoleId}", id);
+            }
         }
     }
 }
