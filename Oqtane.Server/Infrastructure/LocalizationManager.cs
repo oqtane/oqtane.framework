@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Options;
 using Oqtane.Shared;
@@ -32,7 +33,7 @@ namespace Oqtane.Infrastructure
                 cultures.Add(Path.GetFileName(Path.GetDirectoryName(file)));
             }
 
-            return cultures.ToArray();
+            return cultures.OrderBy(c => c).ToArray();
         }
     }
 }
