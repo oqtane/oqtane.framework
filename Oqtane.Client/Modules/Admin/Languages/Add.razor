@@ -61,6 +61,10 @@ else
         {
             AddModuleMessage(Localizer["The Only Supported Culture That Has Been Defined Is English"], MessageType.Warning);
         }
+        else
+        {
+            _supportedCultures = _supportedCultures.Where(c => !c.Name.Equals(Constants.DefaultCulture));
+        }
     }
 
     private async Task SaveLanguage()
