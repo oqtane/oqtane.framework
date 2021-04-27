@@ -20,17 +20,7 @@ namespace Oqtane.Database.PostgreSQL
 
         private readonly INameRewriter _rewriter;
 
-        private static readonly List<ConnectionStringField> _connectionStringFields = new()
-        {
-            new() {Name = "Server", FriendlyName = "Server", Value = "127.0.0.1", HelpText="Enter the database server"},
-            new() {Name = "Port", FriendlyName = "Port", Value = "5432", HelpText="Enter the port used to connect to the server"},
-            new() {Name = "Database", FriendlyName = "Database", Value = "Oqtane-{{Date}}", HelpText="Enter the name of the database"},
-            new() {Name = "IntegratedSecurity", FriendlyName = "Integrated Security", Value = "true", HelpText="Select if you want integrated security or not"},
-            new() {Name = "Uid", FriendlyName = "User Id", Value = "", HelpText="Enter the username to use for the database"},
-            new() {Name = "Pwd", FriendlyName = "Password", Value = "", HelpText="Enter the password to use for the database"}
-        };
-
-        public PostgreSQLDatabase() : base(_name, _friendlyName, _connectionStringFields)
+        public PostgreSQLDatabase() : base(_name, _friendlyName)
         {
             _rewriter = new SnakeCaseNameRewriter(CultureInfo.InvariantCulture);
         }
@@ -40,41 +30,6 @@ namespace Oqtane.Database.PostgreSQL
         public override OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(ColumnsBuilder table, string name)
         {
             return table.Column<int>(name: name, nullable: false).Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn);
-        }
-
-        public override string BuildConnectionString()
-        {
-            var connectionString = String.Empty;
-
-            var server = ConnectionStringFields[0].Value;
-            var port = ConnectionStringFields[1].Value;
-            var database = ConnectionStringFields[2].Value;
-            var integratedSecurity = Boolean.Parse(ConnectionStringFields[3].Value);
-            var userId = ConnectionStringFields[4].Value;
-            var password = ConnectionStringFields[5].Value;
-
-            if (!String.IsNullOrEmpty(server)  && !String.IsNullOrEmpty(database) && !String.IsNullOrEmpty(port))
-            {
-                connectionString = $"Server={server};Port={port};Database={database};";
-            }
-
-            if (integratedSecurity)
-            {
-                connectionString += "Integrated Security=true;";
-            }
-            else
-            {
-                if (!String.IsNullOrEmpty(userId) && !String.IsNullOrEmpty(password))
-                {
-                    connectionString += $"User ID={userId};Password={password};";
-                }
-                else
-                {
-                    connectionString = String.Empty;
-                }
-            }
-
-            return connectionString;
         }
 
         public override string ConcatenateSql(params string[] values)

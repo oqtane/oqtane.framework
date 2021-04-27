@@ -14,11 +14,7 @@ namespace Oqtane.Interfaces
 
         public string Provider { get; }
 
-        public List<ConnectionStringField> ConnectionStringFields { get; }
-
         public OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(ColumnsBuilder table, string name);
-
-        public string BuildConnectionString();
 
         public string ConcatenateSql(params string[] values);
 

@@ -14,32 +14,13 @@ namespace Oqtane.Repository.Databases
 
         private static string _name => "Sqlite";
 
-        private static readonly List<ConnectionStringField> _connectionStringFields = new()
-        {
-            new() {Name = "Server", FriendlyName = "File Name", Value = "Oqtane-{{Date}}.db", HelpText="Enter the file name to use for the database"}
-        };
-
-        public SqliteDatabase() :base(_name, _friendlyName, _connectionStringFields) { }
+        public SqliteDatabase() :base(_name, _friendlyName) { }
 
         public override string Provider => "Microsoft.EntityFrameworkCore.Sqlite";
 
         public override OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(ColumnsBuilder table, string name)
         {
             return table.Column<int>(name: name, nullable: false).Annotation("Sqlite:Autoincrement", true);
-        }
-
-        public override string BuildConnectionString()
-        {
-            var connectionstring = String.Empty;
-
-            var server = ConnectionStringFields[0].Value;
-
-            if (!String.IsNullOrEmpty(server))
-            {
-                connectionstring = $"Data Source={server};";
-            }
-
-            return connectionstring;
         }
 
         public override string ConcatenateSql(params string[] values)
