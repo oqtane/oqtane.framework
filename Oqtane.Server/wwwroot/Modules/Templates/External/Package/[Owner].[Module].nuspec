@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>[Owner].[Module]</id>
@@ -11,7 +11,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
-    <icon>icon.png</icon>
+    <iconUrl>https://www.oqtane.org/Portals/0/icon.jpg</iconUrl>
     <tags>oqtane module</tags>
     <releaseNotes></releaseNotes>
     <summary></summary>
@@ -26,7 +26,6 @@
     <file src="..\Server\bin\Release\net5.0\[Owner].[Module].Server.Oqtane.pdb" target="lib\net5.0" /> 
     <file src="..\Shared\bin\Release\net5.0\[Owner].[Module].Shared.Oqtane.dll" target="lib\net5.0" /> 
     <file src="..\Shared\bin\Release\net5.0\[Owner].[Module].Shared.Oqtane.pdb" target="lib\net5.0" /> 
-    <file src="..\Server\wwwroot\**\*.*" target="wwwroot" />
-    <file src="icon.png" target="" />
+    <file src="..\Server\wwwroot\**\*.*" target="wwwroot" /> 
   </files>
 </package>

@@ -1,17 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
-  
-  <ItemGroup>
-    <None Include="icon.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\Client\[Owner].[Theme].Client.csproj" />
   </ItemGroup>
