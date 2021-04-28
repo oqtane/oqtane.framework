@@ -127,60 +127,17 @@ else
                 <Label For="databaseType" HelpText="Select the database type for the tenant" ResourceKey="DatabaseType">Database Type: </Label>
             </td>
             <td>
-                <select id="databaseType" class="custom-select" @bind="@_databaseType">
-                    @{
-                        foreach (var database in Databases)
-                        {
-                            <option value="@database.Name">@Localizer[@database.FriendlyName]</option>
-                        }
+                <select id="databaseType" class="custom-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))">
+                    @foreach (var database in _databases)
+                    {
+                        <option value="@database.Name">@Localizer[@database.FriendlyName]</option>
                     }
                 </select>
             </td>
         </tr>
+        if (_databaseConfigType != null)
         {
-            _selectedDatabase = Databases.Single(d => d.Name == _databaseType);
-            foreach (var field in _selectedDatabase.ConnectionStringFields)
-            {
-                var fieldId = field.Name.ToLowerInvariant();
-                if (field.Name != "IntegratedSecurity")
-                {
-                    var isVisible = "";
-                    var fieldType = (field.Name == "Pwd") ? "password" : "text";
-                    if ((field.Name == "Uid" || field.Name == "Pwd") && _selectedDatabase.Name != "MySQL" )
-                    {
-                        var intSecurityField = _selectedDatabase.ConnectionStringFields.Single(f => f.Name == "IntegratedSecurity");
-                        if (intSecurityField != null)
-                        {
-                            isVisible = (Convert.ToBoolean(intSecurityField.Value)) ? "display: none;" : "";
-                        }
-                    }
-
-                    field.Value = field.Value.Replace("{{Date}}", DateTime.UtcNow.ToString("yyyyMMddHHmm"));
-                    
-                    <tr style="@isVisible">
-                        <td>
-                            <Label For="@fieldId" HelpText="@field.HelpText" ResourceKey="@field.Name">@Localizer[$"{field.FriendlyName}:"]</Label>
-                        </td>
-                        <td>
-                            <input id="@fieldId" type="@fieldType" class="form-control" @bind="@field.Value" />
-                        </td>
-                    </tr>
-                }
-                else
-                {
-                    <tr>
-                        <td>
-                            <Label For="@fieldId" HelpText="@field.HelpText" ResourceKey="@field.Name">@Localizer[$"{field.FriendlyName}:"]</Label>
-                        </td>
-                        <td>
-                            <select id="@fieldId" class="custom-select" @bind="@field.Value">
-                                <option value="true" selected>@Localizer["True"]</option>
-                                <option value="false">@Localizer["False"]</option>
-                            </select>
-                        </td>
-                    </tr>
-                }
-            }
+            @DatabaseConfigComponent;
         }
         <tr>
             <td>
@@ -205,6 +162,13 @@ else
 }
 
 @code {
+    private IList<Database> _databases;
+    private string _databaseName = "LocalDB";
+    private Type _databaseConfigType;
+    private object _databaseConfig;
+    private RenderFragment DatabaseConfigComponent { get; set; }
+
+
     private List<Theme> _themeList;
     private List<ThemeControl> _themes = new List<ThemeControl>();
     private List<ThemeControl> _containers = new List<ThemeControl>();
@@ -213,9 +177,7 @@ else
     private string _tenantid = "-";
 
     private string _tenantName = string.Empty;
-    private IOqtaneDatabase _selectedDatabase;
-    private string _databaseType = "LocalDB";
-
+    
     private string _hostUserName = UserNames.Host;
     private string _hostpassword = string.Empty;
 
@@ -235,6 +197,72 @@ else
         _themeList = await ThemeService.GetThemesAsync();
         _themes = ThemeService.GetThemeControls(_themeList);
         _siteTemplates = await SiteTemplateService.GetSiteTemplatesAsync();
+        
+        _databases = new List<Database>
+        {
+            new()
+            {
+                Name = "LocalDB",
+                FriendlyName = "Local Database",
+                Type = "Oqtane.Installer.Controls.LocalDBConfig, Oqtane.Client"
+            },
+            new()
+            {
+                Name = "SqlServer",
+                FriendlyName = "SQL Server",
+                Type = "Oqtane.Installer.Controls.SqlServerConfig, Oqtane.Client"
+            },
+            new()
+            {
+                Name = "Sqlite",
+                FriendlyName = "Sqlite",
+                Type = "Oqtane.Installer.Controls.SqliteConfig, Oqtane.Client"
+            },
+            new()
+            {
+                Name = "MySQL",
+                FriendlyName = "MySQL",
+                Type = "Oqtane.Installer.Controls.MySQLConfig, Oqtane.Client"
+            },
+            new()
+            {
+                Name = "PostgreSQL",
+                FriendlyName = "PostgreSQL",
+                Type = "Oqtane.Installer.Controls.PostGreSQLConfig, Oqtane.Client"
+            }
+        };
+        
+        LoadDatabaseConfigComponent();
+    }
+    
+    private void DatabaseChanged(ChangeEventArgs eventArgs)
+    {
+        try
+        {
+            _databaseName = (string)eventArgs.Value;
+
+            LoadDatabaseConfigComponent();
+        }
+        catch (Exception exception)
+        {
+            AddModuleMessage(Localizer["Error loading Database Configuration Control"], MessageType.Error);
+        }
+    }
+
+    private void LoadDatabaseConfigComponent()
+    {
+        var database = _databases.SingleOrDefault(d => d.Name == _databaseName);
+        if (database != null)
+        {
+            _databaseConfigType = Type.GetType(database.Type);
+            DatabaseConfigComponent = builder =>
+            {
+                builder.OpenComponent(0, _databaseConfigType);
+                builder.AddAttribute(1, "IsInstaller", false);
+                builder.AddComponentReferenceCapture(2, inst => { _databaseConfig = Convert.ChangeType(inst, _databaseConfigType); });
+                builder.CloseComponent();
+            };
+        }
     }
 
     private void TenantChanged(ChangeEventArgs e)
@@ -301,10 +329,14 @@ else
                         user = await UserService.LoginUserAsync(user, false, false);
                         if (user.IsAuthenticated)
                         {
-                            var connectionString = _selectedDatabase.BuildConnectionString();
+                            var connectionString = String.Empty;
+                            if (_databaseConfig is IDatabaseConfigControl databaseConfigControl)
+                            {
+                                connectionString = databaseConfigControl.GetConnectionString();
+                            }
                             if (connectionString != "")
                             {
-                                config.DatabaseType = _databaseType;
+                                config.DatabaseType = _databaseName;
                                 config.ConnectionString = connectionString;
                                 config.HostPassword = _hostpassword;
                                 config.HostEmail = user.Email;
