@@ -370,11 +370,18 @@
                     module.ModuleDefinitionName = ModuleDefinitionName;
                     module.AllPages = false;
 
-                    List<PermissionString> permissions = new()
-                    {
-                        new PermissionString { PermissionName = PermissionNames.View, Permissions = RoleNames.Admin },
-                        new PermissionString { PermissionName = PermissionNames.Edit, Permissions = RoleNames.Admin }
-                    };
+                    // Copy page permissions to the module 
+                    List<PermissionString> permissions = UserSecurity.GetPermissionStrings(PageState.Page.Permissions);
+
+                    //Remove all view permission 
+                    permissions.Remove(permissions.Find(p => p.PermissionName == PermissionNames.View));
+
+                    // Load Edit permissions
+                    List<string> editpermissions = permissions.Find(p => p.PermissionName == PermissionNames.Edit).Permissions.Split(";").ToList();
+
+                    // Add view permissions for all roles with edit permissions.
+                    permissions.Add(new PermissionString { PermissionName = PermissionNames.View, Permissions= string.Join(";", editpermissions.ToArray())});
+
                     module.Permissions = UserSecurity.SetPermissionStrings(permissions);
 
                     module = await ModuleService.AddModuleAsync(module);
