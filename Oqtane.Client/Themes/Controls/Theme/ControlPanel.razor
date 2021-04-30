@@ -369,7 +369,10 @@
                     module.PageId = PageState.Page.PageId;
                     module.ModuleDefinitionName = ModuleDefinitionName;
                     module.AllPages = false;
-                    module.Permissions = PageState.Page.Permissions;
+                    List<PermissionString> permissions = UserSecurity.GetPermissionStrings(PageState.Page.Permissions);
+                    permissions.Remove(permissions.Find(p => p.PermissionName == PermissionNames.View));
+                    List<string> editpermissions = permissions.Find(p => p.PermissionName == PermissionNames.Edit).Permissions.Split(";").ToList();
+                    permissions.Add(new PermissionString { PermissionName = PermissionNames.View, Permissions = string.Join(";", editpermissions.ToArray()) });
                     module = await ModuleService.AddModuleAsync(module);
                     ModuleId = module.ModuleId.ToString();
                 }
