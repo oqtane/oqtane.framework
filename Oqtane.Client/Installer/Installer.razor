@@ -1,13 +1,13 @@
+@namespace Oqtane.Installer
 @using Oqtane.Interfaces
-@using System.Reflection
-@namespace Oqtane.UI
+@using Oqtane.Installer.Controls
+
 @inject NavigationManager NavigationManager
 @inject IInstallationService InstallationService
 @inject ISiteService SiteService
 @inject IUserService UserService
 @inject IJSRuntime JSRuntime
 @inject IStringLocalizer<Installer> Localizer
-@inject IEnumerable<IOqtaneDatabase> Databases
 
 <div class="container">
     <div class="row">
@@ -22,63 +22,23 @@
             <h2>@Localizer["Database Configuration"]</h2><br />
             <table class="form-group" cellpadding="4" cellspacing="4" style="margin: auto;">
                 <tbody>
-                    <tr>
-                        <td>
-                            <label class="control-label" style="font-weight: bold">@Localizer["Database Type:"] </label>
-                        </td>
-                        <td>
-                            <select class="custom-select" @bind="@_databaseType">
-                                @{
-                                    foreach (var database in Databases)
-                                    {
-                                        <option value="@database.Name">@Localizer[@database.FriendlyName]</option>
-                                    }
-                                }
-                            </select>
-                        </td>
-                    </tr>
-                @{
-                    _selectedDatabase = Databases.Single(d => d.Name == _databaseType);
-                    foreach (var field in _selectedDatabase.ConnectionStringFields)
-                    {
-                        if (field.Name != "IntegratedSecurity")
-                        {
-                            var isVisible = "";
-                            var fieldType = (field.Name == "Pwd") ? "password" : "text";
-                            if ((field.Name == "Uid" || field.Name == "Pwd") && _selectedDatabase.Name != "MySQL" )
+                <tr>
+                    <td>
+                        <label class="control-label" style="font-weight: bold">@Localizer["Database Type:"]</label>
+                    </td>
+                    <td>
+                        <select class="custom-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))">
+                            @foreach (var database in _databases)
                             {
-                                var intSecurityField = _selectedDatabase.ConnectionStringFields.Single(f => f.Name == "IntegratedSecurity");
-                                if (intSecurityField != null)
-                                {
-                                    isVisible = (Convert.ToBoolean(intSecurityField.Value)) ? "display: none;" : "";
-                                }
+                                <option value="@database.Name">@Localizer[@database.FriendlyName]</option>
                             }
-
-                            field.Value = field.Value.Replace("{{Date}}", DateTime.UtcNow.ToString("yyyyMMddHHmm"));
-                            
-                            <tr style="@isVisible">
-                                <td>
-                                    <label class="control-label" style="font-weight: bold">@Localizer[$"{field.FriendlyName}:"]</label>
-                                </td>
-                                <td>
-                                    <input type="@fieldType" class="form-control" @bind="@field.Value" />
-                                </td>
-                            </tr>
-                        }
-                        else
-                        {
-                            <tr>
-                                <td>
-                                    <label class="control-label" style="font-weight: bold">@Localizer[$"{field.FriendlyName}:"]</label>
-                                </td>
-                                <td>
-                                    <select class="custom-select" @bind="@field.Value">
-                                        <option value="true" selected>@Localizer["True"]</option>
-                                        <option value="false">@Localizer["False"]</option>
-                                    </select>
-                                </td>
-                            </tr>
-                        }
+                        </select>
+                    </td>
+                </tr>
+                @{
+                    if (_databaseConfigType != null)
+                    {
+                        @DatabaseConfigComponent;
                     }
                 }
                 </tbody>
@@ -135,14 +95,89 @@
 </div>
 
 @code {
-    private IOqtaneDatabase _selectedDatabase;
-    private string _databaseType = "LocalDB";
+    private IList<Database> _databases;
+    private string _databaseName = "LocalDB";
+    private Type _databaseConfigType;
+    private object _databaseConfig;
+    private RenderFragment DatabaseConfigComponent { get; set; }
+
     private string _hostUsername = UserNames.Host;
     private string _hostPassword = string.Empty;
     private string _confirmPassword = string.Empty;
     private string _hostEmail = string.Empty;
     private string _message = string.Empty;
     private string _loadingDisplay = "display: none;";
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        _databases = new List<Database>
+        {
+            new()
+            {
+                Name = "LocalDB",
+                FriendlyName = "Local Database",
+                Type = "Oqtane.Installer.Controls.LocalDBConfig, Oqtane.Client"
+            },
+            new()
+            {
+                Name = "SqlServer",
+                FriendlyName = "SQL Server",
+                Type = "Oqtane.Installer.Controls.SqlServerConfig, Oqtane.Client"
+            },
+            new()
+            {
+                Name = "Sqlite",
+                FriendlyName = "Sqlite",
+                Type = "Oqtane.Installer.Controls.SqliteConfig, Oqtane.Client"
+            },
+            new()
+            {
+                Name = "MySQL",
+                FriendlyName = "MySQL",
+                Type = "Oqtane.Installer.Controls.MySQLConfig, Oqtane.Client"
+            },
+            new()
+            {
+                Name = "PostgreSQL",
+                FriendlyName = "PostgreSQL",
+                Type = "Oqtane.Installer.Controls.PostgreSQLConfig, Oqtane.Client"
+            }
+        };
+        
+        LoadDatabaseConfigComponent();
+    }
+
+    private void DatabaseChanged(ChangeEventArgs eventArgs)
+    {
+        try
+        {
+            _databaseName = (string)eventArgs.Value;
+
+            LoadDatabaseConfigComponent();
+        }
+        catch (Exception exception)
+        {
+            _message = Localizer["Error loading Database Configuration Control"];
+        }
+    }
+
+    private void LoadDatabaseConfigComponent()
+    {
+        var database = _databases.SingleOrDefault(d => d.Name == _databaseName);
+        if (database != null)
+        {
+            _databaseConfigType = Type.GetType(database.Type);
+            DatabaseConfigComponent = builder =>
+            {
+                builder.OpenComponent(0, _databaseConfigType);
+                builder.AddAttribute(1, "IsInstaller", true);
+                builder.AddComponentReferenceCapture(2, inst => { _databaseConfig = Convert.ChangeType(inst, _databaseConfigType); });
+                builder.CloseComponent();
+            };
+        }
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -155,7 +190,11 @@
 
     private async Task Install()
     {
-        var connectionString = _selectedDatabase.BuildConnectionString();
+        var connectionString = String.Empty;
+        if (_databaseConfig is IDatabaseConfigControl databaseConfigControl)
+        {
+            connectionString = databaseConfigControl.GetConnectionString();
+        }
 
         if (connectionString != "" && _hostUsername != "" && _hostPassword.Length >= 6 && _hostPassword == _confirmPassword && _hostEmail != "")
         {
@@ -166,7 +205,7 @@
 
             var config = new InstallConfig
             {
-                DatabaseType = _databaseType,
+                DatabaseType = _databaseName,
                 ConnectionString = connectionString,
                 Aliases = uri.Authority,
                 HostEmail = _hostEmail,

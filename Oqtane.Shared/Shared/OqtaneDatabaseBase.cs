@@ -10,11 +10,10 @@ namespace Oqtane.Shared
 {
     public abstract class OqtaneDatabaseBase : IOqtaneDatabase
     {
-        protected OqtaneDatabaseBase(string name, string friendlyName, List<ConnectionStringField> connectionStringFields)
+        protected OqtaneDatabaseBase(string name, string friendlyName)
         {
             Name = name;
             FriendlyName = friendlyName;
-            ConnectionStringFields = connectionStringFields;
         }
 
         public  string FriendlyName { get; }
@@ -23,11 +22,7 @@ namespace Oqtane.Shared
 
         public abstract string Provider { get; }
 
-        public List<ConnectionStringField> ConnectionStringFields { get; }
-
         public abstract OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(ColumnsBuilder table, string name);
-
-        public abstract string BuildConnectionString();
 
         public virtual string ConcatenateSql(params string[] values)
         {

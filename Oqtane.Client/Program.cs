@@ -86,17 +86,6 @@ namespace Oqtane.Client
                     }
                 }
 
-                // dynamically register database providers
-                var databaseTypes = assembly.GetInterfaces<IOqtaneDatabase>();
-                foreach (var databaseType in databaseTypes)
-                {
-                    if (databaseType.AssemblyQualifiedName != null)
-                    {
-                        var serviceType = Type.GetType("Oqtane.Interfaces.IDatabase, Oqtane.Shared");
-                        builder.Services.AddScoped(serviceType ?? databaseType, databaseType);
-                    }
-                }
-
                 // register client startup services
                 var startUps = assembly.GetInstances<IClientStartup>();
                 foreach (var startup in startUps)
