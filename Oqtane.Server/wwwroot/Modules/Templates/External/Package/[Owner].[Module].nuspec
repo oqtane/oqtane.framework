@@ -11,7 +11,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
-    <iconUrl>https://www.oqtane.org/Portals/0/icon.jpg</iconUrl>
+    <icon>icon.png</icon>
     <tags>oqtane module</tags>
     <releaseNotes></releaseNotes>
     <summary></summary>
@@ -27,5 +27,6 @@
     <file src="..\Shared\bin\Release\net5.0\[Owner].[Module].Shared.Oqtane.dll" target="lib\net5.0" /> 
     <file src="..\Shared\bin\Release\net5.0\[Owner].[Module].Shared.Oqtane.pdb" target="lib\net5.0" /> 
     <file src="..\Server\wwwroot\**\*.*" target="wwwroot" /> 
+    <file src="icon.png" target="" />
   </files>
 </package>
