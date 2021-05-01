@@ -288,7 +288,7 @@
         Page page = null;
         try
         {
-            if (_name != string.Empty && !string.IsNullOrEmpty(_themetype) && _containertype != "-")
+            if (!string.IsNullOrEmpty(_name) && !string.IsNullOrEmpty(_themetype) && _containertype != "-")
             {
                 page = new Page();
                 page.SiteId = PageState.Page.SiteId;

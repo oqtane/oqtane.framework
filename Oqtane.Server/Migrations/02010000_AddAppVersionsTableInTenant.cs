@@ -10,7 +10,6 @@ namespace Oqtane.Migrations
 {
     [DbContext(typeof(TenantDBContext))]
     [Migration("Tenant.02.01.00.00")]
-
     public class AddAppVersionsTable : MultiDatabaseMigration
     {
         public AddAppVersionsTable(IEnumerable<IOqtaneDatabase> databases) : base(databases)

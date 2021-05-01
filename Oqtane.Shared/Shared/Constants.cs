@@ -5,8 +5,8 @@ namespace Oqtane.Shared {
 
     public class Constants {
         public const string PackageId = "Oqtane.Framework";
-        public const string Version = "2.0.2";
-        public const string ReleaseVersions = "1.0.0,1.0.1,1.0.2,1.0.3,1.0.4,2.0.0,2.0.1,2.0.2";
+        public static readonly string Version = "2.1.0";
+        public const string ReleaseVersions = "1.0.0,1.0.1,1.0.2,1.0.3,1.0.4,2.0.0,2.0.1,2.0.2,2.1.0";
 
         public const string PageComponent = "Oqtane.UI.ThemeBuilder, Oqtane.Client";
         public const string ContainerComponent = "Oqtane.UI.ContainerBuilder, Oqtane.Client";
@@ -71,6 +71,6 @@ namespace Oqtane.Shared {
 
         public static readonly string SatelliteAssemblyExtension = ".resources.dll";
 
-        public static readonly string DefaultCulture = CultureInfo.InstalledUICulture.Name;
+        public static readonly string DefaultCulture = "en";
     }
 }

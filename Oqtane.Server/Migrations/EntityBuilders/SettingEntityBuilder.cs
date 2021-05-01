@@ -24,7 +24,7 @@ namespace Oqtane.Migrations.EntityBuilders
             SettingId = AddAutoIncrementColumn(table,"SettingId");
             EntityName = AddStringColumn(table,"EntityName", 50);
             EntityId = AddIntegerColumn(table,"EntityId");
-            SettingName = AddStringColumn(table,"SettingName", 50);
+            SettingName = AddStringColumn(table,"SettingName", 200);
             SettingValue = AddMaxStringColumn(table,"SettingValue");
 
             AddAuditableColumns(table);

@@ -131,26 +131,34 @@
             {
                 if (password == confirm)
                 {
-                    var user = new User();
-                    user.SiteId = PageState.Site.SiteId;
-                    user.Username = username;
-                    user.Password = password;
-                    user.Email = email;
-                    user.DisplayName = string.IsNullOrWhiteSpace(displayname) ? username : displayname;
-                    user.PhotoFileId = null;
-
-                    user = await UserService.AddUserAsync(user);
-
-                    if (user != null)
+                    var user = await UserService.GetUserAsync(username, PageState.Site.SiteId);
+                    if (user == null)
                     {
-                        await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
-                        await logger.LogInformation("User Created {User}", user);
-                        NavigationManager.NavigateTo(NavigateUrl());
+                        user = new User();
+                        user.SiteId = PageState.Site.SiteId;
+                        user.Username = username;
+                        user.Password = password;
+                        user.Email = email;
+                        user.DisplayName = string.IsNullOrWhiteSpace(displayname) ? username : displayname;
+                        user.PhotoFileId = null;
+
+                        user = await UserService.AddUserAsync(user);
+
+                        if (user != null)
+                        {
+                            await SettingService.UpdateUserSettingsAsync(settings, user.UserId);
+                            await logger.LogInformation("User Created {User}", user);
+                            NavigationManager.NavigateTo(NavigateUrl());
+                        }
+                        else
+                        {
+                            await logger.LogError("Error Adding User {Username} {Email}", username, email);
+                            AddModuleMessage(Localizer["Error Adding User. Please Ensure Password Meets Complexity Requirements And Username And Email Are Not Already In Use."], MessageType.Error);
+                        }
                     }
                     else
                     {
-                        await logger.LogError("Error Adding User {Username} {Email}", username, email);
-                        AddModuleMessage(Localizer["Error Adding User. Please Ensure Password Meets Complexity Requirements And Username Is Not Already In Use."], MessageType.Error);
+                        AddModuleMessage(Localizer["Username Already Exists"], MessageType.Warning);
                     }
                 }
                 else

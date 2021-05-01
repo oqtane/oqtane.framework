@@ -22,15 +22,22 @@ namespace Oqtane.Migrations
             var siteEntityBuilder = new SiteEntityBuilder(migrationBuilder, ActiveDatabase);
             siteEntityBuilder.Create();
 
+            //Add Column to Site table (for Sql Server only) we will drop it later for Sql Server only
+            if (ActiveDatabase.Name == "SqlServer" || ActiveDatabase.Name == "LocalDB")
+            {
+                siteEntityBuilder.AddStringColumn("DefaultLayoutType", 200, true);
+            }
+
             //Create Page table
             var pageEntityBuilder = new PageEntityBuilder(migrationBuilder, ActiveDatabase);
             pageEntityBuilder.Create();
             pageEntityBuilder.AddIndex("IX_Page", new [] {"SiteId", "Path", "UserId"}, true);
 
-            //Add Column to Page table (for Sql Server only) we will drop it later for Sql Server only
+            //Add Columns to Page table (for Sql Server only) we will drop them later for Sql Server only
             if (ActiveDatabase.Name == "SqlServer" || ActiveDatabase.Name == "LocalDB")
             {
                 pageEntityBuilder.AddBooleanColumn("EditMode");
+                pageEntityBuilder.AddStringColumn("LayoutType", 200, true);
             }
 
             //Create Module table

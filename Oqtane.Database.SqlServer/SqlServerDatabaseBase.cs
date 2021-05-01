@@ -9,7 +9,7 @@ namespace Oqtane.Repository.Databases
 {
     public abstract class SqlServerDatabaseBase : OqtaneDatabaseBase
     {
-        protected SqlServerDatabaseBase(string name, string friendlyName, List<ConnectionStringField> connectionStringFields) : base(name, friendlyName, connectionStringFields)
+        protected SqlServerDatabaseBase(string name, string friendlyName) : base(name, friendlyName)
         {
         }
 
