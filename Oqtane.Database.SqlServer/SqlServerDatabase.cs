@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Oqtane.Models;
-using Oqtane.Repository.Databases;
 
-// ReSharper disable ArrangeObjectCreationWhenTypeNotEvident
-
-namespace Oqtane.Databases
+namespace Oqtane.Repository.Databases
 {
     public class SqlServerDatabase : SqlServerDatabaseBase
     {
