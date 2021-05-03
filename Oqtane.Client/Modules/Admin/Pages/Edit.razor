@@ -6,7 +6,7 @@
 @inject IThemeService  ThemeService
 @inject IStringLocalizer<Edit> Localizer
 
-<TabStrip>
+<TabStrip Refresh="@_refresh">
     <TabPanel Name="Settings" ResourceKey="Settings">
         @if (_themeList != null)
         {
@@ -211,6 +211,7 @@
     private Type _themeSettingsType;
     private object _themeSettings;
     private RenderFragment ThemeSettingsComponent { get; set; }
+    private bool _refresh = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -354,6 +355,7 @@
                     builder.CloseComponent();
                 };
             }
+            _refresh = true;
         }
     }
 
