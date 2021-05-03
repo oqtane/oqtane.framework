@@ -4,7 +4,7 @@
 <CascadingValue Value="this" IsFixed="true">
     <div class="container-fluid">
         <div class="form-group">
-            <ul class="nav nav-tabs" role="tablist">
+            <ul class="nav nav-tabs" role="tablist" style="z-index:1000">
                 @foreach (TabPanel tabPanel in _tabPanels)
                 {
                     @if (IsAuthorized(tabPanel))
