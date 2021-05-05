@@ -175,7 +175,7 @@ namespace Oqtane
             services.AddSingleton<IDatabaseManager, DatabaseManager>();
 
             // install any modules or themes ( this needs to occur BEFORE the assemblies are loaded into the app domain )
-            InstallationManager.InstallPackages("Modules,Themes", _env.WebRootPath, _env.ContentRootPath);
+            InstallationManager.InstallPackages("Modules,Themes,Packages", _env.WebRootPath, _env.ContentRootPath);
 
             // register transient scoped core services
             services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
