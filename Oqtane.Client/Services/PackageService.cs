@@ -1,4 +1,4 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -21,6 +21,11 @@ namespace Oqtane.Services
         public async Task DownloadPackageAsync(string packageId, string version, string folder)
         {
             await PostAsync($"{Apiurl}?packageid={packageId}&version={version}&folder={folder}");
+        }
+
+        public async Task InstallPackagesAsync()
+        {
+            await GetJsonAsync<List<string>>($"{Apiurl}/install");
         }
     }
 }
