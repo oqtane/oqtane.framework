@@ -22,7 +22,7 @@ else
             <th style="width: 1px;">&nbsp;</th>
         </Header>
         <Row>
-            <td><ActionDialog Header="Delete Langauge" Message="@Localizer["Are You Sure You Wish To Delete The {0} Language From This Site?", context.Name]" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteLanguage(context))" Disabled="@(context.IsDefault)" ResourceKey="DeleteLanguage" /></td>
+            <td><ActionDialog Header="Delete Langauge" Message="@Localizer["Are You Sure You Wish To Delete The {0} Language From This Site?", context.Name]" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteLanguage(context))" Disabled="@(context.IsDefault || context.Code == Constants.DefaultCulture)" ResourceKey="DeleteLanguage" /></td>
             <td>@context.Name</td>
             <td>@context.Code</td>
             <td><TriStateCheckBox Value="@(context.IsDefault)" Disabled="true"></TriStateCheckBox></td>
@@ -45,12 +45,13 @@ else
     protected override async Task OnParametersSetAsync()
     {
         _languages = await LanguageService.GetLanguagesAsync(PageState.Site.SiteId);
-        if (_languages.Count == 0)
-        {
-            var cultures = await LocalizationService.GetCulturesAsync();
-            var culture = cultures.First(c => c.Name.Equals(Constants.DefaultCulture));
-            _languages.Add(new Language { Name = culture.DisplayName, Code = culture.Name, IsDefault = culture.IsDefault });
-        }
+
+        var cultures = await LocalizationService.GetCulturesAsync();
+        var culture = cultures.First(c => c.Name.Equals(Constants.DefaultCulture));
+        
+        // Adds English as default language
+        _languages.Insert(0, new Language { Name = culture.DisplayName, Code = culture.Name, IsDefault = culture.IsDefault });
+
         if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
         {
             _packages = await PackageService.GetPackagesAsync("language");
