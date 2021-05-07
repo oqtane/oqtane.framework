@@ -16,39 +16,39 @@ else
 {
     <TabStrip>
         <TabPanel Name="Manage" ResourceKey="Manage">
-            @if (_supportedCultures?.Count() > 1)
+            @if (_availableCultures.Count() == 0)
             {
-                <table class="table table-borderless">
-                    <tr>
-                        <td>
-                            <Label For="name" HelpText="Name Of The Language" ResourceKey="Name">Name:</Label>
-                        </td>
-                        <td>
-                            <select id="_code" class="form-control" @bind="@_code">
-                                @foreach (var culture in _supportedCultures)
-                                {
-                                    <option value="@culture.Name">@culture.DisplayName</option>
-                                }
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <Label For="default" HelpText="Indicates Whether Or Not This Language Is The Default For The Site" ResourceKey="IsDefault">Default?</Label>
-                        </td>
-                        <td>
-                            <select id="default" class="form-control" @bind="@_isDefault">
-                                <option value="True">@Localizer["Yes"]</option>
-                                <option value="False">@Localizer["No"]</option>
-                            </select>
-                        </td>
-                    </tr>
-                </table>
-                <button type="button" class="btn btn-success" @onclick="SaveLanguage">@Localizer["Save"]</button>
+                <ModuleMessage Type="MessageType.Info" Message="@_message"></ModuleMessage>
             }
             else
             {
-                <ModuleMessage Type="MessageType.Info" Message="The Only Installed Language Is English"></ModuleMessage>
+            <table class="table table-borderless">
+                <tr>
+                    <td>
+                        <Label For="name" HelpText="Name Of The Language" ResourceKey="Name">Name:</Label>
+                    </td>
+                    <td>
+                        <select id="_code" class="form-control" @bind="@_code">
+                            @foreach (var culture in _availableCultures)
+                            {
+                                <option value="@culture.Name">@culture.DisplayName</option>
+                            }
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="default" HelpText="Indicates Whether Or Not This Language Is The Default For The Site" ResourceKey="IsDefault">Default?</Label>
+                    </td>
+                    <td>
+                        <select id="default" class="form-control" @bind="@_isDefault">
+                            <option value="True">@Localizer["Yes"]</option>
+                            <option value="False">@Localizer["No"]</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            <button type="button" class="btn btn-success" @onclick="SaveLanguage">@Localizer["Save"]</button>
             }
             <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
         </TabPanel>
@@ -98,17 +98,31 @@ else
 @code {
     private string _code = string.Empty;
     private string _isDefault = "False";
+    private string _message;
+    private IEnumerable<Culture> _supportedCultures;
+    private IEnumerable<Culture> _availableCultures;
     private List<Package> _packages;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-    private IEnumerable<Culture> _supportedCultures;
-
     protected override async Task OnParametersSetAsync()
     {
+        var languages = await LanguageService.GetLanguagesAsync(PageState.Site.SiteId);
+        var languagesCodes = languages.Select(l => l.Code).ToList();
+
         _supportedCultures = await LocalizationService.GetCulturesAsync();
-        _supportedCultures = _supportedCultures.Where(c => !c.Name.Equals(Constants.DefaultCulture));
+        _availableCultures = _supportedCultures
+            .Where(c => !c.Name.Equals(Constants.DefaultCulture) && !languagesCodes.Contains(c.Name));
         _packages = await PackageService.GetPackagesAsync("language");
+
+        if (_supportedCultures.Count() == 1)
+        {
+            _message = Localizer["The Only Installed Language Is English"];
+        }
+        else if (_availableCultures.Count() == 0)
+        {
+            _message = Localizer["All The Installed Languages Have Been Added."];
+        }
     }
 
     private async Task SaveLanguage()
