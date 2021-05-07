@@ -50,7 +50,7 @@ else
         var culture = cultures.First(c => c.Name.Equals(Constants.DefaultCulture));
         
         // Adds English as default language
-        _languages.Insert(0, new Language { Name = culture.DisplayName, Code = culture.Name, IsDefault = culture.IsDefault });
+        _languages.Insert(0, new Language { Name = culture.DisplayName, Code = culture.Name, IsDefault = !_languages.Any(l => l.IsDefault) });
 
         if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
         {
