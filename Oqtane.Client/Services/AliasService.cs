@@ -1,4 +1,4 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Linq;
@@ -19,7 +19,7 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private string Apiurl => CreateApiUrl(_siteState.Alias, "Alias");
+        private string Apiurl => CreateApiUrl("Alias", _siteState.Alias);
 
         public async Task<List<Alias>> GetAliasesAsync()
         {
@@ -32,10 +32,9 @@ namespace Oqtane.Services
             return await GetJsonAsync<Alias>($"{Apiurl}/{aliasId}");
         }
 
-        public async Task<Alias> GetAliasAsync(string name, DateTime lastSyncDate)
+        public async Task<Alias> GetAliasAsync(string path, DateTime lastSyncDate)
         {
-            name = (string.IsNullOrEmpty(name)) ? "~" : name;
-            return await GetJsonAsync<Alias>($"{Apiurl}/name/{WebUtility.UrlEncode(name)}?sync={lastSyncDate.ToString("yyyyMMddHHmmssfff")}");
+            return await GetJsonAsync<Alias>($"{Apiurl}/name/?path={WebUtility.UrlEncode(path)}&sync={lastSyncDate.ToString("yyyyMMddHHmmssfff")}");
         }
 
         public async Task<Alias> AddAliasAsync(Alias alias)

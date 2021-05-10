@@ -55,17 +55,28 @@ namespace Oqtane.Repository
             List<Alias> aliases = GetAliases().ToList();
             var segments = name.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
 
-            // iterate segments in reverse order
-            for (int i = segments.Length; i > 0; i--)
+            // iterate segments to find keywords
+            int start = segments.Length;
+            for (int i = 0; i < segments.Length; i++)
             {
-                name = string.Join("/", segments, 0, i);
-                alias = aliases.Find(item => item.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+                if (segments[i] == "api" || segments[i] == "pages" || segments[i] == "*")
+                {
+                    start = i;
+                    break;
+                }
+            }
+
+            // iterate segments in reverse order to find alias match
+            for (int i = start; i > 0; i--)
+            {
+                alias = aliases.Find(item => item.Name.Equals(string.Join("/", segments, 0, i), StringComparison.OrdinalIgnoreCase));
                 if (alias != null)
                 {
                     break; // found a matching alias
                 }
             }
-            // return fallback alias
+
+            // return fallback alias if none found
             return alias ?? aliases.Find(item => item.Name.Equals("*"));
         }
 

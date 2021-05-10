@@ -1,4 +1,4 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -16,7 +16,7 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private string Apiurl => CreateApiUrl(_siteState.Alias, "Tenant");
+        private string Apiurl => CreateApiUrl("Tenant", _siteState.Alias);
 
         public async Task<List<Tenant>> GetTenantsAsync()
         {

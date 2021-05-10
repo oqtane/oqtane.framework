@@ -21,7 +21,7 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private string Apiurl => CreateApiUrl(_siteState.Alias, "ModuleDefinition");
+        private string Apiurl => CreateApiUrl("ModuleDefinition", _siteState.Alias);
 
         public async Task<List<ModuleDefinition>> GetModuleDefinitionsAsync(int siteId)
         {

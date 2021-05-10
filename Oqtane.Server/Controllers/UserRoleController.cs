@@ -10,22 +10,22 @@ using System.Linq;
 
 namespace Oqtane.Controllers
 {
-    [Route(ControllerRoutes.Default)]
+    [Route(ControllerRoutes.ApiRoute)]
     public class UserRoleController : Controller
     {
         private readonly IUserRoleRepository _userRoles;
         private readonly IRoleRepository _roles;
-        private readonly ITenantResolver _tenants;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
+        private readonly Alias _alias;
 
-        public UserRoleController(IUserRoleRepository userRoles, IRoleRepository roles, ITenantResolver tenants, ISyncManager syncManager, ILogManager logger)
+        public UserRoleController(IUserRoleRepository userRoles, IRoleRepository roles, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
         {
             _userRoles = userRoles;
             _roles = roles;
             _syncManager = syncManager;
-            _tenants = tenants;
             _logger = logger;
+            _alias = tenantManager.GetAlias();
         }
 
         // GET: api/<controller>?siteid=x
@@ -62,7 +62,7 @@ namespace Oqtane.Controllers
                 userRole = _userRoles.AddUserRole(userRole);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "User Role Added {UserRole}", userRole);
 
-                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.User, userRole.UserId);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.User, userRole.UserId);
             }
             return userRole;
         }
@@ -76,7 +76,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && (User.IsInRole(RoleNames.Host) || role.Name != RoleNames.Host))
             {
                 userRole = _userRoles.UpdateUserRole(userRole);
-                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.User, userRole.UserId);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.User, userRole.UserId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Role Updated {UserRole}", userRole);
             }
             return userRole;
@@ -96,15 +96,15 @@ namespace Oqtane.Controllers
                 if (userRole.Role.Name == RoleNames.Host)
                 {
                     // add site specific user roles to preserve user access
-                    var role = _roles.GetRoles(_tenants.GetAlias().SiteId).FirstOrDefault(item => item.Name == RoleNames.Registered);
+                    var role = _roles.GetRoles(_alias.SiteId).FirstOrDefault(item => item.Name == RoleNames.Registered);
                     userRole = _userRoles.AddUserRole(new UserRole { UserId = userRole.UserId, RoleId = role.RoleId, EffectiveDate = null, ExpiryDate = null });
                     _logger.Log(LogLevel.Information, this, LogFunction.Create, "User Role Added {UserRole}", userRole);
-                    role = _roles.GetRoles(_tenants.GetAlias().SiteId).FirstOrDefault(item => item.Name == RoleNames.Admin);
+                    role = _roles.GetRoles(_alias.SiteId).FirstOrDefault(item => item.Name == RoleNames.Admin);
                     userRole = _userRoles.AddUserRole(new UserRole { UserId = userRole.UserId, RoleId = role.RoleId, EffectiveDate = null, ExpiryDate = null });
                     _logger.Log(LogLevel.Information, this, LogFunction.Create, "User Role Added {UserRole}", userRole);
                 }
 
-                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.User, userRole.UserId);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.User, userRole.UserId);
             }
         }
     }

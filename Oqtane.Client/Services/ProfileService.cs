@@ -1,4 +1,4 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Linq;
@@ -17,7 +17,7 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private string Apiurl => CreateApiUrl(_siteState.Alias, "Profile");
+        private string Apiurl => CreateApiUrl("Profile", _siteState.Alias);
 
         public async Task<List<Profile>> GetProfilesAsync(int siteId)
         {

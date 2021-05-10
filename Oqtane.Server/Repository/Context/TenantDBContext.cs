@@ -1,6 +1,5 @@
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Oqtane.Interfaces;
+using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Repository.Databases.Interfaces;
 
@@ -12,7 +11,7 @@ namespace Oqtane.Repository
 {
     public class TenantDBContext : DBContextBase, IMultiDatabase
     {
-        public TenantDBContext(IDbConfig dbConfig, ITenantResolver tenantResolver) : base(dbConfig, tenantResolver) { }
+        public TenantDBContext(IDbConfig dbConfig, ITenantManager tenantManager) : base(dbConfig, tenantManager) { }
 
         public virtual DbSet<Site> Site { get; set; }
         public virtual DbSet<Page> Page { get; set; }

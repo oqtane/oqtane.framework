@@ -1,4 +1,4 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Linq;
@@ -16,7 +16,7 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private string Apiurl => CreateApiUrl(_siteState.Alias, "Job");
+        private string Apiurl => CreateApiUrl("Job", _siteState.Alias);
         
         public async Task<List<Job>> GetJobsAsync()
         {

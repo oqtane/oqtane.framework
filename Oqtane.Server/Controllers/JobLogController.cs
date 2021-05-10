@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Oqtane.Enums;
@@ -9,7 +9,7 @@ using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
-    [Route(ControllerRoutes.Default)]
+    [Route(ControllerRoutes.ApiRoute)]
     public class JobLogController : Controller
     {
         private readonly IJobLogRepository _jobLogs;

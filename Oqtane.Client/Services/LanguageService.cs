@@ -17,7 +17,7 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private string Apiurl => CreateApiUrl(_siteState.Alias, "Language");
+        private string Apiurl => CreateApiUrl("Language", _siteState.Alias);
 
         public async Task<List<Language>> GetLanguagesAsync(int siteId)
         {

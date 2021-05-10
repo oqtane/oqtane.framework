@@ -1,4 +1,4 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -102,7 +102,7 @@ namespace Oqtane.Shared
 
         public static string ContentUrl(Alias alias, int fileId, bool asAttachment)
         {
-            var  aliasUrl = (alias == null) ? "/~" : "/" + alias.AliasId;
+            var aliasUrl = (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path : "";
             var method = asAttachment ? "/attach":"";
 
             return $"{aliasUrl}{Constants.ContentUrl}{fileId}{method}";

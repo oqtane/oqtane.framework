@@ -16,7 +16,7 @@ using System.Text.Json;
 
 namespace Oqtane.Controllers
 {
-    [Route(ControllerRoutes.Default)]
+    [Route(ControllerRoutes.ApiRoute)]
     public class ThemeController : Controller
     {
         private readonly IThemeRepository _themes;

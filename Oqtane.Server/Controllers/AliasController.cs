@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Oqtane.Controllers
 {
-    [Route(ControllerRoutes.Default)]
+    [Route(ControllerRoutes.ApiRoute)]
     public class AliasController : Controller
     {
         private readonly IAliasRepository _aliases;
@@ -46,17 +46,16 @@ namespace Oqtane.Controllers
             return _aliases.GetAlias(id);
         }
 
-        // GET api/<controller>/name/xxx?sync=yyyyMMddHHmmssfff
-        [HttpGet("name/{**name}")]
-        public Alias Get(string name, string sync)
+        // GET api/<controller>/name/?path=xxx&sync=yyyyMMddHHmmssfff
+        [HttpGet("name")]
+        public Alias Get(string path, string sync)
         {
             Alias alias = null;
 
             if (_accessor.HttpContext != null)
             {
-                name = (name == "~") ? "" : name;
-                name = _accessor.HttpContext.Request.Host.Value + "/" + WebUtility.UrlDecode(name);
-                alias = _aliases.GetAlias(name);
+                path = _accessor.HttpContext.Request.Host.Value + "/" + WebUtility.UrlDecode(path);
+                alias = _aliases.GetAlias(path);
             }
 
             // get sync events

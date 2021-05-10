@@ -13,7 +13,7 @@ using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
-    [Route(ControllerRoutes.Default)]
+    [Route(ControllerRoutes.ApiRoute)]
     public class PageController : Controller
     {
         private readonly IPageRepository _pages;
@@ -21,20 +21,20 @@ namespace Oqtane.Controllers
         private readonly IPageModuleRepository _pageModules;
         private readonly ISettingRepository _settings;
         private readonly IUserPermissions _userPermissions;
-        private readonly ITenantResolver _tenants;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
+        private readonly Alias _alias;
 
-        public PageController(IPageRepository pages, IModuleRepository modules, IPageModuleRepository pageModules, ISettingRepository settings, IUserPermissions userPermissions, ITenantResolver tenants, ISyncManager syncManager, ILogManager logger)
+        public PageController(IPageRepository pages, IModuleRepository modules, IPageModuleRepository pageModules, ISettingRepository settings, IUserPermissions userPermissions, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
         {
             _pages = pages;
             _modules = modules;
             _pageModules = pageModules;
             _settings = settings;
             _userPermissions = userPermissions;
-            _tenants = tenants;
             _syncManager = syncManager;
             _logger = logger;
+            _alias = tenantManager.GetAlias();
         }
 
         // GET: api/<controller>?siteid=x
@@ -132,7 +132,7 @@ namespace Oqtane.Controllers
                 if (_userPermissions.IsAuthorized(User,PermissionNames.Edit, permissions))
                 {
                     page = _pages.AddPage(page);
-                    _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, page.SiteId);
+                    _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, page.SiteId);
                     _logger.Log(LogLevel.Information, this, LogFunction.Create, "Page Added {Page}", page);
 
                     if (!page.Path.StartsWith("admin/"))
@@ -183,7 +183,7 @@ namespace Oqtane.Controllers
                 page.IsPersonalizable = false;
                 page.UserId = int.Parse(userid);
                 page = _pages.AddPage(page);
-                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, page.SiteId);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, page.SiteId);
 
                 // copy modules
                 List<PageModule> pagemodules = _pageModules.GetPageModules(page.SiteId).ToList();
@@ -228,7 +228,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Page, page.PageId, PermissionNames.Edit))
             {
                 page = _pages.UpdatePage(page);
-                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, page.SiteId);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, page.SiteId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Updated {Page}", page);
             }
             else
@@ -258,7 +258,7 @@ namespace Oqtane.Controllers
                     }
                     order += 2;
                 }
-                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, siteid);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, siteid);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Order Updated {SiteId} {PageId} {ParentId}", siteid, pageid, parentid);
             }
             else
@@ -277,7 +277,7 @@ namespace Oqtane.Controllers
             if (_userPermissions.IsAuthorized(User, EntityNames.Page, page.PageId, PermissionNames.Edit))
             {
                 _pages.DeletePage(page.PageId);
-                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, page.SiteId);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, page.SiteId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Page Deleted {PageId}", page.PageId);
             }
             else

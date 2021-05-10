@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
@@ -23,7 +23,7 @@ namespace Oqtane.Services
             _navigationManager = navigationManager;
         }
 
-        private string Apiurl => CreateApiUrl(_siteState.Alias, "Log");
+        private string Apiurl => CreateApiUrl("Log", _siteState.Alias);
 
         public async Task<List<Log>> GetLogsAsync(int siteId, string level, string function, int rows)
         {
@@ -49,7 +49,6 @@ namespace Oqtane.Services
             }
             else
             {
-                base.Alias = alias;
                 log.SiteId = alias.SiteId;
             }
             log.PageId = pageId;
