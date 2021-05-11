@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using Oqtane.Models;
-
-namespace Oqtane.Repository.Databases
+namespace Oqtane.Database.SqlServer
 {
     public class SqlServerDatabase : SqlServerDatabaseBase
     {

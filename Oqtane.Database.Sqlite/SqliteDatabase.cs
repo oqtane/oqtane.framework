@@ -1,12 +1,12 @@
 using System;
-using System.Collections.Generic;
+using System.Data;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
-using Oqtane.Models;
 using Oqtane.Shared;
 
-namespace Oqtane.Repository.Databases
+namespace Oqtane.Database.Sqlite
 {
     public class SqliteDatabase : OqtaneDatabaseBase
     {
@@ -38,9 +38,50 @@ namespace Oqtane.Repository.Databases
             return returnValue;
         }
 
+        public override int ExecuteNonQuery(string connectionString, string query)
+        {
+            var conn = new SqliteConnection(connectionString);
+            var cmd = conn.CreateCommand();
+            using (conn)
+            {
+                PrepareCommand(conn, cmd, query);
+                var val = -1;
+                try
+                {
+                    val = cmd.ExecuteNonQuery();
+                }
+                catch
+                {
+                    // an error occurred executing the query
+                }
+                return val;
+            }
+
+        }
+
+        public override IDataReader ExecuteReader(string connectionString, string query)
+        {
+            var conn = new SqliteConnection(connectionString);
+            var cmd = conn.CreateCommand();
+            PrepareCommand(conn, cmd, query);
+            var dr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+            return dr;
+        }
+
         public override DbContextOptionsBuilder UseDatabase(DbContextOptionsBuilder optionsBuilder, string connectionString)
         {
             return optionsBuilder.UseSqlite(connectionString);
+        }
+
+        private void PrepareCommand(SqliteConnection conn, SqliteCommand cmd, string query)
+        {
+            if (conn.State != ConnectionState.Open)
+            {
+                conn.Open();
+            }
+            cmd.Connection = conn;
+            cmd.CommandText = query;
+            cmd.CommandType = CommandType.Text;
         }
     }
 }

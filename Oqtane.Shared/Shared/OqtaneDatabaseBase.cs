@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
@@ -38,6 +39,10 @@ namespace Oqtane.Shared
 
             return returnValue;
         }
+
+        public abstract int ExecuteNonQuery(string connectionString, string query);
+
+        public abstract IDataReader ExecuteReader(string connectionString, string query);
 
         public virtual string RewriteName(string name)
         {

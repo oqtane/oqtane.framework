@@ -7,7 +7,7 @@ using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Enums;
 using System;
-using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace Oqtane.Controllers
 {
@@ -37,7 +37,7 @@ namespace Oqtane.Controllers
             {
                 foreach (string query in sqlquery.Query.Split("GO", StringSplitOptions.RemoveEmptyEntries))
                 {
-                    SqlDataReader dr = _sql.ExecuteReader(tenant, query);
+                    IDataReader dr = _sql.ExecuteReader(tenant, query);
                     _logger.Log(LogLevel.Information, this, LogFunction.Other, "Sql Query {Query} Executed on Tenant {TenantId}", query, sqlquery.TenantId);
                     while (dr.Read())
                     {
