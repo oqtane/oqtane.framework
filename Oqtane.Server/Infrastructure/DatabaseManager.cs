@@ -232,7 +232,7 @@ namespace Oqtane.Infrastructure
                             var installation = IsInstalled();
                             if (installation.Success && (install.DatabaseType == "SqlServer" || install.DatabaseType == "LocalDB"))
                             {
-                                UpgradeSqlServer(sql, install.ConnectionString, true);
+                                UpgradeSqlServer(sql, install.ConnectionString, install.DatabaseType, true);
                             }
                             // Push latest model into database
                             masterDbContext.Database.Migrate();
@@ -344,9 +344,9 @@ namespace Oqtane.Infrastructure
                             var dbConfig = new DbConfig(null, null, databases) {ConnectionString = tenant.DBConnectionString, DatabaseType = tenant.DBType};
                             using (var tenantDbContext = new TenantDBContext(dbConfig, null))
                             {
-                                if (install.DatabaseType == "SqlServer" || install.DatabaseType == "LocalDB")
+                                if (dbConfig.DatabaseType == "SqlServer" || dbConfig.DatabaseType == "LocalDB")
                                 {
-                                    UpgradeSqlServer(sql, tenant.DBConnectionString, false);
+                                    UpgradeSqlServer(sql, tenant.DBConnectionString, tenant.DBType, false);
                                 }
 
                                 // Push latest model into database
@@ -649,11 +649,11 @@ namespace Oqtane.Infrastructure
             _config.Reload();
         }
 
-        public void UpgradeSqlServer(ISqlRepository sql, string connectionString, bool isMaster)
+        public void UpgradeSqlServer(ISqlRepository sql, string connectionString, string databaseType, bool isMaster)
         {
             var script = (isMaster) ? "MigrateMaster.sql" : "MigrateTenant.sql";
 
-            sql.ExecuteScript(connectionString, Assembly.GetExecutingAssembly(), script);
+            sql.ExecuteScript(connectionString, databaseType, Assembly.GetExecutingAssembly(), script);
         }
     }
 }

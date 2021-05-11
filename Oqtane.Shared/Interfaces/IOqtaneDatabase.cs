@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
@@ -17,6 +18,10 @@ namespace Oqtane.Interfaces
         public OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(ColumnsBuilder table, string name);
 
         public string ConcatenateSql(params string[] values);
+
+        public int ExecuteNonQuery(string connectionString, string query);
+
+        public IDataReader ExecuteReader(string connectionString, string query);
 
         public string RewriteName(string name);
 
