@@ -54,6 +54,7 @@ V.3.0.0 ( Nov 2021 )
 
 V.2.2.0 ( Aug 2021 )
 - [ ] Alternate Authentication Providers ( ie. Azure B2C, Social logins, etc... )
+- [ ] Configurable password complexity for local authentication
 
 V.2.1.0 ( May 2021 )
 - [ ] Cross Platform Database Support ( ie. SQLite, MySQL, PostreSQL ) - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
