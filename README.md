@@ -49,9 +49,12 @@ There is a separate [Documentation repository](https://github.com/oqtane/oqtane.
 # Roadmap
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
 
+V.2.2.0 ( Oct 2021 )
+- [ ] Alternate Authentication Providers ( ie. Azure B2C, Social logins, etc... )
+
 V.2.1.0 ( May 2021 )
-- [ ] Cross Platform Database Support ( ie. SQLite ) - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
-- [ ] EF Core Migrations for Database Installation/Upgrade - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
+- [ ] Cross Platform Database Support ( ie. SQLite, MySQL, PostreSQL ) - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
+- [ ] EF Core Migrations - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
 
 V.2.0.2 ( Apr 19, 2021 )
 - [x] Assorted fixes and user experience improvements
