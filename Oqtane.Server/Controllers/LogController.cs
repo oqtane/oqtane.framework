@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Oqtane.Models;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
@@ -9,7 +9,7 @@ using Oqtane.Shared;
 namespace Oqtane.Controllers
 {
 
-    [Route(ControllerRoutes.Default)]
+    [Route(ControllerRoutes.ApiRoute)]
     public class LogController : Controller
     {
         private readonly ILogManager _logger;

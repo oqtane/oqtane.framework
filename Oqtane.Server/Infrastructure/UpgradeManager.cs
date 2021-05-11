@@ -27,9 +27,9 @@ namespace Oqtane.Infrastructure
             // core framework upgrade logic - executed for every tenant
             using (var scope = _serviceScopeFactory.CreateScope())
             {
-                // set SiteState based on tenant
-                var siteState = scope.ServiceProvider.GetRequiredService<SiteState>();
-                siteState.Alias = new Alias { TenantId = tenant.TenantId };
+                // set tenant
+                var tenantManager = scope.ServiceProvider.GetRequiredService<ITenantManager>();
+                tenantManager.SetTenant(tenant.TenantId);
 
                 switch (version)
                 {

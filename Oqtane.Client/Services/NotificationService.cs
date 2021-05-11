@@ -1,4 +1,4 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System.Threading.Tasks;
 using System.Net.Http;
 using Oqtane.Shared;
@@ -16,7 +16,7 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private string Apiurl => CreateApiUrl(_siteState.Alias, "Notification");
+        private string Apiurl => CreateApiUrl("Notification", _siteState.Alias);
 
         public async Task<List<Notification>> GetNotificationsAsync(int siteId, string direction, int userId)
         {

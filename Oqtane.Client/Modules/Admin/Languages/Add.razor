@@ -5,6 +5,7 @@
 @inject NavigationManager NavigationManager
 @inject ILocalizationService LocalizationService
 @inject ILanguageService LanguageService
+@inject IPackageService PackageService
 @inject IStringLocalizer<Add> Localizer
 
 @if (_supportedCultures == null)
@@ -13,57 +14,114 @@
 }
 else
 {
-    @if (_supportedCultures?.Count() > 1)
-    {
-        <table class="table table-borderless">
-            <tr>
-                <td>
-                    <Label For="name" HelpText="Name Of The Langauage" ResourceKey="Name">Name:</Label>
-                </td>
-                <td>
-                    <select id="_code" class="form-control" @bind="@_code">
-                        @foreach (var culture in _supportedCultures)
-                        {
-                            <option value="@culture.Name">@culture.DisplayName</option>
-                        }
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="default" HelpText="Indicates Whether Or Not This Language Is The Default For The Site" ResourceKey="IsDefault">Default?</Label>
-                </td>
-                <td>
-                    <select id="default" class="form-control" @bind="@_isDefault">
-                        <option value="True">@Localizer["Yes"]</option>
-                        <option value="False">@Localizer["No"]</option>
-                    </select>
-                </td>
-            </tr>
-        </table>
-        <button type="button" class="btn btn-success" @onclick="SaveLanguage">@Localizer["Save"]</button>
-    }
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+    <TabStrip>
+        <TabPanel Name="Manage" ResourceKey="Manage">
+            @if (_availableCultures.Count() == 0)
+            {
+                <ModuleMessage Type="MessageType.Info" Message="@_message"></ModuleMessage>
+            }
+            else
+            {
+            <table class="table table-borderless">
+                <tr>
+                    <td>
+                        <Label For="name" HelpText="Name Of The Language" ResourceKey="Name">Name:</Label>
+                    </td>
+                    <td>
+                        <select id="_code" class="form-control" @bind="@_code">
+                            @foreach (var culture in _availableCultures)
+                            {
+                                <option value="@culture.Name">@culture.DisplayName</option>
+                            }
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="default" HelpText="Indicates Whether Or Not This Language Is The Default For The Site" ResourceKey="IsDefault">Default?</Label>
+                    </td>
+                    <td>
+                        <select id="default" class="form-control" @bind="@_isDefault">
+                            <option value="True">@Localizer["Yes"]</option>
+                            <option value="False">@Localizer["No"]</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            <button type="button" class="btn btn-success" @onclick="SaveLanguage">@Localizer["Save"]</button>
+            }
+            <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+        </TabPanel>
+        <TabPanel Name="Download" ResourceKey="Download" Security="SecurityAccessLevel.Host">
+            @if (_packages != null && _packages.Count > 0)
+            {
+                <ModuleMessage Type="MessageType.Info" Message="Download one or more language packages from the list below. Once you are ready click Install to complete the installation."></ModuleMessage>
+                <Pager Items="@_packages">
+                    <Header>
+                        <th>@Localizer["Name"]</th>
+                        <th>@Localizer["Version"]</th>
+                        <th style="width: 1px"></th>
+                    </Header>
+                    <Row>
+                        <td>@context.Name</td>
+                        <td>@context.Version</td>
+                        <td>
+                            <button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadLanguage(context.PackageId, context.Version))>@Localizer["Download"]</button>
+                        </td>
+                    </Row>
+                </Pager>
+                <button type="button" class="btn btn-success" @onclick="InstallLanguages">@Localizer["Install"]</button>
+                <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+            }
+            else
+            {
+                <ModuleMessage Type="MessageType.Info" Message="No Language Packages Are Available To Download"></ModuleMessage>
+            }
+        </TabPanel>
+        <TabPanel Name="Upload" ResourceKey="Upload" Security="SecurityAccessLevel.Host">
+            <table class="table table-borderless">
+                <tr>
+                    <td>
+                        <Label HelpText="Upload one or more language packages. Once they are uploaded click Install to complete the installation." ResourceKey="Module">Language: </Label>
+                    </td>
+                    <td>
+                        <FileManager Filter="nupkg" ShowFiles="false" Folder="Packages" UploadMultiple="true" />
+                    </td>
+                </tr>
+            </table>
+            <button type="button" class="btn btn-success" @onclick="InstallLanguages">@Localizer["Install"]</button>
+            <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+        </TabPanel>
+    </TabStrip>
 }
 
 @code {
     private string _code = string.Empty;
     private string _isDefault = "False";
+    private string _message;
+    private IEnumerable<Culture> _supportedCultures;
+    private IEnumerable<Culture> _availableCultures;
+    private List<Package> _packages;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-    private IEnumerable<Culture> _supportedCultures;
-
     protected override async Task OnParametersSetAsync()
     {
+        var languages = await LanguageService.GetLanguagesAsync(PageState.Site.SiteId);
+        var languagesCodes = languages.Select(l => l.Code).ToList();
+
         _supportedCultures = await LocalizationService.GetCulturesAsync();
-        if (_supportedCultures.Count() <= 1)
+        _availableCultures = _supportedCultures
+            .Where(c => !c.Name.Equals(Constants.DefaultCulture) && !languagesCodes.Contains(c.Name));
+        _packages = await PackageService.GetPackagesAsync("language");
+
+        if (_supportedCultures.Count() == 1)
         {
-            AddModuleMessage(Localizer["The Only Supported Culture That Has Been Defined Is English"], MessageType.Warning);
+            _message = Localizer["The Only Installed Language Is English"];
         }
-        else
+        else if (_availableCultures.Count() == 0)
         {
-            _supportedCultures = _supportedCultures.Where(c => !c.Name.Equals(Constants.DefaultCulture));
+            _message = Localizer["All The Installed Languages Have Been Added."];
         }
     }
 
@@ -94,6 +152,35 @@ else
         {
             await logger.LogError(ex, "Error Adding Language {Language} {Error}", language, ex.Message);
             AddModuleMessage(Localizer["Error Adding Language"], MessageType.Error);
+        }
+    }
+
+    private async Task InstallLanguages()
+    {
+        try
+        {
+            await PackageService.InstallPackagesAsync();
+            AddModuleMessage(Localizer["Language Packages Installed Successfully. You Must <a href=\"{0}\">Restart</a> Your Application To Apply These Changes.", NavigateUrl("admin/system")], MessageType.Success);
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Installing Language Package");
+        }
+    }
+
+    private async Task DownloadLanguage(string packageid, string version)
+    {
+        try
+        {
+            await PackageService.DownloadPackageAsync(packageid, version, "Packages");
+            await logger.LogInformation("Language Paclage {Name} {Version} Downloaded Successfully", packageid, version);
+            AddModuleMessage(Localizer["Language Package Downloaded Successfully. Click Install To Complete Installation."], MessageType.Success);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Downloading Language Package {Name} {Version}", packageid, version);
+            AddModuleMessage(Localizer["Error Downloading Language Package"], MessageType.Error);
         }
     }
 

@@ -9,6 +9,7 @@
 @inject ISiteTemplateService SiteTemplateService
 @inject IUserService UserService
 @inject IInstallationService InstallationService
+@inject IDatabaseService DatabaseService
 @inject IStringLocalizer<Add> Localizer
 @inject IEnumerable<IOqtaneDatabase> Databases
 
@@ -18,151 +19,151 @@
 }
 else
 {
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <Label For="name" HelpText="Enter the name of the site" ResourceKey="Name">Site Name: </Label>
-        </td>
-        <td>
-            <input id="name" class="form-control" @bind="@_name" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="alias" HelpText="Enter the alias for the server" ResourceKey="Aliases">Aliases: </Label>
-        </td>
-        <td>
-            <textarea id="alias" class="form-control" @bind="@_urls" rows="3"></textarea>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="defaultTheme" HelpText="Select the default theme for the website" ResourceKey="DefaultTheme">Default Theme: </Label>
-        </td>
-        <td>
-            <select id="defaultTheme" class="form-control" @onchange="(e => ThemeChanged(e))">
-                <option value="-">&lt;@Localizer["Select Theme"]&gt;</option>
-                @foreach (var theme in _themes)
-                {
-                    <option value="@theme.TypeName">@theme.Name</option>
-                }
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="defaultContainer" HelpText="Select the default container for the site" ResourceKey="DefaultContainer">Default Container: </Label>
-        </td>
-        <td>
-            <select id="defaultContainer" class="form-control" @bind="@_containertype">
-                <option value="-">&lt;@Localizer["Select Container"]&gt;</option>
-                @foreach (var container in _containers)
-                {
-                    <option value="@container.TypeName">@container.Name</option>
-                }
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="adminContainer" HelpText="Select the admin container for the site" ResourceKey="AdminContainer">Admin Container: </Label>
-        </td>
-        <td>
-            <select id="adminContainer" class="form-control" @bind="@_admincontainertype">
-                <option value="-">&lt;@Localizer["Select Container"]&gt;</option>
-                <option value="">&lt;@Localizer["Default Admin Container"]&gt;</option>
-                @foreach (var container in _containers)
-                {
-                    <option value="@container.TypeName">@container.Name</option>
-                }
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="siteTemplate" HelpText="Select the site template" ResourceKey="SiteTemplate">Site Template: </Label>
-        </td>
-        <td>
-            <select id="siteTemplate" class="form-control" @bind="@_sitetemplatetype">
-                <option value="-">&lt;@Localizer["Select Site Template"]&gt;</option>
-                @foreach (SiteTemplate siteTemplate in _siteTemplates)
-                {
-                    <option value="@siteTemplate.TypeName">@siteTemplate.Name</option>
-                }
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="tenant" HelpText="Select the tenant for the site" ResourceKey="Tenant">Tenant: </Label>
-        </td>
-        <td>
-            <select id="tenant" class="form-control" @onchange="(e => TenantChanged(e))">
-                <option value="-">&lt;@Localizer["Select Tenant"]&gt;</option>
-                <option value="+">&lt;@Localizer["Create New Tenant"]&gt;</option>
-                @foreach (Tenant tenant in _tenants)
-                {
-                    <option value="@tenant.TenantId">@tenant.Name</option>
-                }
-            </select>
-        </td>
-    </tr>
-    @if (_tenantid == "+")
-    {
+    <table class="table table-borderless">
         <tr>
-            <td colspan="2">
-                <hr class="app-rule" />
+            <td>
+                <Label For="name" HelpText="Enter the name of the site" ResourceKey="Name">Site Name: </Label>
+            </td>
+            <td>
+                <input id="name" class="form-control" @bind="@_name" />
             </td>
         </tr>
         <tr>
             <td>
-                <Label For="name" HelpText="Enter the name for the tenant" ResourceKey="TenantName">Tenant Name: </Label>
+                <Label For="alias" HelpText="Enter the aliases for the site. An alias can be a domain name (www.site.com) or a virtual folder (ie. www.site.com/folder). If a site has multiple aliases they can be separated by commas." ResourceKey="Aliases">Aliases: </Label>
             </td>
             <td>
-                <input id="name" class="form-control" @bind="@_tenantName" />
+                <textarea id="alias" class="form-control" @bind="@_urls" rows="3"></textarea>
             </td>
         </tr>
         <tr>
             <td>
-                <Label For="databaseType" HelpText="Select the database type for the tenant" ResourceKey="DatabaseType">Database Type: </Label>
+                <Label For="defaultTheme" HelpText="Select the default theme for the website" ResourceKey="DefaultTheme">Default Theme: </Label>
             </td>
             <td>
-                <select id="databaseType" class="custom-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))">
-                    @foreach (var database in _databases)
+                <select id="defaultTheme" class="form-control" @onchange="(e => ThemeChanged(e))">
+                    <option value="-">&lt;@Localizer["Select Theme"]&gt;</option>
+                    @foreach (var theme in _themes)
                     {
-                        <option value="@database.Name">@Localizer[@database.FriendlyName]</option>
+                        <option value="@theme.TypeName">@theme.Name</option>
                     }
                 </select>
             </td>
         </tr>
-        if (_databaseConfigType != null)
+        <tr>
+            <td>
+                <Label For="defaultContainer" HelpText="Select the default container for the site" ResourceKey="DefaultContainer">Default Container: </Label>
+            </td>
+            <td>
+                <select id="defaultContainer" class="form-control" @bind="@_containertype">
+                    <option value="-">&lt;@Localizer["Select Container"]&gt;</option>
+                    @foreach (var container in _containers)
+                    {
+                        <option value="@container.TypeName">@container.Name</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="adminContainer" HelpText="Select the admin container for the site" ResourceKey="AdminContainer">Admin Container: </Label>
+            </td>
+            <td>
+                <select id="adminContainer" class="form-control" @bind="@_admincontainertype">
+                    <option value="-">&lt;@Localizer["Select Container"]&gt;</option>
+                    <option value="">&lt;@Localizer["Default Admin Container"]&gt;</option>
+                    @foreach (var container in _containers)
+                    {
+                        <option value="@container.TypeName">@container.Name</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="siteTemplate" HelpText="Select the site template" ResourceKey="SiteTemplate">Site Template: </Label>
+            </td>
+            <td>
+                <select id="siteTemplate" class="form-control" @bind="@_sitetemplatetype">
+                    <option value="-">&lt;@Localizer["Select Site Template"]&gt;</option>
+                    @foreach (SiteTemplate siteTemplate in _siteTemplates)
+                    {
+                        <option value="@siteTemplate.TypeName">@siteTemplate.Name</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="tenant" HelpText="Select the tenant for the site" ResourceKey="Tenant">Tenant: </Label>
+            </td>
+            <td>
+                <select id="tenant" class="form-control" @onchange="(e => TenantChanged(e))">
+                    <option value="-">&lt;@Localizer["Select Tenant"]&gt;</option>
+                    <option value="+">&lt;@Localizer["Create New Tenant"]&gt;</option>
+                    @foreach (Tenant tenant in _tenants)
+                    {
+                        <option value="@tenant.TenantId">@tenant.Name</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        @if (_tenantid == "+")
         {
-            @DatabaseConfigComponent;
+            <tr>
+                <td colspan="2">
+                    <hr class="app-rule" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Label For="name" HelpText="Enter the name for the tenant" ResourceKey="TenantName">Tenant Name: </Label>
+                </td>
+                <td>
+                    <input id="name" class="form-control" @bind="@_tenantName" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Label For="databaseType" HelpText="Select the database type for the tenant" ResourceKey="DatabaseType">Database Type: </Label>
+                </td>
+                <td>
+                    <select id="databaseType" class="custom-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))">
+                        @foreach (var database in _databases)
+                        {
+                            <option value="@database.Name">@Localizer[@database.FriendlyName]</option>
+                        }
+                    </select>
+                </td>
+            </tr>
+            if (_databaseConfigType != null)
+            {
+                @DatabaseConfigComponent;
+            }
+            <tr>
+                <td>
+                    <Label For="hostUsername" HelpText="Enter the username of the host for this site" ResourceKey="HostUsername">Host Username:</Label>
+                </td>
+                <td>
+                    <input id="hostUsername" class="form-control" @bind="@_hostUserName" readonly />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Label For="hostPassword" HelpText="Enter the password for the host of this site" ResourceKey="HostPassword">Host Password:</Label>
+                </td>
+                <td>
+                    <input id="hostPassword" type="password" class="form-control" @bind="@_hostpassword" />
+                </td>
+            </tr>
         }
-        <tr>
-            <td>
-                <Label For="hostUsername" HelpText="Enter the username of the host for this site" ResourceKey="HostUsername">Host Username:</Label>
-            </td>
-            <td>
-                <input id="hostUsername" class="form-control" @bind="@_hostUserName" readonly />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="hostPassword" HelpText="Enter the password for the host of this site" ResourceKey="HostPassword">Host Password:</Label>
-            </td>
-            <td>
-                <input id="hostPassword" type="password" class="form-control" @bind="@_hostpassword" />
-            </td>
-        </tr>
-    }
-</table>
+    </table>
     <button type="button" class="btn btn-success" @onclick="SaveSite">@Localizer["Save"]</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
 }
 
 @code {
-    private IList<Database> _databases;
+    private List<Database> _databases;
     private string _databaseName = "LocalDB";
     private Type _databaseConfigType;
     private object _databaseConfig;
@@ -177,7 +178,7 @@ else
     private string _tenantid = "-";
 
     private string _tenantName = string.Empty;
-    
+
     private string _hostUserName = UserNames.Host;
     private string _hostpassword = string.Empty;
 
@@ -197,44 +198,10 @@ else
         _themeList = await ThemeService.GetThemesAsync();
         _themes = ThemeService.GetThemeControls(_themeList);
         _siteTemplates = await SiteTemplateService.GetSiteTemplatesAsync();
-        
-        _databases = new List<Database>
-        {
-            new()
-            {
-                Name = "LocalDB",
-                FriendlyName = "Local Database",
-                Type = "Oqtane.Installer.Controls.LocalDBConfig, Oqtane.Client"
-            },
-            new()
-            {
-                Name = "SqlServer",
-                FriendlyName = "SQL Server",
-                Type = "Oqtane.Installer.Controls.SqlServerConfig, Oqtane.Client"
-            },
-            new()
-            {
-                Name = "Sqlite",
-                FriendlyName = "Sqlite",
-                Type = "Oqtane.Installer.Controls.SqliteConfig, Oqtane.Client"
-            },
-            new()
-            {
-                Name = "MySQL",
-                FriendlyName = "MySQL",
-                Type = "Oqtane.Installer.Controls.MySQLConfig, Oqtane.Client"
-            },
-            new()
-            {
-                Name = "PostgreSQL",
-                FriendlyName = "PostgreSQL",
-                Type = "Oqtane.Installer.Controls.PostGreSQLConfig, Oqtane.Client"
-            }
-        };
-        
+        _databases = await DatabaseService.GetDatabasesAsync();
         LoadDatabaseConfigComponent();
     }
-    
+
     private void DatabaseChanged(ChangeEventArgs eventArgs)
     {
         try
@@ -243,7 +210,7 @@ else
 
             LoadDatabaseConfigComponent();
         }
-        catch (Exception exception)
+        catch
         {
             AddModuleMessage(Localizer["Error loading Database Configuration Control"], MessageType.Error);
         }
@@ -365,15 +332,15 @@ else
                     if (tenant != null)
                     {
                         config.TenantName = tenant.Name;
-                        config.ConnectionString= tenant.DBConnectionString;
+                        config.ConnectionString = tenant.DBConnectionString;
                         config.IsNewTenant = false;
                     }
                 }
 
-                if  (!string.IsNullOrEmpty(config.TenantName))
+                if (!string.IsNullOrEmpty(config.TenantName))
                 {
                     config.SiteName = _name;
-                    config.Aliases = _urls.Replace("\n", ",");
+                    config.Aliases = _urls;
                     config.DefaultTheme = _themetype;
                     config.DefaultContainer = _containertype;
                     config.DefaultAdminContainer = _admincontainertype;

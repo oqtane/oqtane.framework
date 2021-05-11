@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -10,7 +9,6 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -126,6 +124,7 @@ namespace Oqtane
             services.AddScoped<ISystemService, SystemService>();
             services.AddScoped<ILocalizationService, LocalizationService>();
             services.AddScoped<ILanguageService, LanguageService>();
+            services.AddScoped<IDatabaseService, DatabaseService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -175,13 +174,13 @@ namespace Oqtane
             services.AddSingleton<IDatabaseManager, DatabaseManager>();
 
             // install any modules or themes ( this needs to occur BEFORE the assemblies are loaded into the app domain )
-            InstallationManager.InstallPackages("Modules,Themes", _env.WebRootPath, _env.ContentRootPath);
+            InstallationManager.InstallPackages("Modules,Themes,Packages", _env.WebRootPath, _env.ContentRootPath);
 
             // register transient scoped core services
+            services.AddTransient<ITenantManager, TenantManager>();
             services.AddTransient<IModuleDefinitionRepository, ModuleDefinitionRepository>();
             services.AddTransient<IThemeRepository, ThemeRepository>();
             services.AddTransient<IUserPermissions, UserPermissions>();
-            services.AddTransient<ITenantResolver, TenantResolver>();
             services.AddTransient<IAliasRepository, AliasRepository>();
             services.AddTransient<ITenantRepository, TenantRepository>();
             services.AddTransient<ISiteRepository, SiteRepository>();
@@ -206,6 +205,8 @@ namespace Oqtane
             services.AddTransient<ISqlRepository, SqlRepository>();
             services.AddTransient<IUpgradeManager, UpgradeManager>();
             services.AddTransient<ILanguageRepository, LanguageRepository>();
+            // obsolete - replaced by ITenantManager
+            services.AddTransient<ITenantResolver, TenantResolver>(); 
 
             // load the external assemblies into the app domain, install services
             services.AddOqtane(_runtime, _supportedCultures);
@@ -240,7 +241,8 @@ namespace Oqtane
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            // to allow install middleware it should be moved up
+
+            // execute any IServerStartup logic
             app.ConfigureOqtaneAssemblies(env);
 
             // Allow oqtane localization middleware
@@ -248,6 +250,7 @@ namespace Oqtane
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseTenantResolution(); // must be declared directly after static files
             app.UseBlazorFrameworkFiles();
             app.UseRouting();
             app.UseAuthentication();
@@ -255,7 +258,7 @@ namespace Oqtane
             if (_useSwagger)
             {
                 app.UseSwagger();
-                app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Oqtane V1"); });
+                app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Oqtane " + Constants.Version); });
             }
 
             app.UseEndpoints(endpoints =>

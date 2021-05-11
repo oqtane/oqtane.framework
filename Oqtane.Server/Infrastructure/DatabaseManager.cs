@@ -464,12 +464,12 @@ namespace Oqtane.Infrastructure
             {
                 using (var scope = _serviceScopeFactory.CreateScope())
                 {
-                    // use the SiteState to set the Alias explicitly so the tenant can be resolved
+                    // set the alias explicitly so the tenant can be resolved
                     var aliases = scope.ServiceProvider.GetRequiredService<IAliasRepository>();
                     var firstAlias = install.Aliases.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)[0];
                     var alias = aliases.GetAliases().FirstOrDefault(item => item.Name == firstAlias);
-                    var siteState = scope.ServiceProvider.GetRequiredService<SiteState>();
-                    siteState.Alias = alias;
+                    var tenantManager = scope.ServiceProvider.GetRequiredService<ITenantManager>();
+                    tenantManager.SetAlias(alias);
 
                     var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
                     var site = sites.GetSites().FirstOrDefault(item => item.Name == install.SiteName);

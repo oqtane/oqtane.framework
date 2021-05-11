@@ -92,11 +92,12 @@ namespace Oqtane.Infrastructure
                                 try
                                 {
                                     var notes = "";
-                                    var tenants = scope.ServiceProvider.GetRequiredService<ITenantRepository>();
-                                    var siteState = scope.ServiceProvider.GetRequiredService<SiteState>();
-                                    foreach (var tenant in tenants.GetTenants())
+                                    var tenantRepository = scope.ServiceProvider.GetRequiredService<ITenantRepository>();
+                                    var tenantManager = scope.ServiceProvider.GetRequiredService<ITenantManager>();
+                                    foreach (var tenant in tenantRepository.GetTenants())
                                     {
-                                        siteState.Alias = new Alias { TenantId = tenant.TenantId };
+                                        // set tenant and execute job
+                                        tenantManager.SetTenant(tenant.TenantId);
                                         notes += ExecuteJob(scope.ServiceProvider);
                                     }
                                     log.Notes = notes;

@@ -1,4 +1,4 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Oqtane.Shared;
@@ -15,7 +15,7 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private string Apiurl => CreateApiUrl(_siteState.Alias, "PageModule");
+        private string Apiurl => CreateApiUrl("PageModule", _siteState.Alias);
 
         public async Task<PageModule> GetPageModuleAsync(int pageModuleId)
         {

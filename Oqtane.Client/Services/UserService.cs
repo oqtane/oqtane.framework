@@ -14,7 +14,7 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private string Apiurl => CreateApiUrl(_siteState.Alias, "User");
+        private string Apiurl => CreateApiUrl("User", _siteState.Alias);
 
         public async Task<User> GetUserAsync(int userId, int siteId)
         {

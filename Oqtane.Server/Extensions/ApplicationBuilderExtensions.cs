@@ -38,5 +38,8 @@ namespace Oqtane.Extensions
 
             return app;
         }
+
+        public static IApplicationBuilder UseTenantResolution(this IApplicationBuilder builder)
+          => builder.UseMiddleware<TenantMiddleware>();
     }
 }

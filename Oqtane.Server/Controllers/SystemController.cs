@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Collections.Generic;
 using Oqtane.Shared;
@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace Oqtane.Controllers
 {
-    [Route(ControllerRoutes.Default)]
+    [Route(ControllerRoutes.ApiRoute)]
     public class SystemController : Controller
     {
         private readonly IWebHostEnvironment _environment;

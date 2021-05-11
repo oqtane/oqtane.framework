@@ -1,11 +1,10 @@
 @namespace Oqtane.Installer
 @using Oqtane.Interfaces
-@using Oqtane.Installer.Controls
-
 @inject NavigationManager NavigationManager
 @inject IInstallationService InstallationService
 @inject ISiteService SiteService
 @inject IUserService UserService
+@inject IDatabaseService DatabaseService
 @inject IJSRuntime JSRuntime
 @inject IStringLocalizer<Installer> Localizer
 
@@ -22,25 +21,28 @@
             <h2>@Localizer["Database Configuration"]</h2><br />
             <table class="form-group" cellpadding="4" cellspacing="4" style="margin: auto;">
                 <tbody>
-                <tr>
-                    <td>
-                        <label class="control-label" style="font-weight: bold">@Localizer["Database Type:"]</label>
-                    </td>
-                    <td>
-                        <select class="custom-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))">
-                            @foreach (var database in _databases)
-                            {
-                                <option value="@database.Name">@Localizer[@database.FriendlyName]</option>
-                            }
-                        </select>
-                    </td>
-                </tr>
-                @{
-                    if (_databaseConfigType != null)
-                    {
-                        @DatabaseConfigComponent;
+                    <tr>
+                        <td>
+                            <label class="control-label" style="font-weight: bold">@Localizer["Database Type:"]</label>
+                        </td>
+                        <td>
+                            <select class="custom-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))">
+                                @if (_databases != null)
+                                {
+                                    foreach (var database in _databases)
+                                    {
+                                        <option value="@database.Name">@Localizer[@database.FriendlyName]</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    @{
+                        if (_databaseConfigType != null)
+                        {
+                            @DatabaseConfigComponent;
+                        }
                     }
-                }
                 </tbody>
             </table>
         </div>
@@ -95,7 +97,7 @@
 </div>
 
 @code {
-    private IList<Database> _databases;
+    private List<Database> _databases;
     private string _databaseName = "LocalDB";
     private Type _databaseConfigType;
     private object _databaseConfig;
@@ -108,44 +110,9 @@
     private string _message = string.Empty;
     private string _loadingDisplay = "display: none;";
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        base.OnInitialized();
-
-        _databases = new List<Database>
-        {
-            new()
-            {
-                Name = "LocalDB",
-                FriendlyName = "Local Database",
-                Type = "Oqtane.Installer.Controls.LocalDBConfig, Oqtane.Client"
-            },
-            new()
-            {
-                Name = "SqlServer",
-                FriendlyName = "SQL Server",
-                Type = "Oqtane.Installer.Controls.SqlServerConfig, Oqtane.Client"
-            },
-            new()
-            {
-                Name = "Sqlite",
-                FriendlyName = "Sqlite",
-                Type = "Oqtane.Installer.Controls.SqliteConfig, Oqtane.Client"
-            },
-            new()
-            {
-                Name = "MySQL",
-                FriendlyName = "MySQL",
-                Type = "Oqtane.Installer.Controls.MySQLConfig, Oqtane.Client"
-            },
-            new()
-            {
-                Name = "PostgreSQL",
-                FriendlyName = "PostgreSQL",
-                Type = "Oqtane.Installer.Controls.PostgreSQLConfig, Oqtane.Client"
-            }
-        };
-        
+        _databases = await DatabaseService.GetDatabasesAsync();
         LoadDatabaseConfigComponent();
     }
 
@@ -157,7 +124,7 @@
 
             LoadDatabaseConfigComponent();
         }
-        catch (Exception exception)
+        catch
         {
             _message = Localizer["Error loading Database Configuration Control"];
         }

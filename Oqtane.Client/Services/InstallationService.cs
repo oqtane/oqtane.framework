@@ -7,9 +7,14 @@ namespace Oqtane.Services
 {
     public class InstallationService : ServiceBase, IInstallationService
     {
-        public InstallationService(HttpClient http):base(http) { }
+        private readonly SiteState _siteState;
 
-        private string ApiUrl => CreateApiUrl("Installation");
+        public InstallationService(HttpClient http, SiteState siteState) : base(http)
+        {
+            _siteState = siteState;
+        }
+
+        private string ApiUrl => CreateApiUrl("Installation", _siteState.Alias);
 
         public async Task<Installation> IsInstalled()
         {

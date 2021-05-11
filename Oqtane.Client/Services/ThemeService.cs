@@ -16,7 +16,7 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private string ApiUrl => CreateApiUrl(_siteState.Alias, "Theme");
+        private string ApiUrl => CreateApiUrl("Theme", _siteState.Alias);
 
         public async Task<List<Theme>> GetThemesAsync()
         {

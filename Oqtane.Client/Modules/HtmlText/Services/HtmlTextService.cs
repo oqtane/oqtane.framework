@@ -17,7 +17,7 @@ namespace Oqtane.Modules.HtmlText.Services
             _siteState = siteState;
         }
 
-        private string ApiUrl => CreateApiUrl(_siteState.Alias, "HtmlText");
+        private string ApiUrl => CreateApiUrl("HtmlText", _siteState.Alias);
 
         public async Task<Models.HtmlText> GetHtmlTextAsync(int moduleId)
         {
