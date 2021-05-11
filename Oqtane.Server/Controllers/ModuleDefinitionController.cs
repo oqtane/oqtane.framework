@@ -17,7 +17,7 @@ using System.Text.Json;
 
 namespace Oqtane.Controllers
 {
-    [Route(ControllerRoutes.Default)]
+    [Route(ControllerRoutes.ApiRoute)]
     public class ModuleDefinitionController : Controller
     {
         private readonly IModuleDefinitionRepository _moduleDefinitions;

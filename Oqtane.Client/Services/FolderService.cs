@@ -19,7 +19,7 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private string ApiUrl => CreateApiUrl(_siteState.Alias, "Folder");
+        private string ApiUrl => CreateApiUrl("Folder", _siteState.Alias);
 
         public async Task<List<Folder>> GetFoldersAsync(int siteId)
         {

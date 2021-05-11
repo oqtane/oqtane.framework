@@ -3,14 +3,19 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Linq;
+using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
     public class PackageService : ServiceBase, IPackageService
-    {        
-        public PackageService(HttpClient http) : base(http) { }
+    {
+        private readonly SiteState _siteState;
 
-        private string Apiurl => CreateApiUrl("Package");
+        public PackageService(HttpClient http, SiteState siteState) : base(http)
+        {
+            _siteState = siteState;
+        }
+        private string Apiurl => CreateApiUrl("Package", _siteState.Alias);
 
         public async Task<List<Package>> GetPackagesAsync(string tag)
         {

@@ -1,4 +1,4 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -16,7 +16,7 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private string Apiurl => CreateApiUrl(_siteState.Alias, "UserRole");
+        private string Apiurl => CreateApiUrl("UserRole", _siteState.Alias);
 
         public async Task<List<UserRole>> GetUserRolesAsync(int siteId)
         {

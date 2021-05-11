@@ -5,6 +5,7 @@ using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Oqtane.Models;
+using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
@@ -15,6 +16,55 @@ namespace Oqtane.Services
         protected ServiceBase(HttpClient client)
         {
             _http = client;
+        }
+
+        public string CreateApiUrl(string serviceName, Alias alias)
+        {
+            return CreateApiUrl(serviceName, alias, ControllerRoutes.ApiRoute);
+        }
+
+        public string CreateApiUrl(string serviceName, Alias alias, string routeTemplate)
+        {
+            string apiurl = "/";
+            if (routeTemplate == ControllerRoutes.ApiRoute)
+            {
+                if (alias != null && !string.IsNullOrEmpty(alias.Path))
+                {
+                    // include the alias path for multi-tenant context
+                    apiurl += alias.Path + "/";
+                }
+            }
+            else
+            {
+                // legacy support for ControllerRoutes.Default
+                if (alias != null)
+                {
+                    // include the alias for multi-tenant context
+                    apiurl += $"{alias.AliasId}/";
+                }
+                else
+                {
+                    // tenant agnostic
+                    apiurl += "~/";
+                }
+            }
+            apiurl += $"api/{serviceName}";
+            return apiurl;
+        }
+
+        // add entityid parameter to url for custom authorization policy
+        public string CreateAuthorizationPolicyUrl(string url, int entityId)
+        {
+            string qs = "entityid=" + entityId.ToString();
+
+            if (url.Contains("?"))
+            {
+                return url + "&" + qs;
+            }
+            else
+            {
+                return url + "?" + qs;
+            }
         }
 
         protected async Task GetAsync(string uri)
@@ -135,61 +185,26 @@ namespace Oqtane.Services
             //TODO Missing content JSON validation 
         }
 
-        // create an API Url which is tenant agnostic ( for use during installation )
-        public string CreateApiUrl(string serviceName)
-        {
-            return CreateApiUrl(null, serviceName);
-        }
-
-        // create an API Url which is tenant aware ( for use with repositories )
-        public string CreateApiUrl(Alias alias, string serviceName)
-        {
-            string apiurl = "/";
-
-            if (Alias != null)
-            {
-                alias = Alias; // override the default alias ( for cross-tenant service calls )
-            }
-
-            if (alias != null)
-            {
-                // include the alias for multi-tenant context
-                apiurl += $"{alias.AliasId}/";
-            }
-            else
-            {
-                // tenant agnostic
-                apiurl += "~/";
-            }
-
-            apiurl += $"api/{serviceName}";
-
-            return apiurl;
-        }
-
-        // can be used to override the default alias
-        public Alias Alias { get; set; }
-
-        // add entityid parameter to url for custom authorization policy
-        public string CreateAuthorizationPolicyUrl(string url, int entityId)
-        {
-            string qs = "entityid=" + entityId.ToString();
-
-            if (url.Contains("?"))
-            {
-                return url + "&" + qs;
-            }
-            else
-            {
-                return url + "?" + qs;
-            }
-        }
-
         [Obsolete("This method is obsolete. Use CreateApiUrl(Alias alias, string serviceName) instead.", false)]
         public string CreateApiUrl(Alias alias, string absoluteUri, string serviceName)
         {
             // only retained for short term backward compatibility
             return CreateApiUrl(alias, serviceName);
+        }
+
+        [Obsolete("This method is obsolete. Use CreateApiUrl(string serviceName, Alias alias) instead.", false)]
+        public string CreateApiUrl(string serviceName)
+        {
+            return CreateApiUrl(serviceName, null, ControllerRoutes.Default);
+        }
+
+        [Obsolete("This method is deprecated.", false)]
+        public Alias Alias { get; set; }
+
+        [Obsolete("This method is obsolete. Use CreateApiUrl(string serviceName, Alias alias) instead.", false)]
+        public string CreateApiUrl(Alias alias, string serviceName)
+        {
+            return CreateApiUrl(serviceName, alias, ControllerRoutes.Default);
         }
     }
 }

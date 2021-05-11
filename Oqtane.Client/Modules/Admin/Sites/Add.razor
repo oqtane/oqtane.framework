@@ -29,7 +29,7 @@ else
     </tr>
     <tr>
         <td>
-            <Label For="alias" HelpText="Enter the alias for the server" ResourceKey="Aliases">Aliases: </Label>
+            <Label For="alias" HelpText="Enter the aliases for the site. An alias can be a domain name (www.site.com) or a virtual folder (ie. www.site.com/folder). If a site has multiple aliases they can be separated by commas." ResourceKey="Aliases">Aliases: </Label>
         </td>
         <td>
             <textarea id="alias" class="form-control" @bind="@_urls" rows="3"></textarea>
@@ -243,7 +243,7 @@ else
 
             LoadDatabaseConfigComponent();
         }
-        catch (Exception exception)
+        catch
         {
             AddModuleMessage(Localizer["Error loading Database Configuration Control"], MessageType.Error);
         }
@@ -373,7 +373,7 @@ else
                 if  (!string.IsNullOrEmpty(config.TenantName))
                 {
                     config.SiteName = _name;
-                    config.Aliases = _urls.Replace("\n", ",");
+                    config.Aliases = _urls;
                     config.DefaultTheme = _themetype;
                     config.DefaultContainer = _containertype;
                     config.DefaultAdminContainer = _admincontainertype;

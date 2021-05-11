@@ -16,7 +16,7 @@ using Oqtane.Enums;
 
 namespace Oqtane.Controllers
 {
-    [Route(ControllerRoutes.Default)]
+    [Route(ControllerRoutes.ApiRoute)]
     public class PackageController : Controller
     {
         private readonly IInstallationManager _installationManager;

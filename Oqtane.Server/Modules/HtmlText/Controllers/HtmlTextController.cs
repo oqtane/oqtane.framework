@@ -1,6 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Oqtane.Modules.HtmlText.Models;
 using Oqtane.Modules.HtmlText.Repository;
 using Microsoft.AspNetCore.Http;
 using Oqtane.Shared;
@@ -12,7 +11,7 @@ using Oqtane.Controllers;
 
 namespace Oqtane.Modules.HtmlText.Controllers
 {
-    [Route(ControllerRoutes.Default)]
+    [Route(ControllerRoutes.ApiRoute)]
     public class HtmlTextController : ModuleControllerBase
     {
         private readonly IHtmlTextRepository _htmlText;

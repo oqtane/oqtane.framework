@@ -21,7 +21,7 @@ namespace Oqtane.Services
             _jsRuntime = jsRuntime;
         }
 
-        private string Apiurl => CreateApiUrl(_siteState.Alias, "File");
+        private string Apiurl => CreateApiUrl("File", _siteState.Alias);
 
         public async Task<List<File>> GetFilesAsync(int folderId)
         {
