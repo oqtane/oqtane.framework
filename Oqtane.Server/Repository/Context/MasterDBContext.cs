@@ -52,7 +52,7 @@ namespace Oqtane.Repository
             {
                 if (Databases != null)
                 {
-                    optionsBuilder.UseOqtaneDatabase(Databases.Single(d => d.Name == databaseType), connectionString);
+                    optionsBuilder.UseOqtaneDatabase(Databases.Single(d => d.TypeName == databaseType), connectionString);
                 }
                 else
                 {

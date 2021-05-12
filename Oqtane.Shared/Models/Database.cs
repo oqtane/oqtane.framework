@@ -6,6 +6,8 @@ namespace Oqtane.Models
 
         public string Name { get; set; }
 
-        public string Type { get; set; }
+        public string ControlType { get; set; }
+
+        public string DBType { get; set; }
     }
 }

@@ -84,7 +84,7 @@ namespace Oqtane.Repository
             {
                 if (Databases != null)
                 {
-                    optionsBuilder.UseOqtaneDatabase(Databases.Single(d => d.Name == _databaseType), _connectionString);
+                    optionsBuilder.UseOqtaneDatabase(Databases.Single(d => d.TypeName == _databaseType), _connectionString);
                 }
                 else
                 {
@@ -101,7 +101,7 @@ namespace Oqtane.Repository
 
             if (Databases != null)
             {
-                var database = Databases.Single(d => d.Name == _databaseType);
+                var database = Databases.Single(d => d.TypeName == _databaseType);
 
                 database.UpdateIdentityStoreTableNames(builder);
             }

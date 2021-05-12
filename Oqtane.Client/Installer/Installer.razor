@@ -135,7 +135,7 @@
         var database = _databases.SingleOrDefault(d => d.Name == _databaseName);
         if (database != null)
         {
-            _databaseConfigType = Type.GetType(database.Type);
+            _databaseConfigType = Type.GetType(database.ControlType);
             DatabaseConfigComponent = builder =>
             {
                 builder.OpenComponent(0, _databaseConfigType);
@@ -169,10 +169,12 @@
             StateHasChanged();
 
             Uri uri = new Uri(NavigationManager.Uri);
+            
+            var database = _databases.SingleOrDefault(d => d.Name == _databaseName);
 
             var config = new InstallConfig
             {
-                DatabaseType = _databaseName,
+                DatabaseType = database.DBType,
                 ConnectionString = connectionString,
                 Aliases = uri.Authority,
                 HostEmail = _hostEmail,

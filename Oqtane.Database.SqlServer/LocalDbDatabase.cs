@@ -6,5 +6,7 @@ namespace Oqtane.Database.SqlServer
         private static string _name => "LocalDB";
 
         public LocalDbDatabase() :base(_name, _friendlyName) { }
+
+        public override string TypeName => "Oqtane.Database.SqlServer.LocalDbDatabase, Oqtane.Database.SqlServer";
     }
 }
