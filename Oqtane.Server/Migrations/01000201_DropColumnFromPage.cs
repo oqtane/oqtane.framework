@@ -11,7 +11,7 @@ namespace Oqtane.Migrations
     [Migration("Tenant.01.00.02.01")]
     public class DropColumnFromPage : MultiDatabaseMigration
     {
-        public DropColumnFromPage(IEnumerable<IOqtaneDatabase> databases) : base(databases)
+        public DropColumnFromPage(IOqtaneDatabase database) : base(database)
         {
         }
 

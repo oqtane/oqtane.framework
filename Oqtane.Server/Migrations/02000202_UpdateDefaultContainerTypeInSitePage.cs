@@ -11,7 +11,7 @@ namespace Oqtane.Migrations
     [Migration("Tenant.02.00.02.02")]
     public class UpdateDefaultContainerTypeInSitePage : MultiDatabaseMigration
     {
-        public UpdateDefaultContainerTypeInSitePage(IEnumerable<IOqtaneDatabase> databases) : base(databases)
+        public UpdateDefaultContainerTypeInSitePage(IOqtaneDatabase database) : base(database)
         {
         }
 

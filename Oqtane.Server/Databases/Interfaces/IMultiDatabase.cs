@@ -5,6 +5,6 @@ namespace Oqtane.Repository.Databases.Interfaces
 {
     public interface IMultiDatabase
     {
-        public IEnumerable<IOqtaneDatabase> Databases { get; }
+        public IOqtaneDatabase ActiveDatabase { get; }
     }
 }

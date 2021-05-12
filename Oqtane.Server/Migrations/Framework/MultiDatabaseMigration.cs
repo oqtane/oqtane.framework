@@ -7,14 +7,14 @@ namespace Oqtane.Migrations
 {
     public abstract class MultiDatabaseMigration : Migration
     {
-        private readonly IEnumerable<IOqtaneDatabase> _databases;
+        private readonly IOqtaneDatabase _databases;
 
-        protected MultiDatabaseMigration(IEnumerable<IOqtaneDatabase> databases)
+        protected MultiDatabaseMigration(IOqtaneDatabase database)
         {
-            _databases = databases;
+            ActiveDatabase = database;
         }
 
-        protected IOqtaneDatabase ActiveDatabase => _databases.FirstOrDefault(d => d.Provider == ActiveProvider);
+        protected IOqtaneDatabase ActiveDatabase { get; }
 
         protected string RewriteName(string name)
         {

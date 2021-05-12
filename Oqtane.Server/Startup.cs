@@ -206,11 +206,10 @@ namespace Oqtane
             services.AddTransient<IUpgradeManager, UpgradeManager>();
             services.AddTransient<ILanguageRepository, LanguageRepository>();
             // obsolete - replaced by ITenantManager
-            services.AddTransient<ITenantResolver, TenantResolver>(); 
+            services.AddTransient<ITenantResolver, TenantResolver>();
 
             // load the external assemblies into the app domain, install services
             services.AddOqtane(_runtime, _supportedCultures);
-            services.AddScoped<IDbConfig, DbConfig>();
             services.AddDbContext<MasterDBContext>(options => { });
             services.AddDbContext<TenantDBContext>(options => { });
 

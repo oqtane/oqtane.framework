@@ -11,7 +11,7 @@ namespace Oqtane.Migrations
     [Migration("Tenant.02.00.01.03")]
     public class UpdatePageAndAddColumnToSite : MultiDatabaseMigration
     {
-        public UpdatePageAndAddColumnToSite(IEnumerable<IOqtaneDatabase> databases) : base(databases)
+        public UpdatePageAndAddColumnToSite(IOqtaneDatabase database) : base(database)
         {
         }
 

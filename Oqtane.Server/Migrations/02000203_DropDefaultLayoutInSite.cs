@@ -11,7 +11,7 @@ namespace Oqtane.Migrations
     [Migration("Tenant.02.00.02.03")]
     public class DropDefaultLayoutInSite : MultiDatabaseMigration
     {
-        public DropDefaultLayoutInSite(IEnumerable<IOqtaneDatabase> databases) : base(databases)
+        public DropDefaultLayoutInSite(IOqtaneDatabase database) : base(database)
         {
         }
 

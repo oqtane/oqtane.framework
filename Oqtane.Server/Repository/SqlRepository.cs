@@ -14,13 +14,6 @@ namespace Oqtane.Repository
 {
     public class SqlRepository : ISqlRepository
     {
-        private IEnumerable<IOqtaneDatabase> _databases;
-
-        public SqlRepository(IEnumerable<IOqtaneDatabase> databases)
-        {
-            _databases = databases;
-        }
-
         public void ExecuteScript(Tenant tenant, string script)
         {
             // execute script in current tenant
@@ -80,14 +73,13 @@ namespace Oqtane.Repository
 
         public IDataReader ExecuteReader(Tenant tenant, string query)
         {
-            var db = _databases.Single(d => d.TypeName == tenant.DBType);
+            var db = GetActiveDatabase(tenant.DBType);
             return db.ExecuteReader(tenant.DBConnectionString, query);
         }
 
         private int ExecuteNonQuery(string connectionString, string databaseType, string query)
         {
-            var db = _databases.Single(d => d.TypeName == databaseType);
-
+            var db = GetActiveDatabase(databaseType);
             return db.ExecuteNonQuery(connectionString, query);
         }
 
@@ -113,6 +105,18 @@ namespace Oqtane.Repository
             }
 
             return script;
+        }
+
+        private IOqtaneDatabase GetActiveDatabase(string databaseType)
+        {
+            IOqtaneDatabase activeDatabase = null;
+            if (!String.IsNullOrEmpty(databaseType))
+            {
+                var type = Type.GetType(databaseType);
+                activeDatabase = Activator.CreateInstance(type) as IOqtaneDatabase;
+            }
+
+            return activeDatabase;
         }
     }
 }

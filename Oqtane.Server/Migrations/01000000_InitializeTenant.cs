@@ -12,7 +12,7 @@ namespace Oqtane.Migrations
     [Migration("Tenant.01.00.00.00")]
     public class InitializeTenant : MultiDatabaseMigration
     {
-        public InitializeTenant(IEnumerable<IOqtaneDatabase> databases) : base(databases)
+        public InitializeTenant(IOqtaneDatabase database) : base(database)
         {
         }
 

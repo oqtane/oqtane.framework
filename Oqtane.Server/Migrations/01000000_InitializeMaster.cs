@@ -11,7 +11,7 @@ namespace Oqtane.Migrations
     [Migration("Master.01.00.00.00")]
     public class InitializeMaster : MultiDatabaseMigration
     {
-        public InitializeMaster(IEnumerable<IOqtaneDatabase> databases) : base(databases)
+        public InitializeMaster(IOqtaneDatabase database) : base(database)
         {
         }
 

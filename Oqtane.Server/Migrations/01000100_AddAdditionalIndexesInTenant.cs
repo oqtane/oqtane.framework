@@ -11,7 +11,7 @@ namespace Oqtane.Migrations
     [Migration("Tenant.01.00.01.00")]
     public class AddAdditionalIndexesInTenant : MultiDatabaseMigration
     {
-        public AddAdditionalIndexesInTenant(IEnumerable<IOqtaneDatabase> databases) : base(databases)
+        public AddAdditionalIndexesInTenant(IOqtaneDatabase database) : base(database)
         {
         }
 
