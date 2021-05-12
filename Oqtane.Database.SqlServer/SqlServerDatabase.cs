@@ -6,6 +6,8 @@ namespace Oqtane.Database.SqlServer
 
         private static string _name => "SqlServer";
 
-        public SqlServerDatabase() :base(_name, _friendlyName) { }
+        public SqlServerDatabase() : base(_name, _friendlyName) { }
+
+        public override string TypeName => "Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer";
     }
 }

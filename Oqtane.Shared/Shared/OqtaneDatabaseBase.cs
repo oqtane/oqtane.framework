@@ -23,6 +23,8 @@ namespace Oqtane.Shared
 
         public abstract string Provider { get; }
 
+        public abstract string TypeName { get; }
+
         public abstract OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(ColumnsBuilder table, string name);
 
         public virtual string ConcatenateSql(params string[] values)

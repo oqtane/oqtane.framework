@@ -221,7 +221,7 @@ else
         var database = _databases.SingleOrDefault(d => d.Name == _databaseName);
         if (database != null)
         {
-            _databaseConfigType = Type.GetType(database.Type);
+            _databaseConfigType = Type.GetType(database.ControlType);
             DatabaseConfigComponent = builder =>
             {
                 builder.OpenComponent(0, _databaseConfigType);
@@ -301,9 +301,11 @@ else
                             {
                                 connectionString = databaseConfigControl.GetConnectionString();
                             }
+                            var database = _databases.SingleOrDefault(d => d.Name == _databaseName);
+                            
                             if (connectionString != "")
                             {
-                                config.DatabaseType = _databaseName;
+                                config.DatabaseType = database.DBType;
                                 config.ConnectionString = connectionString;
                                 config.HostPassword = _hostpassword;
                                 config.HostEmail = user.Email;

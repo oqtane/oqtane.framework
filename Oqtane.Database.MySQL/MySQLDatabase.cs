@@ -18,6 +18,8 @@ namespace Oqtane.Database.MySQL
 
         public override string Provider => "MySql.EntityFrameworkCore";
 
+        public override string TypeName => "Oqtane.Database.MySQL.MySQLDatabase, Oqtane.Database.MySQL";
+
         public override OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(ColumnsBuilder table, string name)
         {
             return table.Column<int>(name: name, nullable: false).Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn);

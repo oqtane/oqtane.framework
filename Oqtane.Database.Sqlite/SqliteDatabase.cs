@@ -18,6 +18,8 @@ namespace Oqtane.Database.Sqlite
 
         public override string Provider => "Microsoft.EntityFrameworkCore.Sqlite";
 
+        public override string TypeName => "Oqtane.Database.Sqlite.SqliteDatabase, Oqtane.Database.Sqlite";
+
         public override OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(ColumnsBuilder table, string name)
         {
             return table.Column<int>(name: name, nullable: false).Annotation("Sqlite:Autoincrement", true);

@@ -19,31 +19,36 @@ namespace Oqtane.Controllers
                 {
                     Name = "LocalDB",
                     FriendlyName = "Local Database",
-                    Type = "Oqtane.Installer.Controls.LocalDBConfig, Oqtane.Client"
+                    ControlType = "Oqtane.Installer.Controls.LocalDBConfig, Oqtane.Client",
+                    DBType = "Oqtane.Database.SqlServer.LocalDbDatabase, Oqtane.Database.SqlServer"
                 },
                 new()
                 {
                     Name = "SqlServer",
                     FriendlyName = "SQL Server",
-                    Type = "Oqtane.Installer.Controls.SqlServerConfig, Oqtane.Client"
+                    ControlType = "Oqtane.Installer.Controls.SqlServerConfig, Oqtane.Client",
+                    DBType = "Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer"
                 },
                 new()
                 {
                     Name = "Sqlite",
                     FriendlyName = "Sqlite",
-                    Type = "Oqtane.Installer.Controls.SqliteConfig, Oqtane.Client"
+                    ControlType = "Oqtane.Installer.Controls.SqliteConfig, Oqtane.Client",
+                    DBType = "Oqtane.Database.Sqlite.SqliteDatabase, Oqtane.Database.Sqlite"
                 },
                 new()
                 {
                     Name = "MySQL",
                     FriendlyName = "MySQL",
-                    Type = "Oqtane.Installer.Controls.MySQLConfig, Oqtane.Client"
+                    ControlType = "Oqtane.Installer.Controls.MySQLConfig, Oqtane.Client",
+                    DBType = "Oqtane.Database.MySQL.MySQLDatabase, Oqtane.Database.MySQL"
                 },
                 new()
                 {
                     Name = "PostgreSQL",
                     FriendlyName = "PostgreSQL",
-                    Type = "Oqtane.Installer.Controls.PostGreSQLConfig, Oqtane.Client"
+                    ControlType = "Oqtane.Installer.Controls.PostGreSQLConfig, Oqtane.Client",
+                    DBType = "Oqtane.Database.PostgreSQL.PostgreSQLDatabase, Oqtane.Database.PostgreSQL"
                 }
             };
             return databases;

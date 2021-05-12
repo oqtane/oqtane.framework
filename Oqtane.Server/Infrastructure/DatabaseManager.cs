@@ -191,7 +191,7 @@ namespace Oqtane.Infrastructure
                     {
                         var databases = scope.ServiceProvider.GetServices<IOqtaneDatabase>();
 
-                        using (var dbc = new DbContext(new DbContextOptionsBuilder().UseOqtaneDatabase(databases.Single(d => d.Name == databaseType), connectionString).Options))
+                        using (var dbc = new DbContext(new DbContextOptionsBuilder().UseOqtaneDatabase(databases.Single(d => d.TypeName == databaseType), connectionString).Options))
                         {
                             // create empty database if it does not exist
                             dbc.Database.EnsureCreated();
@@ -596,7 +596,7 @@ namespace Oqtane.Infrastructure
             var databaseType = _config.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey];
             var connectionString = NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey));
 
-            return new InstallationContext(databases.Single(d => d.Name == databaseType), connectionString);
+            return new InstallationContext(databases.Single(d => d.TypeName == databaseType), connectionString);
         }
 
         private string GetInstallationConfig(string key, string defaultValue)

@@ -80,13 +80,13 @@ namespace Oqtane.Repository
 
         public IDataReader ExecuteReader(Tenant tenant, string query)
         {
-            var db = _databases.Single(d => d.Name == tenant.DBType);
+            var db = _databases.Single(d => d.TypeName == tenant.DBType);
             return db.ExecuteReader(tenant.DBConnectionString, query);
         }
 
         private int ExecuteNonQuery(string connectionString, string databaseType, string query)
         {
-            var db = _databases.Single(d => d.Name == databaseType);
+            var db = _databases.Single(d => d.TypeName == databaseType);
 
             return db.ExecuteNonQuery(connectionString, query);
         }

@@ -26,6 +26,8 @@ namespace Oqtane.Database.PostgreSQL
 
         public override string Provider => "Npgsql.EntityFrameworkCore.PostgreSQL";
 
+        public override string TypeName => "Oqtane.Database.PostgreSQL.PostgreSQLDatabase, Oqtane.Database.PostgreSQL";
+
         public override OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(ColumnsBuilder table, string name)
         {
             return table.Column<int>(name: name, nullable: false).Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn);

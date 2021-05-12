@@ -15,6 +15,8 @@ namespace Oqtane.Interfaces
 
         public string Provider { get; }
 
+        public string TypeName { get; }
+
         public OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(ColumnsBuilder table, string name);
 
         public string ConcatenateSql(params string[] values);
