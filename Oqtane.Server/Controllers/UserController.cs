@@ -444,7 +444,7 @@ namespace Oqtane.Controllers
             return user;
         }
 
-        // GET api/<controller>/current
+        // GET api/<controller>/authenticate
         [HttpGet("authenticate")]
         public User Authenticate()
         {
