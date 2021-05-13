@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Security.Claims;
@@ -28,12 +28,12 @@ namespace Oqtane.Providers
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            // get HttpClient lazily from IServiceProvider as you cannot use standard dependency injection due to the AuthenticationStateProvider being initialized prior to NavigationManager ( https://github.com/aspnet/AspNetCore/issues/11867 )
-            var http = _serviceProvider.GetRequiredService<HttpClient>();
-            string apiurl = "/~/api/User/authenticate";
-            User user = await http.GetFromJsonAsync<User>(apiurl);
-
             ClaimsIdentity identity = new ClaimsIdentity();
+
+            // get HttpClient lazily from IServiceProvider as you cannot use standard dependency injection due to the AuthenticationStateProvider being initialized prior to NavigationManager(https://github.com/aspnet/AspNetCore/issues/11867 )
+            var http = _serviceProvider.GetRequiredService<HttpClient>();
+            string apiurl = "/api/User/authenticate";
+            User user = await http.GetFromJsonAsync<User>(apiurl);
             if (user.IsAuthenticated)
             {
                 identity = new ClaimsIdentity("Identity.Application");
@@ -44,6 +44,7 @@ namespace Oqtane.Providers
                     identity.AddClaim(new Claim(ClaimTypes.Role, role));
                 }
             }
+
             return new AuthenticationState(new ClaimsPrincipal(identity));
         }
 

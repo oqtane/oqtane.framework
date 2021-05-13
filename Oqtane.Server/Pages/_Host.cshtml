@@ -22,7 +22,14 @@
 <body>
     @(Html.AntiForgeryToken())
     <app>
-        <component type="typeof(Oqtane.App)" render-mode="ServerPrerendered" />
+        @if (Configuration.GetSection("Runtime").Value == "WebAssembly")
+        {
+            <component type="typeof(Oqtane.App)" render-mode="Server" />
+        }
+        else
+        {
+            <component type="typeof(Oqtane.App)" render-mode="ServerPrerendered" />
+        }
     </app>
 
     <div id="blazor-error-ui">
