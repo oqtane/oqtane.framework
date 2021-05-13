@@ -6,6 +6,7 @@ using Oqtane.Repository;
 using Oqtane.Modules.HtmlText.Models;
 using Oqtane.Modules.HtmlText.Repository;
 using System.Net;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Oqtane.Enums;
@@ -18,12 +19,15 @@ namespace Oqtane.Modules.HtmlText.Manager
     public class HtmlTextManager : MigratableModuleBase, IInstallable, IPortable
     {
         private readonly IHtmlTextRepository _htmlText;
-        private readonly IEnumerable<IOqtaneDatabase> _databases;
+        private readonly ITenantManager _tenantManager;
+        private readonly IHttpContextAccessor _accessor;
 
-        public HtmlTextManager(IHtmlTextRepository htmlText, IEnumerable<IOqtaneDatabase> databases)
+
+        public HtmlTextManager(IHtmlTextRepository htmlText, ITenantManager tenantManager, IHttpContextAccessor httpContextAccessor)
         {
             _htmlText = htmlText;
-            _databases = databases;
+            _tenantManager = tenantManager;
+            _accessor = httpContextAccessor;
         }
 
         public string ExportModule(Module module)
@@ -57,14 +61,12 @@ namespace Oqtane.Modules.HtmlText.Manager
 
         public bool Install(Tenant tenant, string version)
         {
-            var dbConfig = new DbConfig(null, null, _databases) {ConnectionString = tenant.DBConnectionString, DatabaseType = tenant.DBType};
-            return Migrate(new HtmlTextContext(dbConfig, null), tenant, MigrationType.Up);
+            return Migrate(new HtmlTextContext(_tenantManager, _accessor), tenant, MigrationType.Up);
         }
 
         public bool Uninstall(Tenant tenant)
         {
-            var dbConfig = new DbConfig(null, null, _databases) {ConnectionString = tenant.DBConnectionString, DatabaseType = tenant.DBType};
-            return Migrate(new HtmlTextContext(dbConfig, null), tenant, MigrationType.Down);
+            return Migrate(new HtmlTextContext(_tenantManager, _accessor), tenant, MigrationType.Down);
         }
     }
 }

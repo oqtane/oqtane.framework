@@ -11,7 +11,7 @@ namespace Oqtane.Migrations
     [Migration("Tenant.01.00.01.01")]
     public class AddAdditionColumnToNotifications : MultiDatabaseMigration
     {
-        public AddAdditionColumnToNotifications(IEnumerable<IOqtaneDatabase> databases) : base(databases)
+        public AddAdditionColumnToNotifications(IOqtaneDatabase database) : base(database)
         {
         }
 

@@ -47,17 +47,6 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
                 }
 
-                // dynamically register database providers
-                var databaseTypes = assembly.GetInterfaces<IOqtaneDatabase>();
-                foreach (var databaseType in databaseTypes)
-                {
-                    if (databaseType.AssemblyQualifiedName != null)
-                    {
-                        var serviceType = Type.GetType("Oqtane.Interfaces.IOqtaneDatabase, Oqtane.Shared");
-                        services.AddScoped(serviceType ?? databaseType, databaseType);
-                    }
-                }
-
                 // dynamically register hosted services
                 var serviceTypes = assembly.GetTypes(hostedServiceType);
                 foreach (var serviceType in serviceTypes)

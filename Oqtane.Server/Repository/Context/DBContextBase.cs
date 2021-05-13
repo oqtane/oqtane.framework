@@ -23,7 +23,6 @@ namespace Oqtane.Repository
         private readonly ITenantResolver _tenantResolver;
         private readonly ITenantManager _tenantManager;
         private readonly IHttpContextAccessor _accessor;
-        private readonly IConfiguration _configuration;
         private string _connectionString;
         private string _databaseType;
 
@@ -34,17 +33,7 @@ namespace Oqtane.Repository
             _accessor = httpContextAccessor;
         }
 
-        public DBContextBase(IDbConfig dbConfig, ITenantManager tenantManager)
-        {
-            _accessor = dbConfig.Accessor;
-            _configuration = dbConfig.Configuration;
-            _connectionString = dbConfig.ConnectionString;
-            _databaseType = dbConfig.DatabaseType;
-            Databases = dbConfig.Databases;
-            _tenantManager = tenantManager;
-        }
-
-        public IEnumerable<IOqtaneDatabase> Databases { get; }
+        public IOqtaneDatabase ActiveDatabase { get; private set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -69,27 +58,17 @@ namespace Oqtane.Repository
                         .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString());
                     _databaseType = tenant.DBType;
                 }
-                else
-                {
-                    if (!String.IsNullOrEmpty(_configuration.GetConnectionString("DefaultConnection")))
-                    {
-                        _connectionString = _configuration.GetConnectionString("DefaultConnection")
-                            .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString());
-                    }
-                    _databaseType = _configuration.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey];
-                }
             }
 
-            if (!string.IsNullOrEmpty(_connectionString) && !string.IsNullOrEmpty(_databaseType))
+            if (!String.IsNullOrEmpty(_databaseType))
             {
-                if (Databases != null)
-                {
-                    optionsBuilder.UseOqtaneDatabase(Databases.Single(d => d.TypeName == _databaseType), _connectionString);
-                }
-                else
-                {
-                    optionsBuilder.UseOqtaneDatabase(_databaseType, _connectionString);
-                }
+                var type = Type.GetType(_databaseType);
+                ActiveDatabase = Activator.CreateInstance(type) as IOqtaneDatabase;
+            }
+
+            if (!string.IsNullOrEmpty(_connectionString) && ActiveDatabase != null)
+            {
+                optionsBuilder.UseOqtaneDatabase(ActiveDatabase, _connectionString);
             }
 
             base.OnConfiguring(optionsBuilder);
@@ -99,13 +78,7 @@ namespace Oqtane.Repository
         {
             base.OnModelCreating(builder);
 
-            if (Databases != null)
-            {
-                var database = Databases.Single(d => d.TypeName == _databaseType);
-
-                database.UpdateIdentityStoreTableNames(builder);
-            }
-
+            ActiveDatabase.UpdateIdentityStoreTableNames(builder);
         }
 
         public override int SaveChanges()
@@ -122,17 +95,5 @@ namespace Oqtane.Repository
             _tenantResolver = tenantResolver;
             _accessor = httpContextAccessor;
         }
-
-        [Obsolete("This constructor is obsolete. Use DBContextBase(IDbConfig dbConfig, ITenantManager tenantManager) instead.", false)]
-        public DBContextBase(IDbConfig dbConfig, ITenantResolver tenantResolver)
-        {
-            _accessor = dbConfig.Accessor;
-            _configuration = dbConfig.Configuration;
-            _connectionString = dbConfig.ConnectionString;
-            _databaseType = dbConfig.DatabaseType;
-            Databases = dbConfig.Databases;
-            _tenantResolver = tenantResolver;
-        }
-
     }
 }

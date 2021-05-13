@@ -14,16 +14,5 @@ namespace Oqtane.Extensions
 
             return optionsBuilder;
         }
-
-        public static DbContextOptionsBuilder UseOqtaneDatabase([NotNull] this DbContextOptionsBuilder optionsBuilder, string databaseType, string connectionString)
-        {
-            var type = Type.GetType(databaseType);
-            var database = Activator.CreateInstance(type) as IOqtaneDatabase;
-
-            database.UseDatabase(optionsBuilder, connectionString);
-
-            return optionsBuilder;
-        }
-
     }
 }

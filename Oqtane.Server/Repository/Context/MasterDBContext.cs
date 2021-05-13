@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Oqtane.Models;
@@ -19,45 +20,43 @@ namespace Oqtane.Repository
 {
     public class MasterDBContext : DbContext, IMultiDatabase
     {
-        private readonly IDbConfig _dbConfig;
+        private readonly IHttpContextAccessor _accessor;
+        private readonly IConfiguration _configuration;
+        private string _connectionString;
+        private string _databaseType;
 
-        public MasterDBContext(DbContextOptions<MasterDBContext> options, IDbConfig dbConfig) : base(options)
+        public MasterDBContext(DbContextOptions<MasterDBContext> options, IHttpContextAccessor accessor, IConfiguration configuration) : base(options)
         {
-            _dbConfig = dbConfig;
-            Databases = dbConfig.Databases;
+            _accessor = accessor;
+            _configuration = configuration;
         }
 
-        public IEnumerable<IOqtaneDatabase> Databases { get; }
+        public IOqtaneDatabase ActiveDatabase { get; private set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.ReplaceService<IMigrationsAssembly, MultiDatabaseMigrationsAssembly>();
 
-            var connectionString = _dbConfig.ConnectionString;
-            var configuration = _dbConfig.Configuration;
-            var databaseType = _dbConfig.DatabaseType;
-
-            if(string.IsNullOrEmpty(connectionString) && configuration != null)
+            if(_configuration != null)
             {
-                if (!String.IsNullOrEmpty(configuration.GetConnectionString("DefaultConnection")))
+                if (!String.IsNullOrEmpty(_configuration.GetConnectionString("DefaultConnection")))
                 {
-                    connectionString = configuration.GetConnectionString("DefaultConnection")
+                    _connectionString = _configuration.GetConnectionString("DefaultConnection")
                         .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString());
                 }
 
-                databaseType = configuration.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey];
+                _databaseType = _configuration.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey];
             }
 
-            if (!string.IsNullOrEmpty(connectionString) && !string.IsNullOrEmpty(databaseType))
+            if (!String.IsNullOrEmpty(_databaseType))
             {
-                if (Databases != null)
-                {
-                    optionsBuilder.UseOqtaneDatabase(Databases.Single(d => d.TypeName == databaseType), connectionString);
-                }
-                else
-                {
-                    optionsBuilder.UseOqtaneDatabase(databaseType, connectionString);
-                }
+                var type = Type.GetType(_databaseType);
+                ActiveDatabase = Activator.CreateInstance(type) as IOqtaneDatabase;
+            }
+
+            if (!string.IsNullOrEmpty(_connectionString) && ActiveDatabase != null)
+            {
+                optionsBuilder.UseOqtaneDatabase(ActiveDatabase, _connectionString);
             }
 
             base.OnConfiguring(optionsBuilder);
@@ -71,7 +70,7 @@ namespace Oqtane.Repository
 
         public override int SaveChanges()
         {
-            DbContextUtils.SaveChanges(this, _dbConfig.Accessor);
+            DbContextUtils.SaveChanges(this, _accessor);
 
             return base.SaveChanges();
         }

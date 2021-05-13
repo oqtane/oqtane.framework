@@ -13,7 +13,7 @@ namespace Oqtane.Migrations.Framework
 {
     public class MultiDatabaseMigrationsAssembly: MigrationsAssembly
     {
-        private readonly IEnumerable<IOqtaneDatabase> _databases;
+        private readonly IOqtaneDatabase _database;
 
         public MultiDatabaseMigrationsAssembly(
             ICurrentDbContext currentContext,
@@ -23,15 +23,15 @@ namespace Oqtane.Migrations.Framework
             : base(currentContext, options, idGenerator, logger)
         {
             var multiDatabaseContext = currentContext.Context as IMultiDatabase;
-            if (multiDatabaseContext != null) _databases = multiDatabaseContext.Databases;
+            if (multiDatabaseContext != null) _database = multiDatabaseContext.ActiveDatabase;
         }
         public override Migration CreateMigration(TypeInfo migrationClass, string activeProvider)
         {
-            var hasCtorWithCacheOptions = migrationClass.GetConstructor(new[] { typeof(IEnumerable<IOqtaneDatabase>) }) != null;
+            var hasCtorWithCacheOptions = migrationClass.GetConstructor(new[] { typeof(IOqtaneDatabase) }) != null;
 
             if (hasCtorWithCacheOptions)
             {
-                var migration = (Migration)Activator.CreateInstance(migrationClass.AsType(), _databases);
+                var migration = (Migration)Activator.CreateInstance(migrationClass.AsType(), _database);
                 if (migration != null)
                 {
                     migration.ActiveProvider = activeProvider;
