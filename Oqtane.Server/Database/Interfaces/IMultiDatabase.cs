@@ -1,7 +1,6 @@
-using System.Collections.Generic;
 using Oqtane.Interfaces;
 
-namespace Oqtane.Repository.Databases.Interfaces
+namespace Oqtane.Database
 {
     public interface IMultiDatabase
     {

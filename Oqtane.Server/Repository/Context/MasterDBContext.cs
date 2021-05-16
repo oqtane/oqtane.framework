@@ -9,12 +9,8 @@ using Microsoft.Extensions.Configuration;
 using Oqtane.Extensions;
 using Oqtane.Interfaces;
 using Oqtane.Migrations.Framework;
-using Oqtane.Repository.Databases.Interfaces;
 using Oqtane.Shared;
-
-// ReSharper disable BuiltInTypeReferenceStyleForMemberAccess
-// ReSharper disable UnusedAutoPropertyAccessor.Global
-// ReSharper disable CheckNamespace
+using Oqtane.Database;
 
 namespace Oqtane.Repository
 {

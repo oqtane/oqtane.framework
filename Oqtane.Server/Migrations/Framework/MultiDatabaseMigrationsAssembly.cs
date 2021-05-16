@@ -1,13 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Oqtane.Database;
 using Oqtane.Interfaces;
-using Oqtane.Repository.Databases.Interfaces;
 
 namespace Oqtane.Migrations.Framework
 {

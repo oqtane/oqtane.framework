@@ -1,12 +1,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Oqtane.Database;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
-using Oqtane.Repository.Databases.Interfaces;
-
-// ReSharper disable CheckNamespace
-// ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace Oqtane.Repository
 {
