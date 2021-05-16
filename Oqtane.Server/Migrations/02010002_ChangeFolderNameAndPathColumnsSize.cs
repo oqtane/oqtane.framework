@@ -7,7 +7,7 @@ using Oqtane.Repository;
 namespace Oqtane.Migrations
 {
     [DbContext(typeof(TenantDBContext))]
-    [Migration("Tenant.02.02.00.01")]
+    [Migration("Tenant.02.01.00.02")]
     public class ChangeFolderNameAndPathColumnsSize : MultiDatabaseMigration
     {
         public ChangeFolderNameAndPathColumnsSize(IOqtaneDatabase database) : base(database)
