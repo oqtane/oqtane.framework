@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -8,9 +6,9 @@ using Oqtane.Models;
 using Microsoft.Extensions.Configuration;
 using Oqtane.Extensions;
 using Oqtane.Interfaces;
-using Oqtane.Migrations.Framework;
 using Oqtane.Shared;
 using Oqtane.Database;
+using Oqtane.Database.Migrations.Framework;
 
 namespace Oqtane.Repository
 {

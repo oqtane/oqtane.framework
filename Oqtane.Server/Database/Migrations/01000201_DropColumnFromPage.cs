@@ -1,0 +1,35 @@
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Oqtane.Database.Migrations.Framework;
+using Oqtane.Interfaces;
+using Oqtane.Database.Migrations.EntityBuilders;
+using Oqtane.Repository;
+
+namespace Oqtane.Database.Migrations
+{
+    [DbContext(typeof(TenantDBContext))]
+    [Migration("Tenant.01.00.02.01")]
+    public class DropColumnFromPage : MultiDatabaseMigration
+    {
+        public DropColumnFromPage(IOqtaneDatabase database) : base(database)
+        {
+        }
+
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            //Drop Column from Page table
+            if (ActiveDatabase.Name == "SqlServer" || ActiveDatabase.Name == "LocalDB")
+            {
+                var pageEntityBuilder = new PageEntityBuilder(migrationBuilder, ActiveDatabase);
+                pageEntityBuilder.DropColumn("EditMode");
+            }
+        }
+
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            //Add Column to Page table
+            var pageEntityBuilder = new PageEntityBuilder(migrationBuilder, ActiveDatabase);
+            pageEntityBuilder.AddBooleanColumn("EditMode");
+        }
+    }
+}

@@ -1,10 +1,9 @@
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Oqtane.Interfaces;
-using Oqtane.Migrations;
 using Oqtane.Modules.HtmlText.Migrations.EntityBuilders;
 using Oqtane.Modules.HtmlText.Repository;
+using Oqtane.Database.Migrations.Framework;
 
 namespace Oqtane.Modules.HtmlText.Migrations
 {

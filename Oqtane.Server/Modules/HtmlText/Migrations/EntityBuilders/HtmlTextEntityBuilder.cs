@@ -1,12 +1,9 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Oqtane.Database.Migrations.EntityBuilders;
+using Oqtane.Database.Migrations.Framework;
 using Oqtane.Interfaces;
-using Oqtane.Migrations;
-using Oqtane.Migrations.EntityBuilders;
-
-// ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace Oqtane.Modules.HtmlText.Migrations.EntityBuilders
 {
