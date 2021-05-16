@@ -29,6 +29,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Oqtane.Database.MySQL\Oqtane.Database.MySQL.csproj" />
+    <ProjectReference Include="..\Oqtane.Database.PostgreSQL\Oqtane.Database.PostgreSQL.csproj" />
+    <ProjectReference Include="..\Oqtane.Database.Sqlite\Oqtane.Database.Sqlite.csproj" />
+    <ProjectReference Include="..\Oqtane.Database.SqlServer\Oqtane.Database.SqlServer.csproj" />
     <ProjectReference Include="..\Oqtane.Shared\Oqtane.Shared.csproj" />
   </ItemGroup>
 
