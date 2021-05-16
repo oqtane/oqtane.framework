@@ -1,12 +1,11 @@
 using System;
-using System.Globalization;
 
 namespace Oqtane.Shared {
 
     public class Constants {
         public const string PackageId = "Oqtane.Framework";
-        public static readonly string Version = "2.1.0";
-        public const string ReleaseVersions = "1.0.0,1.0.1,1.0.2,1.0.3,1.0.4,2.0.0,2.0.1,2.0.2,2.1.0";
+        public static readonly string Version = "2.2.0";
+        public const string ReleaseVersions = "1.0.0,1.0.1,1.0.2,1.0.3,1.0.4,2.0.0,2.0.1,2.0.2,2.1.0,2.2.0";
 
         public const string PageComponent = "Oqtane.UI.ThemeBuilder, Oqtane.Client";
         public const string ContainerComponent = "Oqtane.UI.ContainerBuilder, Oqtane.Client";
