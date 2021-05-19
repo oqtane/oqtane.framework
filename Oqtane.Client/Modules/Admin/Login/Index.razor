@@ -9,7 +9,13 @@
 {
     <ModuleMessage Message="@_message" Type="@_type" />
 }
-<AuthorizeView>
+<AuthorizeView Roles="@RoleNames.Registered">
+    <Authorizing>
+        <text>...</text>
+    </Authorizing>
+    <Authorized>
+        <ModuleMessage Message="@Localizer["You Are Already Signed In"]" Type="MessageType.Info" />
+    </Authorized>
     <NotAuthorized>
         <form @ref="login" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
             <div class="container Oqtane-Modules-Admin-Login" @onkeypress="@(e => KeyPressed(e))">
@@ -112,11 +118,10 @@
                 if (user.IsAuthenticated)
                 {
                     await logger.LogInformation("Login Successful For Username {Username}", _username);
-                    // complete the login on the server so that the cookies are set correctly on SignalR
+                    // complete the login on the server so that the cookies are set correctly 
                     string antiforgerytoken = await interop.GetElementByName("__RequestVerificationToken");
                     var fields = new { __RequestVerificationToken = antiforgerytoken, username = _username, password = _password, remember = _remember, returnurl = _returnUrl };
-                    string url = "/pages/login/";
-                    if (!string.IsNullOrEmpty(PageState.Alias.Path)) url = "/" + PageState.Alias.Path + url;
+                    string url = Utilities.TenantUrl(PageState.Alias, "/pages/login/");
                     await interop.SubmitForm(url, fields);
                 }
                 else

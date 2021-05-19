@@ -71,14 +71,15 @@ namespace Oqtane
                 {
                     // creating the URI helper needs to wait until the JS Runtime is initialized, so defer it.
                     var navigationManager = s.GetRequiredService<NavigationManager>();
+                    var client = new HttpClient(new HttpClientHandler { UseCookies = false });
+                    client.BaseAddress = new Uri(navigationManager.Uri);
+                    // set the auth cookie to allow HttpClient API calls to be authenticated
                     var httpContextAccessor = s.GetRequiredService<IHttpContextAccessor>();
-                    var authToken = httpContextAccessor.HttpContext.Request.Cookies[".AspNetCore.Identity.Application"];
-                    var client = new HttpClient(new HttpClientHandler {UseCookies = false});
+                    var authToken = httpContextAccessor.HttpContext.Request.Cookies[".AspNetCore." + Constants.AuthenticationScheme];
                     if (authToken != null)
                     {
-                        client.DefaultRequestHeaders.Add("Cookie", ".AspNetCore.Identity.Application=" + authToken);
+                        client.DefaultRequestHeaders.Add("Cookie", ".AspNetCore." + Constants.AuthenticationScheme + "=" + authToken);
                     }
-                    client.BaseAddress = new Uri(navigationManager.Uri);
                     return client;
                 });
             }
@@ -131,7 +132,8 @@ namespace Oqtane
             services.AddIdentityCore<IdentityUser>(options => { })
                 .AddEntityFrameworkStores<TenantDBContext>()
                 .AddSignInManager()
-                .AddDefaultTokenProviders();
+                .AddDefaultTokenProviders()
+                .AddClaimsPrincipalFactory<ClaimsPrincipalFactory<IdentityUser>>(); // role claims
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -151,8 +153,8 @@ namespace Oqtane
                 options.User.RequireUniqueEmail = false;
             });
 
-            services.AddAuthentication(IdentityConstants.ApplicationScheme)
-                .AddCookie(IdentityConstants.ApplicationScheme);
+            services.AddAuthentication(Constants.AuthenticationScheme)
+                .AddCookie(Constants.AuthenticationScheme);
 
             services.ConfigureApplicationCookie(options =>
             {
@@ -162,10 +164,8 @@ namespace Oqtane
                     context.Response.StatusCode = 401;
                     return Task.CompletedTask;
                 };
+                options.Events.OnValidatePrincipal = PrincipalValidator.ValidateAsync;
             });
-
-            // register custom claims principal factory for role claims
-            services.AddTransient<IUserClaimsPrincipalFactory<IdentityUser>, ClaimsPrincipalFactory<IdentityUser>>();
 
             // register singleton scoped core services
             services.AddSingleton(Configuration);
@@ -249,11 +249,12 @@ namespace Oqtane
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseTenantResolution(); // must be declared directly after static files
+            app.UseTenantResolution();
             app.UseBlazorFrameworkFiles();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+
             if (_useSwagger)
             {
                 app.UseSwagger();

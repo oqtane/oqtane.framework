@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 
 namespace Oqtane.Shared {
 
@@ -72,5 +71,7 @@ namespace Oqtane.Shared {
         public static readonly string SatelliteAssemblyExtension = ".resources.dll";
 
         public static readonly string DefaultCulture = "en";
+
+        public static readonly string AuthenticationScheme = "Identity.Application";
     }
 }

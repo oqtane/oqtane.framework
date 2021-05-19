@@ -14,7 +14,7 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private string ApiUrl => CreateApiUrl("Installation", _siteState.Alias);
+        private string ApiUrl => CreateApiUrl("Installation", null); // tenant agnostic as SiteState does not exist
 
         public async Task<Installation> IsInstalled()
         {

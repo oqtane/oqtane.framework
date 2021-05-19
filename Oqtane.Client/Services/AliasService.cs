@@ -19,36 +19,37 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private string Apiurl => CreateApiUrl("Alias", _siteState.Alias);
+        private string ApiUrl => CreateApiUrl("Alias", _siteState.Alias);
 
         public async Task<List<Alias>> GetAliasesAsync()
         {
-            List<Alias> aliases = await GetJsonAsync<List<Alias>>(Apiurl);
+            List<Alias> aliases = await GetJsonAsync<List<Alias>>(ApiUrl);
             return aliases.OrderBy(item => item.Name).ToList();
         }
 
         public async Task<Alias> GetAliasAsync(int aliasId)
         {
-            return await GetJsonAsync<Alias>($"{Apiurl}/{aliasId}");
+            return await GetJsonAsync<Alias>($"{ApiUrl}/{aliasId}");
         }
 
         public async Task<Alias> GetAliasAsync(string path, DateTime lastSyncDate)
         {
-            return await GetJsonAsync<Alias>($"{Apiurl}/name/?path={WebUtility.UrlEncode(path)}&sync={lastSyncDate.ToString("yyyyMMddHHmmssfff")}");
+            // tenant agnostic as SiteState does not exist
+            return await GetJsonAsync<Alias>($"{CreateApiUrl("Alias", null)}/name/?path={WebUtility.UrlEncode(path)}&sync={lastSyncDate.ToString("yyyyMMddHHmmssfff")}");
         }
 
         public async Task<Alias> AddAliasAsync(Alias alias)
         {
-            return await PostJsonAsync<Alias>(Apiurl, alias);
+            return await PostJsonAsync<Alias>(ApiUrl, alias);
         }
 
         public async Task<Alias> UpdateAliasAsync(Alias alias)
         {
-            return await PutJsonAsync<Alias>($"{Apiurl}/{alias.AliasId}", alias);
+            return await PutJsonAsync<Alias>($"{ApiUrl}/{alias.AliasId}", alias);
         }
         public async Task DeleteAliasAsync(int aliasId)
         {
-            await DeleteAsync($"{Apiurl}/{aliasId}");
+            await DeleteAsync($"{ApiUrl}/{aliasId}");
         }
     }
 }
