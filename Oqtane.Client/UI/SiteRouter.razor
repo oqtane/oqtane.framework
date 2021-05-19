@@ -12,7 +12,6 @@
 @inject IUserService UserService
 @inject IModuleService ModuleService
 @inject ILogService LogService
-@inject IJSRuntime JSRuntime
 @implements IHandleAfterRender
 
 @DynamicComponent
@@ -331,13 +330,14 @@
         await Refresh();
     }
 
-    async Task IHandleAfterRender.OnAfterRenderAsync()
+    Task IHandleAfterRender.OnAfterRenderAsync()
     {
         if (!_navigationInterceptionEnabled)
         {
             _navigationInterceptionEnabled = true;
-            await NavigationInterception.EnableNavigationInterceptionAsync();
+            return NavigationInterception.EnableNavigationInterceptionAsync();
         }
+        return Task.CompletedTask;
     }
 
     private Dictionary<string, string> ParseQueryString(string query)
