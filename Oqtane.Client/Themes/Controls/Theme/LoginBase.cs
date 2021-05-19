@@ -39,8 +39,7 @@ namespace Oqtane.Themes.Controls
                 var interop = new Interop(jsRuntime);
                 string antiforgerytoken = await interop.GetElementByName("__RequestVerificationToken");
                 var fields = new { __RequestVerificationToken = antiforgerytoken, returnurl = !authorizedtoviewpage ? PageState.Alias.Path : PageState.Alias.Path + "/" + PageState.Page.Path };
-                string url = "/pages/logout/";
-                if (!string.IsNullOrEmpty(PageState.Alias.Path)) url = "/" + PageState.Alias.Path + url;
+                string url = Utilities.TenantUrl(PageState.Alias, "/pages/logout/");
                 await interop.SubmitForm(url, fields);
             }
             else

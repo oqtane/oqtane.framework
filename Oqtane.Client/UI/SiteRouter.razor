@@ -12,6 +12,7 @@
 @inject IUserService UserService
 @inject IModuleService ModuleService
 @inject ILogService LogService
+@inject IJSRuntime JSRuntime
 @implements IHandleAfterRender
 
 @DynamicComponent
@@ -107,7 +108,7 @@
         SiteState.Alias = alias; // set state for services
         lastsyncdate = alias.SyncDate;
 
-        // process any sync events  
+        // process any sync events
         if (reload != Reload.Site && alias.SyncEvents.Any())
         {
             // if running on WebAssembly reload the client application if the server application was restarted
@@ -330,15 +331,13 @@
         await Refresh();
     }
 
-    Task IHandleAfterRender.OnAfterRenderAsync()
+    async Task IHandleAfterRender.OnAfterRenderAsync()
     {
         if (!_navigationInterceptionEnabled)
         {
             _navigationInterceptionEnabled = true;
-            return NavigationInterception.EnableNavigationInterceptionAsync();
+            await NavigationInterception.EnableNavigationInterceptionAsync();
         }
-
-        return Task.CompletedTask;
     }
 
     private Dictionary<string, string> ParseQueryString(string query)
@@ -556,4 +555,5 @@
 => RuntimeInformation.IsOSPlatform(OSPlatform.Create("BROWSER"))
         ? Oqtane.Shared.Runtime.WebAssembly
         : Oqtane.Shared.Runtime.Server;
+
 }

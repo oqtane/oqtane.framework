@@ -203,7 +203,7 @@
     <LanguageSwitcher />
 }
 
-@if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions) || (PageState.Page.IsPersonalizable && PageState.User != null))
+@if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions) || (PageState.Page.IsPersonalizable && PageState.User != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Registered)))
 {
     if (PageState.EditMode)
     {

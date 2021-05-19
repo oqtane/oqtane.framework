@@ -48,21 +48,24 @@ namespace Oqtane.Pages
             }
 
             // if culture not specified and framework is installed 
-            if (HttpContext.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName] == null && !string.IsNullOrEmpty(_configuration.GetConnectionString("DefaultConnection")))
+            if (!string.IsNullOrEmpty(_configuration.GetConnectionString("DefaultConnection")))
             {
                 var alias = _tenantManager.GetAlias();
                 if (alias != null)
                 {
-                    // set default language for site if the culture is not supported
-                    var languages = _languages.GetLanguages(alias.SiteId);
-                    if (languages.Any() && languages.All(l => l.Code != CultureInfo.CurrentUICulture.Name))
+                    if (HttpContext.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName] == null)
                     {
-                        var defaultLanguage = languages.Where(l => l.IsDefault).SingleOrDefault() ?? languages.First();
-                        SetLocalizationCookie(defaultLanguage.Code);
-                    }
-                    else
-                    {
-                        SetLocalizationCookie(_localizationManager.GetDefaultCulture());
+                        // set default language for site if the culture is not supported
+                        var languages = _languages.GetLanguages(alias.SiteId);
+                        if (languages.Any() && languages.All(l => l.Code != CultureInfo.CurrentUICulture.Name))
+                        {
+                            var defaultLanguage = languages.Where(l => l.IsDefault).SingleOrDefault() ?? languages.First();
+                            SetLocalizationCookie(defaultLanguage.Code);
+                        }
+                        else
+                        {
+                            SetLocalizationCookie(_localizationManager.GetDefaultCulture());
+                        }
                     }
                 }
             }

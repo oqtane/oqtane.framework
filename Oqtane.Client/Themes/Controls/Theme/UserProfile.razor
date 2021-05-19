@@ -5,7 +5,7 @@
 @inject NavigationManager NavigationManager
 
 <span class="app-profile">
-    <AuthorizeView>
+    <AuthorizeView Roles="@RoleNames.Registered">
         <Authorizing>
             <text>...</text>
         </Authorizing>

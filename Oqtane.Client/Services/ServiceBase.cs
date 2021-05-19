@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -81,7 +81,6 @@ namespace Oqtane.Services
             }
             catch (Exception e)
             {
-                //TODO replace with logging
                 Console.WriteLine(e);
             }
 
@@ -169,8 +168,6 @@ namespace Oqtane.Services
             if (response.IsSuccessStatusCode) return true;
             if (response.StatusCode != HttpStatusCode.NoContent && response.StatusCode != HttpStatusCode.NotFound)
             {
-                //TODO: Log errors here
-                
                 Console.WriteLine($"Request: {response.RequestMessage.RequestUri}");
                 Console.WriteLine($"Response status: {response.StatusCode} {response.ReasonPhrase}");
             }
@@ -182,7 +179,6 @@ namespace Oqtane.Services
         {
             var mediaType = content?.Headers.ContentType?.MediaType;
             return mediaType != null && mediaType.Equals("application/json", StringComparison.OrdinalIgnoreCase);
-            //TODO Missing content JSON validation 
         }
 
         [Obsolete("This method is obsolete. Use CreateApiUrl(Alias alias, string serviceName) instead.", false)]
