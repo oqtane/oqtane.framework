@@ -6,17 +6,11 @@ namespace Oqtane.Database.SqlServer
 
         private static string _name => "SqlServer";
 
-        private readonly static string _typeName;
-
         static SqlServerDatabase()
         {
-            var typeQualifiedName = typeof(SqlServerDatabase).AssemblyQualifiedName;
-
-            _typeName = typeQualifiedName.Substring(0, typeQualifiedName.IndexOf(", Version"));
+            Initialize(typeof(SqlServerDatabase));
         }
 
         public SqlServerDatabase() : base(_name, _friendlyName) { }
-
-        public override string TypeName => _typeName;
     }
 }

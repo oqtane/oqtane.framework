@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>Oqtane.Database.Sqlite</id>
+        <version>1.0.0</version>
+        <authors>Shaun Walker</authors>
+        <owners>.NET Foundation</owners>
+        <title>Oqtane Sqlite Provider</title>
+        <description>Add support for Sqlite to the Oqtane Framework</description>
+        <copyright>.NET Foundation</copyright>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <license type="expression">MIT</license>
+        <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
+        <iconUrl>https://www.oqtane.org/Portals/0/icon.jpg</iconUrl>
+        <tags>oqtane</tags>
+        <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v2.0.2</releaseNotes>
+        <summary>Add support for Sqlite to the Oqtane Framework</summary>
+    </metadata>
+    <files>
+        <file src="bin\net5.0\Oqtane.Database.Sqlite.dll" target="lib\net5.0" />
+        <file src="bin\net5.0\Oqtane.Database.Sqlite.pdb" target="lib\net5.0" />
+        <file src="bin\net5.0\Microsoft.EntityFrameworkCore.Sqlite.dll" target="lib\net5.0" />
+    </files>
+</package>

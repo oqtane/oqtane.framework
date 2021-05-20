@@ -9,5 +9,7 @@ namespace Oqtane.Models
         public string ControlType { get; set; }
 
         public string DBType { get; set; }
+
+        public string Package { get; set; }
     }
 }

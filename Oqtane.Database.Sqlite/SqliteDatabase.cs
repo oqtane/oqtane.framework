@@ -4,6 +4,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Oqtane.Databases;
 using Oqtane.Shared;
 
 namespace Oqtane.Database.Sqlite
@@ -14,20 +15,14 @@ namespace Oqtane.Database.Sqlite
 
         private static string _name => "Sqlite";
 
-        private readonly static string _typeName;
-
         static SqliteDatabase()
         {
-            var typeQualifiedName = typeof(SqliteDatabase).AssemblyQualifiedName;
-
-            _typeName = typeQualifiedName.Substring(0, typeQualifiedName.IndexOf(", Version"));
+            Initialize(typeof(SqliteDatabase));
         }
 
         public SqliteDatabase() :base(_name, _friendlyName) { }
 
         public override string Provider => "Microsoft.EntityFrameworkCore.Sqlite";
-
-        public override string TypeName => _typeName;
 
         public override OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(ColumnsBuilder table, string name)
         {

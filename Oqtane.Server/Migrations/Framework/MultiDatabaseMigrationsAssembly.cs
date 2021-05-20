@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Oqtane.Databases.Interfaces;
 using Oqtane.Interfaces;
 using Oqtane.Repository.Databases.Interfaces;
 

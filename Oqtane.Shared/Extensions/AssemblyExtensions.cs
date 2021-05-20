@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Loader;
 using Oqtane.Modules;
 using Oqtane.Services;
 using Oqtane.Shared;
@@ -72,6 +73,7 @@ namespace System.Reflection
         {
             return appDomain.GetAssemblies().Where(a => a.IsOqtaneAssembly());
         }
+
         public static IEnumerable<Assembly> GetOqtaneClientAssemblies(this AppDomain appDomain)
         {
             return appDomain.GetOqtaneAssemblies()
@@ -80,13 +82,52 @@ namespace System.Reflection
         }
 
         /// <summary>
-        /// Checks if type should be ignored by oqtane dynamic loader 
+        /// Checks if type should be ignored by oqtane dynamic loader
         /// </summary>
         /// <param name="type">Checked type</param>
         /// <returns></returns>
         public static bool IsOqtaneIgnore(this Type type)
         {
             return Attribute.IsDefined(type, typeof(OqtaneIgnoreAttribute)) || type.IsAbstract || type.IsGenericType;
+        }
+
+        public static void LoadOqtaneAssembly(this AssemblyLoadContext loadContext, FileInfo dll)
+        {
+            AssemblyName assemblyName = null;
+            try
+            {
+                assemblyName = AssemblyName.GetAssemblyName(dll.FullName);
+            }
+            catch
+            {
+                Console.WriteLine($"Not Assembly : {dll.Name}");
+            }
+
+            loadContext.LoadOqtaneAssembly(dll, assemblyName);
+        }
+
+        public static void LoadOqtaneAssembly(this AssemblyLoadContext loadContext, FileInfo dll, AssemblyName assemblyName)
+        {
+            try
+            {
+                var pdb = Path.ChangeExtension(dll.FullName, ".pdb");
+                Assembly assembly = null;
+
+                // load assembly ( and symbols ) from stream to prevent locking files ( as long as dependencies are in /bin they will load as well )
+                if (File.Exists(pdb))
+                {
+                    assembly = loadContext.LoadFromStream(new MemoryStream(File.ReadAllBytes(dll.FullName)), new MemoryStream(File.ReadAllBytes(pdb)));
+                }
+                else
+                {
+                    assembly = loadContext.LoadFromStream(new MemoryStream(File.ReadAllBytes(dll.FullName)));
+                }
+                Console.WriteLine($"Loaded : {assemblyName}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Failed : {assemblyName}\n{e}");
+            }
         }
     }
 }

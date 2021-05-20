@@ -1,14 +1,14 @@
-using System.Collections.Generic;
 using System.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
-using Oqtane.Models;
 
-namespace Oqtane.Interfaces
+namespace Oqtane.Databases.Interfaces
 {
     public interface IOqtaneDatabase
     {
+        public string AssemblyName { get; }
+
         public string FriendlyName { get; }
 
         public string Name { get; }
