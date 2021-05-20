@@ -1,29 +1,43 @@
 using System;
-using System.Collections.Generic;
 using System.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
-using Oqtane.Interfaces;
-using Oqtane.Models;
+using Oqtane.Databases.Interfaces;
 
-namespace Oqtane.Shared
+namespace Oqtane.Databases
 {
     public abstract class OqtaneDatabaseBase : IOqtaneDatabase
     {
+        private static string _assemblyName;
+
+        private static string _typeName;
+
         protected OqtaneDatabaseBase(string name, string friendlyName)
         {
             Name = name;
             FriendlyName = friendlyName;
         }
 
-        public  string FriendlyName { get; }
+        protected static void Initialize(Type type)
+        {
+            var typeQualifiedName = type.AssemblyQualifiedName;
+            var assembly = type.Assembly;
+            var assemblyName = assembly.FullName;
+
+            _typeName = typeQualifiedName.Substring(0, typeQualifiedName.IndexOf(", Version"));
+            _assemblyName = assemblyName.Substring(0, assemblyName.IndexOf(", Version"));
+        }
+
+        public string AssemblyName => _assemblyName;
+
+        public string FriendlyName { get; }
 
         public string Name { get; }
 
         public abstract string Provider { get; }
 
-        public abstract string TypeName { get; }
+        public string TypeName => _typeName;
 
         public abstract OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(ColumnsBuilder table, string name);
 

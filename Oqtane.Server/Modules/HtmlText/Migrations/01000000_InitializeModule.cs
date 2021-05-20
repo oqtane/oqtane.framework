@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Oqtane.Databases.Interfaces;
 using Oqtane.Interfaces;
 using Oqtane.Migrations;
 using Oqtane.Modules.HtmlText.Migrations.EntityBuilders;

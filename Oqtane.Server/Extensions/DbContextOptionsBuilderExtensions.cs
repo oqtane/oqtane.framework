@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
+using Oqtane.Databases.Interfaces;
 using Oqtane.Interfaces;
 // ReSharper disable ConvertToUsingDeclaration
 

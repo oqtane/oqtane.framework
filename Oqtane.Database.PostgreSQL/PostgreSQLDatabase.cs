@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Npgsql;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using Oqtane.Databases;
 using Oqtane.Shared;
 
 namespace Oqtane.Database.PostgreSQL
@@ -17,15 +18,11 @@ namespace Oqtane.Database.PostgreSQL
 
         private static string _name => "PostgreSQL";
 
-        private readonly static string _typeName;
-
         private readonly INameRewriter _rewriter;
 
         static PostgreSQLDatabase()
         {
-            var typeQualifiedName = typeof(PostgreSQLDatabase).AssemblyQualifiedName;
-
-            _typeName = typeQualifiedName.Substring(0, typeQualifiedName.IndexOf(", Version"));
+            Initialize(typeof(PostgreSQLDatabase));
         }
 
         public PostgreSQLDatabase() : base(_name, _friendlyName)
@@ -34,8 +31,6 @@ namespace Oqtane.Database.PostgreSQL
         }
 
         public override string Provider => "Npgsql.EntityFrameworkCore.PostgreSQL";
-
-        public override string TypeName => _typeName;
 
         public override OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(ColumnsBuilder table, string name)
         {

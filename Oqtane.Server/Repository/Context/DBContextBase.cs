@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
+using Oqtane.Databases.Interfaces;
 using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Interfaces;

@@ -1,14 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Oqtane.Databases.Interfaces;
 using Oqtane.Interfaces;
 
 namespace Oqtane.Migrations
 {
     public abstract class MultiDatabaseMigration : Migration
     {
-        private readonly IOqtaneDatabase _databases;
-
         protected MultiDatabaseMigration(IOqtaneDatabase database)
         {
             ActiveDatabase = database;

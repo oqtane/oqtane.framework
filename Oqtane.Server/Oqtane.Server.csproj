@@ -32,21 +32,20 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="5.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.4" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="2.0.1" />
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="5.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Localization" Version="5.0.4" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.0.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
     <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Oqtane.Client\Oqtane.Client.csproj" />
-    <ProjectReference Include="..\Oqtane.Database.MySQL\Oqtane.Database.MySQL.csproj" />
-    <ProjectReference Include="..\Oqtane.Database.PostgreSQL\Oqtane.Database.PostgreSQL.csproj" />
-    <ProjectReference Include="..\Oqtane.Database.Sqlite\Oqtane.Database.Sqlite.csproj" />
-    <ProjectReference Include="..\Oqtane.Database.SqlServer\Oqtane.Database.SqlServer.csproj" />
     <ProjectReference Include="..\Oqtane.Shared\Oqtane.Shared.csproj" />
     <ProjectReference Include="..\Oqtane.Upgrade\Oqtane.Upgrade.csproj" />
   </ItemGroup>

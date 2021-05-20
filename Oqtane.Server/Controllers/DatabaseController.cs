@@ -20,35 +20,40 @@ namespace Oqtane.Controllers
                     Name = "LocalDB",
                     FriendlyName = "Local Database",
                     ControlType = "Oqtane.Installer.Controls.LocalDBConfig, Oqtane.Client",
-                    DBType = "Oqtane.Database.SqlServer.LocalDbDatabase, Oqtane.Database.SqlServer"
+                    DBType = "Oqtane.Database.SqlServer.LocalDbDatabase, Oqtane.Database.SqlServer",
+                    Package = "Oqtane.Database.SqlServer"
                 },
                 new()
                 {
                     Name = "SqlServer",
                     FriendlyName = "SQL Server",
                     ControlType = "Oqtane.Installer.Controls.SqlServerConfig, Oqtane.Client",
-                    DBType = "Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer"
+                    DBType = "Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer",
+                    Package = "Oqtane.Database.SqlServer"
                 },
                 new()
                 {
                     Name = "Sqlite",
                     FriendlyName = "Sqlite",
                     ControlType = "Oqtane.Installer.Controls.SqliteConfig, Oqtane.Client",
-                    DBType = "Oqtane.Database.Sqlite.SqliteDatabase, Oqtane.Database.Sqlite"
+                    DBType = "Oqtane.Database.Sqlite.SqliteDatabase, Oqtane.Database.Sqlite",
+                    Package = "Oqtane.Database.Sqlite"
                 },
                 new()
                 {
                     Name = "MySQL",
                     FriendlyName = "MySQL",
                     ControlType = "Oqtane.Installer.Controls.MySQLConfig, Oqtane.Client",
-                    DBType = "Oqtane.Database.MySQL.MySQLDatabase, Oqtane.Database.MySQL"
+                    DBType = "Oqtane.Database.MySQL.MySQLDatabase, Oqtane.Database.MySQL",
+                    Package = "Oqtane.Database.MySQL"
                 },
                 new()
                 {
                     Name = "PostgreSQL",
                     FriendlyName = "PostgreSQL",
-                    ControlType = "Oqtane.Installer.Controls.PostGreSQLConfig, Oqtane.Client",
-                    DBType = "Oqtane.Database.PostgreSQL.PostgreSQLDatabase, Oqtane.Database.PostgreSQL"
+                    ControlType = "Oqtane.Installer.Controls.PostgreSQLConfig, Oqtane.Client",
+                    DBType = "Oqtane.Database.PostgreSQL.PostgreSQLDatabase, Oqtane.Database.PostgreSQL",
+                    Package = "Oqtane.Database.PostgreSQL"
                 }
             };
             return databases;

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Oqtane.Models;
 using Microsoft.Extensions.Configuration;
+using Oqtane.Databases.Interfaces;
 using Oqtane.Extensions;
 using Oqtane.Interfaces;
 using Oqtane.Migrations.Framework;
