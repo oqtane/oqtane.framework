@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Oqtane.Databases.Interfaces;
 using Oqtane.Interfaces;
 using Oqtane.Migrations.EntityBuilders;
 using Oqtane.Repository;
@@ -58,7 +59,7 @@ namespace Oqtane.Migrations
 
             migrationBuilder.Sql($@"
                 INSERT INTO {appVersions}({version}, {appledDate})
-                    VALUES('02.01.00', '{DateTime.UtcNow:u}')
+                    VALUES('02.01.00', '{DateTime.UtcNow.ToString("yyyy'-'MM'-'dd HH':'mm':'ss")}')
             ");
         }
 

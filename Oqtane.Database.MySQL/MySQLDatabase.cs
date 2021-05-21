@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using MySql.Data.MySqlClient;
 using MySql.EntityFrameworkCore.Metadata;
+using Oqtane.Databases;
 using Oqtane.Shared;
 
 namespace Oqtane.Database.MySQL
@@ -14,20 +15,14 @@ namespace Oqtane.Database.MySQL
 
         private static string _name => "MySQL";
 
-        private readonly static string _typeName;
-
         static MySQLDatabase()
         {
-            var typeQualifiedName = typeof(MySQLDatabase).AssemblyQualifiedName;
-
-            _typeName = typeQualifiedName.Substring(0, typeQualifiedName.IndexOf(", Version"));
+            Initialize(typeof(MySQLDatabase));
         }
 
         public MySQLDatabase() :base(_name, _friendlyName) { }
 
         public override string Provider => "MySql.EntityFrameworkCore";
-
-        public override string TypeName => _typeName;
 
         public override OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(ColumnsBuilder table, string name)
         {

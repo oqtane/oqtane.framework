@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using Oqtane.Databases.Interfaces;
 using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Repository;
@@ -28,14 +31,14 @@ namespace Oqtane.Infrastructure
     {
         private readonly IConfigurationRoot _config;
         private readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly IWebHostEnvironment _environment;
         private readonly IMemoryCache _cache;
 
-        private IOqtaneDatabase _database;
-
-        public DatabaseManager(IConfigurationRoot config, IServiceScopeFactory serviceScopeFactory, IMemoryCache cache)
+        public DatabaseManager(IConfigurationRoot config, IServiceScopeFactory serviceScopeFactory, IWebHostEnvironment environment, IMemoryCache cache)
         {
             _config = config;
             _serviceScopeFactory = serviceScopeFactory;
+            _environment = environment;
             _cache = cache;
         }
 
@@ -175,6 +178,45 @@ namespace Oqtane.Infrastructure
             return result;
         }
 
+        private Installation InstallDatabase(InstallConfig install)
+        {
+            var result = new Installation {Success = false, Message = string.Empty};
+
+            try
+            {
+                //Rename bak extension
+                var packageFolderName = "Packages";
+                var webRootPath = _environment.WebRootPath;
+                var packagesFolder = new DirectoryInfo(Path.Combine(webRootPath, packageFolderName));
+
+                // iterate through Nuget packages in source folder
+                foreach (var package in packagesFolder.GetFiles("*.nupkg.bak"))
+                {
+                    if (package.Name.StartsWith(install.DatabasePackage))
+                    {
+                        //rename file
+                        var packageName = Path.Combine(package.DirectoryName, package.Name);
+                        packageName = packageName.Substring(0, packageName.IndexOf(".bak"));
+                        package.MoveTo(packageName, true);
+                    }
+                }
+
+                //Call InstallationManager to install Database Package
+                using (var scope = _serviceScopeFactory.CreateScope())
+                {
+                    var installationManager = scope.ServiceProvider.GetRequiredService<IInstallationManager>();
+                    installationManager.InstallPackages(packageFolderName);
+                    result.Success = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.Message;
+            }
+
+            return result;
+        }
+
         private Installation CreateDatabase(InstallConfig install)
         {
             var result = new Installation { Success = false, Message = string.Empty };
@@ -183,11 +225,32 @@ namespace Oqtane.Infrastructure
             {
                 try
                 {
+                    var databaseType = install.DatabaseType;
+
+                    //Get database Type
+                    var type = Type.GetType(databaseType);
+
+                    //Deploy the database components (if necessary)
+                    if (type == null)
+                    {
+                        InstallDatabase(install);
+
+                        var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
+                        var assembliesFolder = new DirectoryInfo(assemblyPath);
+                        var assemblyFile = new FileInfo($"{assembliesFolder}/{install.DatabasePackage}.dll");
+
+                        AssemblyLoadContext.Default.LoadOqtaneAssembly(assemblyFile);
+                        type = Type.GetType(databaseType);
+                    }
+
+                    //Create database object from Type
+                    var database = Activator.CreateInstance(type) as IOqtaneDatabase;
+
                     //create data directory if does not exist
                     var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString();
                     if (!Directory.Exists(dataDirectory)) Directory.CreateDirectory(dataDirectory ?? String.Empty);
 
-                    var dbOptions = new DbContextOptionsBuilder().UseOqtaneDatabase(install.Database, NormalizeConnectionString(install.ConnectionString)).Options;
+                    var dbOptions = new DbContextOptionsBuilder().UseOqtaneDatabase(database, NormalizeConnectionString(install.ConnectionString)).Options;
                     using (var dbc = new DbContext(dbOptions))
                     {
                         // create empty database if it does not exist
@@ -585,13 +648,14 @@ namespace Oqtane.Infrastructure
         {
             var connectionString = _config.GetConnectionString(SettingKeys.ConnectionStringKey);
             var databaseType = _config.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey];
-            IOqtaneDatabase database = null;
 
-            if (!String.IsNullOrEmpty(databaseType))
+            IOqtaneDatabase database = null;
+            if (!string.IsNullOrEmpty(databaseType))
             {
                 var type = Type.GetType(databaseType);
                 database = Activator.CreateInstance(type) as IOqtaneDatabase;
             }
+
 
             return new InstallationContext(database, connectionString);
         }

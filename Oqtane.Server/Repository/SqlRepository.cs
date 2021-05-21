@@ -4,6 +4,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Oqtane.Databases.Interfaces;
 using Oqtane.Interfaces;
 using Oqtane.Models;
 // ReSharper disable ConvertToUsingDeclaration
