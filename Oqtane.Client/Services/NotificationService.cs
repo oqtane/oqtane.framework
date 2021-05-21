@@ -4,9 +4,11 @@ using System.Net.Http;
 using Oqtane.Shared;
 using System.Collections.Generic;
 using System.Linq;
+using Oqtane.Documentation;
 
 namespace Oqtane.Services
 {
+    [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class NotificationService : ServiceBase, INotificationService
     {
         private readonly SiteState _siteState;

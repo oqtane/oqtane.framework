@@ -4,11 +4,13 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Oqtane.Documentation;
 using Oqtane.Models;
 using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
+    [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class ServiceBase
     {
         private readonly HttpClient _http;

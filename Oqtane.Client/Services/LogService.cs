@@ -4,12 +4,14 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Oqtane.Documentation;
 using Oqtane.Enums;
 using Oqtane.Models;
 using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
+    [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class LogService : ServiceBase, ILogService
     {
         

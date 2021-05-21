@@ -5,9 +5,11 @@ using System.Linq;
 using System.Collections.Generic;
 using Oqtane.Shared;
 using System;
+using Oqtane.Documentation;
 
 namespace Oqtane.Services
 {
+    [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class SiteService : ServiceBase, ISiteService
     {
         
