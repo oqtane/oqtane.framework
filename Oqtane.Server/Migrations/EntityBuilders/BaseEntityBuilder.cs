@@ -183,6 +183,19 @@ namespace Oqtane.Migrations.EntityBuilders
                 onDelete: foreignKey.OnDeleteAction);
         }
 
+        public void AddForeignKey(string name)
+        {
+            var foreignKey = ForeignKeys.Single(k => k.Name == name);
+
+            _migrationBuilder.AddForeignKey(
+                    name: RewriteName(foreignKey.Name),
+                    table: RewriteName(EntityTableName),
+                    column: RewriteName(foreignKey.ColumnName),
+                    principalTable: RewriteName(foreignKey.PrincipalTable),
+                    principalColumn: RewriteName(foreignKey.PrincipalColumn),
+                    onDelete: foreignKey.OnDeleteAction);
+        }
+
         public void DropForeignKey(ForeignKey<TEntityBuilder> foreignKey)
         {
             DropForeignKey(RewriteName(foreignKey.Name));

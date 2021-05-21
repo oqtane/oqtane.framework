@@ -20,6 +20,14 @@ namespace Oqtane.Migrations
 
         public Expression<Func<TEntityBuilder, object>> Column { get;}
 
+        public string ColumnName
+        {
+            get
+            {
+                var body = Column.Body.ToString();
+                return body.Substring(body.IndexOf(".") + 1);
+            }
+        }
         public ReferentialAction OnDeleteAction { get; }
 
         public string PrincipalTable { get; }

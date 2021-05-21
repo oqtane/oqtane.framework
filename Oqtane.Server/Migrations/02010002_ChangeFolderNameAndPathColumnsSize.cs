@@ -19,12 +19,14 @@ namespace Oqtane.Migrations
         {
             var folderEntityBuilder = new FolderEntityBuilder(migrationBuilder, ActiveDatabase);
 
-            folderEntityBuilder.AlterStringColumn("Name", 250);
+            folderEntityBuilder.AlterStringColumn("Name", 256);
 
             // Drop the index is needed because the Path is already associated with IX_Folder
+            folderEntityBuilder.DropForeignKey("FK_Folder_Site");
             folderEntityBuilder.DropIndex("IX_Folder");
-            folderEntityBuilder.AlterStringColumn("Path", 1000);
+            folderEntityBuilder.AlterStringColumn("Path", 512);
             folderEntityBuilder.AddIndex("IX_Folder", new[] { "SiteId", "Path" }, true);
+            folderEntityBuilder.AddForeignKey("FK_Folder_Site");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
