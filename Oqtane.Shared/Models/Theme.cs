@@ -34,6 +34,8 @@ namespace Oqtane.Models
         public List<ThemeControl> Containers { get; set; }
         public string Template { get; set; }
 
+        #region Obsolete Properties
+
         [Obsolete("This property is obsolete. Use Themes instead.", false)]
         public string ThemeControls { get; set; }
         [Obsolete("This property is obsolete. Use Layouts instead.", false)]
@@ -42,5 +44,8 @@ namespace Oqtane.Models
         public string ContainerControls { get; set; }
         [Obsolete("This property is obsolete.", false)]
         public List<ThemeControl> Layouts { get; set; }
+
+        #endregion
+
     }
 }
