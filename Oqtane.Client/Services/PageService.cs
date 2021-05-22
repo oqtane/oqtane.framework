@@ -6,9 +6,11 @@ using System.Collections.Generic;
 using Oqtane.Shared;
 using System;
 using System.Net;
+using Oqtane.Documentation;
 
 namespace Oqtane.Services
 {
+    [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class PageService : ServiceBase, IPageService
     {
         

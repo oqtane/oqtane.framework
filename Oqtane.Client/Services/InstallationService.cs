@@ -1,10 +1,12 @@
 using Oqtane.Models;
 using System.Threading.Tasks;
 using System.Net.Http;
+using Oqtane.Documentation;
 using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
+    [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class InstallationService : ServiceBase, IInstallationService
     {
         private readonly SiteState _siteState;
