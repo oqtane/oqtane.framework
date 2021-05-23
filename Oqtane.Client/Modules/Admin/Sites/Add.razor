@@ -224,8 +224,7 @@ else
             DatabaseConfigComponent = builder =>
             {
                 builder.OpenComponent(0, _databaseConfigType);
-                builder.AddAttribute(1, "IsInstaller", false);
-                builder.AddComponentReferenceCapture(2, inst => { _databaseConfig = Convert.ChangeType(inst, _databaseConfigType); });
+                builder.AddComponentReferenceCapture(1, inst => { _databaseConfig = Convert.ChangeType(inst, _databaseConfigType); });
                 builder.CloseComponent();
             };
         }
