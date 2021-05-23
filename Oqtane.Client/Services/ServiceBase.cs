@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -54,10 +55,15 @@ namespace Oqtane.Services
             return apiurl;
         }
 
-        // add entityid parameter to url for custom authorization policy
-        public string CreateAuthorizationPolicyUrl(string url, int entityId)
+        // add authentityid parameters to url for custom authorization policy - args in form of entityname = entityid
+        public string CreateAuthorizationPolicyUrl(string url, Dictionary<string, int> args)
         {
-            string qs = "entityid=" + entityId.ToString();
+            string qs = "";
+            foreach (KeyValuePair<string, int> kvp in args)
+            {
+                qs += (qs != "") ? "&" : "";
+                qs += "auth" + kvp.Key.ToLower() + "id=" + kvp.Value.ToString();
+            }
 
             if (url.Contains("?"))
             {
@@ -203,6 +209,21 @@ namespace Oqtane.Services
         public string CreateApiUrl(Alias alias, string serviceName)
         {
             return CreateApiUrl(serviceName, alias, ControllerRoutes.Default);
+        }
+
+        [Obsolete("This method is obsolete. Use CreateAuthorizationPolicyUrl(string url, Dictionary<string, int> args) instead - in conjunction with _authEntityId in Server Controller.", false)]
+        public string CreateAuthorizationPolicyUrl(string url, int entityId)
+        {
+            string qs = "entityid=" + entityId.ToString();
+
+            if (url.Contains("?"))
+            {
+                return url + "&" + qs;
+            }
+            else
+            {
+                return url + "?" + qs;
+            }
         }
     }
 }
