@@ -513,28 +513,7 @@
         {
             List<PermissionString> permissions;
 
-            if (action == "publish")
-            {
-                // publish all modules
-                foreach (var module in PageState.Modules.Where(item => item.PageId == PageState.Page.PageId))
-                {
-                    permissions = UserSecurity.GetPermissionStrings(module.Permissions);
-                    foreach (var permissionstring in permissions)
-                    {
-                        if (permissionstring.PermissionName == PermissionNames.View)
-                        {
-                            List<string> ids = permissionstring.Permissions.Split(';').ToList();
-                            if (!ids.Contains(RoleNames.Everyone)) ids.Add(RoleNames.Everyone);
-                            if (!ids.Contains(RoleNames.Registered)) ids.Add(RoleNames.Registered);
-                            permissionstring.Permissions = string.Join(";", ids.ToArray());
-                        }
-                    }
-                    module.Permissions = UserSecurity.SetPermissionStrings(permissions);
-                    await ModuleService.UpdateModuleAsync(module);
-                }
-            }
-
-            // publish page
+            // publish/unpublish page
             var page = PageState.Page;
             permissions = UserSecurity.GetPermissionStrings(page.Permissions);
             foreach (var permissionstring in permissions)

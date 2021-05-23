@@ -30,7 +30,7 @@ namespace Oqtane.Modules.HtmlText.Controllers
             try
             {
                 Models.HtmlText htmlText = null;
-                if (_entityId == id)
+                if (_authEntityId[EntityNames.Module] == id)
                 {
                     htmlText = _htmlText.GetHtmlText(id);
                     list.Add(htmlText);
@@ -51,7 +51,7 @@ namespace Oqtane.Modules.HtmlText.Controllers
         {
             try
             {
-                if (ModelState.IsValid && htmlText.ModuleId == _entityId)
+                if (ModelState.IsValid && htmlText.ModuleId == _authEntityId[EntityNames.Module])
                 {
                     htmlText = _htmlText.AddHtmlText(htmlText);
                     _logger.Log(LogLevel.Information, this, LogFunction.Create, "Html/Text Added {HtmlText}", htmlText);
@@ -72,7 +72,7 @@ namespace Oqtane.Modules.HtmlText.Controllers
         {
             try
             {
-                if (ModelState.IsValid && htmlText.ModuleId == _entityId)
+                if (ModelState.IsValid && htmlText.ModuleId == _authEntityId[EntityNames.Module])
                 {
                     htmlText = _htmlText.UpdateHtmlText(htmlText);
                     _logger.Log(LogLevel.Information, this, LogFunction.Update, "Html/Text Updated {HtmlText}", htmlText);
@@ -93,7 +93,7 @@ namespace Oqtane.Modules.HtmlText.Controllers
         {
             try
             {
-                if (id == _entityId)
+                if (id == _authEntityId[EntityNames.Module])
                 {
                     _htmlText.DeleteHtmlText(id);
                     _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Html/Text Deleted {HtmlTextId}", id);
