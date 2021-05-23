@@ -1,8 +1,5 @@
 @namespace Oqtane.Installer.Controls
-
-@using System.ComponentModel.Design.Serialization
 @implements Oqtane.Interfaces.IDatabaseConfigControl
-
 @inject IStringLocalizer<Installer> Localizer
 
 @{
@@ -11,35 +8,18 @@
         var fieldId = field.Name.ToLowerInvariant();
         field.Value = field.Value.Replace("{{Date}}", DateTime.UtcNow.ToString("yyyyMMddHHmm"));
 
-        if (IsInstaller)
-        {
-            <tr>
-                <td>
-                    <label class="control-label" style="font-weight: bold">@Localizer[$"{field.FriendlyName}:"]</label>
-                </td>
-                <td>
-                    <input type="text" class="form-control" @bind="@field.Value" />
-                </td>
-            </tr>
-        }
-        else
-        {
-            <tr>
-                <td>
-                    <Label For="@fieldId" HelpText="@field.HelpText" ResourceKey="@field.Name">@Localizer[$"{field.FriendlyName}:"]</Label>
-                </td>
-                <td>
-                    <input id="@fieldId" type="text" class="form-control" @bind="@field.Value" />
-                </td>
-            </tr>
-        }        
+        <tr>
+            <td>
+                <Label For="@fieldId" HelpText="@field.HelpText" ResourceKey="@field.Name">@Localizer[$"{field.FriendlyName}:"]</Label>
+            </td>
+            <td>
+                <input id="@fieldId" type="text" class="form-control" @bind="@field.Value" />
+            </td>
+        </tr>
     }
 }
 
 @code {
-    [Parameter]
-    public bool IsInstaller { get; set; }
-
     private readonly List<ConnectionStringField> _connectionStringFields = new()
     {
         new() {Name = "Server", FriendlyName = "Server", Value = "(LocalDb)\\MSSQLLocalDB", HelpText="Enter the database server"},

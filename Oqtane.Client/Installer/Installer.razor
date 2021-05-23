@@ -23,10 +23,10 @@
                 <tbody>
                     <tr>
                         <td>
-                            <label class="control-label" style="font-weight: bold">@Localizer["Database Type:"]</label>
+                            <Label For="databasetype" HelpText="Select the type of database you wish to create" ResourceKey="DatabaseType">Database Type:</Label>
                         </td>
                         <td>
-                            <select class="custom-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))">
+                            <select id="databasetype" class="custom-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))">
                                 @if (_databases != null)
                                 {
                                     foreach (var database in _databases)
@@ -52,31 +52,31 @@
                 <tbody>
                     <tr>
                         <td>
-                            <label class="control-label" style="font-weight: bold">@Localizer["Username:"] </label>
+                            <Label For="username" HelpText="The username of the host user account ( this is not customizable )" ResourceKey="Username">Username:</Label>
                         </td>
                         <td>
-                            <input type="text" class="form-control" @bind="@_hostUsername" readonly />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label class="control-label" style="font-weight: bold">@Localizer["Password:"] </label>
-                        </td>
-                        <td>
-                            <input type="password" class="form-control" @bind="@_hostPassword" />
+                            <input id="username" type="text" class="form-control" @bind="@_hostUsername" readonly />
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <label class="control-label" style="font-weight: bold">@Localizer["Confirm:"] </label>
+                            <Label For="password" HelpText="Provide the password for the host user account" ResourceKey="Password">Password:</Label>
                         </td>
                         <td>
-                            <input type="password" class="form-control" @bind="@_confirmPassword" />
+                            <input id="password" type="password" class="form-control" @bind="@_hostPassword" />
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <label class="control-label" style="font-weight: bold">@Localizer["Email:"] </label>
+                            <Label For="confirm" HelpText="Please confirm the password entered above by entering it again" ResourceKey="Confirm">Confirm:</Label>
+                        </td>
+                        <td>
+                            <input id="confirm" type="password" class="form-control" @bind="@_confirmPassword" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <Label For="email" HelpText="Provide the email address for the host user account" ResourceKey="Email">Email:</Label>
                         </td>
                         <td>
                             <input type="text" class="form-control" @bind="@_hostEmail" />
@@ -139,8 +139,7 @@
             DatabaseConfigComponent = builder =>
             {
                 builder.OpenComponent(0, _databaseConfigType);
-                builder.AddAttribute(1, "IsInstaller", true);
-                builder.AddComponentReferenceCapture(2, inst => { _databaseConfig = Convert.ChangeType(inst, _databaseConfigType); });
+                builder.AddComponentReferenceCapture(1, inst => { _databaseConfig = Convert.ChangeType(inst, _databaseConfigType); });
                 builder.CloseComponent();
             };
         }
