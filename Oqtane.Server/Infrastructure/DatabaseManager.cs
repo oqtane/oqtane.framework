@@ -221,7 +221,7 @@ namespace Oqtane.Infrastructure
                     using (var scope = _serviceScopeFactory.CreateScope())
                     {
                         var installationManager = scope.ServiceProvider.GetRequiredService<IInstallationManager>();
-                        installationManager.InstallPackages(packageFolderName);
+                        installationManager.InstallPackages();
                         result.Success = true;
                     }
 
@@ -231,7 +231,6 @@ namespace Oqtane.Infrastructure
 
                     AssemblyLoadContext.Default.LoadOqtaneAssembly(assemblyFile);
                 }
-
             }
             catch (Exception ex)
             {
