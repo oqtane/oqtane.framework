@@ -18,7 +18,7 @@ namespace Oqtane.Migrations
 
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            if (ActiveDatabase.Name == "SqlServer" || ActiveDatabase.Name == "LocalDB")
+            if (ActiveDatabase.Name == "SqlServer")
             {
                 //Alter Column in Setting table for Sql Server
                 var settingEntityBuilder = new SettingEntityBuilder(migrationBuilder, ActiveDatabase);

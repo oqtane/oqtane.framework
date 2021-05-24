@@ -24,7 +24,7 @@ namespace Oqtane.Migrations
             appVersionsEntityBuilder.Create();
 
             //Finish SqlServer Migration from DbUp
-            if (ActiveDatabase.Name == "SqlServer" || ActiveDatabase.Name == "LocalDB")
+            if (ActiveDatabase.Name == "SqlServer")
             {
                 //Version 1.0.0
                 InsertVersion(migrationBuilder, "01.00.00", "Oqtane.Scripts.Master.00.09.00.00.sql");

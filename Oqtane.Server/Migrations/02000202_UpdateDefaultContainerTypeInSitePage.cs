@@ -18,7 +18,7 @@ namespace Oqtane.Migrations
 
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            if (ActiveDatabase.Name == "SqlServer" || ActiveDatabase.Name == "LocalDB")
+            if (ActiveDatabase.Name == "SqlServer")
             {
                 //Update DefaultContainerType In Site
                 var siteEntityBuilder = new SiteEntityBuilder(migrationBuilder, ActiveDatabase);

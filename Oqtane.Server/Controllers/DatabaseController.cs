@@ -20,7 +20,7 @@ namespace Oqtane.Controllers
                     Name = "LocalDB",
                     FriendlyName = "Local Database",
                     ControlType = "Oqtane.Installer.Controls.LocalDBConfig, Oqtane.Client",
-                    DBType = "Oqtane.Database.SqlServer.LocalDbDatabase, Oqtane.Database.SqlServer",
+                    DBType = "Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer",
                     Package = "Oqtane.Database.SqlServer"
                 },
                 new()

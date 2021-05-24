@@ -26,7 +26,7 @@ namespace Oqtane.Migrations.EntityBuilders
         {
             PageId = AddAutoIncrementColumn(table,"PageId");
             SiteId = AddIntegerColumn(table,"SiteId");
-            if (ActiveDatabase.Name == "SqlServer" || ActiveDatabase.Name == "LocalDB")
+            if (ActiveDatabase.Name == "SqlServer")
             {
                 Path = AddStringColumn(table,"Path", 50);
             }
