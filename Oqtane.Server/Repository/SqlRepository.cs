@@ -108,13 +108,13 @@ namespace Oqtane.Repository
             return script;
         }
 
-        private IOqtaneDatabase GetActiveDatabase(string databaseType)
+        private IDatabase GetActiveDatabase(string databaseType)
         {
-            IOqtaneDatabase activeDatabase = null;
+            IDatabase activeDatabase = null;
             if (!String.IsNullOrEmpty(databaseType))
             {
                 var type = Type.GetType(databaseType);
-                activeDatabase = Activator.CreateInstance(type) as IOqtaneDatabase;
+                activeDatabase = Activator.CreateInstance(type) as IDatabase;
             }
 
             return activeDatabase;

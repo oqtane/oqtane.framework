@@ -9,7 +9,7 @@ namespace Oqtane.Extensions
 {
     public static class DbContextOptionsBuilderExtensions
     {
-        public static DbContextOptionsBuilder UseOqtaneDatabase([NotNull] this DbContextOptionsBuilder optionsBuilder, IOqtaneDatabase database, string connectionString)
+        public static DbContextOptionsBuilder UseOqtaneDatabase([NotNull] this DbContextOptionsBuilder optionsBuilder, IDatabase database, string connectionString)
         {
             database.UseDatabase(optionsBuilder, connectionString);
 

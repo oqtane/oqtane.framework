@@ -32,7 +32,7 @@ namespace Oqtane.Repository
             _configuration = configuration;
         }
 
-        public IOqtaneDatabase ActiveDatabase { get; private set; }
+        public IDatabase ActiveDatabase { get; private set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -52,7 +52,7 @@ namespace Oqtane.Repository
             if (!String.IsNullOrEmpty(_databaseType))
             {
                 var type = Type.GetType(_databaseType);
-                ActiveDatabase = Activator.CreateInstance(type) as IOqtaneDatabase;
+                ActiveDatabase = Activator.CreateInstance(type) as IDatabase;
             }
 
             if (!string.IsNullOrEmpty(_connectionString) && ActiveDatabase != null)

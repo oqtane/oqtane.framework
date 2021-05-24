@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Databases;
@@ -9,7 +10,7 @@ using Oqtane.Shared;
 
 namespace Oqtane.Database.Sqlite
 {
-    public class SqliteDatabase : OqtaneDatabaseBase
+    public class SqliteDatabase : DatabaseBase
     {
         private static string _friendlyName => "Sqlite";
 

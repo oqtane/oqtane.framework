@@ -15,7 +15,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private readonly PrimaryKey<AliasEntityBuilder> _primaryKey = new("PK_Alias", x => x.AliasId);
         private readonly ForeignKey<AliasEntityBuilder> _tenantForeignKey = new("FK_Alias_Tenant", x => x.TenantId, "Tenant", "TenantId", ReferentialAction.Cascade);
 
-        public AliasEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
+        public AliasEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;

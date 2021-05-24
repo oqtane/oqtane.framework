@@ -11,7 +11,7 @@ namespace Oqtane.Migrations
     [Migration("Tenant.02.01.00.02")]
     public class ChangeFolderNameAndPathColumnsSize : MultiDatabaseMigration
     {
-        public ChangeFolderNameAndPathColumnsSize(IOqtaneDatabase database) : base(database)
+        public ChangeFolderNameAndPathColumnsSize(IDatabase database) : base(database)
         {
         }
 

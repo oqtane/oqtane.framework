@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Databases;
@@ -9,7 +10,7 @@ using Oqtane.Shared;
 
 namespace Oqtane.Database.SqlServer
 {
-    public abstract class SqlServerDatabaseBase : OqtaneDatabaseBase
+    public abstract class SqlServerDatabaseBase : DatabaseBase
     {
         protected SqlServerDatabaseBase(string name, string friendlyName) : base(name, friendlyName)
         {

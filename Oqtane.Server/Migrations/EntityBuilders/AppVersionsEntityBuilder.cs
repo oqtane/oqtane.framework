@@ -11,7 +11,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private const string _entityTableName = "AppVersions";
         private readonly PrimaryKey<AppVersionsEntityBuilder> _primaryKey = new("PK_AppVersions", x => x.Id);
 
-        public AppVersionsEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
+        public AppVersionsEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;

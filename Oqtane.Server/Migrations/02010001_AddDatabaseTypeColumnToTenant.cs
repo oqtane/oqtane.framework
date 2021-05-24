@@ -12,7 +12,7 @@ namespace Oqtane.Migrations
     [Migration("Master.02.01.00.01")]
     public class AddDatabaseTypeColumnToTenant : MultiDatabaseMigration
     {
-        public AddDatabaseTypeColumnToTenant(IOqtaneDatabase database) : base(database)
+        public AddDatabaseTypeColumnToTenant(IDatabase database) : base(database)
         {
         }
 

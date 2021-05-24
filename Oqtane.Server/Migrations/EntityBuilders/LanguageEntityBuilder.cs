@@ -15,7 +15,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private readonly PrimaryKey<LanguageEntityBuilder> _primaryKey = new("PK_Language", x => x.LanguageId);
         private readonly ForeignKey<LanguageEntityBuilder> _siteForeignKey = new("FK_Language_Site", x => x.SiteId, "Site", "SiteId", ReferentialAction.Cascade);
 
-        public LanguageEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
+        public LanguageEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;
