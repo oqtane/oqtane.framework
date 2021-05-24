@@ -97,7 +97,7 @@ namespace Oqtane.Controllers
         public void InstallPackages()
         {
             _logger.Log(LogLevel.Information, this, LogFunction.Create, "Packages Installed");
-            _installationManager.InstallPackages("Packages");
+            _installationManager.InstallPackages();
         }
     }
 

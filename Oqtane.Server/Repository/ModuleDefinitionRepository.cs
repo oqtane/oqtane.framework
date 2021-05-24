@@ -96,7 +96,14 @@ namespace Oqtane.Repository
                 var ids = new HashSet<int>(moduleDefinitions.Select(item => item.ModuleDefinitionId));
                 foreach (var permission in permissions.Where(item => !ids.Contains(item.EntityId)))
                 {
-                    _permissions.DeletePermission(permission.PermissionId);
+                    try
+                    {
+                        _permissions.DeletePermission(permission.PermissionId);
+                    }
+                    catch
+                    {
+                        // multi-threading can cause a race condition to occur
+                    }
                 }
             }
             else

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using System.Xml;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Oqtane.Shared;
 // ReSharper disable AssignNullToNotNullAttribute
@@ -18,125 +18,138 @@ namespace Oqtane.Infrastructure
     {
         private readonly IHostApplicationLifetime _hostApplicationLifetime;
         private readonly IWebHostEnvironment _environment;
-        private readonly IMemoryCache _cache;
 
-        public InstallationManager(IHostApplicationLifetime hostApplicationLifetime, IWebHostEnvironment environment, IMemoryCache cache)
+        public InstallationManager(IHostApplicationLifetime hostApplicationLifetime, IWebHostEnvironment environment)
         {
             _hostApplicationLifetime = hostApplicationLifetime;
             _environment = environment;
-            _cache = cache;
         }
 
-        public void InstallPackages(string folders)
+        public void InstallPackages()
         {
-            if (!InstallPackages(folders, _environment.WebRootPath, _environment.ContentRootPath))
+            if (!InstallPackages(_environment.WebRootPath, _environment.ContentRootPath))
             {
                 // error installing packages
             }
         }
 
-        public static bool InstallPackages(string folders, string webRootPath, string contentRootPath)
+        public static bool InstallPackages(string webRootPath, string contentRootPath)
         {
             bool install = false;
             string binPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
 
-            foreach (string folder in folders.Split(','))
+            string sourceFolder = Path.Combine(webRootPath, "Packages");
+            if (!Directory.Exists(sourceFolder))
             {
-                string sourceFolder = Path.Combine(webRootPath, folder);
-                if (!Directory.Exists(sourceFolder))
-                {
-                    Directory.CreateDirectory(sourceFolder);
-                }
+                Directory.CreateDirectory(sourceFolder);
+            }
 
-                // iterate through Nuget packages in source folder
-                foreach (string packagename in Directory.GetFiles(sourceFolder, "*.nupkg"))
+            // support for legacy folder locations
+            foreach (var folder in "Modules,Themes".Split(","))
+            {
+                foreach(var file in Directory.GetFiles(Path.Combine(webRootPath, folder), "*.nupkg"))
                 {
-                    // iterate through files
-                    using (ZipArchive archive = ZipFile.OpenRead(packagename))
+                    var destinationFile = Path.Combine(sourceFolder, Path.GetFileName(file));
+                    if (File.Exists(destinationFile))
                     {
-                        string frameworkversion = "";
-                        // locate nuspec
-                        foreach (ZipArchiveEntry entry in archive.Entries)
+                        File.Delete(destinationFile);
+                    }
+                    File.Move(file, destinationFile);
+                }
+            }
+
+            // iterate through Nuget packages in source folder
+            foreach (string packagename in Directory.GetFiles(sourceFolder, "*.nupkg"))
+            {
+                // iterate through files
+                using (ZipArchive archive = ZipFile.OpenRead(packagename))
+                {
+                    string frameworkversion = "";
+                    // locate nuspec
+                    foreach (ZipArchiveEntry entry in archive.Entries)
+                    {
+                        if (entry.FullName.ToLower().EndsWith(".nuspec"))
                         {
-                            if (entry.FullName.ToLower().EndsWith(".nuspec"))
+                            // open nuspec
+                            XmlTextReader reader = new XmlTextReader(entry.Open());
+                            reader.Namespaces = false; // remove namespace
+                            XmlDocument doc = new XmlDocument();
+                            doc.Load(reader);
+                            // get framework dependency
+                            XmlNode node = doc.SelectSingleNode("/package/metadata/dependencies/dependency[@id='Oqtane.Framework']");
+                            if (node != null)
                             {
-                                // open nuspec
-                                XmlTextReader reader = new XmlTextReader(entry.Open());
-                                reader.Namespaces = false; // remove namespace
-                                XmlDocument doc = new XmlDocument();
-                                doc.Load(reader);
-                                // get framework dependency
-                                XmlNode node = doc.SelectSingleNode("/package/metadata/dependencies/dependency[@id='Oqtane.Framework']");
-                                if (node != null)
-                                {
-                                    frameworkversion = node.Attributes["version"].Value;
-                                }
-
-                                reader.Close();
+                                frameworkversion = node.Attributes["version"].Value;
                             }
-                        }
-
-                        // if compatible with framework version
-                        if (frameworkversion == "" || Version.Parse(Constants.Version).CompareTo(Version.Parse(frameworkversion)) >= 0)
-                        {
-                            List<string> assets = new List<string>();
-                            bool manifest = false;
-
-                            // packages are in form of name.1.0.0.nupkg or name.culture.1.0.0.nupkg
-                            string name = Path.GetFileNameWithoutExtension(packagename);
-                            string[] segments = name?.Split('.');
-                            if (segments != null) name = string.Join('.', segments, 0, segments.Length - 3); // remove version information
-
-                            // deploy to appropriate locations
-                            foreach (ZipArchiveEntry entry in archive.Entries)
-                            {
-                                string filename = "";
-
-                                // evaluate entry root folder
-                                switch (entry.FullName.Split('/')[0])
-                                {
-                                    case "lib": // lib/net5.0/...
-                                        filename = ExtractFile(entry, binPath, 2);
-                                        break;
-                                    case "wwwroot": // wwwroot/...
-                                        filename = ExtractFile(entry, webRootPath, 1);
-                                        break;
-                                    case "runtimes": // runtimes/name/...
-                                        filename = ExtractFile(entry, binPath, 0);
-                                        break;
-                                }
-
-                                if (filename != "")
-                                {
-                                    assets.Add(filename.Replace(contentRootPath, ""));
-                                    if (!manifest && Path.GetFileName(filename) == "assets.json")
-                                    {
-                                        manifest = true;
-                                    }
-                                }
-                            }
-
-                            // save dynamic list of assets
-                            if (!manifest && assets.Count != 0)
-                            {
-                                string manifestpath = Path.Combine(webRootPath, folder, name, "assets.json");
-                                if (File.Exists(manifestpath))
-                                {
-                                    File.Delete(manifestpath);
-                                }
-                                if (!Directory.Exists(Path.GetDirectoryName(manifestpath)))
-                                {
-                                    Directory.CreateDirectory(Path.GetDirectoryName(manifestpath));
-                                }
-                                File.WriteAllText(manifestpath, JsonSerializer.Serialize(assets));
-                            }
+                            reader.Close();
+                            break;
                         }
                     }
 
-                    // remove package
-                    File.Delete(packagename);
-                    install = true;
+                    // if compatible with framework version
+                    if (frameworkversion == "" || Version.Parse(Constants.Version).CompareTo(Version.Parse(frameworkversion)) >= 0)
+                    {
+                        List<string> assets = new List<string>();
+                        bool manifest = false;
+
+                        // packages are in form of name.1.0.0.nupkg or name.culture.1.0.0.nupkg
+                        string name = Path.GetFileNameWithoutExtension(packagename);
+                        string[] segments = name?.Split('.');
+                        // remove version information from name
+                        if (segments != null) name = string.Join('.', segments, 0, segments.Length - 3);
+
+                        // deploy to appropriate locations
+                        foreach (ZipArchiveEntry entry in archive.Entries)
+                        {
+                            string filename = "";
+
+                            // evaluate entry root folder
+                            switch (entry.FullName.Split('/')[0])
+                            {
+                                case "lib": // lib/net5.0/...
+                                    filename = ExtractFile(entry, binPath, 2);
+                                    break;
+                                case "wwwroot": // wwwroot/...
+                                    filename = ExtractFile(entry, webRootPath, 1);
+                                    break;
+                                case "runtimes": // runtimes/name/...
+                                    filename = ExtractFile(entry, binPath, 0);
+                                    break;
+                                case "ref": // ref/net5.0/...
+                                    filename = ExtractFile(entry, Path.Combine(binPath, "ref"), 2);
+                                    break;
+                            }
+
+                            if (filename != "")
+                            {
+                                assets.Add(filename.Replace(contentRootPath, ""));
+                                if (!manifest && Path.GetFileName(filename) == name + ".log")
+                                {
+                                    manifest = true;
+                                }
+                            }
+                        }
+
+                        // save dynamic list of assets
+                        if (!manifest && assets.Count != 0)
+                        {
+                            string manifestpath = Path.Combine(sourceFolder, name + ".log");
+                            if (File.Exists(manifestpath))
+                            {
+                                File.Delete(manifestpath);
+                            }
+                            if (!Directory.Exists(Path.GetDirectoryName(manifestpath)))
+                            {
+                                Directory.CreateDirectory(Path.GetDirectoryName(manifestpath));
+                            }
+                            File.WriteAllText(manifestpath, JsonSerializer.Serialize(assets));
+                        }
+                    }
                 }
+
+                // remove package
+                File.Delete(packagename);
+                install = true;
             }
 
             return install;
@@ -161,6 +174,31 @@ namespace Oqtane.Infrastructure
                 filename = "";
             }
             return filename;
+        }
+
+        public bool UninstallPackage(string PackageName)
+        {
+            if (File.Exists(Path.Combine(_environment.WebRootPath, "Packages", PackageName + ".log")))
+            {
+                // use manifest to clean up file resources
+                List<string> assets = JsonSerializer.Deserialize<List<string>>(File.ReadAllText(Path.Combine(_environment.WebRootPath, "Packages", PackageName + ".log")));
+                assets.Reverse();
+                foreach (string asset in assets)
+                {
+                    // legacy support for assets that were stored as absolute paths
+                    string filepath = asset.StartsWith("\\") ? Path.Combine(_environment.ContentRootPath, asset.Substring(1)) : asset;
+                    if (File.Exists(filepath))
+                    {
+                        File.Delete(filepath);
+                        if (!Directory.EnumerateFiles(Path.GetDirectoryName(filepath)).Any())
+                        {
+                            Directory.Delete(Path.GetDirectoryName(filepath));
+                        }
+                    }
+                }
+                return true;
+            }
+            return false;
         }
 
         public void UpgradeFramework()
