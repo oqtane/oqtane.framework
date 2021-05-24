@@ -11,7 +11,7 @@ namespace Oqtane.Migrations.EntityBuilders
 {
     public abstract class DeletableAuditableBaseEntityBuilder<TEntityBuilder> : AuditableBaseEntityBuilder<TEntityBuilder> where TEntityBuilder : BaseEntityBuilder<TEntityBuilder>
     {
-        protected DeletableAuditableBaseEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
+        protected DeletableAuditableBaseEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)
         {
         }
 

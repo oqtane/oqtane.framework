@@ -3,6 +3,7 @@ using System.Data;
 using System.Globalization;
 using EFCore.NamingConventions.Internal;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Npgsql;
@@ -12,7 +13,7 @@ using Oqtane.Shared;
 
 namespace Oqtane.Database.PostgreSQL
 {
-    public class PostgreSQLDatabase : OqtaneDatabaseBase
+    public class PostgreSQLDatabase : DatabaseBase
     {
         private static string _friendlyName => "PostgreSQL";
 

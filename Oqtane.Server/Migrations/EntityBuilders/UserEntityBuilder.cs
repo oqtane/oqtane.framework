@@ -14,7 +14,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private const string _entityTableName = "User";
         private readonly PrimaryKey<UserEntityBuilder> _primaryKey = new("PK_User", x => x.UserId);
 
-        public UserEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
+        public UserEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;

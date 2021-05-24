@@ -13,7 +13,7 @@ namespace Oqtane.Modules.HtmlText.Migrations
     [Migration("HtmlText.01.00.00.00")]
     public class InitializeModule : MultiDatabaseMigration
     {
-        public InitializeModule(IOqtaneDatabase database) : base(database)
+        public InitializeModule(IDatabase database) : base(database)
         {
         }
 

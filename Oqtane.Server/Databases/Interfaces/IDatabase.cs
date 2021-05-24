@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 
 namespace Oqtane.Databases.Interfaces
 {
-    public interface IOqtaneDatabase
+    public interface IDatabase
     {
         public string AssemblyName { get; }
 

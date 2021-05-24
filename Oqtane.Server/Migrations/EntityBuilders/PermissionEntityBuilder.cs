@@ -17,7 +17,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private readonly ForeignKey<PermissionEntityBuilder> _userForeignKey = new("FK_Permission_User", x => x.UserId, "User", "UserId", ReferentialAction.NoAction);
         private readonly ForeignKey<PermissionEntityBuilder> _roleForeignKey = new("FK_Permission_Role", x => x.RoleId, "Role", "RoleId", ReferentialAction.NoAction);
 
-        public PermissionEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
+        public PermissionEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;

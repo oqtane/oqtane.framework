@@ -13,7 +13,7 @@ namespace Oqtane.Migrations
 
     public class AddSiteGuidToSite : MultiDatabaseMigration
     {
-        public AddSiteGuidToSite(IOqtaneDatabase database) : base(database)
+        public AddSiteGuidToSite(IDatabase database) : base(database)
         {
         }
 

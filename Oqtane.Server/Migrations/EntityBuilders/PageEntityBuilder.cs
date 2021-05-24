@@ -15,7 +15,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private readonly PrimaryKey<PageEntityBuilder> _primaryKey = new("PK_Page", x => x.PageId);
         private readonly ForeignKey<PageEntityBuilder> _siteForeignKey = new("FK_Page_Site", x => x.SiteId, "Site", "SiteId", ReferentialAction.Cascade);
 
-        public PageEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
+        public PageEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;

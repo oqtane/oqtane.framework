@@ -14,7 +14,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private const string _entityTableName = "ModuleDefinition";
         private readonly PrimaryKey<ModuleDefinitionsEntityBuilder> _primaryKey = new("PK_ModuleDefinition", x => x.ModuleDefinitionId);
 
-        public ModuleDefinitionsEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
+        public ModuleDefinitionsEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;

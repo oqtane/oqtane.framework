@@ -14,7 +14,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private const string _entityTableName = "Site";
         private readonly PrimaryKey<SiteEntityBuilder> _primaryKey = new("PK_Site", x => x.SiteId);
 
-        public SiteEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
+        public SiteEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;

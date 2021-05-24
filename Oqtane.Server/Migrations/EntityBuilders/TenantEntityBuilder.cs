@@ -14,7 +14,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private const string _entityTableName = "Tenant";
         private readonly PrimaryKey<TenantEntityBuilder> _primaryKey = new("PK_Tenant", x => x.TenantId);
 
-        public TenantEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database): base(migrationBuilder, database)
+        public TenantEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database): base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;

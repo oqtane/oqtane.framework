@@ -12,7 +12,7 @@ namespace Oqtane.Migrations
     [Migration("Tenant.01.00.01.01")]
     public class AddAdditionColumnToNotifications : MultiDatabaseMigration
     {
-        public AddAdditionColumnToNotifications(IOqtaneDatabase database) : base(database)
+        public AddAdditionColumnToNotifications(IDatabase database) : base(database)
         {
         }
 

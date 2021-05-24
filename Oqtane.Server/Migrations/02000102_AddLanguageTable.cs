@@ -12,7 +12,7 @@ namespace Oqtane.Migrations
     [Migration("Tenant.02.00.01.02")]
     public class AddLanguageTable : MultiDatabaseMigration
     {
-        public AddLanguageTable(IOqtaneDatabase database) : base(database)
+        public AddLanguageTable(IDatabase database) : base(database)
         {
         }
 

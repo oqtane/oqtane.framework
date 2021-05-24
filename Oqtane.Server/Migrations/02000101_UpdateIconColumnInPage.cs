@@ -12,7 +12,7 @@ namespace Oqtane.Migrations
     [Migration("Tenant.02.00.01.01")]
     public class UpdateIconColumnInPage : MultiDatabaseMigration
     {
-        public UpdateIconColumnInPage(IOqtaneDatabase database) : base(database)
+        public UpdateIconColumnInPage(IDatabase database) : base(database)
         {
         }
 

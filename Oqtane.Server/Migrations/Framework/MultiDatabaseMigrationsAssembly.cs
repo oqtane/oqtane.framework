@@ -14,7 +14,7 @@ namespace Oqtane.Migrations.Framework
 {
     public class MultiDatabaseMigrationsAssembly: MigrationsAssembly
     {
-        private readonly IOqtaneDatabase _database;
+        private readonly IDatabase _database;
 
         public MultiDatabaseMigrationsAssembly(
             ICurrentDbContext currentContext,
@@ -28,7 +28,7 @@ namespace Oqtane.Migrations.Framework
         }
         public override Migration CreateMigration(TypeInfo migrationClass, string activeProvider)
         {
-            var hasCtorWithCacheOptions = migrationClass.GetConstructor(new[] { typeof(IOqtaneDatabase) }) != null;
+            var hasCtorWithCacheOptions = migrationClass.GetConstructor(new[] { typeof(IDatabase) }) != null;
 
             if (hasCtorWithCacheOptions)
             {

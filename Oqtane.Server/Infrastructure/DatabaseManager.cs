@@ -244,7 +244,7 @@ namespace Oqtane.Infrastructure
                     }
 
                     //Create database object from Type
-                    var database = Activator.CreateInstance(type) as IOqtaneDatabase;
+                    var database = Activator.CreateInstance(type) as IDatabase;
 
                     //create data directory if does not exist
                     var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString();
@@ -649,11 +649,11 @@ namespace Oqtane.Infrastructure
             var connectionString = _config.GetConnectionString(SettingKeys.ConnectionStringKey);
             var databaseType = _config.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey];
 
-            IOqtaneDatabase database = null;
+            IDatabase database = null;
             if (!string.IsNullOrEmpty(databaseType))
             {
                 var type = Type.GetType(databaseType);
-                database = Activator.CreateInstance(type) as IOqtaneDatabase;
+                database = Activator.CreateInstance(type) as IDatabase;
             }
 
 

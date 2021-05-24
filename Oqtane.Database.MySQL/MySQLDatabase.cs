@@ -1,5 +1,6 @@
 using System.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using MySql.Data.MySqlClient;
@@ -9,7 +10,7 @@ using Oqtane.Shared;
 
 namespace Oqtane.Database.MySQL
 {
-    public class MySQLDatabase : OqtaneDatabaseBase
+    public class MySQLDatabase : DatabaseBase
     {
         private static string _friendlyName => "MySQL";
 

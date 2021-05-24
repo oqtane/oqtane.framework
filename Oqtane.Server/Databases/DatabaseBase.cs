@@ -7,13 +7,13 @@ using Oqtane.Databases.Interfaces;
 
 namespace Oqtane.Databases
 {
-    public abstract class OqtaneDatabaseBase : IOqtaneDatabase
+    public abstract class DatabaseBase : IDatabase
     {
         private static string _assemblyName;
 
         private static string _typeName;
 
-        protected OqtaneDatabaseBase(string name, string friendlyName)
+        protected DatabaseBase(string name, string friendlyName)
         {
             Name = name;
             FriendlyName = friendlyName;

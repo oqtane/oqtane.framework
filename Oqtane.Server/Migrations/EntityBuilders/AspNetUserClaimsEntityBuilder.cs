@@ -15,7 +15,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private readonly PrimaryKey<AspNetUserClaimsEntityBuilder> _primaryKey = new("PK_AspNetUserClaims", x => x.Id);
         private readonly ForeignKey<AspNetUserClaimsEntityBuilder> _aspNetUsersForeignKey = new("FK_AspNetUserClaims_AspNetUsers_UserId", x => x.UserId, "AspNetUsers", "Id", ReferentialAction.Cascade);
 
-        public AspNetUserClaimsEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
+        public AspNetUserClaimsEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;

@@ -12,7 +12,7 @@ namespace Oqtane.Migrations
     [Migration("Master.02.01.00.00")]
     public class AddIndexesForForeignKeyInMaster : MultiDatabaseMigration
     {
-        public AddIndexesForForeignKeyInMaster(IOqtaneDatabase database) : base(database)
+        public AddIndexesForForeignKeyInMaster(IDatabase database) : base(database)
         {
         }
 

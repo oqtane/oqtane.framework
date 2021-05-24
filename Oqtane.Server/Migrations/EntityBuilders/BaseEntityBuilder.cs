@@ -14,14 +14,14 @@ namespace Oqtane.Migrations.EntityBuilders
     {
         private readonly MigrationBuilder _migrationBuilder;
 
-        protected BaseEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database)
+        protected BaseEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database)
         {
             _migrationBuilder = migrationBuilder;
             ActiveDatabase = database;
             ForeignKeys = new List<ForeignKey<TEntityBuilder>>();
         }
 
-        protected IOqtaneDatabase ActiveDatabase { get; }
+        protected IDatabase ActiveDatabase { get; }
 
         protected abstract TEntityBuilder BuildTable(ColumnsBuilder table);
 
