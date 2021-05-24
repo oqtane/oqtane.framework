@@ -221,7 +221,6 @@ namespace Oqtane.Infrastructure
                     {
                         var installationManager = scope.ServiceProvider.GetRequiredService<IInstallationManager>();
                         installationManager.InstallPackages();
-                        result.Success = true;
 
                         var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
                         var assembliesFolder = new DirectoryInfo(assemblyPath);
@@ -411,7 +410,7 @@ namespace Oqtane.Infrastructure
                         {
                             using (var tenantDbContext = new TenantDBContext(tenantManager, null))
                             {
-                                if (install.DatabaseType == "SqlServer" || install.DatabaseType == "LocalDB")
+                                if (install.DatabaseType == "Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer")
                                 {
                                     UpgradeSqlServer(sql, tenant.DBConnectionString, tenant.DBType, false);
                                 }
