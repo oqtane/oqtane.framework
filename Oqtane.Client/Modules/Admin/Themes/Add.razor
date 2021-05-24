@@ -61,7 +61,7 @@
 
             foreach (Package package in _packages.ToArray())
             {
-                if (themes.Exists(item => Utilities.GetTypeName(item.ThemeName) == package.PackageId))
+                if (themes.Exists(item => item.PackageName == package.PackageId))
                 {
                     _packages.Remove(package);
                 }

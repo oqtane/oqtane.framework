@@ -61,7 +61,7 @@
 
             foreach (Package package in _packages.ToArray())
             {
-                if (moduledefinitions.Exists(item => Utilities.GetTypeName(item.ModuleDefinitionName) == package.PackageId))
+                if (moduledefinitions.Exists(item => item.PackageName == package.PackageId))
                 {
                     _packages.Remove(package);
                 }
