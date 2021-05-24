@@ -19,7 +19,7 @@ namespace Oqtane.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             //Drop Column from Page table
-            if (ActiveDatabase.Name == "SqlServer" || ActiveDatabase.Name == "LocalDB")
+            if (ActiveDatabase.Name == "SqlServer")
             {
                 var pageEntityBuilder = new PageEntityBuilder(migrationBuilder, ActiveDatabase);
                 pageEntityBuilder.DropColumn("EditMode");
