@@ -45,7 +45,7 @@ namespace Oqtane.Controllers
         public void InstallThemes()
         {
             _logger.Log(LogLevel.Information, this, LogFunction.Create, "Themes Installed");
-            _installationManager.InstallPackages("Themes");
+            _installationManager.InstallPackages();
         }
 
         // DELETE api/<controller>/xxx
@@ -58,25 +58,8 @@ namespace Oqtane.Controllers
             if (theme != null && Utilities.GetAssemblyName(theme.ThemeName) != "Oqtane.Client")
             {
                 // remove theme assets
-                string assetpath = Path.Combine(_environment.WebRootPath, "Themes", Utilities.GetTypeName(theme.ThemeName));
-                if (System.IO.File.Exists(Path.Combine(assetpath, "assets.json")))
+                if (_installationManager.UninstallPackage(theme.PackageName))
                 {
-                    // use assets.json to clean up file resources
-                    List<string> assets = JsonSerializer.Deserialize<List<string>>(System.IO.File.ReadAllText(Path.Combine(assetpath, "assets.json")));
-                    assets.Reverse();
-                    foreach (string asset in assets)
-                    {
-                        // legacy support for assets that were stored as absolute paths
-                        string filepath = (asset.StartsWith("\\")) ? Path.Combine(_environment.ContentRootPath, asset.Substring(1)) : asset;
-                        if (System.IO.File.Exists(filepath))
-                        {
-                            System.IO.File.Delete(filepath);
-                            if (!Directory.EnumerateFiles(Path.GetDirectoryName(filepath)).Any())
-                            {
-                                Directory.Delete(Path.GetDirectoryName(filepath));
-                            }
-                        }
-                    }
                     _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Theme Assets Removed For {ThemeName}", theme.ThemeName);
                 }
                 else
@@ -90,10 +73,10 @@ namespace Oqtane.Controllers
                 }
 
                 // clean up theme static resource folder
-                string folder = Path.Combine(_environment.WebRootPath, "Themes" , Utilities.GetTypeName(theme.ThemeName));
-                if (Directory.Exists(folder))
+                string assetpath = Path.Combine(_environment.WebRootPath, "Themes", Utilities.GetTypeName(theme.ThemeName));
+                if (Directory.Exists(assetpath))
                 {
-                    Directory.Delete(folder, true);
+                    Directory.Delete(assetpath, true);
                     _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Theme Static Resource Folder Removed For {ThemeName}", theme.ThemeName);
                 }
 

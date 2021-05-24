@@ -17,7 +17,6 @@ using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
 using Oqtane.Enums;
-using Oqtane.Interfaces;
 using File = System.IO.File;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -205,7 +204,7 @@ namespace Oqtane.Infrastructure
                 using (var scope = _serviceScopeFactory.CreateScope())
                 {
                     var installationManager = scope.ServiceProvider.GetRequiredService<IInstallationManager>();
-                    installationManager.InstallPackages(packageFolderName);
+                    installationManager.InstallPackages();
                     result.Success = true;
                 }
             }

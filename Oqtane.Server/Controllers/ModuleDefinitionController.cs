@@ -90,7 +90,7 @@ namespace Oqtane.Controllers
         public void InstallModules()
         {
             _logger.Log(LogLevel.Information, this, LogFunction.Create, "Modules Installed");
-            _installationManager.InstallPackages("Modules");
+            _installationManager.InstallPackages();
         }
 
         // DELETE api/<controller>/5?siteid=x
@@ -128,25 +128,8 @@ namespace Oqtane.Controllers
                 }
 
                 // remove module assets
-                string assetpath = Path.Combine(_environment.WebRootPath, "Modules", Utilities.GetTypeName(moduledefinition.ModuleDefinitionName));
-                if (System.IO.File.Exists(Path.Combine(assetpath, "assets.json")))
+                if (_installationManager.UninstallPackage(moduledefinition.PackageName))
                 {
-                    // use assets.json to clean up file resources
-                    List<string> assets = JsonSerializer.Deserialize<List<string>>(System.IO.File.ReadAllText(Path.Combine(assetpath, "assets.json")));
-                    assets.Reverse();
-                    foreach(string asset in assets)
-                    {
-                        // legacy support for assets that were stored as absolute paths
-                        string filepath = asset.StartsWith("\\") ? Path.Combine(_environment.ContentRootPath, asset.Substring(1)) : asset;
-                        if (System.IO.File.Exists(filepath))
-                        {
-                            System.IO.File.Delete(filepath);
-                            if (!Directory.EnumerateFiles(Path.GetDirectoryName(filepath)).Any())
-                            {
-                                Directory.Delete(Path.GetDirectoryName(filepath));
-                            }
-                        }
-                    }
                     _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Module Assets Removed For {ModuleDefinitionName}", moduledefinition.ModuleDefinitionName);
                 }
                 else
@@ -160,6 +143,7 @@ namespace Oqtane.Controllers
                 }
 
                 // clean up module static resource folder
+                string assetpath = Path.Combine(_environment.WebRootPath, "Modules", Utilities.GetTypeName(moduledefinition.ModuleDefinitionName));
                 if (Directory.Exists(assetpath))
                 {
                     Directory.Delete(assetpath, true);

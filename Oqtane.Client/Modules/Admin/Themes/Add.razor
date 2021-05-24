@@ -91,7 +91,7 @@
     {
         try
         {
-            await PackageService.DownloadPackageAsync(packageid, version, "Themes");
+            await PackageService.DownloadPackageAsync(packageid, version, "Packages");
             await logger.LogInformation("Theme {ThemeName} {Version} Downloaded Successfully", packageid, version);
             AddModuleMessage(Localizer["Themes Downloaded Successfully. Click Install To Complete Installation."], MessageType.Success);
             StateHasChanged();

@@ -86,7 +86,7 @@ else
     {
         try
         {
-            await PackageService.DownloadPackageAsync(packagename, version, "Themes");
+            await PackageService.DownloadPackageAsync(packagename, version, "Packages");
             await logger.LogInformation("Theme Downloaded {ThemeName} {Version}", packagename, version);
             await ThemeService.InstallThemesAsync();
             AddModuleMessage(Localizer["Theme Installed Successfully. You Must <a href=\"{0}\">Restart</a> Your Application To Apply These Changes.", NavigateUrl("admin/system")], MessageType.Success);
@@ -104,7 +104,7 @@ else
         {
             await ThemeService.DeleteThemeAsync(Theme.ThemeName);
             AddModuleMessage(Localizer["Theme Deleted Successfully"], MessageType.Success);
-            StateHasChanged();
+            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "reload"));
         }
         catch (Exception ex)
         {

@@ -91,7 +91,7 @@
     {
         try
         {
-            await PackageService.DownloadPackageAsync(packageid, version, "Modules");
+            await PackageService.DownloadPackageAsync(packageid, version, "Packages");
             await logger.LogInformation("Module {ModuleDefinitionName} {Version} Downloaded Successfully", packageid, version);
             AddModuleMessage(Localizer["Modules Downloaded Successfully. Click Install To Complete Installation."], MessageType.Success);
             StateHasChanged();
