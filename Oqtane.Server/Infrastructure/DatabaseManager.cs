@@ -411,7 +411,7 @@ namespace Oqtane.Infrastructure
                         {
                             using (var tenantDbContext = new TenantDBContext(tenantManager, null))
                             {
-                                if (install.DatabaseType == "SqlServer" || install.DatabaseType == "LocalDB")
+                                if (install.DatabaseType == "Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer")
                                 {
                                     UpgradeSqlServer(sql, tenant.DBConnectionString, tenant.DBType, false);
                                 }
