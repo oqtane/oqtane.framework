@@ -222,14 +222,14 @@ namespace Oqtane.Infrastructure
                     {
                         var installationManager = scope.ServiceProvider.GetRequiredService<IInstallationManager>();
                         installationManager.InstallPackages();
-                        result.Success = true;
-
 
                         var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
                         var assembliesFolder = new DirectoryInfo(assemblyPath);
                         var assemblyFile = new FileInfo($"{assembliesFolder}/{install.DatabasePackage}.dll");
 
                         AssemblyLoadContext.Default.LoadOqtaneAssembly(assemblyFile);
+
+                        result.Success = true;
                     }
                 }
             }
