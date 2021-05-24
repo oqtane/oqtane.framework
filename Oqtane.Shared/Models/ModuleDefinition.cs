@@ -28,6 +28,7 @@ namespace Oqtane.Models
             ReleaseVersions = "";
             DefaultAction = "";
             SettingsType = "";
+            PackageName = "";
             Runtimes = "";
             Template = "";
         }
@@ -92,6 +93,8 @@ namespace Oqtane.Models
         public string DefaultAction { get; set; }
         [NotMapped]
         public string SettingsType { get; set; } // added in 2.0.2
+        [NotMapped]
+        public string PackageName { get; set; } // added in 2.1.0
 
         // internal properties
         [NotMapped]
