@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -15,6 +16,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Oqtane.Extensions;
 using Oqtane.Infrastructure;
+using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Services;
@@ -55,6 +57,8 @@ namespace Oqtane
         {
             // Register localization services
             services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+            services.AddOptions<List<Database>>().Bind(Configuration.GetSection("AvailableDatabases"));
 
             services.AddServerSideBlazor().AddCircuitOptions(options =>
             {
