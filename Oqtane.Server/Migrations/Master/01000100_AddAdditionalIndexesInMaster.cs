@@ -1,12 +1,10 @@
-﻿using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+﻿using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Oqtane.Databases.Interfaces;
-using Oqtane.Interfaces;
 using Oqtane.Migrations.EntityBuilders;
 using Oqtane.Repository;
 
-namespace Oqtane.Migrations
+namespace Oqtane.Migrations.Master
 {
     [DbContext(typeof(MasterDBContext))]
     [Migration("Master.01.00.01.00")]

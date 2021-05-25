@@ -77,7 +77,8 @@ namespace Oqtane.Database.Sqlite
 
         public override DbContextOptionsBuilder UseDatabase(DbContextOptionsBuilder optionsBuilder, string connectionString)
         {
-            return optionsBuilder.UseSqlite(connectionString);
+            return optionsBuilder.UseSqlite(connectionString)
+                .ReplaceService<IHistoryRepository, OqtaneHistoryRepository>();
         }
 
         private void PrepareCommand(SqliteConnection conn, SqliteCommand cmd, string query)

@@ -1,14 +1,13 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Oqtane.Databases.Interfaces;
-using Oqtane.Interfaces;
 using Oqtane.Migrations.EntityBuilders;
 using Oqtane.Repository;
 
-namespace Oqtane.Migrations
+namespace Oqtane.Migrations.Tenant
 {
     [DbContext(typeof(TenantDBContext))]
-    [Migration("Tenant.02.01.00.02")]
+    [Migration("Tenant.02.01.00.01")]
     public class ChangeFolderNameAndPathColumnsSize : MultiDatabaseMigration
     {
         public ChangeFolderNameAndPathColumnsSize(IDatabase database) : base(database)

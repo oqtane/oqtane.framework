@@ -78,13 +78,13 @@ namespace Oqtane.Repository
             return db.ExecuteReader(tenant.DBConnectionString, query);
         }
 
-        private int ExecuteNonQuery(string connectionString, string databaseType, string query)
+        public int ExecuteNonQuery(string connectionString, string databaseType, string query)
         {
             var db = GetActiveDatabase(databaseType);
             return db.ExecuteNonQuery(connectionString, query);
         }
 
-        private string GetScriptFromAssembly(Assembly assembly, string fileName)
+        public string GetScriptFromAssembly(Assembly assembly, string fileName)
         {
             // script must be included as an Embedded Resource within an assembly
             var script = "";
