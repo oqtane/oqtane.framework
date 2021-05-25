@@ -24,7 +24,7 @@ namespace Oqtane.Migrations
             siteEntityBuilder.Create();
 
             //Add Column to Site table (for Sql Server only) we will drop it later for Sql Server only
-            if (ActiveDatabase.Name == "SqlServer" || ActiveDatabase.Name == "LocalDB")
+            if (ActiveDatabase.Name == "SqlServer")
             {
                 siteEntityBuilder.AddStringColumn("DefaultLayoutType", 200, true);
             }
@@ -35,7 +35,7 @@ namespace Oqtane.Migrations
             pageEntityBuilder.AddIndex("IX_Page", new [] {"SiteId", "Path", "UserId"}, true);
 
             //Add Columns to Page table (for Sql Server only) we will drop them later for Sql Server only
-            if (ActiveDatabase.Name == "SqlServer" || ActiveDatabase.Name == "LocalDB")
+            if (ActiveDatabase.Name == "SqlServer")
             {
                 pageEntityBuilder.AddBooleanColumn("EditMode");
                 pageEntityBuilder.AddStringColumn("LayoutType", 200, true);

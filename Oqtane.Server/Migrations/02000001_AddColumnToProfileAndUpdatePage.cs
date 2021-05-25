@@ -26,7 +26,7 @@ namespace Oqtane.Migrations
             profileEntityBuilder.UpdateColumn("Options", "''");
 
             //Alter Column in Page table for Sql Server
-            if (ActiveDatabase.Name == "SqlServer" || ActiveDatabase.Name == "LocalDB")
+            if (ActiveDatabase.Name == "SqlServer")
             {
                 var pageEntityBuilder = new PageEntityBuilder(migrationBuilder, ActiveDatabase);
                 pageEntityBuilder.DropIndex("IX_Page");
@@ -42,7 +42,7 @@ namespace Oqtane.Migrations
             profileEntityBuilder.DropColumn("Options");
 
             //Alter Column in Page table
-            if (ActiveDatabase.Name == "SqlServer" || ActiveDatabase.Name == "LocalDB")
+            if (ActiveDatabase.Name == "SqlServer")
             {
                 var pageEntityBuilder = new PageEntityBuilder(migrationBuilder, ActiveDatabase);
                 pageEntityBuilder.DropIndex("IX_Page");

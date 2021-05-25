@@ -47,9 +47,8 @@ namespace Oqtane.Infrastructure
             if (!string.IsNullOrEmpty(_config.GetConnectionString(SettingKeys.ConnectionStringKey)))
             {
                 result.Success = true;
-                using (var scope = _serviceScopeFactory.CreateScope())
+                using (var db = GetInstallationContext())
                 {
-                    var db = scope.ServiceProvider.GetRequiredService<MasterDBContext>();
                     if (db.Database.CanConnect())
                     {
                         try
@@ -90,6 +89,15 @@ namespace Oqtane.Infrastructure
                     DatabaseType = _config.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey],
                     IsNewTenant = false
                 };
+
+                //If doing an Upgrade we may only have a connectionString.  If that is the case - default databaseType to SqlServer
+                if (!string.IsNullOrEmpty(install.ConnectionString) && string.IsNullOrEmpty(install.DatabaseType))
+                {
+                    install.DatabaseType = "Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer";
+                    install.DatabasePackage = "Oqtane.Database.SqlServer";
+                    InstallDatabase(install);
+                    UpdateDatabaseType(install.DatabaseType);
+                }
 
                 var installation = IsInstalled();
                 if (!installation.Success)
@@ -183,29 +191,45 @@ namespace Oqtane.Infrastructure
 
             try
             {
-                //Rename bak extension
-                var packageFolderName = "Packages";
-                var webRootPath = _environment.WebRootPath;
-                var packagesFolder = new DirectoryInfo(Path.Combine(webRootPath, packageFolderName));
+                var databaseType = install.DatabaseType;
 
-                // iterate through Nuget packages in source folder
-                foreach (var package in packagesFolder.GetFiles("*.nupkg.bak"))
+                //Get database Type
+                var type = Type.GetType(databaseType);
+
+                //Deploy the database components (if necessary)
+                if (type == null)
                 {
-                    if (package.Name.StartsWith(install.DatabasePackage))
+                    //Rename bak extension
+                    var packageFolderName = "Packages";
+                    var webRootPath = _environment.WebRootPath;
+                    var packagesFolder = new DirectoryInfo(Path.Combine(webRootPath, packageFolderName));
+
+                    // iterate through Nuget packages in source folder
+                    foreach (var package in packagesFolder.GetFiles("*.nupkg.bak"))
                     {
-                        //rename file
-                        var packageName = Path.Combine(package.DirectoryName, package.Name);
-                        packageName = packageName.Substring(0, packageName.IndexOf(".bak"));
-                        package.MoveTo(packageName, true);
+                        if (package.Name.StartsWith(install.DatabasePackage))
+                        {
+                            //rename file
+                            var packageName = Path.Combine(package.DirectoryName, package.Name);
+                            packageName = packageName.Substring(0, packageName.IndexOf(".bak"));
+                            package.MoveTo(packageName, true);
+                        }
                     }
-                }
 
-                //Call InstallationManager to install Database Package
-                using (var scope = _serviceScopeFactory.CreateScope())
-                {
-                    var installationManager = scope.ServiceProvider.GetRequiredService<IInstallationManager>();
-                    installationManager.InstallPackages();
-                    result.Success = true;
+                    //Call InstallationManager to install Database Package
+                    using (var scope = _serviceScopeFactory.CreateScope())
+                    {
+                        var installationManager = scope.ServiceProvider.GetRequiredService<IInstallationManager>();
+                        installationManager.InstallPackages();
+
+                        var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
+                        var assembliesFolder = new DirectoryInfo(assemblyPath);
+                        var assemblyFile = new FileInfo($"{assembliesFolder}/{install.DatabasePackage}.dll");
+
+                        AssemblyLoadContext.Default.LoadOqtaneAssembly(assemblyFile);
+
+                        result.Success = true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -224,23 +248,12 @@ namespace Oqtane.Infrastructure
             {
                 try
                 {
+                    InstallDatabase(install);
+
                     var databaseType = install.DatabaseType;
 
                     //Get database Type
                     var type = Type.GetType(databaseType);
-
-                    //Deploy the database components (if necessary)
-                    if (type == null)
-                    {
-                        InstallDatabase(install);
-
-                        var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
-                        var assembliesFolder = new DirectoryInfo(assemblyPath);
-                        var assemblyFile = new FileInfo($"{assembliesFolder}/{install.DatabasePackage}.dll");
-
-                        AssemblyLoadContext.Default.LoadOqtaneAssembly(assemblyFile);
-                        type = Type.GetType(databaseType);
-                    }
 
                     //Create database object from Type
                     var database = Activator.CreateInstance(type) as IDatabase;
@@ -288,7 +301,7 @@ namespace Oqtane.Infrastructure
 
                         using (var masterDbContext = new MasterDBContext(new DbContextOptions<MasterDBContext>(), null, _config))
                         {
-                            if (installation.Success && (install.DatabaseType == "SqlServer" || install.DatabaseType == "LocalDB"))
+                            if (installation.Success && (install.DatabaseType == "Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer"))
                             {
                                 UpgradeSqlServer(sql, install.ConnectionString, install.DatabaseType, true);
                             }
@@ -397,7 +410,7 @@ namespace Oqtane.Infrastructure
                         {
                             using (var tenantDbContext = new TenantDBContext(tenantManager, null))
                             {
-                                if (install.DatabaseType == "SqlServer" || install.DatabaseType == "LocalDB")
+                                if (install.DatabaseType == "Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer")
                                 {
                                     UpgradeSqlServer(sql, tenant.DBConnectionString, tenant.DBType, false);
                                 }
