@@ -52,7 +52,15 @@ namespace Oqtane.Models
         /// Module description for admin dialogs.
         /// </summary>
         public string Description { get; set; }
+
+        /// <summary>
+        /// Categories this Module will be shown in (in the admin-dialogs)
+        /// </summary>
         public string Categories { get; set; }
+
+        /// <summary>
+        /// Version information of this Module based on the DLL / NuGet package.
+        /// </summary>
         public string Version { get; set; }
 
         #region IAuditable Properties
