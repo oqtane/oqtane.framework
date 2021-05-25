@@ -119,7 +119,9 @@ namespace Oqtane.Database.PostgreSQL
 
         public override DbContextOptionsBuilder UseDatabase(DbContextOptionsBuilder optionsBuilder, string connectionString)
         {
-            return optionsBuilder.UseNpgsql(connectionString).UseSnakeCaseNamingConvention();
+            return optionsBuilder.UseNpgsql(connectionString)
+                .UseSnakeCaseNamingConvention()
+                .ReplaceService<IHistoryRepository, OqtaneHistoryRepository>();
         }
 
         private void PrepareCommand(NpgsqlConnection conn, NpgsqlCommand cmd, string query)

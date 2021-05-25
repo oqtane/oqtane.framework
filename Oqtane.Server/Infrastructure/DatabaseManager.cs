@@ -726,7 +726,10 @@ namespace Oqtane.Infrastructure
         {
             var script = (isMaster) ? "MigrateMaster.sql" : "MigrateTenant.sql";
 
-            sql.ExecuteScript(connectionString, databaseType, Assembly.GetExecutingAssembly(), script);
+            var query = sql.GetScriptFromAssembly(Assembly.GetExecutingAssembly(), script);
+            query = query.Replace("{{Version}}", Constants.Version);
+
+            sql.ExecuteNonQuery(connectionString, databaseType, query);
         }
     }
 }

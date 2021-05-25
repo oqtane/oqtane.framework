@@ -14,6 +14,10 @@ namespace Oqtane.Repository
 
         int ExecuteNonQuery(Tenant tenant, string query);
 
+        int ExecuteNonQuery(string connectionString, string databaseType, string query);
+
         IDataReader ExecuteReader(Tenant tenant, string query);
+
+        string GetScriptFromAssembly(Assembly assembly, string fileName);
     }
 }
