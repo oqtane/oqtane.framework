@@ -173,6 +173,7 @@ namespace Oqtane.Controllers
                                 SiteId = folder.SiteId,
                                 ParentId = folder.FolderId,
                                 Name = "My Folder",
+                                Type = FolderTypes.Private,
                                 Path = Utilities.PathCombine(folder.Path, newUser.UserId.ToString(),Path.DirectorySeparatorChar.ToString()),
                                 Order = 1,
                                 IsSystem = true,

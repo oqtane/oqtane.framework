@@ -79,6 +79,7 @@
     private string _filter = "*";
     private bool _haseditpermission = false;
     private string _image = string.Empty;
+    private File _file = null;
     private string _guid;
     private string _message = string.Empty;
     private MessageType _messagetype;
@@ -199,6 +200,7 @@
             FolderId = int.Parse((string)e.Value);
             await GetFiles();
             FileId = -1;
+            _file = null;
             _image = string.Empty;
             StateHasChanged();
         }
@@ -223,21 +225,22 @@
     private async Task SetImage()
     {
         _image = string.Empty;
+        _file = null;
         if (FileId != -1)
         {
-            File file = await FileService.GetFileAsync(FileId);
-            if (file != null && file.ImageHeight != 0 && file.ImageWidth != 0)
+            _file = await FileService.GetFileAsync(FileId);
+            if (_file != null && _file.ImageHeight != 0 && _file.ImageWidth != 0)
             {
                 var maxwidth = 200;
                 var maxheight = 200;
 
-                var ratioX = (double)maxwidth / (double)file.ImageWidth;
-                var ratioY = (double)maxheight / (double)file.ImageHeight;
+                var ratioX = (double)maxwidth / (double)_file.ImageWidth;
+                var ratioY = (double)maxheight / (double)_file.ImageHeight;
                 var ratio = ratioX < ratioY ? ratioX : ratioY;
 
-                _image = "<img src=\"" + ContentUrl(FileId) + "\" alt=\"" + file.Name +
-                         "\" width=\"" + Convert.ToInt32(file.ImageWidth * ratio).ToString() +
-                         "\" height=\"" + Convert.ToInt32(file.ImageHeight * ratio).ToString() + "\" />";
+                _image = "<img src=\"" + _file.Url + "\" alt=\"" + _file.Name +
+                         "\" width=\"" + Convert.ToInt32(_file.ImageWidth * ratio).ToString() +
+                         "\" height=\"" + Convert.ToInt32(_file.ImageHeight * ratio).ToString() + "\" />";
             }
         }
     }
@@ -331,4 +334,5 @@
 
     public int GetFileId() => FileId;
 
+    public File GetFile() => _file;
 }

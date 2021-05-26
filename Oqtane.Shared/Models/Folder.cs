@@ -24,6 +24,11 @@ namespace Oqtane.Models
         public int? ParentId { get; set; }
 
         /// <summary>
+        /// Folder type - based on FolderTypes
+        /// </summary>
+        public string Type { get; set; }
+
+        /// <summary>
         /// Folder name
         /// </summary>
         public string Name { get; set; }

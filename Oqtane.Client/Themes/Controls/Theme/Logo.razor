@@ -1,12 +1,24 @@
-﻿@namespace Oqtane.Themes.Controls
-@inherits ThemeControlBase     
+@namespace Oqtane.Themes.Controls
+@inherits ThemeControlBase
+@inject IFileService FileService
 
-@if (PageState.Site.LogoFileId != null)
+@if (file != null)
 {
     <span class="app-logo">
         <a href="@PageState.Alias.Path">
-            <img class="img-fluid" src="@ContentUrl(PageState.Site.LogoFileId.Value)" alt="@PageState.Site.Name" />
+            <img class="img-fluid" src="@file.Url" alt="@PageState.Site.Name" />
         </a>
     </span>
 }
 
+@code {
+    private File file = null;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (PageState.Site.LogoFileId != null && file?.FileId != PageState.Site.LogoFileId.Value)
+        {
+            file = await FileService.GetFileAsync(PageState.Site.LogoFileId.Value);
+        }
+    }
+} 

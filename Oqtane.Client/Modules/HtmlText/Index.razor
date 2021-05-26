@@ -26,7 +26,7 @@
             if (htmltext != null)
             {
                 content = htmltext.Content;
-                content = content.Replace(Constants.ContentUrl, Utilities.TenantUrl(PageState.Alias, Constants.ContentUrl));
+                content = Utilities.FormatContent(content, PageState.Alias, "render");
             }
         }
         catch (Exception ex)

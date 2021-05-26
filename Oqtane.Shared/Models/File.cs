@@ -1,4 +1,6 @@
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
+using Oqtane.Shared;
 
 namespace Oqtane.Models
 {
@@ -41,7 +43,7 @@ namespace Oqtane.Models
         /// This is calculated at time of Upload, so if the file is manually replaced, the value will be wrong. 
         /// </summary>
         public int ImageHeight { get; set; }
-        
+
         /// <summary>
         /// The width of an image (if the file is an image) in pixels.
         /// This is calculated at time of Upload, so if the file is manually replaced, the value will be wrong. 
@@ -65,7 +67,7 @@ namespace Oqtane.Models
         #endregion
 
         #region Extended IAuditable Properties, may be moved to an Interface some day so not documented yet
-        
+
         public string DeletedBy { get; set; }
         public DateTime? DeletedOn { get; set; }
         public bool IsDeleted { get; set; }
@@ -78,5 +80,11 @@ namespace Oqtane.Models
         /// TODO: not sure if this is always populated, must verify and document
         /// </summary>
         public Folder Folder { get; set; }
+
+        /// <summary>
+        /// url for accessing file
+        /// </summary>
+        [NotMapped]
+        public string Url { get; set; }
     }
 }

@@ -18,6 +18,6 @@ Oqtane.Server/Data/*.db
 
 /Oqtane.Server/Properties/PublishProfiles/FolderProfile.pubxml
 Oqtane.Server/Content
-Oqtane.Server/wwwroot/Packages/**/assets.json
+Oqtane.Server/wwwroot/Content
 Oqtane.Server/wwwroot/Packages/*.log
 
