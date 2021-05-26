@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using System.Threading.Tasks;
 
@@ -105,13 +105,13 @@ namespace Oqtane.Modules.Controls
             }
         }
 
-        public Task InsertImage(ElementReference quillElement, string imageUrl)
+        public Task InsertImage(ElementReference quillElement, string imageUrl, string altText)
         {
             try
             {
                 _jsRuntime.InvokeAsync<object>(
                     "Oqtane.RichTextEditor.insertQuillImage",
-                    quillElement, imageUrl);
+                    quillElement, imageUrl, altText);
                 return Task.CompletedTask;
             }
             catch

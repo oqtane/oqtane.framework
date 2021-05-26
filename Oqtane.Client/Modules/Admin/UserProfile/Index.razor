@@ -5,11 +5,12 @@
 @inject IProfileService ProfileService
 @inject ISettingService SettingService
 @inject INotificationService NotificationService
+@inject IFileService FileService
 @inject IStringLocalizer<Index> Localizer
 
-@if (PageState.User != null && photofileid != -1)
+@if (PageState.User != null && photo != null)
 {
-    <img src="@(ContentUrl(photofileid))" alt="@displayname" style="max-width: 400px" class="rounded-circle mx-auto d-block">
+    <img src="@photo.Url" alt="@displayname" style="max-width: 400px" class="rounded-circle mx-auto d-block">
 }
 else
 {
@@ -76,58 +77,58 @@ else
     <TabPanel Name="Profile" ResourceKey="Profile">
         @if (profiles != null && settings != null)
         {
-        <table class="table table-borderless">
-            @foreach (Profile profile in profiles)
-            {
-                var p = profile;
-                if (!p.IsPrivate || UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
+            <table class="table table-borderless">
+                @foreach (Profile profile in profiles)
                 {
-                    if (p.Category != category)
+                    var p = profile;
+                    if (!p.IsPrivate || UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
                     {
+                        if (p.Category != category)
+                        {
+                            <tr>
+                                <th colspan="2" style="text-align: center;">
+                                    @p.Category
+                                </th>
+                            </tr>
+                            category = p.Category;
+                        }
                         <tr>
-                            <th colspan="2" style="text-align: center;">
-                                @p.Category
-                            </th>
-                        </tr>
-                        category = p.Category;
-                    }
-                    <tr>
-                        <td>
-                            <Label For="@p.Name" HelpText="@p.Description">@p.Title</Label>
-                        </td>
-                        <td>
-                            @if (!string.IsNullOrEmpty(p.Options))
-                            {
-                                <select id="@p.Name" class="form-control" @onchange="@(e => ProfileChanged(e, p.Name))">
-                                    @foreach (var option in p.Options.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                                    {
-                                        @if(GetProfileValue(p.Name, "") == option || (GetProfileValue(p.Name, "") == "" && p.DefaultValue == option))
-                                        {
-                                            <option value="@option" selected>@option</option>
-                                        }
-                                        else
-                                        {
-                                            <option value="@option">@option</option>
-                                        }
-                                    }
-                                </select>
-                            }
-                            else
-                            {
-                                @if (p.IsRequired)
+                            <td>
+                                <Label For="@p.Name" HelpText="@p.Description">@p.Title</Label>
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(p.Options))
                                 {
-                                    <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                    <select id="@p.Name" class="form-control" @onchange="@(e => ProfileChanged(e, p.Name))">
+                                        @foreach (var option in p.Options.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                                        {
+                                            @if (GetProfileValue(p.Name, "") == option || (GetProfileValue(p.Name, "") == "" && p.DefaultValue == option))
+                                            {
+                                                <option value="@option" selected>@option</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@option">@option</option>
+                                            }
+                                        }
+                                    </select>
                                 }
                                 else
                                 {
-                                    <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                    @if (p.IsRequired)
+                                    {
+                                        <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                    }
+                                    else
+                                    {
+                                        <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                    }
                                 }
-                            }
-                        </td>
-                    </tr>
+                            </td>
+                        </tr>
+                    }
                 }
-            }
-        </table>
+            </table>
             <button type="button" class="btn btn-primary" @onclick="Save">@Localizer["Save"]</button>
             <button type="button" class="btn btn-secondary" @onclick="Cancel">@Localizer["Cancel"]</button>
         }
@@ -157,13 +158,14 @@ else
                     <Detail>
                         <td colspan="2"></td>
                         <td colspan="3">
-                            @{ 
-                            string input = "___";
-                            if (context.Body.Contains(input)){ 
-                            context.Body = context.Body.Split(input)[0];
-                            context.Body = context.Body.Replace("\n", "");
-                            context.Body = context.Body.Replace("\r", "");
-                            } }
+                            @{
+                                        string input = "___";
+                                        if (context.Body.Contains(input))
+                                        {
+                                            context.Body = context.Body.Split(input)[0];
+                                            context.Body = context.Body.Replace("\n", "");
+                                            context.Body = context.Body.Replace("\r", "");
+                                        } }
                             @(context.Body.Length > 100 ? (context.Body.Substring(0, 97) + "...") : context.Body)
                         </td>
                     </Detail>
@@ -189,13 +191,14 @@ else
                     <Detail>
                         <td colspan="2"></td>
                         <td colspan="3">
-                            @{ 
-                            string input = "___";
-                            if (context.Body.Contains(input)){ 
-                            context.Body = context.Body.Split(input)[0];
-                            context.Body = context.Body.Replace("\n", "");
-                            context.Body = context.Body.Replace("\r", "");
-                            } }
+                            @{
+                                        string input = "___";
+                                        if (context.Body.Contains(input))
+                                        {
+                                            context.Body = context.Body.Split(input)[0];
+                                            context.Body = context.Body.Replace("\n", "");
+                                            context.Body = context.Body.Replace("\r", "");
+                                        } }
                             @(context.Body.Length > 100 ? (context.Body.Substring(0, 97) + "...") : context.Body)
                         </td>
                     </Detail>
@@ -218,6 +221,7 @@ else
     private string displayname = string.Empty;
     private FileManager filemanager;
     private int photofileid = -1;
+    private File photo = null;
     private List<Profile> profiles;
     private Dictionary<string, string> settings;
     private string category = string.Empty;
@@ -226,7 +230,7 @@ else
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         try
         {
@@ -239,6 +243,12 @@ else
                 if (PageState.User.PhotoFileId != null)
                 {
                     photofileid = PageState.User.PhotoFileId.Value;
+                    photo = await FileService.GetFileAsync(photofileid);
+                }
+                else
+                {
+                    photofileid = -1;
+                    photo = null;
                 }
 
                 profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
@@ -280,18 +290,17 @@ else
                     user.Password = password;
                     user.Email = email;
                     user.DisplayName = (displayname == string.Empty ? username : displayname);
-                    user.PhotoFileId = null;
-                    photofileid = filemanager.GetFileId();
-
-                    if (photofileid != -1)
+                    user.PhotoFileId = filemanager.GetFileId();
+                    if (user.PhotoFileId == -1)
                     {
-                        user.PhotoFileId = photofileid;
+                        user.PhotoFileId = null;
                     }
 
                     await UserService.UpdateUserAsync(user);
                     await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
                     await logger.LogInformation("User Profile Saved");
-                    AddModuleMessage(Localizer["User Profile Updated Successfully"], MessageType.Success);
+
+                    NavigationManager.NavigateTo(NavigateUrl());
                 }
                 else
                 {

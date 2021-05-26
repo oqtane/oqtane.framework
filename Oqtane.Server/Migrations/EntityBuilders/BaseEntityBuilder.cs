@@ -231,7 +231,6 @@ namespace Oqtane.Migrations.EntityBuilders
         public void DeleteFromTable(string condition = "")
         {
             var deleteSql = $"DELETE FROM {RewriteName(EntityTableName)} ";
-
             if(!string.IsNullOrEmpty(condition))
             {
                 deleteSql +=  $"WHERE {condition}";
@@ -241,11 +240,8 @@ namespace Oqtane.Migrations.EntityBuilders
 
         public void UpdateColumn(string columnName, string value, string condition = "")
         {
-            var updateValue = value;
-
             var updateSql = $"UPDATE {RewriteName(EntityTableName)} SET {RewriteName(columnName)} = {value} ";
-
-            if(!string.IsNullOrEmpty(condition))
+            if (!string.IsNullOrEmpty(condition))
             {
                 updateSql += $"WHERE {condition}";
             }
