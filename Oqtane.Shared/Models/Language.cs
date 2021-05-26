@@ -20,12 +20,12 @@ namespace Oqtane.Models
         public int? SiteId { get; set; }
 
         /// <summary>
-        /// Language Name
+        /// Language Name - corresponds to <see cref="Culture.DisplayName"/>, _not_ <see cref="Culture.Name"/>
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// Language / Culture code, like 'en-US'
+        /// Language / Culture code, like 'en-US' - corresponds to <see cref="Culture.Name"/>
         /// </summary>
         public string Code { get; set; }
 
