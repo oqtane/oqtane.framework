@@ -7,7 +7,6 @@ msbuild.binlog
 .vscode/
 *.binlog
 *.nupkg
-*.nupkg.bak
 
 *.idea
 

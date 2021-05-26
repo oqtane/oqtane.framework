@@ -90,13 +90,26 @@ namespace Oqtane.Infrastructure
                     IsNewTenant = false
                 };
 
-                //If doing an Upgrade we may only have a connectionString.  If that is the case - default databaseType to SqlServer
-                if (!string.IsNullOrEmpty(install.ConnectionString) && string.IsNullOrEmpty(install.DatabaseType))
+                // check upgrade status
+                if (!string.IsNullOrEmpty(install.ConnectionString))
                 {
-                    install.DatabaseType = "Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer";
-                    install.DatabasePackage = "Oqtane.Database.SqlServer";
-                    InstallDatabase(install);
-                    UpdateDatabaseType(install.DatabaseType);
+                    // if no database type has been specified default to Sql Server
+                    if (string.IsNullOrEmpty(install.DatabaseType))
+                    {
+                        install.DatabaseType = Constants.DefaultDBType;
+                        install.DatabasePackage = Constants.DefaultDBType.Substring(Constants.DefaultDBType.IndexOf(",") + 2);
+                        InstallDatabase(install);
+                        UpdateDatabaseType(install.DatabaseType);
+                    }
+                    else
+                    {
+                        // if database type does not exist, install the associated Nuget package
+                        if (Type.GetType(install.DatabaseType) == null)
+                        {
+                            install.DatabasePackage = install.DatabaseType.Substring(install.DatabaseType.IndexOf(",") + 2);
+                            InstallDatabase(install);
+                        }
+                    }
                 }
 
                 var installation = IsInstalled();
@@ -301,7 +314,7 @@ namespace Oqtane.Infrastructure
 
                         using (var masterDbContext = new MasterDBContext(new DbContextOptions<MasterDBContext>(), null, _config))
                         {
-                            if (installation.Success && (install.DatabaseType == "Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer"))
+                            if (installation.Success && (install.DatabaseType == Constants.DefaultDBType))
                             {
                                 UpgradeSqlServer(sql, install.ConnectionString, install.DatabaseType, true);
                             }
@@ -410,7 +423,7 @@ namespace Oqtane.Infrastructure
                         {
                             using (var tenantDbContext = new TenantDBContext(tenantManager, null))
                             {
-                                if (install.DatabaseType == "Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer")
+                                if (install.DatabaseType == Constants.DefaultDBType)
                                 {
                                     UpgradeSqlServer(sql, tenant.DBConnectionString, tenant.DBType, false);
                                 }
@@ -668,7 +681,6 @@ namespace Oqtane.Infrastructure
                 var type = Type.GetType(databaseType);
                 database = Activator.CreateInstance(type) as IDatabase;
             }
-
 
             return new InstallationContext(database, connectionString);
         }
