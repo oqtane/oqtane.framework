@@ -58,7 +58,7 @@ namespace Oqtane
             // Register localization services
             services.AddLocalization(options => options.ResourcesPath = "Resources");
 
-            services.AddOptions<List<Database>>().Bind(Configuration.GetSection("AvailableDatabases"));
+            services.AddOptions<List<Database>>().Bind(Configuration.GetSection(SettingKeys.AvailableDatabasesSection));
 
             services.AddServerSideBlazor().AddCircuitOptions(options =>
             {
@@ -176,6 +176,7 @@ namespace Oqtane
             services.AddSingleton<IInstallationManager, InstallationManager>();
             services.AddSingleton<ISyncManager, SyncManager>();
             services.AddSingleton<IDatabaseManager, DatabaseManager>();
+            services.AddSingleton<IConfigManager, ConfigManager>();
 
             // install any modules or themes ( this needs to occur BEFORE the assemblies are loaded into the app domain )
             InstallationManager.InstallPackages(_env.WebRootPath, _env.ContentRootPath);

@@ -10,14 +10,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using Oqtane.Databases.Interfaces;
 using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
 using Oqtane.Enums;
-using File = System.IO.File;
+using Newtonsoft.Json;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConvertToUsingDeclaration
@@ -32,18 +31,23 @@ namespace Oqtane.Infrastructure
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IWebHostEnvironment _environment;
         private readonly IMemoryCache _cache;
+        private readonly IConfigManager _configManager;
 
-        public DatabaseManager(IConfigurationRoot config, IServiceScopeFactory serviceScopeFactory, IWebHostEnvironment environment, IMemoryCache cache)
+        public DatabaseManager(IConfigurationRoot config, IServiceScopeFactory serviceScopeFactory, IWebHostEnvironment environment, IMemoryCache cache, IConfigManager configManager)
         {
             _config = config;
             _serviceScopeFactory = serviceScopeFactory;
             _environment = environment;
             _cache = cache;
+            _configManager = configManager;
         }
 
         public Installation IsInstalled()
         {
             var result = new Installation { Success = false, Message = string.Empty };
+
+            ValidateConfiguration();
+
             if (!string.IsNullOrEmpty(_config.GetConnectionString(SettingKeys.ConnectionStringKey)))
             {
                 result.Success = true;
@@ -97,7 +101,6 @@ namespace Oqtane.Infrastructure
                     if (string.IsNullOrEmpty(install.DatabaseType))
                     {
                         install.DatabaseType = Constants.DefaultDBType;
-                        install.DatabasePackage = Constants.DefaultDBType.Substring(Constants.DefaultDBType.IndexOf(",") + 2);
                         InstallDatabase(install);
                         UpdateDatabaseType(install.DatabaseType);
                     }
@@ -106,7 +109,6 @@ namespace Oqtane.Infrastructure
                         // if database type does not exist, install the associated Nuget package
                         if (Type.GetType(install.DatabaseType) == null)
                         {
-                            install.DatabasePackage = install.DatabaseType.Substring(install.DatabaseType.IndexOf(",") + 2);
                             InstallDatabase(install);
                         }
                     }
@@ -220,7 +222,7 @@ namespace Oqtane.Infrastructure
                     // iterate through Nuget packages in source folder
                     foreach (var package in packagesFolder.GetFiles("*.nupkg.bak"))
                     {
-                        if (package.Name.StartsWith(install.DatabasePackage))
+                        if (package.Name.StartsWith(Utilities.GetAssemblyName(install.DatabaseType)))
                         {
                             //rename file
                             var packageName = Path.Combine(package.DirectoryName, package.Name);
@@ -237,7 +239,7 @@ namespace Oqtane.Infrastructure
 
                         var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
                         var assembliesFolder = new DirectoryInfo(assemblyPath);
-                        var assemblyFile = new FileInfo($"{assembliesFolder}/{install.DatabasePackage}.dll");
+                        var assemblyFile = new FileInfo($"{assembliesFolder}/{Utilities.GetAssemblyName(install.DatabaseType)}.dll");
 
                         AssemblyLoadContext.Default.LoadOqtaneAssembly(assemblyFile);
 
@@ -644,25 +646,6 @@ namespace Oqtane.Infrastructure
             return result;
         }
 
-        public void AddOrUpdateAppSetting<T>(string sectionPathKey, T value)
-        {
-            try
-            {
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
-                var json = File.ReadAllText(filePath);
-                dynamic jsonObj = JsonConvert.DeserializeObject(json);
-
-                SetValueRecursively(sectionPathKey, jsonObj, value);
-
-                string output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-                File.WriteAllText(filePath, output);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error writing app settings | {0}", ex);
-            }
-        }
-
         private string DenormalizeConnectionString(string connectionString)
         {
             var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString();
@@ -687,10 +670,7 @@ namespace Oqtane.Infrastructure
 
         private string GetInstallationConfig(string key, string defaultValue)
         {
-            var value = _config.GetSection(SettingKeys.InstallationSection).GetValue(key, defaultValue);
-            // double fallback to default value - allow hold sample keys in config
-            if (string.IsNullOrEmpty(value)) value = defaultValue;
-            return value;
+            return _configManager.GetSetting(SettingKeys.InstallationSection, key, defaultValue);
         }
 
         private string NormalizeConnectionString(string connectionString)
@@ -700,39 +680,18 @@ namespace Oqtane.Infrastructure
             return connectionString;
         }
 
-        private void SetValueRecursively<T>(string sectionPathKey, dynamic jsonObj, T value)
-        {
-            // split the string at the first ':' character
-            var remainingSections = sectionPathKey.Split(":", 2);
-
-            var currentSection = remainingSections[0];
-            if (remainingSections.Length > 1)
-            {
-                // continue with the process, moving down the tree
-                var nextSection = remainingSections[1];
-                SetValueRecursively(nextSection, jsonObj[currentSection], value);
-            }
-            else
-            {
-                // we've got to the end of the tree, set the value
-                jsonObj[currentSection] = value;
-            }
-        }
-
         public void UpdateConnectionString(string connectionString)
         {
             connectionString = DenormalizeConnectionString(connectionString);
             if (_config.GetConnectionString(SettingKeys.ConnectionStringKey) != connectionString)
             {
-                AddOrUpdateAppSetting($"{SettingKeys.ConnectionStringsSection}:{SettingKeys.ConnectionStringKey}", connectionString);
-                _config.Reload();
+                _configManager.AddOrUpdateSetting($"{SettingKeys.ConnectionStringsSection}:{SettingKeys.ConnectionStringKey}", connectionString, true);
             }
         }
 
         public void UpdateDatabaseType(string databaseType)
         {
-            AddOrUpdateAppSetting($"{SettingKeys.DatabaseSection}:{SettingKeys.DatabaseTypeKey}", databaseType);
-            _config.Reload();
+            _configManager.AddOrUpdateSetting($"{SettingKeys.DatabaseSection}:{SettingKeys.DatabaseTypeKey}", databaseType, true);
         }
 
         public void UpgradeSqlServer(ISqlRepository sql, string connectionString, string databaseType, bool isMaster)
@@ -743,6 +702,25 @@ namespace Oqtane.Infrastructure
             query = query.Replace("{{Version}}", Constants.Version);
 
             sql.ExecuteNonQuery(connectionString, databaseType, query);
+        }
+
+        private void ValidateConfiguration()
+        {
+            if (_configManager.GetSetting(SettingKeys.DatabaseSection, SettingKeys.DatabaseTypeKey, "") == "")
+            {
+                _configManager.AddOrUpdateSetting($"{SettingKeys.DatabaseSection}:{SettingKeys.DatabaseTypeKey}", Constants.DefaultDBType, true);
+            }
+            if (!_configManager.GetSection(SettingKeys.AvailableDatabasesSection).Exists())
+            {
+                string databases = "[";
+                databases += "{ \"Name\": \"LocalDB\", \"ControlType\": \"Oqtane.Installer.Controls.LocalDBConfig, Oqtane.Client\", \"DBTYpe\": \"Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer\" },";
+                databases += "{ \"Name\": \"SQL Server\", \"ControlType\": \"Oqtane.Installer.Controls.SqlServerConfig, Oqtane.Client\", \"DBTYpe\": \"Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer\" },";
+                databases += "{ \"Name\": \"SQLite\", \"ControlType\": \"Oqtane.Installer.Controls.SqliteConfig, Oqtane.Client\", \"DBTYpe\": \"Oqtane.Database.Sqlite.SqliteDatabase, Oqtane.Database.Sqlite\" },";
+                databases += "{ \"Name\": \"MySQL\", \"ControlType\": \"Oqtane.Installer.Controls.MySQLConfig, Oqtane.Client\", \"DBTYpe\": \"Oqtane.Database.MySQL.SqlServerDatabase, Oqtane.Database.MySQL\" },";
+                databases += "{ \"Name\": \"PostgreSQL\", \"ControlType\": \"Oqtane.Installer.Controls.PostgreSQLConfig, Oqtane.Client\", \"DBTYpe\": \"Oqtane.Database.PostgreSQL.PostgreSQLDatabase, Oqtane.Database.PostgreSQL\" }";
+                databases += "]";
+                _configManager.AddOrUpdateSetting(SettingKeys.AvailableDatabasesSection, JsonConvert.DeserializeObject<dynamic>(databases), true);
+            }
         }
     }
 }

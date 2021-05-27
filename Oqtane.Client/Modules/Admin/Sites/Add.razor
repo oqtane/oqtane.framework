@@ -130,7 +130,7 @@ else
                     <select id="databaseType" class="custom-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))">
                         @foreach (var database in _databases)
                         {
-                            <option value="@database.Name">@Localizer[@database.FriendlyName]</option>
+                            <option value="@database.Name">@Localizer[@database.Name]</option>
                         }
                     </select>
                 </td>
@@ -305,7 +305,6 @@ else
                             {
                                 config.TenantName = _tenantName;
                                 config.DatabaseType = database.DBType;
-                                config.DatabasePackage = database.Package;
                                 config.ConnectionString = connectionString;
                                 config.HostEmail = user.Email;
                                 config.HostPassword = _hostpassword;

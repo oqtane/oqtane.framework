@@ -5,7 +5,6 @@ namespace Oqtane.Shared
     {
         public string ConnectionString { get; set; }
         public string DatabaseType { get; set; }
-        public string DatabasePackage { get; set; }
         public string Aliases { get; set; }
         public string TenantName { get; set; }
         public bool IsNewTenant { get; set; }

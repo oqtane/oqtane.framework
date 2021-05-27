@@ -24,7 +24,7 @@ namespace Oqtane.Services
         public async Task<List<Database>> GetDatabasesAsync()
         {
             List<Database> databases = await GetJsonAsync<List<Database>>(Apiurl);
-            return databases.OrderBy(item => item.FriendlyName).ToList();
+            return databases.OrderBy(item => item.Name).ToList();
         }
     }
 }

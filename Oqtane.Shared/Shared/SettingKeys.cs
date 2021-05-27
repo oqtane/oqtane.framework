@@ -16,5 +16,7 @@ namespace Oqtane.Shared
         public const string DefaultThemeKey = "DefaultTheme";
         public const string DefaultLayoutKey = "DefaultLayout";
         public const string DefaultContainerKey = "DefaultContainer";
+
+        public const string AvailableDatabasesSection = "AvailableDatabases";
     }
 }
