@@ -31,7 +31,7 @@
                                 {
                                     foreach (var database in _databases)
                                     {
-                                        <option value="@database.Name">@Localizer[@database.FriendlyName]</option>
+                                        <option value="@database.Name">@Localizer[@database.Name]</option>
                                     }
                                 }
                             </select>
@@ -174,7 +174,6 @@
             var config = new InstallConfig
             {
                 DatabaseType = database.DBType,
-                DatabasePackage = database.Package,
                 ConnectionString = connectionString,
                 Aliases = uri.Authority,
                 HostEmail = _hostEmail,

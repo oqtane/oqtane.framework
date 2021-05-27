@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
@@ -11,15 +13,15 @@ namespace Oqtane.Infrastructure
 {
     public class UpgradeManager : IUpgradeManager
     {
-        private readonly IAliasRepository _aliases;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IWebHostEnvironment _environment;
+        private readonly IConfigManager _configManager;
 
-        public UpgradeManager(IAliasRepository aliases, IServiceScopeFactory serviceScopeFactory, IWebHostEnvironment environment)
+        public UpgradeManager(IServiceScopeFactory serviceScopeFactory, IWebHostEnvironment environment, IConfigManager configManager)
         {
-            _aliases = aliases;
             _serviceScopeFactory = serviceScopeFactory;
             _environment = environment;
+            _configManager = configManager;
         }
 
         public void Upgrade(Tenant tenant, string version)
