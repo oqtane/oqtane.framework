@@ -499,7 +499,7 @@ namespace Oqtane.Controllers
 
         private string GetFolderPath(string folder)
         {
-            return Utilities.PathCombine(_environment.WebRootPath, folder);
+            return Utilities.PathCombine(_environment.ContentRootPath, folder);
         }
 
         private void CreateDirectory(string folderpath)

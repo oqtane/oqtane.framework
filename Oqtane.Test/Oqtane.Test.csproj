@@ -29,29 +29,41 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Oqtane.Database.MySQL\Oqtane.Database.MySQL.csproj" />
-    <ProjectReference Include="..\Oqtane.Database.PostgreSQL\Oqtane.Database.PostgreSQL.csproj" />
-    <ProjectReference Include="..\Oqtane.Database.Sqlite\Oqtane.Database.Sqlite.csproj" />
-    <ProjectReference Include="..\Oqtane.Database.SqlServer\Oqtane.Database.SqlServer.csproj" />
     <ProjectReference Include="..\Oqtane.Shared\Oqtane.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Oqtane.Database.MySQL\**" />
+    <Compile Remove="Oqtane.Database.PostgreSQL\**" />
+    <Compile Remove="Oqtane.Database.Sqlite\**" />
+    <Compile Remove="Oqtane.Database.SqlServer\**" />
     <Compile Remove="Repository\**" />
     <Compile Remove="Security\**" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Remove="Oqtane.Database.MySQL\**" />
+    <EmbeddedResource Remove="Oqtane.Database.PostgreSQL\**" />
+    <EmbeddedResource Remove="Oqtane.Database.Sqlite\**" />
+    <EmbeddedResource Remove="Oqtane.Database.SqlServer\**" />
     <EmbeddedResource Remove="Repository\**" />
     <EmbeddedResource Remove="Security\**" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Oqtane.Database.MySQL\**" />
+    <None Remove="Oqtane.Database.PostgreSQL\**" />
+    <None Remove="Oqtane.Database.Sqlite\**" />
+    <None Remove="Oqtane.Database.SqlServer\**" />
     <None Remove="Repository\**" />
     <None Remove="Security\**" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="Oqtane.Database.MySQL\**" />
+    <Content Remove="Oqtane.Database.PostgreSQL\**" />
+    <Content Remove="Oqtane.Database.Sqlite\**" />
+    <Content Remove="Oqtane.Database.SqlServer\**" />
     <Content Remove="Repository\**" />
     <Content Remove="Security\**" />
   </ItemGroup>
