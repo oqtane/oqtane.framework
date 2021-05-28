@@ -5,27 +5,19 @@ using Microsoft.AspNetCore.Http;
 using Oqtane.Shared;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
-using [Owner].[Module].Models;
 using [Owner].[Module].Repository;
+using Oqtane.Controllers;
 
 namespace [Owner].[Module].Controllers
 {
-    [Route(ControllerRoutes.Default)]
-    public class [Module]Controller : Controller
+    [Route(ControllerRoutes.ApiRoute)]
+    public class [Module]Controller : ModuleControllerBase
     {
         private readonly I[Module]Repository _[Module]Repository;
-        private readonly ILogManager _logger;
-        protected int _entityId = -1;
 
-        public [Module]Controller(I[Module]Repository [Module]Repository, ILogManager logger, IHttpContextAccessor accessor)
+        public [Module]Controller(I[Module]Repository [Module]Repository, ILogManager logger, IHttpContextAccessor accessor) : base(logger, accessor)
         {
             _[Module]Repository = [Module]Repository;
-            _logger = logger;
-
-            if (accessor.HttpContext.Request.Query.ContainsKey("entityid"))
-            {
-                _entityId = int.Parse(accessor.HttpContext.Request.Query["entityid"]);
-            }
         }
 
         // GET: api/<controller>?moduleid=x
@@ -33,7 +25,14 @@ namespace [Owner].[Module].Controllers
         [Authorize(Policy = PolicyNames.ViewModule)]
         public IEnumerable<Models.[Module]> Get(string moduleid)
         {
-            return _[Module]Repository.Get[Module]s(int.Parse(moduleid));
+            if (int.Parse(moduleid) == _entityId)
+            {
+                return _[Module]Repository.Get[Module]s(int.Parse(moduleid));
+            }
+            else
+            {
+                return null;
+            }
         }
 
         // GET api/<controller>/5
