@@ -18,7 +18,7 @@ namespace [Owner].[Module].Services
             _siteState = siteState;
         }
 
-         private string Apiurl => CreateApiUrl(_siteState.Alias, "[Module]");
+        private string Apiurl => CreateApiUrl("[Module]", _siteState.Alias);
 
         public async Task<List<Models.[Module]>> Get[Module]sAsync(int ModuleId)
         {
