@@ -27,6 +27,6 @@
   </ItemGroup>
 
   <Target Name="CopyPackage" AfterTargets="Pack">
-    <Copy SourceFiles="$(OutputPath)..\$(PackageName)" DestinationFiles="..\Oqtane.Server\Packages\$(PackageName).bak" />
+    <Copy SourceFiles="$(OutputPath)..\$(PackageName)" DestinationFiles="..\Oqtane.Server\wwwroot\Packages\$(PackageName).bak" />
   </Target>
 </Project>

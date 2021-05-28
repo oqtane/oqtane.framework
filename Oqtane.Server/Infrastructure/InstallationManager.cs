@@ -44,8 +44,8 @@ namespace Oqtane.Infrastructure
                 Directory.CreateDirectory(sourceFolder);
             }
 
-            // support for legacy folder locations
-            foreach (var folder in "Modules,Themes".Split(","))
+            // move packages to secure location
+            foreach (var folder in "Modules,Themes,Packages".Split(","))
             {
                 foreach(var file in Directory.GetFiles(Path.Combine(webRootPath, folder), "*.nupkg"))
                 {

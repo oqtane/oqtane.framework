@@ -31,10 +31,6 @@ namespace Oqtane.Security
                 {
                     entityId = int.Parse(ctx.Request.Query["auth" + requirement.EntityName.ToLower() + "id"]);
                 }
-                if (entityId == -1 && ctx.Request.Query.ContainsKey("entityid"))
-                {
-                    entityId = int.Parse(ctx.Request.Query["entityid"]);
-                }
                 if (_userPermissions.IsAuthorized(context.User, requirement.EntityName, entityId, requirement.PermissionName))
                 {
                     context.Succeed(requirement);
