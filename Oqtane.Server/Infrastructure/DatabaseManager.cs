@@ -46,8 +46,6 @@ namespace Oqtane.Infrastructure
         {
             var result = new Installation { Success = false, Message = string.Empty };
 
-            ValidateConfiguration();
-
             if (!string.IsNullOrEmpty(_config.GetConnectionString(SettingKeys.ConnectionStringKey)))
             {
                 result.Success = true;
@@ -82,6 +80,8 @@ namespace Oqtane.Infrastructure
         {
             var result = new Installation { Success = false, Message = string.Empty };
 
+            ValidateConfiguration();
+
             // get configuration
             if (install == null)
             {
@@ -94,24 +94,10 @@ namespace Oqtane.Infrastructure
                     IsNewTenant = false
                 };
 
-                // check upgrade status
-                if (!string.IsNullOrEmpty(install.ConnectionString))
+                // on upgrade install the associated Nuget package
+                if (!string.IsNullOrEmpty(install.ConnectionString) && Type.GetType(install.DatabaseType) == null)
                 {
-                    // if no database type has been specified default to Sql Server
-                    if (string.IsNullOrEmpty(install.DatabaseType))
-                    {
-                        install.DatabaseType = Constants.DefaultDBType;
-                        InstallDatabase(install);
-                        UpdateDatabaseType(install.DatabaseType);
-                    }
-                    else
-                    {
-                        // if database type does not exist, install the associated Nuget package
-                        if (Type.GetType(install.DatabaseType) == null)
-                        {
-                            InstallDatabase(install);
-                        }
-                    }
+                    InstallDatabase(install);
                 }
 
                 var installation = IsInstalled();
@@ -216,8 +202,8 @@ namespace Oqtane.Infrastructure
                 {
                     //Rename bak extension
                     var packageFolderName = "Packages";
-                    var webRootPath = _environment.WebRootPath;
-                    var packagesFolder = new DirectoryInfo(Path.Combine(webRootPath, packageFolderName));
+                    var path = _environment.ContentRootPath;
+                    var packagesFolder = new DirectoryInfo(Path.Combine(path, packageFolderName));
 
                     // iterate through Nuget packages in source folder
                     foreach (var package in packagesFolder.GetFiles("*.nupkg.bak"))
@@ -328,12 +314,6 @@ namespace Oqtane.Infrastructure
                     catch (Exception ex)
                     {
                         result.Message = ex.Message;
-                    }
-
-                    if (!result.Success)
-                    {
-                        UpdateConnectionString(String.Empty);
-                        UpdateDatabaseType(String.Empty);
                     }
                 }
             }
@@ -655,7 +635,7 @@ namespace Oqtane.Infrastructure
 
         private InstallationContext GetInstallationContext()
         {
-            var connectionString = _config.GetConnectionString(SettingKeys.ConnectionStringKey);
+            var connectionString = NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey));
             var databaseType = _config.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey];
 
             IDatabase database = null;
