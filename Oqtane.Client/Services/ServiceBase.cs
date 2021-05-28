@@ -75,6 +75,12 @@ namespace Oqtane.Services
             }
         }
 
+        // legacy support for modules
+        public string CreateAuthorizationPolicyUrl(string url, int entityId)
+        {
+            return CreateAuthorizationPolicyUrl(url, new Dictionary<string, int>() { { EntityNames.Module, entityId } });
+        }
+
         protected async Task GetAsync(string uri)
         {
             var response = await _http.GetAsync(uri);
@@ -189,41 +195,20 @@ namespace Oqtane.Services
             return mediaType != null && mediaType.Equals("application/json", StringComparison.OrdinalIgnoreCase);
         }
 
-        [Obsolete("This method is obsolete. Use CreateApiUrl(Alias alias, string serviceName) instead.", false)]
-        public string CreateApiUrl(Alias alias, string absoluteUri, string serviceName)
-        {
-            // only retained for short term backward compatibility
-            return CreateApiUrl(alias, serviceName);
-        }
-
-        [Obsolete("This method is obsolete. Use CreateApiUrl(string serviceName, Alias alias) instead.", false)]
+        [Obsolete("This method is obsolete. Use CreateApiUrl(string serviceName, Alias alias) in conjunction with ControllerRoutes.ApiRoute in Controllers instead.", false)]
         public string CreateApiUrl(string serviceName)
         {
             return CreateApiUrl(serviceName, null, ControllerRoutes.Default);
         }
 
-        [Obsolete("This method is deprecated.", false)]
-        public Alias Alias { get; set; }
-
-        [Obsolete("This method is obsolete. Use CreateApiUrl(string serviceName, Alias alias) instead.", false)]
+        [Obsolete("This method is obsolete. Use CreateApiUrl(string serviceName, Alias alias) in conjunction with ControllerRoutes.ApiRoute in Controllers instead.", false)]
         public string CreateApiUrl(Alias alias, string serviceName)
         {
             return CreateApiUrl(serviceName, alias, ControllerRoutes.Default);
         }
 
-        [Obsolete("This method is obsolete. Use CreateAuthorizationPolicyUrl(string url, Dictionary<string, int> args) instead - in conjunction with _authEntityId in Server Controller.", false)]
-        public string CreateAuthorizationPolicyUrl(string url, int entityId)
-        {
-            string qs = "entityid=" + entityId.ToString();
+        [Obsolete("This property of ServiceBase is deprecated. Cross tenant service calls are not supported.", false)]
+        public Alias Alias { get; set; }
 
-            if (url.Contains("?"))
-            {
-                return url + "&" + qs;
-            }
-            else
-            {
-                return url + "?" + qs;
-            }
-        }
     }
 }
