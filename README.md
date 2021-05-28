@@ -57,8 +57,15 @@ V.2.2.0 ( Aug 2021 )
 - [ ] Configurable password complexity for local authentication
 
 V.2.1.0 ( May 2021 )
-- [ ] Cross Platform Database Support ( ie. SQLite, MySQL, PostreSQL ) - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
-- [ ] EF Core Migrations - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
+- [x] Cross Platform Database Support ( ie. LocalDB, SQL Server, SQLite, MySQL, PostreSQL ) - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
+- [x] Utilize EF Core Migrations - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
+- [x] Include support for Public content folders
+- [x] Enhance multi-tenant infrastructure
+- [x] Optimize user authorization
+- [x] Centralize package installation and uninstall
+- [x] Enable pre-rendering support for Blazor Server
+- [x] Allow run-time installation of Language packages
+- [x] Add support for Shared localization resources
 
 V.2.0.2 ( Apr 19, 2021 )
 - [x] Assorted fixes and user experience improvements
