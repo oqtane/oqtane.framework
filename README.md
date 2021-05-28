@@ -57,7 +57,7 @@ V.2.2.0 ( Aug 2021 )
 - [ ] Configurable password complexity for local authentication
 
 V.2.1.0 ( May 2021 )
-- [x] Cross Platform Database Support ( ie. LocalDB, SQL Server, SQLite, MySQL, PostreSQL ) - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
+- [x] Cross Platform Database Support ( ie. LocalDB, SQL Server, SQLite, MySQL, PostgreSQL ) - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
 - [x] Utilize EF Core Migrations - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
 - [x] Include support for Public content folders
 - [x] Enhance multi-tenant infrastructure
