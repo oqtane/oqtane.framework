@@ -65,7 +65,7 @@ namespace Oqtane.Controllers
         {
             using (var httpClient = new HttpClient())
             {
-                folder = Path.Combine(_environment.WebRootPath, folder);
+                folder = Path.Combine(_environment.ContentRootPath, folder);
                 var response = await httpClient.GetAsync("https://www.nuget.org/api/v2/package/" + packageid.ToLower() + "/" + version).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
                 string filename = packageid + "." + version + ".nupkg";

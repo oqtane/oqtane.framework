@@ -38,7 +38,7 @@ namespace Oqtane.Infrastructure
             bool install = false;
             string binPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
 
-            string sourceFolder = Path.Combine(webRootPath, "Packages");
+            string sourceFolder = Path.Combine(contentRootPath, "Packages");
             if (!Directory.Exists(sourceFolder))
             {
                 Directory.CreateDirectory(sourceFolder);
