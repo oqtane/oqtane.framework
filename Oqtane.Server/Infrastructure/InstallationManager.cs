@@ -45,7 +45,7 @@ namespace Oqtane.Infrastructure
                 Directory.CreateDirectory(sourceFolder);
             }
 
-            // move packages to secure location
+            // move packages to secure /Packages folder
             foreach (var folder in "Modules,Themes,Packages".Split(","))
             {
                 foreach(var file in Directory.GetFiles(Path.Combine(webRootPath, folder), "*.nupkg*"))
@@ -55,7 +55,16 @@ namespace Oqtane.Infrastructure
                     {
                         File.Delete(destinationFile);
                     }
-                    File.Move(file, destinationFile);
+                    if (Path.GetExtension(destinationFile) == ".nupkg.bak")
+                    {
+                        // leave a copy in the current folder as it is distributed with the core framework
+                        File.Copy(file, destinationFile);
+                    }
+                    else
+                    {
+                        // move to destination
+                        File.Move(file, destinationFile);
+                    }
                 }
             }
 
