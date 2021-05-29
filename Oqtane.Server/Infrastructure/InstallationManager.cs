@@ -48,7 +48,7 @@ namespace Oqtane.Infrastructure
             // move packages to secure location
             foreach (var folder in "Modules,Themes,Packages".Split(","))
             {
-                foreach(var file in Directory.GetFiles(Path.Combine(webRootPath, folder), "*.nupkg"))
+                foreach(var file in Directory.GetFiles(Path.Combine(webRootPath, folder), "*.nupkg*"))
                 {
                     var destinationFile = Path.Combine(sourceFolder, Path.GetFileName(file));
                     if (File.Exists(destinationFile))
