@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Xml;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
@@ -122,7 +123,9 @@ namespace Oqtane.Infrastructure
 
                             if (filename != "")
                             {
-                                assets.Add(filename.Replace(contentRootPath, ""));
+                                // ContentRootPath does not use different case for folder names as other framework methods  
+                                filename = Regex.Replace(filename, Regex.Escape(contentRootPath), "", RegexOptions.IgnoreCase);
+                                assets.Add(filename);
                                 if (!manifest && Path.GetFileName(filename) == name + ".log")
                                 {
                                     manifest = true;
@@ -142,7 +145,7 @@ namespace Oqtane.Infrastructure
                             {
                                 Directory.CreateDirectory(Path.GetDirectoryName(manifestpath));
                             }
-                            File.WriteAllText(manifestpath, JsonSerializer.Serialize(assets));
+                            File.WriteAllText(manifestpath, JsonSerializer.Serialize(assets, new JsonSerializerOptions { WriteIndented = true }));
                         }
                     }
                 }
