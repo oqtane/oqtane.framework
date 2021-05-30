@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
-using Oqtane.Repository;
-using Oqtane.Modules.HtmlText.Models;
 using Oqtane.Modules.HtmlText.Repository;
 using System.Net;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Oqtane.Enums;
-using Oqtane.Interfaces;
+using Oqtane.Repository;
+using Oqtane.Shared;
 
 // ReSharper disable ConvertToUsingDeclaration
 
@@ -21,13 +16,14 @@ namespace Oqtane.Modules.HtmlText.Manager
         private readonly IHtmlTextRepository _htmlText;
         private readonly ITenantManager _tenantManager;
         private readonly IHttpContextAccessor _accessor;
+        private readonly ISqlRepository _sqlRepository;
 
-
-        public HtmlTextManager(IHtmlTextRepository htmlText, ITenantManager tenantManager, IHttpContextAccessor httpContextAccessor)
+        public HtmlTextManager(IHtmlTextRepository htmlText, ITenantManager tenantManager, IHttpContextAccessor httpContextAccessor, ISqlRepository sqlRepository)
         {
             _htmlText = htmlText;
             _tenantManager = tenantManager;
             _accessor = httpContextAccessor;
+            _sqlRepository = sqlRepository;
         }
 
         public string ExportModule(Module module)
@@ -61,15 +57,16 @@ namespace Oqtane.Modules.HtmlText.Manager
 
         public bool Install(Tenant tenant, string version)
         {
-            _tenantManager.SetTenant(tenant.TenantId);
-
+            if (tenant.DBType == Constants.DefaultDBType && version == "1.0.1")
+            {
+                // version 1.0.0 used SQL scripts rather than migrations, so we need to seed the migration history table
+                AddMigrationHistory(_sqlRepository, tenant, "HtmlText.01.00.00.00");
+            }
             return Migrate(new HtmlTextContext(_tenantManager, _accessor), tenant, MigrationType.Up);
         }
 
         public bool Uninstall(Tenant tenant)
         {
-            _tenantManager.SetTenant(tenant.TenantId);
-
             return Migrate(new HtmlTextContext(_tenantManager, _accessor), tenant, MigrationType.Down);
         }
     }

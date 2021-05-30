@@ -454,6 +454,7 @@ namespace Oqtane.Infrastructure
             {
                 var moduleDefinitions = scope.ServiceProvider.GetRequiredService<IModuleDefinitionRepository>();
                 var sql = scope.ServiceProvider.GetRequiredService<ISqlRepository>();
+                var tenantManager = scope.ServiceProvider.GetRequiredService<ITenantManager>();
 
                 foreach (var moduleDefinition in moduleDefinitions.GetModuleDefinitions())
                 {
@@ -474,13 +475,13 @@ namespace Oqtane.Infrastructure
                                     }
                                     if (index != (versions.Length - 1))
                                     {
-                                        if (index == -1) index = 0;
-                                        for (var i = index; i < versions.Length; i++)
+                                        for (var i = (index + 1); i < versions.Length; i++)
                                         {
                                             try
                                             {
                                                 if (moduleType.GetInterface("IInstallable") != null)
                                                 {
+                                                    tenantManager.SetTenant(tenant.TenantId);
                                                     var moduleObject = ActivatorUtilities.CreateInstance(scope.ServiceProvider, moduleType) as IInstallable;
                                                     moduleObject?.Install(tenant, versions[i]);
                                                 }
