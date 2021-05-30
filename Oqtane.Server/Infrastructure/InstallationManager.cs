@@ -55,7 +55,7 @@ namespace Oqtane.Infrastructure
                     {
                         File.Delete(destinationFile);
                     }
-                    if (Path.GetExtension(destinationFile) == ".nupkg.bak")
+                    if (destinationFile.ToLower().EndsWith(".nupkg.bak"))
                     {
                         // leave a copy in the current folder as it is distributed with the core framework
                         File.Copy(file, destinationFile);

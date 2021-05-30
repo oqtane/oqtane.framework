@@ -41,6 +41,9 @@ namespace Oqtane.Infrastructure
                     case "2.0.2":
                         Upgrade_2_0_2(tenant, scope);
                         break;
+                    case "2.1.0":
+                        Upgrade_2_1_0(tenant, scope);
+                        break;
                 }
             }
         }
@@ -110,6 +113,18 @@ namespace Oqtane.Infrastructure
             {
                 site.SiteGuid = System.Guid.NewGuid().ToString();
                 sites.UpdateSite(site);
+            }
+        }
+
+        private void Upgrade_2_1_0(Tenant tenant, IServiceScope scope)
+        {
+            if (tenant.Name == TenantNames.Master)
+            {
+                _configManager.RemoveSetting("Localization:SupportedCultures", true);
+                if (_configManager.GetSetting("RenderMode", "") == "")
+                {
+                    _configManager.AddOrUpdateSetting("RenderMode", "ServerPrerendered", true);
+                }
             }
         }
 

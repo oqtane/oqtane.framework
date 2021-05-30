@@ -1,8 +1,6 @@
 @page "/"
 @namespace Oqtane.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-@using Microsoft.Extensions.Configuration
-@inject IConfiguration Configuration
 @model Oqtane.Pages.HostModel
 <!DOCTYPE html>
 <html>
@@ -22,14 +20,7 @@
 <body>
     @(Html.AntiForgeryToken())
     <app>
-        @if (Configuration.GetSection("Runtime").Value == "WebAssembly")
-        {
-            <component type="typeof(Oqtane.App)" render-mode="Server" />
-        }
-        else
-        {
-            <component type="typeof(Oqtane.App)" render-mode="ServerPrerendered" />
-        }
+        <component type="typeof(Oqtane.App)" render-mode="@Model.RenderMode" />
     </app>
 
     <div id="blazor-error-ui">
@@ -52,7 +43,7 @@
 
     <script src="js/interop.js"></script>
 
-    @if (Configuration.GetSection("Runtime").Value == "WebAssembly")
+    @if (Model.Runtime == "WebAssembly")
     {
         <script src="_framework/blazor.webassembly.js"></script>
     }
