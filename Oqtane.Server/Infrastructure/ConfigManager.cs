@@ -20,10 +20,23 @@ namespace Oqtane.Infrastructure
             return _config.GetSection(key);
         }
 
-        public string GetSetting(string sectionKey, string settingKey, string defaultValue)
+        public T GetSetting<T>(string sectionKey, T defaultValue)
         {
-            var value = _config.GetSection(sectionKey).GetValue(settingKey, defaultValue);
-            if (string.IsNullOrEmpty(value)) value = defaultValue;
+            return GetSetting(sectionKey, "", defaultValue);
+        }
+
+        public T GetSetting<T>(string sectionKey, string settingKey, T defaultValue)
+        {
+            T value;
+            if (!string.IsNullOrEmpty(settingKey))
+            {
+               value = _config.GetSection(sectionKey).GetValue(settingKey, defaultValue);
+            }
+            else
+            {
+                value = _config.GetValue(sectionKey, defaultValue);
+            }
+            if (value == null) value = defaultValue;
             return value;
         }
 

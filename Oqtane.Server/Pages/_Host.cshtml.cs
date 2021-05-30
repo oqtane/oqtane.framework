@@ -11,6 +11,7 @@ using System.Reflection;
 using Oqtane.Repository;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Oqtane.Pages
 {
@@ -33,12 +34,24 @@ namespace Oqtane.Pages
             _languages = languages;
         }
 
+        public string Runtime = "Server";
+        public RenderMode RenderMode = RenderMode.Server;
         public string HeadResources = "";
         public string BodyResources = "";
         public string Message = "";
 
         public void OnGet()
         {
+            if (_configuration.GetSection("Runtime").Exists())
+            {
+                Runtime = _configuration.GetSection("Runtime").Value;
+            }
+
+            if (Runtime != "WebAssembly" && _configuration.GetSection("RenderMode").Exists())
+            {
+                RenderMode = (RenderMode)Enum.Parse(typeof(RenderMode), _configuration.GetSection("RenderMode").Value, true);
+            }
+
             var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
             foreach (Assembly assembly in assemblies)
             {
