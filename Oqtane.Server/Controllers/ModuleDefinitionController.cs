@@ -27,9 +27,10 @@ namespace Oqtane.Controllers
         private readonly IInstallationManager _installationManager;
         private readonly IWebHostEnvironment _environment;
         private readonly IServiceProvider _serviceProvider;
+        private readonly ITenantManager _tenantManager;
         private readonly ILogManager _logger;
 
-        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, ITenantRepository tenants, ISqlRepository sql, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, IServiceProvider serviceProvider, ILogManager logger)
+        public ModuleDefinitionController(IModuleDefinitionRepository moduleDefinitions, ITenantRepository tenants, ISqlRepository sql, IUserPermissions userPermissions, IInstallationManager installationManager, IWebHostEnvironment environment, IServiceProvider serviceProvider, ITenantManager tenantManager, ILogManager logger)
         {
             _moduleDefinitions = moduleDefinitions;
             _tenants = tenants;
@@ -38,6 +39,7 @@ namespace Oqtane.Controllers
             _installationManager = installationManager;
             _environment = environment;
             _serviceProvider = serviceProvider;
+            _tenantManager = tenantManager;
             _logger = logger;
         }
 
@@ -111,6 +113,7 @@ namespace Oqtane.Controllers
                         {
                             if (moduletype.GetInterface("IInstallable") != null)
                             {
+                                _tenantManager.SetTenant(tenant.TenantId);
                                 var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
                                 ((IInstallable)moduleobject).Uninstall(tenant);
                             }

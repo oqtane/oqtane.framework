@@ -20,6 +20,4 @@ IF EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'dbo.SchemaVersion
                 FROM SchemaVersions
                 WHERE ScriptName LIKE 'Oqtane.Scripts.Tenant.01%'
                    OR ScriptName LIKE 'Oqtane.Scripts.Tenant.02%'
-        INSERT INTO __EFMigrationsHistory(MigrationId, ProductVersion, AppliedDate, AppliedVersion)
-            VALUES ('HtmlText.01.00.00.00', '5.0.0', SYSDATETIME(), '{{Version}}')
     END

@@ -25,13 +25,11 @@ namespace [Owner].[Module].Manager
 
         public bool Install(Tenant tenant, string version)
         {
-            _tenantManager.SetTenant(tenant.TenantId);
             return Migrate(new [Module]Context(_tenantManager, _accessor), tenant, MigrationType.Up);
         }
 
         public bool Uninstall(Tenant tenant)
         {
-            _tenantManager.SetTenant(tenant.TenantId);
             return Migrate(new [Module]Context(_tenantManager, _accessor), tenant, MigrationType.Down);
         }
 
