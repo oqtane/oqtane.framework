@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Oqtane.Enums;
 using Oqtane.Repository;
 using Oqtane.Shared;
+using Oqtane.Migrations.Framework;
 
 // ReSharper disable ConvertToUsingDeclaration
 
@@ -60,7 +61,7 @@ namespace Oqtane.Modules.HtmlText.Manager
             if (tenant.DBType == Constants.DefaultDBType && version == "1.0.1")
             {
                 // version 1.0.0 used SQL scripts rather than migrations, so we need to seed the migration history table
-                AddMigrationHistory(_sqlRepository, tenant, "HtmlText.01.00.00.00");
+                _sqlRepository.ExecuteNonQuery(tenant, MigrationUtils.BuildInsertScript("HtmlText.01.00.00.00"));
             }
             return Migrate(new HtmlTextContext(_tenantManager, _accessor), tenant, MigrationType.Up);
         }

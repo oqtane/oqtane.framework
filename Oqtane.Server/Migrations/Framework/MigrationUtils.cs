@@ -38,5 +38,14 @@ namespace Oqtane.Migrations.Framework
                 .ToString();
         }
 
+        // only used in upgrade scenarios for modules that used SQL scripts originally
+        public static string BuildInsertScript(string MigrationId)
+        {
+            var query = "IF NOT EXISTS(SELECT 1 FROM __EFMigrationsHistory WHERE MigrationId = '" + MigrationId + "') ";
+            query += "INSERT INTO __EFMigrationsHistory(MigrationId, ProductVersion, AppliedDate, AppliedVersion) ";
+            query += "VALUES('" + MigrationId + "', '5.0.0', SYSDATETIME(), '" + Constants.Version + "')";
+            return query;
+        }
+
     }
 }
