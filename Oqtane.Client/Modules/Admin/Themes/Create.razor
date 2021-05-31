@@ -1,16 +1,14 @@
 @namespace Oqtane.Modules.Admin.Themes
 @inherits ModuleBase
+@using System.Text.RegularExpressions
 @inject NavigationManager NavigationManager
 @inject IThemeService ThemeService
 @inject IModuleService ModuleService
 @inject IPageModuleService PageModuleService
-@inject ISystemService SystemService
 @inject ISettingService SettingService
 @inject IStringLocalizer<Index> Localizer
-@using System.Text.RegularExpressions
-@using System.IO;
 
-@if (_systeminfo != null && _templates != null)
+@if (_templates != null)
 {
     <table class="table table-borderless">
         <tr>
@@ -36,9 +34,9 @@
             <td>
                 <select id="template" class="form-control" @onchange="(e => TemplateChanged(e))">
                     <option value="-">&lt;@Localizer["Select Template"]&gt;</option>
-                    @foreach (string template in _templates)
+                    @foreach (Template template in _templates)
                     {
-                        <option value="@template">@template</option>
+                        <option value="@template.Name">@template.Name</option>
                     }
                 </select>
             </td>
@@ -49,9 +47,9 @@
             </td>
             <td>
                 <select id="reference" class="form-control" @bind="@_reference">
-                    @foreach (string version in Constants.ReleaseVersions.Split(','))
+                    @foreach (string version in _versions)
                     {
-                        if (Version.Parse(version).CompareTo(Version.Parse("2.0.0")) >= 0)
+                        if (Version.Parse(version).CompareTo(Version.Parse(_minversion)) >= 0)
                         {
                             <option value="@(version)">@(version)</option>
                         }
@@ -79,12 +77,12 @@
 @code {
     private string _owner = string.Empty;
     private string _theme = string.Empty;
+    private List<Template> _templates;
     private string _template = "-";
+    private string[] _versions;
     private string _reference = Constants.Version;
+    private string _minversion = "2.0.0";
     private string _location = string.Empty;
-
-    private Dictionary<string, string> _systeminfo;
-    private List<string> _templates;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
@@ -92,8 +90,8 @@
     {
         try
         {
-            _systeminfo = await SystemService.GetSystemInfoAsync();
             _templates = await ThemeService.GetThemeTemplatesAsync();
+            _versions = Constants.ReleaseVersions.Split(',').Where(item => Version.Parse(item).CompareTo(Version.Parse("2.0.0")) >= 0).ToArray();
             AddModuleMessage(Localizer["Please Note That The Theme Creator Is Only Intended To Be Used In A Development Environment"], MessageType.Info);
         }
         catch (Exception ex)
@@ -111,7 +109,6 @@
                 var theme = new Theme { Owner = _owner, Name = _theme, Template = _template, Version = _reference };
                 theme = await ThemeService.CreateThemeAsync(theme);
                 GetLocation();
-
                 AddModuleMessage(Localizer["The Source Code For Your Theme Has Been Created At The Location Specified Below And Must Be Compiled In Order To Make It Functional. Once It Has Been Compiled You Must <a href=\"{0}\">Restart</a> Your Application To Activate The Module.", NavigateUrl("admin/system")], MessageType.Success);
             }
             else
@@ -134,17 +131,23 @@
     private void TemplateChanged(ChangeEventArgs e)
     {
         _template = (string)e.Value;
+        _minversion = "2.0.0";
+        if (_template != "-")
+        {
+            var template = _templates.FirstOrDefault(item => item.Name == _template);
+            _minversion = template.Version;
+        }
         GetLocation();
     }
 
     private void GetLocation()
     {
         _location = string.Empty;
-        if (_template != "-" && _systeminfo != null && _systeminfo.ContainsKey("serverpath"))
+        if (_owner != "" && _theme != "" && _template != "-")
         {
-            string[] path = _systeminfo["serverpath"].Split(Path.DirectorySeparatorChar);
-            _location = string.Join(Path.DirectorySeparatorChar, path, 0, path.Length - 2) +
-                Path.DirectorySeparatorChar + _owner + "." + _theme;
+            var template = _templates.FirstOrDefault(item => item.Name == _template);
+            _location = template.Location + _owner + "." + _theme;
+
         }
         StateHasChanged();
     }

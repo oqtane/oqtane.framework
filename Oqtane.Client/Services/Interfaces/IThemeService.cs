@@ -13,6 +13,6 @@ namespace Oqtane.Services
         Task InstallThemesAsync();
         Task DeleteThemeAsync(string themeName);
         Task<Theme> CreateThemeAsync(Theme theme);
-        Task<List<string>> GetThemeTemplatesAsync();
+        Task<List<Template>> GetThemeTemplatesAsync();
     }
 }
