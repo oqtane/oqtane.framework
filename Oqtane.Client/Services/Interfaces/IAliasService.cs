@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace Oqtane.Services
 {
     /// <summary>
-    /// Retrieve and store <see cref="Oqtane.Models.Alias"/> information.
+    /// Service to retrieve and store <see cref="Alias"/> information.
     /// </summary>
     public interface IAliasService
     {
