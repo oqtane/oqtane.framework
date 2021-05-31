@@ -38,13 +38,5 @@ namespace Oqtane.Modules
             return result;
 
         }
-
-        public void AddMigrationHistory(ISqlRepository sqlRepository, Tenant tenant, string MigrationId)
-        {
-            var query = "IF NOT EXISTS(SELECT 1 FROM __EFMigrationsHistory WHERE MigrationId = '" + MigrationId + "') ";
-            query += "INSERT INTO __EFMigrationsHistory(MigrationId, ProductVersion, AppliedDate, AppliedVersion) ";
-            query += "VALUES('" + MigrationId + "', '5.0.0', SYSDATETIME(), '" + Constants.Version + "')";
-            sqlRepository.ExecuteNonQuery(tenant, query);
-        }
     }
 }
