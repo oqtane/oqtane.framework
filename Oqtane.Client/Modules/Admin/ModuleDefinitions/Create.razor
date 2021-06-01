@@ -43,7 +43,7 @@
                     <option value="-">&lt;@Localizer["Select Template"]&gt;</option>
                     @foreach (Template template in _templates)
                     {
-                        <option value="@template.Name">@template.Name</option>
+                        <option value="@template.Name">@template.Title</option>
                     }
                 </select>
             </td>
@@ -133,7 +133,7 @@
     private bool IsValid(string name)
     {
         // must contain letters, underscores and digits and first character must be letter or underscore
-        return !string.IsNullOrEmpty(name) && Regex.IsMatch(name, "^[A-Za-z_][A-Za-z0-9_]*$");
+        return !string.IsNullOrEmpty(name) && name.ToLower() != "module" && Regex.IsMatch(name, "^[A-Za-z_][A-Za-z0-9_]*$");
     }
 
     private void TemplateChanged(ChangeEventArgs e)

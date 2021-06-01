@@ -6,9 +6,14 @@ namespace Oqtane.Models
     public class Template
     {
         /// <summary>
-        /// name of template
+        /// name of template (folder name)
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// title of template
+        /// </summary>
+        public string Title { get; set; }
 
         /// <summary>
         /// type of template - Internal / External

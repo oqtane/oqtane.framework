@@ -96,9 +96,12 @@ namespace Oqtane.Controllers
             string templatePath = Utilities.PathCombine(_environment.WebRootPath, "Themes", "Templates", Path.DirectorySeparatorChar.ToString());
             foreach (string directory in Directory.GetDirectories(templatePath))
             {
+                string name = directory.Replace(templatePath, "");
                 if (System.IO.File.Exists(Path.Combine(directory, "template.json")))
                 {
                     var template = JsonSerializer.Deserialize<Template>(System.IO.File.ReadAllText(Path.Combine(directory, "template.json")));
+                    template.Name = name;
+                    template.Location = "";
                     if (template.Type.ToLower() != "internal")
                     {
                         template.Location = Utilities.PathCombine(root.Parent.ToString(), Path.DirectorySeparatorChar.ToString());
@@ -107,7 +110,7 @@ namespace Oqtane.Controllers
                 }
                 else
                 {
-                    templates.Add(new Template { Name = directory.Replace(templatePath, ""), Type = "External", Version = "", Location = Utilities.PathCombine(root.Parent.ToString(), Path.DirectorySeparatorChar.ToString()) });
+                    templates.Add(new Template { Name = name, Title = name, Type = "External", Version = "", Location = Utilities.PathCombine(root.Parent.ToString(), Path.DirectorySeparatorChar.ToString()) });
                 }
             }
             return templates;
