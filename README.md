@@ -49,14 +49,14 @@ There is a separate [Documentation repository](https://github.com/oqtane/oqtane.
 # Roadmap
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
 
-V.3.0.0 ( Nov 2021 )
+V.3.0.0 ( Q4 2021 )
 - [ ] Migration to .NET 6
 
-V.2.2.0 ( Aug 2021 )
+V.2.2.0 ( Q3 2021 )
 - [ ] Alternate Authentication Providers ( ie. Azure B2C, Social logins, etc... )
 - [ ] Configurable password complexity for local authentication
 
-V.2.1.0 ( May 2021 )
+V.2.1.0 ( June 2021 )
 - [x] Cross Platform Database Support ( ie. LocalDB, SQL Server, SQLite, MySQL, PostgreSQL ) - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
 - [x] Utilize EF Core Migrations - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
 - [x] Include support for Public content folders
