@@ -6,18 +6,19 @@
     <authors>Shaun Walker</authors>
     <owners>.NET Foundation</owners>
     <title>Oqtane Framework</title>
+    <summary>A modular application framework for Blazor</summary>
     <description>A modular application framework for Blazor</description>
     <copyright>.NET Foundation</copyright>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
-    <iconUrl>https://www.oqtane.org/Portals/0/icon.jpg</iconUrl>
-    <tags>oqtane framework</tags>
     <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v2.1.0</releaseNotes>
-    <summary>A modular application framework for Blazor</summary>
+    <icon>icon.png</icon>
+    <tags>oqtane framework</tags>
   </metadata>
   <files>
     <file src="..\Oqtane.Server\bin\Release\net5.0\publish\*.*" target="lib\net5.0" /> 
     <file src="..\Oqtane.Server\bin\Release\net5.0\publish\wwwroot\**\*.*" target="wwwroot" /> 
+    <file src="icon.png" target="" />
   </files>
 </package>
