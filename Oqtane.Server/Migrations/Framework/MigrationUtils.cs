@@ -43,7 +43,7 @@ namespace Oqtane.Migrations.Framework
         {
             var query = "IF NOT EXISTS(SELECT 1 FROM __EFMigrationsHistory WHERE MigrationId = '" + MigrationId + "') ";
             query += "INSERT INTO __EFMigrationsHistory(MigrationId, ProductVersion, AppliedDate, AppliedVersion) ";
-            query += "VALUES('" + MigrationId + "', '5.0.0', SYSDATETIME(), '" + Constants.Version + "')";
+            query += "VALUES('" + MigrationId + "', '5.0.4', SYSDATETIME(), '" + Constants.Version + "')";
             return query;
         }
 

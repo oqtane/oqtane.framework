@@ -14,7 +14,7 @@ IF EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'dbo.SchemaVersion
             VALUES ('Tenant.01.00.00.00', '5.0.0', SYSDATETIME(), '{{Version}}')
         INSERT INTO __EFMigrationsHistory(MigrationId, ProductVersion, AppliedDate, AppliedVersion)
             SELECT REPLACE(REPLACE(ScriptName, 'Oqtane.Scripts.', ''), '.sql', '') As MigrationId,
-                   ProductVersion = '5.0.0',
+                   ProductVersion = '5.0.4',
                    AppliedDate = CONVERT(datetime2(7), Applied),
                    AppliedVersion = '{{Version}}'
                 FROM SchemaVersions
