@@ -12,8 +12,9 @@
         <TabPanel Name="Download" ResourceKey="Download">
             @if (_upgradeavailable)
             {
-                <ModuleMessage Type="MessageType.Info" Message="Select The Upgrade Button To Install a New Framework Version"></ModuleMessage>
-                <button type="button" class="btn btn-success" @onclick=@(async () => await Download(Constants.PackageId, @_package.Version))>@Localizer["Upgrade To"] @_package.Version</button>
+                <ModuleMessage Type="MessageType.Info" Message="Select The Download Button To Get a New Framework Package And Then Select Upgrade"></ModuleMessage>
+                <button type="button" class="btn btn-primary" @onclick=@(async () => await Download(Constants.PackageId, @_package.Version))>@Localizer["Download"] @_package.Version</button>
+                <button type="button" class="btn btn-success" @onclick="Upgrade">@Localizer["Upgrade"]</button>
             }
             else
             {
@@ -21,17 +22,18 @@
             }
         </TabPanel>
         <TabPanel Name="Upload" ResourceKey="Upload">
+            <ModuleMessage Type="MessageType.Info" Message="Upload A Framework Package And Then Select Upgrade"></ModuleMessage>
             <table class="table table-borderless">
                 <tr>
                     <td>
-                        <Label HelpText="Upload a framework package and select Install to complete the installation" ResourceKey="Framework">Framework: </Label>
+                        <Label HelpText="Upload A Framework Package And Then Select Upgrade" ResourceKey="Framework">Framework: </Label>
                     </td>
                     <td>
                         <FileManager Filter="nupkg" ShowFiles="false" Folder="Packages" />
                     </td>
                 </tr>
             </table>
-            <button type="button" class="btn btn-success" @onclick="Upgrade">@Localizer["Install"]</button>
+            <button type="button" class="btn btn-success" @onclick="Upgrade">@Localizer["Upgrade"]</button>
         </TabPanel>
     </TabStrip>
 }
@@ -86,17 +88,14 @@
     {
         try
         {
-            ShowProgressIndicator();
             await PackageService.DownloadPackageAsync(packageid, version, "Packages");
             await PackageService.DownloadPackageAsync("Oqtane.Upgrade", version, "Packages");
-            var interop = new Interop(JSRuntime);
-            await interop.RedirectBrowser(NavigateUrl(), 10);
-            await InstallationService.Upgrade();
+            AddModuleMessage(Localizer["Framework Downloaded Successfully... Please Select Upgrade To Complete the Process"], MessageType.Success);
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Downloading Framework {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error Downloading Framework"], MessageType.Error);
+            await logger.LogError(ex, "Error Downloading Framework Package {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error Downloading Framework Package"], MessageType.Error);
         }
     }
 }
