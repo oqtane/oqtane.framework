@@ -55,7 +55,12 @@ namespace Oqtane.Services
             return apiurl;
         }
 
-        // add authentityid parameters to url for custom authorization policy - args in form of entityname = entityid
+        // add authentityid parameters to url for custom authorization policy
+        public string CreateAuthorizationPolicyUrl(string url, string entityName, int entityId)
+        {
+            return CreateAuthorizationPolicyUrl(url, new Dictionary<string, int>() { { entityName, entityId } });
+        }
+
         public string CreateAuthorizationPolicyUrl(string url, Dictionary<string, int> args)
         {
             string qs = "";
@@ -73,12 +78,6 @@ namespace Oqtane.Services
             {
                 return url + "?" + qs;
             }
-        }
-
-        // legacy support for modules
-        public string CreateAuthorizationPolicyUrl(string url, int entityId)
-        {
-            return CreateAuthorizationPolicyUrl(url, new Dictionary<string, int>() { { EntityNames.Module, entityId } });
         }
 
         protected async Task GetAsync(string uri)
@@ -210,5 +209,10 @@ namespace Oqtane.Services
         [Obsolete("This property of ServiceBase is deprecated. Cross tenant service calls are not supported.", false)]
         public Alias Alias { get; set; }
 
+        [Obsolete("This method is obsolete. Use CreateApiUrl(string entityName, int entityId) instead.", false)]
+        public string CreateAuthorizationPolicyUrl(string url, int entityId)
+        {
+            return url + ((url.Contains("?")) ? "&" : "?") + "entityid=" + entityId.ToString();
+        }
     }
 }
