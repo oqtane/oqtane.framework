@@ -9,12 +9,7 @@ namespace Oqtane.Services
     [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class InstallationService : ServiceBase, IInstallationService
     {
-        private readonly SiteState _siteState;
-
-        public InstallationService(HttpClient http, SiteState siteState) : base(http)
-        {
-            _siteState = siteState;
-        }
+        public InstallationService(HttpClient http) : base(http) {}
 
         private string ApiUrl => CreateApiUrl("Installation", null); // tenant agnostic as SiteState does not exist
 

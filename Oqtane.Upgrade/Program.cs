@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Reflection;
 using System.Threading;
 
 namespace Oqtane.Upgrade
@@ -20,10 +19,9 @@ namespace Oqtane.Upgrade
 
             if (args.Length == 2)
             {
-                string binfolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
                 string contentrootfolder = args[0];
                 string webrootfolder = args[1];
-                string deployfolder = Path.Combine(webrootfolder, "Framework");
+                string deployfolder = Path.Combine(contentrootfolder, "Packages");
 
                 if (Directory.Exists(deployfolder))
                 {
@@ -48,20 +46,7 @@ namespace Oqtane.Upgrade
                         {
                             foreach (ZipArchiveEntry entry in archive.Entries)
                             {
-                                string filename = Path.GetFileName(entry.FullName);
-                                if (!string.IsNullOrEmpty(filename))
-                                {
-                                    // use top level folder to determine location to extract files
-                                    switch (Path.GetDirectoryName(entry.FullName).Split(Path.DirectorySeparatorChar)[0])
-                                    {
-                                        case "lib":
-                                            files.Add(Path.Combine(binfolder, filename));
-                                            break;
-                                        case "wwwroot":
-                                            files.Add(Path.Combine(webrootfolder, entry.FullName.Replace("wwwroot/", "").Replace('/', Path.DirectorySeparatorChar)));
-                                            break;
-                                    }
-                                }
+                                files.Add(Path.Combine(contentrootfolder, entry.FullName));
                             }
                         }
 
@@ -92,28 +77,12 @@ namespace Oqtane.Upgrade
                                     {
                                         foreach (ZipArchiveEntry entry in archive.Entries)
                                         {
-                                            string filename = Path.GetFileName(entry.FullName);
-                                            if (!string.IsNullOrEmpty(filename))
+                                            string filename = Path.Combine(contentrootfolder, entry.FullName);
+                                            if (!Directory.Exists(Path.GetDirectoryName(filename)))
                                             {
-                                                // use top level folder to determine location to extract files
-                                                switch (Path.GetDirectoryName(entry.FullName).Split(Path.DirectorySeparatorChar)[0])
-                                                {
-                                                    case "lib":
-                                                        filename = Path.Combine(binfolder, filename);
-                                                        break;
-                                                    case "wwwroot":
-                                                        filename = Path.Combine(webrootfolder, entry.FullName.Replace("wwwroot/", "").Replace('/', Path.DirectorySeparatorChar));
-                                                        break;
-                                                }
-                                                if (files.Contains(filename))
-                                                {
-                                                    if (!Directory.Exists(Path.GetDirectoryName(filename)))
-                                                    {
-                                                        Directory.CreateDirectory(Path.GetDirectoryName(filename));
-                                                    }
-                                                    entry.ExtractToFile(filename, true);
-                                                }
+                                                Directory.CreateDirectory(Path.GetDirectoryName(filename));
                                             }
+                                            entry.ExtractToFile(filename, true);
                                         }
                                     }
                                 }
@@ -156,7 +125,7 @@ namespace Oqtane.Upgrade
                             }
                             catch (Exception ex)
                             {
-                                Console.WriteLine("Update Not Successful: " + ex.Message);
+                                Console.WriteLine("Upgrade Not Successful: " + ex.Message);
                             }
                         }
                         else
