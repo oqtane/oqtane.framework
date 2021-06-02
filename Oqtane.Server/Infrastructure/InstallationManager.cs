@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -215,24 +216,22 @@ namespace Oqtane.Infrastructure
 
         public void UpgradeFramework()
         {
-            string folder = Path.Combine(_environment.WebRootPath, "Framework");
+            string folder = Path.Combine(_environment.ContentRootPath, "Packages");
             if (Directory.Exists(folder))
             {
-                // get package with highest version and clean up any others
+                // get package with highest version
                 string packagename = "";
-                foreach (string package in Directory.GetFiles(folder, "Oqtane.Framework.*.nupkg"))
+                string[] packages = Directory.GetFiles(folder, "Oqtane.Framework.*.nupkg");
+                if (packages.Length > 0)
                 {
-                    if (packagename != "")
-                    {
-                        File.Delete(packagename);
-                    }
-                    packagename = package;
+                    packagename = packages[packages.Length - 1]; // use highest version 
                 }
 
                 if (packagename != "")
                 {
                     // verify package version
                     string packageversion = "";
+                    string packageurl = "";
                     using (ZipArchive archive = ZipFile.OpenRead(packagename))
                     {
                         // locate nuspec
@@ -251,6 +250,11 @@ namespace Oqtane.Infrastructure
                                 {
                                     packageversion = node.InnerText;
                                 }
+                                node = doc.SelectSingleNode("/package/metadata/projectUrl");
+                                if (node != null)
+                                {
+                                    packageurl = node.InnerText;
+                                }
                                 reader.Close();
                                 break;
                             }
@@ -258,8 +262,15 @@ namespace Oqtane.Infrastructure
                     }
 
                     // ensure package version is greater than or equal to current framework version
-                    if (packageversion != "" && Version.Parse(Constants.Version).CompareTo(Version.Parse(packageversion)) <= 0)
+                    if (packageversion != "" && Version.Parse(Constants.Version).CompareTo(Version.Parse(packageversion)) <= 0 && packageurl != "")
                     {
+                        // install upgrade nuget package
+                        InstallPackages();
+                        // download upgrade zip package
+                        var client = new WebClient();
+                        Uri uri = new Uri(packageurl);
+                        client.DownloadFile(packageurl, Path.Combine(folder, uri.Segments[uri.Segments.Length - 1]));
+                        // install upgrade zip package
                         FinishUpgrade();
                     }
                 }

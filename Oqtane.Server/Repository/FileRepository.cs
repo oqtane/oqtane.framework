@@ -55,7 +55,6 @@ namespace Oqtane.Repository
         public File GetFile(int fileId)
         {
             File file = GetFile(fileId, true);
-            file.Url = GetFileUrl(file, _tenants.GetAlias());
             return file;
         }
 

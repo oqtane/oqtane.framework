@@ -27,7 +27,7 @@
                         <Label HelpText="Upload a framework package and select Install to complete the installation" ResourceKey="Framework">Framework: </Label>
                     </td>
                     <td>
-                        <FileManager Filter="nupkg" ShowFiles="false" Folder="Framework" />
+                        <FileManager Filter="nupkg" ShowFiles="false" Folder="Packages" />
                     </td>
                 </tr>
             </table>
@@ -86,8 +86,9 @@
     {
         try
         {
-            await PackageService.DownloadPackageAsync(packageid, version, "Framework");
             ShowProgressIndicator();
+            await PackageService.DownloadPackageAsync(packageid, version, "Packages");
+            await PackageService.DownloadPackageAsync("Oqtane.Upgrade", version, "Packages");
             var interop = new Interop(JSRuntime);
             await interop.RedirectBrowser(NavigateUrl(), 10);
             await InstallationService.Upgrade();

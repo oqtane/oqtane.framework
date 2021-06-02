@@ -285,6 +285,7 @@ namespace Oqtane.Controllers
                 if (User.IsInRole(RoleNames.Host))
                 {
                     folderPath = GetFolderPath(folder);
+                    folderId = -1;
                 }
             }
 
