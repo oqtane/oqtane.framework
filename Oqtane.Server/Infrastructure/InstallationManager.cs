@@ -221,7 +221,7 @@ namespace Oqtane.Infrastructure
             {
                 // get package with highest version
                 string packagename = "";
-                string[] packages = Directory.GetFiles(folder, "Oqtane.Framework.*.nupkg");
+                string[] packages = Directory.GetFiles(folder, Constants.PackageId + ".*.nupkg");
                 if (packages.Length > 0)
                 {
                     packagename = packages[packages.Length - 1]; // use highest version 
