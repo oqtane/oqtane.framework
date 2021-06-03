@@ -103,11 +103,19 @@ namespace Oqtane.Infrastructure
                         List<string> assets = new List<string>();
                         bool manifest = false;
 
-                        // packages are in form of name.1.0.0.nupkg or name.culture.1.0.0.nupkg
+                        // remove version information from package name
                         string name = Path.GetFileNameWithoutExtension(packagename);
-                        string[] segments = name?.Split('.');
-                        // remove version information from name
-                        if (segments != null) name = string.Join('.', segments, 0, segments.Length - 3);
+                        string[] segments = name.Split('.');
+                        // packages are in form of name.1.0.0.nupkg or name.culture.1.0.0.nupkg or name.nupkg (versionless)
+                        try
+                        {
+                            if (segments.Length > 3)
+                            {
+                                Version version = Version.Parse(string.Join('.', segments, segments.Length - 3, 3));
+                                name = string.Join('.', segments, 0, segments.Length - 3);
+                            }
+                        }
+                        catch { }  // no version in packagename
 
                         // deploy to appropriate locations
                         foreach (ZipArchiveEntry entry in archive.Entries)
