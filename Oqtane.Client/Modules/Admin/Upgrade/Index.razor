@@ -12,7 +12,7 @@
         <TabPanel Name="Download" ResourceKey="Download">
             @if (_upgradeavailable)
             {
-                <ModuleMessage Type="MessageType.Info" Message="Select The Download Button To Get a New Framework Package And Then Select Upgrade"></ModuleMessage>
+                <ModuleMessage Type="MessageType.Info" Message="Select The Download Button To Download The Framework Upgrade Package And Then Select Upgrade"></ModuleMessage>
                 <button type="button" class="btn btn-primary" @onclick=@(async () => await Download(Constants.PackageId, @_package.Version))>@Localizer["Download"] @_package.Version</button>
                 <button type="button" class="btn btn-success" @onclick="Upgrade">@Localizer["Upgrade"]</button>
             }
@@ -22,7 +22,7 @@
             }
         </TabPanel>
         <TabPanel Name="Upload" ResourceKey="Upload">
-            <ModuleMessage Type="MessageType.Info" Message="Upload A Framework Package And Then Select Upgrade"></ModuleMessage>
+            <ModuleMessage Type="MessageType.Info" Message="Upload A Framework Upgrade Package And Then Select Upgrade"></ModuleMessage>
             <table class="table table-borderless">
                 <tr>
                     <td>
@@ -72,9 +72,10 @@
     {
         try
         {
+            AddModuleMessage(Localizer["Please Be Patient While The Upgrade Is In Progress..."], MessageType.Info);
             ShowProgressIndicator();
             var interop = new Interop(JSRuntime);
-            await interop.RedirectBrowser(NavigateUrl(), 10);
+            await interop.RedirectBrowser(NavigateUrl(), 30);
             await InstallationService.Upgrade();
         }
         catch (Exception ex)

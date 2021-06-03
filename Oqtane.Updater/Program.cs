@@ -16,11 +16,11 @@ namespace Oqtane.Updater
         {
             // requires 2 arguments - the ContentRootPath and the WebRootPath of the site
 
-            // for testing purposes set Oqtane.Upgrade as startup project and modify values below
+            // for testing purposes you can uncomment and modify the logic below
             //Array.Resize(ref args, 2);
             //args[0] = @"C:\yourpath\oqtane.framework\Oqtane.Server";
             //args[1] = @"C:\yourpath\oqtane.framework\Oqtane.Server\wwwroot";
-
+            
             if (args.Length == 2)
             {
                 string contentrootfolder = args[0];
@@ -31,7 +31,7 @@ namespace Oqtane.Updater
                 if (Directory.Exists(deployfolder))
                 {
                     string packagename = "";
-                    string[] packages = Directory.GetFiles(deployfolder, "Oqtane.Upgrade.*.zip");
+                    string[] packages = Directory.GetFiles(deployfolder, "Oqtane.Framework.*.Upgrade.zip");
                     if (packages.Length > 0)
                     {
                         packagename = packages[packages.Length - 1]; // use highest version 
@@ -58,28 +58,50 @@ namespace Oqtane.Updater
                         // ensure files are not locked
                         if (CanAccessFiles(files))
                         {
+                            bool success = true;
                             try
                             {
-                                //clear out backup folder
+                                // clear out backup folder
                                 if (Directory.Exists(backupfolder))
                                 {
                                     Directory.Delete(backupfolder, true);
                                 }
                                 Directory.CreateDirectory(backupfolder);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine(ex.Message);
+                                success = false;
+                            }
 
-                                // backup files
+                            // backup files
+                            if (success)
+                            {
                                 foreach (string file in files)
                                 {
-                                    string filename = Path.Combine(backupfolder, file.Replace(contentrootfolder, ""));
-                                    if (!Directory.Exists(Path.GetDirectoryName(filename)))
+                                    string filename = Path.Combine(backupfolder, file.Replace(contentrootfolder + Path.DirectorySeparatorChar, ""));
+                                    try
                                     {
-                                        Directory.CreateDirectory(Path.GetDirectoryName(filename));
+                                        if (File.Exists(file))
+                                        {
+                                            if (!Directory.Exists(Path.GetDirectoryName(filename)))
+                                            {
+                                                Directory.CreateDirectory(Path.GetDirectoryName(filename));
+                                            }
+                                            File.Copy(file, filename);
+                                        }
                                     }
-                                    File.Copy(file, filename);
+                                    catch (Exception ex)
+                                    {
+                                        Console.WriteLine(ex.Message);
+                                        success = false;
+                                    }
                                 }
+                            }
 
-                                // extract files
-                                bool success = true;
+                            // extract files
+                            if (success)
+                            {
                                 try
                                 {
                                     using (ZipArchive archive = ZipFile.OpenRead(packagename))
@@ -111,19 +133,33 @@ namespace Oqtane.Updater
                                 }
                                 else
                                 {
-                                    // restore on failure
-                                    foreach (string file in files)
+                                    try
                                     {
-                                        string filename = Path.Combine(backupfolder, file.Replace(contentrootfolder, ""));
-                                        File.Copy(filename, file);
+                                        // restore on failure
+                                        foreach (string file in files)
+                                        {
+                                            string filename = Path.Combine(backupfolder, file.Replace(contentrootfolder + Path.DirectorySeparatorChar, ""));
+                                            if (File.Exists(filename))
+                                            {
+                                                File.Copy(filename, file);
+                                            }
+                                            else
+                                            {
+                                                File.Delete(file);
+                                            }
+                                        }
+                                        // clean up backup
+                                        Directory.Delete(backupfolder, true);
                                     }
-                                    // clean up backup
-                                    Directory.Delete(backupfolder, true);
+                                    catch (Exception ex)
+                                    {
+                                        Console.WriteLine("Update Not Successful: Error Restoring Files - " + ex.Message);
+                                    }
                                 }
                             }
-                            catch (Exception ex)
+                            else
                             {
-                                Console.WriteLine("Upgrade Not Successful: " + ex.Message);
+                                Console.WriteLine("Update Not Successful: Could Not Backup All Existing Files");
                             }
                         }
                         else
