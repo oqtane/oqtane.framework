@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oqtane.Client", "Oqtane.Cli
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oqtane.Shared", "Oqtane.Shared\Oqtane.Shared.csproj", "{19D67A9D-3F2E-41BD-80E6-0B50CA83C3AE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oqtane.Upgrade", "Oqtane.Upgrade\Oqtane.Upgrade.csproj", "{2E8C6889-37CF-4C8D-88B1-505547F25098}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oqtane.Test", "Oqtane.Test\Oqtane.Test.csproj", "{823B556D-8D4E-4BB8-A65A-C4EB5E7E7424}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{77EECA8C-B58E-469E-B8C5-D543AFC9A654}"
@@ -38,10 +36,6 @@ Global
 		{19D67A9D-3F2E-41BD-80E6-0B50CA83C3AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19D67A9D-3F2E-41BD-80E6-0B50CA83C3AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{19D67A9D-3F2E-41BD-80E6-0B50CA83C3AE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2E8C6889-37CF-4C8D-88B1-505547F25098}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2E8C6889-37CF-4C8D-88B1-505547F25098}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2E8C6889-37CF-4C8D-88B1-505547F25098}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2E8C6889-37CF-4C8D-88B1-505547F25098}.Release|Any CPU.Build.0 = Release|Any CPU
 		{823B556D-8D4E-4BB8-A65A-C4EB5E7E7424}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{823B556D-8D4E-4BB8-A65A-C4EB5E7E7424}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{823B556D-8D4E-4BB8-A65A-C4EB5E7E7424}.Release|Any CPU.ActiveCfg = Release|Any CPU

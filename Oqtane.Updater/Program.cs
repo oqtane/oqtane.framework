@@ -4,10 +4,14 @@ using System.IO;
 using System.IO.Compression;
 using System.Threading;
 
-namespace Oqtane.Upgrade
+namespace Oqtane.Updater
 {
     class Program
     {
+        /// <summary>
+        /// This console application is responsible for extracting the contents of a previously downloaded Oqtane Upgrade package
+        /// </summary>
+        /// <param name="args"></param>
         static void Main(string[] args)
         {
             // requires 2 arguments - the ContentRootPath and the WebRootPath of the site
@@ -22,11 +26,12 @@ namespace Oqtane.Upgrade
                 string contentrootfolder = args[0];
                 string webrootfolder = args[1];
                 string deployfolder = Path.Combine(contentrootfolder, "Packages");
+                string backupfolder = Path.Combine(contentrootfolder, "Backup");
 
                 if (Directory.Exists(deployfolder))
                 {
                     string packagename = "";
-                    string[] packages = Directory.GetFiles(deployfolder, "Oqtane.Framework.*.nupkg");
+                    string[] packages = Directory.GetFiles(deployfolder, "Oqtane.Upgrade.*.zip");
                     if (packages.Length > 0)
                     {
                         packagename = packages[packages.Length - 1]; // use highest version 
@@ -40,7 +45,7 @@ namespace Oqtane.Upgrade
                             File.Copy(Path.Combine(webrootfolder, "app_offline.bak"), Path.Combine(contentrootfolder, "app_offline.htm"), true);
                         }
 
-                        // get list of files in package
+                        // get list of files in package with local paths
                         List<string> files = new List<string>();
                         using (ZipArchive archive = ZipFile.OpenRead(packagename))
                         {
@@ -55,18 +60,22 @@ namespace Oqtane.Upgrade
                         {
                             try
                             {
-                                // create backup
+                                //clear out backup folder
+                                if (Directory.Exists(backupfolder))
+                                {
+                                    Directory.Delete(backupfolder, true);
+                                }
+                                Directory.CreateDirectory(backupfolder);
+
+                                // backup files
                                 foreach (string file in files)
                                 {
-                                    if (File.Exists(file))
+                                    string filename = Path.Combine(backupfolder, file.Replace(contentrootfolder, ""));
+                                    if (!Directory.Exists(Path.GetDirectoryName(filename)))
                                     {
-                                        // remove previous backup if it exists
-                                        if (File.Exists(file + ".bak"))
-                                        {
-                                            File.Delete(file + ".bak");
-                                        }
-                                        File.Move(file, file + ".bak");
+                                        Directory.CreateDirectory(Path.GetDirectoryName(filename));
                                     }
+                                    File.Copy(file, filename);
                                 }
 
                                 // extract files
@@ -96,14 +105,7 @@ namespace Oqtane.Upgrade
                                 if (success)
                                 {
                                     // clean up backup
-                                    foreach (string file in files)
-                                    {
-                                        if (File.Exists(file + ".bak"))
-                                        {
-                                            File.Delete(file + ".bak");
-                                        }
-                                    }
-
+                                    Directory.Delete(backupfolder, true);
                                     // delete package
                                     File.Delete(packagename);
                                 }
@@ -112,15 +114,11 @@ namespace Oqtane.Upgrade
                                     // restore on failure
                                     foreach (string file in files)
                                     {
-                                        if (File.Exists(file))
-                                        {
-                                            File.Delete(file);
-                                        }
-                                        if (File.Exists(file + ".bak"))
-                                        {
-                                            File.Move(file + ".bak", file);
-                                        }
+                                        string filename = Path.Combine(backupfolder, file.Replace(contentrootfolder, ""));
+                                        File.Copy(filename, file);
                                     }
+                                    // clean up backup
+                                    Directory.Delete(backupfolder, true);
                                 }
                             }
                             catch (Exception ex)

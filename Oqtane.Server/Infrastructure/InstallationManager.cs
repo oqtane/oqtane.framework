@@ -264,14 +264,18 @@ namespace Oqtane.Infrastructure
                     // ensure package version is greater than or equal to current framework version
                     if (packageversion != "" && Version.Parse(Constants.Version).CompareTo(Version.Parse(packageversion)) <= 0 && packageurl != "")
                     {
-                        // install upgrade nuget package
+                        // install Oqtane.Framework and Oqtane.Updater nuget packages
                         InstallPackages();
                         // download upgrade zip package
                         var client = new WebClient();
                         Uri uri = new Uri(packageurl);
-                        client.DownloadFile(packageurl, Path.Combine(folder, uri.Segments[uri.Segments.Length - 1]));
-                        // install upgrade zip package
-                        FinishUpgrade();
+                        string upgradepackage = Path.Combine(folder, uri.Segments[uri.Segments.Length - 1]);
+                        client.DownloadFile(packageurl, upgradepackage);
+                        // install Oqtane.Upgrade zip package
+                        if (File.Exists(upgradepackage))
+                        {
+                            FinishUpgrade();
+                        }
                     }
                 }
             }
@@ -279,19 +283,19 @@ namespace Oqtane.Infrastructure
 
         private void FinishUpgrade()
         {
-            // check if upgrade application exists
-            string Upgrader = "Oqtane.Upgrade.dll";
+            // check if updater application exists
+            string Updater = Constants.UpdaterPackageId + ".dll";
             string folder = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
-            if (folder == null || !File.Exists(Path.Combine(folder, Upgrader))) return;
+            if (folder == null || !File.Exists(Path.Combine(folder, Updater))) return;
 
-            // run upgrade application
+            // run updater application
             using (var process = new Process())
             {
                 process.StartInfo = new ProcessStartInfo
                 {
                     WorkingDirectory = folder,
                     FileName = "dotnet",
-                    Arguments = Path.Combine(folder, Upgrader) + " \"" + _environment.ContentRootPath + "\" \"" + _environment.WebRootPath + "\"",
+                    Arguments = Path.Combine(folder, Updater) + " \"" + _environment.ContentRootPath + "\" \"" + _environment.WebRootPath + "\"",
                     UseShellExecute = false,
                     ErrorDialog = false,
                     CreateNoWindow = true,

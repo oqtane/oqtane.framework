@@ -51,7 +51,7 @@
             List<Package> packages = await PackageService.GetPackagesAsync("framework");
             if (packages != null)
             {
-                _package = packages.FirstOrDefault();
+                _package = packages.Where(item => item.PackageId.StartsWith(Constants.PackageId)).FirstOrDefault();
                 if (_package != null)
                 {
                     _upgradeavailable = (Version.Parse(_package.Version).CompareTo(Version.Parse(Constants.Version)) > 0);
@@ -89,7 +89,7 @@
         try
         {
             await PackageService.DownloadPackageAsync(packageid, version, "Packages");
-            await PackageService.DownloadPackageAsync("Oqtane.Upgrade", version, "Packages");
+            await PackageService.DownloadPackageAsync(Constants.UpdaterPackageId, version, "Packages");
             AddModuleMessage(Localizer["Framework Downloaded Successfully... Please Select Upgrade To Complete the Process"], MessageType.Success);
         }
         catch (Exception ex)

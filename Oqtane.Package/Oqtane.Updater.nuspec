@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <id>Oqtane.Upgrade</id>
+    <id>Oqtane.Updater</id>
     <version>2.1.0</version>
     <authors>Shaun Walker</authors>
     <owners>.NET Foundation</owners>
@@ -14,10 +14,10 @@
     <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
     <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v2.1.0</releaseNotes>
     <icon>icon.png</icon>
-    <tags>oqtane upgrade</tags>
+    <tags>oqtane</tags>
   </metadata>
   <files>
-    <file src="..\Oqtane.Server\bin\Release\net5.0\Oqtane.Upgrade.*" target="lib\net5.0" /> 
+    <file src="..\Oqtane.Updater\bin\Release\net5.0\publish\*.*" target="lib\net5.0" /> 
     <file src="icon.png" target="" />
   </files>
 </package>
