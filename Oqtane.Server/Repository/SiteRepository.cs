@@ -674,9 +674,17 @@ namespace Oqtane.Repository
                     new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                 }.EncodePermissions()
             });
+            _folderRepository.AddFolder(new Folder { SiteId = site.SiteId, ParentId = folder.FolderId, Name = "Public", Type = FolderTypes.Public, Path = Utilities.PathCombine("Public", Path.DirectorySeparatorChar.ToString()), Order = 1, IsSystem = false,
+                Permissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.Browse, RoleNames.Admin, true),
+                    new Permission(PermissionNames.View, RoleNames.Admin, true),
+                    new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                }.EncodePermissions()
+            });
             _folderRepository.AddFolder(new Folder
             {
-                SiteId = site.SiteId, ParentId = folder.FolderId, Name = "Users", Type = FolderTypes.Private, Path = Utilities.PathCombine("Users",Path.DirectorySeparatorChar.ToString()), Order = 1, IsSystem = true,
+                SiteId = site.SiteId, ParentId = folder.FolderId, Name = "Users", Type = FolderTypes.Private, Path = Utilities.PathCombine("Users",Path.DirectorySeparatorChar.ToString()), Order = 3, IsSystem = true,
                 Permissions = new List<Permission>
                 {
                     new Permission(PermissionNames.Browse, RoleNames.Admin, true),
