@@ -551,8 +551,9 @@ namespace Oqtane.Infrastructure
                             TenantId = tenant.TenantId,
                             Name = install.SiteName,
                             LogoFileId = null,
-                            DefaultThemeType = install.DefaultTheme,
-                            DefaultContainerType = install.DefaultContainer,
+                            DefaultThemeType = (!string.IsNullOrEmpty(install.DefaultTheme)) ? install.DefaultTheme : Constants.DefaultTheme,
+                            DefaultContainerType = (!string.IsNullOrEmpty(install.DefaultContainer)) ? install.DefaultContainer : Constants.DefaultContainer,
+                            AdminContainerType = (!string.IsNullOrEmpty(install.DefaultAdminContainer)) ? install.DefaultAdminContainer : Constants.DefaultAdminContainer,
                             SiteTemplateType = install.SiteTemplate
                         };
                         site = sites.AddSite(site);
