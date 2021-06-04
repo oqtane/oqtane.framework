@@ -5,11 +5,13 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System;
 using System.Reflection;
+using Oqtane.Documentation;
 using Oqtane.Shared;
 using Oqtane.UI;
 
 namespace Oqtane.Services
 {
+    [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class ModuleDefinitionService : ServiceBase, IModuleDefinitionService
     {
         private readonly HttpClient _http;
@@ -21,7 +23,7 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private string Apiurl => CreateApiUrl(_siteState.Alias, "ModuleDefinition");
+        private string Apiurl => CreateApiUrl("ModuleDefinition", _siteState.Alias);
 
         public async Task<List<ModuleDefinition>> GetModuleDefinitionsAsync(int siteId)
         {
@@ -54,9 +56,9 @@ namespace Oqtane.Services
             return await PostJsonAsync($"{Apiurl}", moduleDefinition);
         }
 
-        public async Task<List<string>> GetModuleDefinitionTemplatesAsync()
+        public async Task<List<Template>> GetModuleDefinitionTemplatesAsync()
         {
-            List<string> templates = await GetJsonAsync<List<string>>($"{Apiurl}/templates");
+            List<Template> templates = await GetJsonAsync<List<Template>>($"{Apiurl}/templates");
             return templates;
         }
     }

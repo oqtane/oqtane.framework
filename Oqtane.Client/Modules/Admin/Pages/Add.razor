@@ -5,7 +5,7 @@
 @inject IThemeService  ThemeService
 @inject IStringLocalizer<Add> Localizer
 
-<TabStrip>
+<TabStrip Refresh="@_refresh">
     <TabPanel Name="Settings" ResourceKey="Settings">
         @if (_themeList != null)
         {
@@ -190,6 +190,7 @@
     private Type _themeSettingsType;
     private object _themeSettings;
     private RenderFragment ThemeSettingsComponent { get; set; }
+    private bool _refresh = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -280,6 +281,7 @@
                     builder.CloseComponent();
                 };
             }
+            _refresh = true;
         }
     }
 
@@ -288,7 +290,7 @@
         Page page = null;
         try
         {
-            if (_name != string.Empty && !string.IsNullOrEmpty(_themetype) && _containertype != "-")
+            if (!string.IsNullOrEmpty(_name) && !string.IsNullOrEmpty(_themetype) && _containertype != "-")
             {
                 page = new Page();
                 page.SiteId = PageState.Page.SiteId;

@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 using Microsoft.Extensions.Hosting;
 using Oqtane.Infrastructure;
+using Oqtane.Interfaces;
 using Oqtane.Modules;
 using Oqtane.Services;
 using Oqtane.Shared;
@@ -100,26 +101,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 if (!assemblies.Any(a => AssemblyName.ReferenceMatchesDefinition(assemblyName, a.GetName())))
                 {
-                    try
-                    {
-                        var pdb = Path.ChangeExtension(dll.FullName, ".pdb");
-                        Assembly assembly = null;
-
-                        // load assembly ( and symbols ) from stream to prevent locking files ( as long as dependencies are in /bin they will load as well )
-                        if (File.Exists(pdb))
-                        {
-                            assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(dll.FullName)), new MemoryStream(File.ReadAllBytes(pdb)));
-                        }
-                        else
-                        {
-                            assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(dll.FullName)));
-                        }
-                        Console.WriteLine($"Loaded : {assemblyName}");
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine($"Failed : {assemblyName}\n{e}");
-                    }
+                    AssemblyLoadContext.Default.LoadOqtaneAssembly(dll, assemblyName);
                 }
             }
         }

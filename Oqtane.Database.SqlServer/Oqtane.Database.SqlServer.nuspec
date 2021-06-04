@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>Oqtane.Database.SqlServer</id>
+        <version>2.1.0</version>
+        <authors>Shaun Walker</authors>
+        <owners>.NET Foundation</owners>
+        <title>Oqtane SQL Server Provider</title>
+        <summary>SQL Server database support for the Oqtane Framework</summary>
+        <description>SQL Server database support for the Oqtane Framework</description>
+        <copyright>.NET Foundation</copyright>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <license type="expression">MIT</license>
+        <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
+        <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v2.1.0</releaseNotes>
+        <icon>icon.png</icon>
+        <tags>oqtane</tags>
+    </metadata>
+    <files>
+        <file src="bin\net5.0\Oqtane.Database.SqlServer.dll" target="lib\net5.0" />
+        <file src="bin\net5.0\Oqtane.Database.SqlServer.pdb" target="lib\net5.0" />
+        <file src="bin\net5.0\Microsoft.EntityFrameworkCore.SqlServer.dll" target="lib\net5.0" />
+        <file src="icon.png" target="" />
+    </files>
+</package>

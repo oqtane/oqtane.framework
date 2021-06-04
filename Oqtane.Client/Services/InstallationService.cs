@@ -1,15 +1,17 @@
 using Oqtane.Models;
 using System.Threading.Tasks;
 using System.Net.Http;
+using Oqtane.Documentation;
 using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
+    [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class InstallationService : ServiceBase, IInstallationService
     {
-        public InstallationService(HttpClient http):base(http) { }
+        public InstallationService(HttpClient http) : base(http) {}
 
-        private string ApiUrl => CreateApiUrl("Installation");
+        private string ApiUrl => CreateApiUrl("Installation", null); // tenant agnostic as SiteState does not exist
 
         public async Task<Installation> IsInstalled()
         {

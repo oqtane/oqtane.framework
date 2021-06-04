@@ -1,12 +1,15 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Linq;
 using System.Collections.Generic;
 using Oqtane.Shared;
+using System;
+using Oqtane.Documentation;
 
 namespace Oqtane.Services
 {
+    [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class SiteService : ServiceBase, ISiteService
     {
         
@@ -18,12 +21,7 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private string Apiurl => CreateApiUrl(_siteState.Alias, "Site");
-
-        public void SetAlias(Alias alias)
-        {
-            base.Alias = alias;
-        }
+        private string Apiurl => CreateApiUrl("Site", _siteState.Alias);
 
         public async Task<List<Site>> GetSitesAsync()
         {
@@ -49,6 +47,12 @@ namespace Oqtane.Services
         public async Task DeleteSiteAsync(int siteId)
         {
             await DeleteAsync($"{Apiurl}/{siteId}");
+        }
+
+        [Obsolete("This method is deprecated.", false)]
+        public void SetAlias(Alias alias)
+        {
+            base.Alias = alias;
         }
     }
 }

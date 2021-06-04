@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Oqtane.Models;
@@ -10,20 +10,20 @@ using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
-    [Route(ControllerRoutes.Default)]
+    [Route(ControllerRoutes.ApiRoute)]
     public class SiteController : Controller
     {
         private readonly ISiteRepository _sites;
-        private readonly ITenantResolver _tenants;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
+        private readonly Alias _alias;
 
-        public SiteController(ISiteRepository sites, ITenantResolver tenants, ISyncManager syncManager, ILogManager logger)
+        public SiteController(ISiteRepository sites, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
         {
             _sites = sites;
-            _tenants = tenants;
             _syncManager = syncManager;
             _logger = logger;
+            _alias = tenantManager.GetAlias();
         }
 
         // GET: api/<controller>
@@ -52,8 +52,7 @@ namespace Oqtane.Controllers
                 {
                     // provision initial site during installation
                     authorized = true; 
-                    Tenant tenant = _tenants.GetTenant();
-                    site.TenantId = tenant.TenantId;
+                    site.TenantId = _alias.TenantId;
                 }
                 else
                 {
@@ -76,7 +75,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid)
             {
                 site = _sites.UpdateSite(site);
-                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, site.SiteId);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, site.SiteId);
                 _logger.Log(site.SiteId, LogLevel.Information, this, LogFunction.Update, "Site Updated {Site}", site);
             }
             return site;

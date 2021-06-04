@@ -16,30 +16,27 @@ using System.Net;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
-using Microsoft.AspNetCore.Routing.Constraints;
 using Oqtane.Extensions;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
 namespace Oqtane.Controllers
 {
-    [Route(ControllerRoutes.Default)]
+    [Route(ControllerRoutes.ApiRoute)]
     public class FileController : Controller
     {
         private readonly IWebHostEnvironment _environment;
         private readonly IFileRepository _files;
         private readonly IFolderRepository _folders;
         private readonly IUserPermissions _userPermissions;
-        private readonly ITenantResolver _tenants;
         private readonly ILogManager _logger;
 
-        public FileController(IWebHostEnvironment environment, IFileRepository files, IFolderRepository folders, IUserPermissions userPermissions, ITenantResolver tenants, ILogManager logger)
+        public FileController(IWebHostEnvironment environment, IFileRepository files, IFolderRepository folders, IUserPermissions userPermissions, ILogManager logger)
         {
             _environment = environment;
             _files = files;
             _folders = folders;
             _userPermissions = userPermissions;
-            _tenants = tenants;
             _logger = logger;
         }
 
@@ -288,6 +285,7 @@ namespace Oqtane.Controllers
                 if (User.IsInRole(RoleNames.Host))
                 {
                     folderPath = GetFolderPath(folder);
+                    folderId = -1;
                 }
             }
 
@@ -502,7 +500,7 @@ namespace Oqtane.Controllers
 
         private string GetFolderPath(string folder)
         {
-            return Utilities.PathCombine(_environment.WebRootPath, folder);
+            return Utilities.PathCombine(_environment.ContentRootPath, folder);
         }
 
         private void CreateDirectory(string folderpath)

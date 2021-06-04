@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Oqtane.Enums;
@@ -9,7 +9,7 @@ using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
-    [Route(ControllerRoutes.Default)]
+    [Route(ControllerRoutes.ApiRoute)]
     public class RoleController : Controller
     {
         private readonly IRoleRepository _roles;
@@ -21,12 +21,16 @@ namespace Oqtane.Controllers
             _logger = logger;
         }
 
-        // GET: api/<controller>?siteid=x
+        // GET: api/<controller>?siteid=x&global=true/false
         [HttpGet]
         [Authorize(Roles = RoleNames.Registered)]
-        public IEnumerable<Role> Get(string siteid)
+        public IEnumerable<Role> Get(string siteid, string global)
         {
-            return _roles.GetRoles(int.Parse(siteid));
+            if (string.IsNullOrEmpty(global))
+            {
+                global = "False";
+            }
+            return _roles.GetRoles(int.Parse(siteid), bool.Parse(global));
         }
 
         // GET api/<controller>/5
@@ -68,8 +72,12 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Admin)]
         public void Delete(int id)
         {
-            _roles.DeleteRole(id);
-            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Role Deleted {RoleId}", id);
+            var role = _roles.GetRole(id);
+            if (!role.IsSystem)
+            {
+                _roles.DeleteRole(id);
+                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Role Deleted {RoleId}", id);
+            }
         }
     }
 }

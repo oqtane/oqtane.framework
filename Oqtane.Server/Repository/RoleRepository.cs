@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
@@ -16,12 +16,19 @@ namespace Oqtane.Repository
             
         public IEnumerable<Role> GetRoles(int siteId)
         {
-            return _db.Role.Where(item => item.SiteId == siteId);
+            return GetRoles(siteId, false);
         }
 
         public IEnumerable<Role> GetRoles(int siteId, bool includeGlobalRoles)
         {
-            return _db.Role.Where(item => item.SiteId == siteId || item.SiteId == null);
+            if (includeGlobalRoles)
+            {
+                return _db.Role.Where(item => item.SiteId == siteId || item.SiteId == null);
+            }
+            else
+            {
+                return _db.Role.Where(item => item.SiteId == siteId);
+            }
         }
 
         public Role AddRole(Role role)

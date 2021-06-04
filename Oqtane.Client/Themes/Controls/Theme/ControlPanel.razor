@@ -203,7 +203,7 @@
     <LanguageSwitcher />
 }
 
-@if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions) || (PageState.Page.IsPersonalizable && PageState.User != null))
+@if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions) || (PageState.Page.IsPersonalizable && PageState.User != null && UserSecurity.IsAuthorized(PageState.User, RoleNames.Registered)))
 {
     if (PageState.EditMode)
     {
@@ -369,7 +369,12 @@
                     module.PageId = PageState.Page.PageId;
                     module.ModuleDefinitionName = ModuleDefinitionName;
                     module.AllPages = false;
-                    module.Permissions = PageState.Page.Permissions;
+
+                    // set module view permissions to page edit permissions
+                    List<PermissionString> permissions = UserSecurity.GetPermissionStrings(PageState.Page.Permissions);
+                    permissions.Find(p => p.PermissionName == PermissionNames.View).Permissions = permissions.Find(p => p.PermissionName == PermissionNames.Edit).Permissions;
+                    module.Permissions = UserSecurity.SetPermissionStrings(permissions);
+
                     module = await ModuleService.AddModuleAsync(module);
                     ModuleId = module.ModuleId.ToString();
                 }
@@ -508,28 +513,7 @@
         {
             List<PermissionString> permissions;
 
-            if (action == "publish")
-            {
-                // publish all modules
-                foreach (var module in PageState.Modules.Where(item => item.PageId == PageState.Page.PageId))
-                {
-                    permissions = UserSecurity.GetPermissionStrings(module.Permissions);
-                    foreach (var permissionstring in permissions)
-                    {
-                        if (permissionstring.PermissionName == PermissionNames.View)
-                        {
-                            List<string> ids = permissionstring.Permissions.Split(';').ToList();
-                            if (!ids.Contains(RoleNames.Everyone)) ids.Add(RoleNames.Everyone);
-                            if (!ids.Contains(RoleNames.Registered)) ids.Add(RoleNames.Registered);
-                            permissionstring.Permissions = string.Join(";", ids.ToArray());
-                        }
-                    }
-                    module.Permissions = UserSecurity.SetPermissionStrings(permissions);
-                    await ModuleService.UpdateModuleAsync(module);
-                }
-            }
-
-            // publish page
+            // publish/unpublish page
             var page = PageState.Page;
             permissions = UserSecurity.GetPermissionStrings(page.Permissions);
             foreach (var permissionstring in permissions)

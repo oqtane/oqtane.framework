@@ -1,40 +1,39 @@
-﻿using Oqtane.Infrastructure;
+using Oqtane.Infrastructure;
 using Oqtane.Models;
-using Oqtane.Repository;
-using Oqtane.Modules.HtmlText.Models;
 using Oqtane.Modules.HtmlText.Repository;
 using System.Net;
+using Microsoft.AspNetCore.Http;
+using Oqtane.Enums;
+using Oqtane.Repository;
+using Oqtane.Shared;
+using Oqtane.Migrations.Framework;
+
+// ReSharper disable ConvertToUsingDeclaration
 
 namespace Oqtane.Modules.HtmlText.Manager
 {
-    public class HtmlTextManager : IInstallable, IPortable
+    public class HtmlTextManager : MigratableModuleBase, IInstallable, IPortable
     {
-        private IHtmlTextRepository _htmlTexts;
-        private ISqlRepository _sql;
+        private readonly IHtmlTextRepository _htmlText;
+        private readonly ITenantManager _tenantManager;
+        private readonly IHttpContextAccessor _accessor;
+        private readonly ISqlRepository _sqlRepository;
 
-        public HtmlTextManager(IHtmlTextRepository htmltexts, ISqlRepository sql)
+        public HtmlTextManager(IHtmlTextRepository htmlText, ITenantManager tenantManager, IHttpContextAccessor httpContextAccessor, ISqlRepository sqlRepository)
         {
-            _htmlTexts = htmltexts;
-            _sql = sql;
-        }
-
-        public bool Install(Tenant tenant, string version)
-        {
-            return _sql.ExecuteScript(tenant, GetType().Assembly, "HtmlText." + version + ".sql");
-        }
-
-        public bool Uninstall(Tenant tenant)
-        {
-            return _sql.ExecuteScript(tenant, GetType().Assembly, "HtmlText.Uninstall.sql");
+            _htmlText = htmlText;
+            _tenantManager = tenantManager;
+            _accessor = httpContextAccessor;
+            _sqlRepository = sqlRepository;
         }
 
         public string ExportModule(Module module)
         {
             string content = "";
-            HtmlTextInfo htmltext = _htmlTexts.GetHtmlText(module.ModuleId);
-            if (htmltext != null)
+            var htmlText = _htmlText.GetHtmlText(module.ModuleId);
+            if (htmlText != null)
             {
-                content = WebUtility.HtmlEncode(htmltext.Content);
+                content = WebUtility.HtmlEncode(htmlText.Content);
             }
             return content;
         }
@@ -42,19 +41,34 @@ namespace Oqtane.Modules.HtmlText.Manager
         public void ImportModule(Module module, string content, string version)
         {
             content = WebUtility.HtmlDecode(content);
-            HtmlTextInfo htmltext = _htmlTexts.GetHtmlText(module.ModuleId);
-            if (htmltext != null)
+            var htmlText = _htmlText.GetHtmlText(module.ModuleId);
+            if (htmlText != null)
             {
-                htmltext.Content = content;
-                _htmlTexts.UpdateHtmlText(htmltext);
+                htmlText.Content = content;
+                _htmlText.UpdateHtmlText(htmlText);
             }
             else
             {
-                htmltext = new HtmlTextInfo();
-                htmltext.ModuleId = module.ModuleId;
-                htmltext.Content = content;
-                _htmlTexts.AddHtmlText(htmltext);
+                htmlText = new Models.HtmlText();
+                htmlText.ModuleId = module.ModuleId;
+                htmlText.Content = content;
+                _htmlText.AddHtmlText(htmlText);
             }
+        }
+
+        public bool Install(Tenant tenant, string version)
+        {
+            if (tenant.DBType == Constants.DefaultDBType && version == "1.0.1")
+            {
+                // version 1.0.0 used SQL scripts rather than migrations, so we need to seed the migration history table
+                _sqlRepository.ExecuteNonQuery(tenant, MigrationUtils.BuildInsertScript("HtmlText.01.00.00.00"));
+            }
+            return Migrate(new HtmlTextContext(_tenantManager, _accessor), tenant, MigrationType.Up);
+        }
+
+        public bool Uninstall(Tenant tenant)
+        {
+            return Migrate(new HtmlTextContext(_tenantManager, _accessor), tenant, MigrationType.Down);
         }
     }
 }

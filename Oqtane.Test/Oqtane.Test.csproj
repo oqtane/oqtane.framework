@@ -3,22 +3,23 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <Configurations>Debug;Release</Configurations>
-    <Version>2.0.2</Version>
+    <Version>2.1.0</Version>
     <Product>Oqtane</Product>
     <Authors>Shaun Walker</Authors>
     <Company>.NET Foundation</Company>
     <Description>Modular Application Framework for Blazor</Description>
     <Copyright>.NET Foundation</Copyright>
     <PackageProjectUrl>https://www.oqtane.org</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/oqtane</RepositoryUrl>
+    <PackageLicenseUrl>https://github.com/oqtane/oqtane.framework/blob/dev/LICENSE</PackageLicenseUrl>
+    <PackageReleaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v2.1.0</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/oqtane/oqtane.framework</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <PackageReleaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v2.0.2</PackageReleaseNotes>
     <RootNamespace>Oqtane</RootNamespace>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>    
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1" />
     <PackageReference Include="bunit.web" Version="1.0.0-beta-10" />
     <PackageReference Include="bunit.xunit" Version="1.0.0-beta-10" />
     <PackageReference Include="xunit.core" Version="2.4.1" />
@@ -33,21 +34,37 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Oqtane.Database.MySQL\**" />
+    <Compile Remove="Oqtane.Database.PostgreSQL\**" />
+    <Compile Remove="Oqtane.Database.Sqlite\**" />
+    <Compile Remove="Oqtane.Database.SqlServer\**" />
     <Compile Remove="Repository\**" />
     <Compile Remove="Security\**" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Remove="Oqtane.Database.MySQL\**" />
+    <EmbeddedResource Remove="Oqtane.Database.PostgreSQL\**" />
+    <EmbeddedResource Remove="Oqtane.Database.Sqlite\**" />
+    <EmbeddedResource Remove="Oqtane.Database.SqlServer\**" />
     <EmbeddedResource Remove="Repository\**" />
     <EmbeddedResource Remove="Security\**" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Oqtane.Database.MySQL\**" />
+    <None Remove="Oqtane.Database.PostgreSQL\**" />
+    <None Remove="Oqtane.Database.Sqlite\**" />
+    <None Remove="Oqtane.Database.SqlServer\**" />
     <None Remove="Repository\**" />
     <None Remove="Security\**" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="Oqtane.Database.MySQL\**" />
+    <Content Remove="Oqtane.Database.PostgreSQL\**" />
+    <Content Remove="Oqtane.Database.Sqlite\**" />
+    <Content Remove="Oqtane.Database.SqlServer\**" />
     <Content Remove="Repository\**" />
     <Content Remove="Security\**" />
   </ItemGroup>

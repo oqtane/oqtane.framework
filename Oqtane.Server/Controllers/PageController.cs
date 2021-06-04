@@ -13,28 +13,30 @@ using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
-    [Route(ControllerRoutes.Default)]
+    [Route(ControllerRoutes.ApiRoute)]
     public class PageController : Controller
     {
         private readonly IPageRepository _pages;
         private readonly IModuleRepository _modules;
         private readonly IPageModuleRepository _pageModules;
+        private readonly IPermissionRepository _permissionRepository;
         private readonly ISettingRepository _settings;
         private readonly IUserPermissions _userPermissions;
-        private readonly ITenantResolver _tenants;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
+        private readonly Alias _alias;
 
-        public PageController(IPageRepository pages, IModuleRepository modules, IPageModuleRepository pageModules, ISettingRepository settings, IUserPermissions userPermissions, ITenantResolver tenants, ISyncManager syncManager, ILogManager logger)
+        public PageController(IPageRepository pages, IModuleRepository modules, IPageModuleRepository pageModules, IPermissionRepository permissionRepository, ISettingRepository settings, IUserPermissions userPermissions, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
         {
             _pages = pages;
             _modules = modules;
             _pageModules = pageModules;
+            _permissionRepository = permissionRepository;
             _settings = settings;
             _userPermissions = userPermissions;
-            _tenants = tenants;
             _syncManager = syncManager;
             _logger = logger;
+            _alias = tenantManager.GetAlias();
         }
 
         // GET: api/<controller>?siteid=x
@@ -132,7 +134,7 @@ namespace Oqtane.Controllers
                 if (_userPermissions.IsAuthorized(User,PermissionNames.Edit, permissions))
                 {
                     page = _pages.AddPage(page);
-                    _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, page.SiteId);
+                    _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, page.SiteId);
                     _logger.Log(LogLevel.Information, this, LogFunction.Create, "Page Added {Page}", page);
 
                     if (!page.Path.StartsWith("admin/"))
@@ -183,7 +185,7 @@ namespace Oqtane.Controllers
                 page.IsPersonalizable = false;
                 page.UserId = int.Parse(userid);
                 page = _pages.AddPage(page);
-                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, page.SiteId);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, page.SiteId);
 
                 // copy modules
                 List<PageModule> pagemodules = _pageModules.GetPageModules(page.SiteId).ToList();
@@ -227,8 +229,55 @@ namespace Oqtane.Controllers
         {
             if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Page, page.PageId, PermissionNames.Edit))
             {
+                // preserve page permissions
+                var oldPermissions = _permissionRepository.GetPermissions(EntityNames.Page, page.PageId).ToList();
+
                 page = _pages.UpdatePage(page);
-                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, page.SiteId);
+
+                // get differences between old and new page permissions
+                var newPermissions = _permissionRepository.DecodePermissions(page.Permissions, page.SiteId, EntityNames.Page, page.PageId).ToList();
+                var added = GetPermissionsDifferences(newPermissions, oldPermissions);
+                var removed = GetPermissionsDifferences(oldPermissions, newPermissions);
+
+                // synchronize module permissions
+                if (added.Count > 0 || removed.Count > 0)
+                {
+                    foreach (PageModule pageModule in _pageModules.GetPageModules(page.PageId, "").ToList())
+                    {
+                        var modulePermissions = _permissionRepository.GetPermissions(EntityNames.Module, pageModule.Module.ModuleId).ToList();
+                        //var modulePermissions = _permissionRepository.DecodePermissions(pageModule.Module.Permissions, page.SiteId, EntityNames.Module, pageModule.ModuleId).ToList();
+                        // permissions added
+                        foreach(Permission permission in added)
+                        {
+                            if (!modulePermissions.Any(item => item.PermissionName == permission.PermissionName
+                              && item.RoleId == permission.RoleId && item.UserId == permission.UserId && item.IsAuthorized == permission.IsAuthorized))
+                            {
+                                _permissionRepository.AddPermission(new Permission
+                                {
+                                    SiteId = page.SiteId,
+                                    EntityName = EntityNames.Module,
+                                    EntityId = pageModule.ModuleId,
+                                    PermissionName = permission.PermissionName,
+                                    RoleId = permission.RoleId,
+                                    UserId = permission.UserId,
+                                    IsAuthorized = permission.IsAuthorized
+                                });
+                            }
+                        }
+                        // permissions removed
+                        foreach (Permission permission in removed)
+                        {
+                            var modulePermission = modulePermissions.FirstOrDefault(item => item.PermissionName == permission.PermissionName
+                              && item.RoleId == permission.RoleId && item.UserId == permission.UserId && item.IsAuthorized == permission.IsAuthorized);
+                            if (modulePermission != null)
+                            {
+                                _permissionRepository.DeletePermission(modulePermission.PermissionId);
+                            }
+                        }
+                    }
+                }
+
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, page.SiteId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Updated {Page}", page);
             }
             else
@@ -238,6 +287,19 @@ namespace Oqtane.Controllers
                 page = null;
             }
             return page;
+        }
+
+        private List<Permission> GetPermissionsDifferences(List<Permission> permissions1, List<Permission> permissions2)
+        {
+            var differences = new List<Permission>();
+            foreach (Permission p in permissions1)
+            {
+                if (!permissions2.Any(item => item.PermissionName == p.PermissionName && item.RoleId == p.RoleId && item.UserId == p.UserId && item.IsAuthorized == p.IsAuthorized))
+                {
+                    differences.Add(p);
+                }
+            }
+            return differences;
         }
 
         // PUT api/<controller>/?siteid=x&pageid=y&parentid=z
@@ -258,7 +320,7 @@ namespace Oqtane.Controllers
                     }
                     order += 2;
                 }
-                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, siteid);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, siteid);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Order Updated {SiteId} {PageId} {ParentId}", siteid, pageid, parentid);
             }
             else
@@ -277,7 +339,7 @@ namespace Oqtane.Controllers
             if (_userPermissions.IsAuthorized(User, EntityNames.Page, page.PageId, PermissionNames.Edit))
             {
                 _pages.DeletePage(page.PageId);
-                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, page.SiteId);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, page.SiteId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Page Deleted {PageId}", page.PageId);
             }
             else
@@ -287,4 +349,5 @@ namespace Oqtane.Controllers
             }
         }
     }
+
 }

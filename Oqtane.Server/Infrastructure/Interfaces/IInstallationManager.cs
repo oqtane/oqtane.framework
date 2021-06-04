@@ -2,7 +2,8 @@ namespace Oqtane.Infrastructure
 {
     public interface IInstallationManager
     {
-        void InstallPackages(string folders);
+        void InstallPackages();
+        bool UninstallPackage(string PackageName);
         void UpgradeFramework();
         void RestartApplication();
     }

@@ -58,5 +58,14 @@ namespace Oqtane.Repository
             _db.UserRole.Remove(userRole);
             _db.SaveChanges();
         }
+
+        public void DeleteUserRoles(int userId)
+        {
+            foreach (UserRole userRole in _db.UserRole.Where(item => item.Role.SiteId != null))
+            {
+                _db.UserRole.Remove(userRole);
+            }
+            _db.SaveChanges();
+        }
     }
 }

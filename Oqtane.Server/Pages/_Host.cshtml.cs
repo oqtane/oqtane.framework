@@ -8,41 +8,50 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using Microsoft.AspNetCore.Http.Extensions;
 using Oqtane.Repository;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Oqtane.Pages
 {
     public class HostModel : PageModel
     {
         private IConfiguration _configuration;
-        private readonly SiteState _state;
-        private readonly IAliasRepository _aliases;
+        private readonly ITenantManager _tenantManager;
         private readonly ILocalizationManager _localizationManager;
         private readonly ILanguageRepository _languages;
 
         public HostModel(
             IConfiguration configuration,
-            SiteState state,
-            IAliasRepository aliases,
+            ITenantManager tenantManager,
             ILocalizationManager localizationManager,
             ILanguageRepository languages)
         {
             _configuration = configuration;
-            _state = state;
-            _aliases = aliases;
+            _tenantManager = tenantManager;
             _localizationManager = localizationManager;
             _languages = languages;
         }
 
+        public string Runtime = "Server";
+        public RenderMode RenderMode = RenderMode.Server;
         public string HeadResources = "";
         public string BodyResources = "";
         public string Message = "";
 
         public void OnGet()
         {
+            if (_configuration.GetSection("Runtime").Exists())
+            {
+                Runtime = _configuration.GetSection("Runtime").Value;
+            }
+
+            if (Runtime != "WebAssembly" && _configuration.GetSection("RenderMode").Exists())
+            {
+                RenderMode = (RenderMode)Enum.Parse(typeof(RenderMode), _configuration.GetSection("RenderMode").Value, true);
+            }
+
             var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
             foreach (Assembly assembly in assemblies)
             {
@@ -52,31 +61,25 @@ namespace Oqtane.Pages
             }
 
             // if culture not specified and framework is installed 
-            if (HttpContext.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName] == null && !string.IsNullOrEmpty(_configuration.GetConnectionString("DefaultConnection")))
+            if (!string.IsNullOrEmpty(_configuration.GetConnectionString("DefaultConnection")))
             {
-                var uri = new Uri(Request.GetDisplayUrl());
-                var hostname = uri.Authority + "/" + uri.LocalPath.Substring(1);
-                var alias = _aliases.GetAlias(hostname);
+                var alias = _tenantManager.GetAlias();
                 if (alias != null)
                 {
-                    _state.Alias = alias;
-
-                    // set default language for site if the culture is not supported
-                    var languages = _languages.GetLanguages(alias.SiteId);
-                    if (languages.Any() && languages.All(l => l.Code != CultureInfo.CurrentUICulture.Name))
+                    if (HttpContext.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName] == null)
                     {
-                        var defaultLanguage = languages.Where(l => l.IsDefault).SingleOrDefault() ?? languages.First();
-
-                        SetLocalizationCookie(defaultLanguage.Code);
+                        // set default language for site if the culture is not supported
+                        var languages = _languages.GetLanguages(alias.SiteId);
+                        if (languages.Any() && languages.All(l => l.Code != CultureInfo.CurrentUICulture.Name))
+                        {
+                            var defaultLanguage = languages.Where(l => l.IsDefault).SingleOrDefault() ?? languages.First();
+                            SetLocalizationCookie(defaultLanguage.Code);
+                        }
+                        else
+                        {
+                            SetLocalizationCookie(_localizationManager.GetDefaultCulture());
+                        }
                     }
-                    else
-                    {
-                        SetLocalizationCookie(_localizationManager.GetDefaultCulture());
-                    }
-                }
-                else
-                {
-                    Message = $"No Matching Alias For Host Name {hostname}";
                 }
             }
         }

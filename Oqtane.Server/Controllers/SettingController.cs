@@ -10,24 +10,24 @@ using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
-    [Route(ControllerRoutes.Default)]
+    [Route(ControllerRoutes.ApiRoute)]
     public class SettingController : Controller
     {
         private readonly ISettingRepository _settings;
         private readonly IPageModuleRepository _pageModules;
         private readonly IUserPermissions _userPermissions;
-        private readonly ITenantResolver _tenants;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
+        private readonly Alias _alias;
 
-        public SettingController(ISettingRepository settings, IPageModuleRepository pageModules, IUserPermissions userPermissions, ITenantResolver tenants, ISyncManager syncManager, ILogManager logger)
+        public SettingController(ISettingRepository settings, IPageModuleRepository pageModules, IUserPermissions userPermissions, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
         {
             _settings = settings;
             _pageModules = pageModules;
             _userPermissions = userPermissions;
-            _tenants = tenants;
             _syncManager = syncManager;
             _logger = logger;
+            _alias = tenantManager.GetAlias();
         }
 
         // GET: api/<controller>
@@ -73,7 +73,7 @@ namespace Oqtane.Controllers
                 setting = _settings.AddSetting(setting);
                 if (setting.EntityName == EntityNames.Module)
                 {
-                    _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, _tenants.GetAlias().SiteId);
+                    _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId);
                 }
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Setting Added {Setting}", setting);
             }
@@ -95,7 +95,7 @@ namespace Oqtane.Controllers
                 setting = _settings.UpdateSetting(setting);
                 if (setting.EntityName == EntityNames.Module)
                 {
-                    _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, _tenants.GetAlias().SiteId);
+                    _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId);
                 }
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Setting Updated {Setting}", setting);
             }
@@ -118,7 +118,7 @@ namespace Oqtane.Controllers
                 _settings.DeleteSetting(id);
                 if (setting.EntityName == EntityNames.Module)
                 {
-                    _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, _tenants.GetAlias().SiteId);
+                    _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId);
                 }
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Setting Deleted {Setting}", setting);
             }

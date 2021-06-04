@@ -1,6 +1,8 @@
 @namespace Oqtane.Modules.Admin.Languages
 @inherits ModuleBase
 @inject ILanguageService LanguageService
+@inject ILocalizationService LocalizationService
+@inject IPackageService PackageService
 @inject IStringLocalizer<Index> Localizer
 
 @if (_languages == null)
@@ -17,24 +19,43 @@ else
             <th>@Localizer["Name"]</th>
             <th>@Localizer["Code"]</th>
             <th>@Localizer["Default?"]</th>
+            <th style="width: 1px;">&nbsp;</th>
         </Header>
         <Row>
-            <td><ActionDialog Header="Delete Langauge" Message="@Localizer["Are You Sure You Wish To Delete The {0} Language?", context.Name]" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteLanguage(context))" Disabled="@(context.IsDefault)" ResourceKey="DeleteLanguage" /></td>
+            <td><ActionDialog Header="Delete Langauge" Message="@Localizer["Are You Sure You Wish To Delete The {0} Language From This Site?", context.Name]" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteLanguage(context))" Disabled="@((context.IsDefault && _languages.Count > 2) || context.Code == Constants.DefaultCulture)" ResourceKey="DeleteLanguage" /></td>
             <td>@context.Name</td>
             <td>@context.Code</td>
             <td><TriStateCheckBox Value="@(context.IsDefault)" Disabled="true"></TriStateCheckBox></td>
+            <td>
+                @if (UpgradeAvailable(context.Code))
+                {
+                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadLanguage(context.Code))>@Localizer["Upgrade"]</button>
+                }
+            </td>
         </Row>
     </Pager>
 }
 
 @code {
     private List<Language> _languages;
+    private List<Package> _packages;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
     protected override async Task OnParametersSetAsync()
     {
         _languages = await LanguageService.GetLanguagesAsync(PageState.Site.SiteId);
+
+        var cultures = await LocalizationService.GetCulturesAsync();
+        var culture = cultures.First(c => c.Name.Equals(Constants.DefaultCulture));
+        
+        // Adds English as default language
+        _languages.Insert(0, new Language { Name = culture.DisplayName, Code = culture.Name, IsDefault = !_languages.Any(l => l.IsDefault) });
+
+        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+        {
+            _packages = await PackageService.GetPackagesAsync("language");
+        }
     }
 
     private async Task DeleteLanguage(Language language)
@@ -51,6 +72,40 @@ else
             await logger.LogError(ex, "Error Deleting Language {Language} {Error}", language, ex.Message);
 
             AddModuleMessage(Localizer["Error Deleting Language"], MessageType.Error);
+        }
+    }
+
+    private bool UpgradeAvailable(string code)
+    {
+        var upgradeavailable = false;
+        if (_packages != null)
+        {
+            var package = _packages.Where(item => item.PackageId == (Constants.PackageId + ".Client." + code)).FirstOrDefault();
+            if (package != null)
+            {
+                upgradeavailable = (Version.Parse(package.Version).CompareTo(Version.Parse(Constants.Version)) > 0);
+            }
+
+        }
+        return upgradeavailable;
+    }
+
+    private async Task DownloadLanguage(string code)
+    {
+        try
+        {
+            if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+            {
+                await PackageService.DownloadPackageAsync(Constants.PackageId + ".Client." + code, Constants.Version, "Packages");
+                await logger.LogInformation("Language Package Downloaded {Code} {Version}", code, Constants.Version);
+                await PackageService.InstallPackagesAsync();
+                AddModuleMessage(Localizer["Language Package Installed Successfully. You Must <a href=\"{0}\">Restart</a> Your Application To Apply These Changes.", NavigateUrl("admin/system")], MessageType.Success);
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Downloading Language Package {Code} {Version} {Error}", code, Constants.Version, ex.Message);
+            AddModuleMessage(Localizer["Error Downloading Language Package"], MessageType.Error);
         }
     }
 }

@@ -107,7 +107,7 @@
         SiteState.Alias = alias; // set state for services
         lastsyncdate = alias.SyncDate;
 
-        // process any sync events  
+        // process any sync events
         if (reload != Reload.Site && alias.SyncEvents.Any())
         {
             // if running on WebAssembly reload the client application if the server application was restarted
@@ -337,7 +337,6 @@
             _navigationInterceptionEnabled = true;
             return NavigationInterception.EnableNavigationInterceptionAsync();
         }
-
         return Task.CompletedTask;
     }
 
@@ -556,4 +555,5 @@
 => RuntimeInformation.IsOSPlatform(OSPlatform.Create("BROWSER"))
         ? Oqtane.Shared.Runtime.WebAssembly
         : Oqtane.Shared.Runtime.Server;
+
 }

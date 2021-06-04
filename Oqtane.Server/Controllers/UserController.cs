@@ -18,7 +18,7 @@ using Oqtane.Extensions;
 
 namespace Oqtane.Controllers
 {
-    [Route(ControllerRoutes.Default)]
+    [Route(ControllerRoutes.ApiRoute)]
     public class UserController : Controller
     {
         private readonly IUserRepository _users;
@@ -26,26 +26,26 @@ namespace Oqtane.Controllers
         private readonly IUserRoleRepository _userRoles;
         private readonly UserManager<IdentityUser> _identityUserManager;
         private readonly SignInManager<IdentityUser> _identitySignInManager;
-        private readonly ITenantResolver _tenants;
         private readonly INotificationRepository _notifications;
         private readonly IFolderRepository _folders;
         private readonly ISyncManager _syncManager;
         private readonly ISiteRepository _sites;
         private readonly ILogManager _logger;
+        private readonly Alias _alias;
 
-        public UserController(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantResolver tenants, INotificationRepository notifications, IFolderRepository folders, ISyncManager syncManager, ISiteRepository sites, ILogManager logger)
+        public UserController(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, ISyncManager syncManager, ISiteRepository sites, ILogManager logger)
         {
             _users = users;
             _roles = roles;
             _userRoles = userRoles;
             _identityUserManager = identityUserManager;
             _identitySignInManager = identitySignInManager;
-            _tenants = tenants;
             _folders = folders;
             _notifications = notifications;
             _syncManager = syncManager;
             _sites = sites;
             _logger = logger;
+            _alias = tenantManager.GetAlias();
         }
 
         // GET api/<controller>/5?siteid=x
@@ -146,7 +146,7 @@ namespace Oqtane.Controllers
                         if (!verified)
                         {
                             string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
-                            string url = HttpContext.Request.Scheme + "://" + _tenants.GetAlias().Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
+                            string url = HttpContext.Request.Scheme + "://" + _alias.Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
                             string body = "Dear " + user.DisplayName + ",\n\nIn Order To Complete The Registration Of Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
                             var notification = new Notification(user.SiteId, null, newUser, "User Account Verification", body, null);
                             _notifications.AddNotification(notification);
@@ -173,6 +173,7 @@ namespace Oqtane.Controllers
                                 SiteId = folder.SiteId,
                                 ParentId = folder.FolderId,
                                 Name = "My Folder",
+                                Type = FolderTypes.Private,
                                 Path = Utilities.PathCombine(folder.Path, newUser.UserId.ToString(),Path.DirectorySeparatorChar.ToString()),
                                 Order = 1,
                                 IsSystem = true,
@@ -243,7 +244,7 @@ namespace Oqtane.Controllers
                         }
                     }
                     user = _users.UpdateUser(user);
-                    _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.User, user.UserId);
+                    _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.User, user.UserId);
                     user.Password = ""; // remove sensitive information
                     _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Updated {User}", user);
                 }
@@ -358,7 +359,7 @@ namespace Oqtane.Controllers
         [Authorize]
         public async Task Logout([FromBody] User user)
         {
-            await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+            await HttpContext.SignOutAsync(Constants.AuthenticationScheme);
             _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Logout {Username}", (user != null) ? user.Username : "");
         }
 
@@ -401,7 +402,7 @@ namespace Oqtane.Controllers
                 if (identityuser != null)
                 {
                     string token = await _identityUserManager.GeneratePasswordResetTokenAsync(identityuser);
-                    string url = HttpContext.Request.Scheme + "://" + _tenants.GetAlias().Name + "/reset?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
+                    string url = HttpContext.Request.Scheme + "://" + _alias.Name + "/reset?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
                     string body = "Dear " + user.DisplayName + ",\n\nPlease Click The Link Displayed Below To Reset Your Password:\n\n" + url + "\n\nThank You!";
                     var notification = new Notification(user.SiteId, null, user, "User Password Reset", body, null);
                     _notifications.AddNotification(notification);
@@ -444,7 +445,7 @@ namespace Oqtane.Controllers
             return user;
         }
 
-        // GET api/<controller>/current
+        // GET api/<controller>/authenticate
         [HttpGet("authenticate")]
         public User Authenticate()
         {

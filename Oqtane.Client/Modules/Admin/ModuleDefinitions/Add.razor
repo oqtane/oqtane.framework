@@ -36,7 +36,7 @@
                         <Label HelpText="Upload one or more module packages. Once they are uploaded click Install to complete the installation." ResourceKey="Module">Module: </Label>
                     </td>
                     <td>
-                        <FileManager Filter="nupkg" ShowFiles="false" Folder="Modules" UploadMultiple="true" />
+                        <FileManager Filter="nupkg" ShowFiles="false" Folder="Packages" UploadMultiple="true" />
                     </td>
                 </tr>
             </table>
@@ -61,7 +61,7 @@
 
             foreach (Package package in _packages.ToArray())
             {
-                if (moduledefinitions.Exists(item => Utilities.GetTypeName(item.ModuleDefinitionName) == package.PackageId))
+                if (moduledefinitions.Exists(item => item.PackageName == package.PackageId))
                 {
                     _packages.Remove(package);
                 }
@@ -91,7 +91,7 @@
     {
         try
         {
-            await PackageService.DownloadPackageAsync(packageid, version, "Modules");
+            await PackageService.DownloadPackageAsync(packageid, version, "Packages");
             await logger.LogInformation("Module {ModuleDefinitionName} {Version} Downloaded Successfully", packageid, version);
             AddModuleMessage(Localizer["Modules Downloaded Successfully. Click Install To Complete Installation."], MessageType.Success);
             StateHasChanged();

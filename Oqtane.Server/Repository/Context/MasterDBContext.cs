@@ -1,17 +1,30 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Oqtane.Models;
 using Microsoft.Extensions.Configuration;
+using Oqtane.Databases.Interfaces;
 using Oqtane.Extensions;
+using Oqtane.Interfaces;
+using Oqtane.Migrations.Framework;
+using Oqtane.Repository.Databases.Interfaces;
+using Oqtane.Shared;
+
+// ReSharper disable BuiltInTypeReferenceStyleForMemberAccess
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable CheckNamespace
 
 namespace Oqtane.Repository
 {
-    public class MasterDBContext : DbContext
+    public class MasterDBContext : DbContext, IMultiDatabase
     {
         private readonly IHttpContextAccessor _accessor;
         private readonly IConfiguration _configuration;
+        private string _connectionString;
+        private string _databaseType;
 
         public MasterDBContext(DbContextOptions<MasterDBContext> options, IHttpContextAccessor accessor, IConfiguration configuration) : base(options)
         {
@@ -19,15 +32,34 @@ namespace Oqtane.Repository
             _configuration = configuration;
         }
 
+        public IDatabase ActiveDatabase { get; private set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (!String.IsNullOrEmpty(_configuration.GetConnectionString("DefaultConnection")))
-            {
-                var connectionString = _configuration.GetConnectionString("DefaultConnection")
-                    .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString());
+            optionsBuilder.ReplaceService<IMigrationsAssembly, MultiDatabaseMigrationsAssembly>();
 
-                optionsBuilder.UseOqtaneDatabase(connectionString);
+            if(_configuration != null)
+            {
+                if (!String.IsNullOrEmpty(_configuration.GetConnectionString("DefaultConnection")))
+                {
+                    _connectionString = _configuration.GetConnectionString("DefaultConnection")
+                        .Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString());
+                }
+
+                _databaseType = _configuration.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey];
             }
+
+            if (!String.IsNullOrEmpty(_databaseType))
+            {
+                var type = Type.GetType(_databaseType);
+                ActiveDatabase = Activator.CreateInstance(type) as IDatabase;
+            }
+
+            if (!string.IsNullOrEmpty(_connectionString) && ActiveDatabase != null)
+            {
+                optionsBuilder.UseOqtaneDatabase(ActiveDatabase, _connectionString);
+            }
+
             base.OnConfiguring(optionsBuilder);
         }
 

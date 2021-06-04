@@ -11,22 +11,22 @@ using Oqtane.Security;
 
 namespace Oqtane.Controllers
 {
-    [Route(ControllerRoutes.Default)]
+    [Route(ControllerRoutes.ApiRoute)]
     public class PageModuleController : Controller
     {
         private readonly IPageModuleRepository _pageModules;
         private readonly IUserPermissions _userPermissions;
-        private readonly ITenantResolver _tenants;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
+        private readonly Alias _alias;
 
-        public PageModuleController(IPageModuleRepository pageModules, IUserPermissions userPermissions, ITenantResolver tenants, ISyncManager syncManager, ILogManager logger)
+        public PageModuleController(IPageModuleRepository pageModules, IUserPermissions userPermissions, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
         {
             _pageModules = pageModules;
             _userPermissions = userPermissions;
-            _tenants = tenants;
             _syncManager = syncManager;
             _logger = logger;
+            _alias = tenantManager.GetAlias();
         }
 
         // GET api/<controller>/5
@@ -71,7 +71,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Page, pageModule.PageId, PermissionNames.Edit))
             {
                 pageModule = _pageModules.AddPageModule(pageModule);
-                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, _tenants.GetAlias().SiteId);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Page Module Added {PageModule}", pageModule);
             }
             else
@@ -91,7 +91,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Module, pageModule.ModuleId, PermissionNames.Edit))
             {
                 pageModule = _pageModules.UpdatePageModule(pageModule);
-                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, _tenants.GetAlias().SiteId);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Module Updated {PageModule}", pageModule);
             }
             else
@@ -121,7 +121,7 @@ namespace Oqtane.Controllers
                     }
                     order += 2;
                 }
-                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, _tenants.GetAlias().SiteId);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Module Order Updated {PageId} {Pane}", pageid, pane);
             }
             else
@@ -140,7 +140,7 @@ namespace Oqtane.Controllers
             if (_userPermissions.IsAuthorized(User, EntityNames.Page, pagemodule.PageId, PermissionNames.Edit))
             {
                 _pageModules.DeletePageModule(id);
-                _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, _tenants.GetAlias().SiteId);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Page Module Deleted {PageModuleId}", id);
             }
             else

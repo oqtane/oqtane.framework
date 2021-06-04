@@ -1,6 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Oqtane.Modules.HtmlText.Models;
 using Oqtane.Modules.HtmlText.Repository;
 using Microsoft.AspNetCore.Http;
 using Oqtane.Shared;
@@ -12,7 +11,7 @@ using Oqtane.Controllers;
 
 namespace Oqtane.Modules.HtmlText.Controllers
 {
-    [Route(ControllerRoutes.Default)]
+    [Route(ControllerRoutes.ApiRoute)]
     public class HtmlTextController : ModuleControllerBase
     {
         private readonly IHtmlTextRepository _htmlText;
@@ -25,13 +24,13 @@ namespace Oqtane.Modules.HtmlText.Controllers
         // GET api/<controller>/5
         [HttpGet("{id}")]
         [Authorize(Policy = PolicyNames.ViewModule)]
-        public List<HtmlTextInfo> Get(int id)
+        public List<Models.HtmlText> Get(int id)
         {
-            var list = new List<HtmlTextInfo>();
+            var list = new List<Models.HtmlText>();
             try
             {
-                HtmlTextInfo htmlText = null;
-                if (_entityId == id)
+                Models.HtmlText htmlText = null;
+                if (_authEntityId[EntityNames.Module] == id)
                 {
                     htmlText = _htmlText.GetHtmlText(id);
                     list.Add(htmlText);
@@ -48,11 +47,11 @@ namespace Oqtane.Modules.HtmlText.Controllers
         // POST api/<controller>
         [HttpPost]
         [Authorize(Policy = PolicyNames.EditModule)]
-        public HtmlTextInfo Post([FromBody] HtmlTextInfo htmlText)
+        public Models.HtmlText Post([FromBody] Models.HtmlText htmlText)
         {
             try
             {
-                if (ModelState.IsValid && htmlText.ModuleId == _entityId)
+                if (ModelState.IsValid && htmlText.ModuleId == _authEntityId[EntityNames.Module])
                 {
                     htmlText = _htmlText.AddHtmlText(htmlText);
                     _logger.Log(LogLevel.Information, this, LogFunction.Create, "Html/Text Added {HtmlText}", htmlText);
@@ -69,11 +68,11 @@ namespace Oqtane.Modules.HtmlText.Controllers
         // PUT api/<controller>/5
         [HttpPut("{id}")]
         [Authorize(Policy = PolicyNames.EditModule)]
-        public HtmlTextInfo Put(int id, [FromBody] HtmlTextInfo htmlText)
+        public Models.HtmlText Put(int id, [FromBody] Models.HtmlText htmlText)
         {
             try
             {
-                if (ModelState.IsValid && htmlText.ModuleId == _entityId)
+                if (ModelState.IsValid && htmlText.ModuleId == _authEntityId[EntityNames.Module])
                 {
                     htmlText = _htmlText.UpdateHtmlText(htmlText);
                     _logger.Log(LogLevel.Information, this, LogFunction.Update, "Html/Text Updated {HtmlText}", htmlText);
@@ -94,7 +93,7 @@ namespace Oqtane.Modules.HtmlText.Controllers
         {
             try
             {
-                if (id == _entityId)
+                if (id == _authEntityId[EntityNames.Module])
                 {
                     _htmlText.DeleteHtmlText(id);
                     _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Html/Text Deleted {HtmlTextId}", id);

@@ -12,11 +12,10 @@ using Oqtane.Modules;
 using Oqtane.Shared;
 using Oqtane.Themes;
 using Microsoft.Extensions.Caching.Memory;
-using System.Collections.Generic;
 
 namespace Oqtane.Controllers
 {
-    [Route(ControllerRoutes.Default)]
+    [Route(ControllerRoutes.ApiRoute)]
     public class InstallationController : Controller
     {
         private readonly IConfigurationRoot _config;

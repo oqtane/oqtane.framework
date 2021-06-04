@@ -6,6 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="icon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Client\[Owner].[Module].Client.csproj" />
     <ProjectReference Include="..\Server\[Owner].[Module].Server.csproj" />
     <ProjectReference Include="..\Shared\[Owner].[Module].Shared.csproj" />

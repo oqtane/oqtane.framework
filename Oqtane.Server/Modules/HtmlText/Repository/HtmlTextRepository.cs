@@ -13,20 +13,20 @@ namespace Oqtane.Modules.HtmlText.Repository
             _db = context;
         }
 
-        public HtmlTextInfo GetHtmlText(int moduleId)
+        public Models.HtmlText GetHtmlText(int moduleId)
         {
             return _db.HtmlText.FirstOrDefault(item => item.ModuleId == moduleId);
         }
 
 
-        public HtmlTextInfo AddHtmlText(HtmlTextInfo htmlText)
+        public Models.HtmlText AddHtmlText(Models.HtmlText htmlText)
         {
             _db.HtmlText.Add(htmlText);
             _db.SaveChanges();
             return htmlText;
         }
 
-        public HtmlTextInfo UpdateHtmlText(HtmlTextInfo htmlText)
+        public Models.HtmlText UpdateHtmlText(Models.HtmlText htmlText)
         {
             _db.Entry(htmlText).State = EntityState.Modified;
             _db.SaveChanges();
@@ -35,7 +35,7 @@ namespace Oqtane.Modules.HtmlText.Repository
 
         public void DeleteHtmlText(int moduleId)
         {
-            HtmlTextInfo htmlText = _db.HtmlText.FirstOrDefault(item => item.ModuleId == moduleId);
+            Models.HtmlText htmlText = _db.HtmlText.FirstOrDefault(item => item.ModuleId == moduleId);
             if (htmlText != null) _db.HtmlText.Remove(htmlText);
             _db.SaveChanges();
         }

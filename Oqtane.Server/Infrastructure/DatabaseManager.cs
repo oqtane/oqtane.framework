@@ -1,22 +1,27 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using DbUp;
+using System.Runtime.Loader;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
+using Oqtane.Databases.Interfaces;
 using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
 using Oqtane.Enums;
-using File = System.IO.File;
+using Newtonsoft.Json;
+
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable ConvertToUsingDeclaration
+// ReSharper disable BuiltInTypeReferenceStyleForMemberAccess
+// ReSharper disable UseIndexFromEndExpression
 
 namespace Oqtane.Infrastructure
 {
@@ -24,24 +29,28 @@ namespace Oqtane.Infrastructure
     {
         private readonly IConfigurationRoot _config;
         private readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly IWebHostEnvironment _environment;
         private readonly IMemoryCache _cache;
+        private readonly IConfigManager _configManager;
 
-        public DatabaseManager(IConfigurationRoot config, IServiceScopeFactory serviceScopeFactory, IMemoryCache cache)
+        public DatabaseManager(IConfigurationRoot config, IServiceScopeFactory serviceScopeFactory, IWebHostEnvironment environment, IMemoryCache cache, IConfigManager configManager)
         {
             _config = config;
             _serviceScopeFactory = serviceScopeFactory;
+            _environment = environment;
             _cache = cache;
+            _configManager = configManager;
         }
 
         public Installation IsInstalled()
         {
             var result = new Installation { Success = false, Message = string.Empty };
+
             if (!string.IsNullOrEmpty(_config.GetConnectionString(SettingKeys.ConnectionStringKey)))
             {
                 result.Success = true;
-                using (var scope = _serviceScopeFactory.CreateScope())
+                using (var db = GetInstallationContext())
                 {
-                    var db = scope.ServiceProvider.GetRequiredService<MasterDBContext>();
                     if (db.Database.CanConnect())
                     {
                         try
@@ -71,11 +80,25 @@ namespace Oqtane.Infrastructure
         {
             var result = new Installation { Success = false, Message = string.Empty };
 
+            ValidateConfiguration();
+
             // get configuration
             if (install == null)
             {
                 // startup or silent installation
-                install = new InstallConfig { ConnectionString = _config.GetConnectionString(SettingKeys.ConnectionStringKey), TenantName = TenantNames.Master, IsNewTenant = false };
+                install = new InstallConfig
+                {
+                    ConnectionString = _config.GetConnectionString(SettingKeys.ConnectionStringKey),
+                    TenantName = TenantNames.Master,
+                    DatabaseType = _config.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey],
+                    IsNewTenant = false
+                };
+
+                // on upgrade install the associated Nuget package
+                if (!string.IsNullOrEmpty(install.ConnectionString) && Type.GetType(install.DatabaseType) == null)
+                {
+                    InstallDatabase(install);
+                }
 
                 var installation = IsInstalled();
                 if (!installation.Success)
@@ -163,6 +186,61 @@ namespace Oqtane.Infrastructure
             return result;
         }
 
+        private Installation InstallDatabase(InstallConfig install)
+        {
+            var result = new Installation {Success = false, Message = string.Empty};
+
+            try
+            {
+                var databaseType = install.DatabaseType;
+
+                //Get database Type
+                var type = Type.GetType(databaseType);
+
+                //Deploy the database components (if necessary)
+                if (type == null)
+                {
+                    //Rename bak extension
+                    var packageFolderName = "Packages";
+                    var path = _environment.ContentRootPath;
+                    var packagesFolder = new DirectoryInfo(Path.Combine(path, packageFolderName));
+
+                    // iterate through Nuget packages in source folder
+                    foreach (var package in packagesFolder.GetFiles("*.nupkg.bak"))
+                    {
+                        if (package.Name.StartsWith(Utilities.GetAssemblyName(install.DatabaseType)))
+                        {
+                            //rename file
+                            var packageName = Path.Combine(package.DirectoryName, package.Name);
+                            packageName = packageName.Substring(0, packageName.IndexOf(".bak"));
+                            package.MoveTo(packageName, true);
+                        }
+                    }
+
+                    //Call InstallationManager to install Database Package
+                    using (var scope = _serviceScopeFactory.CreateScope())
+                    {
+                        var installationManager = scope.ServiceProvider.GetRequiredService<IInstallationManager>();
+                        installationManager.InstallPackages();
+
+                        var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
+                        var assembliesFolder = new DirectoryInfo(assemblyPath);
+                        var assemblyFile = new FileInfo($"{assembliesFolder}/{Utilities.GetAssemblyName(install.DatabaseType)}.dll");
+
+                        AssemblyLoadContext.Default.LoadOqtaneAssembly(assemblyFile);
+
+                        result.Success = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.Message;
+            }
+
+            return result;
+        }
+
         private Installation CreateDatabase(InstallConfig install)
         {
             var result = new Installation { Success = false, Message = string.Empty };
@@ -171,12 +249,22 @@ namespace Oqtane.Infrastructure
             {
                 try
                 {
+                    InstallDatabase(install);
+
+                    var databaseType = install.DatabaseType;
+
+                    //Get database Type
+                    var type = Type.GetType(databaseType);
+
+                    //Create database object from Type
+                    var database = Activator.CreateInstance(type) as IDatabase;
+
                     //create data directory if does not exist
                     var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString();
-                    if (!Directory.Exists(dataDirectory)) Directory.CreateDirectory(dataDirectory);
+                    if (!Directory.Exists(dataDirectory)) Directory.CreateDirectory(dataDirectory ?? String.Empty);
 
-                    var connectionString = NormalizeConnectionString(install.ConnectionString);
-                    using (var dbc = new DbContext(new DbContextOptionsBuilder().UseOqtaneDatabase(connectionString).Options))
+                    var dbOptions = new DbContextOptionsBuilder().UseOqtaneDatabase(database, NormalizeConnectionString(install.ConnectionString)).Options;
+                    using (var dbc = new DbContext(dbOptions))
                     {
                         // create empty database if it does not exist
                         dbc.Database.EnsureCreated();
@@ -202,31 +290,31 @@ namespace Oqtane.Infrastructure
 
             if (install.TenantName == TenantNames.Master)
             {
-                MigrateScriptNamingConvention("Master", install.ConnectionString);
-
-                var upgradeConfig = DeployChanges
-                .To
-                .SqlDatabase(NormalizeConnectionString(install.ConnectionString))
-                .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), s => s.Contains("Master.") && s.EndsWith(".sql",StringComparison.OrdinalIgnoreCase));
-
-                var upgrade = upgradeConfig.Build();
-                if (upgrade.IsUpgradeRequired())
+                using (var scope = _serviceScopeFactory.CreateScope())
                 {
-                    var upgradeResult = upgrade.PerformUpgrade();
-                    result.Success = upgradeResult.Successful;
-                    if (!result.Success)
+                    var sql = scope.ServiceProvider.GetRequiredService<ISqlRepository>();
+
+                    var installation = IsInstalled();
+                    try
                     {
-                        result.Message = upgradeResult.Error.Message;
-                    }
-                }
-                else
-                {
-                    result.Success = true;
-                }
+                        UpdateConnectionString(install.ConnectionString);
+                        UpdateDatabaseType(install.DatabaseType);
 
-                if (result.Success)
-                {
-                    UpdateConnectionString(install.ConnectionString);
+                        using (var masterDbContext = new MasterDBContext(new DbContextOptions<MasterDBContext>(), null, _config))
+                        {
+                            if (installation.Success && (install.DatabaseType == Constants.DefaultDBType))
+                            {
+                                UpgradeSqlServer(sql, install.ConnectionString, install.DatabaseType, true);
+                            }
+                            // Push latest model into database
+                            masterDbContext.Database.Migrate();
+                            result.Success = true;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        result.Message = ex.Message;
+                    }
                 }
             }
             else
@@ -243,29 +331,52 @@ namespace Oqtane.Infrastructure
 
             if (!string.IsNullOrEmpty(install.TenantName) && !string.IsNullOrEmpty(install.Aliases))
             {
-                using (var db = new InstallationContext(NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey))))
-                {
-                    Tenant tenant;
-                    if (install.IsNewTenant)
+                    using (var db = GetInstallationContext())
                     {
-                        tenant = new Tenant { Name = install.TenantName, DBConnectionString = DenormalizeConnectionString(install.ConnectionString), CreatedBy = "", CreatedOn = DateTime.UtcNow, ModifiedBy = "", ModifiedOn = DateTime.UtcNow };
-                        db.Tenant.Add(tenant);
-                        db.SaveChanges();
-                        _cache.Remove("tenants");
-                    }
-                    else
-                    {
-                        tenant = db.Tenant.FirstOrDefault(item => item.Name == install.TenantName);
-                    }
+                        Tenant tenant;
+                        if (install.IsNewTenant)
+                        {
+                            tenant = new Tenant
+                            {
+                                Name = install.TenantName,
+                                DBConnectionString = DenormalizeConnectionString(install.ConnectionString),
+                                DBType = install.DatabaseType,
+                                CreatedBy = "",
+                                CreatedOn = DateTime.UtcNow,
+                                ModifiedBy = "",
+                                ModifiedOn = DateTime.UtcNow
+                            };
+                            db.Tenant.Add(tenant);
+                            db.SaveChanges();
+                            _cache.Remove("tenants");
+                        }
+                        else
+                        {
+                            tenant = db.Tenant.FirstOrDefault(item => item.Name == install.TenantName);
+                        }
 
-                    foreach (string aliasname in install.Aliases.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        var alias = new Alias { Name = aliasname, TenantId = tenant.TenantId, SiteId = -1, CreatedBy = "", CreatedOn = DateTime.UtcNow, ModifiedBy = "", ModifiedOn = DateTime.UtcNow };
-                        db.Alias.Add(alias);
-                        db.SaveChanges();
+                        foreach (var aliasName in install.Aliases.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            if (tenant != null)
+                            {
+                                var alias = new Alias
+                                {
+                                    Name = aliasName,
+                                    TenantId = tenant.TenantId,
+                                    SiteId = -1,
+                                    CreatedBy = "",
+                                    CreatedOn = DateTime.UtcNow,
+                                    ModifiedBy = "",
+                                    ModifiedOn = DateTime.UtcNow
+                                };
+                                db.Alias.Add(alias);
+                            }
+
+                            db.SaveChanges();
+                        }
+
+                        _cache.Remove("aliases");
                     }
-                    _cache.Remove("aliases");
-                }
             }
 
             result.Success = true;
@@ -277,39 +388,45 @@ namespace Oqtane.Infrastructure
         {
             var result = new Installation { Success = false, Message = string.Empty };
 
-            string[] versions = Constants.ReleaseVersions.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            var versions = Constants.ReleaseVersions.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
             using (var scope = _serviceScopeFactory.CreateScope())
             {
                 var upgrades = scope.ServiceProvider.GetRequiredService<IUpgradeManager>();
+                var sql = scope.ServiceProvider.GetRequiredService<ISqlRepository>();
+                var tenantManager = scope.ServiceProvider.GetRequiredService<ITenantManager>();
 
-                using (var db = new InstallationContext(NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey))))
+                using (var db = GetInstallationContext())
                 {
                     foreach (var tenant in db.Tenant.ToList())
                     {
-                        MigrateScriptNamingConvention("Tenant", tenant.DBConnectionString);
-
-                        var upgradeConfig = DeployChanges.To.SqlDatabase(NormalizeConnectionString(tenant.DBConnectionString))
-                            .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), s => s.Contains("Tenant.") && s.EndsWith(".sql", StringComparison.OrdinalIgnoreCase));
-
-                        var upgrade = upgradeConfig.Build();
-                        if (upgrade.IsUpgradeRequired())
+                        tenantManager.SetTenant(tenant.TenantId);
+                        try
                         {
-                            var upgradeResult = upgrade.PerformUpgrade();
-                            result.Success = upgradeResult.Successful;
-                            if (!result.Success)
+                            using (var tenantDbContext = new TenantDBContext(tenantManager, null))
                             {
-                                result.Message = upgradeResult.Error.Message;
+                                if (install.DatabaseType == Constants.DefaultDBType)
+                                {
+                                    UpgradeSqlServer(sql, tenant.DBConnectionString, tenant.DBType, false);
+                                }
+
+                                // Push latest model into database
+                                tenantDbContext.Database.Migrate();
+                                result.Success = true;
                             }
+                        }
+                        catch (Exception ex)
+                        {
+                            result.Message = ex.Message;
                         }
 
                         // execute any version specific upgrade logic
-                        string version = tenant.Version;
-                        int index = Array.FindIndex(versions, item => item == version);
+                        var version = tenant.Version;
+                        var index = Array.FindIndex(versions, item => item == version);
                         if (index != (versions.Length - 1))
                         {
                             if (index == -1) index = 0;
-                            for (int i = index; i < versions.Length; i++)
+                            for (var i = index; i < versions.Length; i++)
                             {
                                 upgrades.Upgrade(tenant, versions[i]);
                             }
@@ -335,53 +452,55 @@ namespace Oqtane.Infrastructure
 
             using (var scope = _serviceScopeFactory.CreateScope())
             {
-                var moduledefinitions = scope.ServiceProvider.GetRequiredService<IModuleDefinitionRepository>();
+                var moduleDefinitions = scope.ServiceProvider.GetRequiredService<IModuleDefinitionRepository>();
                 var sql = scope.ServiceProvider.GetRequiredService<ISqlRepository>();
-                foreach (var moduledefinition in moduledefinitions.GetModuleDefinitions())
+                var tenantManager = scope.ServiceProvider.GetRequiredService<ITenantManager>();
+
+                foreach (var moduleDefinition in moduleDefinitions.GetModuleDefinitions())
                 {
-                    if (!string.IsNullOrEmpty(moduledefinition.ReleaseVersions) && !string.IsNullOrEmpty(moduledefinition.ServerManagerType))
+                    if (!string.IsNullOrEmpty(moduleDefinition.ReleaseVersions) && !string.IsNullOrEmpty(moduleDefinition.ServerManagerType))
                     {
-                        Type moduletype = Type.GetType(moduledefinition.ServerManagerType);
-                        if (moduletype != null)
+                        var moduleType = Type.GetType(moduleDefinition.ServerManagerType);
+                        if (moduleType != null)
                         {
-                            string[] versions = moduledefinition.ReleaseVersions.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                            using (var db = new InstallationContext(NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey))))
+                            var versions = moduleDefinition.ReleaseVersions.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                            using (var db = GetInstallationContext())
                             {
                                 foreach (var tenant in db.Tenant.ToList())
                                 {
-                                    int index = Array.FindIndex(versions, item => item == moduledefinition.Version);
+                                    var index = Array.FindIndex(versions, item => item == moduleDefinition.Version);
                                     if (tenant.Name == install.TenantName && install.TenantName != TenantNames.Master)
                                     {
                                         index = -1;
                                     }
                                     if (index != (versions.Length - 1))
                                     {
-                                        if (index == -1) index = 0;
-                                        for (int i = index; i < versions.Length; i++)
+                                        for (var i = (index + 1); i < versions.Length; i++)
                                         {
                                             try
                                             {
-                                                if (moduletype.GetInterface("IInstallable") != null)
+                                                if (moduleType.GetInterface("IInstallable") != null)
                                                 {
-                                                    var moduleobject = ActivatorUtilities.CreateInstance(scope.ServiceProvider, moduletype);
-                                                    ((IInstallable)moduleobject).Install(tenant, versions[i]);
+                                                    tenantManager.SetTenant(tenant.TenantId);
+                                                    var moduleObject = ActivatorUtilities.CreateInstance(scope.ServiceProvider, moduleType) as IInstallable;
+                                                    moduleObject?.Install(tenant, versions[i]);
                                                 }
                                                 else
                                                 {
-                                                    sql.ExecuteScript(tenant, moduletype.Assembly, Utilities.GetTypeName(moduledefinition.ModuleDefinitionName) + "." + versions[i] + ".sql");
+                                                    sql.ExecuteScript(tenant, moduleType.Assembly, Utilities.GetTypeName(moduleDefinition.ModuleDefinitionName) + "." + versions[i] + ".sql");
                                                 }
                                             }
                                             catch (Exception ex)
                                             {
-                                                result.Message = "An Error Occurred Installing " + moduledefinition.Name + " Version " + versions[i] + " - " + ex.Message.ToString();
+                                                result.Message = "An Error Occurred Installing " + moduleDefinition.Name + " Version " + versions[i] + " - " + ex.Message;
                                             }
                                         }
                                     }
                                 }
-                                if (string.IsNullOrEmpty(result.Message) && moduledefinition.Version != versions[versions.Length - 1])
+                                if (string.IsNullOrEmpty(result.Message) && moduleDefinition.Version != versions[versions.Length - 1])
                                 {
-                                    moduledefinition.Version = versions[versions.Length - 1];
-                                    db.Entry(moduledefinition).State = EntityState.Modified;
+                                    moduleDefinition.Version = versions[versions.Length - 1];
+                                    db.Entry(moduleDefinition).State = EntityState.Modified;
                                     db.SaveChanges();
                                 }
                             }
@@ -406,12 +525,12 @@ namespace Oqtane.Infrastructure
             {
                 using (var scope = _serviceScopeFactory.CreateScope())
                 {
-                    // use the SiteState to set the Alias explicitly so the tenant can be resolved
+                    // set the alias explicitly so the tenant can be resolved
                     var aliases = scope.ServiceProvider.GetRequiredService<IAliasRepository>();
-                    string firstalias = install.Aliases.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)[0];
-                    var alias = aliases.GetAliases().FirstOrDefault(item => item.Name == firstalias);
-                    var siteState = scope.ServiceProvider.GetRequiredService<SiteState>();
-                    siteState.Alias = alias;
+                    var firstAlias = install.Aliases.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)[0];
+                    var alias = aliases.GetAliases().FirstOrDefault(item => item.Name == firstAlias);
+                    var tenantManager = scope.ServiceProvider.GetRequiredService<ITenantManager>();
+                    tenantManager.SetAlias(alias);
 
                     var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
                     var site = sites.GetSites().FirstOrDefault(item => item.Name == install.SiteName);
@@ -420,7 +539,7 @@ namespace Oqtane.Infrastructure
                         var tenants = scope.ServiceProvider.GetRequiredService<ITenantRepository>();
                         var users = scope.ServiceProvider.GetRequiredService<IUserRepository>();
                         var roles = scope.ServiceProvider.GetRequiredService<IRoleRepository>();
-                        var userroles = scope.ServiceProvider.GetRequiredService<IUserRoleRepository>();
+                        var userRoles = scope.ServiceProvider.GetRequiredService<IUserRoleRepository>();
                         var folders = scope.ServiceProvider.GetRequiredService<IFolderRepository>();
                         var log = scope.ServiceProvider.GetRequiredService<ILogManager>();
                         var identityUserManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
@@ -432,16 +551,17 @@ namespace Oqtane.Infrastructure
                             TenantId = tenant.TenantId,
                             Name = install.SiteName,
                             LogoFileId = null,
-                            DefaultThemeType = install.DefaultTheme,
-                            DefaultContainerType = install.DefaultContainer,
+                            DefaultThemeType = (!string.IsNullOrEmpty(install.DefaultTheme)) ? install.DefaultTheme : Constants.DefaultTheme,
+                            DefaultContainerType = (!string.IsNullOrEmpty(install.DefaultContainer)) ? install.DefaultContainer : Constants.DefaultContainer,
+                            AdminContainerType = (!string.IsNullOrEmpty(install.DefaultAdminContainer)) ? install.DefaultAdminContainer : Constants.DefaultAdminContainer,
                             SiteTemplateType = install.SiteTemplate
                         };
                         site = sites.AddSite(site);
 
-                        IdentityUser identityUser = identityUserManager.FindByNameAsync(UserNames.Host).GetAwaiter().GetResult();
+                        var identityUser = identityUserManager.FindByNameAsync(UserNames.Host).GetAwaiter().GetResult();
                         if (identityUser == null)
                         {
-                            identityUser = new IdentityUser { UserName = UserNames.Host, Email = install.HostEmail, EmailConfirmed = true };
+                            identityUser = new IdentityUser {UserName = UserNames.Host, Email = install.HostEmail, EmailConfirmed = true};
                             var create = identityUserManager.CreateAsync(identityUser, install.HostPassword).GetAwaiter().GetResult();
                             if (create.Succeeded)
                             {
@@ -458,8 +578,8 @@ namespace Oqtane.Infrastructure
 
                                 user = users.AddUser(user);
                                 var hostRoleId = roles.GetRoles(user.SiteId, true).FirstOrDefault(item => item.Name == RoleNames.Host)?.RoleId ?? 0;
-                                var userRole = new UserRole { UserId = user.UserId, RoleId = hostRoleId, EffectiveDate = null, ExpiryDate = null };
-                                userroles.AddUserRole(userRole);
+                                var userRole = new UserRole {UserId = user.UserId, RoleId = hostRoleId, EffectiveDate = null, ExpiryDate = null};
+                                userRoles.AddUserRole(userRole);
 
                                 // add user folder
                                 var folder = folders.GetFolder(user.SiteId, Utilities.PathCombine("Users", Path.DirectorySeparatorChar.ToString()));
@@ -470,6 +590,7 @@ namespace Oqtane.Infrastructure
                                         SiteId = folder.SiteId,
                                         ParentId = folder.FolderId,
                                         Name = "My Folder",
+                                        Type = FolderTypes.Private,
                                         Path = Utilities.PathCombine(folder.Path, user.UserId.ToString(), Path.DirectorySeparatorChar.ToString()),
                                         Order = 1,
                                         IsSystem = true,
@@ -484,17 +605,20 @@ namespace Oqtane.Infrastructure
                             }
                         }
 
-                        foreach (string aliasname in install.Aliases.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                        foreach (var aliasName in install.Aliases.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries))
                         {
-                            alias = aliases.GetAliases().FirstOrDefault(item => item.Name == aliasname);
-                            alias.SiteId = site.SiteId;
-                            aliases.UpdateAlias(alias);
+                            alias = aliases.GetAliases().FirstOrDefault(item => item.Name == aliasName);
+                            if (alias != null)
+                            {
+                                alias.SiteId = site.SiteId;
+                                aliases.UpdateAlias(alias);
+                            }
                         }
 
                         tenant.Version = Constants.Version;
                         tenants.UpdateTenant(tenant);
 
-                        log.Log(site.SiteId, LogLevel.Trace, this, LogFunction.Create, "Site Created {Site}", site);
+                        if (site != null) log.Log(site.SiteId, LogLevel.Trace, this, LogFunction.Create, "Site Created {Site}", site);
                     }
                 }
             }
@@ -504,17 +628,37 @@ namespace Oqtane.Infrastructure
             return result;
         }
 
+        private string DenormalizeConnectionString(string connectionString)
+        {
+            var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString();
+            connectionString = connectionString.Replace(dataDirectory ?? String.Empty, "|DataDirectory|");
+            return connectionString;
+        }
+
+        private InstallationContext GetInstallationContext()
+        {
+            var connectionString = NormalizeConnectionString(_config.GetConnectionString(SettingKeys.ConnectionStringKey));
+            var databaseType = _config.GetSection(SettingKeys.DatabaseSection)[SettingKeys.DatabaseTypeKey];
+
+            IDatabase database = null;
+            if (!string.IsNullOrEmpty(databaseType))
+            {
+                var type = Type.GetType(databaseType);
+                database = Activator.CreateInstance(type) as IDatabase;
+            }
+
+            return new InstallationContext(database, connectionString);
+        }
+
+        private string GetInstallationConfig(string key, string defaultValue)
+        {
+            return _configManager.GetSetting(SettingKeys.InstallationSection, key, defaultValue);
+        }
+
         private string NormalizeConnectionString(string connectionString)
         {
             var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString();
             connectionString = connectionString.Replace("|DataDirectory|", dataDirectory);
-            return connectionString;
-        }
-
-        private string DenormalizeConnectionString(string connectionString)
-        {
-            var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory")?.ToString();
-            connectionString = connectionString.Replace(dataDirectory, "|DataDirectory|");
             return connectionString;
         }
 
@@ -523,68 +667,42 @@ namespace Oqtane.Infrastructure
             connectionString = DenormalizeConnectionString(connectionString);
             if (_config.GetConnectionString(SettingKeys.ConnectionStringKey) != connectionString)
             {
-                AddOrUpdateAppSetting($"ConnectionStrings:{SettingKeys.ConnectionStringKey}", connectionString);
-                _config.Reload();
+                _configManager.AddOrUpdateSetting($"{SettingKeys.ConnectionStringsSection}:{SettingKeys.ConnectionStringKey}", connectionString, true);
             }
         }
 
-        public void AddOrUpdateAppSetting<T>(string sectionPathKey, T value)
+        public void UpdateDatabaseType(string databaseType)
         {
-            try
-            {
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
-                var json = File.ReadAllText(filePath);
-                dynamic jsonObj = JsonConvert.DeserializeObject(json);
-
-                SetValueRecursively(sectionPathKey, jsonObj, value);
-
-                string output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-                File.WriteAllText(filePath, output);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error writing app settings | {0}", ex);
-            }
+            _configManager.AddOrUpdateSetting($"{SettingKeys.DatabaseSection}:{SettingKeys.DatabaseTypeKey}", databaseType, true);
         }
 
-        private void SetValueRecursively<T>(string sectionPathKey, dynamic jsonObj, T value)
+        public void UpgradeSqlServer(ISqlRepository sql, string connectionString, string databaseType, bool isMaster)
         {
-            // split the string at the first ':' character
-            var remainingSections = sectionPathKey.Split(":", 2);
+            var script = (isMaster) ? "MigrateMaster.sql" : "MigrateTenant.sql";
 
-            var currentSection = remainingSections[0];
-            if (remainingSections.Length > 1)
-            {
-                // continue with the process, moving down the tree
-                var nextSection = remainingSections[1];
-                SetValueRecursively(nextSection, jsonObj[currentSection], value);
-            }
-            else
-            {
-                // we've got to the end of the tree, set the value
-                jsonObj[currentSection] = value;
-            }
+            var query = sql.GetScriptFromAssembly(Assembly.GetExecutingAssembly(), script);
+            query = query.Replace("{{Version}}", Constants.Version);
+
+            sql.ExecuteNonQuery(connectionString, databaseType, query);
         }
 
-        private string GetInstallationConfig(string key, string defaultValue)
+        private void ValidateConfiguration()
         {
-            var value = _config.GetSection(SettingKeys.InstallationSection).GetValue(key, defaultValue);
-            // double fallback to default value - allow hold sample keys in config
-            if (string.IsNullOrEmpty(value)) value = defaultValue;
-            return value;
-        }
-
-        private void MigrateScriptNamingConvention(string scriptType, string connectionString)
-        {
-            // migrate to new naming convention for scripts
-            var migrateConfig = DeployChanges.To.SqlDatabase(NormalizeConnectionString(connectionString))
-                .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(), s => s == scriptType + ".00.00.00.00.sql");
-            var migrate = migrateConfig.Build();
-            if (migrate.IsUpgradeRequired())
+            if (_configManager.GetSetting(SettingKeys.DatabaseSection, SettingKeys.DatabaseTypeKey, "") == "")
             {
-                migrate.PerformUpgrade();
+                _configManager.AddOrUpdateSetting($"{SettingKeys.DatabaseSection}:{SettingKeys.DatabaseTypeKey}", Constants.DefaultDBType, true);
+            }
+            if (!_configManager.GetSection(SettingKeys.AvailableDatabasesSection).Exists())
+            {
+                string databases = "[";
+                databases += "{ \"Name\": \"LocalDB\", \"ControlType\": \"Oqtane.Installer.Controls.LocalDBConfig, Oqtane.Client\", \"DBTYpe\": \"Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer\" },";
+                databases += "{ \"Name\": \"SQL Server\", \"ControlType\": \"Oqtane.Installer.Controls.SqlServerConfig, Oqtane.Client\", \"DBTYpe\": \"Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer\" },";
+                databases += "{ \"Name\": \"SQLite\", \"ControlType\": \"Oqtane.Installer.Controls.SqliteConfig, Oqtane.Client\", \"DBTYpe\": \"Oqtane.Database.Sqlite.SqliteDatabase, Oqtane.Database.Sqlite\" },";
+                databases += "{ \"Name\": \"MySQL\", \"ControlType\": \"Oqtane.Installer.Controls.MySQLConfig, Oqtane.Client\", \"DBTYpe\": \"Oqtane.Database.MySQL.SqlServerDatabase, Oqtane.Database.MySQL\" },";
+                databases += "{ \"Name\": \"PostgreSQL\", \"ControlType\": \"Oqtane.Installer.Controls.PostgreSQLConfig, Oqtane.Client\", \"DBTYpe\": \"Oqtane.Database.PostgreSQL.PostgreSQLDatabase, Oqtane.Database.PostgreSQL\" }";
+                databases += "]";
+                _configManager.AddOrUpdateSetting(SettingKeys.AvailableDatabasesSection, JsonConvert.DeserializeObject<dynamic>(databases), true);
             }
         }
-
     }
 }

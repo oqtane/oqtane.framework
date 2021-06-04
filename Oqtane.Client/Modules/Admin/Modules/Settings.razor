@@ -167,46 +167,53 @@
 
     private async Task SaveModule()
     {
-        var pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
-        pagemodule.PageId = int.Parse(_pageId);
-        pagemodule.Title = _title;
-        pagemodule.ContainerType = (_containerType != "-") ? _containerType : string.Empty;
-        if (!string.IsNullOrEmpty(pagemodule.ContainerType) && pagemodule.ContainerType == PageState.Page.DefaultContainerType)
+        if (!string.IsNullOrEmpty(_title))
         {
-            pagemodule.ContainerType = string.Empty;
-        }
-        if (!string.IsNullOrEmpty(pagemodule.ContainerType) && pagemodule.ContainerType == PageState.Site.DefaultContainerType)
-        {
-            pagemodule.ContainerType = string.Empty;
-        }
-        await PageModuleService.UpdatePageModuleAsync(pagemodule);
-        await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
-
-        var module = ModuleState;
-        module.AllPages = bool.Parse(_allPages);
-        module.Permissions = _permissionGrid.GetPermissions();
-        await ModuleService.UpdateModuleAsync(module);
-
-        if (_moduleSettingsType != null)
-        {
-            if (_moduleSettings is ISettingsControl moduleSettingsControl)
+            var pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
+            pagemodule.PageId = int.Parse(_pageId);
+            pagemodule.Title = _title;
+            pagemodule.ContainerType = (_containerType != "-") ? _containerType : string.Empty;
+            if (!string.IsNullOrEmpty(pagemodule.ContainerType) && pagemodule.ContainerType == PageState.Page.DefaultContainerType)
             {
-                // module settings updated using explicit interface
-                await moduleSettingsControl.UpdateSettings();
+                pagemodule.ContainerType = string.Empty;
             }
-            else
+            if (!string.IsNullOrEmpty(pagemodule.ContainerType) && pagemodule.ContainerType == PageState.Site.DefaultContainerType)
             {
-                // legacy support - module settings updated by convention ( ie. by calling a public method named "UpdateSettings" in settings component )
-                _moduleSettings?.GetType().GetMethod("UpdateSettings")?.Invoke(_moduleSettings, null);
+                pagemodule.ContainerType = string.Empty;
             }
-        }
+            await PageModuleService.UpdatePageModuleAsync(pagemodule);
+            await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
 
-        if (_containerSettingsType != null && _containerSettings is ISettingsControl containerSettingsControl)
+            var module = ModuleState;
+            module.AllPages = bool.Parse(_allPages);
+            module.Permissions = _permissionGrid.GetPermissions();
+            await ModuleService.UpdateModuleAsync(module);
+
+            if (_moduleSettingsType != null)
+            {
+                if (_moduleSettings is ISettingsControl moduleSettingsControl)
+                {
+                    // module settings updated using explicit interface
+                    await moduleSettingsControl.UpdateSettings();
+                }
+                else
+                {
+                    // legacy support - module settings updated by convention ( ie. by calling a public method named "UpdateSettings" in settings component )
+                    _moduleSettings?.GetType().GetMethod("UpdateSettings")?.Invoke(_moduleSettings, null);
+                }
+            }
+
+            if (_containerSettingsType != null && _containerSettings is ISettingsControl containerSettingsControl)
+            {
+                await containerSettingsControl.UpdateSettings();
+            }
+
+            NavigationManager.NavigateTo(NavigateUrl());
+        }
+        else
         {
-            await containerSettingsControl.UpdateSettings();
+            AddModuleMessage(Localizer["You Must Provide A Title For The Module"], MessageType.Warning);
         }
-
-        NavigationManager.NavigateTo(NavigateUrl());
     }
 
 }
