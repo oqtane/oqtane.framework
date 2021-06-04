@@ -28,9 +28,9 @@ namespace Oqtane.Controllers
                 }
             }
             // legacy support
-            if (_authEntityId.ContainsKey(EntityNames.Module))
+            if (accessor.HttpContext.Request.Query.ContainsKey("entityid"))
             {
-                _entityId = _authEntityId[EntityNames.Module];
+                _entityId = int.Parse(accessor.HttpContext.Request.Query["entityid"]);
             }
         }
 
