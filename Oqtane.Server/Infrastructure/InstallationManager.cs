@@ -102,20 +102,7 @@ namespace Oqtane.Infrastructure
                     {
                         List<string> assets = new List<string>();
                         bool manifest = false;
-
-                        // remove version information from package name
                         string name = Path.GetFileNameWithoutExtension(packagename);
-                        string[] segments = name.Split('.');
-                        // packages are in form of name.1.0.0.nupkg or name.culture.1.0.0.nupkg or name.nupkg (versionless)
-                        try
-                        {
-                            if (segments.Length > 3)
-                            {
-                                Version version = Version.Parse(string.Join('.', segments, segments.Length - 3, 3));
-                                name = string.Join('.', segments, 0, segments.Length - 3);
-                            }
-                        }
-                        catch { }  // no version in packagename
 
                         // deploy to appropriate locations
                         foreach (ZipArchiveEntry entry in archive.Entries)
@@ -141,10 +128,10 @@ namespace Oqtane.Infrastructure
 
                             if (filename != "")
                             {
-                                // ContentRootPath does not use different case for folder names as other framework methods  
+                                // ContentRootPath sometimes produces inconsistent path casing - so can't use string.Replace()
                                 filename = Regex.Replace(filename, Regex.Escape(contentRootPath), "", RegexOptions.IgnoreCase);
                                 assets.Add(filename);
-                                if (!manifest && Path.GetFileName(filename) == name + ".log")
+                                if (!manifest && Path.GetExtension(filename) == ".log")
                                 {
                                     manifest = true;
                                 }
@@ -199,10 +186,18 @@ namespace Oqtane.Infrastructure
 
         public bool UninstallPackage(string PackageName)
         {
-            if (File.Exists(Path.Combine(_environment.WebRootPath, "Packages", PackageName + ".log")))
+            // get manifest with highest version
+            string packagename = "";
+            string[] packages = Directory.GetFiles(Path.Combine(_environment.ContentRootPath, "Packages"), PackageName + "*.log");
+            if (packages.Length > 0)
+            {
+                packagename = packages[packages.Length - 1]; // use highest version 
+            }
+
+            if (!string.IsNullOrEmpty(packagename))
             {
                 // use manifest to clean up file resources
-                List<string> assets = JsonSerializer.Deserialize<List<string>>(File.ReadAllText(Path.Combine(_environment.WebRootPath, "Packages", PackageName + ".log")));
+                List<string> assets = JsonSerializer.Deserialize<List<string>>(File.ReadAllText(packagename));
                 assets.Reverse();
                 foreach (string asset in assets)
                 {
@@ -217,6 +212,13 @@ namespace Oqtane.Infrastructure
                         }
                     }
                 }
+
+                // clean up package asset manifests
+                foreach(string asset in packages)
+                {
+                    File.Delete(asset);
+                }
+
                 return true;
             }
             return false;
