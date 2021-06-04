@@ -100,12 +100,6 @@ V.1.0.0 ( released in conjunction with .NET Core 3.2 on May 19, 2020 )
 - [x] JavaScript Lazy Loading
 - [x] Dynamic CSS/Lazy Loading
 
-Future Consideration
-- [ ] Support For Additional Authentication Providers (ie. OAuth)
-- [ ] Site Configuration Migrations
-- [ ] Pub/Sub Event Framework
-- [ ] Admin UI Markup Optimization ( ie. replace tables with divs in forms )
-
 # Background
 Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Initially created as a proof of concept, Oqtane is a native Blazor application written from the ground up using modern .NET Core technology. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly templates (skins), and extensibility via third party modules.
 
