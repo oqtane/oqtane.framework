@@ -25,7 +25,7 @@ namespace [Owner].[Module].Controllers
         [Authorize(Policy = PolicyNames.ViewModule)]
         public IEnumerable<Models.[Module]> Get(string moduleid)
         {
-            if (int.Parse(moduleid) == _entityId)
+            if (int.Parse(moduleid) == _authEntityId[EntityNames.Module])
             {
                 return _[Module]Repository.Get[Module]s(int.Parse(moduleid));
             }
@@ -41,7 +41,7 @@ namespace [Owner].[Module].Controllers
         public Models.[Module] Get(int id)
         {
             Models.[Module] [Module] = _[Module]Repository.Get[Module](id);
-            if ([Module] != null && [Module].ModuleId != _entityId)
+            if ([Module] != null && [Module].ModuleId != _authEntityId[EntityNames.Module])
             {
                 [Module] = null;
             }
@@ -53,7 +53,7 @@ namespace [Owner].[Module].Controllers
         [Authorize(Policy = PolicyNames.EditModule)]
         public Models.[Module] Post([FromBody] Models.[Module] [Module])
         {
-            if (ModelState.IsValid && [Module].ModuleId == _entityId)
+            if (ModelState.IsValid && [Module].ModuleId == _authEntityId[EntityNames.Module])
             {
                 [Module] = _[Module]Repository.Add[Module]([Module]);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "[Module] Added {[Module]}", [Module]);
@@ -66,7 +66,7 @@ namespace [Owner].[Module].Controllers
         [Authorize(Policy = PolicyNames.EditModule)]
         public Models.[Module] Put(int id, [FromBody] Models.[Module] [Module])
         {
-            if (ModelState.IsValid && [Module].ModuleId == _entityId)
+            if (ModelState.IsValid && [Module].ModuleId == _authEntityId[EntityNames.Module])
             {
                 [Module] = _[Module]Repository.Update[Module]([Module]);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "[Module] Updated {[Module]}", [Module]);
@@ -80,7 +80,7 @@ namespace [Owner].[Module].Controllers
         public void Delete(int id)
         {
             Models.[Module] [Module] = _[Module]Repository.Get[Module](id);
-            if ([Module] != null && [Module].ModuleId == _entityId)
+            if ([Module] != null && [Module].ModuleId == _authEntityId[EntityNames.Module])
             {
                 _[Module]Repository.Delete[Module](id);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "[Module] Deleted {[Module]Id}", id);
