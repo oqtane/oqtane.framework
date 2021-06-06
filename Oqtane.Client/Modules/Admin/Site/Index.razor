@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject ISiteService SiteService
 @inject ITenantService TenantService
+@inject IDatabaseService DatabaseService
 @inject IAliasService AliasService
 @inject IThemeService  ThemeService
 @inject ISettingService  SettingService
@@ -18,14 +19,6 @@
             </td>
             <td>
                 <input id="name" class="form-control" @bind="@_name" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="tenant" HelpText="Enter the tenant for the site" ResourceKey="Tenant">Tenant: </Label>
-            </td>
-            <td>
-                <input id="tenant" class="form-control" @bind="@_tenant" readonly />
             </td>
         </tr>
         <tr>
@@ -215,7 +208,37 @@
             </tr>
         </table>
     </Section>
-
+    @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+    {
+        <Section Name="TenantInformation" Heading="Tenant Information" ResourceKey="TenantInformation">
+            <table class="table table-borderless">
+                <tr>
+                    <td>
+                        <Label For="tenant" HelpText="The tenant for the site" ResourceKey="Tenant">Tenant: </Label>
+                    </td>
+                    <td>
+                        <input id="tenant" class="form-control" @bind="@_tenant" readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="database" HelpText="The database for the tenant" ResourceKey="Database">Database: </Label>
+                    </td>
+                    <td>
+                        <input id="database" class="form-control" @bind="@_database" readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="connectionstring" HelpText="The connection information for the database" ResourceKey="ConnectionString">Connection: </Label>
+                    </td>
+                    <td>
+                        <textarea id="connectionstring" class="form-control" @bind="@_connectionstring" rows="2" readonly></textarea>
+                    </td>
+                </tr>
+            </table>
+        </Section>
+    }
     <br />
     <button type="button" class="btn btn-success" @onclick="SaveSite">@Localizer["Save"]</button>
     <ActionDialog Header="Delete Site" Message="@Localizer["Are You Sure You Wish To Delete This Site?"]" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteSite())" ResourceKey="DeleteSite" />
@@ -230,8 +253,6 @@
     private List<ThemeControl> _themes = new List<ThemeControl>();
     private List<ThemeControl> _containers = new List<ThemeControl>();
     private string _name = string.Empty;
-    private List<Tenant> _tenantList;
-    private string _tenant = string.Empty;
     private List<Alias> _aliasList;
     private string _urls = string.Empty;
     private int _logofileid = -1;
@@ -253,6 +274,9 @@
     private FileManager _pwaappiconfilemanager;
     private int _pwasplashiconfileid = -1;
     private FileManager _pwasplashiconfilemanager;
+    private string _tenant = string.Empty;
+    private string _database = string.Empty;
+    private string _connectionstring = string.Empty;
     private string _createdby;
     private DateTime _createdon;
     private string _modifiedby;
@@ -273,8 +297,6 @@
             if (site != null)
             {
                 _name = site.Name;
-                _tenantList = await TenantService.GetTenantsAsync();
-                _tenant = _tenantList.Find(item => item.TenantId == site.TenantId).Name;
                 foreach (Alias alias in _aliasList.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
                 {
                     _urls += alias.Name + ",";
@@ -325,6 +347,19 @@
                 if (site.PwaSplashIconFileId != null)
                 {
                     _pwasplashiconfileid = site.PwaSplashIconFileId.Value;
+                }
+
+                if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+                {
+                    var tenants = await TenantService.GetTenantsAsync();
+                    var _databases = await DatabaseService.GetDatabasesAsync();
+                    var tenant = tenants.Find(item => item.TenantId == site.TenantId);
+                    if (_tenant != null)
+                    {
+                        _tenant = tenant.Name;
+                        _database = _databases.Find(item => item.DBType == tenant.DBType)?.Name;
+                        _connectionstring = tenant.DBConnectionString;
+                    }
                 }
 
                 _createdby = site.CreatedBy;
@@ -545,6 +580,5 @@
         {
             AddModuleMessage(Localizer["You Must Specify The SMTP Host, Port, And Sender"], MessageType.Warning);
         }
-
     }
 }
