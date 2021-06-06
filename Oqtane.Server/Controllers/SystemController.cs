@@ -37,5 +37,23 @@ namespace Oqtane.Controllers
             return systeminfo;
         }
 
+        [HttpPost]
+        [Authorize(Roles = RoleNames.Host)]
+        public void Post([FromBody] Dictionary<string, string> settings)
+        {
+            foreach(KeyValuePair<string, string> kvp in settings)
+            {
+                switch (kvp.Key)
+                {
+                    case "runtime":
+                        _configManager.AddOrUpdateSetting("Runtime", kvp.Value, false);
+                        break;
+                    case "rendermode":
+                        _configManager.AddOrUpdateSetting("RenderMode", kvp.Value, false);
+                        break;
+                }
+            }
+        }
+
     }
 }

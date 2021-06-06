@@ -22,5 +22,10 @@ namespace Oqtane.Services
         {
             return await GetJsonAsync<Dictionary<string, string>>(Apiurl);
         }
+
+        public async Task UpdateSystemInfoAsync(Dictionary<string, string> settings)
+        {
+            await PostJsonAsync(Apiurl, settings);
+        }
     }
 }
