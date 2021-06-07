@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Extensions;
@@ -69,8 +69,22 @@ namespace Oqtane.Repository
 
         public PageModule GetPageModule(int pageModuleId)
         {
-            PageModule pagemodule = _db.PageModule.Include(item => item.Module) // eager load modules
-                .SingleOrDefault(item => item.PageModuleId == pageModuleId);
+            return GetPageModule(pageModuleId, true);
+        }
+
+        public PageModule GetPageModule(int pageModuleId, bool tracking)
+        {
+            PageModule pagemodule;
+            if (tracking)
+            {
+                pagemodule = _db.PageModule.Include(item => item.Module) // eager load modules
+                    .FirstOrDefault(item => item.PageModuleId == pageModuleId);
+            }
+            else
+            {
+                pagemodule = _db.PageModule.AsNoTracking().Include(item => item.Module) // eager load modules
+                    .FirstOrDefault(item => item.PageModuleId == pageModuleId);
+            }
             if (pagemodule != null)
             {
                 pagemodule.Module.Permissions = _permissions.GetPermissionString("Module", pagemodule.ModuleId);

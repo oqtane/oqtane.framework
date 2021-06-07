@@ -8,6 +8,7 @@ using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Security;
+using System.Net;
 
 namespace Oqtane.Controllers
 {
@@ -15,14 +16,16 @@ namespace Oqtane.Controllers
     public class PageModuleController : Controller
     {
         private readonly IPageModuleRepository _pageModules;
+        private readonly IPageRepository _pages;
         private readonly IUserPermissions _userPermissions;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public PageModuleController(IPageModuleRepository pageModules, IUserPermissions userPermissions, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
+        public PageModuleController(IPageModuleRepository pageModules, IPageRepository pages, IUserPermissions userPermissions, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
         {
             _pageModules = pageModules;
+            _pages = pages;
             _userPermissions = userPermissions;
             _syncManager = syncManager;
             _logger = logger;
@@ -34,14 +37,14 @@ namespace Oqtane.Controllers
         public PageModule Get(int id)
         {
             PageModule pagemodule = _pageModules.GetPageModule(id);
-            if (_userPermissions.IsAuthorized(User,PermissionNames.View, pagemodule.Module.Permissions))
+            if (pagemodule != null && pagemodule.Module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, pagemodule.Module.Permissions))
             {
                 return pagemodule;
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access PageModule {PageModule}", pagemodule);
-                HttpContext.Response.StatusCode = 401;
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized PageModule Get Attempt {PageModuleId}", id);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
         }
@@ -51,14 +54,14 @@ namespace Oqtane.Controllers
         public PageModule Get(int pageid, int moduleid)
         {
             PageModule pagemodule = _pageModules.GetPageModule(pageid, moduleid);
-            if (_userPermissions.IsAuthorized(User,PermissionNames.View, pagemodule.Module.Permissions))
+            if (pagemodule != null && pagemodule.Module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User,PermissionNames.View, pagemodule.Module.Permissions))
             {
                 return pagemodule;
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access PageModule {PageModule}", pagemodule);
-                HttpContext.Response.StatusCode = 401;
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized PageModule Get Attempt {PageId} {ModuleId}", pageid, moduleid);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
         }
@@ -68,7 +71,8 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Registered)]
         public PageModule Post([FromBody] PageModule pageModule)
         {
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Page, pageModule.PageId, PermissionNames.Edit))
+            var page = _pages.GetPage(pageModule.PageId);
+            if (ModelState.IsValid && page != null && page.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Page, pageModule.PageId, PermissionNames.Edit))
             {
                 pageModule = _pageModules.AddPageModule(pageModule);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId);
@@ -76,8 +80,8 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Add PageModule {PageModule}", pageModule);
-                HttpContext.Response.StatusCode = 401;
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized PageModule Post Attempt {PageModule}", pageModule);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 pageModule = null;
             }
             return pageModule;
@@ -88,7 +92,8 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Registered)]
         public PageModule Put(int id, [FromBody] PageModule pageModule)
         {
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Module, pageModule.ModuleId, PermissionNames.Edit))
+            var page = _pages.GetPage(pageModule.PageId);
+            if (ModelState.IsValid && page != null && page.SiteId == _alias.SiteId && _pageModules.GetPageModule(pageModule.PageModuleId, false) != null && _userPermissions.IsAuthorized(User, EntityNames.Module, pageModule.ModuleId, PermissionNames.Edit))
             {
                 pageModule = _pageModules.UpdatePageModule(pageModule);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId);
@@ -96,8 +101,8 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update PageModule {PageModule}", pageModule);
-                HttpContext.Response.StatusCode = 401;
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized PageModule Put Attempt {PageModule}", pageModule);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 pageModule = null;
             }
             return pageModule;
@@ -108,7 +113,8 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Registered)]
         public void Put(int pageid, string pane)
         {
-            if (_userPermissions.IsAuthorized(User, EntityNames.Page, pageid, PermissionNames.Edit))
+            var page = _pages.GetPage(pageid);
+            if (page != null && page.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Page, pageid, PermissionNames.Edit))
             {
                 int order = 1;
                 List<PageModule> pagemodules = _pageModules.GetPageModules(pageid, pane).OrderBy(item => item.Order).ToList();
@@ -126,9 +132,9 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Page Module Order {PageId} {Pane}", pageid, pane);
-                HttpContext.Response.StatusCode = 401;
-            }
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized PageModule Put Attempt {PageId} {Pane}", pageid, pane);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+           }
         }
 
         // DELETE api/<controller>/5
@@ -137,7 +143,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             PageModule pagemodule = _pageModules.GetPageModule(id);
-            if (_userPermissions.IsAuthorized(User, EntityNames.Page, pagemodule.PageId, PermissionNames.Edit))
+            if (pagemodule != null && pagemodule.Module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Page, pagemodule.PageId, PermissionNames.Edit))
             {
                 _pageModules.DeletePageModule(id);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId);
@@ -145,8 +151,8 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Delete, "User Not Authorized To Delete PageModule {PageModuleId}", id);
-                HttpContext.Response.StatusCode = 401;
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized PageModule Delete Attempt {PageModuleId}", id);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }
     }

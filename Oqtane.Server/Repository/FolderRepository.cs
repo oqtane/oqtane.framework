@@ -61,7 +61,7 @@ namespace Oqtane.Repository
             Folder folder;
             if (tracking)
             {
-                folder = _db.Folder.Where(item => item.FolderId == folderId).FirstOrDefault();
+                folder = _db.Folder.Find(folderId);
             }
             else
             {

@@ -620,7 +620,19 @@ namespace Oqtane.Repository
 
         public Site GetSite(int siteId)
         {
-            return _db.Site.Find(siteId);
+            return GetSite(siteId, true);
+        }
+
+        public Site GetSite(int siteId, bool tracking)
+        {
+            if (tracking)
+            {
+                return _db.Site.Find(siteId);
+            }
+            else
+            {
+                return _db.Site.AsNoTracking().FirstOrDefault(item => item.SiteId == siteId);
+            }
         }
 
         public void DeleteSite(int siteId)

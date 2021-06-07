@@ -43,18 +43,30 @@ namespace Oqtane.Controllers
         [HttpGet]
         public IEnumerable<Page> Get(string siteid)
         {
-            List<Setting> settings = _settings.GetSettings(EntityNames.Page).ToList();
-
             List<Page> pages = new List<Page>();
-            foreach (Page page in _pages.GetPages(int.Parse(siteid)))
+
+            int SiteId;
+            if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
             {
-                if (_userPermissions.IsAuthorized(User,PermissionNames.View, page.Permissions))
+                List<Setting> settings = _settings.GetSettings(EntityNames.Page).ToList();
+
+                foreach (Page page in _pages.GetPages(SiteId))
                 {
-                    page.Settings = settings.Where(item => item.EntityId == page.PageId)
-                        .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
-                    pages.Add(page);
+                    if (_userPermissions.IsAuthorized(User, PermissionNames.View, page.Permissions))
+                    {
+                        page.Settings = settings.Where(item => item.EntityId == page.PageId)
+                            .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
+                        pages.Add(page);
+                    }
                 }
             }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Page Get Attempt {SiteId}", siteid);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                pages = null;
+            }
+
             return pages;
         }
 
@@ -62,7 +74,7 @@ namespace Oqtane.Controllers
         [HttpGet("{id}")]
         public Page Get(int id, string userid)
         {
-            Page page;
+            Page page = null;
             if (string.IsNullOrEmpty(userid))
             {
                 page = _pages.GetPage(id);
@@ -79,8 +91,8 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Page {Page}", page);
-                HttpContext.Response.StatusCode = 401;
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Page Get Attempt {Page}", page);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
         }
@@ -90,7 +102,7 @@ namespace Oqtane.Controllers
         public Page Get(string path, int siteid)
         {
             Page page = _pages.GetPage(WebUtility.UrlDecode(path), siteid);
-            if (page != null)
+            if (page != null && page.SiteId == _alias.SiteId)
             {
                 if (_userPermissions.IsAuthorized(User,PermissionNames.View, page.Permissions))
                 {
@@ -100,14 +112,15 @@ namespace Oqtane.Controllers
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Page {Page}", page);
-                    HttpContext.Response.StatusCode = 401;
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Page Get Attempt {Page}", page);
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                     return null;
                 }
             }
             else
             {
-                HttpContext.Response.StatusCode = 404;
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Page Get Attempt {Path} for Site {SiteId}", path, siteid);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
         }
@@ -117,7 +130,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Registered)]
         public Page Post([FromBody] Page page)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && page.SiteId == _alias.SiteId)
             {
                 string permissions;
                 if (page.ParentId != null)
@@ -149,10 +162,16 @@ namespace Oqtane.Controllers
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Add Page {Page}", page);
-                    HttpContext.Response.StatusCode = 401;
+                    _logger.Log(LogLevel.Warning, this, LogFunction.Create, "User Not Authorized To Add Page {Page}", page);
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                     page = null;
                 }
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Page Post Attempt {Page}", page);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                page = null;
             }
             return page;
         }
@@ -164,7 +183,7 @@ namespace Oqtane.Controllers
         {
             Page page = null;
             Page parent = _pages.GetPage(id);
-            if (parent != null && parent.IsPersonalizable && _userPermissions.GetUser(User).UserId == int.Parse(userid))
+            if (parent != null && parent.SiteId == _alias.SiteId && parent.IsPersonalizable && _userPermissions.GetUser(User).UserId == int.Parse(userid))
             {
                 page = new Page();
                 page.SiteId = parent.SiteId;
@@ -219,6 +238,12 @@ namespace Oqtane.Controllers
                     _pageModules.AddPageModule(pagemodule);
                 }
             }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Page Post Attempt {PageId} By User {UserId}", id, userid);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                page = null;
+            }
             return page;
         }
 
@@ -227,7 +252,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Registered)]
         public Page Put(int id, [FromBody] Page page)
         {
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Page, page.PageId, PermissionNames.Edit))
+            if (ModelState.IsValid && page.SiteId == _alias.SiteId && _pages.GetPage(page.PageId, false) != null && _userPermissions.IsAuthorized(User, EntityNames.Page, page.PageId, PermissionNames.Edit))
             {
                 // preserve page permissions
                 var oldPermissions = _permissionRepository.GetPermissions(EntityNames.Page, page.PageId).ToList();
@@ -281,9 +306,9 @@ namespace Oqtane.Controllers
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Page Updated {Page}", page);
             }
             else
-            {
-                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Page {Page}", page);
-                HttpContext.Response.StatusCode = 401;
+            { 
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Page Put Attempt {Page}", page);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 page = null;
             }
             return page;
@@ -307,7 +332,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Registered)]
         public void Put(int siteid, int pageid, int? parentid)
         {
-            if (_userPermissions.IsAuthorized(User, EntityNames.Page, pageid, PermissionNames.Edit))
+            if (siteid == _alias.SiteId && siteid == _alias.SiteId && _pages.GetPage(pageid, false) != null && _userPermissions.IsAuthorized(User, EntityNames.Page, pageid, PermissionNames.Edit))
             {
                 int order = 1;
                 List<Page> pages = _pages.GetPages(siteid).ToList();
@@ -325,8 +350,8 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Page Order {SiteId} {PageId} {ParentId}", siteid, pageid, parentid);
-                HttpContext.Response.StatusCode = 401;
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Page Put Attempt {SiteId} {PageId} {ParentId}", siteid, pageid, parentid);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }
 
@@ -336,7 +361,7 @@ namespace Oqtane.Controllers
         public void Delete(int id)
         {
             Page page = _pages.GetPage(id);
-            if (_userPermissions.IsAuthorized(User, EntityNames.Page, page.PageId, PermissionNames.Edit))
+            if (page != null && page.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Page, page.PageId, PermissionNames.Edit))
             {
                 _pages.DeletePage(page.PageId);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, page.SiteId);
@@ -344,8 +369,8 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Delete, "User Not Authorized To Delete Page {PageId}", page.PageId);
-                HttpContext.Response.StatusCode = 401;
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Page Delete Attempt {PageId}", id);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }
     }

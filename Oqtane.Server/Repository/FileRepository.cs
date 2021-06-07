@@ -63,12 +63,11 @@ namespace Oqtane.Repository
             File file;
             if (tracking)
             {
-                file = _db.File.Where(item => item.FileId == fileId).Include(item => item.Folder).FirstOrDefault();
-
+                file = _db.File.Include(item => item.Folder).FirstOrDefault(item => item.FileId == fileId);
             }
             else
             {
-                file = _db.File.AsNoTracking().Where(item => item.FileId == fileId).Include(item => item.Folder).FirstOrDefault();
+                file = _db.File.AsNoTracking().Include(item => item.Folder).FirstOrDefault(item => item.FileId == fileId);
             }
             if (file != null)
             {

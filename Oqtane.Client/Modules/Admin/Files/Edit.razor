@@ -61,10 +61,12 @@
     @if (!_isSystem)
     {
         <button type="button" class="btn btn-success" @onclick="SaveFolder">@Localizer["Save"]</button>
+        @((MarkupString)"&nbsp;")
     }
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
     @if (!_isSystem && PageState.QueryString.ContainsKey("id"))
     {
+        @((MarkupString)"&nbsp;")
         <ActionDialog Header="Delete Folder" Message="Are You Sure You Wish To Delete This Folder?" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteFolder())" ResourceKey="DeleteFolder" />
     }
     <br />
