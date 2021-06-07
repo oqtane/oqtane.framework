@@ -53,7 +53,7 @@ V.3.0.0 ( Q4 2021 )
 - [ ] Migration to .NET 6
 
 V.2.2.0 ( Q3 2021 )
-- [ ] Alternate Authentication Providers ( ie. Azure B2C, Social logins, etc... )
+- [ ] Authentication flexibility ( ie. Azure B2C, Social logins, etc... )
 - [ ] Configurable password complexity for local authentication
 
 V.2.1.0 ( Jun 4, 2021 )
