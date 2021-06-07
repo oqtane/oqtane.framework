@@ -56,7 +56,7 @@ V.2.2.0 ( Q3 2021 )
 - [ ] Alternate Authentication Providers ( ie. Azure B2C, Social logins, etc... )
 - [ ] Configurable password complexity for local authentication
 
-V.2.1.0 ( June 2021 )
+V.2.1.0 ( Jun 4, 2021 )
 - [x] Cross Platform Database Support ( ie. LocalDB, SQL Server, SQLite, MySQL, PostgreSQL ) - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
 - [x] Utilize EF Core Migrations - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
 - [x] Include support for Public content folders
