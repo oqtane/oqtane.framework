@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
@@ -10,6 +10,7 @@ namespace Oqtane.Repository
         Role AddRole(Role role);
         Role UpdateRole(Role role);
         Role GetRole(int roleId);
+        Role GetRole(int roleId, bool tracking);
         void DeleteRole(int roleId);
     }
 }

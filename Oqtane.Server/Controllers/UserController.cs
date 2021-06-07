@@ -53,26 +53,46 @@ namespace Oqtane.Controllers
         [Authorize]
         public User Get(int id, string siteid)
         {
-            User user = _users.GetUser(id);
-            if (user != null)
+            int SiteId;
+            if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
             {
-                user.SiteId = int.Parse(siteid);
-                user.Roles = GetUserRoles(user.UserId, user.SiteId);
+                User user = _users.GetUser(id);
+                if (user != null)
+                {
+                    user.SiteId = int.Parse(siteid);
+                    user.Roles = GetUserRoles(user.UserId, user.SiteId);
+                }
+                return Filter(user);
             }
-            return Filter(user);
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Get Attempt {UserId} {SiteId}", id, siteid);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return null;
+            }
         }
 
         // GET api/<controller>/name/x?siteid=x
         [HttpGet("name/{name}")]
         public User Get(string name, string siteid)
         {
-            User user = _users.GetUser(name);
-            if (user != null)
+            int SiteId;
+            if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
             {
-                user.SiteId = int.Parse(siteid);
-                user.Roles = GetUserRoles(user.UserId, user.SiteId);
+                User user = _users.GetUser(name);
+                if (user != null)
+                {
+                    user.SiteId = int.Parse(siteid);
+                    user.Roles = GetUserRoles(user.UserId, user.SiteId);
+                }
+                return Filter(user);
             }
-            return Filter(user);
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Get Attempt {Username} {SiteId}", name, siteid);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return null;
+            }
         }
 
         private User Filter(User user)
@@ -102,13 +122,18 @@ namespace Oqtane.Controllers
         [HttpPost]
         public async Task<User> Post([FromBody] User user)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && user.SiteId == _alias.SiteId)
             {
-                var newUser = await CreateUser(user);
-                return newUser;
+                var User = await CreateUser(user);
+                return User;
             }
-
-            return null;
+            else
+            {
+                user.Password = ""; // remove sensitive information
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Post Attempt {User}", user);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return null;
+            }
         }
 
         private async Task<User> CreateUser(User user)
@@ -230,30 +255,28 @@ namespace Oqtane.Controllers
         [Authorize]
         public async Task<User> Put(int id, [FromBody] User user)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && user.SiteId == _alias.SiteId && _users.GetUser(user.UserId, false) != null && (User.IsInRole(RoleNames.Admin) || User.Identity.Name == user.Username))
             {
-                if (User.IsInRole(RoleNames.Admin) || User.Identity.Name == user.Username)
+                if (user.Password != "")
                 {
-                    if (user.Password != "")
+                    IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
+                    if (identityuser != null)
                     {
-                        IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
-                        if (identityuser != null)
-                        {
-                            identityuser.PasswordHash = _identityUserManager.PasswordHasher.HashPassword(identityuser, user.Password);
-                            await _identityUserManager.UpdateAsync(identityuser);
-                        }
+                        identityuser.PasswordHash = _identityUserManager.PasswordHasher.HashPassword(identityuser, user.Password);
+                        await _identityUserManager.UpdateAsync(identityuser);
                     }
-                    user = _users.UpdateUser(user);
-                    _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.User, user.UserId);
-                    user.Password = ""; // remove sensitive information
-                    _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Updated {User}", user);
                 }
-                else
-                {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update User {User}", user);
-                    HttpContext.Response.StatusCode = 401;
-                    user = null;
-                }
+                user = _users.UpdateUser(user);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.User, user.UserId);
+                user.Password = ""; // remove sensitive information
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Updated {User}", user);
+            }
+            else
+            {
+                user.Password = ""; // remove sensitive information
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Post Attempt {User}", user);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                user = null;
             }
             return user;
         }
@@ -263,18 +286,19 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Admin)]
         public async Task Delete(int id, string siteid)
         {
+            int SiteId;
             User user = _users.GetUser(id);
-            if (user != null)
+            if (user != null && int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
             {
                 // remove user roles for site
-                foreach (UserRole userrole in _userRoles.GetUserRoles(user.UserId, Int32.Parse(siteid)).ToList())
+                foreach (UserRole userrole in _userRoles.GetUserRoles(user.UserId, SiteId).ToList())
                 {
                     _userRoles.DeleteUserRole(userrole.UserRoleId);
                     _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Role Deleted {UserRole}", userrole);
                 }
 
                 // remove user folder for site
-                var folder = _folders.GetFolder(Int32.Parse(siteid), Utilities.PathCombine("Users", user.UserId.ToString(), Path.DirectorySeparatorChar.ToString()));
+                var folder = _folders.GetFolder(SiteId, Utilities.PathCombine("Users", user.UserId.ToString(), Path.DirectorySeparatorChar.ToString()));
                 if (folder != null)
                 {
                     if (Directory.Exists(_folders.GetFolderPath(folder)))
@@ -306,6 +330,11 @@ namespace Oqtane.Controllers
                         }
                     }
                 }
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Delete Attempt {UserId}", id);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }
 

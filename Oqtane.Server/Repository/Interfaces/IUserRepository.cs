@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
@@ -9,6 +9,7 @@ namespace Oqtane.Repository
         User AddUser(User user);
         User UpdateUser(User user);
         User GetUser(int userId);
+        User GetUser(int userId, bool tracking);
         User GetUser(string username);
         void DeleteUser(int userId);
     }

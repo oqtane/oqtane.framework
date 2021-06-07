@@ -7,6 +7,7 @@ using System.Linq;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
+using System.Net;
 
 namespace Oqtane.Controllers
 {
@@ -42,7 +43,7 @@ namespace Oqtane.Controllers
             else
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Settings {EntityName} {EntityId}", entityname, entityid);
-                HttpContext.Response.StatusCode = 401;
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
             return settings;
         }
@@ -59,7 +60,7 @@ namespace Oqtane.Controllers
             else
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Setting {Setting}", setting);
-                HttpContext.Response.StatusCode = 401;
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
         }
@@ -80,7 +81,7 @@ namespace Oqtane.Controllers
             else
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Add Setting {Setting}", setting);
-                HttpContext.Response.StatusCode = 401;
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 setting = null;
             }
             return setting;
@@ -102,7 +103,7 @@ namespace Oqtane.Controllers
             else
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Setting {Setting}", setting);
-                HttpContext.Response.StatusCode = 401;
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 setting = null;
             }
             return setting;
@@ -125,7 +126,7 @@ namespace Oqtane.Controllers
             else
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Delete, "User Not Authorized To Delete Setting {Setting}", setting);
-                HttpContext.Response.StatusCode = 401;
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }
 

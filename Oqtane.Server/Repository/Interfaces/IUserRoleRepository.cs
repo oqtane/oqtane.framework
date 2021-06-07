@@ -10,6 +10,7 @@ namespace Oqtane.Repository
         UserRole AddUserRole(UserRole userRole);
         UserRole UpdateUserRole(UserRole userRole);
         UserRole GetUserRole(int userRoleId);
+        UserRole GetUserRole(int userRoleId, bool tracking);
         void DeleteUserRole(int userRoleId);
         void DeleteUserRoles(int userId);
     }

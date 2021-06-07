@@ -12,6 +12,7 @@ using Oqtane.Modules;
 using Oqtane.Shared;
 using Oqtane.Themes;
 using Microsoft.Extensions.Caching.Memory;
+using System.Net;
 
 namespace Oqtane.Controllers
 {
@@ -85,7 +86,7 @@ namespace Oqtane.Controllers
             }
             else
             {
-                HttpContext.Response.StatusCode = 401;
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
         }

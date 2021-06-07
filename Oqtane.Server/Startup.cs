@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -165,7 +166,7 @@ namespace Oqtane
                 options.Cookie.HttpOnly = false;
                 options.Events.OnRedirectToLogin = context =>
                 {
-                    context.Response.StatusCode = 401;
+                    context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                     return Task.CompletedTask;
                 };
                 options.Events.OnValidatePrincipal = PrincipalValidator.ValidateAsync;

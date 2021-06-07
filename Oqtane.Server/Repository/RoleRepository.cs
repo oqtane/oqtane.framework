@@ -49,7 +49,19 @@ namespace Oqtane.Repository
 
         public Role GetRole(int roleId)
         {
-            return _db.Role.Find(roleId);
+            return GetRole(roleId, true);
+        }
+
+        public Role GetRole(int roleId, bool tracking)
+        {
+            if (tracking)
+            {
+                return _db.Role.Find(roleId);
+            }
+            else
+            {
+                return _db.Role.AsNoTracking().FirstOrDefault(item => item.RoleId == roleId);
+            }
         }
 
         public void DeleteRole(int roleId)
