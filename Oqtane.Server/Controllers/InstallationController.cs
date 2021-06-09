@@ -82,7 +82,7 @@ namespace Oqtane.Controllers
         {
             if (_config.GetSection("Runtime").Value == "WebAssembly")
             {
-                return File(GetAssemblies(), System.Net.Mime.MediaTypeNames.Application.Octet, "oqtane.zip");
+                return File(GetAssemblies(), System.Net.Mime.MediaTypeNames.Application.Octet, "oqtane.oqbz");
             }
             else
             {
