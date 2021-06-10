@@ -5,8 +5,7 @@
 @inject SiteState SiteState
 @inject NavigationManager NavigationManager
 @inject INavigationInterception NavigationInterception
-@inject IAliasService AliasService
-@inject ITenantService TenantService
+@inject ISyncService SyncService
 @inject ISiteService SiteService
 @inject IPageService PageService
 @inject IUserService UserService
@@ -69,7 +68,6 @@
     [SuppressMessage("ReSharper", "StringIndexOfIsCultureSpecific.1")]
     private async Task Refresh()
     {
-        Alias alias = null;
         Site site;
         List<Page> pages;
         Page page;
@@ -103,27 +101,25 @@
             lastsyncdate = PageState.LastSyncDate;
         }
 
-        alias = await AliasService.GetAliasAsync(path, lastsyncdate);
-        SiteState.Alias = alias; // set state for services
-        lastsyncdate = alias.SyncDate;
-
         // process any sync events
-        if (reload != Reload.Site && alias.SyncEvents.Any())
+        var sync = await SyncService.GetSyncAsync(lastsyncdate);
+        lastsyncdate = sync.SyncDate;
+        if (reload != Reload.Site && sync.SyncEvents.Any())
         {
             // if running on WebAssembly reload the client application if the server application was restarted
-            if (runtime == Shared.Runtime.WebAssembly && PageState != null && alias.SyncEvents.Exists(item => item.TenantId == -1))
+            if (runtime == Shared.Runtime.WebAssembly && PageState != null && sync.SyncEvents.Exists(item => item.TenantId == -1))
             {
                 NavigationManager.NavigateTo(_absoluteUri + (!_absoluteUri.Contains("?") ? "?" : "&") + "reload", true);
             }
-            if (alias.SyncEvents.Exists(item => item.EntityName == EntityNames.Site && item.EntityId == alias.SiteId))
+            if (sync.SyncEvents.Exists(item => item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId))
             {
                 reload = Reload.Site;
             }
         }
 
-        if (reload == Reload.Site || PageState == null || alias.SiteId != PageState.Alias.SiteId)
+        if (reload == Reload.Site || PageState == null || PageState.Alias.SiteId != SiteState.Alias.SiteId)
         {
-            site = await SiteService.GetSiteAsync(alias.SiteId);
+            site = await SiteService.GetSiteAsync(SiteState.Alias.SiteId);
             reload = Reload.Site;
         }
         else
@@ -148,9 +144,9 @@
             }
 
             // process any sync events for user
-            if (reload != Reload.Site && user != null && alias.SyncEvents.Any())
+            if (reload != Reload.Site && user != null && sync.SyncEvents.Any())
             {
-                if (alias.SyncEvents.Exists(item => item.EntityName == EntityNames.User && item.EntityId == user.UserId))
+                if (sync.SyncEvents.Exists(item => item.EntityName == EntityNames.User && item.EntityId == user.UserId))
                 {
                     reload = Reload.Site;
                 }
@@ -173,9 +169,9 @@
                 path += "/";
             }
 
-            if (alias.Path != "")
+            if (SiteState.Alias.Path != "")
             {
-                path = path.Substring(alias.Path.Length + 1);
+                path = path.Substring(SiteState.Alias.Path.Length + 1);
             }
 
             // extract admin route elements from path
@@ -281,7 +277,7 @@
 
                     _pagestate = new PageState
                     {
-                        Alias = alias,
+                        Alias = SiteState.Alias,
                         Site = site,
                         Pages = pages,
                         Page = page,
@@ -305,7 +301,7 @@
                 if (user == null)
                 {
                     // redirect to login page
-                    NavigationManager.NavigateTo(Utilities.NavigateUrl(alias.Path, "login", "?returnurl=" + path));
+                    NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "login", "?returnurl=" + path));
                 }
                 else
                 {
@@ -313,7 +309,7 @@
                     if (path != "")
                     {
                         // redirect to home page
-                        NavigationManager.NavigateTo(Utilities.NavigateUrl(alias.Path, "", ""));
+                        NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "", ""));
                     }
                 }
             }

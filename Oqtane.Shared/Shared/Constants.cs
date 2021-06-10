@@ -76,5 +76,8 @@ namespace Oqtane.Shared {
         public static readonly string DefaultCulture = "en";
 
         public static readonly string AuthenticationScheme = "Identity.Application";
+        public static readonly string RequestVerificationToken = "__RequestVerificationToken";
+        public static readonly string AntiForgeryTokenHeaderName = "X-XSRF-TOKEN-HEADER";
+        public static readonly string AntiForgeryTokenCookieName = "X-XSRF-TOKEN-COOKIE";
     }
 }

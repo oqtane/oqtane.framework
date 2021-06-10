@@ -22,24 +22,44 @@ namespace Oqtane.Security
 
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
         {
-            // permission is scoped based on auth{entityname}id (ie ?authmoduleid ) which must be passed as a querystring parameter
+            // permission is scoped based on entitynames and ids passed as querystring parameters or headers
             var ctx = _httpContextAccessor.HttpContext;
             if (ctx != null)
             {
+                // get entityid based on a parameter format of auth{entityname}id (ie. authmoduleid ) 
                 int entityId = -1;
                 if (ctx.Request.Query.ContainsKey("auth" + requirement.EntityName.ToLower() + "id"))
                 {
-                    entityId = int.Parse(ctx.Request.Query["auth" + requirement.EntityName.ToLower() + "id"]);
-                }
-                else
-                {
-                    // legacy support
-                    if (ctx.Request.Query.ContainsKey("entityid"))
+                    if (!int.TryParse(ctx.Request.Query["auth" + requirement.EntityName.ToLower() + "id"], out entityId))
                     {
-                        entityId = int.Parse(ctx.Request.Query["entityid"]);
+                        entityId = -1;
                     }
                 }
-                if (_userPermissions.IsAuthorized(context.User, requirement.EntityName, entityId, requirement.PermissionName))
+                if (entityId == -1)
+                {
+                    if (ctx.Request.Headers.ContainsKey("auth" + requirement.EntityName.ToLower() + "id"))
+                    {
+                        if (!int.TryParse(ctx.Request.Headers["auth" + requirement.EntityName.ToLower() + "id"], out entityId))
+                        {
+                            entityId = -1;
+                        }
+                    }
+                }
+
+                // legacy support
+                if (entityId == -1)
+                {
+                    if (ctx.Request.Query.ContainsKey("entityid"))
+                    {
+                        if (!int.TryParse(ctx.Request.Query["entityid"], out entityId))
+                        {
+                            entityId = -1;
+                        }
+                    }
+                }
+
+                // validate permissions
+                if (entityId != -1 && _userPermissions.IsAuthorized(context.User, requirement.EntityName, entityId, requirement.PermissionName))
                 {
                     context.Succeed(requirement);
                 }

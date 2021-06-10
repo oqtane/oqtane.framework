@@ -16,5 +16,10 @@ namespace Oqtane.Models
         /// Message or error in case something failed.
         /// </summary>
         public string Message { get; set; }
+
+        /// <summary>
+        /// current alias value from server
+        /// </summary>
+        public Alias Alias { get; set; }
     }
 }
