@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
-using Oqtane.Interfaces;
 using Oqtane.Modules;
 using Oqtane.Providers;
 using Oqtane.Services;
@@ -69,6 +68,8 @@ namespace Oqtane.Client
             builder.Services.AddScoped<ISystemService, SystemService>();
             builder.Services.AddScoped<ILocalizationService, LocalizationService>();
             builder.Services.AddScoped<ILanguageService, LanguageService>();
+            builder.Services.AddScoped<IDatabaseService, DatabaseService>();
+            builder.Services.AddScoped<ISyncService, SyncService>();
 
             await LoadClientAssemblies(httpClient);
 

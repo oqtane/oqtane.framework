@@ -24,14 +24,6 @@ namespace Oqtane.Services
         Task<Alias> GetAliasAsync(int aliasId);
 
         /// <summary>
-        /// Retrieve the Alias object of a URL.
-        /// </summary>
-        /// <param name="url">The URL - todoc - is this only the root, or can it be a longer path?</param>
-        /// <param name="lastSyncDate">todoc - unclear what this is for</param>
-        /// <returns></returns>
-        Task<Alias> GetAliasAsync(string url, DateTime lastSyncDate);
-
-        /// <summary>
         /// Save another <see cref="Oqtane.Models.Alias"/> in the DB. It must already contain all the information incl. <see cref="Oqtane.Models.Tenant"/> it belongs to. 
         /// </summary>
         /// <param name="alias">An <see cref="Oqtane.Models.Alias"/> to add.</param>

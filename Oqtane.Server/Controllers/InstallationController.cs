@@ -13,6 +13,8 @@ using Oqtane.Shared;
 using Oqtane.Themes;
 using Microsoft.Extensions.Caching.Memory;
 using System.Net;
+using Oqtane.Repository;
+using Microsoft.AspNetCore.Http;
 
 namespace Oqtane.Controllers
 {
@@ -24,14 +26,18 @@ namespace Oqtane.Controllers
         private readonly IDatabaseManager _databaseManager;
         private readonly ILocalizationManager _localizationManager;
         private readonly IMemoryCache _cache;
+        private readonly IHttpContextAccessor _accessor;
+        private readonly IAliasRepository _aliases;
 
-        public InstallationController(IConfigurationRoot config, IInstallationManager installationManager, IDatabaseManager databaseManager, ILocalizationManager localizationManager, IMemoryCache cache)
+        public InstallationController(IConfigurationRoot config, IInstallationManager installationManager, IDatabaseManager databaseManager, ILocalizationManager localizationManager, IMemoryCache cache, IHttpContextAccessor accessor, IAliasRepository aliases)
         {
             _config = config;
             _installationManager = installationManager;
             _databaseManager = databaseManager;
             _localizationManager = localizationManager;
             _cache = cache;
+            _accessor = accessor;
+            _aliases = aliases;
         }
 
         // POST api/<controller>
@@ -52,11 +58,17 @@ namespace Oqtane.Controllers
             return installation;
         }
 
-        // GET api/<controller>/installed
+        // GET api/<controller>/installed/?path=xxx
         [HttpGet("installed")]
-        public Installation IsInstalled()
+        public Installation IsInstalled(string path)
         {
-            return _databaseManager.IsInstalled();
+            var installation = _databaseManager.IsInstalled();
+            if (installation.Success)
+            {
+                path = _accessor.HttpContext.Request.Host.Value + "/" + WebUtility.UrlDecode(path);
+                installation.Alias = _aliases.GetAlias(path);
+            }
+            return installation;
         }
 
         [HttpGet("upgrade")]

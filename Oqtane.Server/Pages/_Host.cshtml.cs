@@ -60,12 +60,13 @@ namespace Oqtane.Pages
                 ProcessThemeControls(assembly);
             }
 
-            // if culture not specified and framework is installed 
+            // if framework is installed 
             if (!string.IsNullOrEmpty(_configuration.GetConnectionString("DefaultConnection")))
             {
                 var alias = _tenantManager.GetAlias();
                 if (alias != null)
                 {
+                    // if culture not specified
                     if (HttpContext.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName] == null)
                     {
                         // set default language for site if the culture is not supported

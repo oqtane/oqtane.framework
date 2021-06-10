@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject IServiceProvider ServiceProvider
+@inject SiteState SiteState
 @inject IStringLocalizer<Index> Localizer
 
 @if (_message != string.Empty)
@@ -57,7 +58,7 @@
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
 
     public override List<Resource> Resources => new List<Resource>()
-    {
+{
         new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" }
     };
 
@@ -108,7 +109,6 @@
         {
             if (PageState.Runtime == Oqtane.Shared.Runtime.Server)
             {
-                // server-side Blazor
                 var user = new User();
                 user.SiteId = PageState.Site.SiteId;
                 user.Username = _username;
@@ -118,9 +118,8 @@
                 if (user.IsAuthenticated)
                 {
                     await logger.LogInformation("Login Successful For Username {Username}", _username);
-                    // complete the login on the server so that the cookies are set correctly 
-                    string antiforgerytoken = await interop.GetElementByName("__RequestVerificationToken");
-                    var fields = new { __RequestVerificationToken = antiforgerytoken, username = _username, password = _password, remember = _remember, returnurl = _returnUrl };
+                    // server-side Blazor needs to post to the Login page so that the cookies are set correctly
+                    var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, username = _username, password = _password, remember = _remember, returnurl = _returnUrl };
                     string url = Utilities.TenantUrl(PageState.Alias, "/pages/login/");
                     await interop.SubmitForm(url, fields);
                 }

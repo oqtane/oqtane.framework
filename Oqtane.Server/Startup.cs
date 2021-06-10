@@ -78,12 +78,12 @@ namespace Oqtane
                     var navigationManager = s.GetRequiredService<NavigationManager>();
                     var client = new HttpClient(new HttpClientHandler { UseCookies = false });
                     client.BaseAddress = new Uri(navigationManager.Uri);
-                    // set the auth cookie to allow HttpClient API calls to be authenticated
+
+                    // set the cookies to allow HttpClient API calls to be authenticated
                     var httpContextAccessor = s.GetRequiredService<IHttpContextAccessor>();
-                    var authToken = httpContextAccessor.HttpContext.Request.Cookies[".AspNetCore." + Constants.AuthenticationScheme];
-                    if (authToken != null)
+                    foreach (var cookie in httpContextAccessor.HttpContext.Request.Cookies)
                     {
-                        client.DefaultRequestHeaders.Add("Cookie", ".AspNetCore." + Constants.AuthenticationScheme + "=" + authToken);
+                        client.DefaultRequestHeaders.Add("Cookie", cookie.Key + "=" + cookie.Value);
                     }
                     return client;
                 });
@@ -131,6 +131,7 @@ namespace Oqtane
             services.AddScoped<ILocalizationService, LocalizationService>();
             services.AddScoped<ILanguageService, LanguageService>();
             services.AddScoped<IDatabaseService, DatabaseService>();
+            services.AddScoped<ISyncService, SyncService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -164,12 +165,28 @@ namespace Oqtane
             services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.HttpOnly = false;
+                options.Cookie.SameSite = SameSiteMode.Strict;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
                 options.Events.OnRedirectToLogin = context =>
                 {
                     context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                     return Task.CompletedTask;
                 };
+                options.Events.OnRedirectToAccessDenied = context =>
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return Task.CompletedTask;
+                };
                 options.Events.OnValidatePrincipal = PrincipalValidator.ValidateAsync;
+            });
+
+            services.AddAntiforgery(options =>
+            {
+                options.HeaderName = Constants.AntiForgeryTokenHeaderName;
+                options.Cookie.HttpOnly = false;
+                options.Cookie.Name = Constants.AntiForgeryTokenCookieName;
+                options.Cookie.SameSite = SameSiteMode.Strict;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
             });
 
             // register singleton scoped core services

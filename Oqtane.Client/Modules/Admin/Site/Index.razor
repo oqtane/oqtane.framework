@@ -23,14 +23,6 @@
         </tr>
         <tr>
             <td>
-                <Label For="alias" HelpText="Enter the aliases for the site. An alias can be a domain name (www.site.com) or a virtual folder (ie. www.site.com/folder). If a site has multiple aliases they can be separated by commas." ResourceKey="Aliases">Aliases: </Label>
-            </td>
-            <td>
-                <textarea id="alias" class="form-control" @bind="@_urls" rows="3"></textarea>
-            </td>
-        </tr>
-        <tr>
-            <td>
                 <Label For="allowRegister" HelpText="Do you want the users to be able to register for an account on the site" ResourceKey="AllowRegistration">Allow User Registration? </Label>
             </td>
             <td>
@@ -210,6 +202,18 @@
     </Section>
     @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
     {
+        <Section Name="Alias" Heading="Alias Management" ResourceKey="Alias">
+            <table class="table table-borderless">
+                <tr>
+                    <td>
+                        <Label For="alias" HelpText="Enter the aliases for the site. An alias can be a domain name (www.site.com) or a virtual folder (ie. www.site.com/folder). If a site has multiple aliases they can be separated by commas." ResourceKey="Aliases">Aliases: </Label>
+                    </td>
+                    <td>
+                        <textarea id="alias" class="form-control" @bind="@_urls" rows="3"></textarea>
+                    </td>
+                </tr>
+            </table>
+        </Section>
         <Section Name="TenantInformation" Heading="Tenant Information" ResourceKey="TenantInformation">
             <table class="table table-borderless">
                 <tr>
@@ -292,16 +296,24 @@
         try
         {
             _themeList = await ThemeService.GetThemesAsync();
-            _aliasList = await AliasService.GetAliasesAsync();
             Site site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
             if (site != null)
             {
                 _name = site.Name;
-                foreach (Alias alias in _aliasList.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
+                _allowregistration = site.AllowRegistration.ToString();
+                _isdeleted = site.IsDeleted.ToString();
+
+                if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
                 {
-                    _urls += alias.Name + ",";
+                    _aliasList = await AliasService.GetAliasesAsync();
+                    foreach (Alias alias in _aliasList.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
+                    {
+                        _urls += alias.Name + ",";
+                    }
+                    _urls = _urls.Substring(0, _urls.Length - 1);
+
                 }
-                _urls = _urls.Substring(0, _urls.Length - 1);
+
                 if (site.LogoFileId != null)
                 {
                     _logofileid = site.LogoFileId.Value;
@@ -317,7 +329,6 @@
                 _containers = ThemeService.GetContainerControls(_themeList, _themetype);
                 _containertype = (!string.IsNullOrEmpty(site.DefaultContainerType)) ? site.DefaultContainerType : Constants.DefaultContainer;
                 _admincontainertype = (!string.IsNullOrEmpty(site.AdminContainerType)) ? site.AdminContainerType : Constants.DefaultAdminContainer;
-                _allowregistration = site.AllowRegistration.ToString();
 
                 var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
                 _smtphost = SettingService.GetSetting(settings, "SMTPHost", string.Empty);
@@ -368,7 +379,6 @@
                 _modifiedon = site.ModifiedOn;
                 _deletedby = site.DeletedBy;
                 _deletedon = site.DeletedOn;
-                _isdeleted = site.IsDeleted.ToString();
 
                 _initialized = true;
             }
@@ -427,34 +437,30 @@
                         bool refresh = (site.DefaultThemeType != _themetype || site.DefaultContainerType != _containertype);
 
                         site.Name = _name;
+                        site.AllowRegistration = (_allowregistration == null ? true : Boolean.Parse(_allowregistration));
+                        site.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));
+
                         site.LogoFileId = null;
                         var logofileid = _logofilemanager.GetFileId();
                         if (logofileid != -1)
                         {
                             site.LogoFileId = logofileid;
                         }
-
-
                         var faviconFieldId = _faviconfilemanager.GetFileId();
                         if (faviconFieldId != -1)
                         {
                             site.FaviconFileId = faviconFieldId;
                         }
-
                         site.DefaultThemeType = _themetype;
                         site.DefaultContainerType = _containertype;
                         site.AdminContainerType = _admincontainertype;
-                        site.AllowRegistration = (_allowregistration == null ? true : Boolean.Parse(_allowregistration));
-                        site.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));
 
                         site.PwaIsEnabled = (_pwaisenabled == null ? true : Boolean.Parse(_pwaisenabled));
-
                         var pwaappiconfileid = _pwaappiconfilemanager.GetFileId();
                         if (pwaappiconfileid != -1)
                         {
                             site.PwaAppIconFileId = pwaappiconfileid;
                         }
-
                         var pwasplashiconfileid = _pwasplashiconfilemanager.GetFileId();
                         if (pwasplashiconfileid != -1)
                         {
@@ -462,27 +468,6 @@
                         }
 
                         site = await SiteService.UpdateSiteAsync(site);
-
-                        var names = _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                        foreach (Alias alias in _aliasList.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
-                        {
-                            if (!names.Contains(alias.Name))
-                            {
-                                await AliasService.DeleteAliasAsync(alias.AliasId);
-                            }
-                        }
-
-                        foreach (string name in names)
-                        {
-                            if (!_aliasList.Exists(item => item.Name == name))
-                            {
-                                Alias alias = new Alias();
-                                alias.Name = name;
-                                alias.TenantId = site.TenantId;
-                                alias.SiteId = site.SiteId;
-                                await AliasService.AddAliasAsync(alias);
-                            }
-                        }
 
                         var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
                         SettingService.SetSetting(settings, "SMTPHost", _smtphost);
@@ -493,7 +478,32 @@
                         SettingService.SetSetting(settings, "SMTPSender", _smtpsender);
                         await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
 
+                        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+                        {
+                            var names = _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                            foreach (Alias alias in _aliasList.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
+                            {
+                                if (!names.Contains(alias.Name))
+                                {
+                                    await AliasService.DeleteAliasAsync(alias.AliasId);
+                                }
+                            }
+
+                            foreach (string name in names)
+                            {
+                                if (!_aliasList.Exists(item => item.Name == name))
+                                {
+                                    Alias alias = new Alias();
+                                    alias.Name = name;
+                                    alias.TenantId = site.TenantId;
+                                    alias.SiteId = site.SiteId;
+                                    await AliasService.AddAliasAsync(alias);
+                                }
+                            }
+                        }
+
                         await logger.LogInformation("Site Settings Saved {Site}", site);
+
                         if (refresh)
                         {
                             NavigationManager.NavigateTo(NavigateUrl()); // refresh to show new theme or container

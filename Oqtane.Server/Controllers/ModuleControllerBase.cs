@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Oqtane.Infrastructure;
 using System.Collections.Generic;
 using System;
-using Oqtane.Shared;
 
 namespace Oqtane.Controllers
 {
@@ -18,7 +17,7 @@ namespace Oqtane.Controllers
         {
             _logger = logger;
 
-            // populate policy authorization dictionary
+            // populate policy authorization dictionary from querystring and headers
             int value;
             foreach (var param in accessor.HttpContext.Request.Query)
             {
@@ -26,11 +25,32 @@ namespace Oqtane.Controllers
                 {
                     _authEntityId.Add(param.Key.Substring(4, param.Key.Length - 6), value);
                 }
+            }            
+            foreach (var param in accessor.HttpContext.Request.Headers)
+            {
+                if (param.Key.StartsWith("auth") && param.Key.EndsWith("id") && int.TryParse(param.Value, out value))
+                {
+                    _authEntityId.Add(param.Key.Substring(4, param.Key.Length - 6), value);
+                }
             }
+
             // legacy support
             if (_authEntityId.Count == 0 && accessor.HttpContext.Request.Query.ContainsKey("entityid"))
             {
                 _entityId = int.Parse(accessor.HttpContext.Request.Query["entityid"]);
+            }
+
+        }
+
+        protected int AuthEntityId(string entityname)
+        {
+            if (_authEntityId.ContainsKey(entityname))
+            {
+                return _authEntityId[entityname];
+            }
+            else
+            {
+                return -1;
             }
         }
 

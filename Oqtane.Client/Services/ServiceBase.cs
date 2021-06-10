@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components;
 using Oqtane.Documentation;
 using Oqtane.Models;
 using Oqtane.Shared;
@@ -15,10 +17,25 @@ namespace Oqtane.Services
     public class ServiceBase
     {
         private readonly HttpClient _http;
+        private readonly SiteState _siteState;
 
-        protected ServiceBase(HttpClient client)
+        protected ServiceBase(HttpClient client, SiteState siteState)
         {
             _http = client;
+            _siteState = siteState;
+        }
+
+        // should be used with new constructor
+        public string CreateApiUrl(string serviceName)
+        {
+            if (_siteState != null)
+            {
+                return CreateApiUrl(serviceName, _siteState.Alias, ControllerRoutes.ApiRoute);
+            }
+            else // legacy support (before 2.1.0)
+            {           
+                return CreateApiUrl(serviceName, null, ControllerRoutes.Default);
+            }
         }
 
         public string CreateApiUrl(string serviceName, Alias alias)
@@ -61,10 +78,10 @@ namespace Oqtane.Services
             return CreateAuthorizationPolicyUrl(url, new Dictionary<string, int>() { { entityName, entityId } });
         }
 
-        public string CreateAuthorizationPolicyUrl(string url, Dictionary<string, int> args)
+        public string CreateAuthorizationPolicyUrl(string url, Dictionary<string, int> authEntityId)
         {
             string qs = "";
-            foreach (KeyValuePair<string, int> kvp in args)
+            foreach (KeyValuePair<string, int> kvp in authEntityId)
             {
                 qs += (qs != "") ? "&" : "";
                 qs += "auth" + kvp.Key.ToLower() + "id=" + kvp.Value.ToString();
@@ -77,6 +94,33 @@ namespace Oqtane.Services
             else
             {
                 return url + "?" + qs;
+            }
+        }
+
+        protected void AddRequestHeader(string name, string value)
+        {
+            if (_http.DefaultRequestHeaders.Contains(name))
+            {
+                _http.DefaultRequestHeaders.Remove(name);
+            }
+            _http.DefaultRequestHeaders.Add(name, value);
+        }
+
+        protected void AddAntiForgeryToken()
+        {
+            AddRequestHeader(Constants.AntiForgeryTokenHeaderName, _siteState.AntiForgeryToken);
+        }
+
+        public void AddAuthorizationPolicyHeader(string entityName, int entityId)
+        {
+            AddAuthorizationPolicyHeader(new Dictionary<string, int>() { { entityName, entityId } });
+        }
+
+        public void AddAuthorizationPolicyHeader(Dictionary<string, int> authEntityId)
+        {
+            foreach (KeyValuePair<string, int> kvp in authEntityId)
+            {
+                AddRequestHeader("auth" + kvp.Key.ToLower() + "id", kvp.Value.ToString());
             }
         }
 
@@ -194,10 +238,11 @@ namespace Oqtane.Services
             return mediaType != null && mediaType.Equals("application/json", StringComparison.OrdinalIgnoreCase);
         }
 
-        [Obsolete("This method is obsolete. Use CreateApiUrl(string serviceName, Alias alias) in conjunction with ControllerRoutes.ApiRoute in Controllers instead.", false)]
-        public string CreateApiUrl(string serviceName)
+        //[Obsolete("This constructor is obsolete. Use ServiceBase(HttpClient client, SiteState siteState) : base(http, siteState) {} instead.", false)]
+        // This constructor is obsolete. Use ServiceBase(HttpClient client, SiteState siteState) : base(http, siteState) {} instead.
+        protected ServiceBase(HttpClient client)
         {
-            return CreateApiUrl(serviceName, null, ControllerRoutes.Default);
+            _http = client;
         }
 
         [Obsolete("This method is obsolete. Use CreateApiUrl(string serviceName, Alias alias) in conjunction with ControllerRoutes.ApiRoute in Controllers instead.", false)]

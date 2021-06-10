@@ -29,7 +29,7 @@ namespace Oqtane.Security
                         {
                             // tenant agnostic requests must be ignored 
                             string path = context.Request.Path.ToString().ToLower();
-                            if (path.StartsWith("/_blazor") || path.StartsWith("/api/installation/") || path.StartsWith("/api/alias/name/"))
+                            if (path.StartsWith("/_blazor") || path.StartsWith("/api/installation/"))
                             {
                                 return Task.CompletedTask;
                             }
