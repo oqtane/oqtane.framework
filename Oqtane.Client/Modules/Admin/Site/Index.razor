@@ -23,6 +23,22 @@
         </tr>
         <tr>
             <td>
+                <Label For="alias" HelpText="The aliases for the site. An alias can be a domain name (www.site.com) or a virtual folder (ie. www.site.com/folder). If a site has multiple aliases they should be separated by commas." ResourceKey="Aliases">Aliases: </Label>
+            </td>
+            <td>
+                @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+                {
+                    <textarea id="alias" class="form-control" @bind="@_urls" rows="3"></textarea>
+                }
+                else
+                {
+                    <textarea id="alias" class="form-control" @bind="@_urls" rows="3" readonly></textarea>
+                }
+            </td>
+        </tr>
+
+        <tr>
+            <td>
                 <Label For="allowRegister" HelpText="Do you want the users to be able to register for an account on the site" ResourceKey="AllowRegistration">Allow User Registration? </Label>
             </td>
             <td>
@@ -202,18 +218,6 @@
     </Section>
     @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
     {
-        <Section Name="Alias" Heading="Alias Management" ResourceKey="Alias">
-            <table class="table table-borderless">
-                <tr>
-                    <td>
-                        <Label For="alias" HelpText="Enter the aliases for the site. An alias can be a domain name (www.site.com) or a virtual folder (ie. www.site.com/folder). If a site has multiple aliases they can be separated by commas." ResourceKey="Aliases">Aliases: </Label>
-                    </td>
-                    <td>
-                        <textarea id="alias" class="form-control" @bind="@_urls" rows="3"></textarea>
-                    </td>
-                </tr>
-            </table>
-        </Section>
         <Section Name="TenantInformation" Heading="Tenant Information" ResourceKey="TenantInformation">
             <table class="table table-borderless">
                 <tr>
@@ -421,11 +425,14 @@
             if (_name != string.Empty && _urls != string.Empty && _themetype != "-" && _containertype != "-")
             {
                 var unique = true;
-                foreach (string name in _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
                 {
-                    if (_aliasList.Exists(item => item.Name == name && item.SiteId != PageState.Alias.SiteId && item.TenantId != PageState.Alias.TenantId))
+                    foreach (string name in _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                     {
-                        unique = false;
+                        if (_aliasList.Exists(item => item.Name == name && item.SiteId != PageState.Alias.SiteId && item.TenantId != PageState.Alias.TenantId))
+                        {
+                            unique = false;
+                        }
                     }
                 }
 
@@ -542,7 +549,7 @@
                 await logger.LogInformation("Site Deleted {SiteId}", PageState.Site.SiteId);
 
                 var aliases = await AliasService.GetAliasesAsync();
-                foreach (Alias a in aliases.Where(item => item.SiteId == PageState.Site.SiteId))
+                foreach (Alias a in aliases.Where(item => item.SiteId == PageState.Site.SiteId && item.TenantId == PageState.Site.TenantId))
                 {
                     await AliasService.DeleteAliasAsync(a.AliasId);
                 }

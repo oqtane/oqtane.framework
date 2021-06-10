@@ -8,6 +8,8 @@ using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Microsoft.AspNetCore.Http;
+using Oqtane.Themes.Controls;
+using System.Linq;
 
 namespace Oqtane.Controllers
 {
@@ -16,19 +18,26 @@ namespace Oqtane.Controllers
     {
         private readonly IAliasRepository _aliases;
         private readonly ILogManager _logger;
+        private readonly Alias _alias;
 
-        public AliasController(IAliasRepository aliases, ILogManager logger)
+        public AliasController(IAliasRepository aliases, ILogManager logger, ITenantManager tenantManager)
         {
             _aliases = aliases;
             _logger = logger;
+            _alias = tenantManager.GetAlias();
         }
 
         // GET: api/<controller>
         [HttpGet]
-        [Authorize(Roles = RoleNames.Host)]
+        [Authorize(Roles = RoleNames.Admin)]
         public IEnumerable<Alias> Get()
         {
-            return _aliases.GetAliases();
+            var aliases = _aliases.GetAliases();
+            if (!User.IsInRole(RoleNames.Host))
+            {
+                aliases = aliases.Where(item => item.SiteId == _alias.SiteId && item.TenantId == _alias.TenantId);
+            }
+            return aliases;
         }
 
         // GET api/<controller>/5
