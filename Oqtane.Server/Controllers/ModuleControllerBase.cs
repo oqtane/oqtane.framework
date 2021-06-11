@@ -27,17 +27,6 @@ namespace Oqtane.Controllers
                     _authEntityId.Add(param.Key.Substring(4, param.Key.Length - 6), value);
                 }
             }
-            // if policy authorization dictionary is empty populate from headers
-            if (_authEntityId.Count == 0)
-            {
-                foreach (var param in accessor.HttpContext.Request.Headers)
-                {
-                    if (param.Key.StartsWith("auth") && param.Key.EndsWith("id") && int.TryParse(param.Value, out value))
-                    {
-                        _authEntityId.Add(param.Key.Substring(4, param.Key.Length - 6), value);
-                    }
-                }
-            }
 
             // legacy support
             if (_authEntityId.Count == 0 && accessor.HttpContext.Request.Query.ContainsKey("entityid"))

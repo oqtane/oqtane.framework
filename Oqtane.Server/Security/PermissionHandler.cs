@@ -35,16 +35,6 @@ namespace Oqtane.Security
                         entityId = -1;
                     }
                 }
-                if (entityId == -1)
-                {
-                    if (ctx.Request.Headers.ContainsKey("auth" + requirement.EntityName.ToLower() + "id"))
-                    {
-                        if (!int.TryParse(ctx.Request.Headers["auth" + requirement.EntityName.ToLower() + "id"], out entityId))
-                        {
-                            entityId = -1;
-                        }
-                    }
-                }
 
                 // legacy support
                 if (entityId == -1)

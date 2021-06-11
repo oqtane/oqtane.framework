@@ -13,29 +13,22 @@ namespace Oqtane.Modules.HtmlText.Services
 
         public async Task<Models.HtmlText> GetHtmlTextAsync(int moduleId)
         {
-            AddAuthorizationPolicyHeader(EntityNames.Module, moduleId);
-            return await GetJsonAsync<Models.HtmlText>($"{ApiUrl}/{moduleId}");
+            return await GetJsonAsync<Models.HtmlText>(CreateAuthorizationPolicyUrl($"{ApiUrl}/{moduleId}", EntityNames.Module, moduleId));
         }
 
         public async Task AddHtmlTextAsync(Models.HtmlText htmlText)
         {
-            AddAntiForgeryToken();
-            AddAuthorizationPolicyHeader(EntityNames.Module, htmlText.ModuleId);
-            await PostJsonAsync($"{ApiUrl}", htmlText);
+            await PostJsonAsync(CreateAuthorizationPolicyUrl($"{ApiUrl}", EntityNames.Module, htmlText.ModuleId), htmlText);
         }
 
         public async Task UpdateHtmlTextAsync(Models.HtmlText htmlText)
         {
-            AddAntiForgeryToken();
-            AddAuthorizationPolicyHeader(EntityNames.Module, htmlText.ModuleId);
-            await PutJsonAsync($"{ApiUrl}/{htmlText.HtmlTextId}", htmlText);
+            await PutJsonAsync(CreateAuthorizationPolicyUrl($"{ApiUrl}/{htmlText.HtmlTextId}", EntityNames.Module, htmlText.ModuleId), htmlText);
         }
 
         public async Task DeleteHtmlTextAsync(int moduleId)
         {
-            AddAntiForgeryToken();
-            AddAuthorizationPolicyHeader(EntityNames.Module, moduleId);
-            await DeleteAsync($"{ApiUrl}/{moduleId}");
+            await DeleteAsync(CreateAuthorizationPolicyUrl($"{ApiUrl}/{moduleId}", EntityNames.Module, moduleId));
         }
     }
 }
