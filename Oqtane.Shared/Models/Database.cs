@@ -19,5 +19,10 @@ namespace Oqtane.Models
         /// Type of DB using the full namespace, like `Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer`
         /// </summary>
         public string DBType { get; set; }
+
+        /// <summary>
+        /// whether this item is the default database provider ( ie. specified by DefaultDBType in appsettings.json )
+        /// </summary>
+        public bool IsDefault { get; set; }
     }
 }

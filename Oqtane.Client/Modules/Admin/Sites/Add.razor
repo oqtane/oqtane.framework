@@ -130,7 +130,14 @@ else
                     <select id="databaseType" class="custom-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))">
                         @foreach (var database in _databases)
                         {
-                            <option value="@database.Name">@Localizer[@database.Name]</option>
+                            if (database.IsDefault)
+                            {
+                                <option value="@database.Name" selected>@Localizer[@database.Name]</option>
+                            }
+                            else
+                            {
+                                <option value="@database.Name">@Localizer[@database.Name]</option>
+                            }
                         }
                     </select>
                 </td>
