@@ -2,6 +2,7 @@
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject ITenantService TenantService
+@inject IDatabaseService DatabaseService
 @inject ISqlService SqlService
 @inject IStringLocalizer<Index> Localizer
 
@@ -11,19 +12,37 @@
 }
 else
 {
-    <table class="table table-borderless">
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <Label For="tenant" HelpText="Select the tenant for the SQL server" ResourceKey="Tenant">Tenant: </Label>
+        </td>
+        <td>
+            <select id="tenant" class="form-control" value="@_tenantid" @onchange="(e => TenantChanged(e))">
+                <option value="-1">&lt;@Localizer["Select Tenant"]&gt;</option>
+                @foreach (Tenant tenant in _tenants)
+                {
+                    <option value="@tenant.TenantId">@tenant.Name</option>
+                }
+            </select>
+        </td>
+    </tr>
+    @if (_tenantid != "-1")
+    {
         <tr>
             <td>
-                <Label For="tenant" HelpText="Select the tenant for the SQL server" ResourceKey="Tenant">Tenant: </Label>
+                <Label For="database" HelpText="The database for the tenant" ResourceKey="Database">Database: </Label>
             </td>
             <td>
-                <select id="teneant" class="form-control" @bind="_tenantid">
-                    <option value="-1">&lt;@Localizer["Select Tenant"]&gt;</option>
-                    @foreach (Tenant tenant in _tenants)
-                    {
-                        <option value="@tenant.TenantId">@tenant.Name</option>
-                    }
-                </select>
+                <input id="database" class="form-control" @bind="@_database" readonly />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="connectionstring" HelpText="The connection information for the database" ResourceKey="ConnectionString">Connection: </Label>
+            </td>
+            <td>
+                <textarea id="connectionstring" class="form-control" @bind="@_connectionstring" rows="2" readonly></textarea>
             </td>
         </tr>
         <tr>
@@ -34,6 +53,7 @@ else
                 <textarea id="sqlQeury" class="form-control" @bind="@_sql" rows="5"></textarea>
             </td>
         </tr>
+    }
     </table>
     <button type="button" class="btn btn-success" @onclick="Execute">@Localizer["Execute"]</button>
     <br />
@@ -47,6 +67,8 @@ else
 @code {
     private List<Tenant> _tenants;
     private string _tenantid = "-1";
+    private string _database = string.Empty;
+    private string _connectionstring = string.Empty;
     private string _sql = string.Empty;
     private string _results = string.Empty;
 
@@ -54,20 +76,59 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        _tenants = await TenantService.GetTenantsAsync();
+        try
+        {
+            _tenants = await TenantService.GetTenantsAsync();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Tenants {Error}", ex.Message);
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
+
+    private async void TenantChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            _tenantid = (string)e.Value;
+            var tenants = await TenantService.GetTenantsAsync();
+            var _databases = await DatabaseService.GetDatabasesAsync();
+            var tenant = tenants.Find(item => item.TenantId == int.Parse(_tenantid));
+            if (tenant != null)
+            {
+                _database = _databases.Find(item => item.DBType == tenant.DBType)?.Name;
+                _connectionstring = tenant.DBConnectionString;
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Tenant {TenantId} {Error}", _tenantid, ex.Message);
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
     }
 
     private async Task Execute()
     {
-        if (_tenantid != "-1" && !string.IsNullOrEmpty(_sql))
+        try
         {
-            var sqlquery = new SqlQuery { TenantId = int.Parse(_tenantid), Query = _sql };
-            sqlquery = await SqlService.ExecuteQueryAsync(sqlquery);
-            _results = DisplayResults(sqlquery.Results);
+            if (_tenantid != "-1" && !string.IsNullOrEmpty(_sql))
+            {
+                var sqlquery = new SqlQuery { TenantId = int.Parse(_tenantid), Query = _sql };
+                sqlquery = await SqlService.ExecuteQueryAsync(sqlquery);
+                _results = DisplayResults(sqlquery.Results);
+                AddModuleMessage(Localizer["SQL Query Executed"], MessageType.Success);
+            }
+            else
+            {
+                AddModuleMessage(Localizer["You Must Select A Tenant And Provide A Valid SQL Query"], MessageType.Warning);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            AddModuleMessage(Localizer["You Must Select A Tenant And Provide A SQL Query"], MessageType.Warning);
+            await logger.LogError(ex, "Error Executing SQL Query {SQL} {Error}", _sql, ex.Message);
+            AddModuleMessage(ex.Message, MessageType.Error);
         }
     }
 

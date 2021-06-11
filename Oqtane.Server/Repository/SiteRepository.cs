@@ -768,7 +768,8 @@ namespace Oqtane.Repository
                     Icon = pagetemplate.Icon,
                     Permissions = pagetemplate.PagePermissions,
                     IsPersonalizable = pagetemplate.IsPersonalizable,
-                    UserId = null
+                    UserId = null,
+                    IsClickable = true
                 };
                 page = _pageRepository.AddPage(page);
 
