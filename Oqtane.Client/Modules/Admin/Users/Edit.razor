@@ -152,33 +152,36 @@ else
     {
         try
         {
-            profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
-
-            userid = Int32.Parse(PageState.QueryString["id"]);
-            var user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
-            if (user != null)
+            // OnParametersSetAsync is called when the edit modal is closed - in which case there is no id parameter
+            if (PageState.QueryString.ContainsKey("id"))
             {
-                username = user.Username;
-                email = user.Email;
-                displayname = user.DisplayName;
-                if (user.PhotoFileId != null)
+                profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
+                userid = Int32.Parse(PageState.QueryString["id"]);
+                var user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
+                if (user != null)
                 {
-                    photofileid = user.PhotoFileId.Value;
-                    photo = await FileService.GetFileAsync(photofileid);
+                    username = user.Username;
+                    email = user.Email;
+                    displayname = user.DisplayName;
+                    if (user.PhotoFileId != null)
+                    {
+                        photofileid = user.PhotoFileId.Value;
+                        photo = await FileService.GetFileAsync(photofileid);
+                    }
+                    else
+                    {
+                        photofileid = -1;
+                        photo = null;
+                    }
+                    settings = await SettingService.GetUserSettingsAsync(user.UserId);
+                    createdby = user.CreatedBy;
+                    createdon = user.CreatedOn;
+                    modifiedby = user.ModifiedBy;
+                    modifiedon = user.ModifiedOn;
+                    deletedby = user.DeletedBy;
+                    deletedon = user.DeletedOn;
+                    isdeleted = user.IsDeleted.ToString();
                 }
-                else
-                {
-                    photofileid = -1;
-                    photo = null;
-                }
-                settings = await SettingService.GetUserSettingsAsync(user.UserId);
-                createdby = user.CreatedBy;
-                createdon = user.CreatedOn;
-                modifiedby = user.ModifiedBy;
-                modifiedon = user.ModifiedOn;
-                deletedby = user.DeletedBy;
-                deletedon = user.DeletedOn;
-                isdeleted = user.IsDeleted.ToString();
             }
         }
         catch (Exception ex)

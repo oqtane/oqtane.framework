@@ -52,7 +52,7 @@ namespace Oqtane.Controllers
         public Role Get(int id)
         {
             var role = _roles.GetRole(id);
-            if (role != null && role.SiteId == _alias.SiteId)
+            if (role != null && (role.SiteId == _alias.SiteId || User.IsInRole(RoleNames.Host)))
             {
                 return role;
             }
