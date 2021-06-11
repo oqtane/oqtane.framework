@@ -13,16 +13,20 @@ namespace Oqtane.Services
     public class InstallationService : ServiceBase, IInstallationService
     {
         private readonly NavigationManager _navigationManager;
+        private readonly SiteState _siteState;
 
-        public InstallationService(HttpClient http, NavigationManager navigationManager) : base(http)
+        public InstallationService(HttpClient http, NavigationManager navigationManager, SiteState siteState) : base(http)
         {
             _navigationManager = navigationManager;
+            _siteState = siteState;
         }
 
         private string ApiUrl => CreateApiUrl("Installation", null, ControllerRoutes.ApiRoute); // tenant agnostic
 
         public async Task<Installation> IsInstalled()
         {
+            // add antiforgerytoken header so that it is included on all HttpClient calls for the lifetime of the app
+            AddRequestHeader(Constants.AntiForgeryTokenHeaderName, _siteState.AntiForgeryToken);
             var path = new Uri(_navigationManager.Uri).LocalPath.Substring(1);            
             return await GetJsonAsync<Installation>($"{ApiUrl}/installed/?path={WebUtility.UrlEncode(path)}");
         }

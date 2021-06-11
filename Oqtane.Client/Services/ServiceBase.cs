@@ -20,7 +20,6 @@ namespace Oqtane.Services
         protected ServiceBase(HttpClient client, SiteState siteState)
         {
             _http = client;
-            RemoveAuthorizationPolicyHeaders();
             _siteState = siteState;
         }
 
@@ -96,6 +95,7 @@ namespace Oqtane.Services
             }
         }
 
+        // note that HttpClient is registered as a Scoped(shared) service and therefore you should not use request headers whose value can vary over the lifetime of the service
         protected void AddRequestHeader(string name, string value)
         {
             RemoveRequestHeader(name);
@@ -107,35 +107,6 @@ namespace Oqtane.Services
             if (_http.DefaultRequestHeaders.Contains(name))
             {
                 _http.DefaultRequestHeaders.Remove(name);
-            }
-        }
-
-        protected void AddAntiForgeryToken()
-        {
-            AddRequestHeader(Constants.AntiForgeryTokenHeaderName, _siteState.AntiForgeryToken);
-        }
-
-        public void AddAuthorizationPolicyHeader(string entityName, int entityId)
-        {
-            AddAuthorizationPolicyHeader(new Dictionary<string, int>() { { entityName, entityId } });
-        }
-
-        public void AddAuthorizationPolicyHeader(Dictionary<string, int> authEntityId)
-        {
-            foreach (KeyValuePair<string, int> kvp in authEntityId)
-            {
-                AddRequestHeader("auth" + kvp.Key.ToLower() + "id", kvp.Value.ToString());
-            }
-        }
-
-        public void RemoveAuthorizationPolicyHeaders()
-        {
-            foreach (var param in _http.DefaultRequestHeaders)
-            {
-                if (param.Key.StartsWith("auth") && param.Key.EndsWith("id"))
-                {
-                    _http.DefaultRequestHeaders.Remove(param.Key);
-                }
             }
         }
 
@@ -258,7 +229,6 @@ namespace Oqtane.Services
         protected ServiceBase(HttpClient client)
         {
             _http = client;
-            RemoveAuthorizationPolicyHeaders();
         }
 
         [Obsolete("This method is obsolete. Use CreateApiUrl(string serviceName, Alias alias) in conjunction with ControllerRoutes.ApiRoute in Controllers instead.", false)]
