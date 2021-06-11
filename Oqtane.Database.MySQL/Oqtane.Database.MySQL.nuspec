@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>Oqtane.Database.MySQL</id>
+        <version>2.1.0</version>
+        <authors>Shaun Walker</authors>
+        <owners>.NET Foundation</owners>
+        <title>Oqtane MySQL Provider</title>
+        <summary>MySQL database support for the Oqtane Framework</summary>
+        <description>MySQL database support for the Oqtane Framework</description>
+        <copyright>.NET Foundation</copyright>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <license type="expression">MIT</license>
+        <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
+        <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v2.1.0</releaseNotes>
+        <icon>icon.png</icon>
+        <tags>oqtane</tags>
+    </metadata>
+    <files>
+        <file src="bin\net5.0\Oqtane.Database.MySQL.dll" target="lib\net5.0" />
+        <file src="bin\net5.0\Oqtane.Database.MySQL.pdb" target="lib\net5.0" />
+        <file src="bin\net5.0\Mysql.EntityFrameworkCore.dll" target="lib\net5.0" />
+        <file src="bin\net5.0\Mysql.Data.dll" target="lib\net5.0" />
+        <file src="icon.png" target="" />
+    </files>
+</package>

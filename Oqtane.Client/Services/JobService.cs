@@ -1,12 +1,14 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Linq;
 using System.Collections.Generic;
+using Oqtane.Documentation;
 using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
+    [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class JobService : ServiceBase, IJobService
     {
         private readonly SiteState _siteState;
@@ -16,7 +18,7 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private string Apiurl => CreateApiUrl(_siteState.Alias, "Job");
+        private string Apiurl => CreateApiUrl("Job", _siteState.Alias);
         
         public async Task<List<Job>> GetJobsAsync()
         {

@@ -3,7 +3,7 @@
 @inject IStringLocalizer<Login> Localizer 
 
 <span class="app-login">
-    <AuthorizeView>
+    <AuthorizeView Roles="@RoleNames.Registered">
         <Authorizing>
             <text>...</text>
         </Authorizing>

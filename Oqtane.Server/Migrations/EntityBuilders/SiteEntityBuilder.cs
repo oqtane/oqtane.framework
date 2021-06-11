@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Oqtane.Databases.Interfaces;
 using Oqtane.Interfaces;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -13,7 +14,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private const string _entityTableName = "Site";
         private readonly PrimaryKey<SiteEntityBuilder> _primaryKey = new("PK_Site", x => x.SiteId);
 
-        public SiteEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
+        public SiteEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;
@@ -27,7 +28,6 @@ namespace Oqtane.Migrations.EntityBuilders
             LogoFileId = AddIntegerColumn(table,"LogoFileId", true);
             FaviconFileId = AddIntegerColumn(table,"FaviconFileId", true);
             DefaultThemeType = AddStringColumn(table,"DefaultThemeType", 200);
-            DefaultLayoutType = AddStringColumn(table,"DefaultLayoutType", 200);
             DefaultContainerType = AddStringColumn(table,"DefaultContainerType", 200);
             PwaIsEnabled = AddBooleanColumn(table,"PwaIsEnabled");
             PwaAppIconFileId = AddIntegerColumn(table,"PwaAppIconFileId", true);
@@ -51,8 +51,6 @@ namespace Oqtane.Migrations.EntityBuilders
         public OperationBuilder<AddColumnOperation> FaviconFileId { get; private set; }
 
         public OperationBuilder<AddColumnOperation> DefaultThemeType { get; private set; }
-
-        public OperationBuilder<AddColumnOperation> DefaultLayoutType { get; private set; }
 
         public OperationBuilder<AddColumnOperation> DefaultContainerType { get; private set; }
 

@@ -55,6 +55,7 @@ div.app-moduleactions a.dropdown-toggle, div.app-moduleactions div.dropdown-menu
     min-height: 40px;
     text-align: center;
     color: #ffffff;
+    z-index: 1000;
 }
 
 @media (max-width: 767px) {

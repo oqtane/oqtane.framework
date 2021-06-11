@@ -3,8 +3,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Oqtane.Enums;
 using Oqtane.Models;
-using Oqtane.Modules.HtmlText.Repository;
 using Oqtane.Repository;
+using Oqtane.Shared;
 
 namespace Oqtane.Modules
 {

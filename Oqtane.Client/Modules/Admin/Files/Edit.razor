@@ -34,6 +34,24 @@
             </td>
         </tr>
         <tr>
+            <td>
+                <Label for="type" HelpText="Select the folder type. Private folders are only accessible by authorized users. Public folders can be accessed by all users" ResourceKey="Name">Type: </Label>
+            </td>
+            <td>
+                @if (PageState.QueryString.ContainsKey("id"))
+                {
+                    <input id="type" class="form-control" readonly @bind="@_type" />
+                }
+                else
+                {
+                    <select id="type" class="form-control" @bind="@_type">
+                        <option value="@FolderTypes.Private">@Localizer[FolderTypes.Private]</option>
+                        <option value="@FolderTypes.Public">@Localizer[FolderTypes.Public]</option>
+                    </select>
+                }
+            </td>
+        </tr>
+        <tr>
             <td colspan="2" align="center">
                 <Label For="permissions" HelpText="Select the permissions you want for the folder" ResourceKey="Permissions">Permissions: </Label>
                 <PermissionGrid EntityName="@EntityNames.Folder" PermissionNames="@(PermissionNames.Browse + "," + PermissionNames.View + "," + PermissionNames.Edit)" Permissions="@_permissions" @ref="_permissionGrid" />
@@ -43,10 +61,12 @@
     @if (!_isSystem)
     {
         <button type="button" class="btn btn-success" @onclick="SaveFolder">@Localizer["Save"]</button>
+        @((MarkupString)"&nbsp;")
     }
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
     @if (!_isSystem && PageState.QueryString.ContainsKey("id"))
     {
+        @((MarkupString)"&nbsp;")
         <ActionDialog Header="Delete Folder" Message="Are You Sure You Wish To Delete This Folder?" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteFolder())" ResourceKey="DeleteFolder" />
     }
     <br />
@@ -60,8 +80,9 @@
 @code {
     private List<Folder> _folders;
     private int _folderId = -1;
-    private string _name;
     private int _parentId = -1;
+    private string _name;
+    private string _type = FolderTypes.Private;
     private bool _isSystem;
     private string _permissions = string.Empty;
     private string _createdBy;
@@ -91,6 +112,7 @@
                 {
                     _parentId = folder.ParentId ?? -1;
                     _name = folder.Name;
+                    _type = folder.Type;
                     _isSystem = folder.IsSystem;
                     _permissions = folder.Permissions;
                     _createdBy = folder.CreatedBy;
@@ -150,6 +172,7 @@
             }
 
             folder.Name = _name;
+            folder.Type = _type;
             folder.IsSystem = _isSystem;
             folder.Permissions = _permissionGrid.GetPermissions();
 

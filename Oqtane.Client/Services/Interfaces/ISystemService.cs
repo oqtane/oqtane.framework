@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Oqtane.Services
@@ -6,5 +6,7 @@ namespace Oqtane.Services
     public interface ISystemService
     {
         Task<Dictionary<string, string>> GetSystemInfoAsync();
+
+        Task UpdateSystemInfoAsync(Dictionary<string, string> settings);
     }
 }

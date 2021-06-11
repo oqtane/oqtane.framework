@@ -1,12 +1,14 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+using Oqtane.Documentation;
 using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
+    [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class TenantService : ServiceBase, ITenantService
     {
         private readonly SiteState _siteState;
@@ -16,7 +18,7 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private string Apiurl => CreateApiUrl(_siteState.Alias, "Tenant");
+        private string Apiurl => CreateApiUrl("Tenant", _siteState.Alias);
 
         public async Task<List<Tenant>> GetTenantsAsync()
         {

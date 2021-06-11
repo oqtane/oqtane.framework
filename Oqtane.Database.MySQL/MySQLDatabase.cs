@@ -1,58 +1,33 @@
-using System;
-using System.Collections.Generic;
+using System.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using MySql.Data.MySqlClient;
 using MySql.EntityFrameworkCore.Metadata;
-using Oqtane.Models;
+using Oqtane.Databases;
 using Oqtane.Shared;
 
 namespace Oqtane.Database.MySQL
 {
-    public class MySQLDatabase : OqtaneDatabaseBase
+    public class MySQLDatabase : DatabaseBase
     {
         private static string _friendlyName => "MySQL";
 
         private static string _name => "MySQL";
 
-        private static readonly List<ConnectionStringField> _connectionStringFields = new()
+        static MySQLDatabase()
         {
-            new() {Name = "Server", FriendlyName = "Server", Value = "127.0.0.1", HelpText="Enter the database server"},
-            new() {Name = "Port", FriendlyName = "Port", Value = "3306", HelpText="Enter the port used to connect to the server"},
-            new() {Name = "Database", FriendlyName = "Database", Value = "Oqtane-{{Date}}", HelpText="Enter the name of the database"},
-            new() {Name = "Uid", FriendlyName = "User Id", Value = "", HelpText="Enter the username to use for the database"},
-            new() {Name = "Pwd", FriendlyName = "Password", Value = "", HelpText="Enter the password to use for the database"}
-        };
+            Initialize(typeof(MySQLDatabase));
+        }
 
-        public MySQLDatabase() :base(_name, _friendlyName, _connectionStringFields) { }
+        public MySQLDatabase() :base(_name, _friendlyName) { }
 
         public override string Provider => "MySql.EntityFrameworkCore";
 
         public override OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(ColumnsBuilder table, string name)
         {
             return table.Column<int>(name: name, nullable: false).Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn);
-        }
-
-        public override string BuildConnectionString()
-        {
-            var connectionString = String.Empty;
-
-            var server = ConnectionStringFields[0].Value;
-            var port = ConnectionStringFields[1].Value;
-            var database = ConnectionStringFields[2].Value;
-            var userId = ConnectionStringFields[3].Value;
-            var password = ConnectionStringFields[4].Value;
-
-            if (!String.IsNullOrEmpty(server) && !String.IsNullOrEmpty(database) && !String.IsNullOrEmpty(userId) && !String.IsNullOrEmpty(password))
-            {
-                connectionString = $"Server={server};Database={database};Uid={userId};Pwd={password};";
-            }
-
-            if (!String.IsNullOrEmpty(port))
-            {
-                connectionString += $"Port={port};";
-            }
-            return connectionString;
         }
 
         public override string ConcatenateSql(params string[] values)
@@ -72,10 +47,52 @@ namespace Oqtane.Database.MySQL
             return returnValue;
         }
 
+        public override int ExecuteNonQuery(string connectionString, string query)
+        {
+            var conn = new MySqlConnection(connectionString);
+            var cmd = conn.CreateCommand();
+            using (conn)
+            {
+                PrepareCommand(conn, cmd, query);
+                var val = -1;
+                try
+                {
+                    val = cmd.ExecuteNonQuery();
+                }
+                catch
+                {
+                    // an error occurred executing the query
+                }
+                return val;
+            }
+
+        }
+
+        public override IDataReader ExecuteReader(string connectionString, string query)
+        {
+            var conn = new MySqlConnection(connectionString);
+            var cmd = conn.CreateCommand();
+            PrepareCommand(conn, cmd, query);
+            var dr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+            return dr;
+        }
+
 
         public override DbContextOptionsBuilder UseDatabase(DbContextOptionsBuilder optionsBuilder, string connectionString)
         {
             return optionsBuilder.UseMySQL(connectionString);
+        }
+
+        private void PrepareCommand(MySqlConnection conn, MySqlCommand cmd, string query)
+        {
+            if (conn.State != ConnectionState.Open)
+            {
+                conn.Open();
+            }
+
+            cmd.Connection = conn;
+            cmd.CommandText = query;
+            cmd.CommandType = CommandType.Text;
         }
     }
 }

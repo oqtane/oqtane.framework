@@ -27,6 +27,10 @@
     protected override async Task OnParametersSetAsync()
     {
         var languages = await LanguageService.GetLanguagesAsync(PageState.Site.SiteId);
+        var defaultCulture = CultureInfo.GetCultureInfo(Constants.DefaultCulture);
+
+        languages.Add(new Language { Code = defaultCulture.Name, Name = defaultCulture.DisplayName });
+        
         _supportedCultures = languages.Select(l => new Culture { Name = l.Code, DisplayName = l.Name });
     }
 

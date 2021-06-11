@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Oqtane.Databases.Interfaces;
 using Oqtane.Interfaces;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -15,7 +16,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private readonly ForeignKey<UserRoleEntityBuilder> _userForeignKey = new("FK_UserRole_User", x => x.UserId, "User", "UserId", ReferentialAction.Cascade);
         private readonly ForeignKey<UserRoleEntityBuilder> _roleForeignKey = new("FK_UserRole_Role", x => x.RoleId, "Role", "RoleId", ReferentialAction.NoAction);
 
-        public UserRoleEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
+        public UserRoleEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;

@@ -1,0 +1,41 @@
+@namespace Oqtane.Installer.Controls
+@implements Oqtane.Interfaces.IDatabaseConfigControl
+@inject IStringLocalizer<Installer> Localizer
+
+@{
+    foreach (var field in _connectionStringFields)
+    {        
+        var fieldId = field.Name.ToLowerInvariant();
+        field.Value = field.Value.Replace("{{Date}}", DateTime.UtcNow.ToString("yyyyMMddHHmm"));
+        
+        <tr>
+            <td>
+                <Label For="@fieldId" HelpText="@field.HelpText" ResourceKey="@field.Name">@Localizer[$"{field.FriendlyName}:"]</Label>
+            </td>
+            <td>
+                <input id="@fieldId" type="text" class="form-control" @bind="@field.Value" />
+            </td>
+        </tr>
+    }
+}
+
+@code {
+    private readonly List<ConnectionStringField> _connectionStringFields = new()
+    {
+        new() {Name = "Server", FriendlyName = "File Name", Value = "Oqtane-{{Date}}.db", HelpText="Enter the file name to use for the database"}
+    };
+
+    public string GetConnectionString()
+    {
+        var connectionstring = String.Empty;
+
+        var server = _connectionStringFields[0].Value;
+
+        if (!String.IsNullOrEmpty(server))
+        {
+            connectionstring = $"Data Source={server};";
+        }
+
+        return connectionstring;
+    }
+}

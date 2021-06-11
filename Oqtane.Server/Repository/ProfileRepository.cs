@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
@@ -35,7 +35,19 @@ namespace Oqtane.Repository
 
         public Profile GetProfile(int profileId)
         {
-            return _db.Profile.Find(profileId);
+            return GetProfile(profileId, true);
+        }
+
+        public Profile GetProfile(int profileId, bool tracking)
+        {
+            if (tracking)
+            {
+                return _db.Profile.Find(profileId);
+            }
+            else
+            {
+                return _db.Profile.AsNoTracking().FirstOrDefault(item => item.ProfileId == profileId);
+            }
         }
 
         public void DeleteProfile(int profileId)

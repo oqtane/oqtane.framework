@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Oqtane.Databases.Interfaces;
 using Oqtane.Extensions;
 using Oqtane.Interfaces;
 using Oqtane.Models;
+using IDatabase = Oqtane.Databases.Interfaces.IDatabase;
 
 // ReSharper disable CheckNamespace
 // ReSharper disable MemberCanBePrivate.Global
@@ -14,9 +16,9 @@ namespace Oqtane.Repository
     public class InstallationContext : DbContext
     {
         private readonly string _connectionString;
-        private readonly IOqtaneDatabase _database;
+        private readonly IDatabase _database;
 
-        public InstallationContext(IOqtaneDatabase database, string connectionString)
+        public InstallationContext(IDatabase database, string connectionString)
         {
             _connectionString = connectionString;
             _database = database;

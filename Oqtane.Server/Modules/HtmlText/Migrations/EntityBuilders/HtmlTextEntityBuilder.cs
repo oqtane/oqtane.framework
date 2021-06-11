@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Oqtane.Databases.Interfaces;
 using Oqtane.Interfaces;
 using Oqtane.Migrations;
 using Oqtane.Migrations.EntityBuilders;
@@ -16,7 +17,7 @@ namespace Oqtane.Modules.HtmlText.Migrations.EntityBuilders
         private readonly PrimaryKey<HtmlTextEntityBuilder> _primaryKey = new("PK_HtmlText", x => x.HtmlTextId);
         private readonly ForeignKey<HtmlTextEntityBuilder> _moduleForeignKey = new("FK_HtmlText_Module", x => x.ModuleId, "Module", "ModuleId", ReferentialAction.Cascade);
 
-        public HtmlTextEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
+        public HtmlTextEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;

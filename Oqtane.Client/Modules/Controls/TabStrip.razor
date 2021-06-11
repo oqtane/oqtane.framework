@@ -7,23 +7,20 @@
             <ul class="nav nav-tabs" role="tablist">
                 @foreach (TabPanel tabPanel in _tabPanels)
                 {
-                    @if (IsAuthorized(tabPanel))
-                    {
-                        <li class="nav-item" @key="tabPanel.Name">
-                            @if (tabPanel.Name == ActiveTab)
-                            {
-                                <a class="nav-link active" data-toggle="tab" href="#@tabPanel.Name" role="tab" @onclick:preventDefault="true">
-                                    @tabPanel.DisplayHeading()
-                                </a>
-                            }
-                            else
-                            {
-                                <a class="nav-link" data-toggle="tab" href="#@tabPanel.Name" role="tab" @onclick:preventDefault="true">
-                                    @tabPanel.DisplayHeading()
-                                </a>
-                            }
-                        </li>
-                    }
+                    <li class="nav-item" @key="tabPanel.Name">
+                        @if (tabPanel.Name == ActiveTab)
+                        {
+                            <a class="nav-link active" data-toggle="tab" href="#@tabPanel.Name" role="tab" @onclick:preventDefault="true">
+                                @tabPanel.DisplayHeading()
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="nav-link" data-toggle="tab" href="#@tabPanel.Name" role="tab" @onclick:preventDefault="true">
+                                @tabPanel.DisplayHeading()
+                            </a>
+                        }
+                    </li>
                 }
             </ul>
             <div class="tab-content">
@@ -43,6 +40,9 @@
     [Parameter]
     public string ActiveTab { get; set; } // optional - defaults to first TabPanel if not specified. Can also be set using a "tab=" querystring parameter.
 
+    [Parameter]
+    public bool Refresh { get; set; } // optional - used in scenarios where TabPanels are added/removed dynamically within a parent form. ActiveTab may need to be reset as well when this property is used.
+
     protected override void OnInitialized()
     {
         if (PageState.QueryString.ContainsKey("tab"))
@@ -53,19 +53,22 @@
 
     protected override void OnParametersSet()
     {
-        _tabPanels = new List<TabPanel>();
+        if (_tabPanels == null || Refresh)
+        {
+            _tabPanels = new List<TabPanel>();
+        }
     }
 
     internal void AddTabPanel(TabPanel tabPanel)
     {
-        if (!_tabPanels.Exists(item => item.Name == tabPanel.Name))
+        if (!_tabPanels.Exists(item => item.Name == tabPanel.Name) && IsAuthorized(tabPanel))
         {
             _tabPanels.Add(tabPanel);
-            if (string.IsNullOrEmpty(ActiveTab))
-            {
-                ActiveTab = tabPanel.Name;
-            }
             StateHasChanged();
+        }
+        if (string.IsNullOrEmpty(ActiveTab))
+        {
+            ActiveTab = tabPanel.Name;
         }
     }
 

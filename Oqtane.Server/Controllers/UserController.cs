@@ -18,7 +18,7 @@ using Oqtane.Extensions;
 
 namespace Oqtane.Controllers
 {
-    [Route(ControllerRoutes.Default)]
+    [Route(ControllerRoutes.ApiRoute)]
     public class UserController : Controller
     {
         private readonly IUserRepository _users;
@@ -26,26 +26,26 @@ namespace Oqtane.Controllers
         private readonly IUserRoleRepository _userRoles;
         private readonly UserManager<IdentityUser> _identityUserManager;
         private readonly SignInManager<IdentityUser> _identitySignInManager;
-        private readonly ITenantResolver _tenants;
         private readonly INotificationRepository _notifications;
         private readonly IFolderRepository _folders;
         private readonly ISyncManager _syncManager;
         private readonly ISiteRepository _sites;
         private readonly ILogManager _logger;
+        private readonly Alias _alias;
 
-        public UserController(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantResolver tenants, INotificationRepository notifications, IFolderRepository folders, ISyncManager syncManager, ISiteRepository sites, ILogManager logger)
+        public UserController(IUserRepository users, IRoleRepository roles, IUserRoleRepository userRoles, UserManager<IdentityUser> identityUserManager, SignInManager<IdentityUser> identitySignInManager, ITenantManager tenantManager, INotificationRepository notifications, IFolderRepository folders, ISyncManager syncManager, ISiteRepository sites, ILogManager logger)
         {
             _users = users;
             _roles = roles;
             _userRoles = userRoles;
             _identityUserManager = identityUserManager;
             _identitySignInManager = identitySignInManager;
-            _tenants = tenants;
             _folders = folders;
             _notifications = notifications;
             _syncManager = syncManager;
             _sites = sites;
             _logger = logger;
+            _alias = tenantManager.GetAlias();
         }
 
         // GET api/<controller>/5?siteid=x
@@ -53,26 +53,46 @@ namespace Oqtane.Controllers
         [Authorize]
         public User Get(int id, string siteid)
         {
-            User user = _users.GetUser(id);
-            if (user != null)
+            int SiteId;
+            if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
             {
-                user.SiteId = int.Parse(siteid);
-                user.Roles = GetUserRoles(user.UserId, user.SiteId);
+                User user = _users.GetUser(id);
+                if (user != null)
+                {
+                    user.SiteId = int.Parse(siteid);
+                    user.Roles = GetUserRoles(user.UserId, user.SiteId);
+                }
+                return Filter(user);
             }
-            return Filter(user);
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Get Attempt {UserId} {SiteId}", id, siteid);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return null;
+            }
         }
 
         // GET api/<controller>/name/x?siteid=x
         [HttpGet("name/{name}")]
         public User Get(string name, string siteid)
         {
-            User user = _users.GetUser(name);
-            if (user != null)
+            int SiteId;
+            if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
             {
-                user.SiteId = int.Parse(siteid);
-                user.Roles = GetUserRoles(user.UserId, user.SiteId);
+                User user = _users.GetUser(name);
+                if (user != null)
+                {
+                    user.SiteId = int.Parse(siteid);
+                    user.Roles = GetUserRoles(user.UserId, user.SiteId);
+                }
+                return Filter(user);
             }
-            return Filter(user);
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Get Attempt {Username} {SiteId}", name, siteid);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return null;
+            }
         }
 
         private User Filter(User user)
@@ -102,13 +122,18 @@ namespace Oqtane.Controllers
         [HttpPost]
         public async Task<User> Post([FromBody] User user)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && user.SiteId == _alias.SiteId)
             {
-                var newUser = await CreateUser(user);
-                return newUser;
+                var User = await CreateUser(user);
+                return User;
             }
-
-            return null;
+            else
+            {
+                user.Password = ""; // remove sensitive information
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Post Attempt {User}", user);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return null;
+            }
         }
 
         private async Task<User> CreateUser(User user)
@@ -146,7 +171,7 @@ namespace Oqtane.Controllers
                         if (!verified)
                         {
                             string token = await _identityUserManager.GenerateEmailConfirmationTokenAsync(identityuser);
-                            string url = HttpContext.Request.Scheme + "://" + _tenants.GetAlias().Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
+                            string url = HttpContext.Request.Scheme + "://" + _alias.Name + "/login?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
                             string body = "Dear " + user.DisplayName + ",\n\nIn Order To Complete The Registration Of Your User Account Please Click The Link Displayed Below:\n\n" + url + "\n\nThank You!";
                             var notification = new Notification(user.SiteId, null, newUser, "User Account Verification", body, null);
                             _notifications.AddNotification(notification);
@@ -173,6 +198,7 @@ namespace Oqtane.Controllers
                                 SiteId = folder.SiteId,
                                 ParentId = folder.FolderId,
                                 Name = "My Folder",
+                                Type = FolderTypes.Private,
                                 Path = Utilities.PathCombine(folder.Path, newUser.UserId.ToString(),Path.DirectorySeparatorChar.ToString()),
                                 Order = 1,
                                 IsSystem = true,
@@ -229,30 +255,28 @@ namespace Oqtane.Controllers
         [Authorize]
         public async Task<User> Put(int id, [FromBody] User user)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && user.SiteId == _alias.SiteId && _users.GetUser(user.UserId, false) != null && (User.IsInRole(RoleNames.Admin) || User.Identity.Name == user.Username))
             {
-                if (User.IsInRole(RoleNames.Admin) || User.Identity.Name == user.Username)
+                if (user.Password != "")
                 {
-                    if (user.Password != "")
+                    IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
+                    if (identityuser != null)
                     {
-                        IdentityUser identityuser = await _identityUserManager.FindByNameAsync(user.Username);
-                        if (identityuser != null)
-                        {
-                            identityuser.PasswordHash = _identityUserManager.PasswordHasher.HashPassword(identityuser, user.Password);
-                            await _identityUserManager.UpdateAsync(identityuser);
-                        }
+                        identityuser.PasswordHash = _identityUserManager.PasswordHasher.HashPassword(identityuser, user.Password);
+                        await _identityUserManager.UpdateAsync(identityuser);
                     }
-                    user = _users.UpdateUser(user);
-                    _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.User, user.UserId);
-                    user.Password = ""; // remove sensitive information
-                    _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Updated {User}", user);
                 }
-                else
-                {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update User {User}", user);
-                    HttpContext.Response.StatusCode = 401;
-                    user = null;
-                }
+                user = _users.UpdateUser(user);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.User, user.UserId);
+                user.Password = ""; // remove sensitive information
+                _logger.Log(LogLevel.Information, this, LogFunction.Update, "User Updated {User}", user);
+            }
+            else
+            {
+                user.Password = ""; // remove sensitive information
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Post Attempt {User}", user);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                user = null;
             }
             return user;
         }
@@ -262,18 +286,19 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Admin)]
         public async Task Delete(int id, string siteid)
         {
+            int SiteId;
             User user = _users.GetUser(id);
-            if (user != null)
+            if (user != null && int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
             {
                 // remove user roles for site
-                foreach (UserRole userrole in _userRoles.GetUserRoles(user.UserId, Int32.Parse(siteid)).ToList())
+                foreach (UserRole userrole in _userRoles.GetUserRoles(user.UserId, SiteId).ToList())
                 {
                     _userRoles.DeleteUserRole(userrole.UserRoleId);
                     _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Role Deleted {UserRole}", userrole);
                 }
 
                 // remove user folder for site
-                var folder = _folders.GetFolder(Int32.Parse(siteid), Utilities.PathCombine("Users", user.UserId.ToString(), Path.DirectorySeparatorChar.ToString()));
+                var folder = _folders.GetFolder(SiteId, Utilities.PathCombine("Users", user.UserId.ToString(), Path.DirectorySeparatorChar.ToString()));
                 if (folder != null)
                 {
                     if (Directory.Exists(_folders.GetFolderPath(folder)))
@@ -305,6 +330,11 @@ namespace Oqtane.Controllers
                         }
                     }
                 }
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Delete Attempt {UserId}", id);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }
 
@@ -358,7 +388,7 @@ namespace Oqtane.Controllers
         [Authorize]
         public async Task Logout([FromBody] User user)
         {
-            await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+            await HttpContext.SignOutAsync(Constants.AuthenticationScheme);
             _logger.Log(LogLevel.Information, this, LogFunction.Security, "User Logout {Username}", (user != null) ? user.Username : "");
         }
 
@@ -401,7 +431,7 @@ namespace Oqtane.Controllers
                 if (identityuser != null)
                 {
                     string token = await _identityUserManager.GeneratePasswordResetTokenAsync(identityuser);
-                    string url = HttpContext.Request.Scheme + "://" + _tenants.GetAlias().Name + "/reset?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
+                    string url = HttpContext.Request.Scheme + "://" + _alias.Name + "/reset?name=" + user.Username + "&token=" + WebUtility.UrlEncode(token);
                     string body = "Dear " + user.DisplayName + ",\n\nPlease Click The Link Displayed Below To Reset Your Password:\n\n" + url + "\n\nThank You!";
                     var notification = new Notification(user.SiteId, null, user, "User Password Reset", body, null);
                     _notifications.AddNotification(notification);
@@ -444,7 +474,7 @@ namespace Oqtane.Controllers
             return user;
         }
 
-        // GET api/<controller>/current
+        // GET api/<controller>/authenticate
         [HttpGet("authenticate")]
         public User Authenticate()
         {

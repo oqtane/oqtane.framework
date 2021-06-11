@@ -16,7 +16,7 @@ using System.Text.Json;
 
 namespace Oqtane.Controllers
 {
-    [Route(ControllerRoutes.Default)]
+    [Route(ControllerRoutes.ApiRoute)]
     public class ThemeController : Controller
     {
         private readonly IThemeRepository _themes;
@@ -45,7 +45,7 @@ namespace Oqtane.Controllers
         public void InstallThemes()
         {
             _logger.Log(LogLevel.Information, this, LogFunction.Create, "Themes Installed");
-            _installationManager.InstallPackages("Themes");
+            _installationManager.InstallPackages();
         }
 
         // DELETE api/<controller>/xxx
@@ -58,25 +58,8 @@ namespace Oqtane.Controllers
             if (theme != null && Utilities.GetAssemblyName(theme.ThemeName) != "Oqtane.Client")
             {
                 // remove theme assets
-                string assetpath = Path.Combine(_environment.WebRootPath, "Themes", Utilities.GetTypeName(theme.ThemeName));
-                if (System.IO.File.Exists(Path.Combine(assetpath, "assets.json")))
+                if (_installationManager.UninstallPackage(theme.PackageName))
                 {
-                    // use assets.json to clean up file resources
-                    List<string> assets = JsonSerializer.Deserialize<List<string>>(System.IO.File.ReadAllText(Path.Combine(assetpath, "assets.json")));
-                    assets.Reverse();
-                    foreach (string asset in assets)
-                    {
-                        // legacy support for assets that were stored as absolute paths
-                        string filepath = (asset.StartsWith("\\")) ? Path.Combine(_environment.ContentRootPath, asset.Substring(1)) : asset;
-                        if (System.IO.File.Exists(filepath))
-                        {
-                            System.IO.File.Delete(filepath);
-                            if (!Directory.EnumerateFiles(Path.GetDirectoryName(filepath)).Any())
-                            {
-                                Directory.Delete(Path.GetDirectoryName(filepath));
-                            }
-                        }
-                    }
                     _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Theme Assets Removed For {ThemeName}", theme.ThemeName);
                 }
                 else
@@ -90,10 +73,10 @@ namespace Oqtane.Controllers
                 }
 
                 // clean up theme static resource folder
-                string folder = Path.Combine(_environment.WebRootPath, "Themes" , Utilities.GetTypeName(theme.ThemeName));
-                if (Directory.Exists(folder))
+                string assetpath = Path.Combine(_environment.WebRootPath, "Themes", Utilities.GetTypeName(theme.ThemeName));
+                if (Directory.Exists(assetpath))
                 {
-                    Directory.Delete(folder, true);
+                    Directory.Delete(assetpath, true);
                     _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Theme Static Resource Folder Removed For {ThemeName}", theme.ThemeName);
                 }
 
@@ -106,13 +89,29 @@ namespace Oqtane.Controllers
         // GET: api/<controller>/templates
         [HttpGet("templates")]
         [Authorize(Roles = RoleNames.Host)]
-        public List<string> GetTemplates()
+        public List<Template> GetTemplates()
         {
-            var templates = new List<string>();
+            var templates = new List<Template>();
+            var root = Directory.GetParent(_environment.ContentRootPath);
             string templatePath = Utilities.PathCombine(_environment.WebRootPath, "Themes", "Templates", Path.DirectorySeparatorChar.ToString());
             foreach (string directory in Directory.GetDirectories(templatePath))
             {
-                templates.Add(directory.Replace(templatePath, ""));
+                string name = directory.Replace(templatePath, "");
+                if (System.IO.File.Exists(Path.Combine(directory, "template.json")))
+                {
+                    var template = JsonSerializer.Deserialize<Template>(System.IO.File.ReadAllText(Path.Combine(directory, "template.json")));
+                    template.Name = name;
+                    template.Location = "";
+                    if (template.Type.ToLower() != "internal")
+                    {
+                        template.Location = Utilities.PathCombine(root.Parent.ToString(), Path.DirectorySeparatorChar.ToString());
+                    }
+                    templates.Add(template);
+                }
+                else
+                {
+                    templates.Add(new Template { Name = name, Title = name, Type = "External", Version = "", Location = Utilities.PathCombine(root.Parent.ToString(), Path.DirectorySeparatorChar.ToString()) });
+                }
             }
             return templates;
         }
@@ -128,8 +127,16 @@ namespace Oqtane.Controllers
                 DirectoryInfo rootFolder = Directory.GetParent(_environment.ContentRootPath);
                 string templatePath = Utilities.PathCombine(_environment.WebRootPath, "Themes", "Templates", theme.Template, Path.DirectorySeparatorChar.ToString());
 
-                rootPath = Utilities.PathCombine(rootFolder.Parent.FullName, theme.Owner + "." + theme.Name, Path.DirectorySeparatorChar.ToString());
-                theme.ThemeName = theme.Owner + "." + theme.Name + ", " + theme.Owner + "." + theme.Name + ".Client.Oqtane";
+                if (theme.Template.ToLower().Contains("internal"))
+                {
+                    rootPath = Utilities.PathCombine(rootFolder.FullName, Path.DirectorySeparatorChar.ToString());
+                    theme.ThemeName = theme.Owner + "." + theme.Name + ", Oqtane.Client";
+                }
+                else
+                {
+                    rootPath = Utilities.PathCombine(rootFolder.Parent.FullName, theme.Owner + "." + theme.Name, Path.DirectorySeparatorChar.ToString());
+                    theme.ThemeName = theme.Owner + "." + theme.Name + ", " + theme.Owner + "." + theme.Name + ".Client.Oqtane";
+                }
 
                 ProcessTemplatesRecursively(new DirectoryInfo(templatePath), rootPath, rootFolder.Name, templatePath, theme);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Theme Created {Theme}", theme);

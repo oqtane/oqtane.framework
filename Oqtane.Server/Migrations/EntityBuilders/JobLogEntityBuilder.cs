@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Oqtane.Databases.Interfaces;
 using Oqtane.Interfaces;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -14,7 +15,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private readonly PrimaryKey<JobLogEntityBuilder> _primaryKey = new("PK_JobLog", x => x.JobLogId);
         private readonly ForeignKey<JobLogEntityBuilder> _jobLogForeignKey = new("FK_JobLog_Job", x => x.JobId, "Job", "JobId", ReferentialAction.Cascade);
 
-        public JobLogEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
+        public JobLogEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;

@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
@@ -11,15 +13,15 @@ namespace Oqtane.Infrastructure
 {
     public class UpgradeManager : IUpgradeManager
     {
-        private readonly IAliasRepository _aliases;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IWebHostEnvironment _environment;
+        private readonly IConfigManager _configManager;
 
-        public UpgradeManager(IAliasRepository aliases, IServiceScopeFactory serviceScopeFactory, IWebHostEnvironment environment)
+        public UpgradeManager(IServiceScopeFactory serviceScopeFactory, IWebHostEnvironment environment, IConfigManager configManager)
         {
-            _aliases = aliases;
             _serviceScopeFactory = serviceScopeFactory;
             _environment = environment;
+            _configManager = configManager;
         }
 
         public void Upgrade(Tenant tenant, string version)
@@ -27,9 +29,9 @@ namespace Oqtane.Infrastructure
             // core framework upgrade logic - executed for every tenant
             using (var scope = _serviceScopeFactory.CreateScope())
             {
-                // set SiteState based on tenant
-                var siteState = scope.ServiceProvider.GetRequiredService<SiteState>();
-                siteState.Alias = new Alias { TenantId = tenant.TenantId };
+                // set tenant
+                var tenantManager = scope.ServiceProvider.GetRequiredService<ITenantManager>();
+                tenantManager.SetTenant(tenant.TenantId);
 
                 switch (version)
                 {
@@ -38,6 +40,9 @@ namespace Oqtane.Infrastructure
                         break;
                     case "2.0.2":
                         Upgrade_2_0_2(tenant, scope);
+                        break;
+                    case "2.1.0":
+                        Upgrade_2_1_0(tenant, scope);
                         break;
                 }
             }
@@ -108,6 +113,18 @@ namespace Oqtane.Infrastructure
             {
                 site.SiteGuid = System.Guid.NewGuid().ToString();
                 sites.UpdateSite(site);
+            }
+        }
+
+        private void Upgrade_2_1_0(Tenant tenant, IServiceScope scope)
+        {
+            if (tenant.Name == TenantNames.Master)
+            {
+                _configManager.RemoveSetting("Localization:SupportedCultures", true);
+                if (_configManager.GetSetting("RenderMode", "") == "")
+                {
+                    _configManager.AddOrUpdateSetting("RenderMode", "ServerPrerendered", true);
+                }
             }
         }
 

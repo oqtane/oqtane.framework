@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Oqtane.Databases.Interfaces;
 using Oqtane.Interfaces;
 // ReSharper disable BuiltInTypeReferenceStyleForMemberAccess
 
@@ -13,14 +14,14 @@ namespace Oqtane.Migrations.EntityBuilders
     {
         private readonly MigrationBuilder _migrationBuilder;
 
-        protected BaseEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database)
+        protected BaseEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database)
         {
             _migrationBuilder = migrationBuilder;
             ActiveDatabase = database;
             ForeignKeys = new List<ForeignKey<TEntityBuilder>>();
         }
 
-        protected IOqtaneDatabase ActiveDatabase { get; }
+        protected IDatabase ActiveDatabase { get; }
 
         protected abstract TEntityBuilder BuildTable(ColumnsBuilder table);
 
@@ -182,6 +183,19 @@ namespace Oqtane.Migrations.EntityBuilders
                 onDelete: foreignKey.OnDeleteAction);
         }
 
+        public void AddForeignKey(string name)
+        {
+            var foreignKey = ForeignKeys.Single(k => k.Name == name);
+
+            _migrationBuilder.AddForeignKey(
+                    name: RewriteName(foreignKey.Name),
+                    table: RewriteName(EntityTableName),
+                    column: RewriteName(foreignKey.ColumnName),
+                    principalTable: RewriteName(foreignKey.PrincipalTable),
+                    principalColumn: RewriteName(foreignKey.PrincipalColumn),
+                    onDelete: foreignKey.OnDeleteAction);
+        }
+
         public void DropForeignKey(ForeignKey<TEntityBuilder> foreignKey)
         {
             DropForeignKey(RewriteName(foreignKey.Name));
@@ -217,7 +231,6 @@ namespace Oqtane.Migrations.EntityBuilders
         public void DeleteFromTable(string condition = "")
         {
             var deleteSql = $"DELETE FROM {RewriteName(EntityTableName)} ";
-
             if(!string.IsNullOrEmpty(condition))
             {
                 deleteSql +=  $"WHERE {condition}";
@@ -227,11 +240,8 @@ namespace Oqtane.Migrations.EntityBuilders
 
         public void UpdateColumn(string columnName, string value, string condition = "")
         {
-            var updateValue = value;
-
             var updateSql = $"UPDATE {RewriteName(EntityTableName)} SET {RewriteName(columnName)} = {value} ";
-
-            if(!string.IsNullOrEmpty(condition))
+            if (!string.IsNullOrEmpty(condition))
             {
                 updateSql += $"WHERE {condition}";
             }

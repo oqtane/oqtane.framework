@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Extensions;
+using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Shared;
 
@@ -13,9 +14,9 @@ namespace Oqtane.Repository
         private TenantDBContext _db;
         private readonly IPermissionRepository _permissions;
         private readonly IWebHostEnvironment _environment;
-        private readonly ITenantResolver _tenants;
+        private readonly ITenantManager _tenants;
 
-        public FolderRepository(TenantDBContext context, IPermissionRepository permissions,IWebHostEnvironment environment, ITenantResolver tenants)
+        public FolderRepository(TenantDBContext context, IPermissionRepository permissions,IWebHostEnvironment environment, ITenantManager tenants)
         {
             _db = context;
             _permissions = permissions;
@@ -60,7 +61,7 @@ namespace Oqtane.Repository
             Folder folder;
             if (tracking)
             {
-                folder = _db.Folder.Where(item => item.FolderId == folderId).FirstOrDefault();
+                folder = _db.Folder.Find(folderId);
             }
             else
             {
@@ -99,7 +100,17 @@ namespace Oqtane.Repository
 
         public string GetFolderPath(Folder folder)
         {
-            return Utilities.PathCombine(_environment.ContentRootPath, "Content", "Tenants", _tenants.GetTenant().TenantId.ToString(), "Sites", folder.SiteId.ToString(), folder.Path);
+            string path = "";
+            switch (folder.Type)
+            {
+                case FolderTypes.Private:
+                    path = Utilities.PathCombine(_environment.ContentRootPath, "Content", "Tenants", _tenants.GetTenant().TenantId.ToString(), "Sites", folder.SiteId.ToString(), folder.Path);
+                    break;
+                case FolderTypes.Public:
+                    path = Utilities.PathCombine(_environment.WebRootPath, "Content", "Tenants", _tenants.GetTenant().TenantId.ToString(), "Sites", folder.SiteId.ToString(), folder.Path);
+                    break;
+            }
+            return path;
         }
 
     }

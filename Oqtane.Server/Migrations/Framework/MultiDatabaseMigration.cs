@@ -1,20 +1,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Oqtane.Databases.Interfaces;
 using Oqtane.Interfaces;
 
 namespace Oqtane.Migrations
 {
     public abstract class MultiDatabaseMigration : Migration
     {
-        private readonly IEnumerable<IOqtaneDatabase> _databases;
-
-        protected MultiDatabaseMigration(IEnumerable<IOqtaneDatabase> databases)
+        protected MultiDatabaseMigration(IDatabase database)
         {
-            _databases = databases;
+            ActiveDatabase = database;
         }
 
-        protected IOqtaneDatabase ActiveDatabase => _databases.FirstOrDefault(d => d.Provider == ActiveProvider);
+        protected IDatabase ActiveDatabase { get; }
 
         protected string RewriteName(string name)
         {

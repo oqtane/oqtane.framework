@@ -2,11 +2,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Oqtane.Documentation;
 using Oqtane.Models;
 using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
+    [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class ThemeService : ServiceBase, IThemeService
     {
         private readonly SiteState _siteState;
@@ -16,7 +18,7 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private string ApiUrl => CreateApiUrl(_siteState.Alias, "Theme");
+        private string ApiUrl => CreateApiUrl("Theme", _siteState.Alias);
 
         public async Task<List<Theme>> GetThemesAsync()
         {
@@ -56,9 +58,9 @@ namespace Oqtane.Services
             return await PostJsonAsync($"{ApiUrl}", theme);
         }
 
-        public async Task<List<string>> GetThemeTemplatesAsync()
+        public async Task<List<Template>> GetThemeTemplatesAsync()
         {
-            List<string> templates = await GetJsonAsync<List<string>>($"{ApiUrl}/templates");
+            List<Template> templates = await GetJsonAsync<List<Template>>($"{ApiUrl}/templates");
             return templates;
         }
     }

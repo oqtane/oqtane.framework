@@ -191,11 +191,11 @@
         _message = string.Empty;
         if (_filemanagervisible)
         {
-            var fileid = _fileManager.GetFileId();
-            if (fileid != -1)
+            var file = _fileManager.GetFile();
+            if (file != null)
             {
                 var interop = new RichTextEditorInterop(JSRuntime);
-                await interop.InsertImage(_editorElement, ContentUrl(fileid));
+                await interop.InsertImage(_editorElement, file.Url, file.Name);
                 _filemanagervisible = false;
             }
             else

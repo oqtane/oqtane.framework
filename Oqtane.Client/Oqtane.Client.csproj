@@ -5,16 +5,17 @@
     <OutputType>Exe</OutputType>
     <RazorLangVersion>3.0</RazorLangVersion>
     <Configurations>Debug;Release</Configurations>
-    <Version>2.0.2</Version>
+    <Version>2.1.0</Version>
     <Product>Oqtane</Product>
     <Authors>Shaun Walker</Authors>
     <Company>.NET Foundation</Company>
     <Description>Modular Application Framework for Blazor</Description>
     <Copyright>.NET Foundation</Copyright>
     <PackageProjectUrl>https://www.oqtane.org</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/oqtane</RepositoryUrl>
+    <PackageLicenseUrl>https://github.com/oqtane/oqtane.framework/blob/dev/LICENSE</PackageLicenseUrl>
+    <PackageReleaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v2.1.0</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/oqtane/oqtane.framework</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <PackageReleaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v2.0.2</PackageReleaseNotes>
     <RootNamespace>Oqtane</RootNamespace>
     <IsPackable>true</IsPackable>
     <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>

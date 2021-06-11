@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Oqtane.Databases.Interfaces;
 using Oqtane.Interfaces;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -13,7 +14,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private const string _entityTableName = "Setting";
         private readonly PrimaryKey<SettingEntityBuilder> _primaryKey = new("PK_Setting", x => x.SettingId);
 
-        public SettingEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
+        public SettingEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;
@@ -24,7 +25,7 @@ namespace Oqtane.Migrations.EntityBuilders
             SettingId = AddAutoIncrementColumn(table,"SettingId");
             EntityName = AddStringColumn(table,"EntityName", 50);
             EntityId = AddIntegerColumn(table,"EntityId");
-            SettingName = AddStringColumn(table,"SettingName", 50);
+            SettingName = AddStringColumn(table,"SettingName", 200);
             SettingValue = AddMaxStringColumn(table,"SettingValue");
 
             AddAuditableColumns(table);

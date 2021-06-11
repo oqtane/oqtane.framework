@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Oqtane.Databases.Interfaces;
 using Oqtane.Interfaces;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -14,7 +15,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private readonly PrimaryKey<LogEntityBuilder> _primaryKey = new("PK_Log", x => x.LogId);
         private readonly ForeignKey<LogEntityBuilder> _siteForeignKey = new("FK_Log_Site", x => x.SiteId, "Site", "SiteId", ReferentialAction.Cascade);
 
-        public LogEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
+        public LogEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;

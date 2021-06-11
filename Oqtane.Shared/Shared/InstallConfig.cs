@@ -1,3 +1,4 @@
+
 namespace Oqtane.Shared
 {
     public class InstallConfig

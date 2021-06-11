@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Data.SqlClient;
+using Oqtane.Databases.Interfaces;
+using Oqtane.Interfaces;
 using Oqtane.Models;
 // ReSharper disable ConvertToUsingDeclaration
 // ReSharper disable InvertIf
@@ -13,7 +15,6 @@ namespace Oqtane.Repository
 {
     public class SqlRepository : ISqlRepository
     {
-
         public void ExecuteScript(Tenant tenant, string script)
         {
             // execute script in current tenant
@@ -23,7 +24,7 @@ namespace Oqtane.Repository
             }
         }
 
-        public bool ExecuteScript(string connectionString, Assembly assembly, string fileName)
+        public bool ExecuteScript(string connectionString, string databaseType, Assembly assembly, string fileName)
         {
             var success = true;
             var script = GetScriptFromAssembly(assembly, fileName);
@@ -34,7 +35,7 @@ namespace Oqtane.Repository
                 {
                     foreach (var query in script.Split("GO", StringSplitOptions.RemoveEmptyEntries))
                     {
-                        ExecuteNonQuery(connectionString, query);
+                        ExecuteNonQuery(connectionString, databaseType, query);
                     }
                 }
                 catch
@@ -68,39 +69,22 @@ namespace Oqtane.Repository
 
         public int ExecuteNonQuery(Tenant tenant, string query)
         {
-            return ExecuteNonQuery(tenant.DBConnectionString, query);
+            return ExecuteNonQuery(tenant.DBConnectionString, tenant.DBType, query);
         }
 
-        public SqlDataReader ExecuteReader(Tenant tenant, string query)
+        public IDataReader ExecuteReader(Tenant tenant, string query)
         {
-            SqlConnection conn = new SqlConnection(FormatConnectionString(tenant.DBConnectionString));
-            SqlCommand cmd = conn.CreateCommand();
-            PrepareCommand(conn, cmd, query);
-            var dr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
-            return dr;
+            var db = GetActiveDatabase(tenant.DBType);
+            return db.ExecuteReader(tenant.DBConnectionString, query);
         }
 
-        private int ExecuteNonQuery(string connectionString, string query)
+        public int ExecuteNonQuery(string connectionString, string databaseType, string query)
         {
-            var conn = new SqlConnection(FormatConnectionString(connectionString));
-            var cmd = conn.CreateCommand();
-            using (conn)
-            {
-                PrepareCommand(conn, cmd, query);
-                var val = -1;
-                try
-                {
-                    val = cmd.ExecuteNonQuery();
-                }
-                catch
-                {
-                    // an error occurred executing the query
-                }
-                return val;
-            }
+            var db = GetActiveDatabase(databaseType);
+            return db.ExecuteNonQuery(connectionString, query);
         }
 
-        private string GetScriptFromAssembly(Assembly assembly, string fileName)
+        public string GetScriptFromAssembly(Assembly assembly, string fileName)
         {
             // script must be included as an Embedded Resource within an assembly
             var script = "";
@@ -124,20 +108,16 @@ namespace Oqtane.Repository
             return script;
         }
 
-        private void PrepareCommand(SqlConnection conn, SqlCommand cmd, string query)
+        private IDatabase GetActiveDatabase(string databaseType)
         {
-            if (conn.State != ConnectionState.Open)
+            IDatabase activeDatabase = null;
+            if (!String.IsNullOrEmpty(databaseType))
             {
-                conn.Open();
+                var type = Type.GetType(databaseType);
+                activeDatabase = Activator.CreateInstance(type) as IDatabase;
             }
-            cmd.Connection = conn;
-            cmd.CommandText = query;
-            cmd.CommandType = CommandType.Text;
-        }
 
-        private string FormatConnectionString(string connectionString)
-        {
-            return connectionString.Replace("|DataDirectory|", AppDomain.CurrentDomain.GetData("DataDirectory").ToString());
+            return activeDatabase;
         }
     }
 }

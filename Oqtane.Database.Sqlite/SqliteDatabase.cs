@@ -1,45 +1,33 @@
 using System;
-using System.Collections.Generic;
+using System.Data;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
-using Oqtane.Models;
+using Oqtane.Databases;
 using Oqtane.Shared;
 
-namespace Oqtane.Repository.Databases
+namespace Oqtane.Database.Sqlite
 {
-    public class SqliteDatabase : OqtaneDatabaseBase
+    public class SqliteDatabase : DatabaseBase
     {
         private static string _friendlyName => "Sqlite";
 
         private static string _name => "Sqlite";
 
-        private static readonly List<ConnectionStringField> _connectionStringFields = new()
+        static SqliteDatabase()
         {
-            new() {Name = "Server", FriendlyName = "File Name", Value = "Oqtane-{{Date}}.db", HelpText="Enter the file name to use for the database"}
-        };
+            Initialize(typeof(SqliteDatabase));
+        }
 
-        public SqliteDatabase() :base(_name, _friendlyName, _connectionStringFields) { }
+        public SqliteDatabase() :base(_name, _friendlyName) { }
 
         public override string Provider => "Microsoft.EntityFrameworkCore.Sqlite";
 
         public override OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(ColumnsBuilder table, string name)
         {
             return table.Column<int>(name: name, nullable: false).Annotation("Sqlite:Autoincrement", true);
-        }
-
-        public override string BuildConnectionString()
-        {
-            var connectionstring = String.Empty;
-
-            var server = ConnectionStringFields[0].Value;
-
-            if (!String.IsNullOrEmpty(server))
-            {
-                connectionstring = $"Data Source={server};";
-            }
-
-            return connectionstring;
         }
 
         public override string ConcatenateSql(params string[] values)
@@ -57,9 +45,51 @@ namespace Oqtane.Repository.Databases
             return returnValue;
         }
 
+        public override int ExecuteNonQuery(string connectionString, string query)
+        {
+            var conn = new SqliteConnection(connectionString);
+            var cmd = conn.CreateCommand();
+            using (conn)
+            {
+                PrepareCommand(conn, cmd, query);
+                var val = -1;
+                try
+                {
+                    val = cmd.ExecuteNonQuery();
+                }
+                catch
+                {
+                    // an error occurred executing the query
+                }
+                return val;
+            }
+
+        }
+
+        public override IDataReader ExecuteReader(string connectionString, string query)
+        {
+            var conn = new SqliteConnection(connectionString);
+            var cmd = conn.CreateCommand();
+            PrepareCommand(conn, cmd, query);
+            var dr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+            return dr;
+        }
+
         public override DbContextOptionsBuilder UseDatabase(DbContextOptionsBuilder optionsBuilder, string connectionString)
         {
-            return optionsBuilder.UseSqlite(connectionString);
+            return optionsBuilder.UseSqlite(connectionString)
+                .ReplaceService<IHistoryRepository, OqtaneHistoryRepository>();
+        }
+
+        private void PrepareCommand(SqliteConnection conn, SqliteCommand cmd, string query)
+        {
+            if (conn.State != ConnectionState.Open)
+            {
+                conn.Open();
+            }
+            cmd.Connection = conn;
+            cmd.CommandText = query;
+            cmd.CommandType = CommandType.Text;
         }
     }
 }

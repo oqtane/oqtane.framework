@@ -35,9 +35,9 @@ else
             <td>@context.Name</td>
             <td>@context.Version</td>
             <td>
-                @if (UpgradeAvailable(context.ThemeName, context.Version))
+                @if (UpgradeAvailable(context.PackageName, context.Version))
                     {
-                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadTheme(context.ThemeName, context.Version))>@Localizer["Upgrade"]</button>
+                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadTheme(context.PackageName, context.Version))>@Localizer["Upgrade"]</button>
                     }
             </td>
             <td></td>
@@ -68,12 +68,12 @@ else
         }
     }
 
-    private bool UpgradeAvailable(string themename, string version)
+    private bool UpgradeAvailable(string packagename, string version)
     {
         var upgradeavailable = false;
         if (_packages != null)
         {
-            var package = _packages.Where(item => item.PackageId == Utilities.GetTypeName(themename)).FirstOrDefault();
+            var package = _packages.Where(item => item.PackageId == packagename).FirstOrDefault();
             if (package != null)
             {
                 upgradeavailable = (Version.Parse(package.Version).CompareTo(Version.Parse(version)) > 0);
@@ -82,18 +82,18 @@ else
         return upgradeavailable;
     }
 
-    private async Task DownloadTheme(string themename, string version)
+    private async Task DownloadTheme(string packagename, string version)
     {
         try
         {
-            await PackageService.DownloadPackageAsync(themename, version, "Themes");
-            await logger.LogInformation("Theme Downloaded {ThemeName} {Version}", themename, version);
+            await PackageService.DownloadPackageAsync(packagename, version, "Packages");
+            await logger.LogInformation("Theme Downloaded {ThemeName} {Version}", packagename, version);
             await ThemeService.InstallThemesAsync();
             AddModuleMessage(Localizer["Theme Installed Successfully. You Must <a href=\"{0}\">Restart</a> Your Application To Apply These Changes.", NavigateUrl("admin/system")], MessageType.Success);
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Downloading Theme {ThemeName} {Version} {Error}", themename, version, ex.Message);
+            await logger.LogError(ex, "Error Downloading Theme {ThemeName} {Version} {Error}", packagename, version, ex.Message);
             AddModuleMessage(Localizer["Error Downloading Theme"], MessageType.Error);
         }
     }
@@ -104,7 +104,7 @@ else
         {
             await ThemeService.DeleteThemeAsync(Theme.ThemeName);
             AddModuleMessage(Localizer["Theme Deleted Successfully"], MessageType.Success);
-            StateHasChanged();
+            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "reload"));
         }
         catch (Exception ex)
         {

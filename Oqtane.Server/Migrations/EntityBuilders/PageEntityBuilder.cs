@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Oqtane.Databases.Interfaces;
 using Oqtane.Interfaces;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -14,7 +15,7 @@ namespace Oqtane.Migrations.EntityBuilders
         private readonly PrimaryKey<PageEntityBuilder> _primaryKey = new("PK_Page", x => x.PageId);
         private readonly ForeignKey<PageEntityBuilder> _siteForeignKey = new("FK_Page_Site", x => x.SiteId, "Site", "SiteId", ReferentialAction.Cascade);
 
-        public PageEntityBuilder(MigrationBuilder migrationBuilder, IOqtaneDatabase database) : base(migrationBuilder, database)
+        public PageEntityBuilder(MigrationBuilder migrationBuilder, IDatabase database) : base(migrationBuilder, database)
         {
             EntityTableName = _entityTableName;
             PrimaryKey = _primaryKey;
@@ -25,7 +26,7 @@ namespace Oqtane.Migrations.EntityBuilders
         {
             PageId = AddAutoIncrementColumn(table,"PageId");
             SiteId = AddIntegerColumn(table,"SiteId");
-            if (ActiveDatabase.Name == "SqlServer" || ActiveDatabase.Name == "LocalDB")
+            if (ActiveDatabase.Name == "SqlServer")
             {
                 Path = AddStringColumn(table,"Path", 50);
             }
@@ -41,7 +42,6 @@ namespace Oqtane.Migrations.EntityBuilders
             Order = AddIntegerColumn(table,"Order");
             IsNavigation = AddBooleanColumn(table,"IsNavigation");
             Url = AddStringColumn(table,"Url", 500, true);
-            LayoutType = AddStringColumn(table,"LayoutType", 200);
             UserId = AddIntegerColumn(table,"UserId", true);
             IsPersonalizable = AddBooleanColumn(table,"IsPersonalizable");
             DefaultContainerType = AddStringColumn(table,"DefaultContainerType", 200, true);
@@ -72,8 +72,6 @@ namespace Oqtane.Migrations.EntityBuilders
         public OperationBuilder<AddColumnOperation> IsNavigation { get; private set; }
 
         public OperationBuilder<AddColumnOperation> Url { get; private set; }
-
-        public OperationBuilder<AddColumnOperation> LayoutType { get; private set; }
 
         public OperationBuilder<AddColumnOperation> UserId { get; private set; }
 

@@ -1,5 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -10,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Oqtane.Extensions;
 using Oqtane.Infrastructure;
+using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Security;
 using Oqtane.Shared;
@@ -74,24 +80,31 @@ namespace Oqtane
             services.AddIdentityCore<IdentityUser>(options => { })
                 .AddEntityFrameworkStores<TenantDBContext>()
                 .AddSignInManager()
-                .AddDefaultTokenProviders();
+                .AddDefaultTokenProviders()
+                .AddClaimsPrincipalFactory<ClaimsPrincipalFactory<IdentityUser>>(); // role claims
 
             services.ConfigureOqtaneIdentityOptions();
 
-            services.AddAuthentication(IdentityConstants.ApplicationScheme)
-                .AddCookie(IdentityConstants.ApplicationScheme);
+            services.AddAuthentication(Constants.AuthenticationScheme)
+                .AddCookie(Constants.AuthenticationScheme);
 
             services.ConfigureOqtaneCookieOptions();
 
-            // register custom claims principal factory for role claims
-            services.AddTransient<IUserClaimsPrincipalFactory<IdentityUser>, ClaimsPrincipalFactory<IdentityUser>>();
+            services.AddAntiforgery(options =>
+            {
+                options.HeaderName = Constants.AntiForgeryTokenHeaderName;
+                options.Cookie.HttpOnly = false;
+                options.Cookie.Name = Constants.AntiForgeryTokenCookieName;
+                options.Cookie.SameSite = SameSiteMode.Strict;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+            });
 
             // register singleton scoped core services
             services.AddSingleton(Configuration)
                 .AddOqtaneSingletonServices();
 
             // install any modules or themes ( this needs to occur BEFORE the assemblies are loaded into the app domain )
-            InstallationManager.InstallPackages("Modules,Themes", _env.WebRootPath, _env.ContentRootPath);
+            InstallationManager.InstallPackages(_env.WebRootPath, _env.ContentRootPath);
 
             // register transient scoped core services
             services.AddOqtaneTransientServices();
@@ -124,7 +137,8 @@ namespace Oqtane
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            // to allow install middleware it should be moved up
+
+            // execute any IServerStartup logic
             app.ConfigureOqtaneAssemblies(env);
 
             // Allow oqtane localization middleware
@@ -132,14 +146,16 @@ namespace Oqtane
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseTenantResolution();
             app.UseBlazorFrameworkFiles();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+
             if (_useSwagger)
             {
                 app.UseSwagger();
-                app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Oqtane V1"); });
+                app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Oqtane " + Constants.Version); });
             }
 
             app.UseEndpoints(endpoints =>

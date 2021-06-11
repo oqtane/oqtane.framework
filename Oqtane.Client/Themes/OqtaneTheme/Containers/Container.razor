@@ -17,7 +17,7 @@
         <ModuleActions />
     }
     <div class="row px-4">
-        <div class="container">
+        <div class="container-fluid">
             <ModuleInstance />
         </div>
     </div>
@@ -27,7 +27,7 @@
     public override string Name => "Customizable Container";
 
     private bool _title = true;
-    private string _classes = "container";
+    private string _classes = "container-fluid";
 
     protected override void OnParametersSet()
     {

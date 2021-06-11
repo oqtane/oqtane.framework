@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
-using Oqtane.Interfaces;
 using Oqtane.Modules;
 using Oqtane.Services;
 using Oqtane.Shared;
@@ -71,7 +70,7 @@ namespace Oqtane.Client
             var assemblies = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.GetName().Name).ToList();
 
             // get assemblies from server and load into client app domain
-            var zip = await http.GetByteArrayAsync($"/~/api/Installation/load");
+            var zip = await http.GetByteArrayAsync($"/api/Installation/load");
 
             // asemblies and debug symbols are packaged in a zip file
             using (ZipArchive archive = new ZipArchive(new MemoryStream(zip)))

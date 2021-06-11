@@ -3,16 +3,17 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <Configurations>Debug;Release</Configurations>
-    <Version>2.0.2</Version>
+    <Version>2.1.0</Version>
     <Product>Oqtane</Product>
     <Authors>Shaun Walker</Authors>
     <Company>.NET Foundation</Company>
     <Description>Modular Application Framework for Blazor</Description>
     <Copyright>.NET Foundation</Copyright>
     <PackageProjectUrl>https://www.oqtane.org</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/oqtane</RepositoryUrl>
+    <PackageLicenseUrl>https://github.com/oqtane/oqtane.framework/blob/dev/LICENSE</PackageLicenseUrl>
+    <PackageReleaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v2.1.0</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/oqtane/oqtane.framework</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <PackageReleaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v2.0.2</PackageReleaseNotes>
     <RootNamespace>Oqtane</RootNamespace>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
@@ -23,12 +24,6 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="System.Text.Json" Version="5.0.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Microsoft.EntityFrameworkCore.Relational, Version=5.0.2.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
-      <HintPath>C:\Users\charl\.nuget\packages\microsoft.entityframeworkcore.relational\5.0.2\lib\netstandard2.1\Microsoft.EntityFrameworkCore.Relational.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>

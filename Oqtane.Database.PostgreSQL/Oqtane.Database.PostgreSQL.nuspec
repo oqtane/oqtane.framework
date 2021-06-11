@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>Oqtane.Database.PostgreSQL</id>
+        <version>2.1.0</version>
+        <authors>Shaun Walker</authors>
+        <owners>.NET Foundation</owners>
+        <title>Oqtane PostgreSQL Provider</title>
+        <summary>PostgreSQL database support for the Oqtane Framework</summary>
+        <description>PostgreSQL database support for the Oqtane Framework</description>
+        <copyright>.NET Foundation</copyright>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <license type="expression">MIT</license>
+        <projectUrl>https://github.com/oqtane/oqtane.framework</projectUrl>
+        <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v2.1.0</releaseNotes>
+        <icon>icon.png</icon>
+        <tags>oqtane</tags>
+    </metadata>
+    <files>
+        <file src="bin\net5.0\Oqtane.Database.PostgreSQL.dll" target="lib\net5.0" />
+        <file src="bin\net5.0\Oqtane.Database.PostgreSQL.pdb" target="lib\net5.0" />
+        <file src="bin\net5.0\EFCore.NamingConventions.dll" target="lib\net5.0" />
+        <file src="bin\net5.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll" target="lib\net5.0" />
+        <file src="bin\net5.0\Npgsql.dll" target="lib\net5.0" />
+        <file src="icon.png" target="" />
+    </files>
+</package>

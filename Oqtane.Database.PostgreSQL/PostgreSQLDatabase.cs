@@ -1,18 +1,19 @@
 using System;
-using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
 using EFCore.NamingConventions.Internal;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
-using Oqtane.Models;
+using Npgsql;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using Oqtane.Databases;
 using Oqtane.Shared;
 
 namespace Oqtane.Database.PostgreSQL
 {
-    public class PostgreSQLDatabase : OqtaneDatabaseBase
+    public class PostgreSQLDatabase : DatabaseBase
     {
         private static string _friendlyName => "PostgreSQL";
 
@@ -20,17 +21,12 @@ namespace Oqtane.Database.PostgreSQL
 
         private readonly INameRewriter _rewriter;
 
-        private static readonly List<ConnectionStringField> _connectionStringFields = new()
+        static PostgreSQLDatabase()
         {
-            new() {Name = "Server", FriendlyName = "Server", Value = "127.0.0.1", HelpText="Enter the database server"},
-            new() {Name = "Port", FriendlyName = "Port", Value = "5432", HelpText="Enter the port used to connect to the server"},
-            new() {Name = "Database", FriendlyName = "Database", Value = "Oqtane-{{Date}}", HelpText="Enter the name of the database"},
-            new() {Name = "IntegratedSecurity", FriendlyName = "Integrated Security", Value = "true", HelpText="Select if you want integrated security or not"},
-            new() {Name = "Uid", FriendlyName = "User Id", Value = "", HelpText="Enter the username to use for the database"},
-            new() {Name = "Pwd", FriendlyName = "Password", Value = "", HelpText="Enter the password to use for the database"}
-        };
+            Initialize(typeof(PostgreSQLDatabase));
+        }
 
-        public PostgreSQLDatabase() : base(_name, _friendlyName, _connectionStringFields)
+        public PostgreSQLDatabase() : base(_name, _friendlyName)
         {
             _rewriter = new SnakeCaseNameRewriter(CultureInfo.InvariantCulture);
         }
@@ -40,41 +36,6 @@ namespace Oqtane.Database.PostgreSQL
         public override OperationBuilder<AddColumnOperation> AddAutoIncrementColumn(ColumnsBuilder table, string name)
         {
             return table.Column<int>(name: name, nullable: false).Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn);
-        }
-
-        public override string BuildConnectionString()
-        {
-            var connectionString = String.Empty;
-
-            var server = ConnectionStringFields[0].Value;
-            var port = ConnectionStringFields[1].Value;
-            var database = ConnectionStringFields[2].Value;
-            var integratedSecurity = Boolean.Parse(ConnectionStringFields[3].Value);
-            var userId = ConnectionStringFields[4].Value;
-            var password = ConnectionStringFields[5].Value;
-
-            if (!String.IsNullOrEmpty(server)  && !String.IsNullOrEmpty(database) && !String.IsNullOrEmpty(port))
-            {
-                connectionString = $"Server={server};Port={port};Database={database};";
-            }
-
-            if (integratedSecurity)
-            {
-                connectionString += "Integrated Security=true;";
-            }
-            else
-            {
-                if (!String.IsNullOrEmpty(userId) && !String.IsNullOrEmpty(password))
-                {
-                    connectionString += $"User ID={userId};Password={password};";
-                }
-                else
-                {
-                    connectionString = String.Empty;
-                }
-            }
-
-            return connectionString;
         }
 
         public override string ConcatenateSql(params string[] values)
@@ -90,6 +51,36 @@ namespace Oqtane.Database.PostgreSQL
             }
 
             return returnValue;
+        }
+
+        public override int ExecuteNonQuery(string connectionString, string query)
+        {
+            var conn = new NpgsqlConnection(connectionString);
+            var cmd = conn.CreateCommand();
+            using (conn)
+            {
+                PrepareCommand(conn, cmd, query);
+                var val = -1;
+                try
+                {
+                    val = cmd.ExecuteNonQuery();
+                }
+                catch
+                {
+                    // an error occurred executing the query
+                }
+                return val;
+            }
+
+        }
+
+        public override IDataReader ExecuteReader(string connectionString, string query)
+        {
+            var conn = new NpgsqlConnection(connectionString);
+            var cmd = conn.CreateCommand();
+            PrepareCommand(conn, cmd, query);
+            var dr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+            return dr;
         }
 
         public override string RewriteName(string name)
@@ -128,7 +119,21 @@ namespace Oqtane.Database.PostgreSQL
 
         public override DbContextOptionsBuilder UseDatabase(DbContextOptionsBuilder optionsBuilder, string connectionString)
         {
-            return optionsBuilder.UseNpgsql(connectionString).UseSnakeCaseNamingConvention();
+            return optionsBuilder.UseNpgsql(connectionString)
+                .UseSnakeCaseNamingConvention()
+                .ReplaceService<IHistoryRepository, OqtaneHistoryRepository>();
+        }
+
+        private void PrepareCommand(NpgsqlConnection conn, NpgsqlCommand cmd, string query)
+        {
+            if (conn.State != ConnectionState.Open)
+            {
+                conn.Open();
+            }
+
+            cmd.Connection = conn;
+            cmd.CommandText = query;
+            cmd.CommandType = CommandType.Text;
         }
     }
 }

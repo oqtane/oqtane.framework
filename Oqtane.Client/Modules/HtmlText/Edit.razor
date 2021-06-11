@@ -51,7 +51,7 @@
             if (htmltext != null)
             {
                 _content = htmltext.Content;
-                _content = _content.Replace(Constants.ContentUrl, "/" + PageState.Alias.AliasId.ToString() + Constants.ContentUrl);
+                _content = Utilities.FormatContent(_content, PageState.Alias, "render");
                 _createdby = htmltext.CreatedBy;
                 _createdon = htmltext.CreatedOn;
                 _modifiedby = htmltext.ModifiedBy;
@@ -72,7 +72,7 @@
     private async Task SaveContent()
     {
         string content = await RichTextEditorHtml.GetHtml();
-        content = content.Replace("/" + PageState.Alias.AliasId.ToString() + Constants.ContentUrl, Constants.ContentUrl);
+        content = Utilities.FormatContent(content, PageState.Alias, "save");
 
         try
         {

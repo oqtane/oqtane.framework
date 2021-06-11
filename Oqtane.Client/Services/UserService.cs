@@ -2,9 +2,11 @@ using Oqtane.Shared;
 using Oqtane.Models;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Oqtane.Documentation;
 
 namespace Oqtane.Services
 {
+    [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class UserService : ServiceBase, IUserService
     {
         private readonly SiteState _siteState;
@@ -14,7 +16,7 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private string Apiurl => CreateApiUrl(_siteState.Alias, "User");
+        private string Apiurl => CreateApiUrl("User", _siteState.Alias);
 
         public async Task<User> GetUserAsync(int userId, int siteId)
         {

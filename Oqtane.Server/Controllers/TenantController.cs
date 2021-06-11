@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Oqtane.Models;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using Oqtane.Repository;
 
 namespace Oqtane.Controllers
 {
-    [Route(ControllerRoutes.Default)]
+    [Route(ControllerRoutes.ApiRoute)]
     public class TenantController : Controller
     {
         private readonly ITenantRepository _tenants;
@@ -23,7 +23,7 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>
         [HttpGet]
-        [Authorize(Roles = RoleNames.Admin)]
+        [Authorize(Roles = RoleNames.Host)]
         public IEnumerable<Tenant> Get()
         {
             return _tenants.GetTenants();
@@ -31,7 +31,7 @@ namespace Oqtane.Controllers
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
-        [Authorize(Roles = RoleNames.Admin)]
+        [Authorize(Roles = RoleNames.Host)]
         public Tenant Get(int id)
         {
             return _tenants.GetTenant(id);

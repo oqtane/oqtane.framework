@@ -45,10 +45,21 @@ namespace Oqtane.Repository
             _db.SaveChanges();
             return notification;
         }
-
         public Notification GetNotification(int notificationId)
         {
-            return _db.Notification.Find(notificationId);
+            return GetNotification(notificationId, true);
+        }
+
+        public Notification GetNotification(int notificationId, bool tracking)
+        {
+            if (tracking)
+            {
+                return _db.Notification.Find(notificationId);
+            }
+            else
+            {
+                return _db.Notification.AsNoTracking().FirstOrDefault(item => item.NotificationId == notificationId);
+            }
         }
 
         public void DeleteNotification(int notificationId)

@@ -12,11 +12,13 @@ using Oqtane.Modules;
 using Oqtane.Shared;
 using Oqtane.Themes;
 using Microsoft.Extensions.Caching.Memory;
-using System.Collections.Generic;
+using System.Net;
+using Oqtane.Repository;
+using Microsoft.AspNetCore.Http;
 
 namespace Oqtane.Controllers
 {
-    [Route(ControllerRoutes.Default)]
+    [Route(ControllerRoutes.ApiRoute)]
     public class InstallationController : Controller
     {
         private readonly IConfigurationRoot _config;
@@ -24,14 +26,18 @@ namespace Oqtane.Controllers
         private readonly IDatabaseManager _databaseManager;
         private readonly ILocalizationManager _localizationManager;
         private readonly IMemoryCache _cache;
+        private readonly IHttpContextAccessor _accessor;
+        private readonly IAliasRepository _aliases;
 
-        public InstallationController(IConfigurationRoot config, IInstallationManager installationManager, IDatabaseManager databaseManager, ILocalizationManager localizationManager, IMemoryCache cache)
+        public InstallationController(IConfigurationRoot config, IInstallationManager installationManager, IDatabaseManager databaseManager, ILocalizationManager localizationManager, IMemoryCache cache, IHttpContextAccessor accessor, IAliasRepository aliases)
         {
             _config = config;
             _installationManager = installationManager;
             _databaseManager = databaseManager;
             _localizationManager = localizationManager;
             _cache = cache;
+            _accessor = accessor;
+            _aliases = aliases;
         }
 
         // POST api/<controller>
@@ -52,11 +58,17 @@ namespace Oqtane.Controllers
             return installation;
         }
 
-        // GET api/<controller>/installed
+        // GET api/<controller>/installed/?path=xxx
         [HttpGet("installed")]
-        public Installation IsInstalled()
+        public Installation IsInstalled(string path)
         {
-            return _databaseManager.IsInstalled();
+            var installation = _databaseManager.IsInstalled();
+            if (installation.Success)
+            {
+                path = _accessor.HttpContext.Request.Host.Value + "/" + WebUtility.UrlDecode(path);
+                installation.Alias = _aliases.GetAlias(path);
+            }
+            return installation;
         }
 
         [HttpGet("upgrade")]
@@ -82,11 +94,11 @@ namespace Oqtane.Controllers
         {
             if (_config.GetSection("Runtime").Value == "WebAssembly")
             {
-                return File(GetAssemblies(), System.Net.Mime.MediaTypeNames.Application.Octet, "oqtane.zip");
+                return File(GetAssemblies(), System.Net.Mime.MediaTypeNames.Application.Octet, "oqtane.dll");
             }
             else
             {
-                HttpContext.Response.StatusCode = 401;
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
         }
