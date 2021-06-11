@@ -369,7 +369,7 @@
                     var tenants = await TenantService.GetTenantsAsync();
                     var _databases = await DatabaseService.GetDatabasesAsync();
                     var tenant = tenants.Find(item => item.TenantId == site.TenantId);
-                    if (_tenant != null)
+                    if (tenant != null)
                     {
                         _tenant = tenant.Name;
                         _database = _databases.Find(item => item.DBType == tenant.DBType)?.Name;

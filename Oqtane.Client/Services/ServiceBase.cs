@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
 using Oqtane.Documentation;
 using Oqtane.Models;
 using Oqtane.Shared;
@@ -22,6 +20,7 @@ namespace Oqtane.Services
         protected ServiceBase(HttpClient client, SiteState siteState)
         {
             _http = client;
+            RemoveAuthorizationPolicyHeaders();
             _siteState = siteState;
         }
 
@@ -99,11 +98,16 @@ namespace Oqtane.Services
 
         protected void AddRequestHeader(string name, string value)
         {
+            RemoveRequestHeader(name);
+            _http.DefaultRequestHeaders.Add(name, value);
+        }
+
+        protected void RemoveRequestHeader(string name)
+        {
             if (_http.DefaultRequestHeaders.Contains(name))
             {
                 _http.DefaultRequestHeaders.Remove(name);
             }
-            _http.DefaultRequestHeaders.Add(name, value);
         }
 
         protected void AddAntiForgeryToken()
@@ -121,6 +125,17 @@ namespace Oqtane.Services
             foreach (KeyValuePair<string, int> kvp in authEntityId)
             {
                 AddRequestHeader("auth" + kvp.Key.ToLower() + "id", kvp.Value.ToString());
+            }
+        }
+
+        public void RemoveAuthorizationPolicyHeaders()
+        {
+            foreach (var param in _http.DefaultRequestHeaders)
+            {
+                if (param.Key.StartsWith("auth") && param.Key.EndsWith("id"))
+                {
+                    _http.DefaultRequestHeaders.Remove(param.Key);
+                }
             }
         }
 
@@ -243,6 +258,7 @@ namespace Oqtane.Services
         protected ServiceBase(HttpClient client)
         {
             _http = client;
+            RemoveAuthorizationPolicyHeaders();
         }
 
         [Obsolete("This method is obsolete. Use CreateApiUrl(string serviceName, Alias alias) in conjunction with ControllerRoutes.ApiRoute in Controllers instead.", false)]

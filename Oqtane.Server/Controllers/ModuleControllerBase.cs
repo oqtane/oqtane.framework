@@ -9,7 +9,8 @@ namespace Oqtane.Controllers
     public class ModuleControllerBase : Controller
     {
         protected readonly ILogManager _logger;
-        // querystring parameters for policy authorization and validation
+
+        // parameters for policy authorization and validation
         protected Dictionary<string, int> _authEntityId = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         protected int _entityId = -1; // legacy support
 
@@ -17,7 +18,7 @@ namespace Oqtane.Controllers
         {
             _logger = logger;
 
-            // populate policy authorization dictionary from querystring and headers
+            // populate policy authorization dictionary from querystring
             int value;
             foreach (var param in accessor.HttpContext.Request.Query)
             {
@@ -25,12 +26,16 @@ namespace Oqtane.Controllers
                 {
                     _authEntityId.Add(param.Key.Substring(4, param.Key.Length - 6), value);
                 }
-            }            
-            foreach (var param in accessor.HttpContext.Request.Headers)
+            }
+            // if policy authorization dictionary is empty populate from headers
+            if (_authEntityId.Count == 0)
             {
-                if (param.Key.StartsWith("auth") && param.Key.EndsWith("id") && int.TryParse(param.Value, out value))
+                foreach (var param in accessor.HttpContext.Request.Headers)
                 {
-                    _authEntityId.Add(param.Key.Substring(4, param.Key.Length - 6), value);
+                    if (param.Key.StartsWith("auth") && param.Key.EndsWith("id") && int.TryParse(param.Value, out value))
+                    {
+                        _authEntityId.Add(param.Key.Substring(4, param.Key.Length - 6), value);
+                    }
                 }
             }
 

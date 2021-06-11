@@ -34,15 +34,7 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
-        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-        {
-            _roles = await RoleService.GetRolesAsync(PageState.Site.SiteId, true);
-            _roles = _roles.Where(item => item.Name != RoleNames.Everyone).ToList();
-        }
-        else
-        {
-            _roles = await RoleService.GetRolesAsync(PageState.Site.SiteId);
-        }
+        await GetRoles();
     }
 
     private async Task DeleteRole(Role role)
@@ -51,12 +43,26 @@ else
         {
             await RoleService.DeleteRoleAsync(role.RoleId);
             await logger.LogInformation("Role Deleted {Role}", role);
+            await GetRoles();
             StateHasChanged();
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting Role {Role} {Error}", role, ex.Message);
             AddModuleMessage(Localizer["Error Deleting Role"], MessageType.Error);
+        }
+    }
+
+    private async Task GetRoles()
+    {
+        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+        {
+            _roles = await RoleService.GetRolesAsync(PageState.Site.SiteId, true);
+            _roles = _roles.Where(item => item.Name != RoleNames.Everyone).ToList();
+        }
+        else
+        {
+            _roles = await RoleService.GetRolesAsync(PageState.Site.SiteId);
         }
     }
 }

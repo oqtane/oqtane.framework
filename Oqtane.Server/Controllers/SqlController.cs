@@ -52,7 +52,7 @@ namespace Oqtane.Controllers
             }
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Other, "Sql Query {Query} Executed on Tenant {TenantId} Results In An Error {Error}", sqlquery.Query, sqlquery.TenantId, ex.Message);
+                _logger.Log(LogLevel.Error, this, LogFunction.Other, "Sql Query {Query} Executed on Tenant {TenantId} Resulted In An Error {Error}", sqlquery.Query, sqlquery.TenantId, ex.Message);
             }
             sqlquery.Results = results;
             return sqlquery;
