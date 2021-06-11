@@ -45,6 +45,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<ISystemService, SystemService>();
             services.AddScoped<ILocalizationService, LocalizationService>();
             services.AddScoped<ILanguageService, LanguageService>();
+            services.AddScoped<IDatabaseService, DatabaseService>();
+            services.AddScoped<ISyncService, SyncService>();
 
             return services;
         }

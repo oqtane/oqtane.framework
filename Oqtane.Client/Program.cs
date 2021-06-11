@@ -48,9 +48,6 @@ namespace Oqtane.Client
                 // dynamically register module services
                 RegisterModuleServices(assembly, builder.Services);
 
-                // dynamically register database providers
-                RegisterDatabaseProviders(assembly, builder.Services);
-
                 // register client startup services
                 RegisterClientStartups(assembly, builder.Services);
             }
@@ -122,19 +119,6 @@ namespace Oqtane.Client
                 {
                     var serviceType = Type.GetType(implementationType.AssemblyQualifiedName.Replace(implementationType.Name, $"I{implementationType.Name}"));
                     services.AddScoped(serviceType ?? implementationType, implementationType);
-                }
-            }
-        }
-
-        private static void RegisterDatabaseProviders(Assembly assembly, IServiceCollection services)
-        {
-            var databaseTypes = assembly.GetInterfaces<IOqtaneDatabase>();
-            foreach (var databaseType in databaseTypes)
-            {
-                if (databaseType.AssemblyQualifiedName != null)
-                {
-                    var serviceType = Type.GetType("Oqtane.Interfaces.IDatabase, Oqtane.Shared");
-                    services.AddScoped(serviceType ?? databaseType, databaseType);
                 }
             }
         }

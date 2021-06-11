@@ -1,10 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -55,6 +51,8 @@ namespace Oqtane
         {
             // Register localization services
             services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+            services.AddOptions<List<Database>>().Bind(Configuration.GetSection(SettingKeys.AvailableDatabasesSection));
 
             services.AddServerSideBlazor()
                 .AddCircuitOptions(options =>
