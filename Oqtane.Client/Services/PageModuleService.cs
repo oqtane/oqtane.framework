@@ -1,10 +1,12 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Oqtane.Documentation;
 using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
+    [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class PageModuleService : ServiceBase, IPageModuleService
     {
         
@@ -15,7 +17,7 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private string Apiurl => CreateApiUrl(_siteState.Alias, "PageModule");
+        private string Apiurl => CreateApiUrl("PageModule", _siteState.Alias);
 
         public async Task<PageModule> GetPageModuleAsync(int pageModuleId)
         {

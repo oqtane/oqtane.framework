@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
@@ -9,6 +9,7 @@ namespace Oqtane.Repository
         Notification AddNotification(Notification notification);
         Notification UpdateNotification(Notification notification);
         Notification GetNotification(int notificationId);
+        Notification GetNotification(int notificationId, bool tracking);
         void DeleteNotification(int notificationId);
     }
 }

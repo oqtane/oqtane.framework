@@ -7,12 +7,18 @@ msbuild.binlog
 .vscode/
 *.binlog
 *.nupkg
+*.zip
 
 *.idea
 
 Oqtane.Server/appsettings.json
 Oqtane.Server/Data/*.mdf
 Oqtane.Server/Data/*.ldf
+Oqtane.Server/Data/*.db
 
 /Oqtane.Server/Properties/PublishProfiles/FolderProfile.pubxml
 Oqtane.Server/Content
+Oqtane.Server/Packages
+Oqtane.Server/wwwroot/Content
+Oqtane.Server/wwwroot/Packages/*.log
+

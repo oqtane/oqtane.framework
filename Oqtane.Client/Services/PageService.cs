@@ -1,4 +1,4 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Net.Http;
@@ -6,9 +6,11 @@ using System.Collections.Generic;
 using Oqtane.Shared;
 using System;
 using System.Net;
+using Oqtane.Documentation;
 
 namespace Oqtane.Services
 {
+    [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class PageService : ServiceBase, IPageService
     {
         
@@ -20,7 +22,7 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private string Apiurl => CreateApiUrl(_siteState.Alias, "Page");
+        private string Apiurl => CreateApiUrl("Page", _siteState.Alias);
 
         public async Task<List<Page>> GetPagesAsync(int siteId)
         {

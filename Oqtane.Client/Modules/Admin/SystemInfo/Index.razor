@@ -15,10 +15,24 @@
     </tr>
     <tr>
         <td>
-            <Label For="runtime" HelpText="Blazor Runtime (Server or WebAssembly)" ResourceKey="BlazorRunime">Blazor Runtime: </Label>
+            <Label For="runtime" HelpText="Blazor Runtime (Server or WebAssembly)" ResourceKey="BlazorRuntime">Blazor Runtime: </Label>
         </td>
         <td>
-            <input id="runtime" class="form-control" @bind="@_runtime" readonly />
+            <select id="runtime" class="form-control" @bind="@_runtime">
+                <option value="Server">@Localizer["Server"]</option>
+                <option value="WebAssembly">@Localizer["WebAssembly"]</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <Label For="rendermode" HelpText="Blazor Server Render Mode" ResourceKey="RenderMode">Render Mode: </Label>
+        </td>
+        <td>
+            <select id="rendermode" class="form-control" @bind="@_rendermode">
+                <option value="Server">@Localizer["Server"]</option>
+                <option value="ServerPrerendered">@Localizer["ServerPrerendered"]</option>
+            </select>
         </td>
     </tr>
     <tr>
@@ -54,6 +68,7 @@
         </td>
     </tr>
 </table>
+<button type="button" class="btn btn-success" @onclick="SaveConfig">@Localizer["Save"]</button>&nbsp;
 <a class="btn btn-primary" href="swagger/index.html" target="_new">@Localizer["Access Framework API"]</a>&nbsp;
 <ActionDialog Header="Restart Application" Message="Are You Sure You Wish To Restart The Application?" Action="Restart Application" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await RestartApplication())" ResourceKey="RestartApplication" />
 
@@ -62,6 +77,7 @@
 
     private string _version = string.Empty;
     private string _runtime = string.Empty;
+    private string _rendermode = string.Empty;
     private string _clrversion = string.Empty;
     private string _osversion = string.Empty;
     private string _serverpath = string.Empty;
@@ -75,10 +91,28 @@
         Dictionary<string, string> systeminfo = await SystemService.GetSystemInfoAsync();
         if (systeminfo != null)
         {
+            _rendermode = systeminfo["rendermode"];
             _clrversion = systeminfo["clrversion"];
             _osversion = systeminfo["osversion"];
             _serverpath = systeminfo["serverpath"];
             _servertime = systeminfo["servertime"];
+        }
+    }
+
+    private async Task SaveConfig()
+    {
+        try
+        {
+            var settings = new Dictionary<string, string>();
+            settings.Add("runtime", _runtime);
+            settings.Add("rendermode", _rendermode);
+            await SystemService.UpdateSystemInfoAsync(settings);
+            AddModuleMessage(Localizer["Configuration Updated. Please Select Restart Application For These Changes To Be Activated."], MessageType.Success);
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Saving Configuration");
+            AddModuleMessage(Localizer["An Error Occurred Updating The Configuration"], MessageType.Error);
         }
     }
 

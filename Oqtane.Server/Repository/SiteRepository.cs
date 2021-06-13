@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Localization;
 using Oqtane.Extensions;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
@@ -24,9 +25,7 @@ namespace Oqtane.Repository
         private readonly IModuleRepository _moduleRepository;
         private readonly IPageModuleRepository _pageModuleRepository;
         private readonly IModuleDefinitionRepository _moduleDefinitionRepository;
-
         private readonly IServiceProvider _serviceProvider;
-
         private readonly IConfigurationRoot _config;
 
         public SiteRepository(TenantDBContext context, IRoleRepository roleRepository, IProfileRepository profileRepository, IFolderRepository folderRepository, IPageRepository pageRepository,
@@ -68,7 +67,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Login.Index).ToModuleDefinitionName(), Title = "User Login", Pane = PaneNames.Admin,
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Login.Index).ToModuleDefinitionName(), Title = SharedResources.UserLogin, Pane = PaneNames.Admin,
                         ModulePermissions = new List<Permission>
                         {
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -97,7 +96,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Register.Index).ToModuleDefinitionName(), Title = "User Registration", Pane = PaneNames.Admin,
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Register.Index).ToModuleDefinitionName(), Title = SharedResources.UserRegistration, Pane = PaneNames.Admin,
                         ModulePermissions = new List<Permission>
                         {
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -127,7 +126,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Reset.Index).ToModuleDefinitionName(), Title = "Password Reset", Pane = PaneNames.Admin,
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Reset.Index).ToModuleDefinitionName(), Title = SharedResources.PasswordReset, Pane = PaneNames.Admin,
                         ModulePermissions = new List<Permission>
                         {
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -156,7 +155,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.UserProfile.Index).ToModuleDefinitionName(), Title = "User Profile", Pane = PaneNames.Admin,
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.UserProfile.Index).ToModuleDefinitionName(), Title = SharedResources.UserProfile, Pane = PaneNames.Admin,
                         ModulePermissions = new List<Permission>
                         {
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -181,7 +180,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Dashboard.Index).ToModuleDefinitionName(), Title = "Admin Dashboard", Pane = PaneNames.Admin,
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Dashboard.Index).ToModuleDefinitionName(), Title = SharedResources.AdminDashboard, Pane = PaneNames.Admin,
                         ModulePermissions = new List<Permission>
                         {
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -208,7 +207,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Site.Index).ToModuleDefinitionName(), Title = "Site Settings", Pane = PaneNames.Admin,
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Site.Index).ToModuleDefinitionName(), Title = SharedResources.SiteSettings, Pane = PaneNames.Admin,
                         ModulePermissions = new List<Permission>
                         {
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -235,7 +234,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Pages.Index).ToModuleDefinitionName(), Title = "Page Management", Pane = PaneNames.Admin,
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Pages.Index).ToModuleDefinitionName(), Title = SharedResources.PageManagement, Pane = PaneNames.Admin,
                         ModulePermissions = new List<Permission>
                         {
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -262,7 +261,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Users.Index).ToModuleDefinitionName(), Title = "User Management", Pane = PaneNames.Admin,
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Users.Index).ToModuleDefinitionName(), Title = SharedResources.UserManagement, Pane = PaneNames.Admin,
                         ModulePermissions = new List<Permission>
                         {
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -289,7 +288,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Profiles.Index).ToModuleDefinitionName(), Title = "Profile Management", Pane = PaneNames.Admin,
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Profiles.Index).ToModuleDefinitionName(), Title = SharedResources.ProfileManagement, Pane = PaneNames.Admin,
                         ModulePermissions = new List<Permission>
                         {
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -316,7 +315,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Roles.Index).ToModuleDefinitionName(), Title = "Role Management", Pane = PaneNames.Admin,
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Roles.Index).ToModuleDefinitionName(), Title = SharedResources.RoleManagement, Pane = PaneNames.Admin,
                         ModulePermissions = new List<Permission>
                         {
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -343,7 +342,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Files.Index).ToModuleDefinitionName(), Title = "File Management", Pane = PaneNames.Admin,
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Files.Index).ToModuleDefinitionName(), Title = SharedResources.FileManagement, Pane = PaneNames.Admin,
                         ModulePermissions = new List<Permission>
                         {
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -370,7 +369,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.RecycleBin.Index).ToModuleDefinitionName(), Title = "Recycle Bin", Pane = PaneNames.Admin,
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.RecycleBin.Index).ToModuleDefinitionName(), Title = SharedResources.RecycleBin, Pane = PaneNames.Admin,
                         ModulePermissions = new List<Permission>
                         {
                             new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -399,7 +398,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Logs.Index).ToModuleDefinitionName(), Title = "Event Log", Pane = PaneNames.Admin,
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Logs.Index).ToModuleDefinitionName(), Title = SharedResources.EventLog, Pane = PaneNames.Admin,
                         ModulePermissions = new List<Permission>
                         {
                             new Permission(PermissionNames.View, RoleNames.Host, true),
@@ -421,7 +420,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Sites.Index).ToModuleDefinitionName(), Title = "Site Management", Pane = PaneNames.Admin,
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Sites.Index).ToModuleDefinitionName(), Title = SharedResources.SiteManagement, Pane = PaneNames.Admin,
                         ModulePermissions = new List<Permission>
                         {
                             new Permission(PermissionNames.View, RoleNames.Host, true),
@@ -443,7 +442,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.ModuleDefinitions.Index).ToModuleDefinitionName(), Title = "Module Management", Pane = PaneNames.Admin,
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.ModuleDefinitions.Index).ToModuleDefinitionName(), Title = SharedResources.ModuleManagement, Pane = PaneNames.Admin,
                         ModulePermissions = new List<Permission>
                         {
                             new Permission(PermissionNames.View, RoleNames.Host, true),
@@ -465,7 +464,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Themes.Index).ToModuleDefinitionName(), Title = "Theme Management", Pane = PaneNames.Admin,
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Themes.Index).ToModuleDefinitionName(), Title = SharedResources.ThemeManagement, Pane = PaneNames.Admin,
                         ModulePermissions = new List<Permission>
                         {
                             new Permission(PermissionNames.View, RoleNames.Host, true),
@@ -494,7 +493,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Languages.Index).ToModuleDefinitionName(), Title = "Language Management", Pane = PaneNames.Admin,
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Languages.Index).ToModuleDefinitionName(), Title = SharedResources.LanguageManagement, Pane = PaneNames.Admin,
                         ModulePermissions = new List<Permission>
                         {
                             new Permission(PermissionNames.View, RoleNames.Host, true),
@@ -518,7 +517,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Jobs.Index).ToModuleDefinitionName(), Title = "Scheduled Jobs", Pane = PaneNames.Admin,
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Jobs.Index).ToModuleDefinitionName(), Title = SharedResources.ScheduledJobs, Pane = PaneNames.Admin,
                         ModulePermissions = new List<Permission>
                         {
                             new Permission(PermissionNames.View, RoleNames.Host, true),
@@ -540,7 +539,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Sql.Index).ToModuleDefinitionName(), Title = "Sql Management", Pane = PaneNames.Admin,
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Sql.Index).ToModuleDefinitionName(), Title = SharedResources.SqlManagement, Pane = PaneNames.Admin,
                         ModulePermissions = new List<Permission>
                         {
                             new Permission(PermissionNames.View, RoleNames.Host, true),
@@ -562,7 +561,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.SystemInfo.Index).ToModuleDefinitionName(), Title = "System Info", Pane = PaneNames.Admin,
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.SystemInfo.Index).ToModuleDefinitionName(), Title = SharedResources.SystemInfo, Pane = PaneNames.Admin,
                         ModulePermissions = new List<Permission>
                         {
                             new Permission(PermissionNames.View, RoleNames.Host, true),
@@ -584,7 +583,7 @@ namespace Oqtane.Repository
                 {
                     new PageTemplateModule
                     {
-                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Upgrade.Index).ToModuleDefinitionName(), Title = "System Update", Pane = PaneNames.Admin,
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Upgrade.Index).ToModuleDefinitionName(), Title = SharedResources.SystemUpdate, Pane = PaneNames.Admin,
                         ModulePermissions = new List<Permission>
                         {
                             new Permission(PermissionNames.View, RoleNames.Host, true),
@@ -621,7 +620,19 @@ namespace Oqtane.Repository
 
         public Site GetSite(int siteId)
         {
-            return _db.Site.Find(siteId);
+            return GetSite(siteId, true);
+        }
+
+        public Site GetSite(int siteId, bool tracking)
+        {
+            if (tracking)
+            {
+                return _db.Site.Find(siteId);
+            }
+            else
+            {
+                return _db.Site.AsNoTracking().FirstOrDefault(item => item.SiteId == siteId);
+            }
         }
 
         public void DeleteSite(int siteId)
@@ -649,25 +660,25 @@ namespace Oqtane.Repository
             _roleRepository.AddRole(new Role {SiteId = site.SiteId, Name = RoleNames.Admin, Description = "Site Administrators", IsAutoAssigned = false, IsSystem = true});
 
             _profileRepository.AddProfile(new Profile
-                {SiteId = site.SiteId, Name = "FirstName", Title = "First Name", Description = "Your First Or Given Name", Category = "Name", ViewOrder = 1, MaxLength = 50, DefaultValue = "", IsRequired = true, IsPrivate = false});
+                {SiteId = site.SiteId, Name = "FirstName", Title = "First Name", Description = "Your First Or Given Name", Category = "Name", ViewOrder = 1, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = ""});
             _profileRepository.AddProfile(new Profile
-                {SiteId = site.SiteId, Name = "LastName", Title = "Last Name", Description = "Your Last Or Family Name", Category = "Name", ViewOrder = 2, MaxLength = 50, DefaultValue = "", IsRequired = true, IsPrivate = false});
+                {SiteId = site.SiteId, Name = "LastName", Title = "Last Name", Description = "Your Last Or Family Name", Category = "Name", ViewOrder = 2, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = "" });
             _profileRepository.AddProfile(new Profile
-                {SiteId = site.SiteId, Name = "Street", Title = "Street", Description = "Street Or Building Address", Category = "Address", ViewOrder = 3, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false});
+                {SiteId = site.SiteId, Name = "Street", Title = "Street", Description = "Street Or Building Address", Category = "Address", ViewOrder = 3, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = "" });
             _profileRepository.AddProfile(
-                new Profile {SiteId = site.SiteId, Name = "City", Title = "City", Description = "City", Category = "Address", ViewOrder = 4, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false});
+                new Profile {SiteId = site.SiteId, Name = "City", Title = "City", Description = "City", Category = "Address", ViewOrder = 4, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = "" });
             _profileRepository.AddProfile(new Profile
-                {SiteId = site.SiteId, Name = "Region", Title = "Region", Description = "State Or Province", Category = "Address", ViewOrder = 5, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false});
+                {SiteId = site.SiteId, Name = "Region", Title = "Region", Description = "State Or Province", Category = "Address", ViewOrder = 5, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = "" });
             _profileRepository.AddProfile(new Profile
-                {SiteId = site.SiteId, Name = "Country", Title = "Country", Description = "Country", Category = "Address", ViewOrder = 6, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false});
+                {SiteId = site.SiteId, Name = "Country", Title = "Country", Description = "Country", Category = "Address", ViewOrder = 6, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = "" });
             _profileRepository.AddProfile(new Profile
-                {SiteId = site.SiteId, Name = "PostalCode", Title = "Postal Code", Description = "Postal Code Or Zip Code", Category = "Address", ViewOrder = 7, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false});
+                {SiteId = site.SiteId, Name = "PostalCode", Title = "Postal Code", Description = "Postal Code Or Zip Code", Category = "Address", ViewOrder = 7, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = "" });
             _profileRepository.AddProfile(new Profile
-                {SiteId = site.SiteId, Name = "Phone", Title = "Phone Number", Description = "Phone Number", Category = "Contact", ViewOrder = 8, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false});
+                {SiteId = site.SiteId, Name = "Phone", Title = "Phone Number", Description = "Phone Number", Category = "Contact", ViewOrder = 8, MaxLength = 50, DefaultValue = "", IsRequired = false, IsPrivate = false, Options = "" });
 
             Folder folder = _folderRepository.AddFolder(new Folder
             {
-                SiteId = site.SiteId, ParentId = null, Name = "Root", Path = "", Order = 1, IsSystem = true,
+                SiteId = site.SiteId, ParentId = null, Name = "Root", Type = FolderTypes.Private, Path = "", Order = 1, IsSystem = true,
                 Permissions = new List<Permission>
                 {
                     new Permission(PermissionNames.Browse, RoleNames.Admin, true),
@@ -675,9 +686,17 @@ namespace Oqtane.Repository
                     new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                 }.EncodePermissions()
             });
+            _folderRepository.AddFolder(new Folder { SiteId = site.SiteId, ParentId = folder.FolderId, Name = "Public", Type = FolderTypes.Public, Path = Utilities.PathCombine("Public", Path.DirectorySeparatorChar.ToString()), Order = 1, IsSystem = false,
+                Permissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.Browse, RoleNames.Admin, true),
+                    new Permission(PermissionNames.View, RoleNames.Admin, true),
+                    new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                }.EncodePermissions()
+            });
             _folderRepository.AddFolder(new Folder
             {
-                SiteId = site.SiteId, ParentId = folder.FolderId, Name = "Users", Path = Utilities.PathCombine("Users",Path.DirectorySeparatorChar.ToString()), Order = 1, IsSystem = true,
+                SiteId = site.SiteId, ParentId = folder.FolderId, Name = "Users", Type = FolderTypes.Private, Path = Utilities.PathCombine("Users",Path.DirectorySeparatorChar.ToString()), Order = 3, IsSystem = true,
                 Permissions = new List<Permission>
                 {
                     new Permission(PermissionNames.Browse, RoleNames.Admin, true),
@@ -749,7 +768,8 @@ namespace Oqtane.Repository
                     Icon = pagetemplate.Icon,
                     Permissions = pagetemplate.PagePermissions,
                     IsPersonalizable = pagetemplate.IsPersonalizable,
-                    UserId = null
+                    UserId = null,
+                    IsClickable = true
                 };
                 page = _pageRepository.AddPage(page);
 

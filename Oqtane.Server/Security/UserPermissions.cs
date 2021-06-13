@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Oqtane.Models;
 using System.Linq;
 using System.Security.Claims;
@@ -17,40 +17,41 @@ namespace Oqtane.Security
             _accessor = accessor;
         }
 
-        public bool IsAuthorized(ClaimsPrincipal user, string entityName, int entityId, string permissionName)
+        public bool IsAuthorized(ClaimsPrincipal principal, string entityName, int entityId, string permissionName)
         {
-            return IsAuthorized(user, permissionName, _permissions.GetPermissionString(entityName, entityId, permissionName));
+            return IsAuthorized(principal, permissionName, _permissions.GetPermissionString(entityName, entityId, permissionName));
         }
 
-        public bool IsAuthorized(ClaimsPrincipal user, string permissionName, string permissions)
+        public bool IsAuthorized(ClaimsPrincipal principal, string permissionName, string permissions)
         {
-            return UserSecurity.IsAuthorized(GetUser(user), permissionName, permissions);
+            return UserSecurity.IsAuthorized(GetUser(principal), permissionName, permissions);
         }
 
-        public User GetUser(ClaimsPrincipal user)
+        public User GetUser(ClaimsPrincipal principal)
         {
-            User resultUser = new User();
-            resultUser.Username = "";
-            resultUser.IsAuthenticated = false;
-            resultUser.UserId = -1;
-            resultUser.Roles = "";
+            User user = new User();
+            user.IsAuthenticated = false;
+            user.Username = "";
+            user.UserId = -1;
+            user.Roles = "";
 
-            if (user == null) return resultUser;
+            if (principal == null) return user;
 
-            resultUser.Username = user.Identity.Name;
-            resultUser.IsAuthenticated = user.Identity.IsAuthenticated;
-            var idclaim = user.Claims.FirstOrDefault(item => item.Type == ClaimTypes.PrimarySid);
-            if (idclaim != null)
+            user.IsAuthenticated = principal.Identity.IsAuthenticated;
+            if (user.IsAuthenticated)
             {
-                resultUser.UserId = int.Parse(idclaim.Value);
-                foreach (var claim in user.Claims.Where(item => item.Type == ClaimTypes.Role))
+                user.Username = principal.Identity.Name;
+                if (principal.Claims.Any(item => item.Type == ClaimTypes.PrimarySid))
                 {
-                    resultUser.Roles += claim.Value + ";";
+                    user.UserId = int.Parse(principal.Claims.First(item => item.Type == ClaimTypes.PrimarySid).Value);
                 }
-
-                if (resultUser.Roles != "") resultUser.Roles = ";" + resultUser.Roles;
+                foreach (var claim in principal.Claims.Where(item => item.Type == ClaimTypes.Role))
+                {
+                    user.Roles += claim.Value + ";";
+                }
+                if (user.Roles != "") user.Roles = ";" + user.Roles;
             }
-            return resultUser;
+            return user;
         }
 
         public User GetUser()

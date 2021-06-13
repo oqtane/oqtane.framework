@@ -35,7 +35,7 @@ Oqtane.RichTextEditor = {
     enableQuillEditor: function (editorElement, mode) {
         editorElement.__quill.enable(mode);
     },
-    insertQuillImage: function (quillElement, imageURL) {
+    insertQuillImage: function (quillElement, imageURL, altText) {
         var Delta = Quill.import('delta');
         editorIndex = 0;
 
@@ -47,6 +47,6 @@ Oqtane.RichTextEditor = {
             new Delta()
                 .retain(editorIndex)
                 .insert({ image: imageURL },
-                    { alt: imageURL }));
+                    { alt: altText }));
     }
 };

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Extensions;
@@ -49,7 +49,21 @@ namespace Oqtane.Repository
 
         public Page GetPage(int pageId)
         {
-            Page page = _db.Page.Find(pageId);
+            return GetPage(pageId, true);
+        }
+
+        public Page GetPage(int pageId, bool tracking)
+        {
+            Page page;
+            if (tracking)
+            {
+                page = _db.Page.Find(pageId);
+
+            }
+            else
+            {
+                page = _db.Page.AsNoTracking().FirstOrDefault(item => item.PageId == pageId);
+            }
             if (page != null)
             {
                 page.Permissions = _permissions.GetPermissionString(EntityNames.Page, page.PageId);

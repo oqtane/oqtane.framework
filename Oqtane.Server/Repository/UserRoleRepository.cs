@@ -46,16 +46,40 @@ namespace Oqtane.Repository
 
         public UserRole GetUserRole(int userRoleId)
         {
-            return _db.UserRole
-                .Include(item => item.Role) // eager load roles
-                .Include(item => item.User) // eager load users
-                .SingleOrDefault(item => item.UserRoleId == userRoleId);
+            return GetUserRole(userRoleId, true);
+        }
+
+        public UserRole GetUserRole(int userRoleId, bool tracking)
+        {
+            if (tracking)
+            {
+                return _db.UserRole
+                    .Include(item => item.Role) // eager load roles
+                    .Include(item => item.User) // eager load users
+                    .FirstOrDefault(item => item.UserRoleId == userRoleId);
+            }
+            else
+            {
+                return _db.UserRole.AsNoTracking()
+                    .Include(item => item.Role) // eager load roles
+                    .Include(item => item.User) // eager load users
+                    .FirstOrDefault(item => item.UserRoleId == userRoleId);
+            }
         }
 
         public void DeleteUserRole(int userRoleId)
         {
             UserRole userRole = _db.UserRole.Find(userRoleId);
             _db.UserRole.Remove(userRole);
+            _db.SaveChanges();
+        }
+
+        public void DeleteUserRoles(int userId)
+        {
+            foreach (UserRole userRole in _db.UserRole.Where(item => item.Role.SiteId != null))
+            {
+                _db.UserRole.Remove(userRole);
+            }
             _db.SaveChanges();
         }
     }

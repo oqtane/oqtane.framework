@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Version>2.1.0</Version>
+    <Product>Oqtane</Product>
+    <Authors>Shaun Walker</Authors>
+    <Company>.NET Foundation</Company>
+    <Description>Modular Application Framework for Blazor</Description>
+    <Copyright>.NET Foundation</Copyright>
+    <PackageProjectUrl>https://www.oqtane.org</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/oqtane/oqtane.framework/blob/dev/LICENSE</PackageLicenseUrl>
+    <PackageReleaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v2.1.0</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/oqtane/oqtane.framework</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
+    <PackageName>$(MSBuildProjectName).$(Version).nupkg</PackageName>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin</OutputPath>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="EFCore.NamingConventions" Version="5.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.4" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Oqtane.Server\Oqtane.Server.csproj" />
+  </ItemGroup>
+
+  <Target Name="CopyPackage" AfterTargets="Pack">
+    <Copy SourceFiles="$(OutputPath)..\$(PackageName)" DestinationFiles="..\Oqtane.Server\wwwroot\Packages\$(MSBuildProjectName).nupkg.bak" />
+  </Target>
+</Project>

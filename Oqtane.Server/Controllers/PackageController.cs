@@ -1,28 +1,33 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Oqtane.Models;
 using Newtonsoft.Json;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Threading;
 using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Authorization;
 using Oqtane.Shared;
+using Oqtane.Infrastructure;
+using Oqtane.Enums;
 // ReSharper disable PartialTypeWithSinglePart
 
 namespace Oqtane.Controllers
 {
-    [Route(ControllerRoutes.Default)]
+    [Route(ControllerRoutes.ApiRoute)]
     public class PackageController : Controller
     {
+        private readonly IInstallationManager _installationManager;
         private readonly IWebHostEnvironment _environment;
+        private readonly ILogManager _logger;
 
-        public PackageController(IWebHostEnvironment environment)
+        public PackageController(IInstallationManager installationManager, IWebHostEnvironment environment, ILogManager logger)
         {
+            _installationManager = installationManager;
             _environment = environment;
+            _logger = logger;
         }
 
         // GET: api/<controller>?tag=x
@@ -60,7 +65,7 @@ namespace Oqtane.Controllers
         {
             using (var httpClient = new HttpClient())
             {
-                folder = Path.Combine(_environment.WebRootPath, folder);
+                folder = Path.Combine(_environment.ContentRootPath, folder);
                 var response = await httpClient.GetAsync("https://www.nuget.org/api/v2/package/" + packageid.ToLower() + "/" + version).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
                 string filename = packageid + "." + version + ".nupkg";
@@ -85,6 +90,14 @@ namespace Oqtane.Controllers
                     return serializer.Deserialize<T>(jsonTextReader);
                 }
             }
+        }
+
+        [HttpGet("install")]
+        [Authorize(Roles = RoleNames.Host)]
+        public void InstallPackages()
+        {
+            _logger.Log(LogLevel.Information, this, LogFunction.Create, "Packages Installed");
+            _installationManager.InstallPackages();
         }
     }
 

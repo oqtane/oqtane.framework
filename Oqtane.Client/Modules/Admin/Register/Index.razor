@@ -6,7 +6,7 @@
 
 @if (PageState.Site.AllowRegistration)
 {
-    <AuthorizeView>
+    <AuthorizeView Roles="@RoleNames.Registered">
         <Authorizing>
             <text>...</text>
         </Authorizing>

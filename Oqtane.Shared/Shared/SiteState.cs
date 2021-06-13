@@ -1,4 +1,4 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 
 namespace Oqtane.Shared
 {
@@ -6,6 +6,7 @@ namespace Oqtane.Shared
     public class SiteState
     {
         public Alias Alias { get; set; }
+        public string AntiForgeryToken { get; set; } // for use in client services
 
     }
 }

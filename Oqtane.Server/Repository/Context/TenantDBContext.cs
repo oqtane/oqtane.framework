@@ -1,11 +1,19 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Oqtane.Infrastructure;
 using Oqtane.Models;
+using Oqtane.Repository.Databases.Interfaces;
+
+// ReSharper disable CheckNamespace
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace Oqtane.Repository
 {
-    public class TenantDBContext : DBContextBase
+    public class TenantDBContext : DBContextBase, IMultiDatabase
     {
+        public TenantDBContext(ITenantManager tenantManager, IHttpContextAccessor httpContextAccessor) : base(tenantManager, httpContextAccessor) { }
+
         public virtual DbSet<Site> Site { get; set; }
         public virtual DbSet<Page> Page { get; set; }
         public virtual DbSet<PageModule> PageModule { get; set; }
@@ -20,13 +28,6 @@ namespace Oqtane.Repository
         public virtual DbSet<Notification> Notification { get; set; }
         public virtual DbSet<Folder> Folder { get; set; }
         public virtual DbSet<File> File { get; set; }
-
         public virtual DbSet<Language> Language { get; set; }
-
-        public TenantDBContext(ITenantResolver tenantResolver, IHttpContextAccessor accessor) : base(tenantResolver, accessor)
-        {
-            // DBContextBase handles multi-tenant database connections
-        }
-
     }
 }

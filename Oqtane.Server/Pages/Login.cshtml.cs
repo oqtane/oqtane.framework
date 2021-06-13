@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -21,20 +21,23 @@ namespace Oqtane.Pages
 
         public async Task<IActionResult> OnPostAsync(string username, string password, bool remember, string returnurl)
         {
-            bool validuser = false;
-            IdentityUser identityuser = await _identityUserManager.FindByNameAsync(username);
-            if (identityuser != null)
+            if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
             {
-                var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, password, false);
-                if (result.Succeeded)
+                bool validuser = false;
+                IdentityUser identityuser = await _identityUserManager.FindByNameAsync(username);
+                if (identityuser != null)
                 {
-                    validuser = true;
+                    var result = await _identitySignInManager.CheckPasswordSignInAsync(identityuser, password, false);
+                    if (result.Succeeded)
+                    {
+                        validuser = true;
+                    }
                 }
-            }
 
-            if (validuser)
-            {
-                await _identitySignInManager.SignInAsync(identityuser, remember);
+                if (validuser)
+                {
+                    await _identitySignInManager.SignInAsync(identityuser, remember);
+                }
             }
 
             if (returnurl == null)

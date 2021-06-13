@@ -1,34 +1,36 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http;
 using Oqtane.Modules;
 using Oqtane.Models;
 using Oqtane.Infrastructure;
-using Oqtane.Repository;
-using [Owner].[Module].Models;
+using Oqtane.Enums;
 using [Owner].[Module].Repository;
 
 namespace [Owner].[Module].Manager
 {
-    public class [Module]Manager : IInstallable, IPortable
+    public class [Module]Manager : MigratableModuleBase, IInstallable, IPortable
     {
         private I[Module]Repository _[Module]Repository;
-        private ISqlRepository _sql;
+        private readonly ITenantManager _tenantManager;
+        private readonly IHttpContextAccessor _accessor;
 
-        public [Module]Manager(I[Module]Repository [Module]Repository, ISqlRepository sql)
+        public [Module]Manager(I[Module]Repository [Module]Repository, ITenantManager tenantManager, IHttpContextAccessor accessor)
         {
             _[Module]Repository = [Module]Repository;
-            _sql = sql;
+            _tenantManager = tenantManager;
+            _accessor = accessor;
         }
 
         public bool Install(Tenant tenant, string version)
         {
-            return _sql.ExecuteScript(tenant, GetType().Assembly, "[Owner].[Module]." + version + ".sql");
+            return Migrate(new [Module]Context(_tenantManager, _accessor), tenant, MigrationType.Up);
         }
 
         public bool Uninstall(Tenant tenant)
         {
-            return _sql.ExecuteScript(tenant, GetType().Assembly, "[Owner].[Module].Uninstall.sql");
+            return Migrate(new [Module]Context(_tenantManager, _accessor), tenant, MigrationType.Down);
         }
 
         public string ExportModule(Module module)

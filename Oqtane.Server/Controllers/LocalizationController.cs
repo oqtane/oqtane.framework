@@ -9,7 +9,7 @@ using Oqtane.Shared;
 
 namespace Oqtane.Controllers
 {
-    [Route(ControllerRoutes.Default)]
+    [Route(ControllerRoutes.ApiRoute)]
     public class LocalizationController : Controller
     {
         private readonly ILocalizationManager _localizationManager;

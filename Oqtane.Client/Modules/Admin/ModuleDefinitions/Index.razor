@@ -34,9 +34,9 @@ else
             <td>@context.Name</td>
             <td>@context.Version</td>
             <td>
-                @if (UpgradeAvailable(context.ModuleDefinitionName, context.Version))
+                @if (UpgradeAvailable(context.PackageName, context.Version))
                     {
-                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadModule(context.ModuleDefinitionName, context.Version))>@Localizer["Upgrade"]</button>
+                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadModule(context.PackageName, context.Version))>@Localizer["Upgrade"]</button>
                     }
             </td>
         </Row>
@@ -66,12 +66,12 @@ else
         }
     }
 
-    private bool UpgradeAvailable(string moduledefinitionname, string version)
+    private bool UpgradeAvailable(string packagename, string version)
     {
         var upgradeavailable = false;
         if (_packages != null)
         {
-            var package = _packages.Where(item => item.PackageId == Utilities.GetTypeName(moduledefinitionname)).FirstOrDefault();
+            var package = _packages.Where(item => item.PackageId == packagename).FirstOrDefault();
             if (package != null)
             {
                 upgradeavailable = (Version.Parse(package.Version).CompareTo(Version.Parse(version)) > 0);
@@ -81,18 +81,18 @@ else
         return upgradeavailable;
     }
 
-    private async Task DownloadModule(string moduledefinitionname, string version)
+    private async Task DownloadModule(string packagename, string version)
     {
         try
         {
-            await PackageService.DownloadPackageAsync(moduledefinitionname, version, "Modules");
-            await logger.LogInformation("Module Downloaded {ModuleDefinitionName} {Version}", moduledefinitionname, version);
+            await PackageService.DownloadPackageAsync(packagename, version, "Packages");
+            await logger.LogInformation("Module Downloaded {ModuleDefinitionName} {Version}", packagename, version);
             await ModuleDefinitionService.InstallModuleDefinitionsAsync();
             AddModuleMessage(Localizer["Module Installed Successfully. You Must <a href=\"{0}\">Restart</a> Your Application To Apply These Changes.", NavigateUrl("admin/system")], MessageType.Success);
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Downloading Module {ModuleDefinitionName} {Version} {Error}", moduledefinitionname, version, ex.Message);
+            await logger.LogError(ex, "Error Downloading Module {ModuleDefinitionName} {Version} {Error}", packagename, version, ex.Message);
             AddModuleMessage(Localizer["Error Downloading Module"], MessageType.Error);
         }
     }
@@ -103,7 +103,7 @@ else
         {
             await ModuleDefinitionService.DeleteModuleDefinitionAsync(moduleDefinition.ModuleDefinitionId, moduleDefinition.SiteId);
             AddModuleMessage(Localizer["Module Deleted Successfully"], MessageType.Success);
-            StateHasChanged();
+            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "reload"));
         }
         catch (Exception ex)
         {

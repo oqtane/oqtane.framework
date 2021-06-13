@@ -7,27 +7,28 @@ using System.Linq;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
+using System.Net;
 
 namespace Oqtane.Controllers
 {
-    [Route(ControllerRoutes.Default)]
+    [Route(ControllerRoutes.ApiRoute)]
     public class SettingController : Controller
     {
         private readonly ISettingRepository _settings;
         private readonly IPageModuleRepository _pageModules;
         private readonly IUserPermissions _userPermissions;
-        private readonly ITenantResolver _tenants;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
+        private readonly Alias _alias;
 
-        public SettingController(ISettingRepository settings, IPageModuleRepository pageModules, IUserPermissions userPermissions, ITenantResolver tenants, ISyncManager syncManager, ILogManager logger)
+        public SettingController(ISettingRepository settings, IPageModuleRepository pageModules, IUserPermissions userPermissions, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
         {
             _settings = settings;
             _pageModules = pageModules;
             _userPermissions = userPermissions;
-            _tenants = tenants;
             _syncManager = syncManager;
             _logger = logger;
+            _alias = tenantManager.GetAlias();
         }
 
         // GET: api/<controller>
@@ -42,7 +43,7 @@ namespace Oqtane.Controllers
             else
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Settings {EntityName} {EntityId}", entityname, entityid);
-                HttpContext.Response.StatusCode = 401;
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
             return settings;
         }
@@ -59,7 +60,7 @@ namespace Oqtane.Controllers
             else
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Setting {Setting}", setting);
-                HttpContext.Response.StatusCode = 401;
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
         }
@@ -73,14 +74,14 @@ namespace Oqtane.Controllers
                 setting = _settings.AddSetting(setting);
                 if (setting.EntityName == EntityNames.Module)
                 {
-                    _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, _tenants.GetAlias().SiteId);
+                    _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId);
                 }
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Setting Added {Setting}", setting);
             }
             else
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Add Setting {Setting}", setting);
-                HttpContext.Response.StatusCode = 401;
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 setting = null;
             }
             return setting;
@@ -95,14 +96,14 @@ namespace Oqtane.Controllers
                 setting = _settings.UpdateSetting(setting);
                 if (setting.EntityName == EntityNames.Module)
                 {
-                    _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, _tenants.GetAlias().SiteId);
+                    _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId);
                 }
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Setting Updated {Setting}", setting);
             }
             else
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Setting {Setting}", setting);
-                HttpContext.Response.StatusCode = 401;
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 setting = null;
             }
             return setting;
@@ -118,14 +119,14 @@ namespace Oqtane.Controllers
                 _settings.DeleteSetting(id);
                 if (setting.EntityName == EntityNames.Module)
                 {
-                    _syncManager.AddSyncEvent(_tenants.GetTenant().TenantId, EntityNames.Site, _tenants.GetAlias().SiteId);
+                    _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId);
                 }
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Setting Deleted {Setting}", setting);
             }
             else
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Delete, "User Not Authorized To Delete Setting {Setting}", setting);
-                HttpContext.Response.StatusCode = 401;
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }
 

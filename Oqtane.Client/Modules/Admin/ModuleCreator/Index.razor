@@ -1,15 +1,13 @@
 @namespace Oqtane.Modules.Admin.ModuleCreator
 @inherits ModuleBase
+@using System.Text.RegularExpressions
 @inject NavigationManager NavigationManager
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject IModuleService ModuleService
-@inject ISystemService SystemService
 @inject ISettingService SettingService
 @inject IStringLocalizer<Index> Localizer
-@using System.Text.RegularExpressions
-@using System.IO;
 
-@if (string.IsNullOrEmpty(_moduledefinitionname) && _systeminfo != null && _templates != null)
+@if (string.IsNullOrEmpty(_moduledefinitionname) && _templates != null)
 {
     <table class="table table-borderless">
         <tr>
@@ -43,9 +41,9 @@
             <td>
                 <select id="template" class="form-control" @onchange="(e => TemplateChanged(e))">
                     <option value="-">&lt;@Localizer["Select Template"]&gt;</option>
-                    @foreach (string template in _templates)
+                    @foreach (Template template in _templates)
                     {
-                        <option value="@template">@template</option>
+                        <option value="@template.Name">@template.Title</option>
                     }
                 </select>
             </td>
@@ -56,9 +54,9 @@
             </td>
             <td>
                 <select id="reference" class="form-control" @bind="@_reference">
-                    @foreach (string version in Constants.ReleaseVersions.Split(','))
+                    @foreach (string version in _versions)
                     {
-                        if (Version.Parse(version).CompareTo(Version.Parse("2.0.0")) >= 0)
+                        if (Version.Parse(version).CompareTo(Version.Parse(_minversion)) >= 0)
                         {
                             <option value="@(version)">@(version)</option>
                         }
@@ -91,12 +89,12 @@ else
     private string _owner = string.Empty;
     private string _module = string.Empty;
     private string _description = string.Empty;
+    private List<Template> _templates;
     private string _template = "-";
+    private string[] _versions;
     private string _reference = Constants.Version;
+    private string _minversion = "2.0.0";
     private string _location = string.Empty;
-
-    private Dictionary<string, string> _systeminfo;
-    private List<string> _templates;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
@@ -105,8 +103,8 @@ else
         try
         {
             _moduledefinitionname = SettingService.GetSetting(ModuleState.Settings, "ModuleDefinitionName", "");
-            _systeminfo = await SystemService.GetSystemInfoAsync();
             _templates = await ModuleDefinitionService.GetModuleDefinitionTemplatesAsync();
+            _versions = Constants.ReleaseVersions.Split(',').Where(item => Version.Parse(item).CompareTo(Version.Parse("2.0.0")) >= 0).ToArray();
 
             if (string.IsNullOrEmpty(_moduledefinitionname))
             {
@@ -172,23 +170,29 @@ else
     private bool IsValid(string name)
     {
         // must contain letters, underscores and digits and first character must be letter or underscore
-        return !string.IsNullOrEmpty(name) && Regex.IsMatch(name, "^[A-Za-z_][A-Za-z0-9_]*$");
+        return !string.IsNullOrEmpty(name) && name.ToLower() != "module" && Regex.IsMatch(name, "^[A-Za-z_][A-Za-z0-9_]*$");
     }
 
     private void TemplateChanged(ChangeEventArgs e)
     {
         _template = (string)e.Value;
+        _minversion = "2.0.0";
+        if (_template != "-")
+        {
+            var template = _templates.FirstOrDefault(item => item.Name == _template);
+            _minversion = template.Version;
+        }
         GetLocation();
     }
 
     private void GetLocation()
     {
         _location = string.Empty;
-        if (_template != "-" && _systeminfo != null && _systeminfo.ContainsKey("serverpath"))
+        if (_owner != "" && _module != "" && _template != "-")
         {
-            string[] path = _systeminfo["serverpath"].Split(Path.DirectorySeparatorChar);
-            _location = string.Join(Path.DirectorySeparatorChar, path, 0, path.Length - 2) +
-                Path.DirectorySeparatorChar + _owner + "." + _module;
+            var template = _templates.FirstOrDefault(item => item.Name == _template);
+            _location = template.Location + _owner + "." + _module;
+
         }
         StateHasChanged();
     }

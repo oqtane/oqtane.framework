@@ -49,9 +49,23 @@ There is a separate [Documentation repository](https://github.com/oqtane/oqtane.
 # Roadmap
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
 
-V.2.1.0 ( Q1 2021 )
-- [ ] Cross Platform Database Support ( ie. SQLite ) - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
-- [ ] EF Core Migrations for Database Installation/Upgrade - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
+V.3.0.0 ( Q4 2021 )
+- [ ] Migration to .NET 6
+
+V.2.2.0 ( Q3 2021 )
+- [ ] Authentication extensibility ( ie. Azure B2C, Social logins, etc... )
+- [ ] Configurable password complexity for local authentication
+
+V.2.1.0 ( Jun 4, 2021 )
+- [x] Cross Platform Database Support ( ie. LocalDB, SQL Server, SQLite, MySQL, PostgreSQL ) - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
+- [x] Utilize EF Core Migrations - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
+- [x] Include support for Public content folders
+- [x] Enhance multi-tenant infrastructure
+- [x] Optimize user authorization
+- [x] Centralize package installation and uninstall
+- [x] Enable pre-rendering support for Blazor Server
+- [x] Allow run-time installation of Language packages
+- [x] Add support for Shared localization resources
 
 V.2.0.2 ( Apr 19, 2021 )
 - [x] Assorted fixes and user experience improvements
@@ -85,12 +99,6 @@ V.1.0.0 ( released in conjunction with .NET Core 3.2 on May 19, 2020 )
 - [x] Progressive Web Application Support
 - [x] JavaScript Lazy Loading
 - [x] Dynamic CSS/Lazy Loading
-
-Future Consideration
-- [ ] Support For Additional Authentication Providers (ie. OAuth)
-- [ ] Site Configuration Migrations
-- [ ] Pub/Sub Event Framework
-- [ ] Admin UI Markup Optimization ( ie. replace tables with divs in forms )
 
 # Background
 Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Initially created as a proof of concept, Oqtane is a native Blazor application written from the ground up using modern .NET Core technology. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly templates (skins), and extensibility via third party modules.

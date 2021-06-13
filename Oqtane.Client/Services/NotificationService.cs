@@ -1,12 +1,14 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System.Threading.Tasks;
 using System.Net.Http;
 using Oqtane.Shared;
 using System.Collections.Generic;
 using System.Linq;
+using Oqtane.Documentation;
 
 namespace Oqtane.Services
 {
+    [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class NotificationService : ServiceBase, INotificationService
     {
         private readonly SiteState _siteState;
@@ -16,7 +18,7 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private string Apiurl => CreateApiUrl(_siteState.Alias, "Notification");
+        private string Apiurl => CreateApiUrl("Notification", _siteState.Alias);
 
         public async Task<List<Notification>> GetNotificationsAsync(int siteId, string direction, int userId)
         {

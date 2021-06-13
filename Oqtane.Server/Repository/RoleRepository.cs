@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
@@ -16,12 +16,19 @@ namespace Oqtane.Repository
             
         public IEnumerable<Role> GetRoles(int siteId)
         {
-            return _db.Role.Where(item => item.SiteId == siteId);
+            return GetRoles(siteId, false);
         }
 
         public IEnumerable<Role> GetRoles(int siteId, bool includeGlobalRoles)
         {
-            return _db.Role.Where(item => item.SiteId == siteId || item.SiteId == null);
+            if (includeGlobalRoles)
+            {
+                return _db.Role.Where(item => item.SiteId == siteId || item.SiteId == null);
+            }
+            else
+            {
+                return _db.Role.Where(item => item.SiteId == siteId);
+            }
         }
 
         public Role AddRole(Role role)
@@ -42,7 +49,19 @@ namespace Oqtane.Repository
 
         public Role GetRole(int roleId)
         {
-            return _db.Role.Find(roleId);
+            return GetRole(roleId, true);
+        }
+
+        public Role GetRole(int roleId, bool tracking)
+        {
+            if (tracking)
+            {
+                return _db.Role.Find(roleId);
+            }
+            else
+            {
+                return _db.Role.AsNoTracking().FirstOrDefault(item => item.RoleId == roleId);
+            }
         }
 
         public void DeleteRole(int roleId)

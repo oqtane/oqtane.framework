@@ -4,11 +4,12 @@
 @inject IUserService UserService
 @inject IProfileService ProfileService
 @inject ISettingService SettingService
+@inject IFileService FileService
 @inject IStringLocalizer<Edit> Localizer
 
-@if (PageState.User != null && photofileid != -1)
+@if (PageState.User != null && photo != null)
 {
-    <img src="@(ContentUrl(photofileid))" alt="@displayname" style="max-width: 400px" class="rounded-circle mx-auto d-block">
+    <img src="@photo.Url" alt="@displayname" style="max-width: 400px" class="rounded-circle mx-auto d-block">
 }
 else
 {
@@ -133,6 +134,7 @@ else
     private string displayname = string.Empty;
     private FileManager filemanager;
     private int photofileid = -1;
+    private File photo = null;
     private List<Profile> profiles;
     private Dictionary<string, string> settings;
     private string category = string.Empty;
@@ -146,33 +148,40 @@ else
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         try
         {
-            profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
-
-            userid = Int32.Parse(PageState.QueryString["id"]);
-            var user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
-            if (user != null)
+            // OnParametersSetAsync is called when the edit modal is closed - in which case there is no id parameter
+            if (PageState.QueryString.ContainsKey("id"))
             {
-                username = user.Username;
-                email = user.Email;
-                displayname = user.DisplayName;
-
-                if (user.PhotoFileId != null)
+                profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
+                userid = Int32.Parse(PageState.QueryString["id"]);
+                var user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
+                if (user != null)
                 {
-                    photofileid = user.PhotoFileId.Value;
+                    username = user.Username;
+                    email = user.Email;
+                    displayname = user.DisplayName;
+                    if (user.PhotoFileId != null)
+                    {
+                        photofileid = user.PhotoFileId.Value;
+                        photo = await FileService.GetFileAsync(photofileid);
+                    }
+                    else
+                    {
+                        photofileid = -1;
+                        photo = null;
+                    }
+                    settings = await SettingService.GetUserSettingsAsync(user.UserId);
+                    createdby = user.CreatedBy;
+                    createdon = user.CreatedOn;
+                    modifiedby = user.ModifiedBy;
+                    modifiedon = user.ModifiedOn;
+                    deletedby = user.DeletedBy;
+                    deletedon = user.DeletedOn;
+                    isdeleted = user.IsDeleted.ToString();
                 }
-
-                settings = await SettingService.GetUserSettingsAsync(user.UserId);
-                createdby = user.CreatedBy;
-                createdon = user.CreatedOn;
-                modifiedby = user.ModifiedBy;
-                modifiedon = user.ModifiedOn;
-                deletedby = user.DeletedBy;
-                deletedon = user.DeletedOn;
-                isdeleted = user.IsDeleted.ToString();
             }
         }
         catch (Exception ex)
@@ -200,11 +209,10 @@ else
                     user.Email = email;
                     user.DisplayName = string.IsNullOrWhiteSpace(displayname) ? username : displayname;
                     user.PhotoFileId = null;
-                    photofileid = filemanager.GetFileId();
-
-                    if (photofileid != -1)
+                    user.PhotoFileId = filemanager.GetFileId();
+                    if (user.PhotoFileId == -1)
                     {
-                        user.PhotoFileId = photofileid;
+                        user.PhotoFileId = null;
                     }
 
                     user.IsDeleted = (isdeleted == null ? true : Boolean.Parse(isdeleted));

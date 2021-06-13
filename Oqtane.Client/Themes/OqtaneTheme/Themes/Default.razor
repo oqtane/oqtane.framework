@@ -93,9 +93,14 @@
         <Pane Name="Bottom Full Width" />
         @if (_footer)
         {
-            <div class="bg-primary footer">
+            <div style="clear: both; height: 30px;"></div>
+            <div class="bg-primary fixed-bottom footer">
                 <Pane Name="Footer" />
             </div>
+        }
+        else
+        {
+            <Pane Name="Footer" />
         }
     </div>
 </main>

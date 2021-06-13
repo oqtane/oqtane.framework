@@ -1,12 +1,14 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Linq;
 using System.Collections.Generic;
+using Oqtane.Documentation;
 using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
+    [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class ProfileService : ServiceBase, IProfileService
     {
         
@@ -17,7 +19,7 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private string Apiurl => CreateApiUrl(_siteState.Alias, "Profile");
+        private string Apiurl => CreateApiUrl("Profile", _siteState.Alias);
 
         public async Task<List<Profile>> GetProfilesAsync(int siteId)
         {

@@ -1,15 +1,17 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Oqtane.Documentation;
 using Oqtane.Enums;
 using Oqtane.Models;
 using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
+    [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class LogService : ServiceBase, ILogService
     {
         
@@ -23,7 +25,7 @@ namespace Oqtane.Services
             _navigationManager = navigationManager;
         }
 
-        private string Apiurl => CreateApiUrl(_siteState.Alias, "Log");
+        private string Apiurl => CreateApiUrl("Log", _siteState.Alias);
 
         public async Task<List<Log>> GetLogsAsync(int siteId, string level, string function, int rows)
         {
@@ -49,7 +51,6 @@ namespace Oqtane.Services
             }
             else
             {
-                base.Alias = alias;
                 log.SiteId = alias.SiteId;
             }
             log.PageId = pageId;

@@ -1,12 +1,14 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Linq;
 using System.Collections.Generic;
+using Oqtane.Documentation;
 using Oqtane.Shared;
 
 namespace Oqtane.Services
 {
+    [PrivateApi("Don't show in the documentation, as everything should use the Interface")]
     public class RoleService : ServiceBase, IRoleService
     {
         
@@ -18,11 +20,16 @@ namespace Oqtane.Services
             _siteState = siteState;
         }
 
-        private string Apiurl => CreateApiUrl(_siteState.Alias, "Role");
+        private string Apiurl => CreateApiUrl("Role", _siteState.Alias);
 
         public async Task<List<Role>> GetRolesAsync(int siteId)
         {
-            List<Role> roles = await GetJsonAsync<List<Role>>($"{Apiurl}?siteid={siteId}");
+            return await GetRolesAsync(siteId, false);
+        }
+
+        public async Task<List<Role>> GetRolesAsync(int siteId, bool includeGlobalRoles)
+        {
+            List<Role> roles = await GetJsonAsync<List<Role>>($"{Apiurl}?siteid={siteId}&global={includeGlobalRoles}");
             return roles.OrderBy(item => item.Name).ToList();
         }
 

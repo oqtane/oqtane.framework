@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
@@ -9,6 +9,7 @@ namespace Oqtane.Repository
         Profile AddProfile(Profile profile);
         Profile UpdateProfile(Profile profile);
         Profile GetProfile(int profileId);
+        Profile GetProfile(int profileId, bool tracking);
         void DeleteProfile(int profileId);
     }
 }
