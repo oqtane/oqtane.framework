@@ -34,13 +34,6 @@
         <a class="dismiss">🗙</a>
     </div>
 
-    @if (Model.Message != "")
-    {
-        <div class="app-alert">
-            @Model.Message
-        </div>
-    }
-
     <script src="js/interop.js"></script>
 
     @if (Model.Runtime == "WebAssembly")
