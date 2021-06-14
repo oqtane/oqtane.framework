@@ -40,7 +40,14 @@
             var interop = new Interop(JSRuntime);
             SiteState.AntiForgeryToken = await interop.GetElementByName(Constants.RequestVerificationToken);
             _installation = await InstallationService.IsInstalled();
-            SiteState.Alias = _installation.Alias;
+            if (_installation.Alias != null)
+            {
+                SiteState.Alias = _installation.Alias;
+            }
+            else
+            {
+                _installation.Message = "Site Not Configured Correctly - No Matching Alias Exists For Host Name";
+            }
             _initialized = true;
             StateHasChanged();
         }
