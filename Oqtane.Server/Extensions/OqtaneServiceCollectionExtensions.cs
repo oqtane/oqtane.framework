@@ -6,14 +6,12 @@ using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Oqtane.Infrastructure;
-using Oqtane.Interfaces;
 using Oqtane.Modules;
 using Oqtane.Repository;
 using Oqtane.Security;
@@ -157,15 +155,15 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     // creating the URI helper needs to wait until the JS Runtime is initialized, so defer it.
                     var navigationManager = s.GetRequiredService<NavigationManager>();
-                    var httpContextAccessor = s.GetRequiredService<IHttpContextAccessor>();
-                    var authToken = httpContextAccessor.HttpContext.Request.Cookies[".AspNetCore.Identity.Application"];
                     var client = new HttpClient(new HttpClientHandler { UseCookies = false });
-                    if (authToken != null)
-                    {
-                        client.DefaultRequestHeaders.Add("Cookie", ".AspNetCore.Identity.Application=" + authToken);
-                    }
-
                     client.BaseAddress = new Uri(navigationManager.Uri);
+
+                    // set the cookies to allow HttpClient API calls to be authenticated
+                    var httpContextAccessor = s.GetRequiredService<IHttpContextAccessor>();
+                    foreach (var cookie in httpContextAccessor.HttpContext.Request.Cookies)
+                    {
+                        client.DefaultRequestHeaders.Add("Cookie", cookie.Key + "=" + cookie.Value);
+                    }
 
                     return client;
                 });
