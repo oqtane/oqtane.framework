@@ -1,4 +1,4 @@
-﻿using Oqtane.Models;
+using Oqtane.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -9,11 +9,5 @@ namespace Oqtane.Services
         Task<List<JobLog>> GetJobLogsAsync();
 
         Task<JobLog> GetJobLogAsync(int jobLogId);
-
-        Task<JobLog> AddJobLogAsync(JobLog jobLog);
-
-        Task<JobLog> UpdateJobLogAsync(JobLog jobLog);
-
-        Task DeleteJobLogAsync(int jobLogId);
     }
 }

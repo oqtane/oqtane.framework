@@ -45,15 +45,28 @@ namespace Oqtane.Repository
 
         public Alias GetAlias(int aliasId)
         {
-            return _db.Alias.Find(aliasId);
+            return GetAlias(aliasId, true);
         }
 
-        public Alias GetAlias(string name)
+        public Alias GetAlias(int aliasId, bool tracking)
+        {
+            if (tracking)
+            {
+                return _db.Alias.Find(aliasId);
+            }
+            else
+            {
+                return _db.Alias.AsNoTracking().FirstOrDefault(item => item.AliasId == aliasId);
+            }
+        }
+
+        // lookup alias based on url - note that alias values are hierarchical
+        public Alias GetAlias(string url)
         {
             Alias alias = null;
 
             List<Alias> aliases = GetAliases().ToList();
-            var segments = name.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            var segments = url.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
 
             // iterate segments to find keywords
             int start = segments.Length;
