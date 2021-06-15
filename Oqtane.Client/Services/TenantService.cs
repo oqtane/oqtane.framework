@@ -30,20 +30,5 @@ namespace Oqtane.Services
         {
             return await GetJsonAsync<Tenant>($"{Apiurl}/{tenantId}");
         }
-
-        public async Task<Tenant> AddTenantAsync(Tenant tenant)
-        {
-            return await PostJsonAsync<Tenant>(Apiurl, tenant);
-        }
-
-        public async Task<Tenant> UpdateTenantAsync(Tenant tenant)
-        {
-            return await PutJsonAsync<Tenant>($"{Apiurl}/{tenant.TenantId}", tenant);
-        }
-
-        public async Task DeleteTenantAsync(int tenantId)
-        {
-            await DeleteAsync($"{Apiurl}/{tenantId}");
-        }
     }
 }
