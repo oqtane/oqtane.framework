@@ -65,7 +65,6 @@ V.2.1.0 ( Jun 4, 2021 )
 - [x] Centralize package installation and uninstall
 - [x] Enable pre-rendering support for Blazor Server
 - [x] Allow run-time installation of Language packages
-- [x] Add support for Shared localization resources
 
 V.2.0.2 ( Apr 19, 2021 )
 - [x] Assorted fixes and user experience improvements
