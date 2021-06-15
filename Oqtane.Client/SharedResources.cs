@@ -9,5 +9,6 @@ namespace Oqtane.Client
     /// </remarks>
     public class SharedResources
     {
+
     }
 }
