@@ -137,7 +137,7 @@ namespace Oqtane.Client
             var jsRuntime = serviceProvider.GetRequiredService<IJSRuntime>();
             var interop = new Interop(jsRuntime);
             var localizationCookie = await interop.GetCookie(CookieRequestCultureProvider.DefaultCookieName);
-            var culture = CookieRequestCultureProvider.ParseCookieValue(localizationCookie).UICultures[0].Value;
+            var culture = CookieRequestCultureProvider.ParseCookieValue(localizationCookie)?.UICultures?[0].Value;
             var localizationService = serviceProvider.GetRequiredService<ILocalizationService>();
             var cultures = await localizationService.GetCulturesAsync();
 
