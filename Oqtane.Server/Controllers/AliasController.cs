@@ -72,7 +72,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Host)]
         public Alias Put(int id, [FromBody] Alias alias)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && _aliases.GetAlias(alias.AliasId, false) != null)
             {
                 alias = _aliases.UpdateAlias(alias);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Alias Updated {Alias}", alias);
@@ -91,8 +91,17 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Host)]
         public void Delete(int id)
         {
-            _aliases.DeleteAlias(id);
-            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Alias Deleted {AliasId}", id);
+            var alias = _aliases.GetAlias(id);
+            if (alias != null)
+            {
+                _aliases.DeleteAlias(id);
+                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Alias Deleted {AliasId}", id);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Alias Delete Attempt {AliasId}", id);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            }
         }
     }
 }

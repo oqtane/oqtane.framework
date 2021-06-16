@@ -30,19 +30,5 @@ namespace Oqtane.Services
         {
             return await GetJsonAsync<JobLog>($"{Apiurl}/{jobLogId}");
         }
-
-        public async Task<JobLog> AddJobLogAsync(JobLog joblog)
-        {
-            return await PostJsonAsync<JobLog>(Apiurl, joblog);
-        }
-
-        public async Task<JobLog> UpdateJobLogAsync(JobLog joblog)
-        {
-            return await PutJsonAsync<JobLog>($"{Apiurl}/{joblog.JobLogId}", joblog);
-        }
-        public async Task DeleteJobLogAsync(int jobLogId)
-        {
-            await DeleteAsync($"{Apiurl}/{jobLogId}");
-        }
     }
 }

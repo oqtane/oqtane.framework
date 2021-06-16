@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
+using System.Net;
 
 namespace Oqtane.Controllers
 {
@@ -52,6 +53,12 @@ namespace Oqtane.Controllers
                 job = _jobs.AddJob(job);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Job Added {Job}", job);
             }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Job Post Attempt {Alias}", job);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                job = null;
+            }
             return job;
         }
 
@@ -60,10 +67,16 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Host)]
         public Job Put(int id, [FromBody] Job job)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && _jobs.GetJob(job.JobId, false) != null)
             {
                 job = _jobs.UpdateJob(job);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Job Updated {Job}", job);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Job Put Attempt {Alias}", job);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                job = null;
             }
             return job;
         }
@@ -73,8 +86,17 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Host)]
         public void Delete(int id)
         {
-            _jobs.DeleteJob(id);
-            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Job Deleted {JobId}", id);
+            var job = _jobs.GetJob(id);
+            if (job != null)
+            {
+                _jobs.DeleteJob(id);
+                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Job Deleted {JobId}", id);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Job Delete Attempt {JobId}", id);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            }
         }
 
         // GET api/<controller>/start
@@ -83,11 +105,16 @@ namespace Oqtane.Controllers
         public void Start(int id)
         {
             Job job = _jobs.GetJob(id);
-            Type jobtype = Type.GetType(job.JobType);
-            if (jobtype != null)
+            if (job != null)
             {
+                Type jobtype = Type.GetType(job.JobType);
                 var jobobject = ActivatorUtilities.CreateInstance(_serviceProvider, jobtype);
                 ((IHostedService)jobobject).StartAsync(new System.Threading.CancellationToken());
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Job Start Attempt {JobId}", id);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }
 
@@ -97,11 +124,16 @@ namespace Oqtane.Controllers
         public void Stop(int id)
         {
             Job job = _jobs.GetJob(id);
-            Type jobtype = Type.GetType(job.JobType);
-            if (jobtype != null)
+            if (job != null)
             {
+                Type jobtype = Type.GetType(job.JobType);
                 var jobobject = ActivatorUtilities.CreateInstance(_serviceProvider, jobtype);
                 ((IHostedService)jobobject).StopAsync(new System.Threading.CancellationToken());
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Job Stop Attempt {JobId}", id);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }
     }
