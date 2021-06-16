@@ -1,4 +1,4 @@
-namespace Oqtane.Client
+namespace Oqtane
 {
     /// <summary>
     /// Dummy class used to collect shared resource strings for this application
