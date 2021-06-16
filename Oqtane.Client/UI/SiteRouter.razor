@@ -94,6 +94,15 @@
         {
             reload = Reload.Site;
         }
+        else
+        {
+            // reload the client application if the user navigated to a site with a different alias or there is a forced redirect
+            if ((!path.StartsWith(SiteState.Alias.Path) && SiteState.Alias.Path != "") || querystring.ContainsKey("redirect"))
+            {
+                NavigationManager.NavigateTo(_absoluteUri.Replace("?redirect", ""), true);
+                return;
+            }
+        }
 
         if (PageState != null)
         {
@@ -109,7 +118,8 @@
             // if running on WebAssembly reload the client application if the server application was restarted
             if (runtime == Shared.Runtime.WebAssembly && PageState != null && sync.SyncEvents.Exists(item => item.TenantId == -1))
             {
-                NavigationManager.NavigateTo(_absoluteUri + (!_absoluteUri.Contains("?") ? "?" : "&") + "reload", true);
+                NavigationManager.NavigateTo(_absoluteUri, true);
+                return;
             }
             if (sync.SyncEvents.Exists(item => item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId))
             {
@@ -169,7 +179,7 @@
                 path += "/";
             }
 
-            if (SiteState.Alias.Path != "")
+            if (SiteState.Alias.Path != "" && path.StartsWith(SiteState.Alias.Path))
             {
                 path = path.Substring(SiteState.Alias.Path.Length + 1);
             }
