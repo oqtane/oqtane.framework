@@ -104,7 +104,7 @@ else
         {
             await ThemeService.DeleteThemeAsync(Theme.ThemeName);
             AddModuleMessage(Localizer["Theme Deleted Successfully"], MessageType.Success);
-            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "reload"));
+            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, true));
         }
         catch (Exception ex)
         {

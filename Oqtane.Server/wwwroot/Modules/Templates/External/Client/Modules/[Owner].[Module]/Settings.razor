@@ -1,11 +1,12 @@
 @namespace [Owner].[Module]
 @inherits ModuleBase
 @inject ISettingService SettingService
+@inject IStringLocalizer<Settings> Localizer
 
 <table class="table table-borderless">
     <tr>
         <td>
-            <Label For="value" HelpText="Enter a value">Name: </Label>
+            <Label For="value" HelpText="Enter a value" ResourceKey="SettingName">Name: </Label>
         </td>
         <td>
             <input id="value" type="text" class="form-control" @bind="@_value" />
