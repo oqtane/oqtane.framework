@@ -537,7 +537,7 @@
             }
             page.Permissions = UserSecurity.SetPermissionStrings(permissions);
             await PageService.UpdatePageAsync(page);
-            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "reload"));
+            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, true));
         }
     }
 

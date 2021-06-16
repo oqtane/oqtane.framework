@@ -77,7 +77,7 @@
         var action = Constants.DefaultAction;
         var urlparameters = string.Empty;
         var editmode = false;
-        var reload = Reload.None;
+        var refresh = UI.Refresh.None;
         var lastsyncdate = DateTime.UtcNow.AddHours(-1);
         var runtime = GetRuntime();
 
@@ -89,17 +89,17 @@
         // parse querystring
         var querystring = ParseQueryString(uri.Query);
 
-        // the reload parameter is used to reload the PageState
-        if (querystring.ContainsKey("reload"))
+        // the refresh parameter is used to refresh the PageState
+        if (querystring.ContainsKey("refresh"))
         {
-            reload = Reload.Site;
+            refresh = UI.Refresh.Site;
         }
         else
         {
-            // reload the client application if the user navigated to a site with a different alias or there is a forced redirect
-            if ((!path.StartsWith(SiteState.Alias.Path) && SiteState.Alias.Path != "") || querystring.ContainsKey("redirect"))
+            // reload the client application if the user navigated to a site with a different alias or there is a forced reload
+            if ((!path.StartsWith(SiteState.Alias.Path) && SiteState.Alias.Path != "") || querystring.ContainsKey("reload"))
             {
-                NavigationManager.NavigateTo(_absoluteUri.Replace("?redirect", ""), true);
+                NavigationManager.NavigateTo(_absoluteUri.Replace("?reload", ""), true);
                 return;
             }
         }
@@ -113,7 +113,7 @@
         // process any sync events
         var sync = await SyncService.GetSyncAsync(lastsyncdate);
         lastsyncdate = sync.SyncDate;
-        if (reload != Reload.Site && sync.SyncEvents.Any())
+        if (refresh != UI.Refresh.Site && sync.SyncEvents.Any())
         {
             // if running on WebAssembly reload the client application if the server application was restarted
             if (runtime == Shared.Runtime.WebAssembly && PageState != null && sync.SyncEvents.Exists(item => item.TenantId == -1))
@@ -123,14 +123,14 @@
             }
             if (sync.SyncEvents.Exists(item => item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId))
             {
-                reload = Reload.Site;
+                refresh = UI.Refresh.Site;
             }
         }
 
-        if (reload == Reload.Site || PageState == null || PageState.Alias.SiteId != SiteState.Alias.SiteId)
+        if (refresh == UI.Refresh.Site || PageState == null || PageState.Alias.SiteId != SiteState.Alias.SiteId)
         {
             site = await SiteService.GetSiteAsync(SiteState.Alias.SiteId);
-            reload = Reload.Site;
+            refresh = UI.Refresh.Site;
         }
         else
         {
@@ -139,7 +139,7 @@
 
         if (site != null)
         {
-            if (PageState == null || reload == Reload.Site)
+            if (PageState == null || refresh == UI.Refresh.Site)
             {
                 // get user
                 var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
@@ -154,15 +154,15 @@
             }
 
             // process any sync events for user
-            if (reload != Reload.Site && user != null && sync.SyncEvents.Any())
+            if (refresh != UI.Refresh.Site && user != null && sync.SyncEvents.Any())
             {
                 if (sync.SyncEvents.Exists(item => item.EntityName == EntityNames.User && item.EntityId == user.UserId))
                 {
-                    reload = Reload.Site;
+                    refresh = UI.Refresh.Site;
                 }
             }
 
-            if (PageState == null || reload == Reload.Site)
+            if (PageState == null || refresh == UI.Refresh.Site)
             {
                 pages = await PageService.GetPagesAsync(site.SiteId);
             }
@@ -239,7 +239,7 @@
             // remove trailing slash so it can be used as a key for Pages
             if (path.EndsWith("/")) path = path.Substring(0, path.Length - 1);
 
-            if (PageState == null || reload == Reload.Site)
+            if (PageState == null || refresh == UI.Refresh.Site)
             {
                 page = pages.FirstOrDefault(item => item.Path.Equals(path, StringComparison.OrdinalIgnoreCase));
             }
@@ -274,7 +274,7 @@
                 {
                     page = await ProcessPage(page, site, user);
 
-                    if (PageState == null || reload == Reload.Site)
+                    if (PageState == null || refresh == UI.Refresh.Site)
                     {
                         modules = await ModuleService.GetModulesAsync(site.SiteId);
                     }

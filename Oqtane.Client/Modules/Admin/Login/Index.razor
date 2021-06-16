@@ -142,7 +142,7 @@
                     await logger.LogInformation("Login Successful For Username {Username}", _username);
                     var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
                     authstateprovider.NotifyAuthenticationChanged();
-                    NavigationManager.NavigateTo(NavigateUrl(_returnUrl, "reload"));
+                    NavigationManager.NavigateTo(NavigateUrl(_returnUrl, true));
                 }
                 else
                 {

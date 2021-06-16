@@ -51,11 +51,11 @@ else
 
     private void Edit(string name)
     {
-        NavigationManager.NavigateTo(_scheme + name + "/admin/site/?redirect");
+        NavigationManager.NavigateTo(_scheme + name + "/admin/site/?reload");
     }
 
     private void Browse(string name)
     {
-        NavigationManager.NavigateTo(_scheme + name + "/?redirect", true);
+        NavigationManager.NavigateTo(_scheme + name + "/?reload");
     }
 }

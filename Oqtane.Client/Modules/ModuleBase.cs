@@ -84,9 +84,19 @@ namespace Oqtane.Modules
             return NavigateUrl(path, "");
         }
 
+        public string NavigateUrl(bool refresh)
+        {
+            return NavigateUrl(PageState.Page.Path, refresh);
+        }
+
         public string NavigateUrl(string path, string parameters)
         {
             return Utilities.NavigateUrl(PageState.Alias.Path, path, parameters);
+        }
+
+        public string NavigateUrl(string path, bool refresh)
+        {
+            return Utilities.NavigateUrl(PageState.Alias.Path, path, refresh ? "refresh" : "");
         }
 
         public string EditUrl(string action)
