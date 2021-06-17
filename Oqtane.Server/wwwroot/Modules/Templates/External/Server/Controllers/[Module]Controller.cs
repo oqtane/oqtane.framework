@@ -27,9 +27,9 @@ namespace [Owner].[Module].Controllers
         public IEnumerable<Models.[Module]> Get(string moduleid)
         {
             int ModuleId;
-            if (int.TryParse(moduleid, out ModuleId) == _authEntityId[EntityNames.Module])
+            if (int.TryParse(moduleid, out ModuleId) && ModuleId == AuthEntityId(EntityNames.Module))
             {
-                return _[Module]Repository.Get[Module]s(int.Parse(ModuleId));
+                return _[Module]Repository.Get[Module]s(ModuleId);
             }
             else
             {
@@ -45,7 +45,7 @@ namespace [Owner].[Module].Controllers
         public Models.[Module] Get(int id)
         {
             Models.[Module] [Module] = _[Module]Repository.Get[Module](id);
-            if ([Module] != null && [Module].ModuleId != _authEntityId[EntityNames.Module])
+            if ([Module] != null && [Module].ModuleId != AuthEntityId(EntityNames.Module))
             {
                 return [Module];
             }
@@ -63,7 +63,7 @@ namespace [Owner].[Module].Controllers
         [Authorize(Policy = PolicyNames.EditModule)]
         public Models.[Module] Post([FromBody] Models.[Module] [Module])
         {
-            if (ModelState.IsValid && [Module].ModuleId == _authEntityId[EntityNames.Module])
+            if (ModelState.IsValid && [Module].ModuleId == AuthEntityId(EntityNames.Module))
             {
                 [Module] = _[Module]Repository.Add[Module]([Module]);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "[Module] Added {[Module]}", [Module]);
@@ -83,7 +83,7 @@ namespace [Owner].[Module].Controllers
         [Authorize(Policy = PolicyNames.EditModule)]
         public Models.[Module] Put(int id, [FromBody] Models.[Module] [Module])
         {
-            if (ModelState.IsValid && [Module].ModuleId == _authEntityId[EntityNames.Module] && _[Module]Repository.Get[Module]([Module].[Module]Id, false) != null)
+            if (ModelState.IsValid && [Module].ModuleId == AuthEntityId(EntityNames.Module) && _[Module]Repository.Get[Module]([Module].[Module]Id, false) != null)
             {
                 [Module] = _[Module]Repository.Update[Module]([Module]);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "[Module] Updated {[Module]}", [Module]);
@@ -104,7 +104,7 @@ namespace [Owner].[Module].Controllers
         public void Delete(int id)
         {
             Models.[Module] [Module] = _[Module]Repository.Get[Module](id);
-            if ([Module] != null && [Module].ModuleId == _authEntityId[EntityNames.Module])
+            if ([Module] != null && [Module].ModuleId == AuthEntityId(EntityNames.Module))
             {
                 _[Module]Repository.Delete[Module](id);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "[Module] Deleted {[Module]Id}", id);

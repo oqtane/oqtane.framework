@@ -80,7 +80,7 @@
         try
         {
             validated = true;
-            var interop = new Interop(JSRuntime);
+            var interop = new Oqtane.UI.Interop(JSRuntime);
             if (await interop.FormValid(form))
             {
                 if (PageState.Action == "Add")

@@ -12,7 +12,7 @@ namespace Microsoft.Extensions.Localization
         public static string GetString(this IStringLocalizer localizer, string key, string value)
         {
             string localizedValue = localizer[key];
-            if (localizedValue == key) // not localized
+            if (localizedValue == key && !string.IsNullOrEmpty(value)) // not localized
             {
                 localizedValue = value;
             }

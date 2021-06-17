@@ -103,7 +103,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Host)]
         public ModuleDefinition Post([FromBody] ModuleDefinition moduleDefinition)
         {
-            if (ModelState.IsValid && moduleDefinition.SiteId == _alias.SiteId)
+            if (ModelState.IsValid)
             {
                 string rootPath;
                 DirectoryInfo rootFolder = Directory.GetParent(_environment.ContentRootPath);
