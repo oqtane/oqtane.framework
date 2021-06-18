@@ -4,6 +4,8 @@
 @inject IHtmlTextService HtmlTextService
 @inject IStringLocalizer<Edit> Localizer
 
+@((MarkupString)content)
+
 @if (PageState.EditMode)
 {
     <br />
