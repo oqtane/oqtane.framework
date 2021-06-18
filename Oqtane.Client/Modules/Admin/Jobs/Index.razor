@@ -5,7 +5,7 @@
 
 @if (_jobs == null)
 {
-    <p><em>@Localizer["Loading..."]</em></p>
+    <p><em>@Localizer["Loading"]</em></p>
 }
 else
 {
@@ -22,7 +22,7 @@ else
             <th>@Localizer["Name"]</th>
             <th>@Localizer["Status"]</th>
             <th>@Localizer["Frequency"]</th>
-            <th>@Localizer["Next Execution"]</th>
+            <th>@Localizer["NextExecution"]</th>
             <th style="width: 1px;">&nbsp;</th>
         </Header>
         <Row>
@@ -118,7 +118,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting Job {Job} {Error}", job, ex.Message);
-            AddModuleMessage(Localizer["Error Deleting Job"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Job.Delete"], MessageType.Error);
         }
     }
 

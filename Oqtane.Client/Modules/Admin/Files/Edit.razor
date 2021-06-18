@@ -16,7 +16,7 @@
                 <select id="parent" class="form-control" @bind="@_parentId">
                     @if (PageState.QueryString.ContainsKey("id"))
                     {
-                        <option value="-1">&lt;@Localizer["No Parent"]&gt;</option>
+                        <option value="-1">&lt;@Localizer["NoParent"]&gt;</option>
                     }
                     @foreach (Folder folder in _folders)
                     {
@@ -130,7 +130,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Folder {FolderId} {Error}", _folderId, ex.Message);
-            AddModuleMessage(Localizer["Error Loading Folder"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Folder.Load"], MessageType.Error);
         }
     }
 
@@ -138,13 +138,13 @@
     {
         if (_name == string.Empty || _parentId == -1)
         {
-            AddModuleMessage(Localizer["Folders Must Have A Parent And A Name"], MessageType.Warning);
+            AddModuleMessage(Localizer["Message.Required.FolderParent"], MessageType.Warning);
             return;
         }
 
         if (!_name.IsPathOrFileValid())
         {
-            AddModuleMessage(Localizer["Folder Name Not Valid."], MessageType.Warning);
+            AddModuleMessage(Localizer["Message.Folder.InvalidName"], MessageType.Warning);
             return;
         }
 
@@ -193,13 +193,13 @@
             }
             else
             {
-                AddModuleMessage(Localizer["An Error Was Encountered Saving The Folder"], MessageType.Error);
+                AddModuleMessage(Localizer["Error.Folder.Save"], MessageType.Error);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving Folder {FolderId} {Error}", _folderId, ex.Message);
-            AddModuleMessage(Localizer["Error Saving Folder"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Folder.Save"], MessageType.Error);
         }
     }
 
@@ -227,18 +227,18 @@
                 }
                 else
                 {
-                    AddModuleMessage(Localizer["Folder Has Files And Cannot Be Deleted"], MessageType.Warning);
+                    AddModuleMessage(Localizer["Message.Folder.Files.InvalidDelete"], MessageType.Warning);
                 }
             }
             else
             {
-                AddModuleMessage(Localizer["Folder Has Subfolders And Cannot Be Deleted"], MessageType.Warning);
+                AddModuleMessage(Localizer["Message.Folder.Subfolders.InvalidDelete"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting Folder {Folder} {Error}", _folderId, ex.Message);
-            AddModuleMessage(Localizer["Error Deleting Folder"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Folder.Delete"], MessageType.Error);
         }
     }
 }

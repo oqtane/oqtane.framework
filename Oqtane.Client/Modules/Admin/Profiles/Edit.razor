@@ -138,7 +138,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Profile {ProfileId} {Error}", _profileid, ex.Message);
-            AddModuleMessage(Localizer["Error Loading Profile"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Profile.Load"], MessageType.Error);
         }
     }
 
@@ -182,7 +182,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving Profile {ProfleId} {Error}", _profileid, ex.Message);
-            AddModuleMessage(Localizer["Error Saving Profile"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Profile.Save"], MessageType.Error);
         }
     }
 }

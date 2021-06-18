@@ -81,7 +81,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading File {FileId} {Error}", _fileId, ex.Message);
-            AddModuleMessage(Localizer["Error Loading File"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.File.Load"], MessageType.Error);
         }
     }
 
@@ -100,13 +100,13 @@
             }
             else
             {
-                AddModuleMessage(Localizer["File Name Not Valid"], MessageType.Warning);
+                AddModuleMessage(Localizer["Message.File.InvalidName"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving File {FileId} {Error}", _fileId, ex.Message);
-            AddModuleMessage(Localizer["Error Saving File"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.File.Save"], MessageType.Error);
         }
     }
 }

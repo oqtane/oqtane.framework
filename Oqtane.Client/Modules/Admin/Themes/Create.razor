@@ -33,7 +33,7 @@
             </td>
             <td>
                 <select id="template" class="form-control" @onchange="(e => TemplateChanged(e))">
-                    <option value="-">&lt;@Localizer["Select Template"]&gt;</option>
+                    <option value="-">&lt;@Localizer["Template.Select"]&gt;</option>
                     @foreach (Template template in _templates)
                     {
                         <option value="@template.Name">@template.Title</option>
@@ -54,7 +54,7 @@
                             <option value="@(version)">@(version)</option>
                         }
                     }
-                    <option value="local">@Localizer["Local Version"]</option>
+                    <option value="local">@Localizer["LocalVersion"]</option>
                 </select>
             </td>
         </tr>
@@ -70,7 +70,7 @@
             </tr>
         }
     </table>
-    <button type="button" class="btn btn-success" @onclick="CreateTheme">@Localizer["Create Theme"]</button>
+    <button type="button" class="btn btn-success" @onclick="CreateTheme">@Localizer["Theme.Create"]</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
 }
 
@@ -92,7 +92,7 @@
         {
             _templates = await ThemeService.GetThemeTemplatesAsync();
             _versions = Constants.ReleaseVersions.Split(',').Where(item => Version.Parse(item).CompareTo(Version.Parse("2.0.0")) >= 0).ToArray();
-            AddModuleMessage(Localizer["Please Note That The Theme Creator Is Only Intended To Be Used In A Development Environment"], MessageType.Info);
+            AddModuleMessage(Localizer["Info.Theme.CreatorIntent"], MessageType.Info);
         }
         catch (Exception ex)
         {
@@ -109,11 +109,11 @@
                 var theme = new Theme { Owner = _owner, Name = _theme, Template = _template, Version = _reference };
                 theme = await ThemeService.CreateThemeAsync(theme);
                 GetLocation();
-                AddModuleMessage(Localizer["The Source Code For Your Theme Has Been Created At The Location Specified Below And Must Be Compiled In Order To Make It Functional. Once It Has Been Compiled You Must <a href=\"{0}\">Restart</a> Your Application To Activate The Module.", NavigateUrl("admin/system")], MessageType.Success);
+                AddModuleMessage(string.Format(Localizer["Success.Theme.Create"], NavigateUrl("admin/system")), MessageType.Success);
             }
             else
             {
-                AddModuleMessage(Localizer["You Must Provide A Valid Owner Name And Theme Name ( ie. No Punctuation Or Spaces And The Values Cannot Be The Same ) And Choose A Template"], MessageType.Warning);
+                AddModuleMessage(Localizer["Message.Required.ValidName"], MessageType.Warning);
             }
         }
         catch (Exception ex)

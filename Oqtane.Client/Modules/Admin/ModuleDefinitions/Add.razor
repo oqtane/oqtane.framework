@@ -70,7 +70,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Packages {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error Loading Packages"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Package.Load"], MessageType.Error);
         }
     }
 
@@ -79,7 +79,7 @@
         try
         {
             await ModuleDefinitionService.InstallModuleDefinitionsAsync();
-            AddModuleMessage(Localizer["Module Installed Successfully. You Must <a href=\"{0}\">Restart</a> Your Application To Apply These Changes.", NavigateUrl("admin/system")], MessageType.Success);
+            AddModuleMessage(string.Format(Localizer["Success.Module.Install"], NavigateUrl("admin/system")), MessageType.Success);
         }
         catch (Exception ex)
         {
@@ -93,13 +93,13 @@
         {
             await PackageService.DownloadPackageAsync(packageid, version, "Packages");
             await logger.LogInformation("Module {ModuleDefinitionName} {Version} Downloaded Successfully", packageid, version);
-            AddModuleMessage(Localizer["Modules Downloaded Successfully. Click Install To Complete Installation."], MessageType.Success);
+            AddModuleMessage(Localizer["Success.Module.Download"], MessageType.Success);
             StateHasChanged();
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Downloading Module {ModuleDefinitionName} {Version}", packageid, version);
-            AddModuleMessage(Localizer["Error Downloading Module"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Module.Download"], MessageType.Error);
         }
     }
 }

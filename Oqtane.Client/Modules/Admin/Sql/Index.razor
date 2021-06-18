@@ -8,7 +8,7 @@
 
 @if (_tenants == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>@Localizer["Loading"]</em></p>
 }
 else
 {
@@ -19,7 +19,7 @@ else
         </td>
         <td>
             <select id="tenant" class="form-control" value="@_tenantid" @onchange="(e => TenantChanged(e))">
-                <option value="-1">&lt;@Localizer["Select Tenant"]&gt;</option>
+                <option value="-1">&lt;@Localizer["Tenant.Select"]&gt;</option>
                 @foreach (Tenant tenant in _tenants)
                 {
                     <option value="@tenant.TenantId">@tenant.Name</option>
@@ -118,11 +118,11 @@ else
                 var sqlquery = new SqlQuery { TenantId = int.Parse(_tenantid), Query = _sql };
                 sqlquery = await SqlService.ExecuteQueryAsync(sqlquery);
                 _results = DisplayResults(sqlquery.Results);
-                AddModuleMessage(Localizer["SQL Query Executed"], MessageType.Success);
+                AddModuleMessage(Localizer["Success.QueryExecuted"], MessageType.Success);
             }
             else
             {
-                AddModuleMessage(Localizer["You Must Select A Tenant And Provide A Valid SQL Query"], MessageType.Warning);
+                AddModuleMessage(Localizer["Message.Required.Tenant"], MessageType.Warning);
             }
         }
         catch (Exception ex)
@@ -166,7 +166,7 @@ else
         }
         else
         {
-            table = Localizer["No Results Returned"];
+            table = Localizer["Return.NoResult"];
         }
 
         return table;

@@ -71,12 +71,12 @@
             catch (Exception ex)
             {
                 await logger.LogError(ex, "Error Adding Role {Role} {Error}", role, ex.Message);
-                AddModuleMessage(Localizer["Error Adding Role"], MessageType.Error);
+                AddModuleMessage(Localizer["Error.AddRole"], MessageType.Error);
             }
         }
         else
         {
-            AddModuleMessage(Localizer["Please Provide All Required Information"], MessageType.Warning);
+            AddModuleMessage(Localizer["Message.InfoRequired"], MessageType.Warning);
         }
     }
 

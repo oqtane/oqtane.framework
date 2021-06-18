@@ -23,7 +23,7 @@ else
             <table class="table table-borderless">
                 <tr>
                     <td>
-                        <label for="Name" class="control-label">@Localizer["Username:"] </label>
+                        <label for="Name" class="control-label">@Localizer["Username"] </label>
                     </td>
                     <td>
                         <input class="form-control" @bind="@username" readonly />
@@ -31,7 +31,7 @@ else
                 </tr>
                 <tr>
                     <td>
-                        <label for="Name" class="control-label">@Localizer["Password:"] </label>
+                        <label for="Name" class="control-label">@Localizer["Password"] </label>
                     </td>
                     <td>
                         <input type="password" class="form-control" @bind="@password" autocomplete="new-password" />
@@ -39,7 +39,7 @@ else
                 </tr>
                 <tr>
                     <td>
-                        <label for="Name" class="control-label">@Localizer["Confirm Password:"] </label>
+                        <label for="Name" class="control-label">@Localizer["Password.Confirm"] </label>
                     </td>
                     <td>
                         <input type="password" class="form-control" @bind="@confirm" autocomplete="new-password" />
@@ -47,7 +47,7 @@ else
                 </tr>
                 <tr>
                     <td>
-                        <label for="Name" class="control-label">@Localizer["Email:"] </label>
+                        <label for="Name" class="control-label">@Localizer["Email"] </label>
                     </td>
                     <td>
                         <input class="form-control" @bind="@email" />
@@ -55,7 +55,7 @@ else
                 </tr>
                 <tr>
                     <td>
-                        <label for="Name" class="control-label">@Localizer["Full Name:"] </label>
+                        <label for="Name" class="control-label">@Localizer["FullName"] </label>
                     </td>
                     <td>
                         <input class="form-control" @bind="@displayname" />
@@ -63,7 +63,7 @@ else
                 </tr>
                 <tr>
                     <td>
-                        <label for="Name" class="control-label">@Localizer["Photo:"] </label>
+                        <label for="Name" class="control-label">@Localizer["Photo"] </label>
                     </td>
                     <td>
                         <FileManager FileId="@photofileid" @ref="filemanager" />
@@ -207,7 +207,7 @@ else
             <br /><hr />
             <select class="form-control" @onchange="(e => FilterChanged(e))">
                 <option value="to">@Localizer["Inbox"]</option>
-                <option value="from">@Localizer["Sent Items"]</option>
+                <option value="from">@Localizer["Items.Sent"]</option>
             </select>
         }
     </TabPanel>
@@ -258,13 +258,13 @@ else
             }
             else
             {
-                AddModuleMessage(Localizer["Current User Is Not Logged In"], MessageType.Warning);
+                AddModuleMessage(Localizer["Message.User.NoLogIn"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading User Profile {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error Loading User Profile"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Profile.Load"], MessageType.Error);
         }
     }
 
@@ -304,18 +304,18 @@ else
                 }
                 else
                 {
-                    AddModuleMessage(Localizer["Passwords Entered Do Not Match"], MessageType.Warning);
+                    AddModuleMessage(Localizer["Message.Password.Invalid"], MessageType.Warning);
                 }
             }
             else
             {
-                AddModuleMessage(Localizer["You Must Provide A Username and Email Address As Well As All Required Profile Information"], MessageType.Warning);
+                AddModuleMessage(Localizer["Message.Required.ProfileInfo"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving User Profile {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error Saving User Profile"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Profile.Save"], MessageType.Error);
         }
     }
 

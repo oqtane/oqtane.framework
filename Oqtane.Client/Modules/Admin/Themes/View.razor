@@ -96,7 +96,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Theme {ThemeName} {Error}", _themeName, ex.Message);
-            AddModuleMessage(Localizer["Error Loading Theme"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Theme.Loading"], MessageType.Error);
         }
     }
 }

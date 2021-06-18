@@ -15,8 +15,8 @@
                         <br />
                     }
                     <div class="row justify-content-center" style="margin-bottom: 20px;">
-                        <button type="button" class="btn btn-secondary" @onclick="RefreshRichText">@Localizer["Synchronize Content"]</button>&nbsp;&nbsp;
-                        <button type="button" class="btn btn-primary" @onclick="InsertImage">@Localizer["Insert Image"]</button>
+                        <button type="button" class="btn btn-secondary" @onclick="RefreshRichText">@Localizer["SynchronizeContent"]</button>&nbsp;&nbsp;
+                        <button type="button" class="btn btn-primary" @onclick="InsertImage">@Localizer["InsertImage"]</button>
                         @if (_filemanagervisible)
                         {
                             @((MarkupString)"&nbsp;&nbsp;")
@@ -67,7 +67,7 @@
             </TabPanel>
             <TabPanel Name="Raw" Heading="Raw HTML Editor" ResourceKey="HtmlEditor">
                 <div class="row justify-content-center" style="margin-bottom: 20px;">
-                    <button type="button" class="btn btn-secondary" @onclick="RefreshRawHtml">@Localizer["Synchronize Content"]</button>
+                    <button type="button" class="btn btn-secondary" @onclick="RefreshRawHtml">@Localizer["SynchronizeContent"]</button>
                 </div>
                 @if (ReadOnly)
                 {
@@ -200,7 +200,7 @@
             }
             else
             {
-                _message = Localizer["You Must Select An Image To Insert"];
+                _message = Localizer["Message.Require.Image"];
             }
         }
         else

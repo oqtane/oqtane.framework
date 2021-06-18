@@ -5,7 +5,7 @@
 
 @if (_profiles == null)
 {
-    <p><em>@Localizer["Loading..."]</em></p>
+    <p><em>@Localizer["Loading"]</em></p>
 }
 else
 {
@@ -19,7 +19,7 @@ else
         </Header>
         <Row>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ProfileId.ToString())" ResourceKey="EditProfile" /></td>
-            <td><ActionDialog Header="Delete Profile" Message="@Localizer["Are You Sure You Wish To Delete {0}?", context.Name]" Action="Delete" Class="btn btn-danger" OnClick="@(async () => await DeleteProfile(context.ProfileId))" ResourceKey="DeleteProfile" /></td>
+            <td><ActionDialog Header="Delete Profile" Message="@string.Format(Localizer["Confirm.Profile.Delete"], context.Name)" Action="Delete" Class="btn btn-danger" OnClick="@(async () => await DeleteProfile(context.ProfileId))" ResourceKey="DeleteProfile" /></td>
             <td>@context.Name</td>
         </Row>
     </Pager>
@@ -42,7 +42,7 @@ else
             await ProfileService.DeleteProfileAsync(profileId);
             await logger.LogInformation("Profile Deleted {ProfileId}", profileId);
 
-            AddModuleMessage(Localizer["Profile Deleted"], MessageType.Success);
+            AddModuleMessage(Localizer["Success.Profile.Delete"], MessageType.Success);
 
             await GetProfilesAsync();
 
@@ -51,7 +51,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting Profile {ProfileId} {Error}", profileId, ex.Message);
-            AddModuleMessage(Localizer["Error Deleting Profile"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Profile.Delete"], MessageType.Error);
         }
     }
 

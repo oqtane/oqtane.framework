@@ -24,7 +24,7 @@
                 </td>
                 <td>
                     <select id="Parent" class="form-control" @onchange="(e => ParentChanged(e))">
-                        <option value="-1">&lt;@Localizer["Site Root"]&gt;</option>
+                        <option value="-1">&lt;@Localizer["SiteRoot"]&gt;</option>
                         @foreach (Page page in _pageList)
                         {
                             <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
@@ -38,18 +38,18 @@
                 </td>
                 <td>
                     <select id="Insert" class="form-control" @bind="@_insert">
-                        <option value="<<">@Localizer["At Beginning"]</option>
+                        <option value="<<">@Localizer["AtBeginning"]</option>
                         @if (_children != null && _children.Count > 0)
                         {
                             <option value="<">@Localizer["Before"]</option>
                             <option value=">">@Localizer["After"]</option>
                         }
-                        <option value=">>">@Localizer["At End"]</option>
+                        <option value=">>">@Localizer["AtEnd"]</option>
                     </select>
                     @if (_children != null && _children.Count > 0 && (_insert == "<" || _insert == ">"))
                     {
                         <select class="form-control" @bind="@_childid">
-                            <option value="-1">&lt;@Localizer["Select Page"]&gt;</option>
+                            <option value="-1">&lt;@Localizer["Page.Select"]&gt;</option>
                             @foreach (Page page in _children)
                             {
                                 <option value="@(page.PageId)">@(page.Name)</option>
@@ -126,7 +126,7 @@
                         </td>
                         <td>
                             <select id="defaultContainer" class="form-control" @bind="@_containertype">
-                                <option value="-">&lt;@Localizer["Select Container"]&gt;</option>
+                                <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
                                 @foreach (var container in _containers)
                                 {
                                     <option value="@container.TypeName">@container.Name</option>
@@ -221,7 +221,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Initializing Page {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error Initializing Page"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Page.Initialize"], MessageType.Error);
         }
     }
 
@@ -256,7 +256,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Child Pages For Parent {PageId} {Error}", _parentid, ex.Message);
-            AddModuleMessage(Localizer["Error Loading Child Pages For Parent"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.ChildPage.Load"], MessageType.Error);
         }
     }
 
@@ -273,7 +273,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", _themetype, ex.Message);
-            AddModuleMessage(Localizer["Error Loading Pane Layouts For Theme"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Pane.Load"], MessageType.Error);
         }
     }
 
@@ -339,7 +339,7 @@
 
                 if (!PagePathIsUnique(page.Path, page.SiteId, _pageList))
                 {
-                    AddModuleMessage(Localizer["A page with path {0} already exists for the selected parent page. The page path needs to be unique for the selected parent.", _path], MessageType.Warning);
+                    AddModuleMessage(string.Format(Localizer["Message.Page.Exists"], _path), MessageType.Warning);
                     return;
                 }
 
@@ -395,14 +395,14 @@
             }
             else
             {
-                AddModuleMessage(Localizer["You Must Provide Page Name, Theme, and Container"], MessageType.Warning);
+                AddModuleMessage(Localizer["Message.Required.PageInfo"], MessageType.Warning);
             }
 
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving Page {Page} {Error}", page, ex.Message);
-            AddModuleMessage(Localizer["Error Saving Page"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Page.Save"], MessageType.Error);
         }
     }
 

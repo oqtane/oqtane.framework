@@ -10,7 +10,7 @@
 
 @if (_supportedCultures == null)
 {
-    <p><em>@Localizer["Loading..."]</em></p>
+    <p><em>@Localizer["Loading"]</em></p>
 }
 else
 {
@@ -117,11 +117,11 @@ else
 
         if (_supportedCultures.Count() == 1)
         {
-            _message = Localizer["The Only Installed Language Is English"];
+            _message = Localizer["OnlyEnglish"];
         }
         else if (_availableCultures.Count() == 0)
         {
-            _message = Localizer["All The Installed Languages Have Been Added."];
+            _message = Localizer["AllLanguages"];
         }
     }
 
@@ -151,7 +151,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Adding Language {Language} {Error}", language, ex.Message);
-            AddModuleMessage(Localizer["Error Adding Language"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Language.Add"], MessageType.Error);
         }
     }
 
@@ -160,7 +160,7 @@ else
         try
         {
             await PackageService.InstallPackagesAsync();
-            AddModuleMessage(Localizer["Language Packages Installed Successfully. You Must <a href=\"{0}\">Restart</a> Your Application To Apply These Changes.", NavigateUrl("admin/system")], MessageType.Success);
+            AddModuleMessage(string.Format(Localizer["Success.Language.Install"], NavigateUrl("admin/system")), MessageType.Success);
         }
         catch (Exception ex)
         {
@@ -174,13 +174,13 @@ else
         {
             await PackageService.DownloadPackageAsync(packageid, version, "Packages");
             await logger.LogInformation("Language Paclage {Name} {Version} Downloaded Successfully", packageid, version);
-            AddModuleMessage(Localizer["Language Package Downloaded Successfully. Click Install To Complete Installation."], MessageType.Success);
+            AddModuleMessage(Localizer["Success.Language.Download"], MessageType.Success);
             StateHasChanged();
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Downloading Language Package {Name} {Version}", packageid, version);
-            AddModuleMessage(Localizer["Error Downloading Language Package"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Langauge.Download"], MessageType.Error);
         }
     }
 

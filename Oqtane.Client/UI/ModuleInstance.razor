@@ -42,13 +42,13 @@
                 else
                 {
                     // module does not exist with typename specified
-                    _message = Localizer["Module Does Not Have A Component Named {0}.razor", Utilities.GetTypeNameLastSegment(ModuleState.ModuleType, 0)];
+                    _message = string.Format(Localizer["Error.Module.InvalidName"], Utilities.GetTypeNameLastSegment(ModuleState.ModuleType, 0));
                     _messagetype = MessageType.Error;
                 }
             }
             else
             {
-                _message = Localizer["Module Type Is Invalid For {0}", ModuleState.ModuleDefinitionName];
+                _message = string.Format(Localizer["Error.Module.InvalidType"], ModuleState.ModuleDefinitionName);
                 _messagetype = MessageType.Error;
             }
 
