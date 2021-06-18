@@ -120,15 +120,6 @@
   <data name="Folder.Select" xml:space="preserve">
     <value>Select Folder</value>
   </data>
-  <data name="Upload" xml:space="preserve">
-    <value>Upload</value>
-  </data>
-  <data name="Cancel" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
-  <data name="Download" xml:space="preserve">
-    <value>Download</value>
-  </data>
   <data name="Message.Required.UrlFolder" xml:space="preserve">
     <value>You Must Enter A Url And Select A Folder</value>
   </data>
