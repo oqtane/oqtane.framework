@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -264,7 +265,7 @@ namespace Oqtane.Repository
                         }.EncodePermissions();
                     }
 
-                    Console.WriteLine($"Registering module: {moduledefinition.ModuleDefinitionName}");
+                    Debug.WriteLine($"Oqtane Info: Registering Module {moduledefinition.ModuleDefinitionName}");
                     moduledefinitions.Add(moduledefinition);
                     index = moduledefinitions.FindIndex(item => item.ModuleDefinitionName == qualifiedModuleType);
                 }

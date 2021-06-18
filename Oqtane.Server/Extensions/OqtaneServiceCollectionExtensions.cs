@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -257,7 +258,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 }
                 catch
                 {
-                    Console.WriteLine($"Not Assembly : {dll.Name}");
+                    Debug.WriteLine($"Oqtane Error: Cannot Get Assembly Name For {dll.Name}");
                     continue;
                 }
 
@@ -298,24 +299,24 @@ namespace Microsoft.Extensions.DependencyInjection
                         }
                         catch
                         {
-                            Console.WriteLine($"Not Satellite Assembly : {assemblyFile.Name}");
+                            Debug.WriteLine($"Oqtane Error: Cannot Get Satellite Assembly Name For {assemblyFile.Name}");
                             continue;
                         }
 
                         try
                         {
                             Assembly assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(File.ReadAllBytes(assemblyFile.FullName)));
-                            Console.WriteLine($"Loaded : {assemblyName}");
+                            Debug.WriteLine($"Oqtane Info: Loaded Assembly {assemblyName}");
                         }
-                        catch (Exception e)
+                        catch (Exception ex)
                         {
-                            Console.WriteLine($"Failed : {assemblyName}\n{e}");
+                            Debug.WriteLine($"Oqtane Error: Unable To Load Assembly {assemblyName} - {ex}");
                         }
                     }
                 }
                 else
                 {
-                    Console.WriteLine($"The satellite assemblies folder named '{culture}' is not found.");
+                    Debug.WriteLine($"Oqtane Error: The Satellite Assembly Folder For {culture} Does Not Exist");
                 }
             }
         }

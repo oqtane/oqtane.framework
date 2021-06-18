@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -104,6 +105,8 @@ namespace Oqtane.Repository
                     {
                         theme.PackageName = Utilities.GetTypeName(theme.ThemeName);
                     }
+
+                    Debug.WriteLine($"Oqtane Info: Registering Theme {theme.ThemeName}");
                     themes.Add(theme);
                     index = themes.FindIndex(item => item.ThemeName == qualifiedThemeType);
                 }

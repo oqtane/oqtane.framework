@@ -15,6 +15,7 @@ using Microsoft.Extensions.Caching.Memory;
 using System.Net;
 using Oqtane.Repository;
 using Microsoft.AspNetCore.Http;
+using System.Diagnostics;
 
 namespace Oqtane.Controllers
 {
@@ -130,7 +131,7 @@ namespace Oqtane.Controllers
                     }
                     else
                     {
-                        Console.WriteLine($"The satellite assemblies folder named '{culture}' is not found.");
+                        Debug.WriteLine($"Oqtane Error: The Satellite Assembly Folder For {culture} Does Not Exist");
                     }
                 }
 
@@ -148,7 +149,7 @@ namespace Oqtane.Controllers
                             }
                             else
                             {
-                                Console.WriteLine("Module " + instance.ModuleDefinition.ModuleDefinitionName + " dependency " + name + ".dll does not exist");
+                                Debug.WriteLine($"Oqtane Error: Module {instance.ModuleDefinition.ModuleDefinitionName} Dependency {name}.dll Does Not Exist");
                             }
                         }
                     }
@@ -163,7 +164,7 @@ namespace Oqtane.Controllers
                             }
                             else
                             {
-                                Console.WriteLine("Theme " + instance.Theme.ThemeName + " dependency " + name + ".dll does not exist" );
+                                Debug.WriteLine($"Oqtane Error: Theme {instance.Theme.ThemeName} Dependency {name}.dll Does Not Exist");
                             }
                         }
                     }

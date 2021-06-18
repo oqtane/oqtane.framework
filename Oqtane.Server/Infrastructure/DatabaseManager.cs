@@ -483,11 +483,17 @@ namespace Oqtane.Infrastructure
                                                 {
                                                     tenantManager.SetTenant(tenant.TenantId);
                                                     var moduleObject = ActivatorUtilities.CreateInstance(scope.ServiceProvider, moduleType) as IInstallable;
-                                                    moduleObject?.Install(tenant, versions[i]);
+                                                    if (moduleObject == null || !moduleObject.Install(tenant, versions[i]))
+                                                    {
+                                                        result.Message = "An Error Occurred Executing IInstallable Interface For " + moduleDefinition.ServerManagerType;
+                                                    }
                                                 }
                                                 else
                                                 {
-                                                    sql.ExecuteScript(tenant, moduleType.Assembly, Utilities.GetTypeName(moduleDefinition.ModuleDefinitionName) + "." + versions[i] + ".sql");
+                                                    if (!sql.ExecuteScript(tenant, moduleType.Assembly, Utilities.GetTypeName(moduleDefinition.ModuleDefinitionName) + "." + versions[i] + ".sql"))
+                                                    {
+                                                        result.Message = "An Error Occurred Executing Database Script " + Utilities.GetTypeName(moduleDefinition.ModuleDefinitionName) + "." + versions[i] + ".sql";
+                                                    }
                                                 }
                                             }
                                             catch (Exception ex)

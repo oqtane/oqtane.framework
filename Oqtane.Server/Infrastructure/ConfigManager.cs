@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -57,7 +58,7 @@ namespace Oqtane.Infrastructure
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error modifying app settings {0}", ex);
+                Debug.WriteLine($"Oqtane Error: Error Updating App Setting {key} - {ex}");
             }
         }
 
@@ -78,7 +79,7 @@ namespace Oqtane.Infrastructure
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error modifying app settings {0}", ex);
+                Debug.WriteLine($"Oqtane Error: Error Removing App Setting {key} - {ex}");
             }
         }
 
