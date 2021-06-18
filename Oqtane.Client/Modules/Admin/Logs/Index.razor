@@ -5,7 +5,7 @@
 
 @if (_logs == null)
 {
-    <p><em>@Localizer["Loading..."]</em></p>
+    <p><em>@Localizer["Loading"]</em></p>
 }
 else
 {
@@ -14,7 +14,7 @@ else
             <td>
                 <Label For="level" HelpText="Select the log level for event log items" ResourceKey="Level">Level: </Label><br /><br />
                 <select id="level" class="form-control" @onchange="(e => LevelChanged(e))">
-                    <option value="-">&lt;@Localizer["All Levels"]&gt;</option>
+                    <option value="-">&lt;@Localizer["AllLevels"]&gt;</option>
                     <option value="Trace">@Localizer["Trace"]</option>
                     <option value="Debug">@Localizer["Debug"]</option>
                     <option value="Information">@Localizer["Information"]</option>
@@ -26,7 +26,7 @@ else
             <td>
                 <Label For="function" HelpText="Select the function for event log items" ResourceKey="Function">Function: </Label><br /><br />
                 <select id="function" class="form-control" @onchange="(e => FunctionChanged(e))">
-                    <option value="-">&lt;@Localizer["All Functions"]&gt;</option>
+                    <option value="-">&lt;@Localizer["AllFunctions"]&gt;</option>
                     <option value="Create">@Localizer["Create"]</option>
                     <option value="Read">@Localizer["Read"]</option>
                     <option value="Update">@Localizer["Update"]</option>
@@ -67,7 +67,7 @@ else
     }
     else
     {
-        <p><em>@Localizer["No Logs Match The Criteria Specified"]</em></p>
+        <p><em>@Localizer["NoLogs"]</em></p>
     }
 }
 
@@ -88,7 +88,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Logs {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error Loading Logs"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Log.Load"], MessageType.Error);
         }
     }
 
@@ -103,7 +103,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Logs {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error Loading Logs"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Log.Load"], MessageType.Error);
         }
     }
 
@@ -118,7 +118,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Logs {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error Loading Logs"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Log.Load"], MessageType.Error);
         }
     }
 
@@ -134,7 +134,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Logs {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error Loading Logs"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Log.Load"], MessageType.Error);
         }
     }
 

@@ -15,29 +15,29 @@
         <text>...</text>
     </Authorizing>
     <Authorized>
-        <ModuleMessage Message="@Localizer["You Are Already Signed In"]" Type="MessageType.Info" />
+        <ModuleMessage Message="@Localizer["Info.SignedIn"]" Type="MessageType.Info" />
     </Authorized>
     <NotAuthorized>
         <form @ref="login" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
             <div class="container Oqtane-Modules-Admin-Login" @onkeypress="@(e => KeyPressed(e))">
                 <div class="form-group">
-                    <label for="Username" class="control-label">@Localizer["Username:"] </label>
+                    <label for="Username" class="control-label">@Localizer["Username"] </label>
                     <input type="text" @ref="username" name="Username" class="form-control username" placeholder="Username" @bind="@_username" id="Username" required />
                 </div>
                 <div class="form-group">
-                    <label for="Password" class="control-label">@Localizer["Password:"] </label>
+                    <label for="Password" class="control-label">@Localizer["Password"] </label>
                     <input type="password" name="Password" class="form-control password" placeholder="Password" @bind="@_password" id="Password" required />
                 </div>
                 <div class="form-group">
                     <div class="form-check form-check-inline">
-                        <label class="form-check-label" for="Remember">@Localizer["Remember Me?"]</label>&nbsp;
+                        <label class="form-check-label" for="Remember">@Localizer["RememberMe"]</label>&nbsp;
                         <input type="checkbox" class="form-check-input" name="Remember" @bind="@_remember" id="Remember" />
                     </div>
                 </div>
                 <button type="button" class="btn btn-primary" @onclick="Login">@Localizer["Login"]</button>
                 <button type="button" class="btn btn-secondary" @onclick="Cancel">@Localizer["Cancel"]</button>
                 <br /><br />
-                <button type="button" class="btn btn-secondary" @onclick="Forgot">@Localizer["Forgot Password"]</button>
+                <button type="button" class="btn btn-secondary" @onclick="Forgot">@Localizer["ForgotPassword"]</button>
             </div>
         </form>
     </NotAuthorized>
@@ -83,11 +83,11 @@
 
             if (user != null)
             {
-                _message = Localizer["User Account Verified Successfully. You Can Now Login With Your Username And Password Below."];
+                _message = Localizer["Success.Account.Verified"];
             }
             else
             {
-                _message = Localizer["User Account Could Not Be Verified. Please Contact Your Administrator For Further Instructions."];
+                _message = Localizer["Message.Account.NotVerfied"];
                 _type = MessageType.Warning;
             }
         }
@@ -126,7 +126,7 @@
                 else
                 {
                     await logger.LogInformation("Login Failed For Username {Username}", _username);
-                    AddModuleMessage(Localizer["Login Failed. Please Remember That Passwords Are Case Sensitive And User Accounts Require Verification When They Are Initially Created So You May Wish To Check Your Email."], MessageType.Error);
+                    AddModuleMessage(Localizer["Error.Login.Fail"], MessageType.Error);
                 }
             }
             else
@@ -147,13 +147,13 @@
                 else
                 {
                     await logger.LogInformation("Login Failed For Username {Username}", _username);
-                    AddModuleMessage(Localizer["Login Failed. Please Remember That Passwords Are Case Sensitive And User Accounts Require Verification When They Are Initially Created So You May Wish To Check Your Email."], MessageType.Error);
+                    AddModuleMessage(Localizer["Error.Login.Fail"], MessageType.Error);
                 }
             }
         }
         else
         {
-            AddModuleMessage(Localizer["Please Provide Your Username And Password"], MessageType.Warning);
+            AddModuleMessage(Localizer["Message.Required.UserInfo"], MessageType.Warning);
         }
     }
 

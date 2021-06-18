@@ -96,7 +96,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving Content {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error Saving Content"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Content.Save"], MessageType.Error);
         }
     }
 }

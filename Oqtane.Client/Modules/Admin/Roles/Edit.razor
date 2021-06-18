@@ -75,7 +75,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Role {RoleId} {Error}", _roleid, ex.Message);
-            AddModuleMessage(Localizer["Error Loading Role"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.LoadRole"], MessageType.Error);
         }
     }
 
@@ -100,12 +100,12 @@
             catch (Exception ex)
             {
                 await logger.LogError(ex, "Error Saving Role {Role} {Error}", role, ex.Message);
-                AddModuleMessage(Localizer["Error Saving Role"], MessageType.Error);
+                AddModuleMessage(Localizer["Error.SaveRole"], MessageType.Error);
             }
         }
         else
         {
-            AddModuleMessage(Localizer["Please Provide All Required Information"], MessageType.Warning);
+            AddModuleMessage(Localizer["Message.InfoRequired"], MessageType.Warning);
         }
     }
 }

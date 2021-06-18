@@ -60,13 +60,13 @@
             }
             else
             {
-                AddModuleMessage(Localizer["User Does Not Exist. Please Verify That The Username Provided Is Correct."], MessageType.Warning);
+                AddModuleMessage(Localizer["Message.User.Invalid"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Adding Notification {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error Adding Notification"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Notification.Add"], MessageType.Error);
         }
     }
 

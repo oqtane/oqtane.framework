@@ -12,13 +12,13 @@
     <div class="row">
         <div class="mx-auto text-center">
             <img src="oqtane-black.png" />
-            <div style="font-weight: bold">@Localizer["Version:"] @Constants.Version</div>
+            <div style="font-weight: bold">@Localizer["Version"] @Constants.Version</div>
         </div>
     </div>
     <hr class="app-rule" />
     <div class="row justify-content-center">
         <div class="col text-center">
-            <h2>@Localizer["Database Configuration"]</h2><br />
+            <h2>@Localizer["DatabaseConfig"]</h2><br />
             <table class="form-group" cellpadding="4" cellspacing="4" style="margin: auto;">
                 <tbody>
                     <tr>
@@ -54,7 +54,7 @@
             </table>
         </div>
         <div class="col text-center">
-            <h2>@Localizer["Application Administrator"]</h2><br />
+            <h2>@Localizer["ApplicationAdmin"]</h2><br />
             <table class="form-group" cellpadding="4" cellspacing="4" style="margin: auto;">
                 <tbody>
                     <tr>
@@ -96,7 +96,7 @@
     <hr class="app-rule" />
     <div class="row">
         <div class="mx-auto text-center">
-            <button type="button" class="btn btn-success" @onclick="Install">@Localizer["Install Now"]</button><br /><br />
+            <button type="button" class="btn btn-success" @onclick="Install">@Localizer["InstallNow"]</button><br /><br />
             <ModuleMessage Message="@_message" Type="MessageType.Error"></ModuleMessage>
         </div>
         <div class="app-progress-indicator" style="@_loadingDisplay"></div>
@@ -133,7 +133,7 @@
         }
         catch
         {
-            _message = Localizer["Error loading Database Configuration Control"];
+            _message = Localizer["Error.DbConfig.Load"];
         }
     }
 
@@ -204,7 +204,7 @@
         }
         else
         {
-            _message = Localizer["Please Enter All Fields And Ensure Passwords Match And Are Greater Than 5 Characters In Length"];
+            _message = Localizer["Message.Require.DbInfo"];
         }
     }
 

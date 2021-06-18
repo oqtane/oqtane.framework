@@ -207,7 +207,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Log {LogId} {Error}", _logId, ex.Message);
-            AddModuleMessage(Localizer["Error Loading Log"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Log.Load"], MessageType.Error);
         }
     }
 }

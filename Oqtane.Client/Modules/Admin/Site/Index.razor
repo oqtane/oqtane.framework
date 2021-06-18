@@ -84,7 +84,7 @@
                 </td>
                 <td>
                     <select id="defaultTheme" class="form-control" value="@_themetype" @onchange="(e => ThemeChanged(e))">
-                        <option value="-">&lt;@Localizer["Select Theme"]&gt;</option>
+                        <option value="-">&lt;@Localizer["Theme.Select"]&gt;</option>
                         @foreach (var theme in _themes)
                         {
                             <option value="@theme.TypeName">@theme.Name</option>
@@ -98,7 +98,7 @@
                 </td>
                 <td>
                     <select id="defaultContainer" class="form-control" @bind="@_containertype">
-                        <option value="-">&lt;@Localizer["Select Container"]&gt;</option>
+                        <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
                         @foreach (var container in _containers)
                         {
                             <option value="@container.TypeName">@container.Name</option>
@@ -112,8 +112,8 @@
                 </td>
                 <td>
                     <select id="defaultAdminContainer" class="form-control" @bind="@_admincontainertype">
-                        <option value="-">&lt;@Localizer["Select Container"]&gt;</option>
-                        <option value="@Constants.DefaultAdminContainer">&lt;@Localizer["Default Admin Container"]&gt;</option>
+                        <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
+                        <option value="@Constants.DefaultAdminContainer">&lt;@Localizer["DefaultAdminContainer"]&gt;</option>
                         @foreach (var container in _containers)
                         {
                             <option value="@container.TypeName">@container.Name</option>
@@ -127,7 +127,7 @@
         <table class="table table-borderless">
             <tr>
                 <td colspan="2">
-                    <strong>@Localizer["Please Note That SMTP Requires The Notification Job To Be Enabled In Scheduled Jobs"]</strong>
+                    <strong>@Localizer["Smtp.Required.EnableNotificationJob"]</strong>
                 </td>
             </tr>
             <tr>
@@ -182,7 +182,7 @@
                 </td>
             </tr>
         </table>
-        <button type="button" class="btn btn-secondary" @onclick="SendEmail">@Localizer["Test SMTP Configuration"]</button>
+        <button type="button" class="btn btn-secondary" @onclick="SendEmail">@Localizer["Smtp.TestConfig"]</button>
         <br /><br />
     </Section>
     <Section Name="PWA" Heading="Progressive Web Application Settings" ResourceKey="PWASettings">
@@ -249,7 +249,7 @@
     }
     <br />
     <button type="button" class="btn btn-success" @onclick="SaveSite">@Localizer["Save"]</button>
-    <ActionDialog Header="Delete Site" Message="@Localizer["Are You Sure You Wish To Delete This Site?"]" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteSite())" ResourceKey="DeleteSite" />
+    <ActionDialog Header="Delete Site" Message="@Localizer["Confirm.DeleteSite"]" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteSite())" ResourceKey="DeleteSite" />
     <br />
     <br />
     <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
@@ -414,7 +414,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", _themetype, ex.Message);
-            AddModuleMessage(Localizer["Error Loading Pane Layouts For Theme"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Theme.LoadPane"], MessageType.Error);
         }
     }
 
@@ -517,24 +517,24 @@
                         }
                         else
                         {
-                            AddModuleMessage(Localizer["Site Settings Saved"], MessageType.Success);
+                            AddModuleMessage(Localizer["Success.Settings.SaveSite"], MessageType.Success);
                         }
                     }
                 }
                 else
                 {
-                    AddModuleMessage(Localizer["An Alias Specified Has Already Been Used For Another Site"], MessageType.Warning);
+                    AddModuleMessage(Localizer["Message.Aliases.Taken"], MessageType.Warning);
                 }
             }
             else
             {
-                AddModuleMessage(Localizer["You Must Provide A Site Name, Alias, And Default Theme/Container"], MessageType.Warning);
+                AddModuleMessage(Localizer["Message.Required.SiteName"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
-            AddModuleMessage(Localizer["Error Saving Site"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.SaveSite"], MessageType.Error);
         }
     }
 
@@ -558,13 +558,13 @@
             }
             else
             {
-                AddModuleMessage(Localizer["You Are Not Authorized To Delete The Site"], MessageType.Warning);
+                AddModuleMessage(Localizer["Message.FailAuth.DeleteSite"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
-            AddModuleMessage(Localizer["Error Deleting Site"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.DeleteSite"], MessageType.Error);
         }
     }
 
@@ -585,17 +585,17 @@
                 await logger.LogInformation("Site SMTP Settings Saved");
 
                 await NotificationService.AddNotificationAsync(new Notification(PageState.Site.SiteId, PageState.User.DisplayName, PageState.User.Email, PageState.User.DisplayName, PageState.User.Email, PageState.Site.Name + " SMTP Configuration Test", "SMTP Server Is Configured Correctly."));
-                AddModuleMessage(Localizer["SMTP Settings Saved And A Message Has Been Sent To The Email Address Associated To Your User Account... Please Wait A Few Minutes For Delivery. If You Do Not Receive The Email Please Review The Notification Job In Scheduled Jobs For Any Log Details."], MessageType.Info);
+                AddModuleMessage(Localizer["Info.Smtp.SaveSettings"], MessageType.Info);
             }
             catch (Exception ex)
             {
                 await logger.LogError(ex, "Error Testing SMTP Configuration");
-                AddModuleMessage(Localizer["Error Testing SMTP Configuration"], MessageType.Error);
+                AddModuleMessage(Localizer["Error.Smtp.TestConfig"], MessageType.Error);
             }
         }
         else
         {
-            AddModuleMessage(Localizer["You Must Specify The SMTP Host, Port, And Sender"], MessageType.Warning);
+            AddModuleMessage(Localizer["Message.required.Smtp"], MessageType.Warning);
         }
     }
 }

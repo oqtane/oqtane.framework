@@ -118,7 +118,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Job {JobId} {Error}", _jobId, ex.Message);
-            AddModuleMessage(Localizer["Error Loading Job"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Job.Load"], MessageType.Error);
         }
     }
 
@@ -171,12 +171,12 @@
             catch (Exception ex)
             {
                 await logger.LogError(ex, "Error Udate Job {Job} {Error}", job, ex.Message);
-                AddModuleMessage(Localizer["Error Updating Job"], MessageType.Error);
+                AddModuleMessage(Localizer["Error.Job.Update"], MessageType.Error);
             }
         }
         else
         {
-            AddModuleMessage(Localizer["You Must Provide The Job Name, Type, Frequency, and Retention"], MessageType.Warning);
+            AddModuleMessage(Localizer["Message.Required.JobInfo"], MessageType.Warning);
         }
     }
 
