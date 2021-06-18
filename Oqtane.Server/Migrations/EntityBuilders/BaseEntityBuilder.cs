@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
@@ -107,6 +108,16 @@ namespace Oqtane.Migrations.EntityBuilders
         public void AlterStringColumn(string name, int length, bool nullable = false, bool unicode = true)
         {
             _migrationBuilder.AlterColumn<string>(RewriteName(name), RewriteName(EntityTableName), maxLength: length, nullable: nullable, unicode: unicode);
+        }
+
+        public void AddDecimalColumn(string name, int precision, int scale, bool nullable = false)
+        {
+            _migrationBuilder.AddColumn<decimal>(RewriteName(name), RewriteName(EntityTableName), nullable: nullable, precision: precision, scale: scale);
+        }
+
+        protected OperationBuilder<AddColumnOperation> AddDecimalColumn(ColumnsBuilder table, string name, int precision, int scale, bool nullable = false)
+        {
+            return table.Column<decimal>(name: RewriteName(name), nullable: nullable, precision: precision, scale: scale);
         }
 
         public void DropColumn(string name)

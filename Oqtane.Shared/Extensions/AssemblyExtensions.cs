@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Loader;
@@ -100,7 +101,7 @@ namespace System.Reflection
             }
             catch
             {
-                Console.WriteLine($"Not Assembly : {dll.Name}");
+                Debug.WriteLine($"Oqtane Error: Cannot Get Assembly Name For {dll.Name}");
             }
 
             loadContext.LoadOqtaneAssembly(dll, assemblyName);
@@ -122,11 +123,11 @@ namespace System.Reflection
                 {
                     assembly = loadContext.LoadFromStream(new MemoryStream(File.ReadAllBytes(dll.FullName)));
                 }
-                Console.WriteLine($"Loaded : {assemblyName}");
+                Debug.WriteLine($"Oqtane Info: Loaded Assembly {assemblyName}");
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine($"Failed : {assemblyName}\n{e}");
+                Debug.WriteLine($"Oqtane Error: Unable To Load Assembly {assemblyName} - {ex}");
             }
         }
     }

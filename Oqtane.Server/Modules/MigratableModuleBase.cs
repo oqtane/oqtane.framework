@@ -1,10 +1,10 @@
 using System;
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Oqtane.Enums;
 using Oqtane.Models;
 using Oqtane.Repository;
-using Oqtane.Shared;
 
 namespace Oqtane.Modules
 {
@@ -28,9 +28,9 @@ namespace Oqtane.Modules
                         migrator.Migrate();
                     }
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    Console.WriteLine(e);
+                    Debug.WriteLine($"Oqtane Error: Error Executing Migration - {ex}");
                     result = false;
                 }
 
