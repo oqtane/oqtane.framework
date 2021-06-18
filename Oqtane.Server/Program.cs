@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Infrastructure;
+using System.Diagnostics;
 
 namespace Oqtane.Server
 {
@@ -15,7 +16,11 @@ namespace Oqtane.Server
             using (var serviceScope = host.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 var databaseManager = serviceScope.ServiceProvider.GetService<IDatabaseManager>();
-                databaseManager.Install();
+                var install = databaseManager.Install();
+                if (!string.IsNullOrEmpty(install.Message))
+                {
+                    Debug.WriteLine($"Oqtane Error: {install.Message}");
+                }
             }
             host.Run();
         }

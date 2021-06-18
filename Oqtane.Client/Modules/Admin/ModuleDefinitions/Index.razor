@@ -103,7 +103,7 @@ else
         {
             await ModuleDefinitionService.DeleteModuleDefinitionAsync(moduleDefinition.ModuleDefinitionId, moduleDefinition.SiteId);
             AddModuleMessage(Localizer["Success.Module.Delete"], MessageType.Success);
-            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "reload"));
+            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, true));
         }
         catch (Exception ex)
         {

@@ -22,7 +22,19 @@ namespace [Owner].[Module].Repository
 
         public Models.[Module] Get[Module](int [Module]Id)
         {
-            return _db.[Module].Find([Module]Id);
+            return Get[Module]([Module]Id, true);
+        }
+
+        public Models.[Module] Get[Module](int [Module]Id, bool tracking)
+        {
+            if (tracking)
+            {
+                return _db.[Module].Find([Module]Id);
+            }
+            else
+            {
+                return _db.[Module].AsNoTracking().FirstOrDefault(item => item.[Module]Id == [Module]Id);
+            }
         }
 
         public Models.[Module] Add[Module](Models.[Module] [Module])

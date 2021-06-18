@@ -10,6 +10,7 @@
 @inject ILogService logger
 @inject ISettingService SettingService
 @inject IStringLocalizer<ControlPanel> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_moduleDefinitions != null && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions))
 {
@@ -41,13 +42,13 @@
                     </div>
                     <div class="row">
                         <div class="col">
-                            <button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Navigate("Add"))>@Localizer["Add"]</button>
+                            <button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Navigate("Add"))>@SharedLocalizer["Add"]</button>
                         </div>
                         <div class="col">
-                            <button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Navigate("Edit"))>@Localizer["Edit"]</button>
+                            <button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Navigate("Edit"))>@SharedLocalizer["Edit"]</button>
                         </div>
                         <div class="col">
-                            <button class="btn btn-danger btn-block mx-auto" @onclick="ConfirmDelete">@Localizer["Delete"]</button>
+                            <button class="btn btn-danger btn-block mx-auto" @onclick="ConfirmDelete">@SharedLocalizer["Delete"]</button>
                         </div>
                     </div>
                     <br />
@@ -81,8 +82,8 @@
                                         <p>Are You Sure You Want To Delete This Page?</p>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-danger" @onclick="DeletePage">@Localizer["Delete"]</button>
-                                        <button type="button" class="btn btn-secondary" @onclick="ConfirmDelete">@Localizer["Cancel"]</button>
+                                        <button type="button" class="btn btn-danger" @onclick="DeletePage">@SharedLocalizer["Delete"]</button>
+                                        <button type="button" class="btn btn-secondary" @onclick="ConfirmDelete">@SharedLocalizer["Cancel"]</button>
                                     </div>
                                 </div>
                             </div>
@@ -537,7 +538,7 @@
             }
             page.Permissions = UserSecurity.SetPermissionStrings(permissions);
             await PageService.UpdatePageAsync(page);
-            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "reload"));
+            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, true));
         }
     }
 

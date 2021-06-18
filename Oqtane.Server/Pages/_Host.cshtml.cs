@@ -38,7 +38,6 @@ namespace Oqtane.Pages
         public RenderMode RenderMode = RenderMode.Server;
         public string HeadResources = "";
         public string BodyResources = "";
-        public string Message = "";
 
         public void OnGet()
         {

@@ -9,7 +9,8 @@ namespace Oqtane.Repository
         Alias AddAlias(Alias alias);
         Alias UpdateAlias(Alias alias);
         Alias GetAlias(int aliasId);
-        Alias GetAlias(string name);
+        Alias GetAlias(int aliasId, bool tracking);
+        Alias GetAlias(string url);
         void DeleteAlias(int aliasId);
     }
 }

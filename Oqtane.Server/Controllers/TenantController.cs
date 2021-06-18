@@ -36,40 +36,5 @@ namespace Oqtane.Controllers
         {
             return _tenants.GetTenant(id);
         }
-
-        // POST api/<controller>
-        [HttpPost]
-        [Authorize(Roles = RoleNames.Host)]
-        public Tenant Post([FromBody] Tenant tenant)
-        {
-            if (ModelState.IsValid)
-            {
-                tenant = _tenants.AddTenant(tenant);
-                _logger.Log(LogLevel.Information, this, LogFunction.Create, "Tenant Added {TenantId}", tenant.TenantId);
-            }
-            return tenant;
-        }
-
-        // PUT api/<controller>/5
-        [HttpPut("{id}")]
-        [Authorize(Roles = RoleNames.Host)]
-        public Tenant Put(int id, [FromBody] Tenant tenant)
-        {
-            if (ModelState.IsValid)
-            {
-                tenant = _tenants.UpdateTenant(tenant);
-                _logger.Log(LogLevel.Information, this, LogFunction.Update, "Tenant Updated {TenantId}", tenant.TenantId);
-            }
-            return tenant;
-        }
-
-        // DELETE api/<controller>/5
-        [HttpDelete("{id}")]
-        [Authorize(Roles = RoleNames.Host)]
-        public void Delete(int id)
-        {
-            _tenants.DeleteTenant(id);
-            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Tenant Deleted {TenantId}", id);
-        }
     }
 }

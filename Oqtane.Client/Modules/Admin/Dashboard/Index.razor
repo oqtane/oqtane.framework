@@ -2,7 +2,7 @@
 @inherits ModuleBase
 @inject IPageService PageService
 @inject IUserService UserService
-@inject IStringLocalizer<SharedResources> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <div class="row">
     @foreach (var p in _pages)
@@ -12,7 +12,7 @@
             string url = NavigateUrl(p.Path);
             <div class="col-md-2 mx-auto text-center">
                 <NavLink class="nav-link" href="@url" Match="NavLinkMatch.All">
-                    <h2><span class="@p.Icon" aria-hidden="true"></span></h2>@Localizer[p.Name]
+                    <h2><span class="@p.Icon" aria-hidden="true"></span></h2>@SharedLocalizer[p.Name]
                 </NavLink>
             </div>
         }

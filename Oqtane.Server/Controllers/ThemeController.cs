@@ -11,6 +11,7 @@ using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using System.Text.Json;
+using System.Net;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
@@ -84,6 +85,11 @@ namespace Oqtane.Controllers
                 _themes.DeleteTheme(theme.ThemeName);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Theme Removed For {ThemeName}", theme.ThemeName);
             }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Theme Delete Attempt {Themename}", themename);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            }
         }
 
         // GET: api/<controller>/templates
@@ -140,6 +146,12 @@ namespace Oqtane.Controllers
 
                 ProcessTemplatesRecursively(new DirectoryInfo(templatePath), rootPath, rootFolder.Name, templatePath, theme);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Theme Created {Theme}", theme);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Theme Post Attempt {Theme}", theme);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                theme = null;
             }
 
             return theme;

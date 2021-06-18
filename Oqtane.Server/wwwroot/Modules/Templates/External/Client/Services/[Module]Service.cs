@@ -11,14 +11,9 @@ namespace [Owner].[Module].Services
 {
     public class [Module]Service : ServiceBase, I[Module]Service, IService
     {
-        private readonly SiteState _siteState;
+        public [Module]Service(HttpClient http, SiteState siteState) : base(http, siteState) { }
 
-        public [Module]Service(HttpClient http, SiteState siteState) : base(http)
-        {
-            _siteState = siteState;
-        }
-
-        private string Apiurl => CreateApiUrl("[Module]", _siteState.Alias);
+        private string Apiurl => CreateApiUrl("[Module]");
 
         public async Task<List<Models.[Module]>> Get[Module]sAsync(int ModuleId)
         {

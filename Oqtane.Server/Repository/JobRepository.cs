@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -46,6 +46,19 @@ namespace Oqtane.Repository
         public Job GetJob(int jobId)
         {
             return _db.Job.Find(jobId);
+        }
+
+        public Job GetJob(int jobId, bool tracking)
+        {
+            if (tracking)
+            {
+                return _db.Job.Find(jobId);
+            }
+            else
+            {
+                return _db.Job.AsNoTracking().FirstOrDefault(item => item.JobId == jobId);
+            }
+
         }
 
         public void DeleteJob(int jobId)
