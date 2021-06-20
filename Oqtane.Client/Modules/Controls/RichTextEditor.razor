@@ -143,6 +143,8 @@
 
             await interop.LoadEditorContent(_editorElement, Content);
 
+            _content = Content; // raw HTML
+
             // preserve a copy of the rich text content ( Quill sanitizes content so we need to retrieve it from the editor )
             _original = await interop.GetHtml(_editorElement);
         }
