@@ -186,4 +186,7 @@
   <data name="Title" xml:space="preserve">
     <value>Title:</value>
   </data>
+  <data name="System.Update" xml:space="preserve">
+    <value>Check For System Updates</value>
+  </data>
 </root>

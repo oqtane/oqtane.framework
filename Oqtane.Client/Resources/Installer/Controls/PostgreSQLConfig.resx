@@ -117,7 +117,46 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Register" xml:space="preserve">
-    <value>Register</value>
+  <data name="Server.Text" xml:space="preserve">
+    <value>Server:</value>
+  </data>
+  <data name="Server.HelpText" xml:space="preserve">
+    <value>Enter the database server</value>
+  </data>
+  <data name="Port.Text" xml:space="preserve">
+    <value>Port:</value>
+  </data>
+  <data name="Port.HelpText" xml:space="preserve">
+    <value>Enter the port used to connect to the server</value>
+  </data>
+  <data name="Database.Text" xml:space="preserve">
+    <value>Database:</value>
+  </data>
+  <data name="Database.HelpText" xml:space="preserve">
+    <value>Enter the name of the database</value>
+  </data>
+  <data name="IntegratedSecurity.Text" xml:space="preserve">
+    <value>Integrated Security:</value>
+  </data>
+  <data name="IntegratedSecurity.HelpText" xml:space="preserve">
+    <value>Select if you want integrated security or not</value>
+  </data>
+  <data name="Uid.Text" xml:space="preserve">
+    <value>User Id:</value>
+  </data>
+  <data name="Uid.HelpText" xml:space="preserve">
+    <value>Enter the username to use for the database</value>
+  </data>
+  <data name="Pwd.Text" xml:space="preserve">
+    <value>Password:</value>
+  </data>
+  <data name="Pwd.HelpText" xml:space="preserve">
+    <value>Enter the password to use for the database</value>
+  </data>
+  <data name="True" xml:space="preserve">
+    <value>Wahr</value>
+  </data>
+  <data name="False" xml:space="preserve">
+    <value>Falsch</value>
   </data>
 </root>

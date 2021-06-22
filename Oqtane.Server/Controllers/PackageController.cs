@@ -21,41 +21,29 @@ namespace Oqtane.Controllers
     {
         private readonly IInstallationManager _installationManager;
         private readonly IWebHostEnvironment _environment;
+        private readonly IConfigManager _configManager;
         private readonly ILogManager _logger;
 
-        public PackageController(IInstallationManager installationManager, IWebHostEnvironment environment, ILogManager logger)
+        public PackageController(IInstallationManager installationManager, IWebHostEnvironment environment, IConfigManager configManager, ILogManager logger)
         {
             _installationManager = installationManager;
             _environment = environment;
+            _configManager = configManager;
             _logger = logger;
         }
 
-        // GET: api/<controller>?tag=x
+        // GET: api/<controller>?type=x&search=y
         [HttpGet]
         [Authorize(Roles = RoleNames.Host)]
-        public async Task<IEnumerable<Package>> Get(string tag)
+        public async Task<IEnumerable<Package>> Get(string type, string search)
         {
-            List<Package> packages = new List<Package>();
-
-            using (var httpClient = new HttpClient())
+            // get packages
+            List<Package> packages;
+            using (var client = new HttpClient())
             {
-                var searchResult = await GetJson<SearchResult>(httpClient, "https://azuresearch-usnc.nuget.org/query?q=tags:oqtane");
-                foreach(Data data in searchResult.Data)
-                {
-                    if (data.Tags.Contains(tag))
-                    {
-                        Package package = new Package();
-                        package.PackageId = data.Id;
-                        package.Name = data.Title;
-                        package.Description = data.Description;
-                        package.Owner = data.Authors[0];
-                        package.Version = data.Version;
-                        package.Downloads = data.TotalDownloads;
-                        packages.Add(package);
-                    }
-                }
+                client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Host.Value);
+                packages = await GetJson<List<Package>>(client, Constants.PackageRegistryUrl + $"/api/registry/packages/?installationid={GetInstallationId()}&type={type.ToLower()}&version={Constants.Version}&search={search}");
             }
-
             return packages;
         }
 
@@ -63,17 +51,39 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Host)]
         public async Task Post(string packageid, string version, string folder)
         {
-            using (var httpClient = new HttpClient())
+            // get package info
+            Package package = null;
+            using (var client = new HttpClient())
             {
-                folder = Path.Combine(_environment.ContentRootPath, folder);
-                var response = await httpClient.GetAsync("https://www.nuget.org/api/v2/package/" + packageid.ToLower() + "/" + version).ConfigureAwait(false);
-                response.EnsureSuccessStatusCode();
-                string filename = packageid + "." + version + ".nupkg";
-                using (var fileStream = new FileStream(Path.Combine(folder, filename), FileMode.Create, FileAccess.Write, FileShare.None))
+                client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Host.Value);
+                package = await GetJson<Package>(client, Constants.PackageRegistryUrl + $"/api/registry/package/?installationid={GetInstallationId()}&packageid={packageid}&version={version}");
+            }
+
+            if (package != null)
+            {
+                using (var httpClient = new HttpClient())
                 {
-                    await response.Content.CopyToAsync(fileStream).ConfigureAwait(false);
+                    folder = Path.Combine(_environment.ContentRootPath, folder);
+                    var response = await httpClient.GetAsync(package.PackageUrl).ConfigureAwait(false);
+                    response.EnsureSuccessStatusCode();
+                    string filename = packageid + "." + version + ".nupkg";
+                    using (var fileStream = new FileStream(Path.Combine(folder, filename), FileMode.Create, FileAccess.Write, FileShare.None))
+                    {
+                        await response.Content.CopyToAsync(fileStream).ConfigureAwait(false);
+                    }
                 }
             }
+        }
+
+        private string GetInstallationId()
+        {
+            var installationid = _configManager.GetSetting("InstallationId", "");
+            if (installationid == "")
+            {
+                installationid = Guid.NewGuid().ToString();
+                _configManager.AddOrUpdateSetting("InstallationId", installationid, true);
+            }
+            return installationid;
         }
 
         private async Task<T> GetJson<T>(HttpClient httpClient, string url)
