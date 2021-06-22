@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -82,6 +84,13 @@ namespace Oqtane.Repository
             DbContextUtils.SaveChanges(this, _accessor);
 
             return base.SaveChanges();
+        }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            DbContextUtils.SaveChanges(this, _accessor);
+
+            return base.SaveChangesAsync(cancellationToken);
         }
 
         [Obsolete("This constructor is obsolete. Use DBContextBase(ITenantManager tenantManager, IHttpContextAccessor httpContextAccessor) instead.", false)]
