@@ -116,6 +116,11 @@ The following diagram visualizes the client and server components in the Oqtane 
 
 ![Architecture](https://github.com/oqtane/framework/blob/master/screenshots/Architecture.png?raw=true "Oqtane Architecture")
 
+# Databases
+
+As of version 2.1, Oqtane supports multiple relational database providers.
+
+![Databases](https://github.com/oqtane/framework/blob/master/screenshots/databases.png?raw=true "Oqtane Databases")
 
 # Example Screenshots
 
