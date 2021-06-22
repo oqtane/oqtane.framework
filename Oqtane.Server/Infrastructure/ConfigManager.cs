@@ -102,7 +102,10 @@ namespace Oqtane.Infrastructure
                         jsonObj[currentSection] = value;
                         break;
                     case "remove":
-                        jsonObj.Property(currentSection).Remove();
+                        if (jsonObj.Property(currentSection) != null)
+                        {
+                            jsonObj.Property(currentSection).Remove();
+                        }
                         break;
                 }
             }

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -153,8 +153,8 @@
   <data name="AllLanguages" xml:space="preserve">
     <value>All The Installed Languages Have Been Added.</value>
   </data>
-  <data name="Error.Langauge.Download" xml:space="preserve">
-    <value>Error Downloading Language Package</value>
+  <data name="Error.Language.Download" xml:space="preserve">
+    <value>Error Downloading Translation</value>
   </data>
   <data name="Install" xml:space="preserve">
     <value>Install</value>
@@ -163,12 +163,9 @@
     <value>The Only Installed Language Is English</value>
   </data>
   <data name="Success.Language.Download" xml:space="preserve">
-    <value>Language Package Downloaded Successfully. Click Install To Complete Installation.</value>
+    <value>Translation Downloaded Successfully. Click Install To Complete Installation.</value>
   </data>
   <data name="Success.Language.Install" xml:space="preserve">
-    <value>Language Packages Installed Successfully. You Must &lt;a href=\"{0}\"&gt;Restart&lt;/a&gt; Your Application To Apply These Changes.</value>
-  </data>
-  <data name="Version" xml:space="preserve">
-    <value>Version</value>
+    <value>Translations Installed Successfully. You Must &lt;a href=\"{0}\"&gt;Restart&lt;/a&gt; Your Application To Apply These Changes.</value>
   </data>
 </root>

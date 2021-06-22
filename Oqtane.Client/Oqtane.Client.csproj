@@ -36,5 +36,6 @@
 
   <ItemGroup>
     <Folder Include="Resources\" />
+    <Folder Include="Resources\Themes\Controls\Theme\" />
   </ItemGroup>
 </Project>

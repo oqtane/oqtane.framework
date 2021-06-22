@@ -22,7 +22,7 @@ else
             <th style="width: 1px;">&nbsp;</th>
         </Header>
         <Row>
-            <td><ActionDialog Header="Delete Langauge" Message="@string.Format(Localizer["Confirm.Langauge.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteLanguage(context))" Disabled="@((context.IsDefault && _languages.Count > 2) || context.Code == Constants.DefaultCulture)" ResourceKey="DeleteLanguage" /></td>
+            <td><ActionDialog Header="Delete Language" Message="@string.Format(Localizer["Confirm.Language.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteLanguage(context))" Disabled="@((context.IsDefault && _languages.Count > 2) || context.Code == Constants.DefaultCulture)" ResourceKey="DeleteLanguage" /></td>
             <td>@context.Name</td>
             <td>@context.Code</td>
             <td><TriStateCheckBox Value="@(context.IsDefault)" Disabled="true"></TriStateCheckBox></td>
@@ -54,7 +54,7 @@ else
 
         if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
         {
-            _packages = await PackageService.GetPackagesAsync("language");
+            _packages = await PackageService.GetPackagesAsync("translation");
         }
     }
 
@@ -97,15 +97,15 @@ else
             if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
             {
                 await PackageService.DownloadPackageAsync(Constants.PackageId + ".Client." + code, Constants.Version, "Packages");
-                await logger.LogInformation("Language Package Downloaded {Code} {Version}", code, Constants.Version);
+                await logger.LogInformation("Translation Downloaded {Code} {Version}", code, Constants.Version);
                 await PackageService.InstallPackagesAsync();
                 AddModuleMessage(string.Format(Localizer["Success.Language.Install"], NavigateUrl("admin/system")), MessageType.Success);
             }
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Downloading Language Package {Code} {Version} {Error}", code, Constants.Version, ex.Message);
-            AddModuleMessage(Localizer["Error.Langauge.Download"], MessageType.Error);
+            await logger.LogError(ex, "Error Downloading Translation {Code} {Version} {Error}", code, Constants.Version, ex.Message);
+            AddModuleMessage(Localizer["Error.Language.Download"], MessageType.Error);
         }
     }
 }

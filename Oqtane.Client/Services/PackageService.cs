@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using Oqtane.Documentation;
 using Oqtane.Shared;
+using System.Net;
 
 namespace Oqtane.Services
 {
@@ -19,10 +20,15 @@ namespace Oqtane.Services
         }
         private string Apiurl => CreateApiUrl("Package", _siteState.Alias);
 
-        public async Task<List<Package>> GetPackagesAsync(string tag)
+        public async Task<List<Package>> GetPackagesAsync(string type)
         {
-            List<Package> packages = await GetJsonAsync<List<Package>>($"{Apiurl}?tag={tag}");
-            return packages.OrderByDescending(item => item.Downloads).ToList();
+            return await GetPackagesAsync(type, "");
+        }
+
+        public async Task<List<Package>> GetPackagesAsync(string type, string search)
+        {
+            List<Package> packages = await GetJsonAsync<List<Package>>($"{Apiurl}?type={type}&search={WebUtility.UrlEncode(search)}");
+            return packages.OrderByDescending(item => item.Downloads).ToList(); // order by popularity
         }
 
         public async Task DownloadPackageAsync(string packageId, string version, string folder)

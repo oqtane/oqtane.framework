@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -123,12 +123,6 @@
   <data name="Download" xml:space="preserve">
     <value>Download</value>
   </data>
-  <data name="Name" xml:space="preserve">
-    <value>Name</value>
-  </data>
-  <data name="Version" xml:space="preserve">
-    <value>Version</value>
-  </data>
   <data name="Install" xml:space="preserve">
     <value>Install</value>
   </data>
@@ -142,7 +136,7 @@
     <value>Theme Installed Successfully. You Must &lt;a href=\"{0}\"&gt;Restart&lt;/a&gt; Your Application To Apply These Changes.</value>
   </data>
   <data name="Success.Theme.Download" xml:space="preserve">
-    <value>Themes Downloaded Successfully. Click Install To Complete Installation.</value>
+    <value>Theme Downloaded Successfully. Click Install To Complete Installation.</value>
   </data>
   <data name="Error.Theme.Download" xml:space="preserve">
     <value>Error Downloading Theme</value>
