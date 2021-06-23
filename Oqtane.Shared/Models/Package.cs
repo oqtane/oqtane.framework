@@ -58,8 +58,8 @@ namespace Oqtane.Models
         public string PackageUrl { get; set; }
 
         /// <summary>
-        /// Indicates if any known security vulnerabilities exist ( only applicable to framework packages )
+        /// Indicates if any known security vulnerabilities exist 
         /// </summary>
-        public int Vulnerability { get; set; }
+        public int Vulnerabilities { get; set; }
     }
 }
