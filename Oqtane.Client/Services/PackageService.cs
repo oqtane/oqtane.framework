@@ -27,8 +27,7 @@ namespace Oqtane.Services
 
         public async Task<List<Package>> GetPackagesAsync(string type, string search)
         {
-            List<Package> packages = await GetJsonAsync<List<Package>>($"{Apiurl}?type={type}&search={WebUtility.UrlEncode(search)}");
-            return packages.OrderByDescending(item => item.Downloads).ToList(); // order by popularity
+            return await GetJsonAsync<List<Package>>($"{Apiurl}?type={type}&search={WebUtility.UrlEncode(search)}");
         }
 
         public async Task DownloadPackageAsync(string packageId, string version, string folder)

@@ -210,4 +210,25 @@
   <data name="Upload" xml:space="preserve">
     <value>Upload</value>
   </data>
+  <data name="Reset" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Search.Hint" xml:space="preserve">
+    <value>Enter Search Term</value>
+  </data>
+  <data name="Search.By" xml:space="preserve">
+    <value>by</value>
+  </data>
+  <data name="Search.Downloads" xml:space="preserve">
+    <value>downloads</value>
+  </data>
+  <data name="Search.Released" xml:space="preserve">
+    <value>release date</value>
+  </data>
+  <data name="Search.Version" xml:space="preserve">
+    <value>version</value>
+  </data>
 </root>

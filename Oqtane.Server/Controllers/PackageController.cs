@@ -6,12 +6,12 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.IO;
-using System.Linq;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Authorization;
 using Oqtane.Shared;
 using Oqtane.Infrastructure;
 using Oqtane.Enums;
+using System.Net.Http.Headers;
 // ReSharper disable PartialTypeWithSinglePart
 
 namespace Oqtane.Controllers
@@ -41,8 +41,9 @@ namespace Oqtane.Controllers
             List<Package> packages;
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Host.Value);
-                packages = await GetJson<List<Package>>(client, Constants.PackageRegistryUrl + $"/api/registry/packages/?installationid={GetInstallationId()}&type={type.ToLower()}&version={Constants.Version}&search={search}");
+                client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value);
+                client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Constants.PackageId, Constants.Version));
+                packages = await GetJson<List<Package>>(client, Constants.PackageRegistryUrl + $"/api/registry/packages/?id={GetInstallationId()}&type={type.ToLower()}&version={Constants.Version}&search={search}");
             }
             return packages;
         }
@@ -55,8 +56,9 @@ namespace Oqtane.Controllers
             Package package = null;
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Host.Value);
-                package = await GetJson<Package>(client, Constants.PackageRegistryUrl + $"/api/registry/package/?installationid={GetInstallationId()}&packageid={packageid}&version={version}");
+                client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value);
+                client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Constants.PackageId, Constants.Version));
+                package = await GetJson<Package>(client, Constants.PackageRegistryUrl + $"/api/registry/package/?id={GetInstallationId()}&package={packageid}&version={version}");
             }
 
             if (package != null)

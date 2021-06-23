@@ -5,6 +5,7 @@
 @inject IThemeService ThemeService
 @inject IPackageService PackageService
 @inject IStringLocalizer<Add> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_packages != null)
 {
@@ -13,12 +14,25 @@
         {
             <TabPanel Name="Download" ResourceKey="Download">
                 <ModuleMessage Type="MessageType.Info" Message="Download one or more themes from the list below. Once you are ready click Install to complete the installation."></ModuleMessage>
+
+                <table class="table table-borderless" style=" margin: auto; width: 50% !important;">
+                    <tr>
+                        <td>
+                            <input id="search" class="form-control" placeholder="@SharedLocalizer["Search.Hint"]" @bind="@_search" />
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-primary" @onclick="Search">@SharedLocalizer["Search"]</button>&nbsp;
+                            <button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Reset"]</button>
+                        </td>
+                    </tr>
+                </table>
+
                 <Pager Items="@_packages">
                     <Row>
                         <td>
-                            <h3 style="display: inline;"><a href="@context.ProductUrl" target="_new">@context.Name</a></h3>&nbsp;&nbsp;by:&nbsp;&nbsp;<strong><a href="@context.OwnerUrl" target="new">@context.Owner</a></strong><br />
-                            <strong>@context.Downloads.ToString("###,###,##0")</strong> downloads&nbsp;&nbsp;|&nbsp;&nbsp; released: <strong>@context.ReleaseDate.ToString("MMM dd, yyyy")</strong>&nbsp;&nbsp;|&nbsp;&nbsp;version: <strong>@context.Version</strong><br />
-                            @(context.Description.Length > 400 ? (context.Description.Substring(0, 400) + "...") : context.Description)
+                            <h3 style="display: inline;"><a href="@context.ProductUrl" target="_new">@context.Name</a></h3>&nbsp;&nbsp;@SharedLocalizer["Search.By"]:&nbsp;&nbsp;<strong><a href="@context.OwnerUrl" target="new">@context.Owner</a></strong><br />
+                            @(context.Description.Length > 400 ? (context.Description.Substring(0, 400) + "...") : context.Description)<br />
+                            <strong>@(String.Format("{0:n0}", context.Downloads))</strong> @SharedLocalizer["Search.Downloads"]&nbsp;&nbsp;|&nbsp;&nbsp; @SharedLocalizer["Search.Released"]: <strong>@context.ReleaseDate.ToString("MMM dd, yyyy")</strong>&nbsp;&nbsp;|&nbsp;&nbsp;@SharedLocalizer["Search.Version"]: <strong>@context.Version</strong>
                         </td>
                         <td style="vertical-align: middle;">
                             <button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadTheme(context.PackageId, context.Version))>@Localizer["Download"]</button>
@@ -47,6 +61,7 @@
 
 @code {
     private List<Package> _packages;
+    private string _search = "";
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
@@ -54,21 +69,51 @@
     {
         try
         {
-            var themes = await ThemeService.GetThemesAsync();
-            _packages = await PackageService.GetPackagesAsync("theme");
-
-            foreach (Package package in _packages.ToArray())
-            {
-                if (themes.Exists(item => item.PackageName == package.PackageId))
-                {
-                    _packages.Remove(package);
-                }
-            }
+            await LoadThemes();
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Packages {Error}", ex.Message);
             AddModuleMessage(Localizer["Error.Package.Load"], MessageType.Error);
+        }
+    }
+
+    private async Task LoadThemes()
+    {
+        var themes = await ThemeService.GetThemesAsync();
+        _packages = await PackageService.GetPackagesAsync("theme", _search);
+
+        foreach (Package package in _packages.ToArray())
+        {
+            if (themes.Exists(item => item.PackageName == package.PackageId))
+            {
+                _packages.Remove(package);
+            }
+        }
+    }
+
+    private async Task Search()
+    {
+        try
+        {
+            await LoadThemes();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error On Search");
+        }
+    }
+
+    private async Task Reset()
+    {
+        try
+        {
+            _search = "";
+            await LoadThemes();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error On Reset");
         }
     }
 
