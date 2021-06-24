@@ -67,13 +67,23 @@ namespace Oqtane.Controllers
                 {
                     folder = Path.Combine(_environment.ContentRootPath, folder);
                     var response = await httpClient.GetAsync(package.PackageUrl).ConfigureAwait(false);
-                    response.EnsureSuccessStatusCode();
-                    string filename = packageid + "." + version + ".nupkg";
-                    using (var fileStream = new FileStream(Path.Combine(folder, filename), FileMode.Create, FileAccess.Write, FileShare.None))
+                    if (response.IsSuccessStatusCode)
                     {
-                        await response.Content.CopyToAsync(fileStream).ConfigureAwait(false);
+                        string filename = packageid + "." + version + ".nupkg";
+                        using (var fileStream = new FileStream(Path.Combine(folder, filename), FileMode.Create, FileAccess.Write, FileShare.None))
+                        {
+                            await response.Content.CopyToAsync(fileStream).ConfigureAwait(false);
+                        }
+                    }
+                    else
+                    {
+                        _logger.Log(LogLevel.Error, this, LogFunction.Create, "Could Not Download {PackageUrl}", package.PackageUrl);
                     }
                 }
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Create, "Package {PackageId}.{Version} Is Not Registered", packageid, version);
             }
         }
 
@@ -92,16 +102,19 @@ namespace Oqtane.Controllers
         {
             Uri uri = new Uri(url);
             var response = await httpClient.GetAsync(uri).ConfigureAwait(false);
-            response.EnsureSuccessStatusCode();
-            var stream = await response.Content.ReadAsStreamAsync();
-            using (var streamReader = new StreamReader(stream))
+            if (response.IsSuccessStatusCode)
             {
-                using (var jsonTextReader = new JsonTextReader(streamReader))
+                var stream = await response.Content.ReadAsStreamAsync();
+                using (var streamReader = new StreamReader(stream))
                 {
-                    var serializer = new JsonSerializer();
-                    return serializer.Deserialize<T>(jsonTextReader);
+                    using (var jsonTextReader = new JsonTextReader(streamReader))
+                    {
+                        var serializer = new JsonSerializer();
+                        return serializer.Deserialize<T>(jsonTextReader);
+                    }
                 }
             }
+            return default(T);
         }
 
         [HttpGet("install")]
