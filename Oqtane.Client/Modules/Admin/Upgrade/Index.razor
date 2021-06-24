@@ -6,37 +6,34 @@
 @inject IInstallationService InstallationService
 @inject IStringLocalizer<Index> Localizer
 
-@if (_package != null)
-{
-    <TabStrip>
-        <TabPanel Name="Download" ResourceKey="Download">
-            @if (_upgradeavailable)
-            {
-                <ModuleMessage Type="MessageType.Info" Message="Select The Download Button To Download The Framework Upgrade Package And Then Select Upgrade"></ModuleMessage>
-                <button type="button" class="btn btn-primary" @onclick=@(async () => await Download(Constants.PackageId, @_package.Version))>@Localizer["Download"] @_package.Version</button>
-                <button type="button" class="btn btn-success" @onclick="Upgrade">@Localizer["Upgrade"]</button>
-            }
-            else
-            {
-                <ModuleMessage Type="MessageType.Info" Message="Framework Is Already Up To Date"></ModuleMessage>
-            }
-        </TabPanel>
-        <TabPanel Name="Upload" ResourceKey="Upload">
-            <ModuleMessage Type="MessageType.Info" Message="Upload A Framework Package (Oqtane.Framework.version.nupkg) And Then Select Upgrade"></ModuleMessage>
-            <table class="table table-borderless">
-                <tr>
-                    <td>
-                        <Label HelpText="Upload A Framework Package And Then Select Upgrade" ResourceKey="Framework">Framework: </Label>
-                    </td>
-                    <td>
-                        <FileManager Filter="nupkg" ShowFiles="false" Folder="Packages" />
-                    </td>
-                </tr>
-            </table>
+<TabStrip>
+    <TabPanel Name="Download" ResourceKey="Download">
+        @if (_package != null && _upgradeavailable)
+        {
+            <ModuleMessage Type="MessageType.Info" Message="Select The Download Button To Download The Framework Upgrade Package And Then Select Upgrade"></ModuleMessage>
+            <button type="button" class="btn btn-primary" @onclick=@(async () => await Download(Constants.PackageId, @_package.Version))>@Localizer["Download"] @_package.Version</button>
             <button type="button" class="btn btn-success" @onclick="Upgrade">@Localizer["Upgrade"]</button>
-        </TabPanel>
-    </TabStrip>
-}
+        }
+        else
+        {
+            <ModuleMessage Type="MessageType.Info" Message="Framework Is Already Up To Date"></ModuleMessage>
+        }
+    </TabPanel>
+    <TabPanel Name="Upload" ResourceKey="Upload">
+        <ModuleMessage Type="MessageType.Info" Message="Upload A Framework Package (Oqtane.Framework.version.nupkg) And Then Select Upgrade"></ModuleMessage>
+        <table class="table table-borderless">
+            <tr>
+                <td>
+                    <Label HelpText="Upload A Framework Package And Then Select Upgrade" ResourceKey="Framework">Framework: </Label>
+                </td>
+                <td>
+                    <FileManager Filter="nupkg" ShowFiles="false" Folder="Packages" />
+                </td>
+            </tr>
+        </table>
+        <button type="button" class="btn btn-success" @onclick="Upgrade">@Localizer["Upgrade"]</button>
+    </TabPanel>
+</TabStrip>
 
 @code {
     private Package _package;

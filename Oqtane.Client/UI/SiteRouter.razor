@@ -172,13 +172,8 @@
             }
 
             // format path and remove alias
-            path = path.Replace("//", "/");
-
-            if (!path.EndsWith("/"))
-            {
-                path += "/";
-            }
-
+            path = path.Replace("//", "/"); // in case of doubleslash at end
+            path += (!path.EndsWith("/")) ? "/" : "";
             if (SiteState.Alias.Path != "" && path.StartsWith(SiteState.Alias.Path))
             {
                 path = path.Substring(SiteState.Alias.Path.Length + 1);
