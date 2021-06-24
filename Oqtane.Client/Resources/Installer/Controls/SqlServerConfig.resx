@@ -148,9 +148,9 @@
     <value>Enter the password to use for the database</value>
   </data>
   <data name="True" xml:space="preserve">
-    <value>Wahr</value>
+    <value>True</value>
   </data>
   <data name="False" xml:space="preserve">
-    <value>Falsch</value>
+    <value>False</value>
   </data>
 </root>
