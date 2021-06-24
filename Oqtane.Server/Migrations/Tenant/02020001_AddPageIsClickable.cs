@@ -7,7 +7,7 @@ using Oqtane.Repository;
 namespace Oqtane.Migrations.Tenant
 {
     [DbContext(typeof(TenantDBContext))]
-    [Migration("Tenant.02.01.01.00")]
+    [Migration("Tenant.02.02.00.01")]
     public class AddPageIsClickable : MultiDatabaseMigration
     {
         public AddPageIsClickable(IDatabase database) : base(database)
@@ -18,7 +18,7 @@ namespace Oqtane.Migrations.Tenant
         {
             var pageEntityBuilder = new PageEntityBuilder(migrationBuilder, ActiveDatabase);
 
-            pageEntityBuilder.AddBooleanColumn("IsClickable");
+            pageEntityBuilder.AddBooleanColumn("IsClickable", true);
             pageEntityBuilder.UpdateColumn("IsClickable", "1");
         }
 

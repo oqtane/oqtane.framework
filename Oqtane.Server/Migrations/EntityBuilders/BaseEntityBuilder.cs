@@ -45,9 +45,9 @@ namespace Oqtane.Migrations.EntityBuilders
             return  ActiveDatabase.AddAutoIncrementColumn(table, RewriteName(name));
         }
 
-        public void AddBooleanColumn(string name)
+        public void AddBooleanColumn(string name, bool nullable = false)
         {
-            _migrationBuilder.AddColumn<bool>(RewriteName(name), RewriteName(EntityTableName));
+            _migrationBuilder.AddColumn<bool>(RewriteName(name), RewriteName(EntityTableName), nullable: nullable);
         }
 
         protected OperationBuilder<AddColumnOperation> AddBooleanColumn(ColumnsBuilder table, string name, bool nullable = false)
@@ -85,7 +85,7 @@ namespace Oqtane.Migrations.EntityBuilders
             return table.Column<int>(name: RewriteName(name), nullable: nullable);
         }
 
-        public void AddMaxStringColumn(string name, int length, bool nullable = false, bool unicode = true)
+        public void AddMaxStringColumn(string name, bool nullable = false, bool unicode = true)
         {
             _migrationBuilder.AddColumn<string>(RewriteName(name), RewriteName(EntityTableName), nullable: nullable, unicode: unicode);
         }

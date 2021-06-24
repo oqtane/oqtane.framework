@@ -17,6 +17,7 @@ using Oqtane.Repository;
 using Oqtane.Shared;
 using Oqtane.Enums;
 using Newtonsoft.Json;
+using System.Diagnostics;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConvertToUsingDeclaration
@@ -55,16 +56,25 @@ namespace Oqtane.Infrastructure
                     {
                         try
                         {
+                            // verify master database contains a Tenant table ( ie. validate schema is properly provisioned )
                             var provisioned = db.Tenant.Any();
                         }
-                        catch
+                        catch (Exception ex)
                         {
-                            result.Message = "Master Database Not Installed Correctly";
+                            result.Message = "Master Database Not Installed Correctly. " + ex.Message;
                         }
                     }
-                    else
+                    else // cannot connect
                     {
-                        result.Message = "Cannot Connect To Master Database";
+                        try
+                        {
+                            // get the actual connection error details
+                            db.Database.OpenConnection();
+                        }
+                        catch (Exception ex)
+                        {
+                            result.Message = "Cannot Connect To Master Database. " + ex.Message;
+                        }
                     }
                 }
             }
@@ -127,6 +137,7 @@ namespace Oqtane.Infrastructure
                 {
                     if (!string.IsNullOrEmpty(installation.Message))
                     {
+                        Debug.WriteLine($"Oqtane Error: {installation.Message}");
                         // problem with prior installation
                         install.ConnectionString = "";
                     }
