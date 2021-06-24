@@ -95,8 +95,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && !(EqualityComparer<ElementReference>.Default.Equals(username,
-                                             default(ElementReference))))
+        if (firstRender)
         {
             await username.FocusAsync();
         }
