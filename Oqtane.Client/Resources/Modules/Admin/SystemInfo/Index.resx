@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -123,13 +123,13 @@
   <data name="FrameworkVersion.HelpText" xml:space="preserve">
     <value>Framework Version</value>
   </data>
-  <data name="BlazorRunime.HelpText" xml:space="preserve">
+  <data name="BlazorRuntime.HelpText" xml:space="preserve">
     <value>Blazor Runtime (Server or WebAssembly)</value>
   </data>
-  <data name="ClrVerion.HelpText" xml:space="preserve">
+  <data name="CLRVersion.HelpText" xml:space="preserve">
     <value>Common Language Runtime Version</value>
   </data>
-  <data name="OsVersion.HelpText" xml:space="preserve">
+  <data name="OSVersion.HelpText" xml:space="preserve">
     <value>Operating System Version</value>
   </data>
   <data name="ServerPath.HelpText" xml:space="preserve">
@@ -141,13 +141,13 @@
   <data name="FrameworkVersion.Text" xml:space="preserve">
     <value>Framework Version: </value>
   </data>
-  <data name="BlazorRunime.Text" xml:space="preserve">
+  <data name="BlazorRuntime.Text" xml:space="preserve">
     <value>Blazor Runtime: </value>
   </data>
-  <data name="ClrVerion.Text" xml:space="preserve">
+  <data name="CLRVersion.Text" xml:space="preserve">
     <value>CLR Version: </value>
   </data>
-  <data name="OsVersion.Text" xml:space="preserve">
+  <data name="OSVersion.Text" xml:space="preserve">
     <value>OS Version: </value>
   </data>
   <data name="ServerPath.Text" xml:space="preserve">
@@ -179,5 +179,53 @@
   </data>
   <data name="WebAssembly" xml:space="preserve">
     <value>WebAssembly</value>
+  </data>
+  <data name="InstallationId.Text" xml:space="preserve">
+    <value>Installation ID: </value>
+  </data>
+  <data name="InstallationId.HelpText" xml:space="preserve">
+    <value>The Unique Identifier For Your Installation</value>
+  </data>
+  <data name="DetailedErrors.Text" xml:space="preserve">
+    <value>Detailed Errors? </value>
+  </data>
+  <data name="DetailedErrors.HelpText" xml:space="preserve">
+    <value>Specify If Detailed Errors Are Enabled For Blazor. This Option Should Not Not Be Enabled In Production.</value>
+  </data>
+  <data name="True" xml:space="preserve">
+    <value>True</value>
+  </data>
+  <data name="False" xml:space="preserve">
+    <value>False</value>
+  </data>
+  <data name="LoggingLevel.Text" xml:space="preserve">
+    <value>Logging Level: </value>
+  </data>
+  <data name="LoggingLevel.HelpText" xml:space="preserve">
+    <value>The Minimum Logging Level For The Event Log. This Option Can Be Used To Control The Volume Of Items Stored In Your Event Log.</value>
+  </data>
+    <data name="Trace" xml:space="preserve">
+    <value>Trace</value>
+  </data>
+    <data name="Debug" xml:space="preserve">
+    <value>Debug</value>
+  </data>
+    <data name="Information" xml:space="preserve">
+    <value>Information</value>
+  </data>
+    <data name="Warning" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Critical" xml:space="preserve">
+    <value>Critical</value>
+  </data>
+  <data name="Info" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>Options</value>
   </data>
 </root>
