@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -121,7 +121,7 @@
     <value>Create Module</value>
   </data>
   <data name="Success.Module.Install" xml:space="preserve">
-    <value>Module Installed Successfully. You Must &lt;a href=\"{0}\"&gt;Restart&lt;/a&gt; Your Application To Apply These Changes.</value>
+    <value>Module Installed Successfully. You Must &lt;a href={0}&gt;Restart&lt;/a&gt; Your Application To Apply These Changes.</value>
   </data>
   <data name="Error.Module.Download" xml:space="preserve">
     <value>Error Downloading Module</value>
