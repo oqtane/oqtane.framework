@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -139,7 +139,7 @@
     <value>Once You Have Compiled The Module And Restarted The Application You Can Activate The Module Below</value>
   </data>
   <data name="Success.Module.Create" xml:space="preserve">
-    <value>The Source Code For Your Module Has Been Created At The Location Specified Below And Must Be Compiled In Order To Make It Functional. Once It Has Been Compiled You Must &lt;a href=\"{0}\"&gt;Restart&lt;/a&gt; Your Application To Apply These Changes.</value>
+    <value>The Source Code For Your Module Has Been Created At The Location Specified Below And Must Be Compiled In Order To Make It Functional. Once It Has Been Compiled You Must &lt;a href={0}&gt;Restart&lt;/a&gt; Your Application To Apply These Changes.</value>
   </data>
   <data name="Message.Require.ValidName" xml:space="preserve">
     <value>You Must Provide A Valid Owner Name And Module Name ( ie. No Punctuation Or Spaces And The Values Cannot Be The Same ) And Choose A Template</value>

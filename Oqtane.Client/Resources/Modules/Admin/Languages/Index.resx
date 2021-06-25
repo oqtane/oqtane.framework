@@ -145,7 +145,7 @@
     <value>Error Downloading Translation</value>
   </data>
   <data name="Success.Language.Install" xml:space="preserve">
-    <value>Translation Installed Successfully. You Must &lt;a href=\"{0}\"&gt;Restart&lt;/a&gt; Your Application To Apply These Changes.</value>
+    <value>Translation Installed Successfully. You Must &lt;a href={0}&gt;Restart&lt;/a&gt; Your Application To Apply These Changes.</value>
   </data>
   <data name="Upgrade" xml:space="preserve">
     <value>Upgrade</value>
