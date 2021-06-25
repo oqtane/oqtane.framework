@@ -4,6 +4,7 @@
 @inject IUserService UserService
 @inject INotificationService NotificationService
 @inject IStringLocalizer<View> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (PageState.User != null)
 {
@@ -80,7 +81,7 @@
 
     @if (reply != string.Empty)
     {
-        <button type="button" class="btn btn-primary" @onclick="Send">@Localizer["Send"]</button>
+        <button type="button" class="btn btn-primary" @onclick="Send">@SharedLocalizer["Send"]</button>
     }
     else
     {
@@ -89,7 +90,7 @@
             <button type="button" class="btn btn-primary" @onclick="Reply">@Localizer["Reply"]</button>
         }
     }
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
     <br />
     <br />
     @if (title == "To")

@@ -5,6 +5,7 @@
 @inject IProfileService ProfileService
 @inject ISettingService SettingService
 @inject IStringLocalizer<Add> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <TabStrip>
     <TabPanel Name="Identity" ResourceKey="Identity">
@@ -13,7 +14,7 @@
             <table class="table table-borderless">
                 <tr>
                     <td>
-                        <label class="control-label">@Localizer["Username"] </label>
+                        <label class="control-label">@SharedLocalizer["Username"] </label>
                     </td>
                     <td>
                         <input class="form-control" @bind="@username" />
@@ -21,7 +22,7 @@
                 </tr>
                 <tr>
                     <td>
-                        <label class="control-label">@Localizer["Password"] </label>
+                        <label class="control-label">@SharedLocalizer["Password"] </label>
                     </td>
                     <td>
                         <input type="password" class="form-control" @bind="@password" />
@@ -37,7 +38,7 @@
                 </tr>
                 <tr>
                     <td>
-                        <label class="control-label">@Localizer["Email"] </label>
+                        <label class="control-label">@SharedLocalizer["Email"] </label>
                     </td>
                     <td>
                         <input class="form-control" @bind="@email" />
@@ -45,7 +46,7 @@
                 </tr>
                 <tr>
                     <td>
-                        <label class="control-label">@Localizer["FullName"] </label>
+                        <label class="control-label">@SharedLocalizer["FullName"] </label>
                     </td>
                     <td>
                         <input class="form-control" @bind="@displayname" />
@@ -91,8 +92,8 @@
     </TabPanel>
 </TabStrip>
 
-<button type="button" class="btn btn-primary" @onclick="SaveUser">@Localizer["Save"]</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+<button type="button" class="btn btn-primary" @onclick="SaveUser">@SharedLocalizer["Save"]</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 
 @code {
     private string username = string.Empty;

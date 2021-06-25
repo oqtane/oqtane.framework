@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject IProfileService ProfileService
 @inject IStringLocalizer<Edit> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <table class="table table-borderless">
     <tr>
@@ -75,8 +76,8 @@
         </td>
         <td>
             <select id="required" class="form-control" @bind="@_isrequired">
-                <option value="True">@Localizer["Yes"]</option>
-                <option value="False">@Localizer["No"]</option>
+                <option value="True">@SharedLocalizer["Yes"]</option>
+                <option value="False">@SharedLocalizer["No"]</option>
             </select>
         </td>
     </tr>
@@ -86,14 +87,14 @@
         </td>
         <td>
             <select id="private" class="form-control" @bind="@_isprivate">
-                <option value="True">@Localizer["Yes"]</option>
-                <option value="False">@Localizer["No"]</option>
+                <option value="True">@SharedLocalizer["Yes"]</option>
+                <option value="False">@SharedLocalizer["No"]</option>
             </select>
         </td>
     </tr>
 </table>
-<button type="button" class="btn btn-success" @onclick="SaveProfile">@Localizer["Save"]</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+<button type="button" class="btn btn-success" @onclick="SaveProfile">@SharedLocalizer["Save"]</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 
 @code {
     private int _profileid = -1;

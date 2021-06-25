@@ -2,7 +2,8 @@
 @inherits ModuleControlBase
 @inject IRoleService RoleService
 @inject IUserService UserService
-@inject IStringLocalizer<PermissionGrid> Localizer 
+@inject IStringLocalizer<PermissionGrid> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_permissions != null)
 {
@@ -66,7 +67,7 @@
             <tr>
                 <td class="input-group">
                     <input type="text" name="Username" class="form-control" placeholder="@Localizer["Username.Enter"]" @bind="@_username" />
-                    <button type="button" class="btn btn-primary" @onclick="AddUser">@Localizer["Add"]</button>
+                    <button type="button" class="btn btn-primary" @onclick="AddUser">@SharedLocalizer["Add"]</button>
                 </td>
             </tr>
         </tbody>

@@ -123,12 +123,6 @@
   <data name="File.Select" xml:space="preserve">
     <value>Select File</value>
   </data>
-  <data name="Upload" xml:space="preserve">
-    <value>Upload</value>
-  </data>
-  <data name="Delete" xml:space="preserve">
-    <value>Delete</value>
-  </data>
   <data name="Error.File.Load" xml:space="preserve">
     <value>Error Loading Files</value>
   </data>

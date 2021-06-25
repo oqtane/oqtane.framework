@@ -5,10 +5,11 @@
 @inject IThemeService ThemeService
 @inject IPackageService PackageService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_themes == null)
 {
-    <p><em>@Localizer["Loading"]</em></p>
+    <p><em>@SharedLocalizer["Loading"]</em></p>
 }
 else
 {
@@ -20,8 +21,8 @@ else
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
-            <th scope="col">@Localizer["Name"]</th>
-            <th scope="col">@Localizer["Version"]</th>
+            <th scope="col">@SharedLocalizer["Name"]</th>
+            <th scope="col">@SharedLocalizer["Version"]</th>
             <th>&nbsp;</th>
         </Header>
         <Row>
@@ -37,7 +38,7 @@ else
             <td>
                 @if (UpgradeAvailable(context.PackageName, context.Version))
                     {
-                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadTheme(context.PackageName, context.Version))>@Localizer["Upgrade"]</button>
+                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadTheme(context.PackageName, context.Version))>@SharedLocalizer["Upgrade"]</button>
                     }
             </td>
             <td></td>

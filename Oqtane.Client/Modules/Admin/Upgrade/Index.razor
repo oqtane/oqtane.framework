@@ -5,6 +5,7 @@
 @inject IPackageService PackageService
 @inject IInstallationService InstallationService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_package != null)
 {
@@ -13,8 +14,8 @@
             @if (_upgradeavailable)
             {
                 <ModuleMessage Type="MessageType.Info" Message="Select The Download Button To Download The Framework Upgrade Package And Then Select Upgrade"></ModuleMessage>
-                <button type="button" class="btn btn-primary" @onclick=@(async () => await Download(Constants.PackageId, @_package.Version))>@Localizer["Download"] @_package.Version</button>
-                <button type="button" class="btn btn-success" @onclick="Upgrade">@Localizer["Upgrade"]</button>
+                <button type="button" class="btn btn-primary" @onclick=@(async () => await Download(Constants.PackageId, @_package.Version))>@SharedLocalizer["Download"] @_package.Version</button>
+                <button type="button" class="btn btn-success" @onclick="Upgrade">@SharedLocalizer["Upgrade"]</button>
             }
             else
             {
@@ -33,7 +34,7 @@
                     </td>
                 </tr>
             </table>
-            <button type="button" class="btn btn-success" @onclick="Upgrade">@Localizer["Upgrade"]</button>
+            <button type="button" class="btn btn-success" @onclick="Upgrade">@SharedLocalizer["Upgrade"]</button>
         </TabPanel>
     </TabStrip>
 }

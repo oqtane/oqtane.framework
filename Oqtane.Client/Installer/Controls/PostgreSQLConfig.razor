@@ -1,6 +1,7 @@
 @namespace Oqtane.Installer.Controls
 @implements Oqtane.Interfaces.IDatabaseConfigControl
 @inject IStringLocalizer<Installer> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @{
     foreach (var field in _connectionStringFields)
@@ -10,7 +11,7 @@
         {
             var isVisible = "";
             var fieldType = (field.Name == "Pwd") ? "password" : "text";
-            if ((field.Name == "Uid" || field.Name == "Pwd") )
+            if ((field.Name == "Uid" || field.Name == "Pwd"))
             {
                 var intSecurityField = _connectionStringFields.Single(f => f.Name == "IntegratedSecurity");
                 if (intSecurityField != null)
@@ -20,7 +21,7 @@
             }
 
             field.Value = field.Value.Replace("{{Date}}", DateTime.UtcNow.ToString("yyyyMMddHHmm"));
-            
+
             <tr style="@isVisible">
                 <td>
                     <Label For="@fieldId" HelpText="@field.HelpText" ResourceKey="@field.Name">@Localizer[$"{field.FriendlyName}:"]</Label>
@@ -38,8 +39,8 @@
                 </td>
                 <td>
                     <select id="@fieldId" class="custom-select" @bind="@field.Value">
-                        <option value="true" selected>@Localizer["True"]</option>
-                        <option value="false">@Localizer["False"]</option>
+                        <option value="true" selected>@SharedLocalizer["True"]</option>
+                        <option value="false">@SharedLocalizer["False"]</option>
                     </select>
                 </td>
             </tr>
@@ -50,13 +51,13 @@
 @code {
     private readonly List<ConnectionStringField> _connectionStringFields = new()
     {
-        new() {Name = "Server", FriendlyName = "Server", Value = "127.0.0.1", HelpText="Enter the database server"},
-        new() {Name = "Port", FriendlyName = "Port", Value = "5432", HelpText="Enter the port used to connect to the server"},
-        new() {Name = "Database", FriendlyName = "Database", Value = "Oqtane-{{Date}}", HelpText="Enter the name of the database"},
-        new() {Name = "IntegratedSecurity", FriendlyName = "Integrated Security", Value = "true", HelpText="Select if you want integrated security or not"},
-        new() {Name = "Uid", FriendlyName = "User Id", Value = "", HelpText="Enter the username to use for the database"},
-        new() {Name = "Pwd", FriendlyName = "Password", Value = "", HelpText="Enter the password to use for the database"}
-    };
+            new() { Name = "Server", FriendlyName = "Server", Value = "127.0.0.1", HelpText = "Enter the database server" },
+            new() { Name = "Port", FriendlyName = "Port", Value = "5432", HelpText = "Enter the port used to connect to the server" },
+            new() { Name = "Database", FriendlyName = "Database", Value = "Oqtane-{{Date}}", HelpText = "Enter the name of the database" },
+            new() { Name = "IntegratedSecurity", FriendlyName = "Integrated Security", Value = "true", HelpText = "Select if you want integrated security or not" },
+            new() { Name = "Uid", FriendlyName = "User Id", Value = "", HelpText = "Enter the username to use for the database" },
+            new() { Name = "Pwd", FriendlyName = "Password", Value = "", HelpText = "Enter the password to use for the database" }
+        };
 
     public string GetConnectionString()
     {
@@ -69,7 +70,7 @@
         var userId = _connectionStringFields[4].Value;
         var password = _connectionStringFields[5].Value;
 
-        if (!String.IsNullOrEmpty(server)  && !String.IsNullOrEmpty(database) && !String.IsNullOrEmpty(port))
+        if (!String.IsNullOrEmpty(server) && !String.IsNullOrEmpty(database) && !String.IsNullOrEmpty(port))
         {
             connectionString = $"Server={server};Port={port};Database={database};";
         }

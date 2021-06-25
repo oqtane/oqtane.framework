@@ -4,13 +4,14 @@
 @inject IFolderService FolderService
 @inject IFileService FileService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_files != null)
 {
     <table class="table table-borderless">
         <tr>
             <td>
-                <label  class="control-label">@Localizer["Folder"] </label>
+                <label class="control-label">@Localizer["Folder"] </label>
             </td>
             <td>
                 <select class="form-control" @onchange="(e => FolderChanged(e))">
@@ -31,7 +32,7 @@
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
-            <th>@Localizer["Name"]</th>
+            <th>@SharedLocalizer["Name"]</th>
             <th>@Localizer["Modified"]</th>
             <th>@Localizer["Type"]</th>
             <th>@Localizer["Size"]</th>
@@ -41,7 +42,7 @@
             <td><ActionDialog Header="Delete File" Message="@string.Format(Localizer["Confirm.File.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteFile(context))" ResourceKey="DeleteFile" /></td>
             <td><a href="@context.Url" target="_new">@context.Name</a></td>
             <td>@context.ModifiedOn</td>
-            <td>@context.Extension.ToUpper() @Localizer["File"]</td>
+            <td>@context.Extension.ToUpper() @SharedLocalizer["File"]</td>
             <td>@string.Format("{0:0.00}", ((decimal)context.Size / 1000)) KB</td>
         </Row>
     </Pager>
@@ -63,7 +64,7 @@
         try
         {
             _folders = await FolderService.GetFoldersAsync(PageState.Site.SiteId);
-            
+
             if (_folderId == -1 && _folders.Count > 0)
             {
                 _folderId = _folders[0].FolderId;

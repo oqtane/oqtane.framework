@@ -3,6 +3,7 @@
 @inject ISettingService SettingService
 @implements Oqtane.Interfaces.ISettingsControl
 @inject IStringLocalizer<Settings> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <table class="table table-borderless">
     <tr>
@@ -11,8 +12,8 @@
         </td>
         <td>
             <select id="files" class="form-control" @bind="@_allowfilemanagement">
-                <option value="true">@Localizer["Yes"]</option>
-                <option value="false">@Localizer["No"]</option>
+                <option value="true">@SharedLocalizer["Yes"]</option>
+                <option value="false">@SharedLocalizer["No"]</option>
             </select>
         </td>
     </tr>

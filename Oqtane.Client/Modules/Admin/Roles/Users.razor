@@ -3,10 +3,11 @@
 @inject IRoleService RoleService
 @inject IUserRoleService UserRoleService
 @inject IStringLocalizer<Users> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (userroles == null)
 {
-    <p><em>@Localizer["Loading"]</em></p>
+    <p><em>@SharedLocalizer["Loading"]</em></p>
 }
 else
 {
@@ -50,8 +51,8 @@ else
             </td>
         </tr>
     </table>
-    <button type="button" class="btn btn-success" @onclick="SaveUserRole">@Localizer["Save"]</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+    <button type="button" class="btn btn-success" @onclick="SaveUserRole">@SharedLocalizer["Save"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 
     <hr class="app-rule" />
     <p align="center">

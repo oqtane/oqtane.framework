@@ -165,9 +165,6 @@
   <data name="Error.UpdateConfig" xml:space="preserve">
     <value>An Error Occurred Updating The Configuration</value>
   </data>
-  <data name="Save" xml:space="preserve">
-    <value>Save</value>
-  </data>
   <data name="Server" xml:space="preserve">
     <value>Server</value>
   </data>

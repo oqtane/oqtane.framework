@@ -126,9 +126,6 @@
   <data name="Username.Enter" xml:space="preserve">
     <value>Enter Username</value>
   </data>
-  <data name="Add" xml:space="preserve">
-    <value>Add</value>
-  </data>
   <data name="Message.Username.DontExist" xml:space="preserve">
     <value>Username Does Not Exist</value>
   </data>

@@ -3,6 +3,7 @@
 @inject ISystemService SystemService
 @inject IInstallationService InstallationService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <table class="table table-borderless">
     <tr>
@@ -68,7 +69,7 @@
         </td>
     </tr>
 </table>
-<button type="button" class="btn btn-success" @onclick="SaveConfig">@Localizer["Save"]</button>&nbsp;
+<button type="button" class="btn btn-success" @onclick="SaveConfig">@SharedLocalizer["Save"]</button>&nbsp;
 <a class="btn btn-primary" href="swagger/index.html" target="_new">@Localizer["Access.ApiFramework"]</a>&nbsp;
 <ActionDialog Header="Restart Application" Message="Are You Sure You Wish To Restart The Application?" Action="Restart Application" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await RestartApplication())" ResourceKey="RestartApplication" />
 

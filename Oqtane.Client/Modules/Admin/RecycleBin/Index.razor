@@ -5,6 +5,7 @@
 @inject IModuleService ModuleService
 @inject IPageService PageService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <TabStrip>
     <TabPanel Name="Pages" ResourceKey="Pages">
@@ -19,7 +20,7 @@
                 <Header>
                     <th style="width: 1px;">&nbsp;</th>
                     <th style="width: 1px;">&nbsp;</th>
-                    <th>@Localizer["Name"]</th>
+                    <th>@SharedLocalizer["Name"]</th>
                     <th>@Localizer["DeletedBy"]</th>
                     <th>@Localizer["DeletedOn"]</th>
                 </Header>

@@ -4,10 +4,11 @@
 @inject ILocalizationService LocalizationService
 @inject IPackageService PackageService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_languages == null)
 {
-    <p><em>@Localizer["Loading"]</em></p>
+    <p><em>@SharedLocalizer["Loading"]</em></p>
 }
 else
 {
@@ -16,7 +17,7 @@ else
     <Pager Items="@_languages">
         <Header>
             <th style="width: 1px;">&nbsp;</th>
-            <th>@Localizer["Name"]</th>
+            <th>@SharedLocalizer["Name"]</th>
             <th>@Localizer["Code"]</th>
             <th>@Localizer["Default"]</th>
             <th style="width: 1px;">&nbsp;</th>
@@ -28,9 +29,9 @@ else
             <td><TriStateCheckBox Value="@(context.IsDefault)" Disabled="true"></TriStateCheckBox></td>
             <td>
                 @if (UpgradeAvailable(context.Code))
-                {
-                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadLanguage(context.Code))>@Localizer["Upgrade"]</button>
-                }
+                    {
+                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadLanguage(context.Code))>@SharedLocalizer["Upgrade"]</button>
+                    }
             </td>
         </Row>
     </Pager>
@@ -48,7 +49,7 @@ else
 
         var cultures = await LocalizationService.GetCulturesAsync();
         var culture = cultures.First(c => c.Name.Equals(Constants.DefaultCulture));
-        
+
         // Adds English as default language
         _languages.Insert(0, new Language { Name = culture.DisplayName, Code = culture.Name, IsDefault = !_languages.Any(l => l.IsDefault) });
 

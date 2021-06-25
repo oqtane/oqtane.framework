@@ -117,17 +117,11 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Cancel" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
   <data name="Template.Text" xml:space="preserve">
     <value>Template: </value>
   </data>
   <data name="Template.Select" xml:space="preserve">
     <value>Select Template</value>
-  </data>
-  <data name="LocalVersion" xml:space="preserve">
-    <value>Local Version</value>
   </data>
   <data name="CreateModule" xml:space="preserve">
     <value>Create Module</value>

@@ -3,6 +3,7 @@
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject NavigationManager NavigationManager
 @inject IStringLocalizer<Edit> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <TabStrip>
     <TabPanel Name="Definition" ResourceKey="Definition">
@@ -103,8 +104,8 @@
         </table>
     </TabPanel>
 </TabStrip>
-<button type="button" class="btn btn-success" @onclick="SaveModuleDefinition">@Localizer["Save"]</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+<button type="button" class="btn btn-success" @onclick="SaveModuleDefinition">@SharedLocalizer["Save"]</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 <br />
 <br />
 <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon"></AuditInfo>

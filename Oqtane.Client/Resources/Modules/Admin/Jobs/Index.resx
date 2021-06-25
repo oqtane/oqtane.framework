@@ -117,26 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Name" xml:space="preserve">
-    <value>Name</value>
-  </data>
-  <data name="Loading" xml:space="preserve">
-    <value>Loading...</value>
-  </data>
-  <data name="Status" xml:space="preserve">
-    <value>Status</value>
-  </data>
-  <data name="Frequency" xml:space="preserve">
-    <value>Frequency</value>
-  </data>
   <data name="NextExecution" xml:space="preserve">
     <value>Next Execution</value>
-  </data>
-  <data name="Stop" xml:space="preserve">
-    <value>Stop</value>
-  </data>
-  <data name="Start" xml:space="preserve">
-    <value>Start</value>
   </data>
   <data name="Disabled" xml:space="preserve">
     <value>Disabled</value>
@@ -176,5 +158,8 @@
   </data>
   <data name="DeleteJob.Message" xml:space="preserve">
     <value>Are You Sure You Wish To Delete This Job?</value>
+  </data>
+  <data name="Frequency" xml:space="preserve">
+    <value>Frequency</value>
   </data>
 </root>

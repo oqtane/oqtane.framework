@@ -4,6 +4,7 @@
 @inject IAliasService AliasService
 @inject ISiteService SiteService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_sites == null)
 {
@@ -17,10 +18,10 @@ else
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
-            <th>@Localizer["Name"]</th>
+            <th>@SharedLocalizer["Name"]</th>
         </Header>
         <Row>
-            <td><button type="button" class="btn btn-primary" @onclick="@(async () => Edit(context.Name))">@Localizer["Edit"]</button></td>
+            <td><button type="button" class="btn btn-primary" @onclick="@(async () => Edit(context.Name))">@SharedLocalizer["Edit"]</button></td>
             <td><button type="button" class="btn btn-secondary" @onclick="@(async () => Browse(context.Name))">@Localizer["Browse"]</button></td>
             <td>@context.Name</td>
         </Row>

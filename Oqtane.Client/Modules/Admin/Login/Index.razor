@@ -5,6 +5,7 @@
 @inject IServiceProvider ServiceProvider
 @inject SiteState SiteState
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_message != string.Empty)
 {
@@ -21,11 +22,11 @@
         <form @ref="login" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
             <div class="container Oqtane-Modules-Admin-Login" @onkeypress="@(e => KeyPressed(e))">
                 <div class="form-group">
-                    <label for="Username" class="control-label">@Localizer["Username"] </label>
+                    <label for="Username" class="control-label">@SharedLocalizer["Username"] </label>
                     <input type="text" @ref="username" name="Username" class="form-control username" placeholder="Username" @bind="@_username" id="Username" required />
                 </div>
                 <div class="form-group">
-                    <label for="Password" class="control-label">@Localizer["Password"] </label>
+                    <label for="Password" class="control-label">@SharedLocalizer["Password"] </label>
                     <input type="password" name="Password" class="form-control password" placeholder="Password" @bind="@_password" id="Password" required />
                 </div>
                 <div class="form-group">
@@ -34,8 +35,8 @@
                         <input type="checkbox" class="form-check-input" name="Remember" @bind="@_remember" id="Remember" />
                     </div>
                 </div>
-                <button type="button" class="btn btn-primary" @onclick="Login">@Localizer["Login"]</button>
-                <button type="button" class="btn btn-secondary" @onclick="Cancel">@Localizer["Cancel"]</button>
+                <button type="button" class="btn btn-primary" @onclick="Login">@SharedLocalizer["Login"]</button>
+                <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
                 <br /><br />
                 <button type="button" class="btn btn-secondary" @onclick="Forgot">@Localizer["ForgotPassword"]</button>
             </div>

@@ -11,7 +11,7 @@
 
 @if (_supportedCultures == null)
 {
-    <p><em>@Localizer["Loading"]</em></p>
+    <p><em>@SharedLocalizer["Loading"]</em></p>
 }
 else
 {
@@ -43,15 +43,15 @@ else
                         </td>
                         <td>
                             <select id="default" class="form-control" @bind="@_isDefault">
-                                <option value="True">@Localizer["Yes"]</option>
-                                <option value="False">@Localizer["No"]</option>
+                                <option value="True">@SharedLocalizer["Yes"]</option>
+                                <option value="False">@SharedLocalizer["No"]</option>
                             </select>
                         </td>
                     </tr>
                 </table>
-                <button type="button" class="btn btn-success" @onclick="SaveLanguage">@Localizer["Save"]</button>
+                <button type="button" class="btn btn-success" @onclick="SaveLanguage">@SharedLocalizer["Save"]</button>
             }
-            <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+            <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
         </TabPanel>
         <TabPanel Name="Download" ResourceKey="Download" Security="SecurityAccessLevel.Host">
             @if (_packages != null && _packages.Count > 0)
@@ -82,8 +82,8 @@ else
                         </td>
                     </Row>
                 </Pager>
-                <button type="button" class="btn btn-success" @onclick="InstallLanguages">@Localizer["Install"]</button>
-                <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+                <button type="button" class="btn btn-success" @onclick="InstallLanguages">@SharedLocalizer["Install"]</button>
+                <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
             }
             else
             {
@@ -101,8 +101,8 @@ else
                     </td>
                 </tr>
             </table>
-            <button type="button" class="btn btn-success" @onclick="InstallLanguages">@Localizer["Install"]</button>
-            <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+            <button type="button" class="btn btn-success" @onclick="InstallLanguages">@SharedLocalizer["Install"]</button>
+            <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
         </TabPanel>
     </TabStrip>
 }

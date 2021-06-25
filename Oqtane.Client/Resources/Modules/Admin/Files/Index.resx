@@ -123,26 +123,8 @@
   <data name="UploadFiles.Heading" xml:space="preserve">
     <value>Upload Files</value>
   </data>
-  <data name="Folder" xml:space="preserve">
-    <value>Folder:</value>
-  </data>
-  <data name="Name" xml:space="preserve">
-    <value>Name</value>
-  </data>
-  <data name="Modified" xml:space="preserve">
-    <value>Modified</value>
-  </data>
-  <data name="Type" xml:space="preserve">
-    <value>Type</value>
-  </data>
-  <data name="Size" xml:space="preserve">
-    <value>Size</value>
-  </data>
   <data name="Confirm.File.Delete" xml:space="preserve">
     <value>Are You Sure You Wish To Delete {0}?</value>
-  </data>
-  <data name="File" xml:space="preserve">
-    <value>File</value>
   </data>
   <data name="NoFiles" xml:space="preserve">
     <value>No Files Exist In Selected Folder</value>
@@ -164,5 +146,17 @@
   </data>
   <data name="DeleteFile.Header" xml:space="preserve">
     <value>Delete File</value>
+  </data>
+  <data name="Folder" xml:space="preserve">
+    <value>Folder</value>
+  </data>
+  <data name="Modified" xml:space="preserve">
+    <value>Modified</value>
+  </data>
+  <data name="Size" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Type</value>
   </data>
 </root>
