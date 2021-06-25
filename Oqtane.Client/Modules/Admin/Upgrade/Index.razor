@@ -72,7 +72,7 @@
             AddModuleMessage(Localizer["Info.Upgrade.Wait"], MessageType.Info);
             ShowProgressIndicator();
             var interop = new Interop(JSRuntime);
-            await interop.RedirectBrowser(NavigateUrl(), 30);
+            await interop.RedirectBrowser(NavigateUrl(), 20);
             await InstallationService.Upgrade();
         }
         catch (Exception ex)
