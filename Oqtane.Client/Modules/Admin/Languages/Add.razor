@@ -85,10 +85,6 @@ else
                 <button type="button" class="btn btn-success" @onclick="InstallLanguages">@Localizer["Install"]</button>
                 <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
             }
-            else
-            {
-                <ModuleMessage Type="MessageType.Info" Message="No Translations Are Available To Download"></ModuleMessage>
-            }
         </TabPanel>
         <TabPanel Name="Upload" ResourceKey="Upload" Security="SecurityAccessLevel.Host">
             <table class="table table-borderless">
