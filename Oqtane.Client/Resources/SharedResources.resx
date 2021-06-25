@@ -226,9 +226,12 @@
     <value>downloads</value>
   </data>
   <data name="Search.Released" xml:space="preserve">
-    <value>release date</value>
+    <value>released</value>
   </data>
   <data name="Search.Version" xml:space="preserve">
     <value>version</value>
+  </data>
+  <data name="Search.Source" xml:space="preserve">
+    <value>source</value>
   </data>
 </root>

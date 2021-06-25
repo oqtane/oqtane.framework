@@ -122,7 +122,7 @@
         {
             ShowProgressIndicator();
             var interop = new Interop(JSRuntime);
-            await interop.RedirectBrowser(NavigateUrl(""), 10);
+            await interop.RedirectBrowser(NavigateUrl(""), 20);
             await InstallationService.RestartAsync();
         }
         catch (Exception ex)
