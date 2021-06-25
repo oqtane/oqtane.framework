@@ -27,12 +27,17 @@ namespace Oqtane.Controllers
         {
             Dictionary<string, string> systeminfo = new Dictionary<string, string>();
 
-            systeminfo.Add("rendermode", _configManager.GetSetting("RenderMode", "Server"));
             systeminfo.Add("clrversion", Environment.Version.ToString());
             systeminfo.Add("osversion", Environment.OSVersion.ToString());
             systeminfo.Add("machinename", Environment.MachineName);
             systeminfo.Add("serverpath", _environment.ContentRootPath);
             systeminfo.Add("servertime", DateTime.Now.ToString());
+            systeminfo.Add("installationid", GetInstallationId());
+
+            systeminfo.Add("runtime", _configManager.GetSetting("Runtime", "Server"));
+            systeminfo.Add("rendermode", _configManager.GetSetting("RenderMode", "ServerPrerendered"));
+            systeminfo.Add("detailederrors", _configManager.GetSetting("DetailedErrors", "false"));
+            systeminfo.Add("logginglevel", _configManager.GetSetting("Logging:LogLevel:Default", "Information"));
 
             return systeminfo;
         }
@@ -51,9 +56,25 @@ namespace Oqtane.Controllers
                     case "rendermode":
                         _configManager.AddOrUpdateSetting("RenderMode", kvp.Value, false);
                         break;
+                    case "detailederrors":
+                        _configManager.AddOrUpdateSetting("DetailedErrors", kvp.Value, false);
+                        break;
+                    case "logginglevel":
+                        _configManager.AddOrUpdateSetting("Logging:LogLevel:Default", kvp.Value, false);
+                        break;
                 }
             }
         }
 
+        private string GetInstallationId()
+        {
+            var installationid = _configManager.GetSetting("InstallationId", "");
+            if (installationid == "")
+            {
+                installationid = Guid.NewGuid().ToString();
+                _configManager.AddOrUpdateSetting("InstallationId", installationid, true);
+            }
+            return installationid;
+        }
     }
 }

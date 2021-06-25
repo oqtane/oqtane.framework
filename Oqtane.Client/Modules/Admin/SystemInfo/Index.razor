@@ -4,98 +4,149 @@
 @inject IInstallationService InstallationService
 @inject IStringLocalizer<Index> Localizer
 
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <Label For="version" HelpText="Framework Version" ResourceKey="FrameworkVersion">Framework Version: </Label>
-        </td>
-        <td>
-            <input id="version" class="form-control" @bind="@_version" readonly />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="runtime" HelpText="Blazor Runtime (Server or WebAssembly)" ResourceKey="BlazorRuntime">Blazor Runtime: </Label>
-        </td>
-        <td>
-            <select id="runtime" class="form-control" @bind="@_runtime">
-                <option value="Server">@Localizer["Server"]</option>
-                <option value="WebAssembly">@Localizer["WebAssembly"]</option>
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="rendermode" HelpText="Blazor Server Render Mode" ResourceKey="RenderMode">Render Mode: </Label>
-        </td>
-        <td>
-            <select id="rendermode" class="form-control" @bind="@_rendermode">
-                <option value="Server">@Localizer["Server"]</option>
-                <option value="ServerPrerendered">@Localizer["ServerPrerendered"]</option>
-            </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="clrversion" HelpText="Common Language Runtime Version" ResourceKey="ClrVerion">CLR Version: </Label>
-        </td>
-        <td>
-            <input id="clrversion" class="form-control" @bind="@_clrversion" readonly />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="osversion" HelpText="Operating System Version" ResourceKey="OsVersion">OS Version: </Label>
-        </td>
-        <td>
-            <input id="osversion" class="form-control" @bind="@_osversion" readonly />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="serverpath" HelpText="Server Path" ResourceKey="ServerPath">Server Path: </Label>
-        </td>
-        <td>
-            <input id="serverpath" class="form-control" @bind="@_serverpath" readonly />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="servertime" HelpText="Server Time" ResourceKey="ServerTime">Server Time: </Label>
-        </td>
-        <td>
-            <input id="servertime" class="form-control" @bind="@_servertime" readonly />
-        </td>
-    </tr>
-</table>
-<button type="button" class="btn btn-success" @onclick="SaveConfig">@Localizer["Save"]</button>&nbsp;
-<a class="btn btn-primary" href="swagger/index.html" target="_new">@Localizer["Access.ApiFramework"]</a>&nbsp;
-<ActionDialog Header="Restart Application" Message="Are You Sure You Wish To Restart The Application?" Action="Restart Application" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await RestartApplication())" ResourceKey="RestartApplication" />
+<TabStrip>
+    <TabPanel Name="Info" Heading="Info" ResourceKey="Info">
+        <table class="table table-borderless">
+            <tr>
+                <td>
+                    <Label For="version" HelpText="Framework Version" ResourceKey="FrameworkVersion">Framework Version: </Label>
+                </td>
+                <td>
+                    <input id="version" class="form-control" @bind="@_version" readonly />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Label For="clrversion" HelpText="Common Language Runtime Version" ResourceKey="CLRVersion">CLR Version: </Label>
+                </td>
+                <td>
+                    <input id="clrversion" class="form-control" @bind="@_clrversion" readonly />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Label For="osversion" HelpText="Operating System Version" ResourceKey="OSVersion">OS Version: </Label>
+                </td>
+                <td>
+                    <input id="osversion" class="form-control" @bind="@_osversion" readonly />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Label For="serverpath" HelpText="Server Path" ResourceKey="ServerPath">Server Path: </Label>
+                </td>
+                <td>
+                    <input id="serverpath" class="form-control" @bind="@_serverpath" readonly />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Label For="servertime" HelpText="Server Time" ResourceKey="ServerTime">Server Time: </Label>
+                </td>
+                <td>
+                    <input id="servertime" class="form-control" @bind="@_servertime" readonly />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Label For="installationid" HelpText="The Unique Identifier For Your Installation" ResourceKey="InstallationId">Installation ID: </Label>
+                </td>
+                <td>
+                    <input id="installationid" class="form-control" @bind="@_installationid" readonly />
+                </td>
+            </tr>
+        </table>
+        <a class="btn btn-primary" href="swagger/index.html" target="_new">@Localizer["Access.ApiFramework"]</a>&nbsp;
+        <ActionDialog Header="Restart Application" Message="Are You Sure You Wish To Restart The Application?" Action="Restart Application" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await RestartApplication())" ResourceKey="RestartApplication" />
+    </TabPanel>
+    <TabPanel Name="Options" Heading="Options" ResourceKey="Options">
+        <table class="table table-borderless">
+            <tr>
+                <td>
+                    <Label For="runtime" HelpText="Blazor Runtime (Server or WebAssembly)" ResourceKey="BlazorRuntime">Blazor Runtime: </Label>
+                </td>
+                <td>
+                    <select id="runtime" class="form-control" @bind="@_runtime">
+                        <option value="Server">@Localizer["Server"]</option>
+                        <option value="WebAssembly">@Localizer["WebAssembly"]</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Label For="rendermode" HelpText="Blazor Server Render Mode" ResourceKey="RenderMode">Render Mode: </Label>
+                </td>
+                <td>
+                    <select id="rendermode" class="form-control" @bind="@_rendermode">
+                        <option value="Server">@Localizer["Server"]</option>
+                        <option value="ServerPrerendered">@Localizer["ServerPrerendered"]</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Label For="detailederrors" HelpText="Specify If Detailed Errors Are Enabled For Blazor. This Option Should Not Not Be Enabled In Production." ResourceKey="DetailedErrors">Detailed Errors? </Label>
+                </td>
+                <td>
+                    <select id="detailederrors" class="form-control" @bind="@_detailederrors">
+                        <option value="true">@Localizer["True"]</option>
+                        <option value="false">@Localizer["False"]</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Label For="logginglevel" HelpText="The Minimum Logging Level For The Event Log. This Option Can Be Used To Control The Volume Of Items Stored In Your Event Log." ResourceKey="LoggingLevel">Logging Level: </Label>
+                </td>
+                <td>
+                    <select id="logginglevel" class="form-control" @bind="@_logginglevel">
+                        <option value="Trace">@Localizer["Trace"]</option>
+                        <option value="Debug">@Localizer["Debug"]</option>
+                        <option value="Information">@Localizer["Information"]</option>
+                        <option value="Warning">@Localizer["Warning"]</option>
+                        <option value="Error">@Localizer["Error"]</option>
+                        <option value="Critical">@Localizer["Critical"]</option>
+                    </select>
+                </td>
+            </tr>
+        </table>
+        <button type="button" class="btn btn-success" @onclick="SaveConfig">@Localizer["Save"]</button>&nbsp;
+        <ActionDialog Header="Restart Application" Message="Are You Sure You Wish To Restart The Application?" Action="Restart Application" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await RestartApplication())" ResourceKey="RestartApplication" />
+    </TabPanel>
+</TabStrip>
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     private string _version = string.Empty;
-    private string _runtime = string.Empty;
-    private string _rendermode = string.Empty;
     private string _clrversion = string.Empty;
     private string _osversion = string.Empty;
     private string _serverpath = string.Empty;
     private string _servertime = string.Empty;
+    private string _installationid = string.Empty;
+
+    private string _runtime = string.Empty;
+    private string _rendermode = string.Empty;
+    private string _detailederrors = string.Empty;
+    private string _logginglevel = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         _version = Constants.Version;
-        _runtime = PageState.Runtime.ToString();
 
         Dictionary<string, string> systeminfo = await SystemService.GetSystemInfoAsync();
         if (systeminfo != null)
         {
-            _rendermode = systeminfo["rendermode"];
             _clrversion = systeminfo["clrversion"];
             _osversion = systeminfo["osversion"];
             _serverpath = systeminfo["serverpath"];
             _servertime = systeminfo["servertime"];
+            _installationid = systeminfo["installationid"];
+
+            _runtime = systeminfo["runtime"];
+            _rendermode = systeminfo["rendermode"];
+            _detailederrors = systeminfo["detailederrors"];
+            _logginglevel = systeminfo["logginglevel"];
         }
     }
 
@@ -106,6 +157,8 @@
             var settings = new Dictionary<string, string>();
             settings.Add("runtime", _runtime);
             settings.Add("rendermode", _rendermode);
+            settings.Add("detailederrors", _detailederrors);
+            settings.Add("logginglevel", _logginglevel);
             await SystemService.UpdateSystemInfoAsync(settings);
             AddModuleMessage(Localizer["Success.UpdateConfig.Restart"], MessageType.Success);
         }
