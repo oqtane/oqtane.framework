@@ -252,14 +252,8 @@
   <data name="Send" xml:space="preserve">
     <value>Send</value>
   </data>
-  <data name="Start" xml:space="preserve">
-    <value>Start</value>
-  </data>
   <data name="Status" xml:space="preserve">
     <value>Status</value>
-  </data>
-  <data name="Stop" xml:space="preserve">
-    <value>Stop</value>
   </data>
   <data name="Upgrade" xml:space="preserve">
     <value>Upgrade</value>

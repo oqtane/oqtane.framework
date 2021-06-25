@@ -78,7 +78,7 @@ else
                             <strong>@(String.Format("{0:n0}", context.Downloads))</strong> @SharedLocalizer["Search.Downloads"]&nbsp;&nbsp;|&nbsp;&nbsp; @SharedLocalizer["Search.Released"]: <strong>@context.ReleaseDate.ToString("MMM dd, yyyy")</strong>&nbsp;&nbsp;|&nbsp;&nbsp;@SharedLocalizer["Search.Version"]: <strong>@context.Version</strong>
                         </td>
                         <td style="vertical-align: middle;">
-                            <button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadLanguage(context.PackageId, context.Version))>@Localizer["Download"]</button>
+                            <button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadLanguage(context.PackageId, context.Version))>@SharedLocalizer["Download"]</button>
                         </td>
                     </Row>
                 </Pager>

@@ -6,6 +6,7 @@
 @inject IModuleService ModuleService
 @inject ISettingService SettingService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (string.IsNullOrEmpty(_moduledefinitionname) && _templates != null)
 {
