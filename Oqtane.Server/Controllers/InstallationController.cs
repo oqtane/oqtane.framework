@@ -5,7 +5,6 @@ using System.Linq;
 using System.IO.Compression;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Modules;
@@ -16,13 +15,15 @@ using System.Net;
 using Oqtane.Repository;
 using Microsoft.AspNetCore.Http;
 using System.Diagnostics;
+using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace Oqtane.Controllers
 {
     [Route(ControllerRoutes.ApiRoute)]
     public class InstallationController : Controller
     {
-        private readonly IConfigurationRoot _config;
+        private readonly IConfigManager _configManager;
         private readonly IInstallationManager _installationManager;
         private readonly IDatabaseManager _databaseManager;
         private readonly ILocalizationManager _localizationManager;
@@ -30,9 +31,9 @@ namespace Oqtane.Controllers
         private readonly IHttpContextAccessor _accessor;
         private readonly IAliasRepository _aliases;
 
-        public InstallationController(IConfigurationRoot config, IInstallationManager installationManager, IDatabaseManager databaseManager, ILocalizationManager localizationManager, IMemoryCache cache, IHttpContextAccessor accessor, IAliasRepository aliases)
+        public InstallationController(IConfigManager configManager, IInstallationManager installationManager, IDatabaseManager databaseManager, ILocalizationManager localizationManager, IMemoryCache cache, IHttpContextAccessor accessor, IAliasRepository aliases)
         {
-            _config = config;
+            _configManager = configManager;
             _installationManager = installationManager;
             _databaseManager = databaseManager;
             _localizationManager = localizationManager;
@@ -47,9 +48,14 @@ namespace Oqtane.Controllers
         {
             var installation = new Installation {Success = false, Message = ""};
 
-            if (ModelState.IsValid && (User.IsInRole(RoleNames.Host) || string.IsNullOrEmpty(_config.GetConnectionString(SettingKeys.ConnectionStringKey))))
+            if (ModelState.IsValid && (User.IsInRole(RoleNames.Host) || string.IsNullOrEmpty(_configManager.GetSetting("ConnectionStrings:" + SettingKeys.ConnectionStringKey, ""))))
             {
                 installation = _databaseManager.Install(config);
+
+                if (config.Register)
+                {
+                    RegisterContact(config.HostEmail);
+                }
             }
             else
             {
@@ -93,7 +99,7 @@ namespace Oqtane.Controllers
         [HttpGet("load")]
         public IActionResult Load()
         {
-            if (_config.GetSection("Runtime").Value == "WebAssembly")
+            if (_configManager.GetSection("Runtime").Value == "WebAssembly")
             {
                 return File(GetAssemblies(), System.Net.Mime.MediaTypeNames.Application.Octet, "oqtane.dll");
             }
@@ -198,6 +204,31 @@ namespace Oqtane.Controllers
                     return memoryStream.ToArray();
                 }
             });
+        }
+
+        private void RegisterContact(string email)
+        {
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value);
+                    client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Constants.PackageId, Constants.Version));
+                    client.GetAsync(Constants.PackageRegistryUrl + $"/api/registry/contact/?id={_configManager.GetInstallationId()}&email={WebUtility.UrlEncode(email)}");
+                }
+            }
+            catch
+            {
+                // error calling registry service
+            }
+        }
+
+        // GET api/<controller>/register?email=x
+        [HttpPost("register")]
+        [Authorize(Roles = RoleNames.Host)]
+        public void Register(string email)
+        {
+            RegisterContact(email);
         }
     }
 }

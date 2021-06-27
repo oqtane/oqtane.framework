@@ -4,6 +4,7 @@ using System.IO;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Oqtane.Shared;
 
 namespace Oqtane.Infrastructure
 {
@@ -114,6 +115,32 @@ namespace Oqtane.Infrastructure
         public void Reload()
         {
             _config.Reload();
+        }
+
+        public string GetConnectionString()
+        {
+            return _config.GetConnectionString(SettingKeys.ConnectionStringKey);
+        }
+
+        public string GetConnectionString(string name)
+        {
+            return _config.GetConnectionString(name);
+        }
+
+        public bool IsInstalled()
+        {
+            return !string.IsNullOrEmpty(GetConnectionString());
+        }
+
+        public string GetInstallationId()
+        {
+            var installationid = GetSetting("InstallationId", "");
+            if (installationid == "")
+            {
+                installationid = Guid.NewGuid().ToString();
+                AddOrUpdateSetting("InstallationId", installationid, true);
+            }
+            return installationid;
         }
     }
 }

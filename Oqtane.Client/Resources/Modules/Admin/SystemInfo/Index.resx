@@ -204,16 +204,16 @@
   <data name="LoggingLevel.HelpText" xml:space="preserve">
     <value>The Minimum Logging Level For The Event Log. This Option Can Be Used To Control The Volume Of Items Stored In Your Event Log.</value>
   </data>
-    <data name="Trace" xml:space="preserve">
+  <data name="Trace" xml:space="preserve">
     <value>Trace</value>
   </data>
-    <data name="Debug" xml:space="preserve">
+  <data name="Debug" xml:space="preserve">
     <value>Debug</value>
   </data>
-    <data name="Information" xml:space="preserve">
+  <data name="Information" xml:space="preserve">
     <value>Information</value>
   </data>
-    <data name="Warning" xml:space="preserve">
+  <data name="Warning" xml:space="preserve">
     <value>Warning</value>
   </data>
   <data name="Error" xml:space="preserve">
@@ -227,5 +227,11 @@
   </data>
   <data name="Options" xml:space="preserve">
     <value>Options</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>Please Register Me For Major Product Updates And Security Bulletins</value>
+  </data>
+  <data name="Success.Register" xml:space="preserve">
+    <value>You Have Been Successfully Registered For Updates</value>
   </data>
 </root>
