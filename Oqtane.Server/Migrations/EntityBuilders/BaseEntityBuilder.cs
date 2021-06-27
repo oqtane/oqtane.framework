@@ -143,6 +143,17 @@ namespace Oqtane.Migrations.EntityBuilders
                 unique: isUnique);
         }
 
+        public virtual void AddForeignKey(string foreignKeyName, string columnName, string principalTable, string principalColumn, ReferentialAction onDelete)
+        {
+            _migrationBuilder.AddForeignKey(
+                name: RewriteName(foreignKeyName),
+                table: RewriteName(EntityTableName),
+                column: RewriteName(columnName),
+                principalTable: RewriteName(principalTable),
+                principalColumn: RewriteName(principalColumn),
+                onDelete: onDelete );
+        }
+
         /// <summary>
         /// Creates a Migration to add an Index to the Entity (table)
         /// </summary>

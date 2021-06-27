@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -148,6 +148,9 @@
     <value>Error loading Database Configuration Control</value>
   </data>
   <data name="Message.Require.DbInfo" xml:space="preserve">
-    <value>Please Enter All Fields And Ensure Passwords Match And Are Greater Than 5 Characters In Length</value>
+    <value>Please Enter All Required Fields. Ensure Passwords Match And Are Greater Than 5 Characters In Length. Ensure Email Address Provided Is Valid.</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>Please Register Me For Major Product Updates And Security Bulletins</value>
   </data>
 </root>

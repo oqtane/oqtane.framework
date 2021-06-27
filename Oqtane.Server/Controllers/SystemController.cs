@@ -32,7 +32,7 @@ namespace Oqtane.Controllers
             systeminfo.Add("machinename", Environment.MachineName);
             systeminfo.Add("serverpath", _environment.ContentRootPath);
             systeminfo.Add("servertime", DateTime.Now.ToString());
-            systeminfo.Add("installationid", GetInstallationId());
+            systeminfo.Add("installationid", _configManager.GetInstallationId());
 
             systeminfo.Add("runtime", _configManager.GetSetting("Runtime", "Server"));
             systeminfo.Add("rendermode", _configManager.GetSetting("RenderMode", "ServerPrerendered"));
@@ -64,17 +64,6 @@ namespace Oqtane.Controllers
                         break;
                 }
             }
-        }
-
-        private string GetInstallationId()
-        {
-            var installationid = _configManager.GetSetting("InstallationId", "");
-            if (installationid == "")
-            {
-                installationid = Guid.NewGuid().ToString();
-                _configManager.AddOrUpdateSetting("InstallationId", installationid, true);
-            }
-            return installationid;
         }
     }
 }

@@ -56,6 +56,12 @@
                 </td>
             </tr>
         </table>
+        <div class="row">
+            <div class="mx-auto text-center">
+                <input type="checkbox" @onchange="(e => RegisterChecked(e))" /> @Localizer["Register"]
+            </div>
+        </div>
+        <br /><br />
         <a class="btn btn-primary" href="swagger/index.html" target="_new">@Localizer["Access.ApiFramework"]</a>&nbsp;
         <ActionDialog Header="Restart Application" Message="Are You Sure You Wish To Restart The Application?" Action="Restart Application" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await RestartApplication())" ResourceKey="RestartApplication" />
     </TabPanel>
@@ -181,6 +187,22 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Restarting Application");
+        }
+    }
+
+    private async Task RegisterChecked(ChangeEventArgs e)
+    {
+        try
+        {
+            if ((bool)e.Value)
+            {
+                await InstallationService.RegisterAsync(PageState.User.Email);
+                AddModuleMessage(Localizer["Success.Register"], MessageType.Success);
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error On Register");
         }
     }
 }

@@ -42,7 +42,7 @@ namespace Oqtane.Controllers
             {
                 client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value);
                 client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Constants.PackageId, Constants.Version));
-                packages = await GetJson<List<Package>>(client, Constants.PackageRegistryUrl + $"/api/registry/packages/?id={GetInstallationId()}&type={type.ToLower()}&version={Constants.Version}&search={search}");
+                packages = await GetJson<List<Package>>(client, Constants.PackageRegistryUrl + $"/api/registry/packages/?id={_configManager.GetInstallationId()}&type={type.ToLower()}&version={Constants.Version}&search={search}");
             }
             return packages;
         }
@@ -57,7 +57,7 @@ namespace Oqtane.Controllers
             {
                 client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value);
                 client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Constants.PackageId, Constants.Version));
-                package = await GetJson<Package>(client, Constants.PackageRegistryUrl + $"/api/registry/package/?id={GetInstallationId()}&package={packageid}&version={version}");
+                package = await GetJson<Package>(client, Constants.PackageRegistryUrl + $"/api/registry/package/?id={_configManager.GetInstallationId()}&package={packageid}&version={version}");
             }
 
             if (package != null)
@@ -84,17 +84,6 @@ namespace Oqtane.Controllers
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Create, "Package {PackageId}.{Version} Is Not Registered", packageid, version);
             }
-        }
-
-        private string GetInstallationId()
-        {
-            var installationid = _configManager.GetSetting("InstallationId", "");
-            if (installationid == "")
-            {
-                installationid = Guid.NewGuid().ToString();
-                _configManager.AddOrUpdateSetting("InstallationId", installationid, true);
-            }
-            return installationid;
         }
 
         private async Task<T> GetJson<T>(HttpClient httpClient, string url)

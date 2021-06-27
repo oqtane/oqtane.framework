@@ -101,6 +101,11 @@
         </div>
         <div class="app-progress-indicator" style="@_loadingDisplay"></div>
     </div>
+    <div class="row">
+        <div class="mx-auto text-center">
+            <input type="checkbox" @bind="@_register" /> @Localizer["Register"]
+        </div>
+    </div>
 </div>
 
 @code {
@@ -114,6 +119,7 @@
     private string _hostPassword = string.Empty;
     private string _confirmPassword = string.Empty;
     private string _hostEmail = string.Empty;
+    private bool _register = true;
     private string _message = string.Empty;
     private string _loadingDisplay = "display: none;";
 
@@ -169,7 +175,7 @@
             connectionString = databaseConfigControl.GetConnectionString();
         }
 
-        if (connectionString != "" && _hostUsername != "" && _hostPassword.Length >= 6 && _hostPassword == _confirmPassword && _hostEmail != "")
+        if (connectionString != "" && _hostUsername != "" && _hostPassword.Length >= 6 && _hostPassword == _confirmPassword && _hostEmail != "" && _hostEmail.Contains("@"))
         {
             _loadingDisplay = "";
             StateHasChanged();
@@ -188,7 +194,8 @@
                 HostName = UserNames.Host,
                 TenantName = TenantNames.Master,
                 IsNewTenant = true,
-                SiteName = Constants.DefaultSite
+                SiteName = Constants.DefaultSite,
+                Register = _register
             };
 
             var installation = await InstallationService.Install(config);
