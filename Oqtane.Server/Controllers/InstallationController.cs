@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Http;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
 namespace Oqtane.Controllers
 {
@@ -44,7 +45,7 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
-        public Installation Post([FromBody] InstallConfig config)
+        public async Task<Installation> Post([FromBody] InstallConfig config)
         {
             var installation = new Installation {Success = false, Message = ""};
 
@@ -52,9 +53,9 @@ namespace Oqtane.Controllers
             {
                 installation = _databaseManager.Install(config);
 
-                if (config.Register)
+                if (installation.Success && config.Register)
                 {
-                    RegisterContact(config.HostEmail);
+                    await RegisterContact(config.HostEmail);
                 }
             }
             else
@@ -206,7 +207,7 @@ namespace Oqtane.Controllers
             });
         }
 
-        private void RegisterContact(string email)
+        private async Task RegisterContact(string email)
         {
             try
             {
@@ -214,7 +215,8 @@ namespace Oqtane.Controllers
                 {
                     client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value);
                     client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Constants.PackageId, Constants.Version));
-                    client.GetAsync(Constants.PackageRegistryUrl + $"/api/registry/contact/?id={_configManager.GetInstallationId()}&email={WebUtility.UrlEncode(email)}");
+                    Uri uri = new Uri(Constants.PackageRegistryUrl + $"/api/registry/contact/?id={_configManager.GetInstallationId()}&email={WebUtility.UrlEncode(email)}");
+                    var response = await client.GetAsync(uri).ConfigureAwait(false);
                 }
             }
             catch
@@ -226,9 +228,9 @@ namespace Oqtane.Controllers
         // GET api/<controller>/register?email=x
         [HttpPost("register")]
         [Authorize(Roles = RoleNames.Host)]
-        public void Register(string email)
+        public async Task Register(string email)
         {
-            RegisterContact(email);
+            await RegisterContact(email);
         }
     }
 }

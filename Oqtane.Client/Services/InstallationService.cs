@@ -48,7 +48,7 @@ namespace Oqtane.Services
 
         public async Task RegisterAsync(string email)
         {
-            await PostAsync($"{ApiUrl}/register?email={WebUtility.UrlEncode(email)}");
+            await PostJsonAsync($"{ApiUrl}/register?email={WebUtility.UrlEncode(email)}", true);
         }
     }
 }
