@@ -5,106 +5,107 @@
 @inject IPageService PageService
 @inject IThemeService  ThemeService
 @inject IStringLocalizer<Edit> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <TabStrip Refresh="@_refresh">
     <TabPanel Name="Settings" ResourceKey="Settings">
         @if (_themeList != null)
         {
-        <table class="table table-borderless">
-            <tr>
-                <td>
-                    <Label For="Name" HelpText="Enter the page name" ResourceKey="Name">Name: </Label>
-                </td>
-                <td>
-                    <input id="Name" class="form-control" @bind="@_name" />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="Parent" HelpText="Select the parent for the page in the site hierarchy" ResourceKey="Parent">Parent: </Label>
-                </td>
-                <td>
-                    <select id="Parent" class="form-control" value="@_parentid" @onchange="(e => ParentChanged(e))">
-                        <option value="-1">&lt;@Localizer["SiteRoot"]&gt;</option>
-                        @foreach (Page page in _pageList)
-                        {
-                            if (page.PageId != _pageId)
+            <table class="table table-borderless">
+                <tr>
+                    <td>
+                        <Label For="Name" HelpText="Enter the page name" ResourceKey="Name">Name: </Label>
+                    </td>
+                    <td>
+                        <input id="Name" class="form-control" @bind="@_name" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="Parent" HelpText="Select the parent for the page in the site hierarchy" ResourceKey="Parent">Parent: </Label>
+                    </td>
+                    <td>
+                        <select id="Parent" class="form-control" value="@_parentid" @onchange="(e => ParentChanged(e))">
+                            <option value="-1">&lt;@Localizer["SiteRoot"]&gt;</option>
+                            @foreach (Page page in _pageList)
                             {
-                                <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
-                            }
-                        }
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="Move" HelpText="Select the location where you would like the page to be moved in relation to other pages" ResourceKey="Move">Move: </Label>
-                </td>
-                <td>
-                    <select id="Move" class="form-control" @bind="@_insert">
-                        @if (_parentid == _currentparentid)
-                        {
-                            <option value="=">&lt;@Localizer["ThisLocation.Keep"]&gt;</option>
-                        }
-                        <option value="<<">@Localizer["ToBeginning"]</option>
-                        @if (_children != null && _children.Count > 0)
-                        {
-                            <option value="<">@Localizer["Before"]</option>
-                            <option value=">">@Localizer["After"]</option>
-                        }
-                        <option value=">>">@Localizer["ToEnd"]</option>
-                    </select>
-                    @if (_children != null && _children.Count > 0 && (_insert == "<" || _insert == ">"))
-                    {
-                        <select class="form-control" @bind="@_childid">
-                            <option value="-1">&lt;@Localizer["Page.Select"]&gt;</option>
-                            @foreach (Page page in _children)
-                            {
-                                <option value="@(page.PageId)">@(page.Name)</option>
+                                if (page.PageId != _pageId)
+                                {
+                                    <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
+                                }
                             }
                         </select>
-                    }
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="Navigation" HelpText="Select whether the page is part of the site navigation or hidden" ResourceKey="Navigation">Navigation? </Label>
-                </td>
-                <td>
-                    <select id="Navigation" class="form-control" @bind="@_isnavigation">
-                        <option value="True">@Localizer["Yes"]</option>
-                        <option value="False">@Localizer["No"]</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="Clickablen" HelpText="Select whether the link in the site navigation is enabled or disabled" ResourceKey="Clickable">Clickable? </Label>
-                </td>
-                <td>
-                    <select id="Navigation" class="form-control" @bind="@_isclickable">
-                        <option value="True">@Localizer["Yes"]</option>
-                        <option value="False">@Localizer["No"]</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="Path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used." ResourceKey="UrlPath">Url Path: </Label>
-                </td>
-                <td>
-                    <input id="Path" class="form-control" @bind="@_path" />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="Url" HelpText="Optionally enter a url which this page should redirect to when a user navigates to it" ResourceKey="Redirect">Redirect: </Label>
-                </td>
-                <td>
-                    <input id="Url" class="form-control" @bind="@_url" />
-                </td>
-            </tr>
-        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="Move" HelpText="Select the location where you would like the page to be moved in relation to other pages" ResourceKey="Move">Move: </Label>
+                    </td>
+                    <td>
+                        <select id="Move" class="form-control" @bind="@_insert">
+                            @if (_parentid == _currentparentid)
+                            {
+                                <option value="=">&lt;@Localizer["ThisLocation.Keep"]&gt;</option>
+                            }
+                            <option value="<<">@Localizer["ToBeginning"]</option>
+                            @if (_children != null && _children.Count > 0)
+                            {
+                                <option value="<">@Localizer["Before"]</option>
+                                <option value=">">@Localizer["After"]</option>
+                            }
+                            <option value=">>">@Localizer["ToEnd"]</option>
+                        </select>
+                        @if (_children != null && _children.Count > 0 && (_insert == "<" || _insert == ">"))
+                        {
+                            <select class="form-control" @bind="@_childid">
+                                <option value="-1">&lt;@Localizer["Page.Select"]&gt;</option>
+                                @foreach (Page page in _children)
+                                {
+                                    <option value="@(page.PageId)">@(page.Name)</option>
+                                }
+                            </select>
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="Navigation" HelpText="Select whether the page is part of the site navigation or hidden" ResourceKey="Navigation">Navigation? </Label>
+                    </td>
+                    <td>
+                        <select id="Navigation" class="form-control" @bind="@_isnavigation">
+                            <option value="True">@SharedLocalizer["Yes"]</option>
+                            <option value="False">@SharedLocalizer["No"]</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="Clickablen" HelpText="Select whether the link in the site navigation is enabled or disabled" ResourceKey="Clickable">Clickable? </Label>
+                    </td>
+                    <td>
+                        <select id="Navigation" class="form-control" @bind="@_isclickable">
+                            <option value="True">@SharedLocalizer["Yes"]</option>
+                            <option value="False">@SharedLocalizer["No"]</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="Path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used." ResourceKey="UrlPath">Url Path: </Label>
+                    </td>
+                    <td>
+                        <input id="Path" class="form-control" @bind="@_path" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="Url" HelpText="Optionally enter a url which this page should redirect to when a user navigates to it" ResourceKey="Redirect">Redirect: </Label>
+                    </td>
+                    <td>
+                        <input id="Url" class="form-control" @bind="@_url" />
+                    </td>
+                </tr>
+            </table>
             <Section Name="Appearance" ResourceKey="Appearance">
                 <table class="table table-borderless">
                     <tr>
@@ -156,8 +157,8 @@
                         </td>
                         <td>
                             <select id="Personalizable" class="form-control" @bind="@_ispersonalizable">
-                                <option value="True">@Localizer["Yes"]</option>
-                                <option value="False">@Localizer["No"]</option>
+                                <option value="True">@SharedLocalizer["Yes"]</option>
+                                <option value="False">@SharedLocalizer["No"]</option>
                             </select>
                         </td>
                     </tr>
@@ -186,8 +187,8 @@
         </TabPanel>
     }
 </TabStrip>
-<button type="button" class="btn btn-success" @onclick="SavePage">@Localizer["Save"]</button>
-<button type="button" class="btn btn-secondary" @onclick="Cancel">@Localizer["Cancel"]</button>
+<button type="button" class="btn btn-success" @onclick="SavePage">@SharedLocalizer["Save"]</button>
+<button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;

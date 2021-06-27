@@ -7,6 +7,7 @@
 @inject INotificationService NotificationService
 @inject IFileService FileService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (PageState.User != null && photo != null)
 {
@@ -23,7 +24,7 @@ else
             <table class="table table-borderless">
                 <tr>
                     <td>
-                        <label for="Name" class="control-label">@Localizer["Username"] </label>
+                        <label for="Name" class="control-label">@SharedLocalizer["Username"] </label>
                     </td>
                     <td>
                         <input class="form-control" @bind="@username" readonly />
@@ -31,7 +32,7 @@ else
                 </tr>
                 <tr>
                     <td>
-                        <label for="Name" class="control-label">@Localizer["Password"] </label>
+                        <label for="Name" class="control-label">@SharedLocalizer["Password"] </label>
                     </td>
                     <td>
                         <input type="password" class="form-control" @bind="@password" autocomplete="new-password" />
@@ -47,7 +48,7 @@ else
                 </tr>
                 <tr>
                     <td>
-                        <label for="Name" class="control-label">@Localizer["Email"] </label>
+                        <label for="Name" class="control-label">@SharedLocalizer["Email"] </label>
                     </td>
                     <td>
                         <input class="form-control" @bind="@email" />
@@ -55,7 +56,7 @@ else
                 </tr>
                 <tr>
                     <td>
-                        <label for="Name" class="control-label">@Localizer["FullName"] </label>
+                        <label for="Name" class="control-label">@SharedLocalizer["FullName"] </label>
                     </td>
                     <td>
                         <input class="form-control" @bind="@displayname" />
@@ -70,8 +71,8 @@ else
                     </td>
                 </tr>
             </table>
-            <button type="button" class="btn btn-primary" @onclick="Save">@Localizer["Save"]</button>
-            <button type="button" class="btn btn-secondary" @onclick="Cancel">@Localizer["Cancel"]</button>
+            <button type="button" class="btn btn-primary" @onclick="Save">@SharedLocalizer["Save"]</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
         }
     </TabPanel>
     <TabPanel Name="Profile" ResourceKey="Profile">
@@ -129,8 +130,8 @@ else
                     }
                 }
             </table>
-            <button type="button" class="btn btn-primary" @onclick="Save">@Localizer["Save"]</button>
-            <button type="button" class="btn btn-secondary" @onclick="Cancel">@Localizer["Cancel"]</button>
+            <button type="button" class="btn btn-primary" @onclick="Save">@SharedLocalizer["Save"]</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
         }
     </TabPanel>
     <TabPanel Name="Notifications" ResourceKey="Notifications">

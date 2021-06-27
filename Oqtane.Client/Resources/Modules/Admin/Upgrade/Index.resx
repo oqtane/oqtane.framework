@@ -117,15 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Download" xml:space="preserve">
-    <value>Download</value>
-  </data>
-  <data name="Install" xml:space="preserve">
-    <value>Install</value>
-  </data>
-  <data name="Upgrade" xml:space="preserve">
-    <value>Upgrade</value>
-  </data>
   <data name="Error.Upgrade.Execute" xml:space="preserve">
     <value>Error Executing Upgrade</value>
   </data>

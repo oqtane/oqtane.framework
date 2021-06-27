@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject IRoleService RoleService
 @inject IStringLocalizer<Add> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
     <table class="table table-borderless">
@@ -28,14 +29,14 @@
             </td>
             <td>
                 <select id="isautoassigned" class="form-control" @bind="@_isautoassigned">
-                    <option value="True">@Localizer["Yes"]</option>
-                    <option value="False">@Localizer["No"]</option>
+                    <option value="True">@SharedLocalizer["Yes"]</option>
+                    <option value="False">@SharedLocalizer["No"]</option>
                 </select>
             </td>
         </tr>
     </table>
-    <button type="button" class="btn btn-success" @onclick="SaveRole">@Localizer["Save"]</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+    <button type="button" class="btn btn-success" @onclick="SaveRole">@SharedLocalizer["Save"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 </form>
 
 @code {

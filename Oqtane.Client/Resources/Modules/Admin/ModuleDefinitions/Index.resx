@@ -117,17 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Name" xml:space="preserve">
-    <value>Name</value>
-  </data>
-  <data name="Loading" xml:space="preserve">
-    <value>Loading...</value>
-  </data>
   <data name="CreateModule.Text" xml:space="preserve">
     <value>Create Module</value>
-  </data>
-  <data name="Version" xml:space="preserve">
-    <value>Version</value>
   </data>
   <data name="Success.Module.Install" xml:space="preserve">
     <value>Module Installed Successfully. You Must &lt;a href={0}&gt;Restart&lt;/a&gt; Your Application To Apply These Changes.</value>
@@ -137,9 +128,6 @@
   </data>
   <data name="Confirm.Module.Delete" xml:space="preserve">
     <value>Are You Sure You Wish To Delete The {0} Module?</value>
-  </data>
-  <data name="Upgrade" xml:space="preserve">
-    <value>Upgrade</value>
   </data>
   <data name="Error.Module.Load" xml:space="preserve">
     <value>Error Loading Modules</value>

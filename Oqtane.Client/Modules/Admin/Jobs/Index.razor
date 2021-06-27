@@ -2,10 +2,11 @@
 @inherits ModuleBase
 @inject IJobService JobService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_jobs == null)
 {
-    <p><em>@Localizer["Loading"]</em></p>
+    <p><em>@SharedLocalizer["Loading"]</em></p>
 }
 else
 {
@@ -19,8 +20,8 @@ else
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
-            <th>@Localizer["Name"]</th>
-            <th>@Localizer["Status"]</th>
+            <th>@SharedLocalizer["Name"]</th>
+            <th>@SharedLocalizer["Status"]</th>
             <th>@Localizer["Frequency"]</th>
             <th>@Localizer["NextExecution"]</th>
             <th style="width: 1px;">&nbsp;</th>

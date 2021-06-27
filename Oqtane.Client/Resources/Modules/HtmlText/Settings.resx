@@ -117,12 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Yes" xml:space="preserve">
-    <value>Yes</value>
-  </data>
-  <data name="No" xml:space="preserve">
-    <value>No</value>
-  </data>
   <data name="AllowFileManagement.HelpText" xml:space="preserve">
     <value>Specify If Editors Can Upload and Select Files</value>
   </data>

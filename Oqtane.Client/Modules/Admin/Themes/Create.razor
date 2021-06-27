@@ -7,6 +7,7 @@
 @inject IPageModuleService PageModuleService
 @inject ISettingService SettingService
 @inject IStringLocalizer<Create> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_templates != null)
 {
@@ -54,7 +55,7 @@
                             <option value="@(version)">@(version)</option>
                         }
                     }
-                    <option value="local">@Localizer["LocalVersion"]</option>
+                    <option value="local">@SharedLocalizer["LocalVersion"]</option>
                 </select>
             </td>
         </tr>
@@ -71,7 +72,7 @@
         }
     </table>
     <button type="button" class="btn btn-success" @onclick="CreateTheme">@Localizer["Theme.Create"]</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 }
 
 @code {

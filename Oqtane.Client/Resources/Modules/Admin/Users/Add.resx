@@ -117,26 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Username" xml:space="preserve">
-    <value>Username:</value>
-  </data>
-  <data name="Password" xml:space="preserve">
-    <value>Password:</value>
-  </data>
-  <data name="Email" xml:space="preserve">
-    <value>Email:</value>
-  </data>
-  <data name="Save" xml:space="preserve">
-    <value>Save</value>
-  </data>
-  <data name="Cancel" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
   <data name="Password.Confirm" xml:space="preserve">
     <value>Confirm Password:</value>
-  </data>
-  <data name="FullName" xml:space="preserve">
-    <value>Full Name:</value>
   </data>
   <data name="Error.User.AddCheckPass" xml:space="preserve">
     <value>Error Adding User. Please Ensure Password Meets Complexity Requirements And Username Is Not Already In Use.</value>

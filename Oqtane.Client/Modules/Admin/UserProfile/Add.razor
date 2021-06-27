@@ -4,6 +4,7 @@
 @inject IUserService UserService
 @inject INotificationService NotificationService
 @inject IStringLocalizer<Add> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (PageState.User != null)
 {
@@ -33,8 +34,8 @@
             </td>
         </tr>
     </table>
-    <button type="button" class="btn btn-primary" @onclick="Send">@Localizer["Send"]</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+    <button type="button" class="btn btn-primary" @onclick="Send">@SharedLocalizer["Send"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 }
 
 @code {

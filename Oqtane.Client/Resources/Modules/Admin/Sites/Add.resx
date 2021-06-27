@@ -123,21 +123,6 @@
   <data name="SqlServer" xml:space="preserve">
     <value>SQL Server</value>
   </data>
-  <data name="True" xml:space="preserve">
-    <value>True</value>
-  </data>
-  <data name="False" xml:space="preserve">
-    <value>False</value>
-  </data>
-  <data name="Save" xml:space="preserve">
-    <value>Save</value>
-  </data>
-  <data name="Cancel" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
-  <data name="Loading" xml:space="preserve">
-    <value>Loading...</value>
-  </data>
   <data name="Server.Text" xml:space="preserve">
     <value>Server: </value>
   </data>

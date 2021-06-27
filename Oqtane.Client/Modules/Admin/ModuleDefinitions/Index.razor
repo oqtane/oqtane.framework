@@ -4,10 +4,11 @@
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject IPackageService PackageService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_moduleDefinitions == null)
 {
-    <p><em>@Localizer["Loading"]</em></p>
+    <p><em>@SharedLocalizer["Loading"]</em></p>
 }
 else
 {
@@ -19,8 +20,8 @@ else
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
-            <th>@Localizer["Name"]</th>
-            <th>@Localizer["Version"]</th>
+            <th>@SharedLocalizer["Name"]</th>
+            <th>@SharedLocalizer["Version"]</th>
             <th style="width: 1px;">&nbsp;</th>
         </Header>
         <Row>
@@ -36,7 +37,7 @@ else
             <td>
                 @if (UpgradeAvailable(context.PackageName, context.Version))
                     {
-                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadModule(context.PackageName, context.Version))>@Localizer["Upgrade"]</button>
+                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadModule(context.PackageName, context.Version))>@SharedLocalizer["Upgrade"]</button>
                     }
             </td>
         </Row>

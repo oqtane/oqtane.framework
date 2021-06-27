@@ -6,6 +6,7 @@
 @inject ISettingService SettingService
 @inject IFileService FileService
 @inject IStringLocalizer<Edit> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (PageState.User != null && photo != null)
 {
@@ -22,7 +23,7 @@ else
             <table class="table table-borderless">
                 <tr>
                     <td>
-                        <label class="control-label">@Localizer["Username"] </label>
+                        <label class="control-label">@SharedLocalizer["Username"] </label>
                     </td>
                     <td>
                         <input class="form-control" @bind="@username" readonly />
@@ -30,7 +31,7 @@ else
                 </tr>
                 <tr>
                     <td>
-                        <label class="control-label">@Localizer["Password"] </label>
+                        <label class="control-label">@SharedLocalizer["Password"] </label>
                     </td>
                     <td>
                         <input type="password" class="form-control" @bind="@password" />
@@ -46,7 +47,7 @@ else
                 </tr>
                 <tr>
                     <td>
-                        <label class="control-label">@Localizer["Email"] </label>
+                        <label class="control-label">@SharedLocalizer["Email"] </label>
                     </td>
                     <td>
                         <input class="form-control" @bind="@email" />
@@ -54,7 +55,7 @@ else
                 </tr>
                 <tr>
                     <td>
-                        <label class="control-label">@Localizer["FullName"] </label>
+                        <label class="control-label">@SharedLocalizer["FullName"] </label>
                     </td>
                     <td>
                         <input class="form-control" @bind="@displayname" />
@@ -74,8 +75,8 @@ else
                     </td>
                     <td>
                         <select class="form-control" @bind="@isdeleted">
-                            <option value="True">@Localizer["Yes"]</option>
-                            <option value="False">@Localizer["No"]</option>
+                            <option value="True">@SharedLocalizer["Yes"]</option>
+                            <option value="False">@SharedLocalizer["No"]</option>
                         </select>
                     </td>
                 </tr>
@@ -119,8 +120,8 @@ else
     </TabPanel>
 </TabStrip>
 
-<button type="button" class="btn btn-primary" @onclick="SaveUser">@Localizer["Save"]</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+<button type="button" class="btn btn-primary" @onclick="SaveUser">@SharedLocalizer["Save"]</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 <br />
 <br />
 <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>

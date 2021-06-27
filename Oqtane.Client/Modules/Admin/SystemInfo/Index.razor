@@ -3,6 +3,7 @@
 @inject ISystemService SystemService
 @inject IInstallationService InstallationService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <TabStrip>
     <TabPanel Name="Info" Heading="Info" ResourceKey="Info">
@@ -95,8 +96,8 @@
                 </td>
                 <td>
                     <select id="detailederrors" class="form-control" @bind="@_detailederrors">
-                        <option value="true">@Localizer["True"]</option>
-                        <option value="false">@Localizer["False"]</option>
+                        <option value="true">@SharedLocalizer["True"]</option>
+                        <option value="false">@SharedLocalizer["False"]</option>
                     </select>
                 </td>
             </tr>
@@ -116,7 +117,7 @@
                 </td>
             </tr>
         </table>
-        <button type="button" class="btn btn-success" @onclick="SaveConfig">@Localizer["Save"]</button>&nbsp;
+        <button type="button" class="btn btn-success" @onclick="SaveConfig">@SharedLocalizer["Save"]</button>&nbsp;
         <ActionDialog Header="Restart Application" Message="Are You Sure You Wish To Restart The Application?" Action="Restart Application" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await RestartApplication())" ResourceKey="RestartApplication" />
     </TabPanel>
 </TabStrip>

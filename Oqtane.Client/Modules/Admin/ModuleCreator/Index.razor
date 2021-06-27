@@ -6,6 +6,7 @@
 @inject IModuleService ModuleService
 @inject ISettingService SettingService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (string.IsNullOrEmpty(_moduledefinitionname) && _templates != null)
 {
@@ -61,7 +62,7 @@
                             <option value="@(version)">@(version)</option>
                         }
                     }
-                    <option value="local">@Localizer["LocalVersion"]</option>
+                    <option value="local">@SharedLocalizer["LocalVersion"]</option>
                 </select>
             </td>
         </tr>
@@ -108,11 +109,11 @@ else
 
             if (string.IsNullOrEmpty(_moduledefinitionname))
             {
-                AddModuleMessage(Localizer["Please Note That The Module Creator Is Only Intended To Be Used In A Development Environment"], MessageType.Info);
+                AddModuleMessage(Localizer["Info.Module.Creator"], MessageType.Info);
             }
             else
             {
-                AddModuleMessage(Localizer["Once You Have Compiled The Module And Restarted The Application You Can Activate The Module Below"], MessageType.Info);
+                AddModuleMessage(Localizer["Info.Module.Activate"], MessageType.Info);
             }
         }
         catch (Exception ex)

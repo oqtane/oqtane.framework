@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Version" xml:space="preserve">
-    <value>Version:</value>
-  </data>
   <data name="DatabaseConfig" xml:space="preserve">
     <value>Database Configuration</value>
   </data>
@@ -128,18 +125,6 @@
   </data>
   <data name="ApplicationAdmin" xml:space="preserve">
     <value>Application Administrator</value>
-  </data>
-  <data name="Username" xml:space="preserve">
-    <value>Username:</value>
-  </data>
-  <data name="Password" xml:space="preserve">
-    <value>Password:</value>
-  </data>
-  <data name="Confirm" xml:space="preserve">
-    <value>Confirm:</value>
-  </data>
-  <data name="Email" xml:space="preserve">
-    <value>Email:</value>
   </data>
   <data name="InstallNow" xml:space="preserve">
     <value>Install Now</value>

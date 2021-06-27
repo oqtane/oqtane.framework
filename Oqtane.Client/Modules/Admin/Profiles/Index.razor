@@ -2,10 +2,11 @@
 @inherits ModuleBase
 @inject IProfileService ProfileService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_profiles == null)
 {
-    <p><em>@Localizer["Loading"]</em></p>
+    <p><em>@SharedLocalizer["Loading"]</em></p>
 }
 else
 {
@@ -15,7 +16,7 @@ else
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
-            <th>@Localizer["Name"]</th>
+            <th>@SharedLocalizer["Name"]</th>
         </Header>
         <Row>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ProfileId.ToString())" ResourceKey="EditProfile" /></td>

@@ -3,6 +3,7 @@
 @inject IFolderService FolderService
 @inject IFileService FileService
 @inject IStringLocalizer<FileManager> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_folders != null)
 {
@@ -49,10 +50,10 @@
                         }
                         <span id="@_progressinfoid"></span><progress id="@_progressbarid" style="width: 150px; visibility: hidden;"></progress>
                         <span class="float-right">
-                            <button type="button" class="btn btn-success" @onclick="UploadFile">@Localizer["Upload"]</button>
+                            <button type="button" class="btn btn-success" @onclick="UploadFile">@SharedLocalizer["Upload"]</button>
                             @if (ShowFiles && GetFileId() != -1)
                             {
-                                <button type="button" class="btn btn-danger" @onclick="DeleteFile">@Localizer["Delete"]</button>
+                                <button type="button" class="btn btn-danger" @onclick="DeleteFile">@SharedLocalizer["Delete"]</button>
                             }
                         </span>
                     </div>

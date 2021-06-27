@@ -4,11 +4,12 @@
 @inject IUserService UserService
 @inject ISettingService SettingService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (userroles == null)
 {
     <p>
-        <em>@Localizer["Loading"]</em>
+        <em>@SharedLocalizer["Loading"]</em>
     </p>
 }
 else
@@ -19,7 +20,7 @@ else
         </div>
         <div class="col">
             <div class="input-group flex-nowrap">
-                <input class="form-control" @bind="@_search" />&nbsp;<button class="btn btn-secondary" @onclick="OnSearch">@Localizer["Search"]</button>
+                <input class="form-control" @bind="@_search" />&nbsp;<button class="btn btn-secondary" @onclick="OnSearch">@SharedLocalizer["Search"]</button>
             </div>
         </div>
     </div>
@@ -29,14 +30,14 @@ else
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
-            <th>@Localizer["Name"]</th>
+            <th>@SharedLocalizer["Name"]</th>
         </Header>
         <Row>
             <td>
                 <ActionLink Action="Edit" Parameters="@($"id=" + context.UserId.ToString())" ResourceKey="EditUser" />
             </td>
             <td>
-                <ActionDialog Header="Delete User" Message="@string.Format(Localizer["Confirm.User.Delete"], context.User.DisplayName)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteUser(context))" Disabled="@(context.Role.Name == RoleNames.Host)"  ResourceKey="DeleteUser" />
+                <ActionDialog Header="Delete User" Message="@string.Format(Localizer["Confirm.User.Delete"], context.User.DisplayName)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteUser(context))" Disabled="@(context.Role.Name == RoleNames.Host)" ResourceKey="DeleteUser" />
             </td>
             <td>
                 <ActionLink Action="Roles" Parameters="@($"id=" + context.UserId.ToString())" ResourceKey="Roles" />
@@ -66,7 +67,7 @@ else
 
         if (string.IsNullOrEmpty(_search))
         {
-            results = results.Where(item => 
+            results = results.Where(item =>
                 (
                     item.User.Username.Contains(search, StringComparison.OrdinalIgnoreCase) ||
                     item.User.Email.Contains(search, StringComparison.OrdinalIgnoreCase) ||

@@ -4,6 +4,7 @@
 @inject IFileService FileService
 @inject NavigationManager NavigationManager
 @inject IStringLocalizer<Edit> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_folders != null)
 {
@@ -60,10 +61,10 @@
     </table>
     @if (!_isSystem)
     {
-        <button type="button" class="btn btn-success" @onclick="SaveFolder">@Localizer["Save"]</button>
+        <button type="button" class="btn btn-success" @onclick="SaveFolder">@SharedLocalizer["Save"]</button>
         @((MarkupString)"&nbsp;")
     }
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
     @if (!_isSystem && PageState.QueryString.ContainsKey("id"))
     {
         @((MarkupString)"&nbsp;")

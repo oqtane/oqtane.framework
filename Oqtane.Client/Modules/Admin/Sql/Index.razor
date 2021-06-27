@@ -5,55 +5,56 @@
 @inject IDatabaseService DatabaseService
 @inject ISqlService SqlService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_tenants == null)
 {
-    <p><em>@Localizer["Loading"]</em></p>
+    <p><em>@SharedLocalizer["Loading"]</em></p>
 }
 else
 {
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <Label For="tenant" HelpText="Select the tenant for the SQL server" ResourceKey="Tenant">Tenant: </Label>
-        </td>
-        <td>
-            <select id="tenant" class="form-control" value="@_tenantid" @onchange="(e => TenantChanged(e))">
-                <option value="-1">&lt;@Localizer["Tenant.Select"]&gt;</option>
-                @foreach (Tenant tenant in _tenants)
-                {
-                    <option value="@tenant.TenantId">@tenant.Name</option>
-                }
-            </select>
-        </td>
-    </tr>
-    @if (_tenantid != "-1")
-    {
+    <table class="table table-borderless">
         <tr>
             <td>
-                <Label For="database" HelpText="The database for the tenant" ResourceKey="Database">Database: </Label>
+                <Label For="tenant" HelpText="Select the tenant for the SQL server" ResourceKey="Tenant">Tenant: </Label>
             </td>
             <td>
-                <input id="database" class="form-control" @bind="@_database" readonly />
+                <select id="tenant" class="form-control" value="@_tenantid" @onchange="(e => TenantChanged(e))">
+                    <option value="-1">&lt;@Localizer["Tenant.Select"]&gt;</option>
+                    @foreach (Tenant tenant in _tenants)
+                    {
+                        <option value="@tenant.TenantId">@tenant.Name</option>
+                    }
+                </select>
             </td>
         </tr>
-        <tr>
-            <td>
-                <Label For="connectionstring" HelpText="The connection information for the database" ResourceKey="ConnectionString">Connection: </Label>
-            </td>
-            <td>
-                <textarea id="connectionstring" class="form-control" @bind="@_connectionstring" rows="2" readonly></textarea>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="sqlQeury" HelpText="Enter the query for the SQL server" ResourceKey="SqlQuery">SQL Query: </Label>
-            </td>
-            <td>
-                <textarea id="sqlQeury" class="form-control" @bind="@_sql" rows="5"></textarea>
-            </td>
-        </tr>
-    }
+        @if (_tenantid != "-1")
+        {
+            <tr>
+                <td>
+                    <Label For="database" HelpText="The database for the tenant" ResourceKey="Database">Database: </Label>
+                </td>
+                <td>
+                    <input id="database" class="form-control" @bind="@_database" readonly />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Label For="connectionstring" HelpText="The connection information for the database" ResourceKey="ConnectionString">Connection: </Label>
+                </td>
+                <td>
+                    <textarea id="connectionstring" class="form-control" @bind="@_connectionstring" rows="2" readonly></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <Label For="sqlQeury" HelpText="Enter the query for the SQL server" ResourceKey="SqlQuery">SQL Query: </Label>
+                </td>
+                <td>
+                    <textarea id="sqlQeury" class="form-control" @bind="@_sql" rows="5"></textarea>
+                </td>
+            </tr>
+        }
     </table>
     <button type="button" class="btn btn-success" @onclick="Execute">@Localizer["Execute"]</button>
     <br />

@@ -11,7 +11,7 @@
 
 @if (_supportedCultures == null)
 {
-    <p><em>@Localizer["Loading"]</em></p>
+    <p><em>@SharedLocalizer["Loading"]</em></p>
 }
 else
 {
@@ -43,15 +43,15 @@ else
                         </td>
                         <td>
                             <select id="default" class="form-control" @bind="@_isDefault">
-                                <option value="True">@Localizer["Yes"]</option>
-                                <option value="False">@Localizer["No"]</option>
+                                <option value="True">@SharedLocalizer["Yes"]</option>
+                                <option value="False">@SharedLocalizer["No"]</option>
                             </select>
                         </td>
                     </tr>
                 </table>
-                <button type="button" class="btn btn-success" @onclick="SaveLanguage">@Localizer["Save"]</button>
+                <button type="button" class="btn btn-success" @onclick="SaveLanguage">@SharedLocalizer["Save"]</button>
             }
-            <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+            <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
         </TabPanel>
         <TabPanel Name="Download" ResourceKey="Download" Security="SecurityAccessLevel.Host">
             @if (_packages != null && _packages.Count > 0)
@@ -78,12 +78,12 @@ else
                             <strong>@(String.Format("{0:n0}", context.Downloads))</strong> @SharedLocalizer["Search.Downloads"]&nbsp;&nbsp;|&nbsp;&nbsp; @SharedLocalizer["Search.Released"]: <strong>@context.ReleaseDate.ToString("MMM dd, yyyy")</strong>&nbsp;&nbsp;|&nbsp;&nbsp;@SharedLocalizer["Search.Version"]: <strong>@context.Version</strong>&nbsp;&nbsp;|&nbsp;&nbsp;@SharedLocalizer["Search.Source"]: <strong>@context.PackageUrl</strong>
                         </td>
                         <td style="vertical-align: middle;">
-                            <button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadLanguage(context.PackageId, context.Version))>@Localizer["Download"]</button>
+                            <button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadLanguage(context.PackageId, context.Version))>@SharedLocalizer["Download"]</button>
                         </td>
                     </Row>
                 </Pager>
-                <button type="button" class="btn btn-success" @onclick="InstallLanguages">@Localizer["Install"]</button>
-                <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+                <button type="button" class="btn btn-success" @onclick="InstallLanguages">@SharedLocalizer["Install"]</button>
+                <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
             }
         </TabPanel>
         <TabPanel Name="Upload" ResourceKey="Upload" Security="SecurityAccessLevel.Host">
@@ -97,8 +97,8 @@ else
                     </td>
                 </tr>
             </table>
-            <button type="button" class="btn btn-success" @onclick="InstallLanguages">@Localizer["Install"]</button>
-            <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+            <button type="button" class="btn btn-success" @onclick="InstallLanguages">@SharedLocalizer["Install"]</button>
+            <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
         </TabPanel>
     </TabStrip>
 }

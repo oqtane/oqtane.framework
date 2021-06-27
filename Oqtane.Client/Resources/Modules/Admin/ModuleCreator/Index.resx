@@ -123,9 +123,6 @@
   <data name="Template.Select" xml:space="preserve">
     <value>Select Template</value>
   </data>
-  <data name="LocalVersion" xml:space="preserve">
-    <value>Local Version</value>
-  </data>
   <data name="Module.Create" xml:space="preserve">
     <value>Create Module</value>
   </data>

@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject IModuleService ModuleService
 @inject IStringLocalizer<Export> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <table class="table table-borderless">
     <tbody>
@@ -17,7 +18,7 @@
     </tbody>
 </table>
 <button type="button" class="btn btn-success" @onclick="ExportModule">@Localizer["Export"]</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 
 
 @code {

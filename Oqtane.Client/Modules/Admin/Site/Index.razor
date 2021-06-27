@@ -9,6 +9,7 @@
 @inject ISettingService  SettingService
 @inject IStringLocalizer<Index> Localizer
 @inject INotificationService NotificationService
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_initialized)
 {
@@ -43,8 +44,8 @@
             </td>
             <td>
                 <select id="allowRegister" class="form-control" @bind="@_allowregistration">
-                    <option value="True">@Localizer["Yes"]</option>
-                    <option value="False">@Localizer["No"]</option>
+                    <option value="True">@SharedLocalizer["Yes"]</option>
+                    <option value="False">@SharedLocalizer["No"]</option>
                 </select>
             </td>
         </tr>
@@ -54,8 +55,8 @@
             </td>
             <td>
                 <select id="isDeleted" class="form-control" @bind="@_isdeleted">
-                    <option value="True">@Localizer["Yes"]</option>
-                    <option value="False">@Localizer["No"]</option>
+                    <option value="True">@SharedLocalizer["Yes"]</option>
+                    <option value="False">@SharedLocalizer["No"]</option>
                 </select>
             </td>
         </tr>
@@ -152,8 +153,8 @@
                 </td>
                 <td>
                     <select id="enabledSSl" class="form-control" @bind="@_smtpssl">
-                        <option value="True">@Localizer["Yes"]</option>
-                        <option value="False">@Localizer["No"]</option>
+                        <option value="True">@SharedLocalizer["Yes"]</option>
+                        <option value="False">@SharedLocalizer["No"]</option>
                     </select>
                 </td>
             </tr>
@@ -193,8 +194,8 @@
                 </td>
                 <td>
                     <select id="isEnabled" class="form-control" @bind="@_pwaisenabled">
-                        <option value="True">@Localizer["Yes"]</option>
-                        <option value="False">@Localizer["No"]</option>
+                        <option value="True">@SharedLocalizer["Yes"]</option>
+                        <option value="False">@SharedLocalizer["No"]</option>
                     </select>
                 </td>
             </tr>
@@ -248,7 +249,7 @@
         </Section>
     }
     <br />
-    <button type="button" class="btn btn-success" @onclick="SaveSite">@Localizer["Save"]</button>
+    <button type="button" class="btn btn-success" @onclick="SaveSite">@SharedLocalizer["Save"]</button>
     <ActionDialog Header="Delete Site" Message="@Localizer["Confirm.DeleteSite"]" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteSite())" ResourceKey="DeleteSite" />
     <br />
     <br />
