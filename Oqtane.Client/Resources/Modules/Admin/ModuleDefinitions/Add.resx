@@ -135,4 +135,7 @@
   <data name="Module.HelpText" xml:space="preserve">
     <value>Upload one or more module packages. Once they are uploaded click Install to complete the installation.</value>
   </data>
+  <data name="Search.NoResults" xml:space="preserve">
+    <value>No Modules Match The Criteria Provided</value>
+  </data>
 </root>

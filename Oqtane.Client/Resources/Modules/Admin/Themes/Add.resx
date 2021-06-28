@@ -135,4 +135,7 @@
   <data name="Theme.HelpText" xml:space="preserve">
     <value>Upload one or more theme packages. Once they are uploaded click Install to complete the installation.</value>
   </data>
+  <data name="Search.NoResults" xml:space="preserve">
+    <value>No Themes Match The Criteria Provided</value>
+  </data>
 </root>
