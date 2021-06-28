@@ -516,6 +516,12 @@ namespace Oqtane.Infrastructure
                                 }
                                 if (string.IsNullOrEmpty(result.Message) && moduleDefinition.Version != versions[versions.Length - 1])
                                 {
+                                    // get module definition from database to retain user customizable property values
+                                    var moduledef = db.ModuleDefinition.AsNoTracking().FirstOrDefault(item => item.ModuleDefinitionId == moduleDefinition.ModuleDefinitionId);
+                                    moduleDefinition.Name = moduledef.Name;
+                                    moduleDefinition.Description = moduledef.Description;
+                                    moduleDefinition.Categories = moduledef.Categories;
+                                    // update version
                                     moduleDefinition.Version = versions[versions.Length - 1];
                                     db.Entry(moduleDefinition).State = EntityState.Modified;
                                     db.SaveChanges();
