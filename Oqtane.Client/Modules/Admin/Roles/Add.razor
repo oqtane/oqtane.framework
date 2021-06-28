@@ -12,7 +12,7 @@
                 <Label For="name" HelpText="Name Of The Role" ResourceKey="Name">Name:</Label>
             </td>
             <td>
-                <input id="name" class="form-control" @bind="@_name" required />
+                <input id="name" class="form-control" @bind="@_name" maxlength="256" required />
             </td>
         </tr>
         <tr>
@@ -20,7 +20,7 @@
                 <Label For="description" HelpText="A Short Description Of The Role Which Describes Its Purpose" ResourceKey="Description">Description:</Label>
             </td>
             <td>
-                <textarea id="description" class="form-control" @bind="@_description" rows="5" required></textarea>
+                <textarea id="description" class="form-control" @bind="@_description" rows="5" maxlength="256" required></textarea>
             </td>
         </tr>
         <tr>
