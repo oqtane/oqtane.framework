@@ -9,34 +9,44 @@
 
 <TabStrip>
     <TabPanel Name="Download" ResourceKey="Download">
-        @if (_packages != null && _packages.Count > 0)
+        <ModuleMessage Type="MessageType.Info" Message="Download one or more modules from the list below. Once you are ready click Install to complete the installation."></ModuleMessage>
+
+        <table class="table table-borderless" style=" margin: auto; width: 50% !important;">
+            <tr>
+                <td>
+                    <input id="search" class="form-control" placeholder="@SharedLocalizer["Search.Hint"]" @bind="@_search" />
+                </td>
+                <td>
+                    <button type="button" class="btn btn-primary" @onclick="Search">@SharedLocalizer["Search"]</button>&nbsp;
+                    <button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Reset"]</button>
+                </td>
+            </tr>
+        </table>
+
+        @if (_packages != null)
         {
-            <ModuleMessage Type="MessageType.Info" Message="Download one or more modules from the list below. Once you are ready click Install to complete the installation."></ModuleMessage>
-
-            <table class="table table-borderless" style=" margin: auto; width: 50% !important;">
-                <tr>
-                    <td>
-                        <input id="search" class="form-control" placeholder="@SharedLocalizer["Search.Hint"]" @bind="@_search" />
-                    </td>
-                    <td>
-                        <button type="button" class="btn btn-primary" @onclick="Search">@SharedLocalizer["Search"]</button>&nbsp;
-                        <button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Reset"]</button>
-                    </td>
-                </tr>
-            </table>
-
-            <Pager Items="@_packages">
-                <Row>
-                    <td>
-                        <h3 style="display: inline;"><a href="@context.ProductUrl" target="_new">@context.Name</a></h3>&nbsp;&nbsp;by:&nbsp;&nbsp;<strong><a href="@context.OwnerUrl" target="new">@context.Owner</a></strong><br />
-                        @(context.Description.Length > 400 ? (context.Description.Substring(0, 400) + "...") : context.Description)<br />
-                        <strong>@(String.Format("{0:n0}", context.Downloads))</strong> @SharedLocalizer["Search.Downloads"]&nbsp;&nbsp;|&nbsp;&nbsp; @SharedLocalizer["Search.Released"]: <strong>@context.ReleaseDate.ToString("MMM dd, yyyy")</strong>&nbsp;&nbsp;|&nbsp;&nbsp;@SharedLocalizer["Search.Version"]: <strong>@context.Version</strong>&nbsp;&nbsp;|&nbsp;&nbsp;@SharedLocalizer["Search.Source"]: <strong>@context.PackageUrl</strong>
-                    </td>
-                    <td style="vertical-align: middle;">
-                        <button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadModule(context.PackageId, context.Version))>@SharedLocalizer["Download"]</button>
-                    </td>
-                </Row>
-            </Pager>
+            if (_packages.Count > 0)
+            {
+                <Pager Items="@_packages">
+                    <Row>
+                        <td>
+                            <h3 style="display: inline;"><a href="@context.ProductUrl" target="_new">@context.Name</a></h3>&nbsp;&nbsp;by:&nbsp;&nbsp;<strong><a href="@context.OwnerUrl" target="new">@context.Owner</a></strong><br />
+                            @(context.Description.Length > 400 ? (context.Description.Substring(0, 400) + "...") : context.Description)<br />
+                            <strong>@(String.Format("{0:n0}", context.Downloads))</strong> @SharedLocalizer["Search.Downloads"]&nbsp;&nbsp;|&nbsp;&nbsp; @SharedLocalizer["Search.Released"]: <strong>@context.ReleaseDate.ToString("MMM dd, yyyy")</strong>&nbsp;&nbsp;|&nbsp;&nbsp;@SharedLocalizer["Search.Version"]: <strong>@context.Version</strong>&nbsp;&nbsp;|&nbsp;&nbsp;@SharedLocalizer["Search.Source"]: <strong>@context.PackageUrl</strong>
+                        </td>
+                        <td style="vertical-align: middle;">
+                            <button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadModule(context.PackageId, context.Version))>@SharedLocalizer["Download"]</button>
+                        </td>
+                    </Row>
+                </Pager>
+            }
+            else
+            {
+                <br />
+                <div class="mx-auto text-center">
+                    @Localizer["Search.NoResults"]
+                </div>
+            }
         }
     </TabPanel>
     <TabPanel Name="Upload" ResourceKey="Upload">
