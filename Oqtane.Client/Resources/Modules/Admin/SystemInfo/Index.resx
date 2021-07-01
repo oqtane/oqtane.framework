@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Access.ApiFramework" xml:space="preserve">
-    <value>Access Framework API</value>
+    <value>Access Swagger API</value>
   </data>
   <data name="FrameworkVersion.HelpText" xml:space="preserve">
     <value>Framework Version</value>
@@ -230,5 +230,17 @@
   </data>
   <data name="Success.Register" xml:space="preserve">
     <value>You Have Been Successfully Registered For Updates</value>
+  </data>
+  <data name="PackageService.HelpText" xml:space="preserve">
+    <value>Specify If The Package Service Is Enabled For Installing Modules, Themes, And Translations</value>
+  </data>
+  <data name="PackageService.Text" xml:space="preserve">
+    <value>Package Service Enabled?</value>
+  </data>
+  <data name="Swagger.HelpText" xml:space="preserve">
+    <value>Specify If Swagger Is Enabled For Your Server API</value>
+  </data>
+  <data name="Swagger.Text" xml:space="preserve">
+    <value>Swagger Enabled?</value>
   </data>
 </root>
