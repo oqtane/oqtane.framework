@@ -194,6 +194,14 @@ namespace Oqtane.Controllers
             if (module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Module, module.ModuleId, PermissionNames.Edit))
             {
                 content = _modules.ExportModule(moduleid);
+                if (!string.IsNullOrEmpty(content))
+                {
+                    _logger.Log(LogLevel.Information, this, LogFunction.Read, "Module Content Exported {ModuleId}", moduleid);
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Warning, this, LogFunction.Read, "No Module Content Exported {ModuleId}", moduleid);
+                }
             }
             else
             {
@@ -213,6 +221,14 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Module, module.ModuleId, PermissionNames.Edit))
             {
                 success = _modules.ImportModule(moduleid, content);
+                if (success)
+                {
+                    _logger.Log(LogLevel.Information, this, LogFunction.Update, "Module Content Imported {ModuleId}", moduleid);
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Warning, this, LogFunction.Update, "Module Content Import Failed {ModuleId}", moduleid);
+                }
             }
             else
             {

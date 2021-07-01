@@ -53,15 +53,7 @@
     {
         if (PageState == null)
         {
-            // misconfigured api calls should not be processed through the router
-            if (!_absoluteUri.Contains("~/api/"))
-            {
-                await Refresh();
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine(GetType().FullName + ": Error: API call to " + _absoluteUri + " is not mapped to a Controller");
-            }
+            await Refresh();
         }
     }
 

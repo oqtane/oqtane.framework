@@ -159,7 +159,7 @@ namespace Oqtane.Repository
                     moduledefinition.Name = (!string.IsNullOrEmpty(moduledef.Name)) ? moduledef.Name : moduledefinition.Name;
                     moduledefinition.Description = (!string.IsNullOrEmpty(moduledef.Description)) ? moduledef.Description : moduledefinition.Description;
                     moduledefinition.Categories = (!string.IsNullOrEmpty(moduledef.Categories)) ? moduledef.Categories : moduledefinition.Categories;
-                    moduledefinition.Version = (!string.IsNullOrEmpty(moduledef.Version)) ? moduledef.Version : moduledefinition.Version;
+                    moduledefinition.Version = moduledef.Version;
                     // remove module definition from list as it is already synced
                     moduledefs.Remove(moduledef);
                 }

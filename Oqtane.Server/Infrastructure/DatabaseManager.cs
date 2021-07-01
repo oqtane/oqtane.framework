@@ -17,7 +17,7 @@ using Oqtane.Repository;
 using Oqtane.Shared;
 using Oqtane.Enums;
 using Newtonsoft.Json;
-using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConvertToUsingDeclaration
@@ -33,14 +33,16 @@ namespace Oqtane.Infrastructure
         private readonly IWebHostEnvironment _environment;
         private readonly IMemoryCache _cache;
         private readonly IConfigManager _configManager;
+        private readonly ILogger<DatabaseManager> _filelogger;
 
-        public DatabaseManager(IConfigurationRoot config, IServiceScopeFactory serviceScopeFactory, IWebHostEnvironment environment, IMemoryCache cache, IConfigManager configManager)
+        public DatabaseManager(IConfigurationRoot config, IServiceScopeFactory serviceScopeFactory, IWebHostEnvironment environment, IMemoryCache cache, IConfigManager configManager, ILogger<DatabaseManager> filelogger)
         {
             _config = config;
             _serviceScopeFactory = serviceScopeFactory;
             _environment = environment;
             _cache = cache;
             _configManager = configManager;
+            _filelogger = filelogger;
         }
 
         public Installation IsInstalled()
@@ -137,8 +139,8 @@ namespace Oqtane.Infrastructure
                 {
                     if (!string.IsNullOrEmpty(installation.Message))
                     {
-                        Debug.WriteLine($"Oqtane Error: {installation.Message}");
                         // problem with prior installation
+                        _filelogger.LogError(Utilities.LogMessage(this, installation.Message));
                         install.ConnectionString = "";
                     }
                 }
@@ -641,7 +643,7 @@ namespace Oqtane.Infrastructure
                         tenant.Version = Constants.Version;
                         tenants.UpdateTenant(tenant);
 
-                        if (site != null) log.Log(site.SiteId, LogLevel.Trace, this, LogFunction.Create, "Site Created {Site}", site);
+                        if (site != null) log.Log(site.SiteId, Shared.LogLevel.Information, this, LogFunction.Create, "Site Created {Site}", site);
                     }
                 }
             }
