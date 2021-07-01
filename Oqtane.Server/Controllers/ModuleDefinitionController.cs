@@ -58,6 +58,7 @@ namespace Oqtane.Controllers
                 {
                     if (_userPermissions.IsAuthorized(User, PermissionNames.Utilize, moduledefinition.Permissions))
                     {
+                        if (string.IsNullOrEmpty(moduledefinition.Version)) moduledefinition.Version = new Version(1, 0, 0).ToString();
                         moduledefinitions.Add(moduledefinition);
                     }
                 }
@@ -81,6 +82,7 @@ namespace Oqtane.Controllers
                 ModuleDefinition moduledefinition = _moduleDefinitions.GetModuleDefinition(id, SiteId);
                 if (_userPermissions.IsAuthorized(User, PermissionNames.Utilize, moduledefinition.Permissions))
                 {
+                    if (string.IsNullOrEmpty(moduledefinition.Version)) moduledefinition.Version = new Version(1, 0, 0).ToString();
                     return moduledefinition;
                 }
                 else
@@ -164,25 +166,38 @@ namespace Oqtane.Controllers
                 if (!string.IsNullOrEmpty(moduledefinition.ServerManagerType))
                 {
                     Type moduletype = Type.GetType(moduledefinition.ServerManagerType);
-                    foreach (Tenant tenant in _tenants.GetTenants())
+                    if (moduletype != null)
                     {
-                        try
+                        var alias = _tenantManager.GetAlias(); // save current
+                        string result = string.Empty;
+                        foreach (Tenant tenant in _tenants.GetTenants())
                         {
-                            if (moduletype.GetInterface("IInstallable") != null)
+                            try
                             {
-                                _tenantManager.SetTenant(tenant.TenantId);
-                                var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
-                                ((IInstallable)moduleobject).Uninstall(tenant);
+                                if (moduletype.GetInterface("IInstallable") != null)
+                                {
+                                    _tenantManager.SetTenant(tenant.TenantId);
+                                    var moduleobject = ActivatorUtilities.CreateInstance(_serviceProvider, moduletype);
+                                    ((IInstallable)moduleobject).Uninstall(tenant);
+                                }
+                                else
+                                {
+                                    _sql.ExecuteScript(tenant, moduletype.Assembly, Utilities.GetTypeName(moduledefinition.ModuleDefinitionName) + ".Uninstall.sql");
+                                }
                             }
-                            else
+                            catch (Exception ex)
                             {
-                                _sql.ExecuteScript(tenant, moduletype.Assembly, Utilities.GetTypeName(moduledefinition.ModuleDefinitionName) + ".Uninstall.sql");
+                                result = "For " + tenant.Name + " " + ex.Message;
                             }
-                            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "{ModuleDefinitionName} Uninstalled For Tenant {Tenant}", moduledefinition.ModuleDefinitionName, tenant.Name);
                         }
-                        catch (Exception ex)
+                        _tenantManager.SetAlias(alias); // restore current
+                        if (string.IsNullOrEmpty(result))
                         {
-                            _logger.Log(LogLevel.Error, this, LogFunction.Delete, "Error Uninstalling {ModuleDefinitionName} For Tenant {Tenant} {Error}", moduledefinition.ModuleDefinitionName, tenant.Name, ex.Message);
+                            _logger.Log(LogLevel.Information, this, LogFunction.Delete, "{ModuleDefinitionName} Uninstalled For All Tenants", moduledefinition.ModuleDefinitionName);
+                        }
+                        else
+                        {
+                            _logger.Log(LogLevel.Error, this, LogFunction.Delete, "Error Uninstalling {ModuleDefinitionName} {Error}", moduledefinition.ModuleDefinitionName, result);
                         }
                     }
                 }

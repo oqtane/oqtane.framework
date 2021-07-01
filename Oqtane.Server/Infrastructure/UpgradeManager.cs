@@ -46,6 +46,9 @@ namespace Oqtane.Infrastructure
                     case "2.1.0":
                         Upgrade_2_1_0(tenant, scope);
                         break;
+                    case "2.2.0":
+                        Upgrade_2_2_0(tenant, scope);
+                        break;
                 }
             }
         }
@@ -150,5 +153,15 @@ namespace Oqtane.Infrastructure
             }
         }
 
+        private void Upgrade_2_2_0(Tenant tenant, IServiceScope scope)
+        {
+            if (tenant.Name == TenantNames.Master)
+            {
+                if (_configManager.GetSetting("Logging:LogLevel:Default", "") == "")
+                {
+                    _configManager.AddOrUpdateSetting("Logging:LogLevel:Default", "Information", true);
+                }
+            }
+        }
     }
 }

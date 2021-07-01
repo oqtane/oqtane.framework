@@ -159,10 +159,9 @@ namespace Oqtane.Repository
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 // error occurred during import
-                string error = ex.Message;
             }
 
             return success;

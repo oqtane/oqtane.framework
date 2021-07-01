@@ -14,10 +14,10 @@ using Microsoft.Extensions.Caching.Memory;
 using System.Net;
 using Oqtane.Repository;
 using Microsoft.AspNetCore.Http;
-using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace Oqtane.Controllers
 {
@@ -31,8 +31,9 @@ namespace Oqtane.Controllers
         private readonly IMemoryCache _cache;
         private readonly IHttpContextAccessor _accessor;
         private readonly IAliasRepository _aliases;
+        private readonly ILogger<InstallationController> _filelogger;
 
-        public InstallationController(IConfigManager configManager, IInstallationManager installationManager, IDatabaseManager databaseManager, ILocalizationManager localizationManager, IMemoryCache cache, IHttpContextAccessor accessor, IAliasRepository aliases)
+        public InstallationController(IConfigManager configManager, IInstallationManager installationManager, IDatabaseManager databaseManager, ILocalizationManager localizationManager, IMemoryCache cache, IHttpContextAccessor accessor, IAliasRepository aliases, ILogger<InstallationController> filelogger)
         {
             _configManager = configManager;
             _installationManager = installationManager;
@@ -41,6 +42,7 @@ namespace Oqtane.Controllers
             _cache = cache;
             _accessor = accessor;
             _aliases = aliases;
+            _filelogger = filelogger;
         }
 
         // POST api/<controller>
@@ -138,7 +140,7 @@ namespace Oqtane.Controllers
                     }
                     else
                     {
-                        Debug.WriteLine($"Oqtane Error: The Satellite Assembly Folder For {culture} Does Not Exist");
+                        _filelogger.LogError(Utilities.LogMessage(this, $"The Satellite Assembly Folder For {culture} Does Not Exist"));
                     }
                 }
 
@@ -156,7 +158,7 @@ namespace Oqtane.Controllers
                             }
                             else
                             {
-                                Debug.WriteLine($"Oqtane Error: Module {instance.ModuleDefinition.ModuleDefinitionName} Dependency {name}.dll Does Not Exist");
+                                _filelogger.LogError(Utilities.LogMessage(this, $"Module {instance.ModuleDefinition.ModuleDefinitionName} Dependency {name}.dll Does Not Exist"));
                             }
                         }
                     }
@@ -171,7 +173,7 @@ namespace Oqtane.Controllers
                             }
                             else
                             {
-                                Debug.WriteLine($"Oqtane Error: Theme {instance.Theme.ThemeName} Dependency {name}.dll Does Not Exist");
+                                _filelogger.LogError(Utilities.LogMessage(this, $"Theme {instance.Theme.ThemeName} Dependency {name}.dll Does Not Exist"));
                             }
                         }
                     }

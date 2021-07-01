@@ -412,5 +412,10 @@ namespace Oqtane.Shared
 
             return dictionary;
         }
+
+        public static string LogMessage(object @class, string message)
+        {
+            return $"[{@class.GetType()}] {message}";
+        }
     }
 }
