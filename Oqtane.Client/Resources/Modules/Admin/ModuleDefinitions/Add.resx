@@ -136,6 +136,6 @@
     <value>Upload one or more module packages. Once they are uploaded click Install to complete the installation.</value>
   </data>
   <data name="Search.NoResults" xml:space="preserve">
-    <value>No Modules Match The Criteria Provided</value>
+    <value>No Modules Match The Criteria Provided Or Package Service Is Disabled</value>
   </data>
 </root>

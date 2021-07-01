@@ -150,4 +150,7 @@
   <data name="Success.Language.Install" xml:space="preserve">
     <value>Translations Installed Successfully. You Must &lt;a href={0}&gt;Restart&lt;/a&gt; Your Application To Apply These Changes.</value>
   </data>
+  <data name="Search.NoResults" xml:space="preserve">
+    <value>No Translations Match The Criteria Provided Or Package Service Is Disabled</value>
+  </data>
 </root>

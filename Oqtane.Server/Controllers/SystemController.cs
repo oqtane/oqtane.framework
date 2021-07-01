@@ -38,6 +38,8 @@ namespace Oqtane.Controllers
             systeminfo.Add("rendermode", _configManager.GetSetting("RenderMode", "ServerPrerendered"));
             systeminfo.Add("detailederrors", _configManager.GetSetting("DetailedErrors", "false"));
             systeminfo.Add("logginglevel", _configManager.GetSetting("Logging:LogLevel:Default", "Information"));
+            systeminfo.Add("swagger", _configManager.GetSetting("UseSwagger", "true"));
+            systeminfo.Add("packageservice", _configManager.GetSetting("PackageService", "true"));
 
             return systeminfo;
         }
@@ -61,6 +63,12 @@ namespace Oqtane.Controllers
                         break;
                     case "logginglevel":
                         _configManager.AddOrUpdateSetting("Logging:LogLevel:Default", kvp.Value, false);
+                        break;
+                    case "swagger":
+                        _configManager.AddOrUpdateSetting("UseSwagger", kvp.Value, false);
+                        break;
+                    case "packageservice":
+                        _configManager.AddOrUpdateSetting("PackageService", kvp.Value, false);
                         break;
                 }
             }

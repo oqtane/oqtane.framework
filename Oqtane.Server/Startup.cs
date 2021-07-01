@@ -153,7 +153,7 @@ namespace Oqtane
             if (_useSwagger)
             {
                 app.UseSwagger();
-                app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Oqtane " + Constants.Version); });
+                app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/" + Constants.Version + "/swagger.json", Constants.PackageId + " " + Constants.Version); });
             }
 
             app.UseEndpoints(endpoints =>

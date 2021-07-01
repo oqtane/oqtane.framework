@@ -181,7 +181,7 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 services.AddSwaggerGen(c =>
                 {
-                    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Oqtane", Version = "v1" });
+                    c.SwaggerDoc(Constants.Version, new OpenApiInfo { Title = Constants.PackageId, Version = Constants.Version });
                 });
             }
 
