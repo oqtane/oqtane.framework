@@ -15,7 +15,7 @@
 {
     <table class="table table-borderless">
         <tr>
-            <td>
+            <td width="30%">
                 <Label For="name" HelpText="Enter the site name" ResourceKey="Name">Name: </Label>
             </td>
             <td>
@@ -43,7 +43,7 @@
                 <Label For="allowRegister" HelpText="Do you want the users to be able to register for an account on the site" ResourceKey="AllowRegistration">Allow User Registration? </Label>
             </td>
             <td>
-                <select id="allowRegister" class="form-control" @bind="@_allowregistration">
+                <select id="allowRegister" class="form-select" @bind="@_allowregistration">
                     <option value="True">@SharedLocalizer["Yes"]</option>
                     <option value="False">@SharedLocalizer["No"]</option>
                 </select>
@@ -54,7 +54,7 @@
                 <Label For="isDeleted" HelpText="Is this site deleted?" ResourceKey="IsDeleted">Is Deleted? </Label>
             </td>
             <td>
-                <select id="isDeleted" class="form-control" @bind="@_isdeleted">
+                <select id="isDeleted" class="form-select" @bind="@_isdeleted">
                     <option value="True">@SharedLocalizer["Yes"]</option>
                     <option value="False">@SharedLocalizer["No"]</option>
                 </select>
@@ -64,7 +64,7 @@
     <Section Name="Appearance" Heading="Appearance" ResourceKey="Appearance">
         <table class="table table-borderless">
             <tr>
-                <td>
+                <td width="30%">
                     <Label For="logo" HelpText="Specify a logo for the site" ResourceKey="Logo">Logo: </Label>
                 </td>
                 <td>
@@ -84,7 +84,7 @@
                     <Label For="defaultTheme" HelpText="Select the sites default theme" ResourceKey="DefaultTheme">Default Theme: </Label>
                 </td>
                 <td>
-                    <select id="defaultTheme" class="form-control" value="@_themetype" @onchange="(e => ThemeChanged(e))">
+                    <select id="defaultTheme" class="form-select" value="@_themetype" @onchange="(e => ThemeChanged(e))">
                         <option value="-">&lt;@Localizer["Theme.Select"]&gt;</option>
                         @foreach (var theme in _themes)
                         {
@@ -98,7 +98,7 @@
                     <Label For="defaultContainer" HelpText="Select the default container for the site" ResourceKey="DefaultContainer">Default Container: </Label>
                 </td>
                 <td>
-                    <select id="defaultContainer" class="form-control" @bind="@_containertype">
+                    <select id="defaultContainer" class="form-select" @bind="@_containertype">
                         <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
                         @foreach (var container in _containers)
                         {
@@ -112,7 +112,7 @@
                     <Label For="defaultAdminContainer" HelpText="Select the default admin container for the site" ResourceKey="DefaultAdminContainer">Default Admin Container: </Label>
                 </td>
                 <td>
-                    <select id="defaultAdminContainer" class="form-control" @bind="@_admincontainertype">
+                    <select id="defaultAdminContainer" class="form-select" @bind="@_admincontainertype">
                         <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
                         <option value="@Constants.DefaultAdminContainer">&lt;@Localizer["DefaultAdminContainer"]&gt;</option>
                         @foreach (var container in _containers)
@@ -127,8 +127,9 @@
     <Section Name="SMTP" Heading="SMTP Settings" ResourceKey="SMTPSettings">
         <table class="table table-borderless">
             <tr>
-                <td colspan="2">
-                    <strong>@Localizer["Smtp.Required.EnableNotificationJob"]</strong>
+                <td width="30%">&nbsp;</td>
+                <td>
+                    <strong>@Localizer["Smtp.Required.EnableNotificationJob"]</strong><br />
                 </td>
             </tr>
             <tr>
@@ -152,7 +153,7 @@
                     <Label For="enabledSSl" HelpText="Specify if SSL is required for your SMTP server" ResourceKey="UseSsl">SSL Enabled: </Label>
                 </td>
                 <td>
-                    <select id="enabledSSl" class="form-control" @bind="@_smtpssl">
+                    <select id="enabledSSl" class="form-select" @bind="@_smtpssl">
                         <option value="True">@SharedLocalizer["Yes"]</option>
                         <option value="False">@SharedLocalizer["No"]</option>
                     </select>
@@ -189,11 +190,11 @@
     <Section Name="PWA" Heading="Progressive Web Application Settings" ResourceKey="PWASettings">
         <table class="table table-borderless">
             <tr>
-                <td>
+                <td width="30%">
                     <Label For="isEnabled" HelpText="Select whether you would like this site to be available as a Progressive Web Application (PWA)" ResourceKey="EnablePWA">Is Enabled? </Label>
                 </td>
                 <td>
-                    <select id="isEnabled" class="form-control" @bind="@_pwaisenabled">
+                    <select id="isEnabled" class="form-select" @bind="@_pwaisenabled">
                         <option value="True">@SharedLocalizer["Yes"]</option>
                         <option value="False">@SharedLocalizer["No"]</option>
                     </select>
@@ -222,7 +223,7 @@
         <Section Name="TenantInformation" Heading="Tenant Information" ResourceKey="TenantInformation">
             <table class="table table-borderless">
                 <tr>
-                    <td>
+                    <td width="30%">
                         <Label For="tenant" HelpText="The tenant for the site" ResourceKey="Tenant">Tenant: </Label>
                     </td>
                     <td>

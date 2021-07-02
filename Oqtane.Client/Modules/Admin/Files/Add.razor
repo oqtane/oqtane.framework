@@ -38,7 +38,7 @@
                         <Label For="folder" HelpText="Select the folder to save the file in" ResourceKey="Folder">Folder: </Label>
                     </td>
                     <td>
-                        <select id="folder" class="form-control" @bind="@_folderId">
+                        <select id="folder" class="form-select" @bind="@_folderId">
                             <option value="-1">&lt;@Localizer["Folder.Select"]&gt;</option>
                             @foreach (Folder folder in _folders)
                             {

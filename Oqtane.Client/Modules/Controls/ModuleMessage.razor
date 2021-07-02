@@ -10,9 +10,7 @@
         {
             @((MarkupString)"&nbsp;&nbsp;")<NavLink href="@NavigateUrl("admin/log")">View Details</NavLink>
         }
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" aria-label="Close" @onclick="DismissModal"></button>
     </div>
     <br />
 }
@@ -56,5 +54,11 @@
         }
 
         return classname;
+    }
+
+    private void DismissModal()
+    {
+        _message = "";
+        StateHasChanged();
     }
 }

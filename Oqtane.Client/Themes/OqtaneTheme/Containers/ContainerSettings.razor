@@ -6,11 +6,11 @@
 
 <table class="table table-borderless">
     <tr>
-        <td>
+        <td width="30%">
             <Label For="title" ResourceKey="Title" HelpText="Specify If The Module Title Should Be Displayed">Display Title?</Label>
         </td>
         <td>
-            <select id="title" class="form-control" @bind="@_title">
+            <select id="title" class="form-select" @bind="@_title">
                 <option value="true">Yes</option>
                 <option value="false">No</option>
             </select>
@@ -21,7 +21,7 @@
             <Label For="background\" ResourceKey="Background" HelpText="Optionally Specify A Background Color For The Container">Background Color:</Label>
         </td>
         <td>
-            <select id="background" class="form-control" @bind="@_background">
+            <select id="background" class="form-select" @bind="@_background">
                 <option value="">None</option>
                 <option value="bg-primary">Primary</option>
                 <option value="bg-secondary">Secondary</option>
@@ -39,7 +39,7 @@
             <Label For="text" ResourceKey="Text" HelpText="Optionally Specify A Text Color For The Container">Text Color:</Label>
         </td>
         <td>
-            <select id="text" class="form-control" @bind="@_text">
+            <select id="text" class="form-select" @bind="@_text">
                 <option value="">None</option>
                 <option value="text-primary">Primary</option>
                 <option value="text-secondary">Secondary</option>
@@ -57,7 +57,7 @@
             <Label For="border" ResourceKey="Border" HelpText="Optionally Specify A Border For The Container">Border Color:</Label>
         </td>
         <td>
-            <select id="border" class="form-control" @bind="@_border">
+            <select id="border" class="form-select" @bind="@_border">
                 <option value="">None</option>
                 <option value="border">Default</option>
                 <option value="border border-primary">Primary</option>

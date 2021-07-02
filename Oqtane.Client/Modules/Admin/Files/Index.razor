@@ -14,7 +14,7 @@
                 <label class="control-label">@Localizer["Folder"] </label>
             </td>
             <td>
-                <select class="form-control" @onchange="(e => FolderChanged(e))">
+                <select class="form-select" @onchange="(e => FolderChanged(e))">
                     @foreach (Folder folder in _folders)
                     {
                         <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>

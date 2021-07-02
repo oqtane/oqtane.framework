@@ -1,4 +1,32 @@
-﻿.breadcrumbs {
+.table > :not(caption) > * > * {
+    box-shadow: none;
+}
+
+.table .form-control {
+    background-color: #ffffff !important;
+    border-width: 0.5px !important;
+    border-bottom-color: #ccc !important;
+}
+
+.table .form-select {
+    background-color: #ffffff !important;
+    border-width: 0.5px !important;
+    border-bottom-color: #ccc !important;
+}
+
+.table .btn-primary {
+    background-color: var(--bs-primary);
+}
+
+.table .btn-secondary {
+    background-color: var(--bs-secondary);
+}
+
+.alert-dismissible .btn-close {
+    z-index: 1;
+}
+
+.breadcrumbs {
     background-color: #e6e6e6;
     border-bottom: 1px solid #d6d5d5;
 }
@@ -69,6 +97,7 @@
     display: flex;
     align-items: center;
     line-height: 3rem;
+    padding-left: 1rem;
 }
 
 .app-menu .nav-item a.active {
@@ -87,7 +116,7 @@
 
 .navbar-toggler {
     background-color: rgba(255, 255, 255, 0.1);
-    margin-left: auto;
+    margin: .5rem;
 }
 
 @media (max-width: 767.98px) {
@@ -110,7 +139,7 @@
     .breadcrumbs {
         position: fixed;
         left: 275px;
-        top: 0;
+        top: 15px;
         z-index: 3
     }
 

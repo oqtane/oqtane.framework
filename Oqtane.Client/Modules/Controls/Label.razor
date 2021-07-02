@@ -30,6 +30,11 @@ else
     {
         base.OnParametersSet();
 
+        if (string.IsNullOrEmpty(Class))
+        {
+            Class = "form-label";
+        }
+
         _openLabel = "<label";
         if (!string.IsNullOrEmpty(For))
         {

@@ -15,11 +15,11 @@ else
 {
     <table class="table table-borderless">
         <tr>
-            <td>
+            <td width="30%">
                 <Label For="tenant" HelpText="Select the tenant for the SQL server" ResourceKey="Tenant">Tenant: </Label>
             </td>
             <td>
-                <select id="tenant" class="form-control" value="@_tenantid" @onchange="(e => TenantChanged(e))">
+                <select id="tenant" class="form-select" value="@_tenantid" @onchange="(e => TenantChanged(e))">
                     <option value="-1">&lt;@Localizer["Tenant.Select"]&gt;</option>
                     @foreach (Tenant tenant in _tenants)
                     {

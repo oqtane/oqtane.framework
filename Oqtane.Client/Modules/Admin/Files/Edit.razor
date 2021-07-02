@@ -10,11 +10,11 @@
 {
     <table class="table table-borderless">
         <tr>
-            <td>
+            <td width="30%">
                 <Label For="parent" HelpText="Select the parent folder" ResourceKey="Parent">Parent: </Label>
             </td>
             <td>
-                <select id="parent" class="form-control" @bind="@_parentId">
+                <select id="parent" class="form-select" @bind="@_parentId">
                     @if (PageState.QueryString.ContainsKey("id"))
                     {
                         <option value="-1">&lt;@Localizer["NoParent"]&gt;</option>
@@ -45,7 +45,7 @@
                 }
                 else
                 {
-                    <select id="type" class="form-control" @bind="@_type">
+                    <select id="type" class="form-select" @bind="@_type">
                         <option value="@FolderTypes.Private">@Localizer[FolderTypes.Private]</option>
                         <option value="@FolderTypes.Public">@Localizer[FolderTypes.Public]</option>
                     </select>

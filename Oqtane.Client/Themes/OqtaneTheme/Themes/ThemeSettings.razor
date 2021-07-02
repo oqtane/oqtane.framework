@@ -6,11 +6,11 @@
 
 <table class="table table-borderless">
     <tr>
-        <td>
+        <td width="30%">
             <Label For="footer" ResourceKey="Footer" HelpText="Specify If A Footer Should Always Be Displayed In A Fixed Location At The Bottom Of The Browser Window">Display Fixed Footer?</Label>
         </td>
         <td>
-            <select id="footer" class="form-control" @bind="@_footer">
+            <select id="footer" class="form-select" @bind="@_footer">
                 <option value="true">Yes</option>
                 <option value="false">No</option>
             </select>

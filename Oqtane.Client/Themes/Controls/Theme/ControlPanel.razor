@@ -16,19 +16,19 @@
 {
     <div class="app-controlpanel" style="@_display">
         <div class="@CardClass">
-            <div class="@HeaderClass">
+            <div class="@HeaderClass d-flex">
                 <span class="font-weight-bold">@Localizer["ControlPanel"]</span>
-                <button type="button" class="close" @onclick="HideControlPanel" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <div class="ms-auto">
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="HideControlPanel"></button>
+                </div>
             </div>
             <div class="@BodyClass">
 
                 @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
                 {
-                    <div class="row">
+                    <div class="row d-flex">
                         <div class="col">
-                            <button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Navigate("Admin"))>@Localizer["AdminDash"]</button>
+                            <button type="button" class="btn btn-primary col-12" @onclick=@(async () => Navigate("Admin"))>@Localizer["AdminDash"]</button>
                         </div>
                     </div>
 
@@ -39,31 +39,25 @@
                             <label class="control-label">@Localizer["Page.Manage"] </label>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col">
-                            <button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Navigate("Add"))>@SharedLocalizer["Add"]</button>
-                        </div>
-                        <div class="col">
-                            <button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Navigate("Edit"))>@SharedLocalizer["Edit"]</button>
-                        </div>
-                        <div class="col">
-                            <button class="btn btn-danger btn-block mx-auto" @onclick="ConfirmDelete">@SharedLocalizer["Delete"]</button>
+                    <div class="row d-flex">
+                        <div class="col d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary col-3" @onclick=@(async () => Navigate("Add"))>@SharedLocalizer["Add"]</button>
+                            <button type="button" class="btn btn-secondary col-3" @onclick=@(async () => Navigate("Edit"))>@SharedLocalizer["Edit"]</button>
+                            <button type="button" class="btn btn-danger col-3" @onclick="ConfirmDelete">@SharedLocalizer["Delete"]</button>
                         </div>
                     </div>
                     <br />
-                    <div class="row">
-                        @if (UserSecurity.GetPermissionStrings(PageState.Page.Permissions).FirstOrDefault(item => item.PermissionName == PermissionNames.View).Permissions.Split(';').Contains(RoleNames.Everyone))
-                        {
-                            <div class="col">
-                                <button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Publish("unpublish"))>@Localizer["Page.Unpublish"]</button>
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="col">
-                                <button type="button" class="btn btn-primary btn-block mx-auto" @onclick=@(async () => Publish("publish"))>@Localizer["Page.Publish"]</button>
-                            </div>
-                        }
+                    <div class="row d-flex">
+                        <div class="col">
+                            @if (UserSecurity.GetPermissionStrings(PageState.Page.Permissions).FirstOrDefault(item => item.PermissionName == PermissionNames.View).Permissions.Split(';').Contains(RoleNames.Everyone))
+                            {
+                                <button type="button" class="btn btn-secondary col-12" @onclick=@(async () => Publish("unpublish"))>@Localizer["Page.Unpublish"]</button>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-secondary col-12" @onclick=@(async () => Publish("publish"))>@Localizer["Page.Publish"]</button>
+                            }
+                        </div>
                     </div>
                 }
 
@@ -75,7 +69,7 @@
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h5 class="modal-title">@Localizer["Page.Delete"]</h5>
-                                        <button type="button" class="close" @onclick="ConfirmDelete" aria-label="Close">&times;</button>
+                                        <button type="button" class="btn-close" aria-label="Close" @onclick="ConfirmDelete"></button>
                                     </div>
                                     <div class="modal-body">
                                         <p>Are You Sure You Want To Delete This Page?</p>
@@ -93,7 +87,7 @@
                 <div class="row">
                     <div class="col text-center">
                         <label for="Module" class="control-label">@Localizer["Module.Manage"] </label>
-                        <select class="form-control" @bind="@ModuleType">
+                        <select class="form-select" @bind="@ModuleType">
                             <option value="new">@Localizer["Module.AddNew"]</option>
                             <option value="existing">@Localizer["Module.AddExisting"]</option>
                         </select>
@@ -101,7 +95,7 @@
                         {
                             @if (_moduleDefinitions != null)
                             {
-                                <select class="form-control" @onchange="(e => CategoryChanged(e))">
+                                <select class="form-select" @onchange="(e => CategoryChanged(e))">
                                     @foreach (var category in _categories)
                                     {
                                         if (category == Category)
@@ -114,7 +108,7 @@
                                         }
                                     }
                                 </select>
-                                <select class="form-control" @onchange="(e => ModuleChanged(e))">
+                                <select class="form-select" @onchange="(e => ModuleChanged(e))">
                                     @if (ModuleDefinitionName == "-")
                                     {
                                         <option value="-" selected>&lt;@Localizer["Module.Select"]&gt;</option>
@@ -139,14 +133,14 @@
                         }
                         else
                         {
-                            <select class="form-control" @onchange="(e => PageChanged(e))">
+                            <select class="form-select" @onchange="(e => PageChanged(e))">
                                 <option value="-">&lt;@Localizer["Page.Select"]&gt;</option>
                                 @foreach (Page p in _pages)
                                 {
                                     <option value="@p.PageId">@p.Name</option>
                                 }
                             </select>
-                            <select class="form-control" @bind="@ModuleId">
+                            <select class="form-select" @bind="@ModuleId">
                                 <option value="-">&lt;@Localizer["Module.Select"]&gt;</option>
                                 @foreach (Module module in _modules)
                                 {
@@ -167,7 +161,7 @@
                     <div class="row">
                         <div class="col text-center">
                             <label for="Pane" class="control-label">@Localizer["Pane"] </label>
-                            <select class="form-control" @bind="@Pane">
+                            <select class="form-select" @bind="@Pane">
                                 @foreach (string pane in PageState.Page.Panes)
                                 {
                                     <option value="@pane">@pane Pane</option>
@@ -179,7 +173,7 @@
                 <div class="row">
                     <div class="col text-center">
                         <label for="Container" class="control-label">@Localizer["Container"] </label>
-                        <select class="form-control" @bind="@ContainerType">
+                        <select class="form-select" @bind="@ContainerType">
                             @foreach (var container in _containers)
                             {
                                 <option value="@container.TypeName">@container.Name</option>
@@ -188,12 +182,12 @@
                     </div>
                 </div>
                 <br />
-                <button type="button" class="btn btn-primary btn-block mx-auto" @onclick="@AddModule">@Localizer["Page.Module.Add"]</button>
+                <button type="button" class="btn btn-primary col-12" @onclick="@AddModule">@Localizer["Page.Module.Add"]</button>
                 @((MarkupString) Message)
                 @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
                 {
                     <hr class="app-rule" />
-                    <NavLink class="btn btn-info btn-block mx-auto" href="@NavigateUrl("admin/update")">@Localizer["System.Update"]</NavLink>
+                    <NavLink class="btn btn-info col-12" href="@NavigateUrl("admin/update")">@Localizer["System.Update"]</NavLink>
                 }
             </div>
         </div>
@@ -209,13 +203,13 @@
 {
     if (PageState.EditMode)
     {
-        <button type="button" class="btn @ButtonClass active" data-toggle="button" aria-pressed="true" autocomplete="off" @onclick="(async () => await ToggleEditMode(PageState.EditMode))">
+        <button type="button" class="btn @ButtonClass active" data-bs-toggle="button" aria-pressed="true" autocomplete="off" @onclick="(async () => await ToggleEditMode(PageState.EditMode))">
             <span class="oi oi-pencil"></span>
         </button>
     }
     else
     {
-        <button type="button" class="btn @ButtonClass" data-toggle="button" aria-pressed="false" autocomplete="off" @onclick="(async () => await ToggleEditMode(PageState.EditMode))">
+        <button type="button" class="btn @ButtonClass" data-bs-toggle="button" aria-pressed="false" autocomplete="off" @onclick="(async () => await ToggleEditMode(PageState.EditMode))">
             <span class="oi oi-pencil"></span>
         </button>
     }

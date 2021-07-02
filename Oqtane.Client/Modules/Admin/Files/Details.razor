@@ -10,7 +10,7 @@
 {
     <table class="table table-borderless">
         <tr>
-            <td>
+            <td width="30%">
                 <Label for="name" HelpText="The name of the file" ResourceKey="Name">Name: </Label>
             </td>
             <td>
@@ -22,7 +22,7 @@
                 <Label For="parent" HelpText="The folder where the file is located" ResourceKey="Folder">Folder: </Label>
             </td>
             <td>
-                <select id="parent" class="form-control" @bind="@_folderId">
+                <select id="parent" class="form-select" @bind="@_folderId">
                     @foreach (Folder folder in _folders)
                     {
                         <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
