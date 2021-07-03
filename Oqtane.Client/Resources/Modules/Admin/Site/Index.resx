@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -136,7 +136,7 @@
     <value>Default Admin Container</value>
   </data>
   <data name="Smtp.Required.EnableNotificationJob" xml:space="preserve">
-    <value>Please Note That SMTP Requires The Notification Job To Be Enabled In Scheduled Jobs</value>
+    <value>** Please Note That SMTP Requires The Notification Job To Be Enabled In Scheduled Jobs</value>
   </data>
   <data name="Smtp.TestConfig" xml:space="preserve">
     <value>Test SMTP Configuration</value>

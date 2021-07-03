@@ -7,7 +7,7 @@
 
 <table class="table table-borderless">
     <tr>
-        <td>
+        <td width="30%">
             <Label For="name" HelpText="Enter the job name" ResourceKey="Name">Name: </Label>
         </td>
         <td>
@@ -27,7 +27,7 @@
             <Label For="enabled" HelpText="Select whether you want the job enabled or not" ResourceKey="Enabled">Enabled? </Label>
         </td>
         <td>
-            <select id="enabled" class="form-control" @bind="@_isEnabled">
+            <select id="enabled" class="form-select" @bind="@_isEnabled">
                 <option value="True">@SharedLocalizer["Yes"]</option>
                 <option value="False">@SharedLocalizer["No"]</option>
             </select>
@@ -39,7 +39,7 @@
         </td>
         <td>
             <input id="runs-every" class="form-control" @bind="@_interval" />
-            <select id="runs-every" class="form-control" @bind="@_frequency">
+            <select id="runs-every" class="form-select" @bind="@_frequency">
                 <option value="m">@Localizer["Minute(s)"]</option>
                 <option value="H">@Localizer["Hour(s)"]</option>
                 <option value="d">@Localizer["Day(s)"]</option>
@@ -82,6 +82,9 @@
 </table>
 <button type="button" class="btn btn-success" @onclick="SaveJob">@SharedLocalizer["Save"]</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+<br />
+<br />
+<AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
 
 @code {
     private int _jobId;
@@ -94,6 +97,10 @@
     private string _endDate = string.Empty;
     private string _retentionHistory = string.Empty;
     private string _nextExecution = string.Empty;
+    private string createdby;
+    private DateTime createdon;
+    private string modifiedby;
+    private DateTime modifiedon;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
@@ -114,6 +121,10 @@
                 _endDate = (job.EndDate != null) ? job.EndDate.ToString() : string.Empty;
                 _retentionHistory = job.RetentionHistory.ToString();
                 _nextExecution = job.NextExecution.ToString();
+                createdby = job.CreatedBy;
+                createdon = job.CreatedOn;
+                modifiedby = job.ModifiedBy;
+                modifiedon = job.ModifiedOn;
             }
         }
         catch (Exception ex)

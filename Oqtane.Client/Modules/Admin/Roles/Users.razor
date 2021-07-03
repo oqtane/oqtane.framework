@@ -13,7 +13,7 @@ else
 {
     <table class="table table-borderless">
         <tr>
-            <td>
+            <td width="30%">
                 <Label For="role" HelpText="The role you are assigning users to" ResourceKey="Role">Role: </Label>
             </td>
             <td>
@@ -25,7 +25,7 @@ else
                 <Label For="user" HelpText="Select a user" ResourceKey="User">User: </Label>
             </td>
             <td>
-                <select id="user" class="form-control" @bind="@userid">
+                <select id="user" class="form-select" @bind="@userid">
                     <option value="-1">&lt;@Localizer["User.Select"]&gt;</option>
                     @foreach (UserRole userrole in users)
                     {

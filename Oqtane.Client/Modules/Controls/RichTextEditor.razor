@@ -14,7 +14,7 @@
                         <ModuleMessage Message="@_message" Type="MessageType.Warning"></ModuleMessage>
                         <br />
                     }
-                    <div class="row justify-content-center" style="margin-bottom: 20px;">
+                    <div class="d-flex justify-content-center mb-2">
                         <button type="button" class="btn btn-secondary" @onclick="RefreshRichText">@Localizer["SynchronizeContent"]</button>&nbsp;&nbsp;
                         <button type="button" class="btn btn-primary" @onclick="InsertImage">@Localizer["InsertImage"]</button>
                         @if (_filemanagervisible)
@@ -66,7 +66,7 @@
                 </div>
             </TabPanel>
             <TabPanel Name="Raw" Heading="Raw HTML Editor" ResourceKey="HtmlEditor">
-                <div class="row justify-content-center" style="margin-bottom: 20px;">
+                <div class="d-flex justify-content-center mb-2">
                     <button type="button" class="btn btn-secondary" @onclick="RefreshRawHtml">@Localizer["SynchronizeContent"]</button>
                 </div>
                 @if (ReadOnly)

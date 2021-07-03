@@ -10,7 +10,7 @@
             <li class="nav-item px-3" style="margin-left: @(childPage.Level * 15)px;">
                 <a class="nav-link active" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
                     <span class="@childPage.Icon" aria-hidden="true" />
-                    @childPage.Name <span class="sr-only">(current)</span>
+                    @childPage.Name <span class="visually-hidden-focusable">(current)</span>
                 </a>
             </li>
         }
@@ -39,7 +39,7 @@ else
                 <li class="nav-item px-3" style="margin-left: @(childPage.Level * 15)px;">
                     <a class="nav-link active" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
                         <span class="@childPage.Icon" aria-hidden="true" />
-                        @childPage.Name <span class="sr-only">(current)</span>
+                        @childPage.Name <span class="visually-hidden-focusable">(current)</span>
                     </a>
                 </li>
             }

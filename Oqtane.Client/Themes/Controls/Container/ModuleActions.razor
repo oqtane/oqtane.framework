@@ -5,7 +5,7 @@
 @if (PageState.EditMode && UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, ModuleState.Permissions) && PageState.Action == Constants.DefaultAction)
 {
     <div class="app-moduleactions">
-        <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"></a>
+        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"></a>
         <ul class="dropdown-menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 37px, 0px);">
             @foreach (var action in Actions.Where(item => !item.Name.Contains("Pane")))
             {

@@ -14,7 +14,7 @@
         {
             <table class="table table-borderless">
                 <tr>
-                    <td>
+                    <td width="30%">
                         <Label For="title" HelpText="Enter the title of the module" ResourceKey="Title">Title: </Label>
                     </td>
                     <td>
@@ -26,7 +26,7 @@
                         <Label For="container" HelpText="Select the module's container" ResourceKey="Container">Container: </Label>
                     </td>
                     <td>
-                        <select id="container" class="form-control" @bind="@_containerType">
+                        <select id="container" class="form-select" @bind="@_containerType">
                             @foreach (var container in _containers)
                             {
                                 <option value="@container.TypeName">@container.Name</option>
@@ -39,7 +39,7 @@
                         <Label For="allpages" HelpText="Indicate if this module should be displayed on all pages" ResourceKey="DisplayOnAllPages">Display On All Pages? </Label>
                     </td>
                     <td>
-                        <select id="allpages" class="form-control" @bind="@_allPages">
+                        <select id="allpages" class="form-select" @bind="@_allPages">
                             <option value="True">@SharedLocalizer["Yes"]</option>
                             <option value="False">@SharedLocalizer["No"]</option>
                         </select>
@@ -50,7 +50,7 @@
                         <Label For="page" HelpText="The page that the module is located on" ResourceKey="Page">Page: </Label>
                     </td>
                     <td>
-                        <select id="page" class="form-control" @bind="@_pageId">
+                        <select id="page" class="form-select" @bind="@_pageId">
                             @foreach (Page p in PageState.Pages)
                             {
                                 if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
@@ -91,6 +91,9 @@
 </TabStrip>
 <button type="button" class="btn btn-success" @onclick="SaveModule">@SharedLocalizer["Save"]</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+<br />
+<br />
+<AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
@@ -112,6 +115,10 @@
     private Type _containerSettingsType;
     private object _containerSettings;
     private RenderFragment ContainerSettingsComponent { get; set; }
+    private string createdby;
+    private DateTime createdon;
+    private string modifiedby;
+    private DateTime modifiedon;
 
     protected override async Task OnInitializedAsync()
     {
@@ -123,6 +130,10 @@
         _permissions = ModuleState.Permissions;
         _permissionNames = ModuleState.ModuleDefinition.PermissionNames;
         _pageId = ModuleState.PageId.ToString();
+        createdby = ModuleState.CreatedBy;
+        createdon = ModuleState.CreatedOn;
+        modifiedby = ModuleState.ModifiedBy;
+        modifiedon = ModuleState.ModifiedOn;
 
         if (!string.IsNullOrEmpty(ModuleState.ModuleDefinition.SettingsType))
         {

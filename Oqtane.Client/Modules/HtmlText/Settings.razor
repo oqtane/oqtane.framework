@@ -7,11 +7,11 @@
 
 <table class="table table-borderless">
     <tr>
-        <td>
+        <td width="30%">
             <Label For="files" ResourceKey="Allow File Management" HelpText="Specify If Editors Can Upload and Select Files">Allow File Management: </Label>
         </td>
         <td>
-            <select id="files" class="form-control" @bind="@_allowfilemanagement">
+            <select id="files" class="form-select" @bind="@_allowfilemanagement">
                 <option value="true">@SharedLocalizer["Yes"]</option>
                 <option value="false">@SharedLocalizer["No"]</option>
             </select>

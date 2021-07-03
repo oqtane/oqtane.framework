@@ -25,11 +25,11 @@ else
             {
                 <table class="table table-borderless">
                     <tr>
-                        <td>
+                        <td width="30%">
                             <Label For="name" HelpText="Name Of The Language" ResourceKey="Name">Name:</Label>
                         </td>
                         <td>
-                            <select id="_code" class="form-control" @bind="@_code">
+                            <select id="_code" class="form-select" @bind="@_code">
                                 @foreach (var culture in _availableCultures)
                                 {
                                     <option value="@culture.Name">@culture.DisplayName</option>
@@ -42,7 +42,7 @@ else
                             <Label For="default" HelpText="Indicates Whether Or Not This Language Is The Default For The Site" ResourceKey="IsDefault">Default?</Label>
                         </td>
                         <td>
-                            <select id="default" class="form-control" @bind="@_isDefault">
+                            <select id="default" class="form-select" @bind="@_isDefault">
                                 <option value="True">@SharedLocalizer["Yes"]</option>
                                 <option value="False">@SharedLocalizer["No"]</option>
                             </select>

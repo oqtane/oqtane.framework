@@ -117,17 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Password" xml:space="preserve">
-    <value>Password:</value>
-  </data>
-  <data name="Password.Confirm" xml:space="preserve">
-    <value>Confirm Password:</value>
-  </data>
   <data name="Message.Password.Invalid" xml:space="preserve">
     <value>Passwords Entered Do Not Match</value>
-  </data>
-  <data name="Photo" xml:space="preserve">
-    <value>Photo:</value>
   </data>
   <data name="From" xml:space="preserve">
     <value>From</value>
@@ -176,5 +167,41 @@
   </data>
   <data name="Identity.Name" xml:space="preserve">
     <value>Identity</value>
+  </data>
+  <data name="Confirm.HelpText" xml:space="preserve">
+    <value>If you are changing your password you must enter it again to confirm it matches</value>
+  </data>
+  <data name="Confirm.Text" xml:space="preserve">
+    <value>Confirm Password:</value>
+  </data>
+  <data name="DisplayName.HelpText" xml:space="preserve">
+    <value>Your full name</value>
+  </data>
+  <data name="DisplayName.Text" xml:space="preserve">
+    <value>Full Name:</value>
+  </data>
+  <data name="Email.HelpText" xml:space="preserve">
+    <value>Your email address where you wish to receive notifications</value>
+  </data>
+  <data name="Email.Text" xml:space="preserve">
+    <value>Email:</value>
+  </data>
+  <data name="Password.HelpText" xml:space="preserve">
+    <value>If you wish to change your password you can enter it here. Please choose a sufficiently secure password.</value>
+  </data>
+  <data name="Password.Text" xml:space="preserve">
+    <value>Password:</value>
+  </data>
+  <data name="Photo.HelpText" xml:space="preserve">
+    <value>A photo of yourself</value>
+  </data>
+  <data name="Photo.Text" xml:space="preserve">
+    <value>Photo:</value>
+  </data>
+  <data name="Username.HelpText" xml:space="preserve">
+    <value>Your username. Note that this field can not be modified.</value>
+  </data>
+  <data name="Username.Text" xml:space="preserve">
+    <value>Username:</value>
   </data>
 </root>

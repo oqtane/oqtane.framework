@@ -8,7 +8,7 @@
 <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
     <table class="table table-borderless">
         <tr>
-            <td>
+            <td width="30%">
                 <Label For="name" HelpText="Name Of The Role" ResourceKey="Name">Name:</Label>
             </td>
             <td>
@@ -28,7 +28,7 @@
                 <Label For="isautoassigned" HelpText="Indicates Whether Or Not New Users Are Automatically Assigned To This Role" ResourceKey="AutoAssigned">Auto Assigned?</Label>
             </td>
             <td>
-                <select id="isautoassigned" class="form-control" @bind="@_isautoassigned">
+                <select id="isautoassigned" class="form-select" @bind="@_isautoassigned">
                     <option value="True">@SharedLocalizer["Yes"]</option>
                     <option value="False">@SharedLocalizer["No"]</option>
                 </select>

@@ -9,7 +9,7 @@
     <TabPanel Name="Info" Heading="Info" ResourceKey="Info">
         <table class="table table-borderless">
             <tr>
-                <td>
+                <td width="30%">
                     <Label For="version" HelpText="Framework Version" ResourceKey="FrameworkVersion">Framework Version: </Label>
                 </td>
                 <td>
@@ -56,23 +56,24 @@
                     <input id="installationid" class="form-control" @bind="@_installationid" readonly />
                 </td>
             </tr>
+            <tr>
+                <td>&nbsp;</td>
+                <td>
+                    <br /><input type="checkbox" @onchange="(e => RegisterChecked(e))" /> @Localizer["Register"]
+                </td>
+            </tr>
         </table>
-        <div class="row">
-            <div class="mx-auto text-center">
-                <input type="checkbox" @onchange="(e => RegisterChecked(e))" /> @Localizer["Register"]
-            </div>
-        </div>
         <br /><br />
         <ActionDialog Header="Restart Application" Message="Are You Sure You Wish To Restart The Application?" Action="Restart Application" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await RestartApplication())" ResourceKey="RestartApplication" />
     </TabPanel>
     <TabPanel Name="Options" Heading="Options" ResourceKey="Options">
         <table class="table table-borderless">
             <tr>
-                <td>
+                <td width="30%">
                     <Label For="runtime" HelpText="Blazor Runtime (Server or WebAssembly)" ResourceKey="BlazorRuntime">Blazor Runtime: </Label>
                 </td>
                 <td>
-                    <select id="runtime" class="form-control" @bind="@_runtime">
+                    <select id="runtime" class="form-select" @bind="@_runtime">
                         <option value="Server">@Localizer["Server"]</option>
                         <option value="WebAssembly">@Localizer["WebAssembly"]</option>
                     </select>
@@ -83,7 +84,7 @@
                     <Label For="rendermode" HelpText="Blazor Server Render Mode" ResourceKey="RenderMode">Render Mode: </Label>
                 </td>
                 <td>
-                    <select id="rendermode" class="form-control" @bind="@_rendermode">
+                    <select id="rendermode" class="form-select" @bind="@_rendermode">
                         <option value="Server">@Localizer["Server"]</option>
                         <option value="ServerPrerendered">@Localizer["ServerPrerendered"]</option>
                     </select>
@@ -94,7 +95,7 @@
                     <Label For="detailederrors" HelpText="Specify If Detailed Errors Are Enabled For Blazor. This Option Should Not Not Be Enabled In Production." ResourceKey="DetailedErrors">Detailed Errors? </Label>
                 </td>
                 <td>
-                    <select id="detailederrors" class="form-control" @bind="@_detailederrors">
+                    <select id="detailederrors" class="form-select" @bind="@_detailederrors">
                         <option value="true">@SharedLocalizer["True"]</option>
                         <option value="false">@SharedLocalizer["False"]</option>
                     </select>
@@ -105,7 +106,7 @@
                     <Label For="logginglevel" HelpText="The Minimum Logging Level For The Event Log. This Option Can Be Used To Control The Volume Of Items Stored In Your Event Log." ResourceKey="LoggingLevel">Logging Level: </Label>
                 </td>
                 <td>
-                    <select id="logginglevel" class="form-control" @bind="@_logginglevel">
+                    <select id="logginglevel" class="form-select" @bind="@_logginglevel">
                         <option value="Trace">@Localizer["Trace"]</option>
                         <option value="Debug">@Localizer["Debug"]</option>
                         <option value="Information">@Localizer["Information"]</option>
@@ -120,7 +121,7 @@
                     <Label For="swagger" HelpText="Specify If Swagger Is Enabled For Your Server API" ResourceKey="Swagger">Swagger Enabled? </Label>
                 </td>
                 <td>
-                    <select id="swagger" class="form-control" @bind="@_swagger">
+                    <select id="swagger" class="form-select" @bind="@_swagger">
                         <option value="true">@SharedLocalizer["True"]</option>
                         <option value="false">@SharedLocalizer["False"]</option>
                     </select>
@@ -131,13 +132,14 @@
                     <Label For="packageservice" HelpText="Specify If The Package Service Is Enabled For Installing Modules, Themes, And Translations" ResourceKey="PackageService">Enable Package Service? </Label>
                 </td>
                 <td>
-                    <select id="packageservice" class="form-control" @bind="@_packageservice">
+                    <select id="packageservice" class="form-select" @bind="@_packageservice">
                         <option value="true">@SharedLocalizer["True"]</option>
                         <option value="false">@SharedLocalizer["False"]</option>
                     </select>
                 </td>
             </tr>
         </table>
+        <br /><br />
         <button type="button" class="btn btn-success" @onclick="SaveConfig">@SharedLocalizer["Save"]</button>&nbsp;
         <a class="btn btn-primary" href="swagger/index.html" target="_new">@Localizer["Access.ApiFramework"]</a>&nbsp;
         <ActionDialog Header="Restart Application" Message="Are You Sure You Wish To Restart The Application?" Action="Restart Application" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await RestartApplication())" ResourceKey="RestartApplication" />

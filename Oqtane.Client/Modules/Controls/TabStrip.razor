@@ -10,13 +10,13 @@
                     <li class="nav-item" @key="tabPanel.Name">
                         @if (tabPanel.Name == ActiveTab)
                         {
-                            <a class="nav-link active" data-toggle="tab" href="#@tabPanel.Name" role="tab" @onclick:preventDefault="true">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#@tabPanel.Name" role="tab" @onclick:preventDefault="true">
                                 @tabPanel.DisplayHeading()
                             </a>
                         }
                         else
                         {
-                            <a class="nav-link" data-toggle="tab" href="#@tabPanel.Name" role="tab" @onclick:preventDefault="true">
+                            <a class="nav-link" data-bs-toggle="tab" href="#@tabPanel.Name" role="tab" @onclick:preventDefault="true">
                                 @tabPanel.DisplayHeading()
                             </a>
                         }

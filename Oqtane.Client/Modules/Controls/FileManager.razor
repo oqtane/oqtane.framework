@@ -13,7 +13,7 @@
                 @if (ShowFolders || FolderId <= 0)
                 {
                     <div>
-                        <select class="form-control" value="@FolderId" @onchange="(e => FolderChanged(e))">
+                        <select class="form-select" value="@FolderId" @onchange="(e => FolderChanged(e))">
                             @if (string.IsNullOrEmpty(Folder))
                             {
                                 <option value="-1">&lt;@Localizer["Folder.Select"]&gt;</option>
@@ -28,7 +28,7 @@
                 @if (ShowFiles)
                 {
                     <div>
-                        <select class="form-control" value="@FileId" @onchange="(e => FileChanged(e))">
+                        <select class="form-select" value="@FileId" @onchange="(e => FileChanged(e))">
                             <option value="-1">&lt;@Localizer["File.Select"]&gt;</option>
                             @foreach (File file in _files)
                             {
@@ -49,7 +49,7 @@
                             <input type="file" id="@_fileinputid" name="file" accept="@_filter" />
                         }
                         <span id="@_progressinfoid"></span><progress id="@_progressbarid" style="width: 150px; visibility: hidden;"></progress>
-                        <span class="float-right">
+                        <span class="float-end">
                             <button type="button" class="btn btn-success" @onclick="UploadFile">@SharedLocalizer["Upload"]</button>
                             @if (ShowFiles && GetFileId() != -1)
                             {

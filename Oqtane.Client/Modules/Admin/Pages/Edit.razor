@@ -13,7 +13,7 @@
         {
             <table class="table table-borderless">
                 <tr>
-                    <td>
+                    <td width="30%">
                         <Label For="Name" HelpText="Enter the page name" ResourceKey="Name">Name: </Label>
                     </td>
                     <td>
@@ -25,7 +25,7 @@
                         <Label For="Parent" HelpText="Select the parent for the page in the site hierarchy" ResourceKey="Parent">Parent: </Label>
                     </td>
                     <td>
-                        <select id="Parent" class="form-control" value="@_parentid" @onchange="(e => ParentChanged(e))">
+                        <select id="Parent" class="form-select" value="@_parentid" @onchange="(e => ParentChanged(e))">
                             <option value="-1">&lt;@Localizer["SiteRoot"]&gt;</option>
                             @foreach (Page page in _pageList)
                             {
@@ -42,7 +42,7 @@
                         <Label For="Move" HelpText="Select the location where you would like the page to be moved in relation to other pages" ResourceKey="Move">Move: </Label>
                     </td>
                     <td>
-                        <select id="Move" class="form-control" @bind="@_insert">
+                        <select id="Move" class="form-select" @bind="@_insert">
                             @if (_parentid == _currentparentid)
                             {
                                 <option value="=">&lt;@Localizer["ThisLocation.Keep"]&gt;</option>
@@ -57,7 +57,7 @@
                         </select>
                         @if (_children != null && _children.Count > 0 && (_insert == "<" || _insert == ">"))
                         {
-                            <select class="form-control" @bind="@_childid">
+                            <select class="form-select" @bind="@_childid">
                                 <option value="-1">&lt;@Localizer["Page.Select"]&gt;</option>
                                 @foreach (Page page in _children)
                                 {
@@ -72,7 +72,7 @@
                         <Label For="Navigation" HelpText="Select whether the page is part of the site navigation or hidden" ResourceKey="Navigation">Navigation? </Label>
                     </td>
                     <td>
-                        <select id="Navigation" class="form-control" @bind="@_isnavigation">
+                        <select id="Navigation" class="form-select" @bind="@_isnavigation">
                             <option value="True">@SharedLocalizer["Yes"]</option>
                             <option value="False">@SharedLocalizer["No"]</option>
                         </select>
@@ -83,7 +83,7 @@
                         <Label For="Clickablen" HelpText="Select whether the link in the site navigation is enabled or disabled" ResourceKey="Clickable">Clickable? </Label>
                     </td>
                     <td>
-                        <select id="Navigation" class="form-control" @bind="@_isclickable">
+                        <select id="Navigation" class="form-select" @bind="@_isclickable">
                             <option value="True">@SharedLocalizer["Yes"]</option>
                             <option value="False">@SharedLocalizer["No"]</option>
                         </select>
@@ -109,7 +109,7 @@
             <Section Name="Appearance" ResourceKey="Appearance">
                 <table class="table table-borderless">
                     <tr>
-                        <td>
+                        <td width="30%">
                             <Label For="Title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used." ResourceKey="Title">Title: </Label>
                         </td>
                         <td>
@@ -121,7 +121,7 @@
                             <Label For="Theme" HelpText="Select the theme for this page" ResourceKey="Theme">Theme: </Label>
                         </td>
                         <td>
-                            <select id="Theme" class="form-control" value="@_themetype" @onchange="(e => ThemeChanged(e))">
+                            <select id="Theme" class="form-select" value="@_themetype" @onchange="(e => ThemeChanged(e))">
                                 @foreach (var theme in _themes)
                                 {
                                     <option value="@theme.TypeName">@theme.Name</option>
@@ -134,7 +134,7 @@
                             <Label For="defaultContainer" HelpText="Select the default container for the page" ResourceKey="DefaultContainer">Default Container: </Label>
                         </td>
                         <td>
-                            <select id="defaultContainer" class="form-control" @bind="@_containertype">
+                            <select id="defaultContainer" class="form-select" @bind="@_containertype">
                                 <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
                                 @foreach (var container in _containers)
                                 {
@@ -156,7 +156,7 @@
                             <Label For="Personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content" ResourceKey="Personalizable">Personalizable? </Label>
                         </td>
                         <td>
-                            <select id="Personalizable" class="form-control" @bind="@_ispersonalizable">
+                            <select id="Personalizable" class="form-select" @bind="@_ispersonalizable">
                                 <option value="True">@SharedLocalizer["Yes"]</option>
                                 <option value="False">@SharedLocalizer["No"]</option>
                             </select>

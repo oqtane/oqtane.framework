@@ -14,16 +14,19 @@
 }
 else
 {
-    <div class="form-row">
-        <div class="col">
-            <ActionLink Action="Add" Text="Add User" ResourceKey="AddUser" />
-        </div>
-        <div class="col">
-            <div class="input-group flex-nowrap">
-                <input class="form-control" @bind="@_search" />&nbsp;<button class="btn btn-secondary" @onclick="OnSearch">@SharedLocalizer["Search"]</button>
-            </div>
-        </div>
-    </div>
+    <table class="table table-borderless">
+        <tr>
+            <td>
+                <div><ActionLink Action="Add" Text="Add User" ResourceKey="AddUser" /></div>
+            </td>
+            <td>
+                <input class="form-control" @bind="@_search" />
+            </td>
+            <td>
+                <button class="btn btn-secondary" @onclick="OnSearch">@SharedLocalizer["Search"]</button>
+            </td>
+        </tr>
+    </table>
 
     <Pager Items="@userroles">
         <Header>

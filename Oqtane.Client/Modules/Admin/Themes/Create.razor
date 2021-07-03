@@ -13,7 +13,7 @@
 {
     <table class="table table-borderless">
         <tr>
-            <td>
+            <td width="30%">
                 <Label For="owner" HelpText="Enter the name of the organization who is developing this theme. It should not contain spaces or punctuation." ResourceKey="OwnerName">Owner Name: </Label>
             </td>
             <td>
@@ -33,7 +33,7 @@
                 <Label For="template" HelpText="Select a theme template. Templates are located in the wwwroot/Themes/Templates folder on the server." ResourceKey="Template">Template: </Label>
             </td>
             <td>
-                <select id="template" class="form-control" @onchange="(e => TemplateChanged(e))">
+                <select id="template" class="form-select" @onchange="(e => TemplateChanged(e))">
                     <option value="-">&lt;@Localizer["Template.Select"]&gt;</option>
                     @foreach (Template template in _templates)
                     {
@@ -47,7 +47,7 @@
                 <Label For="reference" HelpText="Select a framework reference version" ResourceKey="FrameworkReference">Framework Reference: </Label>
             </td>
             <td>
-                <select id="reference" class="form-control" @bind="@_reference">
+                <select id="reference" class="form-select" @bind="@_reference">
                     @foreach (string version in _versions)
                     {
                         if (Version.Parse(version).CompareTo(Version.Parse(_minversion)) >= 0)
