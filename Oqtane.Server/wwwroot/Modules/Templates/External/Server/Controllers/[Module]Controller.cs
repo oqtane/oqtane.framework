@@ -45,7 +45,7 @@ namespace [Owner].[Module].Controllers
         public Models.[Module] Get(int id)
         {
             Models.[Module] [Module] = _[Module]Repository.Get[Module](id);
-            if ([Module] != null && [Module].ModuleId != AuthEntityId(EntityNames.Module))
+            if ([Module] != null && [Module].ModuleId == AuthEntityId(EntityNames.Module))
             {
                 return [Module];
             }
