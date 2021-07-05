@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>Oqtane.Framework</id>
-    <version>2.1.0</version>
+    <version>2.2.0</version>
     <authors>Shaun Walker</authors>
     <owners>.NET Foundation</owners>
     <title>Oqtane Framework</title>
@@ -11,8 +11,8 @@
     <copyright>.NET Foundation</copyright>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
-    <projectUrl>https://github.com/oqtane/oqtane.framework/releases/download/v2.0.2/Oqtane.Framework.2.0.2.Upgrade.zip</projectUrl>
-    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v2.1.0</releaseNotes>
+    <projectUrl>https://github.com/oqtane/oqtane.framework/releases/download/v2.2.0/Oqtane.Framework.2.2.0.Upgrade.zip</projectUrl>
+    <releaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v2.2.0</releaseNotes>
     <icon>icon.png</icon>
     <tags>oqtane framework</tags>
   </metadata>
