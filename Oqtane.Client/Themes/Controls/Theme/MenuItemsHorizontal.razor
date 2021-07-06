@@ -32,8 +32,8 @@ else
             {
                 if (childPage.PageId == PageState.Page.PageId)
                 {
-                    <li class="nav-item active">
-                        <a class="nav-link" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
                             <span class="@childPage.Icon" aria-hidden="true" />
                             @childPage.Name <span class="visually-hidden-focusable">(current)</span>
                         </a>
