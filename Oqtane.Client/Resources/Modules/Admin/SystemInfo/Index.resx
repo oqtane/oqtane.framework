@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Access.ApiFramework" xml:space="preserve">
+    <value>Access Swagger API</value>
+  </data>
+  <data name="FrameworkVersion.HelpText" xml:space="preserve">
+    <value>Framework Version</value>
+  </data>
+  <data name="BlazorRuntime.HelpText" xml:space="preserve">
+    <value>Blazor Runtime (Server or WebAssembly)</value>
+  </data>
+  <data name="CLRVersion.HelpText" xml:space="preserve">
+    <value>Common Language Runtime Version</value>
+  </data>
+  <data name="OSVersion.HelpText" xml:space="preserve">
+    <value>Operating System Version</value>
+  </data>
+  <data name="ServerPath.HelpText" xml:space="preserve">
+    <value>Server Path</value>
+  </data>
+  <data name="ServerTime.HelpText" xml:space="preserve">
+    <value>Server Time</value>
+  </data>
+  <data name="FrameworkVersion.Text" xml:space="preserve">
+    <value>Framework Version: </value>
+  </data>
+  <data name="BlazorRuntime.Text" xml:space="preserve">
+    <value>Blazor Runtime: </value>
+  </data>
+  <data name="CLRVersion.Text" xml:space="preserve">
+    <value>CLR Version: </value>
+  </data>
+  <data name="OSVersion.Text" xml:space="preserve">
+    <value>OS Version: </value>
+  </data>
+  <data name="ServerPath.Text" xml:space="preserve">
+    <value>Server Path: </value>
+  </data>
+  <data name="ServerTime.Text" xml:space="preserve">
+    <value>Server Time: </value>
+  </data>
+  <data name="RestartApplication.Header" xml:space="preserve">
+    <value>Restart Application</value>
+  </data>
+  <data name="RestartApplication.Message" xml:space="preserve">
+    <value>Are You Sure You Wish To Restart The Application?</value>
+  </data>
+  <data name="Error.UpdateConfig" xml:space="preserve">
+    <value>An Error Occurred Updating The Configuration</value>
+  </data>
+  <data name="Server" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="ServerPrerendered" xml:space="preserve">
+    <value>ServerPrerendered</value>
+  </data>
+  <data name="Success.UpdateConfig.Restart" xml:space="preserve">
+    <value>Configuration Updated. Please Select Restart Application For These Changes To Be Activated.</value>
+  </data>
+  <data name="WebAssembly" xml:space="preserve">
+    <value>WebAssembly</value>
+  </data>
+  <data name="InstallationId.Text" xml:space="preserve">
+    <value>Installation ID: </value>
+  </data>
+  <data name="InstallationId.HelpText" xml:space="preserve">
+    <value>The Unique Identifier For Your Installation</value>
+  </data>
+  <data name="DetailedErrors.Text" xml:space="preserve">
+    <value>Detailed Errors? </value>
+  </data>
+  <data name="DetailedErrors.HelpText" xml:space="preserve">
+    <value>Specify If Detailed Errors Are Enabled For Blazor. This Option Should Not Not Be Enabled In Production.</value>
+  </data>
+  <data name="True" xml:space="preserve">
+    <value>True</value>
+  </data>
+  <data name="False" xml:space="preserve">
+    <value>False</value>
+  </data>
+  <data name="LoggingLevel.Text" xml:space="preserve">
+    <value>Logging Level: </value>
+  </data>
+  <data name="LoggingLevel.HelpText" xml:space="preserve">
+    <value>The Minimum Logging Level For The Event Log. This Option Can Be Used To Control The Volume Of Items Stored In Your Event Log.</value>
+  </data>
+  <data name="Trace" xml:space="preserve">
+    <value>Trace</value>
+  </data>
+  <data name="Debug" xml:space="preserve">
+    <value>Debug</value>
+  </data>
+  <data name="Information" xml:space="preserve">
+    <value>Information</value>
+  </data>
+  <data name="Warning" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Critical" xml:space="preserve">
+    <value>Critical</value>
+  </data>
+  <data name="Info" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>Options</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>Please Register Me For Major Product Updates And Security Bulletins</value>
+  </data>
+  <data name="Success.Register" xml:space="preserve">
+    <value>You Have Been Successfully Registered For Updates</value>
+  </data>
+  <data name="PackageService.HelpText" xml:space="preserve">
+    <value>Specify If The Package Service Is Enabled For Installing Modules, Themes, And Translations</value>
+  </data>
+  <data name="PackageService.Text" xml:space="preserve">
+    <value>Package Service Enabled?</value>
+  </data>
+  <data name="Swagger.HelpText" xml:space="preserve">
+    <value>Specify If Swagger Is Enabled For Your Server API</value>
+  </data>
+  <data name="Swagger.Text" xml:space="preserve">
+    <value>Swagger Enabled?</value>
+  </data>
+</root>

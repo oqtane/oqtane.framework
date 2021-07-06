@@ -1,10 +1,8 @@
-using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Oqtane.Enums;
 using Oqtane.Models;
 using Oqtane.Repository;
-using Oqtane.Shared;
 
 namespace Oqtane.Modules
 {
@@ -16,27 +14,18 @@ namespace Oqtane.Modules
 
             using (dbContext)
             {
-                try
+                var migrator = dbContext.GetService<IMigrator>();
+                if (migrationType == MigrationType.Down)
                 {
-                    var migrator = dbContext.GetService<IMigrator>();
-                    if (migrationType == MigrationType.Down)
-                    {
-                        migrator.Migrate(Migration.InitialDatabase);
-                    }
-                    else
-                    {
-                        migrator.Migrate();
-                    }
+                    migrator.Migrate(Migration.InitialDatabase);
                 }
-                catch (Exception e)
+                else
                 {
-                    Console.WriteLine(e);
-                    result = false;
+                    migrator.Migrate();
                 }
-
             }
-            return result;
 
+            return result;
         }
     }
 }

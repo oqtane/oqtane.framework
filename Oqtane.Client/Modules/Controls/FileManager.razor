@@ -3,6 +3,7 @@
 @inject IFolderService FolderService
 @inject IFileService FileService
 @inject IStringLocalizer<FileManager> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_folders != null)
 {
@@ -12,10 +13,10 @@
                 @if (ShowFolders || FolderId <= 0)
                 {
                     <div>
-                        <select class="form-control" value="@FolderId" @onchange="(e => FolderChanged(e))">
+                        <select class="form-select" value="@FolderId" @onchange="(e => FolderChanged(e))">
                             @if (string.IsNullOrEmpty(Folder))
                             {
-                                <option value="-1">&lt;@Localizer["Select Folder"]&gt;</option>
+                                <option value="-1">&lt;@Localizer["Folder.Select"]&gt;</option>
                             }
                             @foreach (Folder folder in _folders)
                             {
@@ -27,8 +28,8 @@
                 @if (ShowFiles)
                 {
                     <div>
-                        <select class="form-control" value="@FileId" @onchange="(e => FileChanged(e))">
-                            <option value="-1">&lt;@Localizer["Select File"]&gt;</option>
+                        <select class="form-select" value="@FileId" @onchange="(e => FileChanged(e))">
+                            <option value="-1">&lt;@Localizer["File.Select"]&gt;</option>
                             @foreach (File file in _files)
                             {
                                 <option value="@(file.FileId)">@(file.Name)</option>
@@ -48,11 +49,11 @@
                             <input type="file" id="@_fileinputid" name="file" accept="@_filter" />
                         }
                         <span id="@_progressinfoid"></span><progress id="@_progressbarid" style="width: 150px; visibility: hidden;"></progress>
-                        <span class="float-right">
-                            <button type="button" class="btn btn-success" @onclick="UploadFile">@Localizer["Upload"]</button>
+                        <span class="float-end">
+                            <button type="button" class="btn btn-success" @onclick="UploadFile">@SharedLocalizer["Upload"]</button>
                             @if (ShowFiles && GetFileId() != -1)
                             {
-                                <button type="button" class="btn btn-danger" @onclick="DeleteFile">@Localizer["Delete"]</button>
+                                <button type="button" class="btn btn-danger" @onclick="DeleteFile">@SharedLocalizer["Delete"]</button>
                             }
                         </span>
                     </div>
@@ -208,7 +209,7 @@
         {
             await logger.LogError(ex, "Error Loading Files {Error}", ex.Message);
 
-            _message = Localizer["Error Loading Files"];
+            _message = Localizer["Error.File.Load"];
             _messagetype = MessageType.Error;
         }
     }
@@ -268,7 +269,7 @@
                 {
                     await logger.LogInformation("File Upload Succeeded {Files}", upload);
 
-                    _message = Localizer["File Upload Succeeded"];
+                    _message = Localizer["Success.File.Upload"];
                     _messagetype = MessageType.Success;
 
                     await GetFiles();
@@ -288,7 +289,7 @@
                 {
                     await logger.LogError("File Upload Failed For {Files}", result.Replace(",", ", "));
 
-                    _message = Localizer["File Upload Failed"];
+                    _message = Localizer["Error.File.Upload"];
                     _messagetype = MessageType.Error;
                 }
             }
@@ -296,13 +297,13 @@
             {
                 await logger.LogError(ex, "File Upload Failed {Error}", ex.Message);
 
-                _message = Localizer["File Upload Failed"];
+                _message = Localizer["Error.File.Upload"];
                 _messagetype = MessageType.Error;
             }
         }
         else
         {
-            _message = Localizer["You Have Not Selected A File To Upload"];
+            _message = Localizer["Message.File.NotSelected"];
             _messagetype = MessageType.Warning;
         }
     }
@@ -315,7 +316,7 @@
             await FileService.DeleteFileAsync(FileId);
             await logger.LogInformation("File Deleted {File}", FileId);
 
-            _message = Localizer["File Deleted"];
+            _message = Localizer["Success.File.Delete"];
             _messagetype = MessageType.Success;
 
             await GetFiles();
@@ -327,7 +328,7 @@
         {
             await logger.LogError(ex, "Error Deleting File {File} {Error}", FileId, ex.Message);
 
-            _message = Localizer["Error Deleting File"];
+            _message = Localizer["Error.File.Delete"];
             _messagetype = MessageType.Error;
         }
     }

@@ -5,7 +5,9 @@ using Newtonsoft.Json;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -44,25 +46,32 @@ namespace Oqtane.Infrastructure
                     case "2.1.0":
                         Upgrade_2_1_0(tenant, scope);
                         break;
+                    case "2.2.0":
+                        Upgrade_2_2_0(tenant, scope);
+                        break;
                 }
             }
         }
 
+        /// <summary>
+        /// **Note: this code is commented out on purpose - it provides an example of how to programmatically add a page to all existing sites on upgrade
+        /// </summary>
+        /// <param name="tenant"></param>
+        /// <param name="scope"></param>
         private void Upgrade_1_0_0(Tenant tenant, IServiceScope scope)
         {
-            var pageTemplates = new List<PageTemplate>();
-
-            // **Note: this code is commented out on purpose - it provides an example of how to programmatically add a page to all existing sites on upgrade
-
+            //var pageTemplates = new List<PageTemplate>();
+            //
             //pageTemplates.Add(new PageTemplate
             //{
             //    Name = "Test",
             //    Parent = "",
+            //    Order = 1,
             //    Path = "test",
             //    Icon = Icons.Badge,
             //    IsNavigation = true,
             //    IsPersonalizable = false,
-            //    EditMode = false,
+            //    IsClickable = true,
             //    PagePermissions = new List<Permission>
             //    {
             //        new Permission(PermissionNames.View, RoleNames.Admin, true),
@@ -84,8 +93,15 @@ namespace Oqtane.Infrastructure
             //        }
             //    }
             //});
-
-            CreateSitePages(scope, pageTemplates);
+            //
+            //if (pageTemplates.Count != 0)
+            //{
+            //    var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
+            //    foreach (Site site in sites.GetSites().ToList())
+            //    {
+            //        sites.CreatePages(site, pageTemplates);
+            //    }
+            //}
         }
 
         private void Upgrade_2_0_2(Tenant tenant, IServiceScope scope)
@@ -100,19 +116,28 @@ namespace Oqtane.Infrastructure
                     {
                         Directory.Delete(internalTemplatePath, true);
                     }
-                    catch
+                    catch (Exception ex)
                     {
                         // error deleting directory
+                        Debug.WriteLine($"Oqtane Error: Error In 2.0.2 Upgrade Logic - {ex}");
                     }
                 }
             }
 
             // initialize SiteGuid
-            var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
-            foreach (Site site in sites.GetSites().ToList())
+            try
             {
-                site.SiteGuid = System.Guid.NewGuid().ToString();
-                sites.UpdateSite(site);
+                var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
+                foreach (Site site in sites.GetSites().ToList())
+                {
+                    site.SiteGuid = System.Guid.NewGuid().ToString();
+                    sites.UpdateSite(site);
+                }
+            }
+            catch (Exception ex)
+            {
+                // error populating guid
+                Debug.WriteLine($"Oqtane Error: Error In 2.0.2 Upgrade Logic - {ex}");
             }
         }
 
@@ -128,14 +153,13 @@ namespace Oqtane.Infrastructure
             }
         }
 
-        private void CreateSitePages(IServiceScope scope, List<PageTemplate> pageTemplates)
+        private void Upgrade_2_2_0(Tenant tenant, IServiceScope scope)
         {
-            if (pageTemplates.Count != 0)
+            if (tenant.Name == TenantNames.Master)
             {
-                var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
-                foreach (Site site in sites.GetSites().ToList())
+                if (_configManager.GetSetting("Logging:LogLevel:Default", "") == "")
                 {
-                    sites.CreatePages(site, pageTemplates);
+                    _configManager.AddOrUpdateSetting("Logging:LogLevel:Default", "Information", true);
                 }
             }
         }

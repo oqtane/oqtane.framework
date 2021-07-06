@@ -8,6 +8,7 @@ using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Security;
+using System.Net;
 
 namespace Oqtane.Controllers
 {
@@ -41,40 +42,52 @@ namespace Oqtane.Controllers
         [HttpGet]
         public IEnumerable<Module> Get(string siteid)
         {
-            List<ModuleDefinition> moduledefinitions = _moduleDefinitions.GetModuleDefinitions(int.Parse(siteid)).ToList();
-            List<Setting> settings = _settings.GetSettings(EntityNames.Module).ToList();
-
             List<Module> modules = new List<Module>();
-            foreach (PageModule pagemodule in _pageModules.GetPageModules(int.Parse(siteid)))
+
+            int SiteId;
+            if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
             {
-                if (_userPermissions.IsAuthorized(User,PermissionNames.View, pagemodule.Module.Permissions))
+                List<ModuleDefinition> moduledefinitions = _moduleDefinitions.GetModuleDefinitions(SiteId).ToList();
+                List<Setting> settings = _settings.GetSettings(EntityNames.Module).ToList();
+
+                foreach (PageModule pagemodule in _pageModules.GetPageModules(SiteId))
                 {
-                    Module module = new Module();
-                    module.SiteId = pagemodule.Module.SiteId;
-                    module.ModuleDefinitionName = pagemodule.Module.ModuleDefinitionName;
-                    module.AllPages = pagemodule.Module.AllPages;
-                    module.Permissions = pagemodule.Module.Permissions;
-                    module.CreatedBy = pagemodule.Module.CreatedBy;
-                    module.CreatedOn = pagemodule.Module.CreatedOn;
-                    module.ModifiedBy = pagemodule.Module.ModifiedBy;
-                    module.ModifiedOn = pagemodule.Module.ModifiedOn;
-                    module.IsDeleted = pagemodule.IsDeleted;
+                    if (_userPermissions.IsAuthorized(User, PermissionNames.View, pagemodule.Module.Permissions))
+                    {
+                        Module module = new Module();
+                        module.SiteId = pagemodule.Module.SiteId;
+                        module.ModuleDefinitionName = pagemodule.Module.ModuleDefinitionName;
+                        module.AllPages = pagemodule.Module.AllPages;
+                        module.Permissions = pagemodule.Module.Permissions;
+                        module.CreatedBy = pagemodule.Module.CreatedBy;
+                        module.CreatedOn = pagemodule.Module.CreatedOn;
+                        module.ModifiedBy = pagemodule.Module.ModifiedBy;
+                        module.ModifiedOn = pagemodule.Module.ModifiedOn;
+                        module.IsDeleted = pagemodule.IsDeleted;
 
-                    module.PageModuleId = pagemodule.PageModuleId;
-                    module.ModuleId = pagemodule.ModuleId;
-                    module.PageId = pagemodule.PageId;
-                    module.Title = pagemodule.Title;
-                    module.Pane = pagemodule.Pane;
-                    module.Order = pagemodule.Order;
-                    module.ContainerType = pagemodule.ContainerType;
+                        module.PageModuleId = pagemodule.PageModuleId;
+                        module.ModuleId = pagemodule.ModuleId;
+                        module.PageId = pagemodule.PageId;
+                        module.Title = pagemodule.Title;
+                        module.Pane = pagemodule.Pane;
+                        module.Order = pagemodule.Order;
+                        module.ContainerType = pagemodule.ContainerType;
 
-                    module.ModuleDefinition = moduledefinitions.Find(item => item.ModuleDefinitionName == module.ModuleDefinitionName);
-                    module.Settings = settings.Where(item => item.EntityId == pagemodule.ModuleId)
-                        .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
+                        module.ModuleDefinition = moduledefinitions.Find(item => item.ModuleDefinitionName == module.ModuleDefinitionName);
+                        module.Settings = settings.Where(item => item.EntityId == pagemodule.ModuleId)
+                            .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
 
-                    modules.Add(module);
+                        modules.Add(module);
+                    }
                 }
             }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Module Get Attempt {SiteId}", siteid);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                modules = null;
+            }
+
             return modules;
         }
 
@@ -83,19 +96,18 @@ namespace Oqtane.Controllers
         public Module Get(int id)
         {
             Module module = _modules.GetModule(id);
-            if (_userPermissions.IsAuthorized(User,PermissionNames.View, module.Permissions))
+            if (module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User,PermissionNames.View, module.Permissions))
             {
                 List<ModuleDefinition> moduledefinitions = _moduleDefinitions.GetModuleDefinitions(module.SiteId).ToList();
                 module.ModuleDefinition = moduledefinitions.Find(item => item.ModuleDefinitionName == module.ModuleDefinitionName);
                 module.Settings = _settings.GetSettings(EntityNames.Module, id)
                         .ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
-
                 return module;
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Module {Module}", module);
-                HttpContext.Response.StatusCode = 401;
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Module Get Attempt {ModuleId}", id);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
         }
@@ -105,7 +117,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Registered)]
         public Module Post([FromBody] Module module)
         {
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Page, module.PageId, PermissionNames.Edit))
+            if (ModelState.IsValid && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Page, module.PageId, PermissionNames.Edit))
             {
                 module = _modules.AddModule(module);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId);
@@ -113,8 +125,8 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Add Module {Module}", module);
-                HttpContext.Response.StatusCode = 401;
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Module Post Attempt {Module}", module);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 module = null;
             }
             return module;
@@ -125,7 +137,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Registered)]
         public Module Put(int id, [FromBody] Module module)
         {
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Module, module.ModuleId, PermissionNames.Edit))
+            if (ModelState.IsValid && module.SiteId == _alias.SiteId && _modules.GetModule(module.ModuleId, false) != null && _userPermissions.IsAuthorized(User, EntityNames.Module, module.ModuleId, PermissionNames.Edit))
             {
                 module = _modules.UpdateModule(module);
                 if (module.AllPages)
@@ -146,8 +158,8 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Module {Module}", module);
-                HttpContext.Response.StatusCode = 401;
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Module Put Attempt {Module}", module);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 module = null;
             }
             return module;
@@ -158,7 +170,8 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Registered)]
         public void Delete(int id)
         {
-            if (_userPermissions.IsAuthorized(User, EntityNames.Module, id, PermissionNames.Edit))
+            var module = _modules.GetModule(id);
+            if (module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Page, module.ModuleId, PermissionNames.Edit))
             {
                 _modules.DeleteModule(id);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId);
@@ -166,8 +179,8 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Delete, "User Not Authorized To Delete Module {ModuleId}", id);
-                HttpContext.Response.StatusCode = 401;
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Module Delete Attempt {ModuleId}", id);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }
 
@@ -177,14 +190,23 @@ namespace Oqtane.Controllers
         public string Export(int moduleid)
         {
             string content = "";
-            if (_userPermissions.IsAuthorized(User, EntityNames.Module, moduleid, PermissionNames.Edit))
+            var module = _modules.GetModule(moduleid);
+            if (module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Module, module.ModuleId, PermissionNames.Edit))
             {
                 content = _modules.ExportModule(moduleid);
+                if (!string.IsNullOrEmpty(content))
+                {
+                    _logger.Log(LogLevel.Information, this, LogFunction.Read, "Module Content Exported {ModuleId}", moduleid);
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Warning, this, LogFunction.Read, "No Module Content Exported {ModuleId}", moduleid);
+                }
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Other, "User Not Authorized To Export Module {ModuleId}", moduleid);
-                HttpContext.Response.StatusCode = 401;
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Module Export Attempt {ModuleId}", moduleid);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
             return content;
         }
@@ -195,14 +217,23 @@ namespace Oqtane.Controllers
         public bool Import(int moduleid, [FromBody] string content)
         {
             bool success = false;
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Module, moduleid, PermissionNames.Edit))
+            var module = _modules.GetModule(moduleid);
+            if (ModelState.IsValid && module != null && module.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Module, module.ModuleId, PermissionNames.Edit))
             {
                 success = _modules.ImportModule(moduleid, content);
+                if (success)
+                {
+                    _logger.Log(LogLevel.Information, this, LogFunction.Update, "Module Content Imported {ModuleId}", moduleid);
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Warning, this, LogFunction.Update, "Module Content Import Failed {ModuleId}", moduleid);
+                }
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Other, "User Not Authorized To Import Module {ModuleId}", moduleid);
-                HttpContext.Response.StatusCode = 401;
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Module Import Attempt {ModuleId}", moduleid);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
             return success;
         }

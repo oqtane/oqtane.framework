@@ -1,4 +1,4 @@
-﻿@namespace Oqtane.Themes
+@namespace Oqtane.Themes
 @inherits ContainerBase
 @inject NavigationManager NavigationManager
 
@@ -8,7 +8,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title"><ModuleTitle /></h5>
-                    <button type="button" class="close" @onclick="CloseModal" aria-label="Close">&times;</button>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseModal"></button>
                 </div>
                 <div class="modal-body">
                     <ModuleInstance />

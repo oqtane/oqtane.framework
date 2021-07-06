@@ -1,14 +1,14 @@
 @namespace Oqtane.Modules.Controls
 @inherits LocalizableComponent
 
-<div class="d-flex">
+<div class="d-flex mt-2">
     <div>
-        <a data-toggle="collapse" class="app-link-unstyled" href="#@Name" aria-expanded="@_expanded" aria-controls="@Name" @onclick:preventDefault="true">
+        <a data-bs-toggle="collapse" class="app-link-unstyled" href="#@Name" aria-expanded="@_expanded" aria-controls="@Name" @onclick:preventDefault="true">
             <h5>@_heading</h5>
         </a>
     </div>
-    <div class="ml-auto">
-        <a data-toggle="collapse" class="app-link-unstyled float-right" href="#@Name" aria-expanded="@_expanded" aria-controls="@Name" @onclick:preventDefault="true">
+    <div class="ms-auto">
+        <a data-bs-toggle="collapse" class="app-link-unstyled float-right" href="#@Name" aria-expanded="@_expanded" aria-controls="@Name" @onclick:preventDefault="true">
             <i class="oi oi-chevron-bottom"></i>&nbsp;
         </a>
     </div>

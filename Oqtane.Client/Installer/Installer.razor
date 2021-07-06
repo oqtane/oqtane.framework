@@ -7,18 +7,19 @@
 @inject IDatabaseService DatabaseService
 @inject IJSRuntime JSRuntime
 @inject IStringLocalizer<Installer> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <div class="container">
     <div class="row">
         <div class="mx-auto text-center">
             <img src="oqtane-black.png" />
-            <div style="font-weight: bold">@Localizer["Version:"] @Constants.Version</div>
+            <div style="font-weight: bold">@SharedLocalizer["Version"] @Constants.Version</div>
         </div>
     </div>
     <hr class="app-rule" />
     <div class="row justify-content-center">
         <div class="col text-center">
-            <h2>@Localizer["Database Configuration"]</h2><br />
+            <h2>@Localizer["DatabaseConfig"]</h2><br />
             <table class="form-group" cellpadding="4" cellspacing="4" style="margin: auto;">
                 <tbody>
                     <tr>
@@ -31,7 +32,14 @@
                                 {
                                     foreach (var database in _databases)
                                     {
-                                        <option value="@database.Name">@Localizer[@database.Name]</option>
+                                        if (database.IsDefault)
+                                        {
+                                            <option value="@database.Name" selected>@Localizer[@database.Name]</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@database.Name">@Localizer[@database.Name]</option>
+                                        }
                                     }
                                 }
                             </select>
@@ -47,7 +55,7 @@
             </table>
         </div>
         <div class="col text-center">
-            <h2>@Localizer["Application Administrator"]</h2><br />
+            <h2>@Localizer["ApplicationAdmin"]</h2><br />
             <table class="form-group" cellpadding="4" cellspacing="4" style="margin: auto;">
                 <tbody>
                     <tr>
@@ -89,10 +97,15 @@
     <hr class="app-rule" />
     <div class="row">
         <div class="mx-auto text-center">
-            <button type="button" class="btn btn-success" @onclick="Install">@Localizer["Install Now"]</button><br /><br />
+            <button type="button" class="btn btn-success" @onclick="Install">@Localizer["InstallNow"]</button><br /><br />
             <ModuleMessage Message="@_message" Type="MessageType.Error"></ModuleMessage>
         </div>
         <div class="app-progress-indicator" style="@_loadingDisplay"></div>
+    </div>
+    <div class="row">
+        <div class="mx-auto text-center">
+            <input type="checkbox" @bind="@_register" /> @Localizer["Register"]
+        </div>
     </div>
 </div>
 
@@ -107,6 +120,7 @@
     private string _hostPassword = string.Empty;
     private string _confirmPassword = string.Empty;
     private string _hostEmail = string.Empty;
+    private bool _register = true;
     private string _message = string.Empty;
     private string _loadingDisplay = "display: none;";
 
@@ -126,7 +140,7 @@
         }
         catch
         {
-            _message = Localizer["Error loading Database Configuration Control"];
+            _message = Localizer["Error.DbConfig.Load"];
         }
     }
 
@@ -162,13 +176,13 @@
             connectionString = databaseConfigControl.GetConnectionString();
         }
 
-        if (connectionString != "" && _hostUsername != "" && _hostPassword.Length >= 6 && _hostPassword == _confirmPassword && _hostEmail != "")
+        if (connectionString != "" && _hostUsername != "" && _hostPassword.Length >= 6 && _hostPassword == _confirmPassword && _hostEmail != "" && _hostEmail.Contains("@"))
         {
             _loadingDisplay = "";
             StateHasChanged();
 
             Uri uri = new Uri(NavigationManager.Uri);
-            
+
             var database = _databases.SingleOrDefault(d => d.Name == _databaseName);
 
             var config = new InstallConfig
@@ -181,7 +195,8 @@
                 HostName = UserNames.Host,
                 TenantName = TenantNames.Master,
                 IsNewTenant = true,
-                SiteName = Constants.DefaultSite
+                SiteName = Constants.DefaultSite,
+                Register = _register
             };
 
             var installation = await InstallationService.Install(config);
@@ -197,7 +212,7 @@
         }
         else
         {
-            _message = Localizer["Please Enter All Fields And Ensure Passwords Match And Are Greater Than 5 Characters In Length"];
+            _message = Localizer["Message.Require.DbInfo"];
         }
     }
 

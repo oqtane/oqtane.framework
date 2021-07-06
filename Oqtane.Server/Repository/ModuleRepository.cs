@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -48,12 +48,24 @@ namespace Oqtane.Repository
 
         public Module GetModule(int moduleId)
         {
-            Module module = _db.Module.Find(moduleId);
+            return GetModule(moduleId, true);
+        }
+
+        public Module GetModule(int moduleId, bool tracking)
+        {
+            Module module;
+            if (tracking)
+            {
+                module = _db.Module.Find(moduleId);
+            }
+            else
+            {
+                module = _db.Module.AsNoTracking().FirstOrDefault(item => item.ModuleId == moduleId);
+            }
             if (module != null)
             {
                 module.Permissions = _permissions.GetPermissionString("Module", module.ModuleId);
             }
-
             return module;
         }
 
@@ -147,10 +159,9 @@ namespace Oqtane.Repository
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 // error occurred during import
-                string error = ex.Message;
             }
 
             return success;

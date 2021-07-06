@@ -3,7 +3,9 @@
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject IServiceProvider ServiceProvider
+@inject SiteState SiteState
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_message != string.Empty)
 {
@@ -14,29 +16,29 @@
         <text>...</text>
     </Authorizing>
     <Authorized>
-        <ModuleMessage Message="@Localizer["You Are Already Signed In"]" Type="MessageType.Info" />
+        <ModuleMessage Message="@Localizer["Info.SignedIn"]" Type="MessageType.Info" />
     </Authorized>
     <NotAuthorized>
         <form @ref="login" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
             <div class="container Oqtane-Modules-Admin-Login" @onkeypress="@(e => KeyPressed(e))">
                 <div class="form-group">
-                    <label for="Username" class="control-label">@Localizer["Username:"] </label>
+                    <label for="Username" class="control-label">@SharedLocalizer["Username"] </label>
                     <input type="text" @ref="username" name="Username" class="form-control username" placeholder="Username" @bind="@_username" id="Username" required />
                 </div>
                 <div class="form-group">
-                    <label for="Password" class="control-label">@Localizer["Password:"] </label>
+                    <label for="Password" class="control-label">@SharedLocalizer["Password"] </label>
                     <input type="password" name="Password" class="form-control password" placeholder="Password" @bind="@_password" id="Password" required />
                 </div>
                 <div class="form-group">
                     <div class="form-check form-check-inline">
-                        <label class="form-check-label" for="Remember">@Localizer["Remember Me?"]</label>&nbsp;
+                        <label class="form-check-label" for="Remember">@Localizer["RememberMe"]</label>&nbsp;
                         <input type="checkbox" class="form-check-input" name="Remember" @bind="@_remember" id="Remember" />
                     </div>
                 </div>
-                <button type="button" class="btn btn-primary" @onclick="Login">@Localizer["Login"]</button>
-                <button type="button" class="btn btn-secondary" @onclick="Cancel">@Localizer["Cancel"]</button>
+                <button type="button" class="btn btn-primary" @onclick="Login">@SharedLocalizer["Login"]</button>
+                <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
                 <br /><br />
-                <button type="button" class="btn btn-secondary" @onclick="Forgot">@Localizer["Forgot Password"]</button>
+                <button type="button" class="btn btn-secondary" @onclick="Forgot">@Localizer["ForgotPassword"]</button>
             </div>
         </form>
     </NotAuthorized>
@@ -57,7 +59,7 @@
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
 
     public override List<Resource> Resources => new List<Resource>()
-    {
+{
         new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" }
     };
 
@@ -82,11 +84,11 @@
 
             if (user != null)
             {
-                _message = Localizer["User Account Verified Successfully. You Can Now Login With Your Username And Password Below."];
+                _message = Localizer["Success.Account.Verified"];
             }
             else
             {
-                _message = Localizer["User Account Could Not Be Verified. Please Contact Your Administrator For Further Instructions."];
+                _message = Localizer["Message.Account.NotVerfied"];
                 _type = MessageType.Warning;
             }
         }
@@ -108,7 +110,6 @@
         {
             if (PageState.Runtime == Oqtane.Shared.Runtime.Server)
             {
-                // server-side Blazor
                 var user = new User();
                 user.SiteId = PageState.Site.SiteId;
                 user.Username = _username;
@@ -118,16 +119,15 @@
                 if (user.IsAuthenticated)
                 {
                     await logger.LogInformation("Login Successful For Username {Username}", _username);
-                    // complete the login on the server so that the cookies are set correctly 
-                    string antiforgerytoken = await interop.GetElementByName("__RequestVerificationToken");
-                    var fields = new { __RequestVerificationToken = antiforgerytoken, username = _username, password = _password, remember = _remember, returnurl = _returnUrl };
+                    // server-side Blazor needs to post to the Login page so that the cookies are set correctly
+                    var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, username = _username, password = _password, remember = _remember, returnurl = _returnUrl };
                     string url = Utilities.TenantUrl(PageState.Alias, "/pages/login/");
                     await interop.SubmitForm(url, fields);
                 }
                 else
                 {
                     await logger.LogInformation("Login Failed For Username {Username}", _username);
-                    AddModuleMessage(Localizer["Login Failed. Please Remember That Passwords Are Case Sensitive And User Accounts Require Verification When They Are Initially Created So You May Wish To Check Your Email."], MessageType.Error);
+                    AddModuleMessage(Localizer["Error.Login.Fail"], MessageType.Error);
                 }
             }
             else
@@ -143,18 +143,18 @@
                     await logger.LogInformation("Login Successful For Username {Username}", _username);
                     var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
                     authstateprovider.NotifyAuthenticationChanged();
-                    NavigationManager.NavigateTo(NavigateUrl(_returnUrl, "reload"));
+                    NavigationManager.NavigateTo(NavigateUrl(_returnUrl, true));
                 }
                 else
                 {
                     await logger.LogInformation("Login Failed For Username {Username}", _username);
-                    AddModuleMessage(Localizer["Login Failed. Please Remember That Passwords Are Case Sensitive And User Accounts Require Verification When They Are Initially Created So You May Wish To Check Your Email."], MessageType.Error);
+                    AddModuleMessage(Localizer["Error.Login.Fail"], MessageType.Error);
                 }
             }
         }
         else
         {
-            AddModuleMessage(Localizer["Please Provide Your Username And Password"], MessageType.Warning);
+            AddModuleMessage(Localizer["Message.Required.UserInfo"], MessageType.Warning);
         }
     }
 

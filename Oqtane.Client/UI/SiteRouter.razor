@@ -5,8 +5,7 @@
 @inject SiteState SiteState
 @inject NavigationManager NavigationManager
 @inject INavigationInterception NavigationInterception
-@inject IAliasService AliasService
-@inject ITenantService TenantService
+@inject ISyncService SyncService
 @inject ISiteService SiteService
 @inject IPageService PageService
 @inject IUserService UserService
@@ -54,22 +53,13 @@
     {
         if (PageState == null)
         {
-            // misconfigured api calls should not be processed through the router
-            if (!_absoluteUri.Contains("~/api/"))
-            {
-                await Refresh();
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine(GetType().FullName + ": Error: API call to " + _absoluteUri + " is not mapped to a Controller");
-            }
+            await Refresh();
         }
     }
 
     [SuppressMessage("ReSharper", "StringIndexOfIsCultureSpecific.1")]
     private async Task Refresh()
     {
-        Alias alias = null;
         Site site;
         List<Page> pages;
         Page page;
@@ -79,7 +69,7 @@
         var action = Constants.DefaultAction;
         var urlparameters = string.Empty;
         var editmode = false;
-        var reload = Reload.None;
+        var refresh = UI.Refresh.None;
         var lastsyncdate = DateTime.UtcNow.AddHours(-1);
         var runtime = GetRuntime();
 
@@ -91,10 +81,19 @@
         // parse querystring
         var querystring = ParseQueryString(uri.Query);
 
-        // the reload parameter is used to reload the PageState
-        if (querystring.ContainsKey("reload"))
+        // the refresh parameter is used to refresh the PageState
+        if (querystring.ContainsKey("refresh"))
         {
-            reload = Reload.Site;
+            refresh = UI.Refresh.Site;
+        }
+        else
+        {
+            // reload the client application if the user navigated to a site with a different alias or there is a forced reload
+            if ((!path.StartsWith(SiteState.Alias.Path) && SiteState.Alias.Path != "") || querystring.ContainsKey("reload"))
+            {
+                NavigationManager.NavigateTo(_absoluteUri.Replace("?reload", ""), true);
+                return;
+            }
         }
 
         if (PageState != null)
@@ -103,28 +102,27 @@
             lastsyncdate = PageState.LastSyncDate;
         }
 
-        alias = await AliasService.GetAliasAsync(path, lastsyncdate);
-        SiteState.Alias = alias; // set state for services
-        lastsyncdate = alias.SyncDate;
-
         // process any sync events
-        if (reload != Reload.Site && alias.SyncEvents.Any())
+        var sync = await SyncService.GetSyncAsync(lastsyncdate);
+        lastsyncdate = sync.SyncDate;
+        if (refresh != UI.Refresh.Site && sync.SyncEvents.Any())
         {
             // if running on WebAssembly reload the client application if the server application was restarted
-            if (runtime == Shared.Runtime.WebAssembly && PageState != null && alias.SyncEvents.Exists(item => item.TenantId == -1))
+            if (runtime == Shared.Runtime.WebAssembly && PageState != null && sync.SyncEvents.Exists(item => item.TenantId == -1))
             {
-                NavigationManager.NavigateTo(_absoluteUri + (!_absoluteUri.Contains("?") ? "?" : "&") + "reload", true);
+                NavigationManager.NavigateTo(_absoluteUri, true);
+                return;
             }
-            if (alias.SyncEvents.Exists(item => item.EntityName == EntityNames.Site && item.EntityId == alias.SiteId))
+            if (sync.SyncEvents.Exists(item => item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId))
             {
-                reload = Reload.Site;
+                refresh = UI.Refresh.Site;
             }
         }
 
-        if (reload == Reload.Site || PageState == null || alias.SiteId != PageState.Alias.SiteId)
+        if (refresh == UI.Refresh.Site || PageState == null || PageState.Alias.SiteId != SiteState.Alias.SiteId)
         {
-            site = await SiteService.GetSiteAsync(alias.SiteId);
-            reload = Reload.Site;
+            site = await SiteService.GetSiteAsync(SiteState.Alias.SiteId);
+            refresh = UI.Refresh.Site;
         }
         else
         {
@@ -133,7 +131,7 @@
 
         if (site != null)
         {
-            if (PageState == null || reload == Reload.Site)
+            if (PageState == null || refresh == UI.Refresh.Site)
             {
                 // get user
                 var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
@@ -148,15 +146,15 @@
             }
 
             // process any sync events for user
-            if (reload != Reload.Site && user != null && alias.SyncEvents.Any())
+            if (refresh != UI.Refresh.Site && user != null && sync.SyncEvents.Any())
             {
-                if (alias.SyncEvents.Exists(item => item.EntityName == EntityNames.User && item.EntityId == user.UserId))
+                if (sync.SyncEvents.Exists(item => item.EntityName == EntityNames.User && item.EntityId == user.UserId))
                 {
-                    reload = Reload.Site;
+                    refresh = UI.Refresh.Site;
                 }
             }
 
-            if (PageState == null || reload == Reload.Site)
+            if (PageState == null || refresh == UI.Refresh.Site)
             {
                 pages = await PageService.GetPagesAsync(site.SiteId);
             }
@@ -166,16 +164,11 @@
             }
 
             // format path and remove alias
-            path = path.Replace("//", "/");
-
-            if (!path.EndsWith("/"))
+            path = path.Replace("//", "/"); // in case of doubleslash at end
+            path += (!path.EndsWith("/")) ? "/" : "";
+            if (SiteState.Alias.Path != "" && path.StartsWith(SiteState.Alias.Path))
             {
-                path += "/";
-            }
-
-            if (alias.Path != "")
-            {
-                path = path.Substring(alias.Path.Length + 1);
+                path = path.Substring(SiteState.Alias.Path.Length + 1);
             }
 
             // extract admin route elements from path
@@ -233,7 +226,7 @@
             // remove trailing slash so it can be used as a key for Pages
             if (path.EndsWith("/")) path = path.Substring(0, path.Length - 1);
 
-            if (PageState == null || reload == Reload.Site)
+            if (PageState == null || refresh == UI.Refresh.Site)
             {
                 page = pages.FirstOrDefault(item => item.Path.Equals(path, StringComparison.OrdinalIgnoreCase));
             }
@@ -268,7 +261,7 @@
                 {
                     page = await ProcessPage(page, site, user);
 
-                    if (PageState == null || reload == Reload.Site)
+                    if (PageState == null || refresh == UI.Refresh.Site)
                     {
                         modules = await ModuleService.GetModulesAsync(site.SiteId);
                     }
@@ -281,7 +274,7 @@
 
                     _pagestate = new PageState
                     {
-                        Alias = alias,
+                        Alias = SiteState.Alias,
                         Site = site,
                         Pages = pages,
                         Page = page,
@@ -305,7 +298,7 @@
                 if (user == null)
                 {
                     // redirect to login page
-                    NavigationManager.NavigateTo(Utilities.NavigateUrl(alias.Path, "login", "?returnurl=" + path));
+                    NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "login", "?returnurl=" + path));
                 }
                 else
                 {
@@ -313,7 +306,7 @@
                     if (path != "")
                     {
                         // redirect to home page
-                        NavigationManager.NavigateTo(Utilities.NavigateUrl(alias.Path, "", ""));
+                        NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "", ""));
                     }
                 }
             }

@@ -4,6 +4,7 @@
 @inject IAliasService AliasService
 @inject ISiteService SiteService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_sites == null)
 {
@@ -16,11 +17,13 @@ else
     <Pager Items="@_sites">
         <Header>
             <th style="width: 1px;">&nbsp;</th>
-            <th>@Localizer["Name"]</th>
+            <th style="width: 1px;">&nbsp;</th>
+            <th>@SharedLocalizer["Name"]</th>
         </Header>
         <Row>
-            <td><NavLink class="btn btn-primary" href="@(_scheme + context.Name +"/admin/site")">@Localizer["Edit"]</NavLink></td>
-            <td><a href="@(_scheme + context.Name +"?reload")">@context.Name</a></td>
+            <td><button type="button" class="btn btn-primary" @onclick="@(async () => Edit(context.Name))">@SharedLocalizer["Edit"]</button></td>
+            <td><button type="button" class="btn btn-secondary" @onclick="@(async () => Browse(context.Name))">@Localizer["Browse"]</button></td>
+            <td>@context.Name</td>
         </Row>
     </Pager>
 }
@@ -45,5 +48,15 @@ else
                 _sites.Add(alias);
             }
         }
+    }
+
+    private void Edit(string name)
+    {
+        NavigationManager.NavigateTo(_scheme + name + "/admin/site/?reload");
+    }
+
+    private void Browse(string name)
+    {
+        NavigationManager.NavigateTo(_scheme + name + "/?reload");
     }
 }

@@ -12,7 +12,9 @@ using Oqtane.Repository.Databases.Interfaces;
 
 namespace Oqtane.Migrations.Framework
 {
+#pragma warning disable EF1001 // Internal EF Core API usage.
     public class MultiDatabaseMigrationsAssembly: MigrationsAssembly
+#pragma warning restore EF1001 // Internal EF Core API usage.
     {
         private readonly IDatabase _database;
 
@@ -21,7 +23,9 @@ namespace Oqtane.Migrations.Framework
             IDbContextOptions options,
             IMigrationsIdGenerator idGenerator,
             IDiagnosticsLogger<DbLoggerCategory.Migrations> logger)
+#pragma warning disable EF1001 // Internal EF Core API usage.
             : base(currentContext, options, idGenerator, logger)
+#pragma warning restore EF1001 // Internal EF Core API usage.
         {
             var multiDatabaseContext = currentContext.Context as IMultiDatabase;
             if (multiDatabaseContext != null) _database = multiDatabaseContext.ActiveDatabase;
@@ -40,7 +44,9 @@ namespace Oqtane.Migrations.Framework
                 }
             }
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
             return base.CreateMigration(migrationClass, activeProvider);
+#pragma warning restore EF1001 // Internal EF Core API usage.
         }
     }
 }

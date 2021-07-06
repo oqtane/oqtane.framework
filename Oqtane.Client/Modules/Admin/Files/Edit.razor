@@ -4,19 +4,20 @@
 @inject IFileService FileService
 @inject NavigationManager NavigationManager
 @inject IStringLocalizer<Edit> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_folders != null)
 {
     <table class="table table-borderless">
         <tr>
-            <td>
+            <td width="30%">
                 <Label For="parent" HelpText="Select the parent folder" ResourceKey="Parent">Parent: </Label>
             </td>
             <td>
-                <select id="parent" class="form-control" @bind="@_parentId">
+                <select id="parent" class="form-select" @bind="@_parentId">
                     @if (PageState.QueryString.ContainsKey("id"))
                     {
-                        <option value="-1">&lt;@Localizer["No Parent"]&gt;</option>
+                        <option value="-1">&lt;@Localizer["NoParent"]&gt;</option>
                     }
                     @foreach (Folder folder in _folders)
                     {
@@ -44,7 +45,7 @@
                 }
                 else
                 {
-                    <select id="type" class="form-control" @bind="@_type">
+                    <select id="type" class="form-select" @bind="@_type">
                         <option value="@FolderTypes.Private">@Localizer[FolderTypes.Private]</option>
                         <option value="@FolderTypes.Public">@Localizer[FolderTypes.Public]</option>
                     </select>
@@ -60,11 +61,13 @@
     </table>
     @if (!_isSystem)
     {
-        <button type="button" class="btn btn-success" @onclick="SaveFolder">@Localizer["Save"]</button>
+        <button type="button" class="btn btn-success" @onclick="SaveFolder">@SharedLocalizer["Save"]</button>
+        @((MarkupString)"&nbsp;")
     }
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
     @if (!_isSystem && PageState.QueryString.ContainsKey("id"))
     {
+        @((MarkupString)"&nbsp;")
         <ActionDialog Header="Delete Folder" Message="Are You Sure You Wish To Delete This Folder?" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteFolder())" ResourceKey="DeleteFolder" />
     }
     <br />
@@ -128,7 +131,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Folder {FolderId} {Error}", _folderId, ex.Message);
-            AddModuleMessage(Localizer["Error Loading Folder"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Folder.Load"], MessageType.Error);
         }
     }
 
@@ -136,13 +139,13 @@
     {
         if (_name == string.Empty || _parentId == -1)
         {
-            AddModuleMessage(Localizer["Folders Must Have A Parent And A Name"], MessageType.Warning);
+            AddModuleMessage(Localizer["Message.Required.FolderParent"], MessageType.Warning);
             return;
         }
 
         if (!_name.IsPathOrFileValid())
         {
-            AddModuleMessage(Localizer["Folder Name Not Valid."], MessageType.Warning);
+            AddModuleMessage(Localizer["Message.Folder.InvalidName"], MessageType.Warning);
             return;
         }
 
@@ -191,13 +194,13 @@
             }
             else
             {
-                AddModuleMessage(Localizer["An Error Was Encountered Saving The Folder"], MessageType.Error);
+                AddModuleMessage(Localizer["Error.Folder.Save"], MessageType.Error);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving Folder {FolderId} {Error}", _folderId, ex.Message);
-            AddModuleMessage(Localizer["Error Saving Folder"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Folder.Save"], MessageType.Error);
         }
     }
 
@@ -225,18 +228,18 @@
                 }
                 else
                 {
-                    AddModuleMessage(Localizer["Folder Has Files And Cannot Be Deleted"], MessageType.Warning);
+                    AddModuleMessage(Localizer["Message.Folder.Files.InvalidDelete"], MessageType.Warning);
                 }
             }
             else
             {
-                AddModuleMessage(Localizer["Folder Has Subfolders And Cannot Be Deleted"], MessageType.Warning);
+                AddModuleMessage(Localizer["Message.Folder.Subfolders.InvalidDelete"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting Folder {Folder} {Error}", _folderId, ex.Message);
-            AddModuleMessage(Localizer["Error Deleting Folder"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Folder.Delete"], MessageType.Error);
         }
     }
 }

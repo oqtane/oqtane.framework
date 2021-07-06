@@ -53,19 +53,25 @@ V.3.0.0 ( Q4 2021 )
 - [ ] Migration to .NET 6
 
 V.2.2.0 ( Q3 2021 )
-- [ ] Alternate Authentication Providers ( ie. Azure B2C, Social logins, etc... )
+- [ ] Authentication extensibility ( ie. Azure B2C, Social logins, etc... )
 - [ ] Configurable password complexity for local authentication
 
-V.2.1.0 ( June 2021 )
+V.2.2.0 ( Jul 2021 )
+- [x] Bootstrap 5 Upgrade
+- [x] Package Service Integration
+- [x] Default and Shared Resource File Inclusion
+- [x] Startup Error Logging
+- [x] API Controller Validation and Logging
+
+V.2.1.0 ( Jun 4, 2021 )
 - [x] Cross Platform Database Support ( ie. LocalDB, SQL Server, SQLite, MySQL, PostgreSQL ) - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
 - [x] Utilize EF Core Migrations - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
-- [x] Include support for Public content folders
-- [x] Enhance multi-tenant infrastructure
-- [x] Optimize user authorization
-- [x] Centralize package installation and uninstall
-- [x] Enable pre-rendering support for Blazor Server
-- [x] Allow run-time installation of Language packages
-- [x] Add support for Shared localization resources
+- [x] Public Content Folder Support
+- [x] Multi-tenant Infrastructure Improvements
+- [x] User Authorization Optimization
+- [x] Consiolidation of Package Management
+- [x] Blazor Server Pre-rendering
+- [x] Translation Package Installation
 
 V.2.0.2 ( Apr 19, 2021 )
 - [x] Assorted fixes and user experience improvements
@@ -76,9 +82,9 @@ V.2.0.1 ( Feb 27, 2021 )
 V.2.0.0 ( released in conjuntion with .NET 5 on Nov 11, 2020 )
 - [x] Migration to .NET 5
 - [x] Static Localization ( ie. labels, help text, etc.. )
-- [x] Improved JavaScript reference support
-- [x] Performance optimizations
-- [x] Developer productivity enhancements
+- [x] Improved JavaScript Reference Support
+- [x] Performance Optimizations
+- [x] Developer Productivity Enhancements
 
 V.1.0.0 ( released in conjunction with .NET Core 3.2 on May 19, 2020 )
 - [x] Multi-Tenant ( Shared Database & Isolated Database ) 
@@ -117,6 +123,11 @@ The following diagram visualizes the client and server components in the Oqtane 
 
 ![Architecture](https://github.com/oqtane/framework/blob/master/screenshots/Architecture.png?raw=true "Oqtane Architecture")
 
+# Databases
+
+As of version 2.1, Oqtane supports multiple relational database providers.
+
+![Databases](https://github.com/oqtane/framework/blob/dev/screenshots/databases.png?raw=true "Oqtane Databases")
 
 # Example Screenshots
 

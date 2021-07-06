@@ -3,44 +3,56 @@
 @inject NavigationManager NavigationManager
 @inject IRoleService RoleService
 @inject IStringLocalizer<Edit> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <Label For="name" HelpText="Name Of The Role" ResourceKey="Name">Name:</Label>
-        </td>
-        <td>
-            <input id="name" class="form-control" @bind="@_name" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="description" HelpText="A Short Description Of The Role Which Describes Its Purpose" ResourceKey="Description">Description:</Label>
-        </td>
-        <td>
-            <textarea id="description" class="form-control" @bind="@_description" rows="5"></textarea>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="isautoassigned" HelpText="Indicates Whether Or Not New Users Are Automatically Assigned To This Role" ResourceKey="AutoAssigned">Auto Assigned?</Label>
-        </td>
-        <td>
-            <select id="isautoassigned" class="form-control" @bind="@_isautoassigned">
-                <option value="True">@Localizer["Yes"]</option>
-                <option value="False">@Localizer["No"]</option>
-            </select>
-        </td>
-    </tr>
-</table>
-<button type="button" class="btn btn-success" @onclick="SaveRole">@Localizer["Save"]</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+<form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+    <table class="table table-borderless">
+        <tr>
+            <td width="30%">
+                <Label For="name" HelpText="Name Of The Role" ResourceKey="Name">Name:</Label>
+            </td>
+            <td>
+                <input id="name" class="form-control" @bind="@_name" maxlength="256" required />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="description" HelpText="A Short Description Of The Role Which Describes Its Purpose" ResourceKey="Description">Description:</Label>
+            </td>
+            <td>
+                <textarea id="description" class="form-control" @bind="@_description" rows="5" maxlength="256" required></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="isautoassigned" HelpText="Indicates Whether Or Not New Users Are Automatically Assigned To This Role" ResourceKey="AutoAssigned">Auto Assigned?</Label>
+            </td>
+            <td>
+                <select id="isautoassigned" class="form-select" @bind="@_isautoassigned">
+                    <option value="True">@SharedLocalizer["Yes"]</option>
+                    <option value="False">@SharedLocalizer["No"]</option>
+                </select>
+            </td>
+        </tr>
+    </table>
+    <button type="button" class="btn btn-success" @onclick="SaveRole">@SharedLocalizer["Save"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+    <br /><br />
+    <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon"></AuditInfo>
+</form>
 
 @code {
+    private ElementReference form;
+    private bool validated = false;
+
     private int _roleid;
     private string _name = string.Empty;
     private string _description = string.Empty;
     private string _isautoassigned = "False";
+    private string _createdby;
+    private DateTime _createdon;
+    private string _modifiedby;
+    private DateTime _modifiedon;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
@@ -55,33 +67,46 @@
                 _name = role.Name;
                 _description = role.Description;
                 _isautoassigned = role.IsAutoAssigned.ToString();
+                _createdby = role.CreatedBy;
+                _createdon = role.CreatedOn;
+                _modifiedby = role.ModifiedBy;
+                _modifiedon = role.ModifiedOn;
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Role {RoleId} {Error}", _roleid, ex.Message);
-            AddModuleMessage(Localizer["Error Loading Role"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.LoadRole"], MessageType.Error);
         }
     }
 
     private async Task SaveRole()
     {
-        var role = await RoleService.GetRoleAsync(_roleid);
-        role.Name = _name;
-        role.Description = _description;
-        role.IsAutoAssigned = (_isautoassigned != null && Boolean.Parse(_isautoassigned));
-        role.IsSystem = false;
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
+        {
+            var role = await RoleService.GetRoleAsync(_roleid);
+            role.Name = _name;
+            role.Description = _description;
+            role.IsAutoAssigned = (_isautoassigned != null && Boolean.Parse(_isautoassigned));
+            role.IsSystem = false;
 
-        try
-        {
-            role = await RoleService.UpdateRoleAsync(role);
-            await logger.LogInformation("Role Saved {Role}", role);
-            NavigationManager.NavigateTo(NavigateUrl());
+            try
+            {
+                role = await RoleService.UpdateRoleAsync(role);
+                await logger.LogInformation("Role Saved {Role}", role);
+                NavigationManager.NavigateTo(NavigateUrl());
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Saving Role {Role} {Error}", role, ex.Message);
+                AddModuleMessage(Localizer["Error.SaveRole"], MessageType.Error);
+            }
         }
-        catch (Exception ex)
+        else
         {
-            await logger.LogError(ex, "Error Saving Role {Role} {Error}", role, ex.Message);
-            AddModuleMessage(Localizer["Error Saving Role"], MessageType.Error);
+            AddModuleMessage(Localizer["Message.InfoRequired"], MessageType.Warning);
         }
     }
 }

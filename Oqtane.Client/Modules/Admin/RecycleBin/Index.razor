@@ -5,13 +5,14 @@
 @inject IModuleService ModuleService
 @inject IPageService PageService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <TabStrip>
     <TabPanel Name="Pages" ResourceKey="Pages">
         @if (_pages == null)
         {
             <br />
-            <p>@Localizer["No Deleted Pages"]</p>
+            <p>@Localizer["NoPage.Deleted"]</p>
         }
         else
         {
@@ -19,13 +20,13 @@
                 <Header>
                     <th style="width: 1px;">&nbsp;</th>
                     <th style="width: 1px;">&nbsp;</th>
-                    <th>@Localizer["Name"]</th>
-                    <th>@Localizer["Deleted By"]</th>
-                    <th>@Localizer["Deleted On"]</th>
+                    <th>@SharedLocalizer["Name"]</th>
+                    <th>@Localizer["DeletedBy"]</th>
+                    <th>@Localizer["DeletedOn"]</th>
                 </Header>
                 <Row>
                     <td><button @onclick="@(() => RestorePage(context))" class="btn btn-info" title="Restore">Restore</button></td>
-                    <td><ActionDialog Header="Delete Page" Message="@Localizer["Are You Sure You Wish To Permanently Delete The {0} Page?", context.Name]" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeletePage(context))" ResourceKey="DeletePage" /></td>
+                    <td><ActionDialog Header="Delete Page" Message="@string.Format(Localizer["Confirm.Page.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeletePage(context))" ResourceKey="DeletePage" /></td>
                     <td>@context.Name</td>
                     <td>@context.DeletedBy</td>
                     <td>@context.DeletedOn</td>
@@ -43,7 +44,7 @@
         @if (_modules == null)
         {
             <br />
-            <p>@Localizer["No Deleted Modules"]</p>
+            <p>@Localizer["NoModule.Deleted"]</p>
         }
         else
         {
@@ -53,12 +54,12 @@
                     <th style="width: 1px;">&nbsp;</th>
                     <th>@Localizer["Page"]</th>
                     <th>@Localizer["Module"]</th>
-                    <th>@Localizer["Deleted By"]</th>
-                    <th>@Localizer["Deleted On"]</th>
+                    <th>@Localizer["DeletedBy"]</th>
+                    <th>@Localizer["DeletedOn"]</th>
                 </Header>
                 <Row>
                     <td><button @onclick="@(() => RestoreModule(context))" class="btn btn-info" title="Restore">@Localizer["Restore"]</button></td>
-                    <td><ActionDialog Header="Delete Module" Message="@Localizer["Are You Sure You Wish To Permanently Delete The {0} Module?", context.Title]" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" /></td>
+                    <td><ActionDialog Header="Delete Module" Message="@string.Format(Localizer["Confirm.Module.Delete"], context.Title)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" /></td>
                     <td>@PageState.Pages.Find(item => item.PageId == context.PageId).Name</td>
                     <td>@context.Title</td>
                     <td>@context.DeletedBy</td>
@@ -91,7 +92,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Deleted Pages Or Modules {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error Loading Deleted Pages Or Modules"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.DeletedModulePage.Load"], MessageType.Error);
         }
     }
 
@@ -118,7 +119,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Restoring Deleted Page {Page} {Error}", page, ex.Message);
-            AddModuleMessage(Localizer["Error Restoring Deleted Page"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Page.Restore"], MessageType.Error);
         }
     }
 
@@ -175,7 +176,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Restoring Deleted Module {Module} {Error}", module, ex.Message);
-            AddModuleMessage(Localizer["Error Restoring Deleted Module"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Module.Restore"], MessageType.Error);
         }
     }
 
@@ -199,7 +200,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Permanently Deleting Module {Module} {Error}", module, ex.Message);
-            AddModuleMessage(Localizer["Error Permanently Deleting Module"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Module.Delete"], MessageType.Error);
         }
     }
 
@@ -226,7 +227,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Permanently Deleting Modules {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error Permanently Deleting Modules"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Modules.Delete"], MessageType.Error);
         }
     }
 }

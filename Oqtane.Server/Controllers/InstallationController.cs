@@ -5,43 +5,60 @@ using System.Linq;
 using System.IO.Compression;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Oqtane.Infrastructure;
 using Oqtane.Models;
 using Oqtane.Modules;
 using Oqtane.Shared;
 using Oqtane.Themes;
 using Microsoft.Extensions.Caching.Memory;
+using System.Net;
+using Oqtane.Repository;
+using Microsoft.AspNetCore.Http;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace Oqtane.Controllers
 {
     [Route(ControllerRoutes.ApiRoute)]
     public class InstallationController : Controller
     {
-        private readonly IConfigurationRoot _config;
+        private readonly IConfigManager _configManager;
         private readonly IInstallationManager _installationManager;
         private readonly IDatabaseManager _databaseManager;
         private readonly ILocalizationManager _localizationManager;
         private readonly IMemoryCache _cache;
+        private readonly IHttpContextAccessor _accessor;
+        private readonly IAliasRepository _aliases;
+        private readonly ILogger<InstallationController> _filelogger;
 
-        public InstallationController(IConfigurationRoot config, IInstallationManager installationManager, IDatabaseManager databaseManager, ILocalizationManager localizationManager, IMemoryCache cache)
+        public InstallationController(IConfigManager configManager, IInstallationManager installationManager, IDatabaseManager databaseManager, ILocalizationManager localizationManager, IMemoryCache cache, IHttpContextAccessor accessor, IAliasRepository aliases, ILogger<InstallationController> filelogger)
         {
-            _config = config;
+            _configManager = configManager;
             _installationManager = installationManager;
             _databaseManager = databaseManager;
             _localizationManager = localizationManager;
             _cache = cache;
+            _accessor = accessor;
+            _aliases = aliases;
+            _filelogger = filelogger;
         }
 
         // POST api/<controller>
         [HttpPost]
-        public Installation Post([FromBody] InstallConfig config)
+        public async Task<Installation> Post([FromBody] InstallConfig config)
         {
             var installation = new Installation {Success = false, Message = ""};
 
-            if (ModelState.IsValid && (User.IsInRole(RoleNames.Host) || string.IsNullOrEmpty(_config.GetConnectionString(SettingKeys.ConnectionStringKey))))
+            if (ModelState.IsValid && (User.IsInRole(RoleNames.Host) || string.IsNullOrEmpty(_configManager.GetSetting("ConnectionStrings:" + SettingKeys.ConnectionStringKey, ""))))
             {
                 installation = _databaseManager.Install(config);
+
+                if (installation.Success && config.Register)
+                {
+                    await RegisterContact(config.HostEmail);
+                }
             }
             else
             {
@@ -51,11 +68,17 @@ namespace Oqtane.Controllers
             return installation;
         }
 
-        // GET api/<controller>/installed
+        // GET api/<controller>/installed/?path=xxx
         [HttpGet("installed")]
-        public Installation IsInstalled()
+        public Installation IsInstalled(string path)
         {
-            return _databaseManager.IsInstalled();
+            var installation = _databaseManager.IsInstalled();
+            if (installation.Success)
+            {
+                path = _accessor.HttpContext.Request.Host.Value + "/" + WebUtility.UrlDecode(path);
+                installation.Alias = _aliases.GetAlias(path);
+            }
+            return installation;
         }
 
         [HttpGet("upgrade")]
@@ -79,13 +102,13 @@ namespace Oqtane.Controllers
         [HttpGet("load")]
         public IActionResult Load()
         {
-            if (_config.GetSection("Runtime").Value == "WebAssembly")
+            if (_configManager.GetSection("Runtime").Value == "WebAssembly")
             {
-                return File(GetAssemblies(), System.Net.Mime.MediaTypeNames.Application.Octet, "oqtane.zip");
+                return File(GetAssemblies(), System.Net.Mime.MediaTypeNames.Application.Octet, "oqtane.dll");
             }
             else
             {
-                HttpContext.Response.StatusCode = 401;
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
         }
@@ -117,7 +140,7 @@ namespace Oqtane.Controllers
                     }
                     else
                     {
-                        Console.WriteLine($"The satellite assemblies folder named '{culture}' is not found.");
+                        _filelogger.LogError(Utilities.LogMessage(this, $"The Satellite Assembly Folder For {culture} Does Not Exist"));
                     }
                 }
 
@@ -135,7 +158,7 @@ namespace Oqtane.Controllers
                             }
                             else
                             {
-                                Console.WriteLine("Module " + instance.ModuleDefinition.ModuleDefinitionName + " dependency " + name + ".dll does not exist");
+                                _filelogger.LogError(Utilities.LogMessage(this, $"Module {instance.ModuleDefinition.ModuleDefinitionName} Dependency {name}.dll Does Not Exist"));
                             }
                         }
                     }
@@ -150,7 +173,7 @@ namespace Oqtane.Controllers
                             }
                             else
                             {
-                                Console.WriteLine("Theme " + instance.Theme.ThemeName + " dependency " + name + ".dll does not exist" );
+                                _filelogger.LogError(Utilities.LogMessage(this, $"Theme {instance.Theme.ThemeName} Dependency {name}.dll Does Not Exist"));
                             }
                         }
                     }
@@ -184,6 +207,32 @@ namespace Oqtane.Controllers
                     return memoryStream.ToArray();
                 }
             });
+        }
+
+        private async Task RegisterContact(string email)
+        {
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value);
+                    client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Constants.PackageId, Constants.Version));
+                    Uri uri = new Uri(Constants.PackageRegistryUrl + $"/api/registry/contact/?id={_configManager.GetInstallationId()}&email={WebUtility.UrlEncode(email)}");
+                    var response = await client.GetAsync(uri).ConfigureAwait(false);
+                }
+            }
+            catch
+            {
+                // error calling registry service
+            }
+        }
+
+        // GET api/<controller>/register?email=x
+        [HttpPost("register")]
+        [Authorize(Roles = RoleNames.Host)]
+        public async Task Register(string email)
+        {
+            await RegisterContact(email);
         }
     }
 }

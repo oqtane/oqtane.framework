@@ -4,12 +4,13 @@
 @inject IFolderService FolderService
 @inject NavigationManager NavigationManager
 @inject IStringLocalizer<Details> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_folders != null)
 {
     <table class="table table-borderless">
         <tr>
-            <td>
+            <td width="30%">
                 <Label for="name" HelpText="The name of the file" ResourceKey="Name">Name: </Label>
             </td>
             <td>
@@ -21,7 +22,7 @@
                 <Label For="parent" HelpText="The folder where the file is located" ResourceKey="Folder">Folder: </Label>
             </td>
             <td>
-                <select id="parent" class="form-control" @bind="@_folderId">
+                <select id="parent" class="form-select" @bind="@_folderId">
                     @foreach (Folder folder in _folders)
                     {
                         <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
@@ -38,8 +39,8 @@
             </td>
         </tr>
     </table>
-    <button type="button" class="btn btn-success" @onclick="SaveFile">@Localizer["Save"]</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+    <button type="button" class="btn btn-success" @onclick="SaveFile">@SharedLocalizer["Save"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
     <br />
     <br />
     <AuditInfo CreatedBy="@_createdBy" CreatedOn="@_createdOn" ModifiedBy="@_modifiedBy" ModifiedOn="@_modifiedOn"></AuditInfo>
@@ -81,7 +82,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading File {FileId} {Error}", _fileId, ex.Message);
-            AddModuleMessage(Localizer["Error Loading File"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.File.Load"], MessageType.Error);
         }
     }
 
@@ -100,13 +101,13 @@
             }
             else
             {
-                AddModuleMessage(Localizer["File Name Not Valid"], MessageType.Warning);
+                AddModuleMessage(Localizer["Message.File.InvalidName"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving File {FileId} {Error}", _fileId, ex.Message);
-            AddModuleMessage(Localizer["Error Saving File"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.File.Save"], MessageType.Error);
         }
     }
 }

@@ -5,50 +5,70 @@
 @inject IThemeService ThemeService
 @inject IPackageService PackageService
 @inject IStringLocalizer<Add> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
-@if (_packages != null)
-{
-    <TabStrip>
-        @if (_packages.Count > 0)
+<TabStrip>
+    <TabPanel Name="Download" ResourceKey="Download">
+        <ModuleMessage Type="MessageType.Info" Message="Download one or more themes from the list below. Once you are ready click Install to complete the installation."></ModuleMessage>
+
+        <table class="table table-borderless" style=" margin: auto; width: 50% !important;">
+            <tr>
+                <td>
+                    <input id="search" class="form-control" placeholder="@SharedLocalizer["Search.Hint"]" @bind="@_search" />
+                </td>
+                <td>
+                    <button type="button" class="btn btn-primary" @onclick="Search">@SharedLocalizer["Search"]</button>&nbsp;
+                    <button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Reset"]</button>
+                </td>
+            </tr>
+        </table>
+
+        @if (_packages != null)
         {
-            <TabPanel Name="Download" ResourceKey="Download">
-                <ModuleMessage Type="MessageType.Info" Message="Download one or more themes from the list below. Once you are ready click Install to complete the installation."></ModuleMessage>
+            if (_packages.Count > 0)
+            {
                 <Pager Items="@_packages">
-                    <Header>
-                        <th>@Localizer["Name"]</th>
-                        <th>@Localizer["Version"]</th>
-                        <th style="width: 1px;"></th>
-                    </Header>
                     <Row>
-                        <td>@context.Name</td>
-                        <td>@context.Version</td>
                         <td>
-                            <button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadTheme(context.PackageId, context.Version))>@Localizer["Download"]</button>
+                            <h3 style="display: inline;"><a href="@context.ProductUrl" target="_new">@context.Name</a></h3>&nbsp;&nbsp;@SharedLocalizer["Search.By"]:&nbsp;&nbsp;<strong><a href="@context.OwnerUrl" target="new">@context.Owner</a></strong><br />
+                            @(context.Description.Length > 400 ? (context.Description.Substring(0, 400) + "...") : context.Description)<br />
+                            <strong>@(String.Format("{0:n0}", context.Downloads))</strong> @SharedLocalizer["Search.Downloads"]&nbsp;&nbsp;|&nbsp;&nbsp; @SharedLocalizer["Search.Released"]: <strong>@context.ReleaseDate.ToString("MMM dd, yyyy")</strong>&nbsp;&nbsp;|&nbsp;&nbsp;@SharedLocalizer["Search.Version"]: <strong>@context.Version</strong>&nbsp;&nbsp;|&nbsp;&nbsp;@SharedLocalizer["Search.Source"]: <strong>@context.PackageUrl</strong>
+                        </td>
+                        <td style="vertical-align: middle;">
+                            <button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadTheme(context.PackageId, context.Version))>@SharedLocalizer["Download"]</button>
                         </td>
                     </Row>
                 </Pager>
-            </TabPanel>
+            }
+            else
+            {
+                <br />
+                <div class="mx-auto text-center">
+                    @Localizer["Search.NoResults"]
+                </div>
+            }
         }
-        <TabPanel Name="Upload" ResourceKey="Upload">
-            <table class="table table-borderless">
-                <tr>
-                    <td>
-                        <Label HelpText="Upload one or more theme packages. Once they are uploaded click Install to complete the installation." ResourceKey="Theme">Theme: </Label>
-                    </td>
-                    <td>
-                        <FileManager Filter="nupkg" ShowFiles="false" Folder="Packages" UploadMultiple="@true" />
-                    </td>
-                </tr>
-            </table>
-        </TabPanel>
-    </TabStrip>
+    </TabPanel>
+    <TabPanel Name="Upload" ResourceKey="Upload">
+        <table class="table table-borderless">
+            <tr>
+                <td>
+                    <Label HelpText="Upload one or more theme packages. Once they are uploaded click Install to complete the installation." ResourceKey="Theme">Theme: </Label>
+                </td>
+                <td>
+                    <FileManager Filter="nupkg" ShowFiles="false" Folder="Packages" UploadMultiple="@true" />
+                </td>
+            </tr>
+        </table>
+    </TabPanel>
+</TabStrip>
 
-    <button type="button" class="btn btn-success" @onclick="InstallThemes">@Localizer["Install"]</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
-}
+<button type="button" class="btn btn-success" @onclick="InstallThemes">@SharedLocalizer["Install"]</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 
 @code {
     private List<Package> _packages;
+    private string _search = "";
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
@@ -56,9 +76,22 @@
     {
         try
         {
-            var themes = await ThemeService.GetThemesAsync();
-            _packages = await PackageService.GetPackagesAsync("theme");
+            await LoadThemes();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Packages {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.Package.Load"], MessageType.Error);
+        }
+    }
 
+    private async Task LoadThemes()
+    {
+        var themes = await ThemeService.GetThemesAsync();
+        _packages = await PackageService.GetPackagesAsync("theme", _search);
+
+        if (_packages != null)
+        {
             foreach (Package package in _packages.ToArray())
             {
                 if (themes.Exists(item => item.PackageName == package.PackageId))
@@ -67,10 +100,30 @@
                 }
             }
         }
+    }
+
+    private async Task Search()
+    {
+        try
+        {
+            await LoadThemes();
+        }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Loading Packages {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error Loading Packages"], MessageType.Error);
+            await logger.LogError(ex, "Error On Search");
+        }
+    }
+
+    private async Task Reset()
+    {
+        try
+        {
+            _search = "";
+            await LoadThemes();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error On Reset");
         }
     }
 
@@ -79,7 +132,7 @@
         try
         {
             await ThemeService.InstallThemesAsync();
-            AddModuleMessage(Localizer["Theme Installed Successfully. You Must <a href=\"{0}\">Restart</a> Your Application To Apply These Changes.", NavigateUrl("admin/system")], MessageType.Success);
+            AddModuleMessage(string.Format(Localizer["Success.Theme.Install"], NavigateUrl("admin/system")), MessageType.Success);
         }
         catch (Exception ex)
         {
@@ -93,13 +146,13 @@
         {
             await PackageService.DownloadPackageAsync(packageid, version, "Packages");
             await logger.LogInformation("Theme {ThemeName} {Version} Downloaded Successfully", packageid, version);
-            AddModuleMessage(Localizer["Themes Downloaded Successfully. Click Install To Complete Installation."], MessageType.Success);
+            AddModuleMessage(Localizer["Success.Theme.Download"], MessageType.Success);
             StateHasChanged();
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Downloading Module {ThemeName} {Version}", packageid, version);
-            AddModuleMessage(Localizer["Error Downloading Theme"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Theme.Download"], MessageType.Error);
         }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
@@ -44,9 +45,9 @@ namespace Oqtane.Migrations.EntityBuilders
             return  ActiveDatabase.AddAutoIncrementColumn(table, RewriteName(name));
         }
 
-        public void AddBooleanColumn(string name)
+        public void AddBooleanColumn(string name, bool nullable = false)
         {
-            _migrationBuilder.AddColumn<bool>(RewriteName(name), RewriteName(EntityTableName));
+            _migrationBuilder.AddColumn<bool>(RewriteName(name), RewriteName(EntityTableName), nullable: nullable);
         }
 
         protected OperationBuilder<AddColumnOperation> AddBooleanColumn(ColumnsBuilder table, string name, bool nullable = false)
@@ -84,7 +85,7 @@ namespace Oqtane.Migrations.EntityBuilders
             return table.Column<int>(name: RewriteName(name), nullable: nullable);
         }
 
-        public void AddMaxStringColumn(string name, int length, bool nullable = false, bool unicode = true)
+        public void AddMaxStringColumn(string name, bool nullable = false, bool unicode = true)
         {
             _migrationBuilder.AddColumn<string>(RewriteName(name), RewriteName(EntityTableName), nullable: nullable, unicode: unicode);
         }
@@ -109,6 +110,16 @@ namespace Oqtane.Migrations.EntityBuilders
             _migrationBuilder.AlterColumn<string>(RewriteName(name), RewriteName(EntityTableName), maxLength: length, nullable: nullable, unicode: unicode);
         }
 
+        public void AddDecimalColumn(string name, int precision, int scale, bool nullable = false)
+        {
+            _migrationBuilder.AddColumn<decimal>(RewriteName(name), RewriteName(EntityTableName), nullable: nullable, precision: precision, scale: scale);
+        }
+
+        protected OperationBuilder<AddColumnOperation> AddDecimalColumn(ColumnsBuilder table, string name, int precision, int scale, bool nullable = false)
+        {
+            return table.Column<decimal>(name: RewriteName(name), nullable: nullable, precision: precision, scale: scale);
+        }
+
         public void DropColumn(string name)
         {
             _migrationBuilder.DropColumn(RewriteName(name), RewriteName(EntityTableName));
@@ -130,6 +141,17 @@ namespace Oqtane.Migrations.EntityBuilders
                 table: RewriteName(EntityTableName),
                 column: RewriteName(columnName),
                 unique: isUnique);
+        }
+
+        public virtual void AddForeignKey(string foreignKeyName, string columnName, string principalTable, string principalColumn, ReferentialAction onDelete)
+        {
+            _migrationBuilder.AddForeignKey(
+                name: RewriteName(foreignKeyName),
+                table: RewriteName(EntityTableName),
+                column: RewriteName(columnName),
+                principalTable: RewriteName(principalTable),
+                principalColumn: RewriteName(principalColumn),
+                onDelete: onDelete );
         }
 
         /// <summary>

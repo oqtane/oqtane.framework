@@ -6,6 +6,7 @@
 @inject ISettingService SettingService
 @inject IFileService FileService
 @inject IStringLocalizer<Edit> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (PageState.User != null && photo != null)
 {
@@ -21,48 +22,48 @@ else
         {
             <table class="table table-borderless">
                 <tr>
-                    <td>
-                        <label class="control-label">@Localizer["Username:"] </label>
+                    <td width="30%">
+                        <Label For="username" HelpText="The unique username for a user. Note that this field can not be modified." ResourceKey="Username"></Label>
                     </td>
                     <td>
-                        <input class="form-control" @bind="@username" readonly />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label class="control-label">@Localizer["Password:"] </label>
-                    </td>
-                    <td>
-                        <input type="password" class="form-control" @bind="@password" />
+                        <input id="username" class="form-control" @bind="@username" readonly />
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <label class="control-label">@Localizer["Confirm Password:"] </label>
+                        <Label For="password" HelpText="The user's password. Please choose a password which is sufficiently secure." ResourceKey="Password"></Label>
                     </td>
                     <td>
-                        <input type="password" class="form-control" @bind="@confirm" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label class="control-label">@Localizer["Email:"] </label>
-                    </td>
-                    <td>
-                        <input class="form-control" @bind="@email" />
+                        <input id="password" type="password" class="form-control" @bind="@password" />
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <label class="control-label">@Localizer["Full Name:"] </label>
+                        <Label For="confirm" HelpText="Please enter the password again to confirm it matches with the value above" ResourceKey="Confirm"></Label>
                     </td>
                     <td>
-                        <input class="form-control" @bind="@displayname" />
+                        <input id="confirm" type="password" class="form-control" @bind="@confirm" />
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <label class="control-label">@Localizer["Photo:"] </label>
+                        <Label For="email" HelpText="The email address where the user will receive notifications" ResourceKey="Email"></Label>
+                    </td>
+                    <td>
+                        <input id="email" class="form-control" @bind="@email" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="displayname" HelpText="The full name of the user" ResourceKey="DisplayName"></Label>
+                    </td>
+                    <td>
+                        <input id="displayname" class="form-control" @bind="@displayname" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="@photofileid.ToString()" HelpText="A photo of the user" ResourceKey="Photo"></Label>
                     </td>
                     <td>
                         <FileManager FileId="@photofileid" @ref="filemanager" />
@@ -70,12 +71,12 @@ else
                 </tr>
                 <tr>
                     <td>
-                        <label class="control-label">@Localizer["Is Deleted?"] </label>
+                        <Label For="isdeleted" HelpText="Indicate if the user is active" ResourceKey="IsDeleted"></Label>
                     </td>
                     <td>
-                        <select class="form-control" @bind="@isdeleted">
-                            <option value="True">@Localizer["Yes"]</option>
-                            <option value="False">@Localizer["No"]</option>
+                        <select id="isdeleted" class="form-select" @bind="@isdeleted">
+                            <option value="True">@SharedLocalizer["Yes"]</option>
+                            <option value="False">@SharedLocalizer["No"]</option>
                         </select>
                     </td>
                 </tr>
@@ -99,7 +100,7 @@ else
                         category = p.Category;
                     }
                     <tr>
-                        <td>
+                        <td width="30%">
                             <Label For="@p.Name" HelpText="@p.Description">@p.Title</Label>
                         </td>
                         <td>
@@ -119,8 +120,8 @@ else
     </TabPanel>
 </TabStrip>
 
-<button type="button" class="btn btn-primary" @onclick="SaveUser">@Localizer["Save"]</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+<button type="button" class="btn btn-success" @onclick="SaveUser">@SharedLocalizer["Save"]</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 <br />
 <br />
 <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon" DeletedBy="@deletedby" DeletedOn="@deletedon"></AuditInfo>
@@ -152,39 +153,42 @@ else
     {
         try
         {
-            profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
-
-            userid = Int32.Parse(PageState.QueryString["id"]);
-            var user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
-            if (user != null)
+            // OnParametersSetAsync is called when the edit modal is closed - in which case there is no id parameter
+            if (PageState.QueryString.ContainsKey("id"))
             {
-                username = user.Username;
-                email = user.Email;
-                displayname = user.DisplayName;
-                if (user.PhotoFileId != null)
+                profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
+                userid = Int32.Parse(PageState.QueryString["id"]);
+                var user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
+                if (user != null)
                 {
-                    photofileid = user.PhotoFileId.Value;
-                    photo = await FileService.GetFileAsync(photofileid);
+                    username = user.Username;
+                    email = user.Email;
+                    displayname = user.DisplayName;
+                    if (user.PhotoFileId != null)
+                    {
+                        photofileid = user.PhotoFileId.Value;
+                        photo = await FileService.GetFileAsync(photofileid);
+                    }
+                    else
+                    {
+                        photofileid = -1;
+                        photo = null;
+                    }
+                    settings = await SettingService.GetUserSettingsAsync(user.UserId);
+                    createdby = user.CreatedBy;
+                    createdon = user.CreatedOn;
+                    modifiedby = user.ModifiedBy;
+                    modifiedon = user.ModifiedOn;
+                    deletedby = user.DeletedBy;
+                    deletedon = user.DeletedOn;
+                    isdeleted = user.IsDeleted.ToString();
                 }
-                else
-                {
-                    photofileid = -1;
-                    photo = null;
-                }
-                settings = await SettingService.GetUserSettingsAsync(user.UserId);
-                createdby = user.CreatedBy;
-                createdon = user.CreatedOn;
-                modifiedby = user.ModifiedBy;
-                modifiedon = user.ModifiedOn;
-                deletedby = user.DeletedBy;
-                deletedon = user.DeletedOn;
-                isdeleted = user.IsDeleted.ToString();
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading User {UserId} {Error}", userid, ex.Message);
-            AddModuleMessage(Localizer["Error Loading User"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.User.Load"], MessageType.Error);
         }
     }
 
@@ -222,18 +226,18 @@ else
                 }
                 else
                 {
-                    AddModuleMessage(Localizer["Passwords Entered Do Not Match"], MessageType.Warning);
+                    AddModuleMessage(Localizer["Message.Password.NoMatch"], MessageType.Warning);
                 }
             }
             else
             {
-                AddModuleMessage(Localizer["You Must Provide A Username, Password, Email Address, And All Required Profile Information"], MessageType.Warning);
+                AddModuleMessage(Localizer["Message.Required.ProfileInfo"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving User {Username} {Email} {Error}", username, email, ex.Message);
-            AddModuleMessage(Localizer["Error Saving User"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.User.Save"], MessageType.Error);
         }
     }
 

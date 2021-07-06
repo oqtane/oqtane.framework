@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Oqtane.Models;
@@ -35,7 +35,19 @@ namespace Oqtane.Repository
 
         public User GetUser(int userId)
         {
-            return _db.User.Find(userId);
+            return GetUser(userId, true);
+        }
+
+        public User GetUser(int userId, bool tracking)
+        {
+            if (tracking)
+            {
+                return _db.User.Find(userId);
+            }
+            else
+            {
+                return _db.User.AsNoTracking().FirstOrDefault(item => item.UserId == userId);
+            }
         }
 
         public User GetUser(string username)

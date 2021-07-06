@@ -1,6 +1,6 @@
-﻿namespace Oqtane.UI
+namespace Oqtane.UI
 {
-    public enum Reload
+    public enum Refresh
     {
         None,
         Page,

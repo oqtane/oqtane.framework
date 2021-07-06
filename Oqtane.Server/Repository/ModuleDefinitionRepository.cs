@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -39,6 +40,24 @@ namespace Oqtane.Repository
         {
             List<ModuleDefinition> moduledefinitions = LoadModuleDefinitions(siteId);
             return moduledefinitions.Find(item => item.ModuleDefinitionId == moduleDefinitionId);
+        }
+
+        public ModuleDefinition GetModuleDefinition(int moduleDefinitionId, bool tracking)
+        {
+            ModuleDefinition moduledefinition;
+            if (tracking)
+            {
+                moduledefinition = _db.ModuleDefinition.Find(moduleDefinitionId);
+            }
+            else
+            {
+                moduledefinition = _db.ModuleDefinition.AsNoTracking().FirstOrDefault(item => item.ModuleDefinitionId == moduleDefinitionId);
+            }
+            if (moduledefinition != null)
+            {
+                moduledefinition.Permissions = _permissions.GetPermissionString(EntityNames.ModuleDefinition, moduledefinition.ModuleDefinitionId);
+            }
+            return moduledefinition;
         }
 
         public void UpdateModuleDefinition(ModuleDefinition moduleDefinition)
@@ -132,30 +151,15 @@ namespace Oqtane.Repository
                     moduledef = new ModuleDefinition { ModuleDefinitionName = moduledefinition.ModuleDefinitionName };
                     _db.ModuleDefinition.Add(moduledef);
                     _db.SaveChanges();
+                    moduledefinition.Version = "";
                 }
                 else
                 {
-                    // existing module definition
-                    if (!string.IsNullOrEmpty(moduledef.Name))
-                    {
-                        moduledefinition.Name = moduledef.Name;
-                    }
-
-                    if (!string.IsNullOrEmpty(moduledef.Description))
-                    {
-                        moduledefinition.Description = moduledef.Description;
-                    }
-
-                    if (!string.IsNullOrEmpty(moduledef.Categories))
-                    {
-                        moduledefinition.Categories = moduledef.Categories;
-                    }
-
-                    if (!string.IsNullOrEmpty(moduledef.Version))
-                    {
-                        moduledefinition.Version = moduledef.Version;
-                    }
-
+                    // override user customizable property values
+                    moduledefinition.Name = (!string.IsNullOrEmpty(moduledef.Name)) ? moduledef.Name : moduledefinition.Name;
+                    moduledefinition.Description = (!string.IsNullOrEmpty(moduledef.Description)) ? moduledef.Description : moduledefinition.Description;
+                    moduledefinition.Categories = (!string.IsNullOrEmpty(moduledef.Categories)) ? moduledef.Categories : moduledefinition.Categories;
+                    moduledefinition.Version = moduledef.Version;
                     // remove module definition from list as it is already synced
                     moduledefs.Remove(moduledef);
                 }
@@ -235,7 +239,6 @@ namespace Oqtane.Repository
 
                     // set internal properties
                     moduledefinition.ModuleDefinitionName = qualifiedModuleType;
-                    moduledefinition.Version = ""; // will be populated from database
                     moduledefinition.ControlTypeTemplate = modulecontroltype.Namespace + "." + Constants.ActionToken + ", " + modulecontroltype.Assembly.GetName().Name;
                     moduledefinition.AssemblyName = assembly.GetName().Name;
                     if (string.IsNullOrEmpty(moduledefinition.PackageName))
@@ -264,7 +267,7 @@ namespace Oqtane.Repository
                         }.EncodePermissions();
                     }
 
-                    Console.WriteLine($"Registering module: {moduledefinition.ModuleDefinitionName}");
+                    Debug.WriteLine($"Oqtane Info: Registering Module {moduledefinition.ModuleDefinitionName}");
                     moduledefinitions.Add(moduledefinition);
                     index = moduledefinitions.FindIndex(item => item.ModuleDefinitionName == qualifiedModuleType);
                 }

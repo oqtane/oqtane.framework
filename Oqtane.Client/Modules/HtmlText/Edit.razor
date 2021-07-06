@@ -7,12 +7,13 @@
 @inject ISettingService SettingService
 @inject NavigationManager NavigationManager
 @inject IStringLocalizer<Edit> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_content != null)
 {
     <RichTextEditor Content="@_content" AllowFileManagement="@_allowfilemanagement" @ref="@RichTextEditorHtml"></RichTextEditor>
-    <button type="button" class="btn btn-success" @onclick="SaveContent">@Localizer["Save"]</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+    <button type="button" class="btn btn-success" @onclick="SaveContent">@SharedLocalizer["Save"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
     @if (!string.IsNullOrEmpty(_content))
     {
         <br />
@@ -96,7 +97,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving Content {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error Saving Content"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Content.Save"], MessageType.Error);
         }
     }
 }

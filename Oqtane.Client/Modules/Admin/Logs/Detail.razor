@@ -6,11 +6,12 @@
 @inject IPageService PageService
 @inject IPageModuleService PageModuleService
 @inject IUserService UserService
-@inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<Detail> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <table class="table table-borderless">
     <tr>
-        <td>
+        <td width="30%">
             <Label For="dateTime" HelpText="The date and time of this log" ResourceKey="DateTime">Date/Time: </Label>
         </td>
         <td>
@@ -134,7 +135,7 @@
         </td>
     </tr>
 </table>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 
 @code {
     private int _logId;
@@ -207,7 +208,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Log {LogId} {Error}", _logId, ex.Message);
-            AddModuleMessage(Localizer["Error Loading Log"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Log.Load"], MessageType.Error);
         }
     }
 }

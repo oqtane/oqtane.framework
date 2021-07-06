@@ -12,6 +12,8 @@ using Oqtane.Interfaces;
 using Oqtane.Migrations.Framework;
 using Oqtane.Repository.Databases.Interfaces;
 using Oqtane.Shared;
+using System.Threading.Tasks;
+using System.Threading;
 
 // ReSharper disable BuiltInTypeReferenceStyleForMemberAccess
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -74,6 +76,13 @@ namespace Oqtane.Repository
             DbContextUtils.SaveChanges(this, _accessor);
 
             return base.SaveChanges();
+        }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            DbContextUtils.SaveChanges(this, _accessor);
+
+            return base.SaveChangesAsync(cancellationToken);
         }
     }
 }

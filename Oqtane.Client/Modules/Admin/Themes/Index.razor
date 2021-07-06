@@ -5,23 +5,24 @@
 @inject IThemeService ThemeService
 @inject IPackageService PackageService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_themes == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>@SharedLocalizer["Loading"]</em></p>
 }
 else
 {
     <ActionLink Action="Add" Text="Install Theme" />
     @((MarkupString)"&nbsp;")
-    <ActionLink Action="Create" Text="Create Theme" ResourceKey="CreateTheme" />
+    <ActionLink Action="Create" Text="Create Theme" ResourceKey="CreateTheme" Class="btn btn-secondary" />
 
     <Pager Items="@_themes">
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
-            <th scope="col">@Localizer["Name"]</th>
-            <th scope="col">@Localizer["Version"]</th>
+            <th scope="col">@SharedLocalizer["Name"]</th>
+            <th scope="col">@SharedLocalizer["Version"]</th>
             <th>&nbsp;</th>
         </Header>
         <Row>
@@ -29,7 +30,7 @@ else
             <td>
                 @if (context.AssemblyName != "Oqtane.Client")
                     {
-                    <ActionDialog Header="Delete Theme" Message="@Localizer["Are You Sure You Wish To Delete The {0} Theme?", context.Name]" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteTheme(context))" ResourceKey="DeleteTheme" />
+                    <ActionDialog Header="Delete Theme" Message="@string.Format(Localizer["Confirm.Theme.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteTheme(context))" ResourceKey="DeleteTheme" />
                     }
             </td>
             <td>@context.Name</td>
@@ -37,7 +38,7 @@ else
             <td>
                 @if (UpgradeAvailable(context.PackageName, context.Version))
                     {
-                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadTheme(context.PackageName, context.Version))>@Localizer["Upgrade"]</button>
+                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadTheme(context.PackageName, context.Version))>@SharedLocalizer["Upgrade"]</button>
                     }
             </td>
             <td></td>
@@ -63,7 +64,7 @@ else
             if (_themes == null)
             {
                 await logger.LogError(ex, "Error Loading Themes {Error}", ex.Message);
-                AddModuleMessage(Localizer["Error Loading Themes"], MessageType.Error);
+                AddModuleMessage(Localizer["Error.Theme.Load"], MessageType.Error);
             }
         }
     }
@@ -89,12 +90,12 @@ else
             await PackageService.DownloadPackageAsync(packagename, version, "Packages");
             await logger.LogInformation("Theme Downloaded {ThemeName} {Version}", packagename, version);
             await ThemeService.InstallThemesAsync();
-            AddModuleMessage(Localizer["Theme Installed Successfully. You Must <a href=\"{0}\">Restart</a> Your Application To Apply These Changes.", NavigateUrl("admin/system")], MessageType.Success);
+            AddModuleMessage(string.Format(Localizer["Success.Theme.Install"], NavigateUrl("admin/system")), MessageType.Success);
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Downloading Theme {ThemeName} {Version} {Error}", packagename, version, ex.Message);
-            AddModuleMessage(Localizer["Error Downloading Theme"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Theme.Download"], MessageType.Error);
         }
     }
 
@@ -103,13 +104,13 @@ else
         try
         {
             await ThemeService.DeleteThemeAsync(Theme.ThemeName);
-            AddModuleMessage(Localizer["Theme Deleted Successfully"], MessageType.Success);
-            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "reload"));
+            AddModuleMessage(Localizer["Success.Theme.Delete"], MessageType.Success);
+            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, true));
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting Theme {Theme} {Error}", Theme, ex.Message);
-            AddModuleMessage(Localizer["Error Deleting Theme"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Theme.Delete"], MessageType.Error);
         }
     }
 }

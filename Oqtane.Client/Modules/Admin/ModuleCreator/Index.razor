@@ -6,12 +6,13 @@
 @inject IModuleService ModuleService
 @inject ISettingService SettingService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (string.IsNullOrEmpty(_moduledefinitionname) && _templates != null)
 {
     <table class="table table-borderless">
         <tr>
-            <td>
+            <td width="30%">
                 <Label For="owner" HelpText="Enter the name of the organization who is developing this module. It should not contain spaces or punctuation." ResourceKey="OwnerName">Owner Name: </Label>
             </td>
             <td>
@@ -39,8 +40,8 @@
                 <Label For="template" HelpText="Select a module template. Templates are located in the wwwroot/Modules/Templates folder on the server." ResourceKey="Template">Template: </Label>
             </td>
             <td>
-                <select id="template" class="form-control" @onchange="(e => TemplateChanged(e))">
-                    <option value="-">&lt;@Localizer["Select Template"]&gt;</option>
+                <select id="template" class="form-select" @onchange="(e => TemplateChanged(e))">
+                    <option value="-">&lt;@Localizer["Template.Select"]&gt;</option>
                     @foreach (Template template in _templates)
                     {
                         <option value="@template.Name">@template.Title</option>
@@ -53,7 +54,7 @@
                 <Label For="reference" HelpText="Select a framework reference version" ResourceKey="FrameworkReference">Framework Reference: </Label>
             </td>
             <td>
-                <select id="reference" class="form-control" @bind="@_reference">
+                <select id="reference" class="form-select" @bind="@_reference">
                     @foreach (string version in _versions)
                     {
                         if (Version.Parse(version).CompareTo(Version.Parse(_minversion)) >= 0)
@@ -61,7 +62,7 @@
                             <option value="@(version)">@(version)</option>
                         }
                     }
-                    <option value="local">@Localizer["Local Version"]</option>
+                    <option value="local">@SharedLocalizer["LocalVersion"]</option>
                 </select>
             </td>
         </tr>
@@ -77,11 +78,11 @@
             </tr>
         }
     </table>
-    <button type="button" class="btn btn-success" @onclick="CreateModule">@Localizer["Create Module"]</button>
+    <button type="button" class="btn btn-success" @onclick="CreateModule">@Localizer["Module.Create"]</button>
 }
 else
 {
-    <button type="button" class="btn btn-success" @onclick="ActivateModule">@Localizer["Activate Module"]</button>
+    <button type="button" class="btn btn-success" @onclick="ActivateModule">@Localizer["Module.Activate"]</button>
 }
 
 @code {
@@ -108,11 +109,11 @@ else
 
             if (string.IsNullOrEmpty(_moduledefinitionname))
             {
-                AddModuleMessage(Localizer["Please Note That The Module Creator Is Only Intended To Be Used In A Development Environment"], MessageType.Info);
+                AddModuleMessage(Localizer["Info.Module.Creator"], MessageType.Info);
             }
             else
             {
-                AddModuleMessage(Localizer["Once You Have Compiled The Module And Restarted The Application You Can Activate The Module Below"], MessageType.Info);
+                AddModuleMessage(Localizer["Info.Module.Activate"], MessageType.Info);
             }
         }
         catch (Exception ex)
@@ -136,11 +137,11 @@ else
 
                 GetLocation();
 
-                AddModuleMessage(Localizer["The Source Code For Your Module Has Been Created At The Location Specified Below And Must Be Compiled In Order To Make It Functional. Once It Has Been Compiled You Must <a href=\"{0}\">Restart</a> Your Application To Apply These Changes.", NavigateUrl("admin/system")], MessageType.Success);
+                AddModuleMessage(string.Format(Localizer["Success.Module.Create"], NavigateUrl("admin/system")), MessageType.Success);
             }
             else
             {
-                AddModuleMessage(Localizer["You Must Provide A Valid Owner Name And Module Name ( ie. No Punctuation Or Spaces And The Values Cannot Be The Same ) And Choose A Template"], MessageType.Warning);
+                AddModuleMessage(Localizer["Message.Require.ValidName"], MessageType.Warning);
             }
         }
         catch (Exception ex)

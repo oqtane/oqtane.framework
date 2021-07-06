@@ -3,10 +3,11 @@ using System;
 namespace Oqtane.Shared {
 
     public class Constants {
-        public static readonly string Version = "2.1.0";
-        public const string ReleaseVersions = "1.0.0,1.0.1,1.0.2,1.0.3,1.0.4,2.0.0,2.0.1,2.0.2,2.1.0";
+        public static readonly string Version = "2.2.0";
+        public const string ReleaseVersions = "1.0.0,1.0.1,1.0.2,1.0.3,1.0.4,2.0.0,2.0.1,2.0.2,2.1.0,2.2.0";
         public const string PackageId = "Oqtane.Framework";
         public const string UpdaterPackageId = "Oqtane.Updater";
+        public const string PackageRegistryUrl = "https://www.oqtane.net";
 
         public const string DefaultDBType = "Oqtane.Database.SqlServer.SqlServerDatabase, Oqtane.Database.SqlServer";
 
@@ -76,5 +77,8 @@ namespace Oqtane.Shared {
         public static readonly string DefaultCulture = "en";
 
         public static readonly string AuthenticationScheme = "Identity.Application";
+        public static readonly string RequestVerificationToken = "__RequestVerificationToken";
+        public static readonly string AntiForgeryTokenHeaderName = "X-XSRF-TOKEN-HEADER";
+        public static readonly string AntiForgeryTokenCookieName = "X-XSRF-TOKEN-COOKIE";
     }
 }

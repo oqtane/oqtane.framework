@@ -1,11 +1,12 @@
 @namespace Oqtane.Modules.Admin.Logs
 @inherits ModuleBase
 @inject ILogService LogService
-@inject IStringLocalizer<Index> Localizer 
+@inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_logs == null)
 {
-    <p><em>@Localizer["Loading..."]</em></p>
+    <p><em>@SharedLocalizer["Loading"]</em></p>
 }
 else
 {
@@ -13,8 +14,8 @@ else
         <tr>
             <td>
                 <Label For="level" HelpText="Select the log level for event log items" ResourceKey="Level">Level: </Label><br /><br />
-                <select id="level" class="form-control" @onchange="(e => LevelChanged(e))">
-                    <option value="-">&lt;@Localizer["All Levels"]&gt;</option>
+                <select id="level" class="form-select" @onchange="(e => LevelChanged(e))">
+                    <option value="-">&lt;@Localizer["AllLevels"]&gt;</option>
                     <option value="Trace">@Localizer["Trace"]</option>
                     <option value="Debug">@Localizer["Debug"]</option>
                     <option value="Information">@Localizer["Information"]</option>
@@ -25,19 +26,19 @@ else
             </td>
             <td>
                 <Label For="function" HelpText="Select the function for event log items" ResourceKey="Function">Function: </Label><br /><br />
-                <select id="function" class="form-control" @onchange="(e => FunctionChanged(e))">
-                    <option value="-">&lt;@Localizer["All Functions"]&gt;</option>
+                <select id="function" class="form-select" @onchange="(e => FunctionChanged(e))">
+                    <option value="-">&lt;@Localizer["AllFunctions"]&gt;</option>
                     <option value="Create">@Localizer["Create"]</option>
                     <option value="Read">@Localizer["Read"]</option>
-                    <option value="Update">@Localizer["Update"]</option>
-                    <option value="Delete">@Localizer["Delete"]</option>
+                    <option value="Update">@SharedLocalizer["Update"]</option>
+                    <option value="Delete">@SharedLocalizer["Delete"]</option>
                     <option value="Security">@Localizer["Security"]</option>
                     <option value="Other">@Localizer["Other"]</option>
                 </select>
             </td>
             <td>
                 <Label For="rows" HelpText="Select the maximum number of event log items to review. Please note that if you choose more than 10 items the information will be split into pages." ResourceKey="Rows">Maximum Items: </Label><br /><br />
-                <select id="rows" class="form-control" @onchange="(e => RowsChanged(e))">
+                <select id="rows" class="form-select" @onchange="(e => RowsChanged(e))">
                     <option value="10">10</option>
                     <option value="50">50</option>
                     <option value="100">100</option>
@@ -67,7 +68,7 @@ else
     }
     else
     {
-        <p><em>@Localizer["No Logs Match The Criteria Specified"]</em></p>
+        <p><em>@Localizer["NoLogs"]</em></p>
     }
 }
 
@@ -88,7 +89,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Logs {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error Loading Logs"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Log.Load"], MessageType.Error);
         }
     }
 
@@ -103,7 +104,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Logs {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error Loading Logs"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Log.Load"], MessageType.Error);
         }
     }
 
@@ -118,7 +119,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Logs {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error Loading Logs"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Log.Load"], MessageType.Error);
         }
     }
 
@@ -134,7 +135,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Logs {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error Loading Logs"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Log.Load"], MessageType.Error);
         }
     }
 

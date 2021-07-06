@@ -3,16 +3,17 @@
 @inject IRoleService RoleService
 @inject IUserRoleService UserRoleService
 @inject IStringLocalizer<Users> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (userroles == null)
 {
-    <p><em>@Localizer["Loading..."]</em></p>
+    <p><em>@SharedLocalizer["Loading"]</em></p>
 }
 else
 {
     <table class="table table-borderless">
         <tr>
-            <td>
+            <td width="30%">
                 <Label For="role" HelpText="The role you are assigning users to" ResourceKey="Role">Role: </Label>
             </td>
             <td>
@@ -24,8 +25,8 @@ else
                 <Label For="user" HelpText="Select a user" ResourceKey="User">User: </Label>
             </td>
             <td>
-                <select id="user" class="form-control" @bind="@userid">
-                    <option value="-1">&lt;@Localizer["Select User"]&gt;</option>
+                <select id="user" class="form-select" @bind="@userid">
+                    <option value="-1">&lt;@Localizer["User.Select"]&gt;</option>
                     @foreach (UserRole userrole in users)
                     {
                         <option value="@(userrole.UserId)">@userrole.User.DisplayName</option>
@@ -50,8 +51,8 @@ else
             </td>
         </tr>
     </table>
-    <button type="button" class="btn btn-success" @onclick="SaveUserRole">@Localizer["Save"]</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+    <button type="button" class="btn btn-success" @onclick="SaveUserRole">@SharedLocalizer["Save"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 
     <hr class="app-rule" />
     <p align="center">
@@ -67,7 +68,7 @@ else
                 <td>@context.EffectiveDate</td>
                 <td>@context.ExpiryDate</td>
                 <td>
-                    <ActionDialog Header="Remove User" Message="@Localizer["Are You Sure You Wish To Remove {0} From This Role?", context.User.DisplayName]" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteUserRole(context.UserRoleId))" Disabled="@(context.Role.IsAutoAssigned)" ResourceKey="DeleteUserRole" />
+                    <ActionDialog Header="Remove User" Message="@string.Format(Localizer["Confirm.User.DeleteRole"], context.User.DisplayName)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteUserRole(context.UserRoleId))" Disabled="@(context.Role.IsAutoAssigned || PageState.User.Username == UserNames.Host)" ResourceKey="DeleteUserRole" />
                 </td>
             </Row>
         </Pager>
@@ -102,7 +103,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Users {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error Loading Users"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.User.Load"], MessageType.Error);
         }
     }
 
@@ -116,7 +117,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading User Roles {RoleId} {Error}", roleid, ex.Message);
-            AddModuleMessage(Localizer["Error Loading User Roles"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.User.LoadRole"], MessageType.Error);
         }
     }
 
@@ -145,19 +146,19 @@ else
                 }
 
                 await logger.LogInformation("User Assigned To Role {UserRole}", userrole);
-                AddModuleMessage(Localizer["User Assigned To Role"], MessageType.Success);
+                AddModuleMessage(Localizer["Success.User.AssignedRole"], MessageType.Success);
                 await GetUserRoles();
                 StateHasChanged();
             }
             else
             {
-                AddModuleMessage(Localizer["You Must Select A User"], MessageType.Warning);
+                AddModuleMessage(Localizer["Message.Required.UserSelect"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving User Roles {RoleId} {Error}", roleid, ex.Message);
-            AddModuleMessage(Localizer["Error Saving User Roles"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.User.SaveRole"], MessageType.Error);
         }
     }
 
@@ -167,14 +168,14 @@ else
         {
             await UserRoleService.DeleteUserRoleAsync(UserRoleId);
             await logger.LogInformation("User Removed From Role {UserRoleId}", UserRoleId);
-            AddModuleMessage(Localizer["User Removed From Role"], MessageType.Success);
+            AddModuleMessage(Localizer["Confirm.User.RoleRemoved"], MessageType.Success);
             await GetUserRoles();
             StateHasChanged();
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Removing User From Role {UserRoleId} {Error}", UserRoleId, ex.Message);
-            AddModuleMessage(Localizer["Error Removing User From Role"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.User.RemoveRole"], MessageType.Error);
         }
     }
 }

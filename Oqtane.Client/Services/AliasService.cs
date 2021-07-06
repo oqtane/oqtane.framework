@@ -3,8 +3,6 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using System.Linq;
 using System.Collections.Generic;
-using System.Net;
-using System;
 using Oqtane.Documentation;
 using Oqtane.Shared;
 
@@ -38,13 +36,6 @@ namespace Oqtane.Services
         public async Task<Alias> GetAliasAsync(int aliasId)
         {
             return await GetJsonAsync<Alias>($"{ApiUrl}/{aliasId}");
-        }
-
-        /// <inheritdoc />
-        public async Task<Alias> GetAliasAsync(string path, DateTime lastSyncDate)
-        {
-            // tenant agnostic as SiteState does not exist
-            return await GetJsonAsync<Alias>($"{CreateApiUrl("Alias", null)}/name/?path={WebUtility.UrlEncode(path)}&sync={lastSyncDate.ToString("yyyyMMddHHmmssfff")}");
         }
 
         /// <inheritdoc />

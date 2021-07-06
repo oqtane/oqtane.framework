@@ -1,5 +1,7 @@
 del "*.nupkg"
+del "*.zip"
 dotnet clean -c Release ..\Oqtane.sln 
+dotnet build -c Release ..\Oqtane.Databases.sln
 dotnet build -c Release ..\Oqtane.sln
 copy /Y/B/V "..\Oqtane.Server\bin\Release\net5.0\System.Drawing.Common.dll" "..\Oqtane.Server\bin\Release\net5.0\publish\System.Drawing.Common.dll"
 nuget.exe pack Oqtane.Client.nuspec

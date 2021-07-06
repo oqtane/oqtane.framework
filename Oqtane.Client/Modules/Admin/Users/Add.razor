@@ -5,6 +5,7 @@
 @inject IProfileService ProfileService
 @inject ISettingService SettingService
 @inject IStringLocalizer<Add> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <TabStrip>
     <TabPanel Name="Identity" ResourceKey="Identity">
@@ -12,43 +13,43 @@
         {
             <table class="table table-borderless">
                 <tr>
-                    <td>
-                        <label class="control-label">@Localizer["Username:"] </label>
+                    <td width="30%">
+                        <Label For="username" HelpText="A unique username for a user. Note that this field can not be modified once it is saved." ResourceKey="Username"></Label>
                     </td>
                     <td>
-                        <input class="form-control" @bind="@username" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label class="control-label">@Localizer["Password:"] </label>
-                    </td>
-                    <td>
-                        <input type="password" class="form-control" @bind="@password" />
+                        <input id="username" class="form-control" @bind="@username" />
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <label class="control-label">@Localizer["Confirm Password:"] </label>
+                        <Label For="password" HelpText="The user's password. Please choose a password which is sufficiently secure." ResourceKey="Password"></Label>
                     </td>
                     <td>
-                        <input type="password" class="form-control" @bind="@confirm" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label class="control-label">@Localizer["Email:"] </label>
-                    </td>
-                    <td>
-                        <input class="form-control" @bind="@email" />
+                        <input id="password" type="password" class="form-control" @bind="@password" />
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <label class="control-label">@Localizer["Full Name:"] </label>
+                        <Label For="confirm" HelpText="Please enter the password again to confirm it matches with the value above" ResourceKey="Confirm"></Label>
                     </td>
                     <td>
-                        <input class="form-control" @bind="@displayname" />
+                        <input id="confirm" type="password" class="form-control" @bind="@confirm" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="email" HelpText="The email address where the user will receive notifications" ResourceKey="Email"></Label>
+                    </td>
+                    <td>
+                        <input id="email" class="form-control" @bind="@email" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="displayname" HelpText="The full name of the user" ResourceKey="DisplayName"></Label>
+                    </td>
+                    <td>
+                        <input id="displayname" class="form-control" @bind="@displayname" />
                     </td>
                 </tr>
             </table>
@@ -71,7 +72,7 @@
                         category = p.Category;
                     }
                     <tr>
-                        <td>
+                        <td width="30%">
                             <Label For="@p.Name" HelpText="@p.Description">@p.Title</Label>
                         </td>
                         <td>
@@ -91,8 +92,8 @@
     </TabPanel>
 </TabStrip>
 
-<button type="button" class="btn btn-primary" @onclick="SaveUser">@Localizer["Save"]</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+<button type="button" class="btn btn-success" @onclick="SaveUser">@SharedLocalizer["Save"]</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 
 @code {
     private string username = string.Empty;
@@ -116,7 +117,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading User Profile {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error Loading User Profile"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Profile.Load"], MessageType.Error);
         }
     }
 
@@ -153,28 +154,28 @@
                         else
                         {
                             await logger.LogError("Error Adding User {Username} {Email}", username, email);
-                            AddModuleMessage(Localizer["Error Adding User. Please Ensure Password Meets Complexity Requirements And Username And Email Are Not Already In Use."], MessageType.Error);
+                            AddModuleMessage(Localizer["Error.User.AddCheckPass"], MessageType.Error);
                         }
                     }
                     else
                     {
-                        AddModuleMessage(Localizer["Username Already Exists"], MessageType.Warning);
+                        AddModuleMessage(Localizer["Message.Username.Exists"], MessageType.Warning);
                     }
                 }
                 else
                 {
-                    AddModuleMessage(Localizer["Passwords Entered Do Not Match"], MessageType.Warning);
+                    AddModuleMessage(Localizer["Message.Password.NoMatch"], MessageType.Warning);
                 }
             }
             else
             {
-                AddModuleMessage(Localizer["You Must Provide A Username, Password, Email Address And All Required Profile Information"], MessageType.Warning);
+                AddModuleMessage(Localizer["Message.Required.ProfileInfo"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Adding User {Username} {Email} {Error}", username, email, ex.Message);
-            AddModuleMessage(Localizer["Error Adding User"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.User.Add"], MessageType.Error);
         }
     }
 

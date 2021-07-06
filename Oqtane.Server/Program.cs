@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
 using Oqtane.Infrastructure;
+using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using Oqtane.Shared;
 
 namespace Oqtane.Server
 {
@@ -12,10 +15,15 @@ namespace Oqtane.Server
         public static void Main(string[] args)
         {
             var host = BuildWebHost(args);
-            using (var serviceScope = host.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            var databaseManager = host.Services.GetService<IDatabaseManager>();
+            var install = databaseManager.Install();
+            if (!string.IsNullOrEmpty(install.Message))
             {
-                var databaseManager = serviceScope.ServiceProvider.GetService<IDatabaseManager>();
-                databaseManager.Install();
+                var filelogger = host.Services.GetRequiredService<ILogger<Program>>();
+                if (filelogger != null)
+                {
+                    filelogger.LogError($"[Oqtane.Server.Program.Main] {install.Message}");
+                }
             }
             host.Run();
         }

@@ -12,5 +12,10 @@ namespace Oqtane.Infrastructure
         void RemoveSetting(string key, bool reload);
         void RemoveSetting(string file, string key, bool reload);
         void Reload();
+
+        public string GetConnectionString();
+        public string GetConnectionString(string name);
+        public bool IsInstalled();
+        public string GetInstallationId();
     }
 }

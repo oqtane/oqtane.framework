@@ -11,16 +11,17 @@
 @inject IInstallationService InstallationService
 @inject IDatabaseService DatabaseService
 @inject IStringLocalizer<Add> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_tenants == null)
 {
-    <p><em>@Localizer["Loading..."]</em></p>
+    <p><em>@SharedLocalizer["Loading"]</em></p>
 }
 else
 {
     <table class="table table-borderless">
         <tr>
-            <td>
+            <td width="30%">
                 <Label For="name" HelpText="Enter the name of the site" ResourceKey="Name">Site Name: </Label>
             </td>
             <td>
@@ -40,8 +41,8 @@ else
                 <Label For="defaultTheme" HelpText="Select the default theme for the website" ResourceKey="DefaultTheme">Default Theme: </Label>
             </td>
             <td>
-                <select id="defaultTheme" class="form-control" @onchange="(e => ThemeChanged(e))">
-                    <option value="-">&lt;@Localizer["Select Theme"]&gt;</option>
+                <select id="defaultTheme" class="form-select" @onchange="(e => ThemeChanged(e))">
+                    <option value="-">&lt;@Localizer["Theme.Select"]&gt;</option>
                     @foreach (var theme in _themes)
                     {
                         <option value="@theme.TypeName">@theme.Name</option>
@@ -54,8 +55,8 @@ else
                 <Label For="defaultContainer" HelpText="Select the default container for the site" ResourceKey="DefaultContainer">Default Container: </Label>
             </td>
             <td>
-                <select id="defaultContainer" class="form-control" @bind="@_containertype">
-                    <option value="-">&lt;@Localizer["Select Container"]&gt;</option>
+                <select id="defaultContainer" class="form-select" @bind="@_containertype">
+                    <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
                     @foreach (var container in _containers)
                     {
                         <option value="@container.TypeName">@container.Name</option>
@@ -68,9 +69,9 @@ else
                 <Label For="adminContainer" HelpText="Select the admin container for the site" ResourceKey="AdminContainer">Admin Container: </Label>
             </td>
             <td>
-                <select id="adminContainer" class="form-control" @bind="@_admincontainertype">
-                    <option value="-">&lt;@Localizer["Select Container"]&gt;</option>
-                    <option value="">&lt;@Localizer["Default Admin Container"]&gt;</option>
+                <select id="adminContainer" class="form-select" @bind="@_admincontainertype">
+                    <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
+                    <option value="">&lt;@Localizer["DefaultContainer.Admin"]&gt;</option>
                     @foreach (var container in _containers)
                     {
                         <option value="@container.TypeName">@container.Name</option>
@@ -83,8 +84,8 @@ else
                 <Label For="siteTemplate" HelpText="Select the site template" ResourceKey="SiteTemplate">Site Template: </Label>
             </td>
             <td>
-                <select id="siteTemplate" class="form-control" @bind="@_sitetemplatetype">
-                    <option value="-">&lt;@Localizer["Select Site Template"]&gt;</option>
+                <select id="siteTemplate" class="form-select" @bind="@_sitetemplatetype">
+                    <option value="-">&lt;@Localizer["SiteTemplate.Select"]&gt;</option>
                     @foreach (SiteTemplate siteTemplate in _siteTemplates)
                     {
                         <option value="@siteTemplate.TypeName">@siteTemplate.Name</option>
@@ -97,9 +98,9 @@ else
                 <Label For="tenant" HelpText="Select the tenant for the site" ResourceKey="Tenant">Tenant: </Label>
             </td>
             <td>
-                <select id="tenant" class="form-control" @onchange="(e => TenantChanged(e))">
-                    <option value="-">&lt;@Localizer["Select Tenant"]&gt;</option>
-                    <option value="+">&lt;@Localizer["Create New Tenant"]&gt;</option>
+                <select id="tenant" class="form-select" @onchange="(e => TenantChanged(e))">
+                    <option value="-">&lt;@Localizer["Tenant.Select"]&gt;</option>
+                    <option value="+">&lt;@Localizer["Tenant.Add"]&gt;</option>
                     @foreach (Tenant tenant in _tenants)
                     {
                         <option value="@tenant.TenantId">@tenant.Name</option>
@@ -127,10 +128,17 @@ else
                     <Label For="databaseType" HelpText="Select the database type for the tenant" ResourceKey="DatabaseType">Database Type: </Label>
                 </td>
                 <td>
-                    <select id="databaseType" class="custom-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))">
+                    <select id="databaseType" class="form-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))">
                         @foreach (var database in _databases)
                         {
-                            <option value="@database.Name">@Localizer[@database.Name]</option>
+                            if (database.IsDefault)
+                            {
+                                <option value="@database.Name" selected>@Localizer[@database.Name]</option>
+                            }
+                            else
+                            {
+                                <option value="@database.Name">@Localizer[@database.Name]</option>
+                            }
                         }
                     </select>
                 </td>
@@ -157,8 +165,8 @@ else
             </tr>
         }
     </table>
-    <button type="button" class="btn btn-success" @onclick="SaveSite">@Localizer["Save"]</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+    <button type="button" class="btn btn-success" @onclick="SaveSite">@SharedLocalizer["Save"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 }
 
 @code {
@@ -211,7 +219,7 @@ else
         }
         catch
         {
-            AddModuleMessage(Localizer["Error loading Database Configuration Control"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Database.LoadConfig"], MessageType.Error);
         }
     }
 
@@ -260,7 +268,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Containers For Theme {ThemeType} {Error}", _themetype, ex.Message);
-            AddModuleMessage(Localizer["Error Loading Containers For Theme"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Theme.LoadContainers"], MessageType.Error);
         }
     }
 
@@ -313,17 +321,17 @@ else
                             }
                             else
                             {
-                                AddModuleMessage(Localizer["You Must Specify A Server And Database"], MessageType.Error);
+                                AddModuleMessage(Localizer["Error.Required.ServerDatabase"], MessageType.Error);
                             }
                         }
                         else
                         {
-                            AddModuleMessage(Localizer["Invalid Host Password"], MessageType.Error);
+                            AddModuleMessage(Localizer["Error.InvalidPassword"], MessageType.Error);
                         }
                     }
                     else
                     {
-                        AddModuleMessage(Localizer["Tenant Name Is Missing Or Already Exists"], MessageType.Error);
+                        AddModuleMessage(Localizer["Error.TenantName.Exists"], MessageType.Error);
                     }
                 }
                 else
@@ -365,12 +373,12 @@ else
             }
             else
             {
-                AddModuleMessage(Localizer["{0} Already Used For Another Site", string.Join(", ", duplicates.ToArray())], MessageType.Warning);
+                AddModuleMessage(string.Format(Localizer["Message.SiteName.InUse"], string.Join(", ", duplicates.ToArray())), MessageType.Warning);
             }
         }
         else
         {
-            AddModuleMessage(Localizer["You Must Provide A Tenant, Site Name, Alias, Default Theme/Container, And Site Template"], MessageType.Warning);
+            AddModuleMessage(Localizer["Message.Required.Tenant"], MessageType.Warning);
         }
     }
 }

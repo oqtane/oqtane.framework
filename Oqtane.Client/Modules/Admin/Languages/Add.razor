@@ -7,10 +7,11 @@
 @inject ILanguageService LanguageService
 @inject IPackageService PackageService
 @inject IStringLocalizer<Add> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_supportedCultures == null)
 {
-    <p><em>@Localizer["Loading..."]</em></p>
+    <p><em>@SharedLocalizer["Loading"]</em></p>
 }
 else
 {
@@ -22,75 +23,92 @@ else
             }
             else
             {
-            <table class="table table-borderless">
+                <table class="table table-borderless">
+                    <tr>
+                        <td width="30%">
+                            <Label For="name" HelpText="Name Of The Language" ResourceKey="Name">Name:</Label>
+                        </td>
+                        <td>
+                            <select id="_code" class="form-select" @bind="@_code">
+                                @foreach (var culture in _availableCultures)
+                                {
+                                    <option value="@culture.Name">@culture.DisplayName</option>
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <Label For="default" HelpText="Indicates Whether Or Not This Language Is The Default For The Site" ResourceKey="IsDefault">Default?</Label>
+                        </td>
+                        <td>
+                            <select id="default" class="form-select" @bind="@_isDefault">
+                                <option value="True">@SharedLocalizer["Yes"]</option>
+                                <option value="False">@SharedLocalizer["No"]</option>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+                <button type="button" class="btn btn-success" @onclick="SaveLanguage">@SharedLocalizer["Save"]</button>
+            }
+            <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+        </TabPanel>
+        <TabPanel Name="Download" ResourceKey="Download" Security="SecurityAccessLevel.Host">
+            <ModuleMessage Type="MessageType.Info" Message="Download one or more translations from the list below. Once you are ready click Install to complete the installation."></ModuleMessage>
+
+            <table class="table table-borderless" style=" margin: auto; width: 50% !important;">
                 <tr>
                     <td>
-                        <Label For="name" HelpText="Name Of The Language" ResourceKey="Name">Name:</Label>
+                        <input id="search" class="form-control" placeholder="@SharedLocalizer["Search.Hint"]" @bind="@_search" />
                     </td>
                     <td>
-                        <select id="_code" class="form-control" @bind="@_code">
-                            @foreach (var culture in _availableCultures)
-                            {
-                                <option value="@culture.Name">@culture.DisplayName</option>
-                            }
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="default" HelpText="Indicates Whether Or Not This Language Is The Default For The Site" ResourceKey="IsDefault">Default?</Label>
-                    </td>
-                    <td>
-                        <select id="default" class="form-control" @bind="@_isDefault">
-                            <option value="True">@Localizer["Yes"]</option>
-                            <option value="False">@Localizer["No"]</option>
-                        </select>
+                        <button type="button" class="btn btn-primary" @onclick="Search">@SharedLocalizer["Search"]</button>&nbsp;
+                        <button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Reset"]</button>
                     </td>
                 </tr>
             </table>
-            <button type="button" class="btn btn-success" @onclick="SaveLanguage">@Localizer["Save"]</button>
-            }
-            <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
-        </TabPanel>
-        <TabPanel Name="Download" ResourceKey="Download" Security="SecurityAccessLevel.Host">
-            @if (_packages != null && _packages.Count > 0)
+
+            @if (_packages != null)
             {
-                <ModuleMessage Type="MessageType.Info" Message="Download one or more language packages from the list below. Once you are ready click Install to complete the installation."></ModuleMessage>
-                <Pager Items="@_packages">
-                    <Header>
-                        <th>@Localizer["Name"]</th>
-                        <th>@Localizer["Version"]</th>
-                        <th style="width: 1px"></th>
-                    </Header>
-                    <Row>
-                        <td>@context.Name</td>
-                        <td>@context.Version</td>
-                        <td>
-                            <button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadLanguage(context.PackageId, context.Version))>@Localizer["Download"]</button>
-                        </td>
-                    </Row>
-                </Pager>
-                <button type="button" class="btn btn-success" @onclick="InstallLanguages">@Localizer["Install"]</button>
-                <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
-            }
-            else
-            {
-                <ModuleMessage Type="MessageType.Info" Message="No Language Packages Are Available To Download"></ModuleMessage>
+                @if (_packages.Count > 0)
+                {
+                    <Pager Items="@_packages">
+                        <Row>
+                            <td>
+                                <h3 style="display: inline;"><a href="@context.ProductUrl" target="_new">@context.Name</a></h3>&nbsp;&nbsp;by:&nbsp;&nbsp;<strong><a href="@context.OwnerUrl" target="new">@context.Owner</a></strong><br />
+                                @(context.Description.Length > 400 ? (context.Description.Substring(0, 400) + "...") : context.Description)<br />
+                                <strong>@(String.Format("{0:n0}", context.Downloads))</strong> @SharedLocalizer["Search.Downloads"]&nbsp;&nbsp;|&nbsp;&nbsp; @SharedLocalizer["Search.Released"]: <strong>@context.ReleaseDate.ToString("MMM dd, yyyy")</strong>&nbsp;&nbsp;|&nbsp;&nbsp;@SharedLocalizer["Search.Version"]: <strong>@context.Version</strong>&nbsp;&nbsp;|&nbsp;&nbsp;@SharedLocalizer["Search.Source"]: <strong>@context.PackageUrl</strong>
+                            </td>
+                            <td style="vertical-align: middle;">
+                                <button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadLanguage(context.PackageId, context.Version))>@SharedLocalizer["Download"]</button>
+                            </td>
+                        </Row>
+                    </Pager>
+                }
+                else
+                {
+                    <br />
+                    <div class="mx-auto text-center">
+                        @Localizer["Search.NoResults"]
+                    </div>
+                }
+                <button type="button" class="btn btn-success" @onclick="InstallLanguages">@SharedLocalizer["Install"]</button>
+                <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
             }
         </TabPanel>
         <TabPanel Name="Upload" ResourceKey="Upload" Security="SecurityAccessLevel.Host">
             <table class="table table-borderless">
                 <tr>
                     <td>
-                        <Label HelpText="Upload one or more language packages. Once they are uploaded click Install to complete the installation." ResourceKey="Module">Language: </Label>
+                        <Label HelpText="Upload one or more translations. Once they are uploaded click Install to complete the installation." ResourceKey="Module">Language: </Label>
                     </td>
                     <td>
                         <FileManager Filter="nupkg" ShowFiles="false" Folder="Packages" UploadMultiple="true" />
                     </td>
                 </tr>
             </table>
-            <button type="button" class="btn btn-success" @onclick="InstallLanguages">@Localizer["Install"]</button>
-            <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+            <button type="button" class="btn btn-success" @onclick="InstallLanguages">@SharedLocalizer["Install"]</button>
+            <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
         </TabPanel>
     </TabStrip>
 }
@@ -102,6 +120,7 @@ else
     private IEnumerable<Culture> _supportedCultures;
     private IEnumerable<Culture> _availableCultures;
     private List<Package> _packages;
+    private string _search = "";
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
@@ -113,15 +132,45 @@ else
         _supportedCultures = await LocalizationService.GetCulturesAsync();
         _availableCultures = _supportedCultures
             .Where(c => !c.Name.Equals(Constants.DefaultCulture) && !languagesCodes.Contains(c.Name));
-        _packages = await PackageService.GetPackagesAsync("language");
+        await LoadTranslations();
 
         if (_supportedCultures.Count() == 1)
         {
-            _message = Localizer["The Only Installed Language Is English"];
+            _message = Localizer["OnlyEnglish"];
         }
         else if (_availableCultures.Count() == 0)
         {
-            _message = Localizer["All The Installed Languages Have Been Added."];
+            _message = Localizer["AllLanguages"];
+        }
+    }
+
+    private async Task LoadTranslations()
+    {
+        _packages = await PackageService.GetPackagesAsync("translation", _search);
+    }
+
+    private async Task Search()
+    {
+        try
+        {
+            await LoadTranslations();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error On Search");
+        }
+    }
+
+    private async Task Reset()
+    {
+        try
+        {
+            _search = "";
+            await LoadTranslations();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error On Reset");
         }
     }
 
@@ -151,7 +200,7 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Adding Language {Language} {Error}", language, ex.Message);
-            AddModuleMessage(Localizer["Error Adding Language"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Language.Add"], MessageType.Error);
         }
     }
 
@@ -160,11 +209,11 @@ else
         try
         {
             await PackageService.InstallPackagesAsync();
-            AddModuleMessage(Localizer["Language Packages Installed Successfully. You Must <a href=\"{0}\">Restart</a> Your Application To Apply These Changes.", NavigateUrl("admin/system")], MessageType.Success);
+            AddModuleMessage(string.Format(Localizer["Success.Language.Install"], NavigateUrl("admin/system")), MessageType.Success);
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Installing Language Package");
+            await logger.LogError(ex, "Error Installing Translations");
         }
     }
 
@@ -174,13 +223,13 @@ else
         {
             await PackageService.DownloadPackageAsync(packageid, version, "Packages");
             await logger.LogInformation("Language Paclage {Name} {Version} Downloaded Successfully", packageid, version);
-            AddModuleMessage(Localizer["Language Package Downloaded Successfully. Click Install To Complete Installation."], MessageType.Success);
+            AddModuleMessage(Localizer["Success.Language.Download"], MessageType.Success);
             StateHasChanged();
         }
         catch (Exception ex)
         {
-            await logger.LogError(ex, "Error Downloading Language Package {Name} {Version}", packageid, version);
-            AddModuleMessage(Localizer["Error Downloading Language Package"], MessageType.Error);
+            await logger.LogError(ex, "Error Downloading Translation {Name} {Version}", packageid, version);
+            AddModuleMessage(Localizer["Error.Language.Download"], MessageType.Error);
         }
     }
 

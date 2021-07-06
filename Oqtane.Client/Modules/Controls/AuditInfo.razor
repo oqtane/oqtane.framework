@@ -44,12 +44,12 @@
 
             if (!String.IsNullOrEmpty(CreatedBy))
             {
-                _text += $" {Localizer["by"]} <b>{CreatedBy}</b>";
+                _text += $" {Localizer["By"]} <b>{CreatedBy}</b>";
             }
 
             if (CreatedOn != null)
             {
-                _text += $" {Localizer["on"]} <b>{CreatedOn.Value.ToString("MMM dd yyyy HH:mm:ss")}</b>";
+                _text += $" {Localizer["On"]} <b>{CreatedOn.Value.ToString("MMM dd yyyy HH:mm:ss")}</b>";
             }
 
             _text += "</p>";
@@ -57,7 +57,7 @@
 
         if (!String.IsNullOrEmpty(ModifiedBy) || ModifiedOn.HasValue)
         {
-            _text += $"<p style=\"{Style}\">{Localizer["Last modified"]} ";
+            _text += $"<p style=\"{Style}\">{Localizer["LastModified"]} ";
 
             if (!String.IsNullOrEmpty(ModifiedBy))
             {
@@ -78,12 +78,12 @@
 
             if (!String.IsNullOrEmpty(DeletedBy))
             {
-                _text += $" {Localizer["by"]} <b>{DeletedBy}</b>";
+                _text += $" {Localizer["By"]} <b>{DeletedBy}</b>";
             }
 
             if (DeletedOn != null)
             {
-                _text += $" {Localizer["on"]} <b>{DeletedOn.Value.ToString("MMM dd yyyy HH:mm:ss")}</b>";
+                _text += $" {Localizer["On"]} <b>{DeletedOn.Value.ToString("MMM dd yyyy HH:mm:ss")}</b>";
             }
 
             _text += "</p>";

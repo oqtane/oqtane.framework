@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Models
@@ -42,18 +41,6 @@ namespace Oqtane.Models
         
         /// <inheritdoc />
         public DateTime ModifiedOn { get; set; }
-
-        /// <summary>
-        /// todoc - unclear what this is for
-        /// </summary>
-        [NotMapped]
-        public DateTime SyncDate { get; set; }
-
-        /// <summary>
-        /// todoc - unclear what this is for
-        /// </summary>
-        [NotMapped]
-        public List<SyncEvent> SyncEvents { get; set; }
 
         /// <summary>
         /// The path contains the url-part after the first slash.

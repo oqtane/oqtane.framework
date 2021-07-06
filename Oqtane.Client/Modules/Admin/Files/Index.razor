@@ -4,16 +4,17 @@
 @inject IFolderService FolderService
 @inject IFileService FileService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_files != null)
 {
     <table class="table table-borderless">
         <tr>
             <td>
-                <label  class="control-label">@Localizer["Folder:"] </label>
+                <label class="control-label">@Localizer["Folder"] </label>
             </td>
             <td>
-                <select class="form-control" @onchange="(e => FolderChanged(e))">
+                <select class="form-select" @onchange="(e => FolderChanged(e))">
                     @foreach (Folder folder in _folders)
                     {
                         <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
@@ -31,23 +32,23 @@
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
-            <th>@Localizer["Name"]</th>
+            <th>@SharedLocalizer["Name"]</th>
             <th>@Localizer["Modified"]</th>
             <th>@Localizer["Type"]</th>
             <th>@Localizer["Size"]</th>
         </Header>
         <Row>
             <td><ActionLink Action="Details" Text="Edit" Parameters="@($"id=" + context.FileId.ToString())" ResourceKey="Details" /></td>
-            <td><ActionDialog Header="Delete File" Message="@Localizer["Are You Sure You Wish To Delete {0}?", context.Name]" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteFile(context))" ResourceKey="DeleteFile" /></td>
+            <td><ActionDialog Header="Delete File" Message="@string.Format(Localizer["Confirm.File.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteFile(context))" ResourceKey="DeleteFile" /></td>
             <td><a href="@context.Url" target="_new">@context.Name</a></td>
             <td>@context.ModifiedOn</td>
-            <td>@context.Extension.ToUpper() @Localizer["File"]</td>
+            <td>@context.Extension.ToUpper() @SharedLocalizer["File"]</td>
             <td>@string.Format("{0:0.00}", ((decimal)context.Size / 1000)) KB</td>
         </Row>
     </Pager>
     @if (_files.Count == 0)
     {
-        <div class="text-center">@Localizer["No Files Exist In Selected Folder"]</div>
+        <div class="text-center">@Localizer["NoFiles"]</div>
     }
 }
 
@@ -63,7 +64,7 @@
         try
         {
             _folders = await FolderService.GetFoldersAsync(PageState.Site.SiteId);
-            
+
             if (_folderId == -1 && _folders.Count > 0)
             {
                 _folderId = _folders[0].FolderId;
@@ -73,7 +74,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Files {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error Loading Files"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.File.Load"], MessageType.Error);
         }
     }
 
@@ -93,7 +94,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Files {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error Loading Files"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.File.Load"], MessageType.Error);
         }
     }
 
@@ -103,14 +104,14 @@
         {
             await FileService.DeleteFileAsync(file.FileId);
             await logger.LogInformation("File Deleted {File}", file.Name);
-            AddModuleMessage(Localizer["File {0} Deleted", file.Name], MessageType.Success);
+            AddModuleMessage(string.Format(Localizer["Success.File.Delete"], file.Name), MessageType.Success);
             await GetFiles();
             StateHasChanged();
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting File {File} {Error}", file.Name, ex.Message);
-            AddModuleMessage(Localizer["Error Deleting File {0}", file.Name], MessageType.Error);
+            AddModuleMessage(string.Format(Localizer["Error.File.Delete"], file.Name), MessageType.Error);
         }
     }
 }

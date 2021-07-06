@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
@@ -10,6 +10,7 @@ namespace Oqtane.Repository
         PageModule AddPageModule(PageModule pageModule);
         PageModule UpdatePageModule(PageModule pageModule);
         PageModule GetPageModule(int pageModuleId);
+        PageModule GetPageModule(int pageModuleId, bool tracking);
         PageModule GetPageModule(int pageId, int moduleId);
         void DeletePageModule(int pageModuleId);
     }

@@ -1,4 +1,6 @@
 @inject IInstallationService InstallationService
+@inject IJSRuntime JSRuntime
+@inject SiteState SiteState
 
 @if (_initialized)
 {
@@ -20,21 +22,35 @@
         {
             <div class="app-alert">
                 @_installation.Message
-            </div> 
+            </div>
         }
     }
 }
 
 @code {
-    private Installation _installation;
-    private bool _initialized;
+    private bool _initialized = false;
+    private Installation _installation = new Installation { Success = false, Message = "" };
 
     private PageState PageState { get; set; }
 
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        _installation = await InstallationService.IsInstalled();
-        _initialized = true;
+        if (firstRender && !_initialized)
+        {
+            var interop = new Interop(JSRuntime);
+            SiteState.AntiForgeryToken = await interop.GetElementByName(Constants.RequestVerificationToken);
+            _installation = await InstallationService.IsInstalled();
+            if (_installation.Alias != null)
+            {
+                SiteState.Alias = _installation.Alias;
+            }
+            else
+            {
+                _installation.Message = "Site Not Configured Correctly - No Matching Alias Exists For Host Name";
+            }
+            _initialized = true;
+            StateHasChanged();
+        }
     }
 
     private void ChangeState(PageState pageState)

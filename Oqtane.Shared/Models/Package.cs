@@ -1,8 +1,9 @@
+using System;
+
 namespace Oqtane.Models
 {
     /// <summary>
-    /// A software Package which is like an Oqtane Plugin / Extension.
-    /// This is used for creating lists from NuGet to offer for installation. 
+    /// A software Package for installation. 
     /// </summary>
     public class Package
     {
@@ -12,19 +13,29 @@ namespace Oqtane.Models
         public string PackageId { get; set; }
 
         /// <summary>
-        /// Name of the package - may contains part or the entire Namespace.
+        /// Owner of the package
+        /// </summary>
+        public string Owner { get; set; }
+
+        /// <summary>
+        /// Url for the owner of the package
+        /// </summary>
+        public string OwnerUrl { get; set; }
+
+        /// <summary>
+        /// Friendly name of the package
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// Nice description of the Package. 
+        /// Description of the Package. 
         /// </summary>
         public string Description { get; set; }
 
         /// <summary>
-        /// Owner / Creator of the package - usually retrieved from NuGet.
+        /// Friendly name of the package
         /// </summary>
-        public string Owner { get; set; }
+        public string ProductUrl { get; set; }
 
         /// <summary>
         /// Version as defined in the NuGet package. 
@@ -32,8 +43,23 @@ namespace Oqtane.Models
         public string Version { get; set; }
 
         /// <summary>
-        /// Download count on NuGet to show how popular the package is. 
+        /// Download count to show how popular the package is. 
         /// </summary>
         public long Downloads { get; set; }
+
+        /// <summary>
+        /// date the package was released 
+        /// </summary>
+        public DateTime ReleaseDate { get; set; }
+
+        /// <summary>
+        /// The direct Url for downloading the package 
+        /// </summary>
+        public string PackageUrl { get; set; }
+
+        /// <summary>
+        /// Indicates if any known security vulnerabilities exist 
+        /// </summary>
+        public int Vulnerabilities { get; set; }
     }
 }

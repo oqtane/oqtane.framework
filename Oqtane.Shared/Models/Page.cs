@@ -68,6 +68,7 @@ namespace Oqtane.Models
         /// </summary>
         public string Icon { get; set; }
         public bool IsNavigation { get; set; }
+        public bool IsClickable { get; set; }
         public int? UserId { get; set; }
         public bool IsPersonalizable { get; set; }
 

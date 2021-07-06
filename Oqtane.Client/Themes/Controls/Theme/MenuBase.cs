@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Oqtane.Models;
 using Oqtane.Security;
@@ -17,7 +17,14 @@ namespace Oqtane.Themes.Controls
 
         protected string GetUrl(Page page)
         {
-            return string.IsNullOrEmpty(page.Url) ? NavigateUrl(page.Path) : page.Url;
+            if (page.IsClickable)
+            {
+                return string.IsNullOrEmpty(page.Url) ? NavigateUrl(page.Path) : page.Url;
+            }
+            else
+            {
+                return "javascript:void(0)";
+            }
         }
 
         private IEnumerable<Page> GetMenuPages()

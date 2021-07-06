@@ -1,8 +1,10 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Oqtane.Shared;
 
 namespace Oqtane.Infrastructure
 {
@@ -57,7 +59,7 @@ namespace Oqtane.Infrastructure
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error modifying app settings {0}", ex);
+                Debug.WriteLine($"Oqtane Error: Error Updating App Setting {key} - {ex}");
             }
         }
 
@@ -78,7 +80,7 @@ namespace Oqtane.Infrastructure
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error modifying app settings {0}", ex);
+                Debug.WriteLine($"Oqtane Error: Error Removing App Setting {key} - {ex}");
             }
         }
 
@@ -101,7 +103,10 @@ namespace Oqtane.Infrastructure
                         jsonObj[currentSection] = value;
                         break;
                     case "remove":
-                        jsonObj.Property(currentSection).Remove();
+                        if (jsonObj.Property(currentSection) != null)
+                        {
+                            jsonObj.Property(currentSection).Remove();
+                        }
                         break;
                 }
             }
@@ -110,6 +115,32 @@ namespace Oqtane.Infrastructure
         public void Reload()
         {
             _config.Reload();
+        }
+
+        public string GetConnectionString()
+        {
+            return _config.GetConnectionString(SettingKeys.ConnectionStringKey);
+        }
+
+        public string GetConnectionString(string name)
+        {
+            return _config.GetConnectionString(name);
+        }
+
+        public bool IsInstalled()
+        {
+            return !string.IsNullOrEmpty(GetConnectionString());
+        }
+
+        public string GetInstallationId()
+        {
+            var installationid = GetSetting("InstallationId", "");
+            if (installationid == "")
+            {
+                installationid = Guid.NewGuid().ToString();
+                AddOrUpdateSetting("InstallationId", installationid, true);
+            }
+            return installationid;
         }
     }
 }

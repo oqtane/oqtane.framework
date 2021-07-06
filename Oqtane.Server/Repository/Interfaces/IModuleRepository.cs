@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Oqtane.Models;
 
 namespace Oqtane.Repository
@@ -9,6 +9,7 @@ namespace Oqtane.Repository
         Module AddModule(Module module);
         Module UpdateModule(Module module);
         Module GetModule(int moduleId);
+        Module GetModule(int moduleId, bool tracking);
         void DeleteModule(int moduleId);
         string ExportModule(int moduleId);
         bool ImportModule(int moduleId, string content);

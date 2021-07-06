@@ -17,6 +17,7 @@ using Oqtane.Repository;
 using Oqtane.Shared;
 using Oqtane.Enums;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ConvertToUsingDeclaration
@@ -32,14 +33,16 @@ namespace Oqtane.Infrastructure
         private readonly IWebHostEnvironment _environment;
         private readonly IMemoryCache _cache;
         private readonly IConfigManager _configManager;
+        private readonly ILogger<DatabaseManager> _filelogger;
 
-        public DatabaseManager(IConfigurationRoot config, IServiceScopeFactory serviceScopeFactory, IWebHostEnvironment environment, IMemoryCache cache, IConfigManager configManager)
+        public DatabaseManager(IConfigurationRoot config, IServiceScopeFactory serviceScopeFactory, IWebHostEnvironment environment, IMemoryCache cache, IConfigManager configManager, ILogger<DatabaseManager> filelogger)
         {
             _config = config;
             _serviceScopeFactory = serviceScopeFactory;
             _environment = environment;
             _cache = cache;
             _configManager = configManager;
+            _filelogger = filelogger;
         }
 
         public Installation IsInstalled()
@@ -55,16 +58,25 @@ namespace Oqtane.Infrastructure
                     {
                         try
                         {
+                            // verify master database contains a Tenant table ( ie. validate schema is properly provisioned )
                             var provisioned = db.Tenant.Any();
                         }
-                        catch
+                        catch (Exception ex)
                         {
-                            result.Message = "Master Database Not Installed Correctly";
+                            result.Message = "Master Database Not Installed Correctly. " + ex.Message;
                         }
                     }
-                    else
+                    else // cannot connect
                     {
-                        result.Message = "Cannot Connect To Master Database";
+                        try
+                        {
+                            // get the actual connection error details
+                            db.Database.OpenConnection();
+                        }
+                        catch (Exception ex)
+                        {
+                            result.Message = "Cannot Connect To Master Database. " + ex.Message;
+                        }
                     }
                 }
             }
@@ -128,6 +140,7 @@ namespace Oqtane.Infrastructure
                     if (!string.IsNullOrEmpty(installation.Message))
                     {
                         // problem with prior installation
+                        _filelogger.LogError(Utilities.LogMessage(this, installation.Message));
                         install.ConnectionString = "";
                     }
                 }
@@ -483,11 +496,17 @@ namespace Oqtane.Infrastructure
                                                 {
                                                     tenantManager.SetTenant(tenant.TenantId);
                                                     var moduleObject = ActivatorUtilities.CreateInstance(scope.ServiceProvider, moduleType) as IInstallable;
-                                                    moduleObject?.Install(tenant, versions[i]);
+                                                    if (moduleObject == null || !moduleObject.Install(tenant, versions[i]))
+                                                    {
+                                                        result.Message = "An Error Occurred Executing IInstallable Interface For " + moduleDefinition.ServerManagerType;
+                                                    }
                                                 }
                                                 else
                                                 {
-                                                    sql.ExecuteScript(tenant, moduleType.Assembly, Utilities.GetTypeName(moduleDefinition.ModuleDefinitionName) + "." + versions[i] + ".sql");
+                                                    if (!sql.ExecuteScript(tenant, moduleType.Assembly, Utilities.GetTypeName(moduleDefinition.ModuleDefinitionName) + "." + versions[i] + ".sql"))
+                                                    {
+                                                        result.Message = "An Error Occurred Executing Database Script " + Utilities.GetTypeName(moduleDefinition.ModuleDefinitionName) + "." + versions[i] + ".sql";
+                                                    }
                                                 }
                                             }
                                             catch (Exception ex)
@@ -499,6 +518,12 @@ namespace Oqtane.Infrastructure
                                 }
                                 if (string.IsNullOrEmpty(result.Message) && moduleDefinition.Version != versions[versions.Length - 1])
                                 {
+                                    // get module definition from database to retain user customizable property values
+                                    var moduledef = db.ModuleDefinition.AsNoTracking().FirstOrDefault(item => item.ModuleDefinitionId == moduleDefinition.ModuleDefinitionId);
+                                    moduleDefinition.Name = moduledef.Name;
+                                    moduleDefinition.Description = moduledef.Description;
+                                    moduleDefinition.Categories = moduledef.Categories;
+                                    // update version
                                     moduleDefinition.Version = versions[versions.Length - 1];
                                     db.Entry(moduleDefinition).State = EntityState.Modified;
                                     db.SaveChanges();
@@ -618,7 +643,7 @@ namespace Oqtane.Infrastructure
                         tenant.Version = Constants.Version;
                         tenants.UpdateTenant(tenant);
 
-                        if (site != null) log.Log(site.SiteId, LogLevel.Trace, this, LogFunction.Create, "Site Created {Site}", site);
+                        if (site != null) log.Log(site.SiteId, Shared.LogLevel.Information, this, LogFunction.Create, "Site Created {Site}", site);
                     }
                 }
             }

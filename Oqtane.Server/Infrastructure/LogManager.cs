@@ -46,18 +46,14 @@ namespace Oqtane.Infrastructure
         public void Log(int siteId, LogLevel level, object @class, LogFunction function, Exception exception, string message, params object[] args)
         {
             Log log = new Log();
-            if (siteId == -1)
+
+            log.SiteId = siteId;
+            if (log.SiteId == -1 && _alias != null)
             {
-                log.SiteId = null;
-                if (_alias != null)
-                {
-                    log.SiteId = _alias.SiteId;
-                }
+                log.SiteId = _alias.SiteId;
             }
-            else
-            {
-                log.SiteId = siteId;
-            }
+            if (log.SiteId == -1) return; // logs must be site specific
+
             log.PageId = null;
             log.ModuleId = null;
             log.UserId = null;
@@ -125,9 +121,10 @@ namespace Oqtane.Infrastructure
                 {
                     _logs.AddLog(log);
                 }
-                catch
+                catch (Exception ex)
                 {
                     // an error occurred writing to the database
+                    var x = ex.Message;
                 }
             }
         }

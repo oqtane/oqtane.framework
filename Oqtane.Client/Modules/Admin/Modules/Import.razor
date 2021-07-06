@@ -3,11 +3,12 @@
 @inject NavigationManager NavigationManager
 @inject IModuleService ModuleService
 @inject IStringLocalizer<Import> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <table class="table table-borderless">
     <tbody>
         <tr>
-            <td>
+            <td width="30%">
                 <Label For="content" HelpText="Enter the module content" ResourceKey="Content">Content: </Label>
             </td>
             <td>
@@ -17,7 +18,7 @@
     </tbody>
 </table>
 <button type="button" class="btn btn-success" @onclick="ImportModule">@Localizer["Import"]</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 
 
 @code {
@@ -35,22 +36,22 @@
                 bool success = await ModuleService.ImportModuleAsync(ModuleState.ModuleId, _content);
                 if (success)
                 {
-                    AddModuleMessage(Localizer["Content Imported Successfully"], MessageType.Success);
+                    AddModuleMessage(Localizer["Success.Content.Import"], MessageType.Success);
                 }
                 else
                 {
-                    AddModuleMessage(Localizer["A Problem Was Encountered Importing Content. Please Ensure The Content Is Formatted Correctly For The Module."], MessageType.Warning);
+                    AddModuleMessage(Localizer["Message.Content.ImportProblem"], MessageType.Warning);
                 }
             }
             catch (Exception ex)
             {
                 await logger.LogError(ex, "Error Importing Module {ModuleId} {Error}", ModuleState.ModuleId, ex.Message);
-                AddModuleMessage(Localizer["Error Importing Module"], MessageType.Error);
+                AddModuleMessage(Localizer["Error.Module.Import"], MessageType.Error);
             }
         }
         else
         {
-            AddModuleMessage(Localizer["You Must Enter Some Content To Import"], MessageType.Warning);
+            AddModuleMessage(Localizer["Message.Required.ImportContent"], MessageType.Warning);
         }
     }
 }

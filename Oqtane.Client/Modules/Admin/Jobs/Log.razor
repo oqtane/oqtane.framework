@@ -2,46 +2,47 @@
 @inherits ModuleBase
 @inject IJobLogService JobLogService
 @inject IStringLocalizer<Log> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_jobLogs == null)
 {
-    <p><em>@Localizer["Loading..."]</em></p>
+    <p><em>@SharedLocalizer["Loading"]</em></p>
 }
 else
 {
-<Pager Items="@_jobLogs">
-    <Header>
-        <th>@Localizer["Name"]</th>
-        <th>@Localizer["Status"]</th>
-        <th>@Localizer["Started"]</th>
-        <th>@Localizer["Finished"]</th>
-    </Header>
-    <Row>
-        <td>@context.Job.Name</td>
-        <td>@DisplayStatus(context.Job.IsExecuting, context.Succeeded)</td>
-        <td>@context.StartDate</td>
-        <td>@context.FinishDate</td>
-    </Row>
-    <Detail>
-        <td colspan="4">@((MarkupString)context.Notes)</td>
-    </Detail>
-</Pager>
+    <Pager Items="@_jobLogs">
+        <Header>
+            <th>@SharedLocalizer["Name"]</th>
+            <th>@SharedLocalizer["Status"]</th>
+            <th>@Localizer["Started"]</th>
+            <th>@Localizer["Finished"]</th>
+        </Header>
+        <Row>
+            <td>@context.Job.Name</td>
+            <td>@DisplayStatus(context.Job.IsExecuting, context.Succeeded)</td>
+            <td>@context.StartDate</td>
+            <td>@context.FinishDate</td>
+        </Row>
+        <Detail>
+            <td colspan="4">@((MarkupString)context.Notes)</td>
+        </Detail>
+    </Pager>
 }
 
 @code {
     private List<JobLog> _jobLogs;
-    
+
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
     protected override async Task OnParametersSetAsync()
     {
         _jobLogs = await JobLogService.GetJobLogsAsync();
-        
+
         if (PageState.QueryString.ContainsKey("id"))
         {
             _jobLogs = _jobLogs.Where(item => item.JobId == Int32.Parse(PageState.QueryString["id"])).ToList();
         }
-        
+
         _jobLogs = _jobLogs.OrderByDescending(item => item.JobLogId).ToList();
     }
 
@@ -63,7 +64,7 @@ else
                 status = Localizer["Failed"];
             }
         }
-        
+
         return status;
     }
 }

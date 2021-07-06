@@ -21,16 +21,16 @@ namespace Oqtane.Controllers
         private readonly IWebHostEnvironment _environment;
         private readonly IFolderRepository _folders;
         private readonly IUserPermissions _userPermissions;
-        private readonly ITenantManager _tenantManager;
         private readonly ILogManager _logger;
+        private readonly Alias _alias;
 
-        public FolderController(IWebHostEnvironment environment, IFolderRepository folders, IUserPermissions userPermissions, ITenantManager tenantManager, ILogManager logger)
+        public FolderController(IWebHostEnvironment environment, IFolderRepository folders, IUserPermissions userPermissions, ILogManager logger, ITenantManager tenantManager)
         {
             _environment = environment;
             _folders = folders;
             _userPermissions = userPermissions;
-            _tenantManager = tenantManager;
             _logger = logger;
+            _alias = tenantManager.GetAlias();
         }
 
         // GET: api/<controller>?siteid=x
@@ -38,12 +38,22 @@ namespace Oqtane.Controllers
         public IEnumerable<Folder> Get(string siteid)
         {
             List<Folder> folders = new List<Folder>();
-            foreach (Folder folder in _folders.GetFolders(int.Parse(siteid)))
+            int SiteId;
+            if (int.TryParse(siteid, out SiteId) && SiteId == _alias.SiteId)
             {
-                if (_userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.Permissions))
+                foreach (Folder folder in _folders.GetFolders(SiteId))
                 {
-                    folders.Add(folder);
+                    if (_userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.Permissions))
+                    {
+                        folders.Add(folder);
+                    }
                 }
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Get Attempt {SiteId}", siteid);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                folders = null;
             }
             return folders;
         }
@@ -53,14 +63,14 @@ namespace Oqtane.Controllers
         public Folder Get(int id)
         {
             Folder folder = _folders.GetFolder(id);
-            if (_userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.Permissions))
+            if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.Permissions))
             {
                 return folder;
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Folder {Folder}", folder);
-                HttpContext.Response.StatusCode = 401;
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Get Attempt {FolderId}", id);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
         }
@@ -74,23 +84,14 @@ namespace Oqtane.Controllers
                 folderPath = Utilities.PathCombine(folderPath, System.IO.Path.DirectorySeparatorChar.ToString());
             }
             Folder folder = _folders.GetFolder(siteId, folderPath);
-            if (folder != null)
-                if (_userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.Permissions))
-                {
-                    return folder;
-                }
-                else
-                {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Folder {Folder}",
-                        folder);
-                    HttpContext.Response.StatusCode = 401;
-                    return null;
-                }
+            if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.Browse, folder.Permissions))
+            {
+                return folder;
+            }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "Folder not found {path}",
-                    path);
-                HttpContext.Response.StatusCode = 401;
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Get Attempt {Path} For Site {SiteId}", path, siteId);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 return null;
             }
         }
@@ -100,7 +101,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Registered)]
         public Folder Post([FromBody] Folder folder)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && folder.SiteId == _alias.SiteId)
             {
                 string permissions;
                 if (folder.ParentId != null)
@@ -129,16 +130,22 @@ namespace Oqtane.Controllers
                     else
                     {
                         _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Name Not Valid {Folder}", folder);
-                        HttpContext.Response.StatusCode = 401;
+                        HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                         folder = null;
                     }
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Create, "User Not Authorized To Add Folder {Folder}", folder);
-                    HttpContext.Response.StatusCode = 401;
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Post Attempt {Folder}", folder);
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                     folder = null;
                 }
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Post Attempt {Folder}", folder);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                folder = null;
             }
             return folder;
         }
@@ -148,7 +155,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Registered)]
         public Folder Put(int id, [FromBody] Folder folder)
         {
-            if (ModelState.IsValid && _userPermissions.IsAuthorized(User, EntityNames.Folder, folder.FolderId, PermissionNames.Edit))
+            if (ModelState.IsValid && folder.SiteId == _alias.SiteId && _folders.GetFolder(folder.FolderId, false) != null && _userPermissions.IsAuthorized(User, EntityNames.Folder, folder.FolderId, PermissionNames.Edit))
             {
                 if (folder.IsPathValid())
                 {
@@ -171,14 +178,14 @@ namespace Oqtane.Controllers
                 else
                 {
                     _logger.Log(LogLevel.Information, this, LogFunction.Create, "Folder Name Not Valid {Folder}", folder);
-                    HttpContext.Response.StatusCode = 401;
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                     folder = null;
                 }
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Folder {Folder}", folder);
-                HttpContext.Response.StatusCode = 401;
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Put Attempt  {Folder}", folder);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 folder = null;
             }
             return folder;
@@ -189,7 +196,7 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Registered)]
         public void Put(int siteid, int folderid, int? parentid)
         {
-            if (_userPermissions.IsAuthorized(User, EntityNames.Folder, folderid, PermissionNames.Edit))
+            if (siteid == _alias.SiteId && _folders.GetFolder(folderid, false) != null && _userPermissions.IsAuthorized(User, EntityNames.Folder, folderid, PermissionNames.Edit))
             {
                 int order = 1;
                 List<Folder> folders = _folders.GetFolders(siteid).ToList();
@@ -206,8 +213,8 @@ namespace Oqtane.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Update, "User Not Authorized To Update Folder Order {SiteId} {FolderId} {ParentId}", siteid, folderid, parentid);
-                HttpContext.Response.StatusCode = 401;
+                _logger.Log(LogLevel.Error, this, LogFunction.Update, "Unauthorized Folder Put Attempt {SiteId} {FolderId} {ParentId}", siteid, folderid, parentid);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }
 
@@ -216,26 +223,26 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Registered)]
         public void Delete(int id)
         {
-            if (_userPermissions.IsAuthorized(User, EntityNames.Folder, id, PermissionNames.Edit))
+            var folder = _folders.GetFolder(id, false);
+            if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, EntityNames.Folder, id, PermissionNames.Edit))
             {
-                Models.Folder _folder = _folders.GetFolder(id, false);
-                if (Directory.Exists(GetFolderPath(_folder)))
+                if (Directory.Exists(GetFolderPath(folder)))
                 {
-                    Directory.Delete(GetFolderPath(_folder));
+                    Directory.Delete(GetFolderPath(folder));
                 }
                 _folders.DeleteFolder(id);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Folder Deleted {FolderId}", id);
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Delete, "User Not Authorized To Delete Folder {FolderId}", id);
-                HttpContext.Response.StatusCode = 401;
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Folder Delete Attempt {FolderId}", id);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }
 
         private string GetFolderPath(Folder folder)
         {
-            return Utilities.PathCombine(_environment.ContentRootPath, "Content", "Tenants", _tenantManager.GetTenant().TenantId.ToString(), "Sites", folder.SiteId.ToString(), folder.Path);
+            return Utilities.PathCombine(_environment.ContentRootPath, "Content", "Tenants", _alias.TenantId.ToString(), "Sites", folder.SiteId.ToString(), folder.Path);
         }
     }
 }

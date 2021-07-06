@@ -4,23 +4,24 @@
 @inject IModuleDefinitionService ModuleDefinitionService
 @inject IPackageService PackageService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_moduleDefinitions == null)
 {
-    <p><em>@Localizer["Loading..."]</em></p>
+    <p><em>@SharedLocalizer["Loading"]</em></p>
 }
 else
 {
     <ActionLink Action="Add" Text="Install Module" ResourceKey="InstallModule" />
     @((MarkupString)"&nbsp;")
-    <ActionLink Action="Create" Text="Create Module" ResourceKey="CreateModule" />
+    <ActionLink Action="Create" Text="Create Module" ResourceKey="CreateModule" Class="btn btn-secondary" />
 
     <Pager Items="@_moduleDefinitions">
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
-            <th>@Localizer["Name"]</th>
-            <th>@Localizer["Version"]</th>
+            <th>@SharedLocalizer["Name"]</th>
+            <th>@SharedLocalizer["Version"]</th>
             <th style="width: 1px;">&nbsp;</th>
         </Header>
         <Row>
@@ -28,7 +29,7 @@ else
             <td>
                 @if (context.AssemblyName != "Oqtane.Client")
                     {
-                    <ActionDialog Header="Delete Module" Message="@Localizer["Are You Sure You Wish To Delete The {0} Module?", context.Name]" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" />
+                    <ActionDialog Header="Delete Module" Message="@string.Format(Localizer["Confirm.Module.Delete", context.Name])" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" />
                     }
             </td>
             <td>@context.Name</td>
@@ -36,7 +37,7 @@ else
             <td>
                 @if (UpgradeAvailable(context.PackageName, context.Version))
                     {
-                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadModule(context.PackageName, context.Version))>@Localizer["Upgrade"]</button>
+                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadModule(context.PackageName, context.Version))>@SharedLocalizer["Upgrade"]</button>
                     }
             </td>
         </Row>
@@ -61,7 +62,7 @@ else
             if (_moduleDefinitions == null)
             {
                 await logger.LogError(ex, "Error Loading Modules {Error}", ex.Message);
-                AddModuleMessage(Localizer["Error Loading Modules"], MessageType.Error);
+                AddModuleMessage(Localizer["Error.Module.Load"], MessageType.Error);
             }
         }
     }
@@ -88,12 +89,12 @@ else
             await PackageService.DownloadPackageAsync(packagename, version, "Packages");
             await logger.LogInformation("Module Downloaded {ModuleDefinitionName} {Version}", packagename, version);
             await ModuleDefinitionService.InstallModuleDefinitionsAsync();
-            AddModuleMessage(Localizer["Module Installed Successfully. You Must <a href=\"{0}\">Restart</a> Your Application To Apply These Changes.", NavigateUrl("admin/system")], MessageType.Success);
+            AddModuleMessage(string.Format(Localizer["Success.Module.Install"], NavigateUrl("admin/system")), MessageType.Success);
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Downloading Module {ModuleDefinitionName} {Version} {Error}", packagename, version, ex.Message);
-            AddModuleMessage(Localizer["Error Downloading Module"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Module.Download"], MessageType.Error);
         }
     }
 
@@ -102,13 +103,13 @@ else
         try
         {
             await ModuleDefinitionService.DeleteModuleDefinitionAsync(moduleDefinition.ModuleDefinitionId, moduleDefinition.SiteId);
-            AddModuleMessage(Localizer["Module Deleted Successfully"], MessageType.Success);
-            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, "reload"));
+            AddModuleMessage(Localizer["Success.Module.Delete"], MessageType.Success);
+            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, true));
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting Module {ModuleDefinition} {Error}", moduleDefinition, ex.Message);
-            AddModuleMessage(Localizer["Error Deleting Module"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Module.Delete"], MessageType.Error);
         }
     }
 }

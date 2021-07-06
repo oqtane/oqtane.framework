@@ -10,7 +10,7 @@
             {
                 <a class="nav-link active px-3" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
                         <span class="@childPage.Icon" aria-hidden="true" />
-                        @childPage.Name <span class="sr-only">(current)</span>
+                        @childPage.Name <span class="visually-hidden-focusable">(current)</span>
                 </a>
             }
             else
@@ -32,10 +32,10 @@ else
             {
                 if (childPage.PageId == PageState.Page.PageId)
                 {
-                    <li class="nav-item active">
-                        <a class="nav-link" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="@GetUrl(childPage)" target="@GetTarget(childPage)">
                             <span class="@childPage.Icon" aria-hidden="true" />
-                            @childPage.Name <span class="sr-only">(current)</span>
+                            @childPage.Name <span class="visually-hidden-focusable">(current)</span>
                         </a>
                     </li>
                 }
@@ -54,9 +54,9 @@ else
                 if (childPage.PageId == PageState.Page.PageId)
                 {
                     <li class="nav-item dropdown active">
-                        <a class="nav-link dropdown-toggle" href="@GetUrl(childPage)" target="@GetTarget(childPage)" id="@($"navbarDropdown{childPage.PageId}")" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="@GetUrl(childPage)" target="@GetTarget(childPage)" id="@($"navbarDropdown{childPage.PageId}")" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="@childPage.Icon" aria-hidden="true" />
-                            @childPage.Name <span class="sr-only">(current)</span>
+                            @childPage.Name <span class="visually-hidden-focusable">(current)</span>
                         </a>
                         <MenuItemsHorizontal ParentPage="childPage" Pages="Pages" />
                     </li>
@@ -64,7 +64,7 @@ else
                 else
                 {
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="@GetUrl(childPage)" target="@GetTarget(childPage)" id="@($"navbarDropdown{childPage.PageId}")" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="@GetUrl(childPage)" target="@GetTarget(childPage)" id="@($"navbarDropdown{childPage.PageId}")" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="@childPage.Icon" aria-hidden="true" />
                             @childPage.Name
                         </a>

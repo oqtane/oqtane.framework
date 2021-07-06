@@ -115,7 +115,7 @@ namespace Oqtane.Themes.Controls
             await PageModuleService.UpdatePageModuleAsync(pagemodule);
             await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
             await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, oldPane);
-            return url;
+            return NavigateUrl(url, true);
         }
 
         private async Task<string> DeleteModule(string url, PageModule pagemodule)
@@ -123,7 +123,7 @@ namespace Oqtane.Themes.Controls
             pagemodule.IsDeleted = true;
             await PageModuleService.UpdatePageModuleAsync(pagemodule);
             await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
-            return url;
+            return NavigateUrl(url, true);
         }
 
         private async Task<string> Settings(string url, PageModule pagemodule)
@@ -148,7 +148,7 @@ namespace Oqtane.Themes.Controls
             }
             pagemodule.Module.Permissions = UserSecurity.SetPermissionStrings(permissions);
             await ModuleService.UpdateModuleAsync(pagemodule.Module);
-            return NavigateUrl(s, "reload");
+            return NavigateUrl(s, true);
         }
 
         private async Task<string> Unpublish(string s, PageModule pagemodule)
@@ -166,7 +166,7 @@ namespace Oqtane.Themes.Controls
             }
             pagemodule.Module.Permissions = UserSecurity.SetPermissionStrings(permissions);
             await ModuleService.UpdateModuleAsync(pagemodule.Module);
-            return NavigateUrl(s, "reload");
+            return NavigateUrl(s, true);
         }
 
         private async Task<string> MoveTop(string s, PageModule pagemodule)
@@ -174,7 +174,7 @@ namespace Oqtane.Themes.Controls
             pagemodule.Order = 0;
             await PageModuleService.UpdatePageModuleAsync(pagemodule);
             await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
-            return s;
+            return NavigateUrl(s, true);
         }
 
         private async Task<string> MoveBottom(string s, PageModule pagemodule)
@@ -182,7 +182,7 @@ namespace Oqtane.Themes.Controls
             pagemodule.Order = int.MaxValue;
             await PageModuleService.UpdatePageModuleAsync(pagemodule);
             await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
-            return s;
+            return NavigateUrl(s, true);
         }
 
         private async Task<string> MoveUp(string s, PageModule pagemodule)
@@ -190,7 +190,7 @@ namespace Oqtane.Themes.Controls
             pagemodule.Order -= 3;
             await PageModuleService.UpdatePageModuleAsync(pagemodule);
             await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
-            return s;
+            return NavigateUrl(s, true);
         }
 
         private async Task<string> MoveDown(string s, PageModule pagemodule)
@@ -198,7 +198,7 @@ namespace Oqtane.Themes.Controls
             pagemodule.Order += 3;
             await PageModuleService.UpdatePageModuleAsync(pagemodule);
             await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
-            return s;
+            return NavigateUrl(s, true);
         }
 
         public class ActionViewModel

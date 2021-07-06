@@ -14,9 +14,9 @@
                         <ModuleMessage Message="@_message" Type="MessageType.Warning"></ModuleMessage>
                         <br />
                     }
-                    <div class="row justify-content-center" style="margin-bottom: 20px;">
-                        <button type="button" class="btn btn-secondary" @onclick="RefreshRichText">@Localizer["Synchronize Content"]</button>&nbsp;&nbsp;
-                        <button type="button" class="btn btn-primary" @onclick="InsertImage">@Localizer["Insert Image"]</button>
+                    <div class="d-flex justify-content-center mb-2">
+                        <button type="button" class="btn btn-secondary" @onclick="RefreshRichText">@Localizer["SynchronizeContent"]</button>&nbsp;&nbsp;
+                        <button type="button" class="btn btn-primary" @onclick="InsertImage">@Localizer["InsertImage"]</button>
                         @if (_filemanagervisible)
                         {
                             @((MarkupString)"&nbsp;&nbsp;")
@@ -66,8 +66,8 @@
                 </div>
             </TabPanel>
             <TabPanel Name="Raw" Heading="Raw HTML Editor" ResourceKey="HtmlEditor">
-                <div class="row justify-content-center" style="margin-bottom: 20px;">
-                    <button type="button" class="btn btn-secondary" @onclick="RefreshRawHtml">@Localizer["Synchronize Content"]</button>
+                <div class="d-flex justify-content-center mb-2">
+                    <button type="button" class="btn btn-secondary" @onclick="RefreshRawHtml">@Localizer["SynchronizeContent"]</button>
                 </div>
                 @if (ReadOnly)
                 {
@@ -143,6 +143,8 @@
 
             await interop.LoadEditorContent(_editorElement, Content);
 
+            _content = Content; // raw HTML
+
             // preserve a copy of the rich text content ( Quill sanitizes content so we need to retrieve it from the editor )
             _original = await interop.GetHtml(_editorElement);
         }
@@ -200,7 +202,7 @@
             }
             else
             {
-                _message = Localizer["You Must Select An Image To Insert"];
+                _message = Localizer["Message.Require.Image"];
             }
         }
         else

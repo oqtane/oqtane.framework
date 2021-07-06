@@ -3,22 +3,23 @@
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <div class="container">
     <div class="form-group">
-        <label for="Username" class="control-label">@Localizer["Username:"] </label>
-        <input type="text" class="form-control" placeholder="Username" @bind="@_username" readonly id="Username"/>
+        <label for="Username" class="control-label">@SharedLocalizer["Username"] </label>
+        <input type="text" class="form-control" placeholder="Username" @bind="@_username" readonly id="Username" />
     </div>
     <div class="form-group">
-        <label for="Password" class="control-label">@Localizer["Password:"] </label>
-        <input type="password" class="form-control" placeholder="Password" @bind="@_password" id="Password"/>
+        <label for="Password" class="control-label">@SharedLocalizer["Password"] </label>
+        <input type="password" class="form-control" placeholder="Password" @bind="@_password" id="Password" />
     </div>
     <div class="form-group">
-        <label for="Confirm" class="control-label">@Localizer["Confirm Password:"] </label>
-        <input type="password" class="form-control" placeholder="Password" @bind="@_confirm" id="Confirm"/>
+        <label for="Confirm" class="control-label">@Localizer["Password.Confirm"] </label>
+        <input type="password" class="form-control" placeholder="Password" @bind="@_confirm" id="Confirm" />
     </div>
-    <button type="button" class="btn btn-primary" @onclick="Reset">@Localizer["Reset Password"]</button>
-    <button type="button" class="btn btn-secondary" @onclick="Cancel">@Localizer["Cancel"]</button>
+    <button type="button" class="btn btn-primary" @onclick="Reset">@Localizer["Password.Reset"]</button>
+    <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
 </div>
 
 @code {
@@ -35,7 +36,7 @@
             _username = PageState.QueryString["name"];
         }
         else
-        { 
+        {
             NavigationManager.NavigateTo(NavigateUrl(string.Empty));
         }
     }
@@ -64,23 +65,23 @@
                     else
                     {
                         await logger.LogError("Error Resetting User Password {Username}", _username);
-                        AddModuleMessage(Localizer["Error Resetting User Password. Please Ensure Password Meets Complexity Requirements."], MessageType.Error);
+                        AddModuleMessage(Localizer["Error.Password.ResetInfo"], MessageType.Error);
                     }
                 }
                 else
                 {
-                    AddModuleMessage(Localizer["Passwords Entered Do Not Match"], MessageType.Warning);
+                    AddModuleMessage(Localizer["Message.Password.NoMatch"], MessageType.Warning);
                 }
             }
             else
             {
-                AddModuleMessage(Localizer["You Must Provide A Username, Password, and Email Address"], MessageType.Warning);
+                AddModuleMessage(Localizer["Message.Required.UserInfo"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Resetting User Password {Username} {Error}", _username, ex.Message);
-            AddModuleMessage(Localizer["Error Resetting User Password"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Password.Reset"], MessageType.Error);
         }
     }
 

@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject IUserService UserService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (PageState.Site.AllowRegistration)
 {
@@ -11,41 +12,62 @@
             <text>...</text>
         </Authorizing>
         <Authorized>
-            <ModuleMessage Message="@Localizer["You Are Already Registered"]" Type="MessageType.Info" />            
+            <ModuleMessage Message="@Localizer["Info.Registration.Exists"]" Type="MessageType.Info" />
         </Authorized>
         <NotAuthorized>
-            <ModuleMessage Message="@Localizer["Please Note That Registration Requires A Valid Email Address In Order To Verify Your Identity"]" Type="MessageType.Info" />
+            <ModuleMessage Message="@Localizer["Info.Registration.InvalidEmail"]" Type="MessageType.Info" />
 
-            <div class="container">
-                <div class="form-group">
-                    <label for="Username" class="control-label">@Localizer["Username:"] </label>
-                    <input type="text" class="form-control" placeholder="Username" @bind="@_username" id="Username" />
-                </div>
-                <div class="form-group">
-                    <label for="Password" class="control-label">@Localizer["Password:"] </label>
-                    <input type="password" class="form-control" placeholder="Password" @bind="@_password" id="Password" />
-                </div>
-                <div class="form-group">
-                    <label for="Confirm" class="control-label">@Localizer["Confirm Password:"] </label>
-                    <input type="password" class="form-control" placeholder="Password" @bind="@_confirm" id="Confirm" />
-                </div>
-                <div class="form-group">
-                    <label for="Email" class="control-label">@Localizer["Email:"] </label>
-                    <input type="text" class="form-control" placeholder="Email" @bind="@_email" id="Email" />
-                </div>
-                <div class="form-group">
-                    <label for="DisplayName" class="control-label">@Localizer["Full Name:"] </label>
-                    <input type="text" class="form-control" placeholder="Full Name" @bind="@_displayName" id="DisplayName" />
-                </div>
-                <button type="button" class="btn btn-primary" @onclick="Register">@Localizer["Register"]</button>
-                <button type="button" class="btn btn-secondary" @onclick="Cancel">@Localizer["Cancel"]</button>
-            </div>
+            <table class="table table-borderless">
+                <tr>
+                    <td width="30%">
+                        <Label For="username" HelpText="Your username. Note that this field can not be modified once it is saved." ResourceKey="Username"></Label>
+                    </td>
+                    <td>
+                        <input id="username" class="form-control" @bind="@_username" readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="password" HelpText="If you wish to change your password you can enter it here. Please choose a sufficiently secure password." ResourceKey="Password"></Label>
+                    </td>
+                    <td>
+                        <input id="password" type="password" class="form-control" @bind="@_password" autocomplete="new-password" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="confirm" HelpText="If you are changing your password you must enter it again to confirm it matches" ResourceKey="Confirm"></Label>
+                    </td>
+                    <td>
+                        <input id="confirm" type="password" class="form-control" @bind="@_confirm" autocomplete="new-password" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="email" HelpText="Your email address where you wish to receive notifications" ResourceKey="Email"></Label>
+                    </td>
+                    <td>
+                        <input id="email" class="form-control" @bind="@_email" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="displayname" HelpText="Your full name" ResourceKey="DisplayName"></Label>
+                    </td>
+                    <td>
+                        <input id="displayname" class="form-control" @bind="@_displayname" />
+                    </td>
+                </tr>
+            </table>
+
+            <button type="button" class="btn btn-primary" @onclick="Register">@Localizer["Register"]</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
         </NotAuthorized>
     </AuthorizeView>
 }
 else
 {
-    <ModuleMessage Message="@Localizer["Registration is Disabled For This Site"]" Type="MessageType.Info" />
+    <ModuleMessage Message="@Localizer["Info.Registration.Disabled"]" Type="MessageType.Info" />
 }
 
 @code {
@@ -53,7 +75,7 @@ else
     private string _password = string.Empty;
     private string _confirm = string.Empty;
     private string _email = string.Empty;
-    private string _displayName = string.Empty;
+    private string _displayname = string.Empty;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
 
@@ -71,7 +93,7 @@ else
                     {
                         SiteId = PageState.Site.SiteId,
                         Username = _username,
-                        DisplayName = (_displayName == string.Empty ? _username : _displayName),
+                        DisplayName = (_displayname == string.Empty ? _username : _displayname),
                         Email = _email,
                         Password = _password
                     };
@@ -80,28 +102,28 @@ else
                     if (user != null)
                     {
                         await logger.LogInformation("User Created {Username} {Email}", _username, _email);
-                        AddModuleMessage(Localizer["User Account Created. Please Check Your Email For Verification Instructions."], MessageType.Info);
+                        AddModuleMessage(Localizer["Info.User.AccountCreate"], MessageType.Info);
                     }
                     else
                     {
                         await logger.LogError("Error Adding User {Username} {Email}", _username, _email);
-                        AddModuleMessage(Localizer["Error Adding User. Please Ensure Password Meets Complexity Requirements And Username Is Not Already In Use."], MessageType.Error);
+                        AddModuleMessage(Localizer["Error.User.AddInfo"], MessageType.Error);
                     }
                 }
                 else
                 {
-                    AddModuleMessage(Localizer["Passwords Entered Do Not Match"], MessageType.Warning);
+                    AddModuleMessage(Localizer["Message.Password.NoMatch"], MessageType.Warning);
                 }
             }
             else
             {
-                AddModuleMessage(Localizer["You Must Provide A Username, Password, and Email Address"], MessageType.Warning);
+                AddModuleMessage(Localizer["Message.Required.UserInfo"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Adding User {Username} {Email} {Error}", _username, _email, ex.Message);
-            AddModuleMessage(Localizer["Error Adding User"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.User.Add"], MessageType.Error);
         }
     }
 

@@ -2,12 +2,13 @@
 @inherits ModuleControlBase
 @inject IRoleService RoleService
 @inject IUserService UserService
-@inject IStringLocalizer<PermissionGrid> Localizer 
+@inject IStringLocalizer<PermissionGrid> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (_permissions != null)
 {
     <br />
-    <table class="table" style="width: 50%; min-width: 250px;">
+    <table class="table table-borderless" style="width: 50%; min-width: 250px;">
         <tbody>
             <tr>
                 <th scope="col">@Localizer["Role"]</th>
@@ -33,7 +34,7 @@
     </table>
     @if (_users.Count != 0)
     {
-        <table class="table" style="width: 50%; min-width: 250px;">
+        <table class="table table-borderless" style="width: 50%; min-width: 250px;">
             <thead>
                 <tr>
                     <th scope="col">@Localizer["User"]</th>
@@ -61,12 +62,12 @@
             </tbody>
         </table>
     }
-    <table class="table" style="width: 50%; min-width: 250px;">
+    <table class="table table-borderless" style="width: 50%; min-width: 250px;">
         <tbody>
             <tr>
                 <td class="input-group">
-                    <input type="text" name="Username" class="form-control" placeholder="@Localizer["Enter Username"]" @bind="@_username" />
-                    <button type="button" class="btn btn-primary" @onclick="AddUser">@Localizer["Add"]</button>
+                    <input type="text" name="Username" class="form-control" placeholder="@Localizer["Username.Enter"]" @bind="@_username" />
+                    <button type="button" class="btn btn-primary" @onclick="AddUser">@SharedLocalizer["Add"]</button>
                 </td>
             </tr>
         </tbody>
@@ -180,7 +181,7 @@
             }
             catch
             {
-                _message = Localizer["Username Does Not Exist"];
+                _message = Localizer["Message.Username.DontExist"];
             }
         }
 

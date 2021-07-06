@@ -5,6 +5,7 @@
 @inject IPageService PageService
 @inject IThemeService  ThemeService
 @inject IStringLocalizer<Edit> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <TabStrip Refresh="@_refresh">
     <TabPanel Name="Settings" ResourceKey="Settings">
@@ -12,7 +13,7 @@
         {
             <table class="table table-borderless">
                 <tr>
-                    <td>
+                    <td width="30%">
                         <Label For="Name" HelpText="Enter the page name" ResourceKey="Name">Name: </Label>
                     </td>
                     <td>
@@ -24,8 +25,8 @@
                         <Label For="Parent" HelpText="Select the parent for the page in the site hierarchy" ResourceKey="Parent">Parent: </Label>
                     </td>
                     <td>
-                        <select id="Parent" class="form-control" value="@_parentid" @onchange="(e => ParentChanged(e))">
-                            <option value="-1">&lt;@Localizer["Site Root"]&gt;</option>
+                        <select id="Parent" class="form-select" value="@_parentid" @onchange="(e => ParentChanged(e))">
+                            <option value="-1">&lt;@Localizer["SiteRoot"]&gt;</option>
                             @foreach (Page page in _pageList)
                             {
                                 if (page.PageId != _pageId)
@@ -41,23 +42,23 @@
                         <Label For="Move" HelpText="Select the location where you would like the page to be moved in relation to other pages" ResourceKey="Move">Move: </Label>
                     </td>
                     <td>
-                        <select id="Move" class="form-control" @bind="@_insert">
+                        <select id="Move" class="form-select" @bind="@_insert">
                             @if (_parentid == _currentparentid)
                             {
-                                <option value="=">&lt;@Localizer["Maintain Current Location"]&gt;</option>
+                                <option value="=">&lt;@Localizer["ThisLocation.Keep"]&gt;</option>
                             }
-                            <option value="<<">@Localizer["To Beginning"]</option>
+                            <option value="<<">@Localizer["ToBeginning"]</option>
                             @if (_children != null && _children.Count > 0)
                             {
                                 <option value="<">@Localizer["Before"]</option>
                                 <option value=">">@Localizer["After"]</option>
                             }
-                            <option value=">>">@Localizer["To End"]</option>
+                            <option value=">>">@Localizer["ToEnd"]</option>
                         </select>
                         @if (_children != null && _children.Count > 0 && (_insert == "<" || _insert == ">"))
                         {
-                            <select class="form-control" @bind="@_childid">
-                                <option value="-1">&lt;@Localizer["Select Page"]&gt;</option>
+                            <select class="form-select" @bind="@_childid">
+                                <option value="-1">&lt;@Localizer["Page.Select"]&gt;</option>
                                 @foreach (Page page in _children)
                                 {
                                     <option value="@(page.PageId)">@(page.Name)</option>
@@ -71,9 +72,20 @@
                         <Label For="Navigation" HelpText="Select whether the page is part of the site navigation or hidden" ResourceKey="Navigation">Navigation? </Label>
                     </td>
                     <td>
-                        <select id="Navigation" class="form-control" @bind="@_isnavigation">
-                            <option value="True">@Localizer["Yes"]</option>
-                            <option value="False">@Localizer["No"]</option>
+                        <select id="Navigation" class="form-select" @bind="@_isnavigation">
+                            <option value="True">@SharedLocalizer["Yes"]</option>
+                            <option value="False">@SharedLocalizer["No"]</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="Clickablen" HelpText="Select whether the link in the site navigation is enabled or disabled" ResourceKey="Clickable">Clickable? </Label>
+                    </td>
+                    <td>
+                        <select id="Navigation" class="form-select" @bind="@_isclickable">
+                            <option value="True">@SharedLocalizer["Yes"]</option>
+                            <option value="False">@SharedLocalizer["No"]</option>
                         </select>
                     </td>
                 </tr>
@@ -97,7 +109,7 @@
             <Section Name="Appearance" ResourceKey="Appearance">
                 <table class="table table-borderless">
                     <tr>
-                        <td>
+                        <td width="30%">
                             <Label For="Title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used." ResourceKey="Title">Title: </Label>
                         </td>
                         <td>
@@ -109,7 +121,7 @@
                             <Label For="Theme" HelpText="Select the theme for this page" ResourceKey="Theme">Theme: </Label>
                         </td>
                         <td>
-                            <select id="Theme" class="form-control" value="@_themetype" @onchange="(e => ThemeChanged(e))">
+                            <select id="Theme" class="form-select" value="@_themetype" @onchange="(e => ThemeChanged(e))">
                                 @foreach (var theme in _themes)
                                 {
                                     <option value="@theme.TypeName">@theme.Name</option>
@@ -122,8 +134,8 @@
                             <Label For="defaultContainer" HelpText="Select the default container for the page" ResourceKey="DefaultContainer">Default Container: </Label>
                         </td>
                         <td>
-                            <select id="defaultContainer" class="form-control" @bind="@_containertype">
-                                <option value="-">&lt;@Localizer["Select Container"]&gt;</option>
+                            <select id="defaultContainer" class="form-select" @bind="@_containertype">
+                                <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
                                 @foreach (var container in _containers)
                                 {
                                     <option value="@container.TypeName">@container.Name</option>
@@ -144,9 +156,9 @@
                             <Label For="Personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content" ResourceKey="Personalizable">Personalizable? </Label>
                         </td>
                         <td>
-                            <select id="Personalizable" class="form-control" @bind="@_ispersonalizable">
-                                <option value="True">@Localizer["Yes"]</option>
-                                <option value="False">@Localizer["No"]</option>
+                            <select id="Personalizable" class="form-select" @bind="@_ispersonalizable">
+                                <option value="True">@SharedLocalizer["Yes"]</option>
+                                <option value="False">@SharedLocalizer["No"]</option>
                             </select>
                         </td>
                     </tr>
@@ -175,8 +187,8 @@
         </TabPanel>
     }
 </TabStrip>
-<button type="button" class="btn btn-success" @onclick="SavePage">@Localizer["Save"]</button>
-<button type="button" class="btn btn-secondary" @onclick="Cancel">@Localizer["Cancel"]</button>
+<button type="button" class="btn btn-success" @onclick="SavePage">@SharedLocalizer["Save"]</button>
+<button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
@@ -195,6 +207,7 @@
     private List<Page> _children;
     private int _childid = -1;
     private string _isnavigation;
+    private string _isclickable;
     private string _url;
     private string _ispersonalizable;
     private string _themetype;
@@ -247,6 +260,7 @@
 
                 _currentparentid = _parentid;
                 _isnavigation = page.IsNavigation.ToString();
+                _isclickable = page.IsClickable.ToString();
                 _url = page.Url;
                 _ispersonalizable = page.IsPersonalizable.ToString();
                 _themetype = page.ThemeType;
@@ -275,7 +289,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Page {PageId} {Error}", _pageId, ex.Message);
-            AddModuleMessage(Localizer["Error Loading Page"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Page.Load"], MessageType.Error);
         }
     }
 
@@ -318,7 +332,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Child Pages For Parent {PageId} {Error}", _parentid, ex.Message);
-            AddModuleMessage(Localizer["Error Loading Child Pages For Parent"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.ChildPage.Load"], MessageType.Error);
         }
     }
 
@@ -335,7 +349,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", _themetype, ex.Message);
-            AddModuleMessage(Localizer["Error Loading Pane Layouts For Theme"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Pane.Load"], MessageType.Error);
         }
     }
 
@@ -401,7 +415,7 @@
 
                 if (!PagePathIsUnique(page.Path, page.SiteId, page.PageId, _pageList))
                 {
-                    AddModuleMessage(Localizer["A page with path {0} already exists for the selected parent page. The page path needs to be unique for the selected parent.", _path], MessageType.Warning);
+                    AddModuleMessage(string.Format(Localizer["Mesage.Page.PathExists"], _path), MessageType.Warning);
                     return;
                 }
 
@@ -427,6 +441,7 @@
                     }
                 }
                 page.IsNavigation = (_isnavigation == null || Boolean.Parse(_isnavigation));
+                page.IsClickable = (_isclickable == null ? true : Boolean.Parse(_isclickable));
                 page.Url = _url;
                 page.ThemeType = (_themetype != "-") ? _themetype : string.Empty;
                 if (!string.IsNullOrEmpty(page.ThemeType) && page.ThemeType == PageState.Site.DefaultThemeType)
@@ -481,13 +496,13 @@
             }
             else
             {
-                AddModuleMessage(Localizer["You Must Provide Page Name, Theme, and Container"], MessageType.Warning);
+                AddModuleMessage(Localizer["Message.Required.PageInfo"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving Page {Page} {Error}", page, ex.Message);
-            AddModuleMessage(Localizer["Error Saving Page"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Page.Save"], MessageType.Error);
         }
     }
 

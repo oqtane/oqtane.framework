@@ -81,7 +81,7 @@ namespace Oqtane.Infrastructure
         public void SetTenant(int tenantId)
         {
             // background processes can set the alias using the SiteState service
-            _siteState.Alias = new Alias { TenantId = tenantId };
+            _siteState.Alias = new Alias { TenantId = tenantId, AliasId = -1, SiteId = -1 };
         }
     }
 }

@@ -2,7 +2,8 @@
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IPageService PageService
-@inject IStringLocalizer<Index> Localizer 
+@inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (PageState.Pages != null)
 {
@@ -12,11 +13,11 @@
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
-            <th>@Localizer["Name"]</th>
+            <th>@SharedLocalizer["Name"]</th>
         </Header>
         <Row>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.PageId.ToString())" ResourceKey="EditPage" /></td>
-            <td><ActionDialog Header="Delete Page" Message="@Localizer["Are You Sure You Wish To Delete The {0} Page?", context.Name]" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeletePage(context))" ResourceKey="DeletePage" /></td>
+            <td><ActionDialog Header="Delete Page" Message="@string.Format(Localizer["Confirm.Page.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeletePage(context))" ResourceKey="DeletePage" /></td>
             <td>@(new string('-', context.Level * 2))@(context.Name)</td>
         </Row>
     </Pager>
@@ -30,7 +31,7 @@
         try
         {
             page.IsDeleted = true;
-            
+
             await PageService.UpdatePageAsync(page);
             await logger.LogInformation("Page Deleted {Page}", page);
             NavigationManager.NavigateTo(NavigateUrl("admin/pages"));
@@ -38,7 +39,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Deleting Page {Page} {Error}", page, ex.Message);
-            AddModuleMessage(Localizer["Error Deleting Page"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Page.Delete"], MessageType.Error);
         }
     }
 }

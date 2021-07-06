@@ -2,17 +2,21 @@
 @namespace Oqtane.Modules.HtmlText
 @inherits ModuleBase
 @inject IHtmlTextService HtmlTextService
+@inject IStringLocalizer<Edit> Localizer
 
 @((MarkupString)content)
 
 @if (PageState.EditMode)
 {
-    <br /><ActionLink Action="Edit" EditMode="true" ResourceKey="Edit" /><br /><br />
+    <br />
+    <ActionLink Action="Edit" EditMode="true" ResourceKey="Edit" />
+    <br />
+    <br />
 }
 
 @code {
     public override List<Resource> Resources => new List<Resource>()
-    {
+{
         new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" }
     };
 

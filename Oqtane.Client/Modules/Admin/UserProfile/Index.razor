@@ -7,6 +7,7 @@
 @inject INotificationService NotificationService
 @inject IFileService FileService
 @inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (PageState.User != null && photo != null)
 {
@@ -22,56 +23,56 @@ else
         {
             <table class="table table-borderless">
                 <tr>
-                    <td>
-                        <label for="Name" class="control-label">@Localizer["Username:"] </label>
+                    <td width="30%">
+                        <Label For="username" HelpText="Your username. Note that this field can not be modified." ResourceKey="Username"></Label>
                     </td>
                     <td>
-                        <input class="form-control" @bind="@username" readonly />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label for="Name" class="control-label">@Localizer["Password:"] </label>
-                    </td>
-                    <td>
-                        <input type="password" class="form-control" @bind="@password" autocomplete="new-password" />
+                        <input id="username" class="form-control" @bind="@username" readonly />
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <label for="Name" class="control-label">@Localizer["Confirm Password:"] </label>
+                        <Label For="password" HelpText="If you wish to change your password you can enter it here. Please choose a sufficiently secure password." ResourceKey="Password"></Label>
                     </td>
                     <td>
-                        <input type="password" class="form-control" @bind="@confirm" autocomplete="new-password" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label for="Name" class="control-label">@Localizer["Email:"] </label>
-                    </td>
-                    <td>
-                        <input class="form-control" @bind="@email" />
+                        <input id ="password" type="password" class="form-control" @bind="@password" autocomplete="new-password" />
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <label for="Name" class="control-label">@Localizer["Full Name:"] </label>
+                        <Label For="confirm" HelpText="If you are changing your password you must enter it again to confirm it matches" ResourceKey="Confirm"></Label>
                     </td>
                     <td>
-                        <input class="form-control" @bind="@displayname" />
+                        <input id="confirm" type="password" class="form-control" @bind="@confirm" autocomplete="new-password" />
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <label for="Name" class="control-label">@Localizer["Photo:"] </label>
+                        <Label For="email" HelpText="Your email address where you wish to receive notifications" ResourceKey="Email"></Label>
+                    </td>
+                    <td>
+                        <input id="email" class="form-control" @bind="@email" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="displayname" HelpText="Your full name" ResourceKey="DisplayName"></Label>
+                    </td>
+                    <td>
+                        <input id="displayname" class="form-control" @bind="@displayname" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Label For="@photofileid.ToString()" HelpText="A photo of yourself" ResourceKey="Photo"></Label>
                     </td>
                     <td>
                         <FileManager FileId="@photofileid" @ref="filemanager" />
                     </td>
                 </tr>
             </table>
-            <button type="button" class="btn btn-primary" @onclick="Save">@Localizer["Save"]</button>
-            <button type="button" class="btn btn-secondary" @onclick="Cancel">@Localizer["Cancel"]</button>
+            <button type="button" class="btn btn-success" @onclick="Save">@SharedLocalizer["Save"]</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
         }
     </TabPanel>
     <TabPanel Name="Profile" ResourceKey="Profile">
@@ -93,13 +94,13 @@ else
                             category = p.Category;
                         }
                         <tr>
-                            <td>
+                            <td width="30%">
                                 <Label For="@p.Name" HelpText="@p.Description">@p.Title</Label>
                             </td>
                             <td>
                                 @if (!string.IsNullOrEmpty(p.Options))
                                 {
-                                    <select id="@p.Name" class="form-control" @onchange="@(e => ProfileChanged(e, p.Name))">
+                                    <select id="@p.Name" class="form-select" @onchange="@(e => ProfileChanged(e, p.Name))">
                                         @foreach (var option in p.Options.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                                         {
                                             @if (GetProfileValue(p.Name, "") == option || (GetProfileValue(p.Name, "") == "" && p.DefaultValue == option))
@@ -129,8 +130,8 @@ else
                     }
                 }
             </table>
-            <button type="button" class="btn btn-primary" @onclick="Save">@Localizer["Save"]</button>
-            <button type="button" class="btn btn-secondary" @onclick="Cancel">@Localizer["Cancel"]</button>
+            <button type="button" class="btn btn-success" @onclick="Save">@SharedLocalizer["Save"]</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
         }
     </TabPanel>
     <TabPanel Name="Notifications" ResourceKey="Notifications">
@@ -205,9 +206,9 @@ else
                 </Pager>
             }
             <br /><hr />
-            <select class="form-control" @onchange="(e => FilterChanged(e))">
+            <select class="form-select" @onchange="(e => FilterChanged(e))">
                 <option value="to">@Localizer["Inbox"]</option>
-                <option value="from">@Localizer["Sent Items"]</option>
+                <option value="from">@Localizer["Items.Sent"]</option>
             </select>
         }
     </TabPanel>
@@ -258,13 +259,13 @@ else
             }
             else
             {
-                AddModuleMessage(Localizer["Current User Is Not Logged In"], MessageType.Warning);
+                AddModuleMessage(Localizer["Message.User.NoLogIn"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading User Profile {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error Loading User Profile"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Profile.Load"], MessageType.Error);
         }
     }
 
@@ -304,18 +305,18 @@ else
                 }
                 else
                 {
-                    AddModuleMessage(Localizer["Passwords Entered Do Not Match"], MessageType.Warning);
+                    AddModuleMessage(Localizer["Message.Password.Invalid"], MessageType.Warning);
                 }
             }
             else
             {
-                AddModuleMessage(Localizer["You Must Provide A Username and Email Address As Well As All Required Profile Information"], MessageType.Warning);
+                AddModuleMessage(Localizer["Message.Required.ProfileInfo"], MessageType.Warning);
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving User Profile {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error Saving User Profile"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Profile.Save"], MessageType.Error);
         }
     }
 

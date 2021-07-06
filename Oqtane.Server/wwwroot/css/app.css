@@ -116,6 +116,7 @@ app {
     color: gray;
     height: 1px;
     background-color: gray;
+    margin: 0.5rem;
 }
 
 .app-link-unstyled, .app-link-unstyled:visited, .app-link-unstyled:hover, .app-link-unstyled:active, .app-link-unstyled:focus, .app-link-unstyled:active:hover {
@@ -185,7 +186,7 @@ app {
     .app-tooltip::after {
         background: #3E474F;
         border-radius: .25em;
-        bottom: 180%;
+        bottom: 140%;
         color: #EDEFF0;
         content: attr(data-tip);
         margin-left: -8.75em;

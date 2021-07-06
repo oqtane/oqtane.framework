@@ -5,6 +5,7 @@
 @inject IFileService FileService
 @inject IFolderService FolderService
 @inject IStringLocalizer<Add> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <TabStrip>
     <TabPanel Name="Upload" Heading="Upload Files" ResourceKey="UploadFiles">
@@ -18,7 +19,7 @@
                 </td>
             </tr>
         </table>
-        <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+        <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
     </TabPanel>
     <TabPanel Name="Download" Heading="Download Files" ResourceKey="DownloadFiles">
         @if (_folders != null)
@@ -37,8 +38,8 @@
                         <Label For="folder" HelpText="Select the folder to save the file in" ResourceKey="Folder">Folder: </Label>
                     </td>
                     <td>
-                        <select id="folder" class="form-control" @bind="@_folderId">
-                            <option value="-1">&lt;@Localizer["Select Folder"]&gt;</option>
+                        <select id="folder" class="form-select" @bind="@_folderId">
+                            <option value="-1">&lt;@Localizer["Folder.Select"]&gt;</option>
                             @foreach (Folder folder in _folders)
                             {
                                 <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
@@ -47,8 +48,8 @@
                     </td>
                 </tr>
             </table>
-            <button type="button" class="btn btn-success" @onclick="Download">@Localizer["Download"]</button>
-            <NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+            <button type="button" class="btn btn-success" @onclick="Download">@SharedLocalizer["Download"]</button>
+            <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
         }
     </TabPanel>
 </TabStrip>
@@ -74,7 +75,7 @@
     {
         if (url == string.Empty || _folderId == -1)
         {
-            AddModuleMessage(Localizer["You Must Enter A Url And Select A Folder"], MessageType.Warning);
+            AddModuleMessage(Localizer["Message.Required.UrlFolder"], MessageType.Warning);
             return;
         }
 
@@ -83,13 +84,13 @@
         if (!Constants.UploadableFiles.Split(',')
                 .Contains(Path.GetExtension(filename).ToLower().Replace(".", "")))
         {
-            AddModuleMessage(Localizer["File Could Not Be Downloaded From Url Due To Its File Extension"], MessageType.Warning);
+            AddModuleMessage(Localizer["Message.Download.InvalidExtension"], MessageType.Warning);
             return;
         }
 
         if (!filename.IsPathOrFileValid())
         {
-            AddModuleMessage(Localizer["You Must Enter A Url With A Valid File Name"], MessageType.Warning);
+            AddModuleMessage(Localizer["Message.Required.UrlName"], MessageType.Warning);
             return;
         }
 
@@ -97,12 +98,12 @@
         {
             await FileService.UploadFileAsync(url, _folderId);
             await logger.LogInformation("File Downloaded Successfully From Url {Url}", url);
-            AddModuleMessage(Localizer["File Downloaded Successfully From Url"], MessageType.Success);
+            AddModuleMessage(Localizer["Success.Download.File"], MessageType.Success);
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Downloading File From Url {Url} {Error}", url, ex.Message);
-            AddModuleMessage(Localizer["Error Downloading File From Url. Please Verify That The Url Is Valid."], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Download.InvalidUrl"], MessageType.Error);
         }
     }
 }

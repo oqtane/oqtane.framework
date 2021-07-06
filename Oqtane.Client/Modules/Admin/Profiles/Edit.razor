@@ -3,10 +3,11 @@
 @inject NavigationManager NavigationManager
 @inject IProfileService ProfileService
 @inject IStringLocalizer<Edit> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <table class="table table-borderless">
     <tr>
-        <td>
+        <td width="30%">
             <Label For="name" HelpText="The name of this profile item" ResourceKey="Name">Name: </Label>
         </td>
         <td>
@@ -74,9 +75,9 @@
             <Label For="required" HelpText="Should a user be required to provide a value for this profile item?" ResourceKey="Required">Required? </Label>
         </td>
         <td>
-            <select id="required" class="form-control" @bind="@_isrequired">
-                <option value="True">@Localizer["Yes"]</option>
-                <option value="False">@Localizer["No"]</option>
+            <select id="required" class="form-select" @bind="@_isrequired">
+                <option value="True">@SharedLocalizer["Yes"]</option>
+                <option value="False">@SharedLocalizer["No"]</option>
             </select>
         </td>
     </tr>
@@ -85,15 +86,21 @@
             <Label For="private" HelpText="Should this profile item be visible to all users?" ResourceKey="Private">Private? </Label>
         </td>
         <td>
-            <select id="private" class="form-control" @bind="@_isprivate">
-                <option value="True">@Localizer["Yes"]</option>
-                <option value="False">@Localizer["No"]</option>
+            <select id="private" class="form-select" @bind="@_isprivate">
+                <option value="True">@SharedLocalizer["Yes"]</option>
+                <option value="False">@SharedLocalizer["No"]</option>
             </select>
         </td>
     </tr>
 </table>
-<button type="button" class="btn btn-success" @onclick="SaveProfile">@Localizer["Save"]</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">@Localizer["Cancel"]</NavLink>
+<button type="button" class="btn btn-success" @onclick="SaveProfile">@SharedLocalizer["Save"]</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+@if (PageState.QueryString.ContainsKey("id"))
+{
+    <br />
+    <br />
+    <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
+}
 
 @code {
     private int _profileid = -1;
@@ -107,6 +114,10 @@
     private string _options = string.Empty;
     private string _isrequired = "False";
     private string _isprivate = "False";
+    private string createdby;
+    private DateTime createdon;
+    private string modifiedby;
+    private DateTime modifiedon;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
@@ -132,13 +143,17 @@
                     _options = profile.Options;
                     _isrequired = profile.IsRequired.ToString();
                     _isprivate = profile.IsPrivate.ToString();
+                    createdby = profile.CreatedBy;
+                    createdon = profile.CreatedOn;
+                    modifiedby = profile.ModifiedBy;
+                    modifiedon = profile.ModifiedOn;
                 }
             }
         }
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Profile {ProfileId} {Error}", _profileid, ex.Message);
-            AddModuleMessage(Localizer["Error Loading Profile"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Profile.Load"], MessageType.Error);
         }
     }
 
@@ -182,7 +197,7 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Saving Profile {ProfleId} {Error}", _profileid, ex.Message);
-            AddModuleMessage(Localizer["Error Saving Profile"], MessageType.Error);
+            AddModuleMessage(Localizer["Error.Profile.Save"], MessageType.Error);
         }
     }
 }
