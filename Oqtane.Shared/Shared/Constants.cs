@@ -72,7 +72,7 @@ namespace Oqtane.Shared {
         };
         public static readonly string[] InvalidFileNameEndingChars = { ".", " " };
 
-        public static readonly string SatelliteAssemblyExtension = ".resources.dll";
+        public static readonly string SatelliteAssemblyExtension = "*.resources.dll";
 
         public static readonly string DefaultCulture = "en";
 
