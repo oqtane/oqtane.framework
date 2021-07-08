@@ -291,7 +291,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 var assembliesFolder = new DirectoryInfo(Path.Combine(assemblyPath, culture));
                 if (assembliesFolder.Exists)
                 {
-                    foreach (var assemblyFile in assembliesFolder.EnumerateFiles(Constants.SatelliteAssemblyExtension))
+                    foreach (var assemblyFile in assembliesFolder.EnumerateFiles($"*{Constants.SatelliteAssemblyExtension}"))
                     {
                         AssemblyName assemblyName;
                         try
