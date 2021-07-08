@@ -20,7 +20,7 @@ namespace Oqtane.Updater
             //Array.Resize(ref args, 2);
             //args[0] = @"C:\yourpath\oqtane.framework\Oqtane.Server";
             //args[1] = @"C:\yourpath\oqtane.framework\Oqtane.Server\wwwroot";
-            
+
             if (args.Length == 2)
             {
                 string contentrootfolder = args[0];
@@ -51,7 +51,10 @@ namespace Oqtane.Updater
                         {
                             foreach (ZipArchiveEntry entry in archive.Entries)
                             {
-                                files.Add(Path.Combine(contentrootfolder, entry.FullName));
+                                if (!string.IsNullOrEmpty(entry.Name))
+                                {
+                                    files.Add(Path.Combine(contentrootfolder, entry.FullName));
+                                }
                             }
                         }
 
@@ -108,12 +111,15 @@ namespace Oqtane.Updater
                                     {
                                         foreach (ZipArchiveEntry entry in archive.Entries)
                                         {
-                                            string filename = Path.Combine(contentrootfolder, entry.FullName);
-                                            if (!Directory.Exists(Path.GetDirectoryName(filename)))
+                                            if (!string.IsNullOrEmpty(entry.Name))
                                             {
-                                                Directory.CreateDirectory(Path.GetDirectoryName(filename));
+                                                string filename = Path.Combine(contentrootfolder, entry.FullName);
+                                                if (!Directory.Exists(Path.GetDirectoryName(filename)))
+                                                {
+                                                    Directory.CreateDirectory(Path.GetDirectoryName(filename));
+                                                }
+                                                entry.ExtractToFile(filename, true);
                                             }
-                                            entry.ExtractToFile(filename, true);
                                         }
                                     }
                                 }
@@ -138,14 +144,11 @@ namespace Oqtane.Updater
                                         // restore on failure
                                         foreach (string file in files)
                                         {
+                                            File.Delete(file);
                                             string filename = Path.Combine(backupfolder, file.Replace(contentrootfolder + Path.DirectorySeparatorChar, ""));
                                             if (File.Exists(filename))
                                             {
                                                 File.Copy(filename, file);
-                                            }
-                                            else
-                                            {
-                                                File.Delete(file);
                                             }
                                         }
                                         // clean up backup
@@ -191,7 +194,12 @@ namespace Oqtane.Updater
 
         private static bool CanAccessFiles(List<string> files)
         {
-            // ensure files are not locked by another process - the shutdownTimeLimit defines the duration for app shutdown
+            // ensure files are not locked by another process
+            // the IIS ShutdownTimeLimit defines the duration for app shutdown (default is 90 seconds)
+            // websockets can delay application shutdown (ie. Blazor Server)
+            int retries = 60;
+            int sleep = 2;
+
             bool canAccess = true;
             FileStream stream = null;
             int i = 0;
@@ -200,8 +208,8 @@ namespace Oqtane.Updater
                 string filepath = files[i];
                 int attempts = 0;
                 bool locked = true;
-                // try up to 30 times
-                while (attempts < 30 && locked)
+
+                while (attempts < retries && locked)
                 {
                     try
                     {
@@ -217,7 +225,7 @@ namespace Oqtane.Updater
                     }
                     catch // file is locked by another process
                     {
-                        Thread.Sleep(1000); // wait 1 second
+                        Thread.Sleep(sleep * 1000); // wait
                     }
                     finally
                     {
@@ -228,6 +236,7 @@ namespace Oqtane.Updater
                 if (locked)
                 {
                     canAccess = false;
+                    Console.WriteLine("File Locked: " + filepath);
                 }
                 i += 1;
             }

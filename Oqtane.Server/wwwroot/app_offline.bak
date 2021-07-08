@@ -3,15 +3,26 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width">
-    <title>Oqtane</title>
+    <title>Upgrade Framework</title>
     <base href="/" />
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="http://www.oqtane.net/css/app.css">
 </head>
-<body>
+<body onload="forceWait()">
     <div>
-	<br /><br />
-    <h1 align="center">Please Wait... Upgrade In Progress....</h1>
+	    <br /><br />
+        <h1 align="center">Please Wait... Upgrade In Progress...</h1>
+        <p align="center">(this process can take a few minutes... please be patient)</p>
     </div>
+
+    <div class="app-progress-indicator"></div>
+
+    <script>
+        function forceWait() {
+            setInterval(function () {
+                window.location.href = "/";
+            }, 120 * 1000);
+        }
+    </script>
 </body>
 </html>
 
