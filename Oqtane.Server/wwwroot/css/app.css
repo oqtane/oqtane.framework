@@ -152,7 +152,7 @@ app {
 
     .app-tooltip::before,
     .app-tooltip::after {
-        left: 50%;
+        left: 25%;
         opacity: 0;
         position: absolute;
         z-index: -100;
