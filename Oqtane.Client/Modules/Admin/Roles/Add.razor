@@ -6,35 +6,28 @@
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
-    <table class="table table-borderless">
-        <tr>
-            <td width="30%">
-                <Label For="name" HelpText="Name Of The Role" ResourceKey="Name">Name:</Label>
-            </td>
-            <td>
-                <input id="name" class="form-control" @bind="@_name" maxlength="256" required />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="description" HelpText="A Short Description Of The Role Which Describes Its Purpose" ResourceKey="Description">Description:</Label>
-            </td>
-            <td>
-                <textarea id="description" class="form-control" @bind="@_description" rows="5" maxlength="256" required></textarea>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="isautoassigned" HelpText="Indicates Whether Or Not New Users Are Automatically Assigned To This Role" ResourceKey="AutoAssigned">Auto Assigned?</Label>
-            </td>
-            <td>
-                <select id="isautoassigned" class="form-select" @bind="@_isautoassigned">
-                    <option value="True">@SharedLocalizer["Yes"]</option>
-                    <option value="False">@SharedLocalizer["No"]</option>
-                </select>
-            </td>
-        </tr>
-    </table>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="name" HelpText="Name Of The Role" ResourceKey="Name">Name:</Label>
+        <div class="col-sm-9">
+            <input id="name" class="form-control" @bind="@_name" maxlength="256" required />
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="description" HelpText="A Short Description Of The Role Which Describes Its Purpose" ResourceKey="Description">Description:</Label>
+        <div class="col-sm-9">
+            <textarea id="description" class="form-control" @bind="@_description" rows="5" maxlength="256" required></textarea>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="isautoassigned" HelpText="Indicates Whether Or Not New Users Are Automatically Assigned To This Role" ResourceKey="AutoAssigned">Auto Assigned?</Label>
+        <div class="col-sm-9">
+            <select id="isautoassigned" class="form-select" @bind="@_isautoassigned">
+                <option value="True">@SharedLocalizer["Yes"]</option>
+                <option value="False">@SharedLocalizer["No"]</option>
+            </select>
+        </div>
+    </div>
+    <br /><br />
     <button type="button" class="btn btn-success" @onclick="SaveRole">@SharedLocalizer["Save"]</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 </form>
