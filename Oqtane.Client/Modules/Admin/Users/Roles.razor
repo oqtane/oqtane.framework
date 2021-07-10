@@ -12,20 +12,16 @@
 }
 else
 {
-    <table class="table table-borderless">
-        <tr>
-            <td width="30%">
-                <Label For="user" HelpText="The user you are assigning roles to" ResourceKey="User">User: </Label>
-            </td>
-            <td>
+    <div class="container">
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="user" HelpText="The user you are assigning roles to" ResourceKey="User">User: </Label>
+            <div class="col-sm-9">
                 <input id="user" class="form-control" @bind="@name" disabled />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="role" HelpText="Select a role" ResourceKey="Role">Role: </Label>
-            </td>
-            <td>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="role" HelpText="Select a role" ResourceKey="Role">Role: </Label>
+            <div class="col-sm-9">
                 <select id="role" class="form-select" @bind="@roleid">
                     <option value="-1">&lt;@Localizer["Role.Select"]&gt;</option>
                     @foreach (Role role in roles)
@@ -33,36 +29,34 @@ else
                         <option value="@(role.RoleId)">@role.Name</option>
                     }
                 </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="effectiveDate" HelpText="The date that this role assignment is active" ResourceKey="EffectiveDate">Effective Date: </Label>
-            </td>
-            <td>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="effectiveDate" HelpText="The date that this role assignment is active" ResourceKey="EffectiveDate">Effective Date: </Label>
+            <div class="col-sm-9">
                 <input id="effectiveDate" class="form-control" @bind="@effectivedate" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="expiryDate" HelpText="The date that this role assignment expires" ResourceKey="ExpiryDate">Expiry Date: </Label>
-            </td>
-            <td>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="expiryDate" HelpText="The date that this role assignment expires" ResourceKey="ExpiryDate">Expiry Date: </Label>
+            <div class="col-sm-9">
                 <input id="expiryDate" class="form-control" @bind="@expirydate" />
-            </td>
-        </tr>
-    </table>
+            </div>
+        </div>
+
+    </div>
+    <br />
+    <br />
     <button type="button" class="btn btn-success" @onclick="SaveUserRole">@SharedLocalizer["Save"]</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-
     <hr class="app-rule" />
     <p align="center">
         <Pager Items="@userroles">
             <Header>
-                <th>@Localizer["Roles"]</th>
-                <th>@Localizer["Effective"]</th>
-                <th>@Localizer["Expiry"]</th>
-                <th>&nbsp;</th>
+            <th>@Localizer["Roles"]</th>
+            <th>@Localizer["Effective"]</th>
+            <th>@Localizer["Expiry"]</th>
+            <th>&nbsp;</th>
             </Header>
             <Row>
                 <td>@context.Role.Name</td>

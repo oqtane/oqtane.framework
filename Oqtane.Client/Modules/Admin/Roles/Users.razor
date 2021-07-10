@@ -11,68 +11,63 @@
 }
 else
 {
-    <table class="table table-borderless">
-        <tr>
-            <td width="30%">
-                <Label For="role" HelpText="The role you are assigning users to" ResourceKey="Role">Role: </Label>
-            </td>
-            <td>
-                <input id="role" class="form-control" @bind="@name" disabled />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="user" HelpText="Select a user" ResourceKey="User">User: </Label>
-            </td>
-            <td>
-                <select id="user" class="form-select" @bind="@userid">
-                    <option value="-1">&lt;@Localizer["User.Select"]&gt;</option>
-                    @foreach (UserRole userrole in users)
-                    {
-                        <option value="@(userrole.UserId)">@userrole.User.DisplayName</option>
-                    }
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="effectiveDate" HelpText="The date that this role assignment is active" ResourceKey="EffectiveDate">Effective Date: </Label>
-            </td>
-            <td>
-                <input type="date" id="effectiveDate" class="form-control" @bind="@effectivedate" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="expiryDate" HelpText="The date that this role assignment expires" ResourceKey="ExpiryDate">Expiry Date: </Label>
-            </td>
-            <td>
-                <input type="date" id="expiryDate" class="form-control" @bind="@expirydate" />
-            </td>
-        </tr>
-    </table>
+
+<div class="container">
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="role" HelpText="The role you are assigning users to" ResourceKey="Role">Role: </Label>
+        <div class="col-sm-9">
+            <input id="role" class="form-control" @bind="@name" disabled />
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="user" HelpText="Select a user" ResourceKey="User">User: </Label>
+        <div class="col-sm-9">
+            <select id="user" class="form-select" @bind="@userid">
+                <option value="-1">&lt;@Localizer["User.Select"]&gt;</option>
+                @foreach (UserRole userrole in users)
+                {
+                    <option value="@(userrole.UserId)">@userrole.User.DisplayName</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="effectiveDate" HelpText="The date that this role assignment is active" ResourceKey="EffectiveDate">Effective Date: </Label>
+        <div class="col-sm-9">
+            <input type="date" id="effectiveDate" class="form-control" @bind="@effectivedate" />
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="expiryDate" HelpText="The date that this role assignment expires" ResourceKey="ExpiryDate">Expiry Date: </Label>
+        <div class="col-sm-9">
+            <input type="date" id="expiryDate" class="form-control" @bind="@expirydate" />
+        </div>
+    </div>
+    <br /><br />
     <button type="button" class="btn btn-success" @onclick="SaveUserRole">@SharedLocalizer["Save"]</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-
     <hr class="app-rule" />
-    <p align="center">
-        <Pager Items="@userroles">
-            <Header>
+    <div class="row mb-1 align-items-center">
+        <p align="center">
+            <Pager Items="@userroles">
+                <Header>
                 <th>@Localizer["Users"]</th>
                 <th>@Localizer["Effective"]</th>
                 <th>@Localizer["Expiry"]</th>
                 <th>&nbsp;</th>
-            </Header>
-            <Row>
-                <td>@context.User.DisplayName</td>
-                <td>@context.EffectiveDate</td>
-                <td>@context.ExpiryDate</td>
-                <td>
-                    <ActionDialog Header="Remove User" Message="@string.Format(Localizer["Confirm.User.DeleteRole"], context.User.DisplayName)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteUserRole(context.UserRoleId))" Disabled="@(context.Role.IsAutoAssigned || PageState.User.Username == UserNames.Host)" ResourceKey="DeleteUserRole" />
-                </td>
-            </Row>
-        </Pager>
-    </p>
+                </Header>
+                <Row>
+                    <td>@context.User.DisplayName</td>
+                    <td>@context.EffectiveDate</td>
+                    <td>@context.ExpiryDate</td>
+                    <td>
+                        <ActionDialog Header="Remove User" Message="@string.Format(Localizer["Confirm.User.DeleteRole"], context.User.DisplayName)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteUserRole(context.UserRoleId))" Disabled="@(context.Role.IsAutoAssigned || PageState.User.Username == UserNames.Host)" ResourceKey="DeleteUserRole" />
+                    </td>
+                </Row>
+            </Pager>
+        </p>
+    </div>
+</div>
 }
 
 @code {
