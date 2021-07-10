@@ -10,36 +10,28 @@
 
 @if (string.IsNullOrEmpty(_moduledefinitionname) && _templates != null)
 {
-    <table class="table table-borderless">
-        <tr>
-            <td width="30%">
-                <Label For="owner" HelpText="Enter the name of the organization who is developing this module. It should not contain spaces or punctuation." ResourceKey="OwnerName">Owner Name: </Label>
-            </td>
-            <td>
+    <div class="container">
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="owner" HelpText="Enter the name of the organization who is developing this module. It should not contain spaces or punctuation." ResourceKey="OwnerName">Owner Name: </Label>
+            <div class="col-sm-9">
                 <input id="owner" class="form-control" @bind="@_owner" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="module" HelpText="Enter a name for this module. It should not contain spaces or punctuation." ResourceKey="ModuleName">Module Name: </Label>
-            </td>
-            <td>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="module" HelpText="Enter a name for this module. It should not contain spaces or punctuation." ResourceKey="ModuleName">Module Name: </Label>
+            <div class="col-sm-9">
                 <input id="module" class="form-control" @bind="@_module" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="description" HelpText="Enter a short description for the module" ResourceKey="Description">Description: </Label>
-            </td>
-            <td>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="description" HelpText="Enter a short description for the module" ResourceKey="Description">Description: </Label>
+            <div class="col-sm-9">
                 <textarea id="description" class="form-control" @bind="@_description" rows="3"></textarea>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="template" HelpText="Select a module template. Templates are located in the wwwroot/Modules/Templates folder on the server." ResourceKey="Template">Template: </Label>
-            </td>
-            <td>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="template" HelpText="Select a module template. Templates are located in the wwwroot/Modules/Templates folder on the server." ResourceKey="Template">Template: </Label>
+            <div class="col-sm-9">
                 <select id="template" class="form-select" @onchange="(e => TemplateChanged(e))">
                     <option value="-">&lt;@Localizer["Template.Select"]&gt;</option>
                     @foreach (Template template in _templates)
@@ -47,13 +39,11 @@
                         <option value="@template.Name">@template.Title</option>
                     }
                 </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="reference" HelpText="Select a framework reference version" ResourceKey="FrameworkReference">Framework Reference: </Label>
-            </td>
-            <td>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="reference" HelpText="Select a framework reference version" ResourceKey="FrameworkReference">Framework Reference: </Label>
+            <div class="col-sm-9">
                 <select id="reference" class="form-select" @bind="@_reference">
                     @foreach (string version in _versions)
                     {
@@ -64,20 +54,19 @@
                     }
                     <option value="local">@SharedLocalizer["LocalVersion"]</option>
                 </select>
-            </td>
-        </tr>
+            </div>
+        </div>
         @if (!string.IsNullOrEmpty(_location))
         {
-            <tr>
-                <td>
-                    <Label For="location" HelpText="Location where the module will be created" ResourceKey="Location">Location: </Label>
-                </td>
-                <td>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="location" HelpText="Location where the module will be created" ResourceKey="Location">Location: </Label>
+                <div class="col-sm-9">
                     <input id="module" class="form-control" @bind="@_location" readonly />
-                </td>
-            </tr>
+                </div>
+            </div>
         }
-    </table>
+    </div>
+
     <button type="button" class="btn btn-success" @onclick="CreateModule">@Localizer["Module.Create"]</button>
 }
 else

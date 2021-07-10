@@ -9,45 +9,39 @@
 
 <TabStrip>
     <TabPanel Name="Upload" Heading="Upload Files" ResourceKey="UploadFiles">
-        <table class="table table-borderless">
-            <tr>
-                <td>
-                    <Label For="upload" HelpText="Upload the file you want" ResourceKey="Upload">Upload: </Label>
-                </td>
-                <td>
+        <div class="container">
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="upload" HelpText="Upload the file you want" ResourceKey="Upload">Upload: </Label>
+                <div class="col-sm-9">
                     <FileManager UploadMultiple="true" ShowFiles="false" FolderId="@_folderId" />
-                </td>
-            </tr>
-        </table>
+                </div>
+            </div>
+        </div>
         <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
     </TabPanel>
     <TabPanel Name="Download" Heading="Download Files" ResourceKey="DownloadFiles">
         @if (_folders != null)
         {
-            <table class="table table-borderless">
-                <tr>
-                    <td>
-                        <Label For="url" HelpText="Enter the url of the file you wish to download" ResourceKey="Url">Url: </Label>
-                    </td>
-                    <td>
-                        <input id="url" class="form-control" @bind="@url" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="folder" HelpText="Select the folder to save the file in" ResourceKey="Folder">Folder: </Label>
-                    </td>
-                    <td>
-                        <select id="folder" class="form-select" @bind="@_folderId">
-                            <option value="-1">&lt;@Localizer["Folder.Select"]&gt;</option>
-                            @foreach (Folder folder in _folders)
-                            {
-                                <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
-                            }
-                        </select>
-                    </td>
-                </tr>
-            </table>
+        <div class="container">
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="url" HelpText="Enter the url of the file you wish to download" ResourceKey="Url">Url: </Label>
+                <div class="col-sm-9">
+                    <input id="url" class="form-control" @bind="@url" />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="folder" HelpText="Select the folder to save the file in" ResourceKey="Folder">Folder: </Label>
+                <div class="col-sm-9">
+                    <select id="folder" class="form-select" @bind="@_folderId">
+                        <option value="-1">&lt;@Localizer["Folder.Select"]&gt;</option>
+                        @foreach (Folder folder in _folders)
+                        {
+                            <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
             <button type="button" class="btn btn-success" @onclick="Download">@SharedLocalizer["Download"]</button>
             <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
         }

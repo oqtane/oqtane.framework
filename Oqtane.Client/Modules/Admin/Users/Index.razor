@@ -14,26 +14,25 @@
 }
 else
 {
-    <table class="table table-borderless">
-        <tr>
-            <td>
-                <div><ActionLink Action="Add" Text="Add User" ResourceKey="AddUser" /></div>
-            </td>
-            <td>
+    <div class="container">
+        <div class="row mb-1 align-items-center">
+            <div class="col-sm-4">
+                <ActionLink Action="Add" Text="Add User" ResourceKey="AddUser" />
+            </div>
+            <div class="col-sm-4">
                 <input class="form-control" @bind="@_search" />
-            </td>
-            <td>
+            </div>
+            <div class="col-sm-4">
                 <button class="btn btn-secondary" @onclick="OnSearch">@SharedLocalizer["Search"]</button>
-            </td>
-        </tr>
-    </table>
-
+            </div>
+        </div>
+    </div>
     <Pager Items="@userroles">
         <Header>
-            <th style="width: 1px;">&nbsp;</th>
-            <th style="width: 1px;">&nbsp;</th>
-            <th style="width: 1px;">&nbsp;</th>
-            <th>@SharedLocalizer["Name"]</th>
+        <th style="width: 1px;">&nbsp;</th>
+        <th style="width: 1px;">&nbsp;</th>
+        <th style="width: 1px;">&nbsp;</th>
+        <th>@SharedLocalizer["Name"]</th>
         </Header>
         <Row>
             <td>

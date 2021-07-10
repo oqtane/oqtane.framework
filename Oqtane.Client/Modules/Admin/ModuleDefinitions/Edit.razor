@@ -7,101 +7,79 @@
 
 <TabStrip>
     <TabPanel Name="Definition" ResourceKey="Definition">
-        <table class="table table-borderless">
-            <tr>
-                <td width="30%">
-                    <Label For="name" HelpText="The name of the module" ResourceKey="Name">Name: </Label>
-                </td>
-                <td>
+        <div class="container">
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="name" HelpText="The name of the module" ResourceKey="Name">Name: </Label>
+                <div class="col-sm-9">
                     <input id="name" class="form-control" @bind="@_name" />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="description" HelpText="The description of the module" ResourceKey="Description">Description: </Label>
-                </td>
-                <td>
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="description" HelpText="The description of the module" ResourceKey="Description">Description: </Label>
+                <div class="col-sm-9">
                     <textarea id="description" class="form-control" @bind="@_description" rows="2"></textarea>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="categories" HelpText="Comma delimited list of module categories" ResourceKey="Categories">Categories: </Label>
-                </td>
-                <td>
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="categories" HelpText="Comma delimited list of module categories" ResourceKey="Categories">Categories: </Label>
+                <div class="col-sm-9">
                     <input id="categories" class="form-control" @bind="@_categories" />
-                </td>
-            </tr>
-        </table>
+                </div>
+            </div>
+        </div>
         <Section Name="Information" ResourceKey="Information">
-            <table class="table table-borderless">
-                <tr>
-                    <td width="30%">
-                        <Label For="moduledefinitionname" HelpText="The internal name of the module" ResourceKey="InternalName">Internal Name: </Label>
-                    </td>
-                    <td>
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="moduledefinitionname" HelpText="The internal name of the module" ResourceKey="InternalName">Internal Name: </Label>
+                    <div class="col-sm-9">
                         <input id="moduledefinitionname" class="form-control" @bind="@_moduledefinitionname" disabled />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="version" HelpText="The version of the module" ResourceKey="Version">Version: </Label>
-                    </td>
-                    <td>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="version" HelpText="The version of the module" ResourceKey="Version">Version: </Label>
+                    <div class="col-sm-9">
                         <input id="version" class="form-control" @bind="@_version" disabled />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="owner" HelpText="The owner or creator of the module" ResourceKey="Owner">Owner: </Label>
-                    </td>
-                    <td>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="owner" HelpText="The owner or creator of the module" ResourceKey="Owner">Owner: </Label>
+                    <div class="col-sm-9">
                         <input id="owner" class="form-control" @bind="@_owner" disabled />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="url" HelpText="The reference url of the module" ResourceKey="ReferenceUrl">Reference Url: </Label>
-                    </td>
-                    <td>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="url" HelpText="The reference url of the module" ResourceKey="ReferenceUrl">Reference Url: </Label>
+                    <div class="col-sm-9">
                         <input id="url" class="form-control" @bind="@_url" disabled />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="contact" HelpText="The contact for the module" ResourceKey="Contact">Contact: </Label>
-                    </td>
-                    <td>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="contact" HelpText="The contact for the module" ResourceKey="Contact">Contact: </Label>
+                    <div class="col-sm-9">
                         <input id="contact" class="form-control" @bind="@_contact" disabled />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="license" HelpText="The module license terms" ResourceKey="License">License: </Label>
-                    </td>
-                    <td>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="license" HelpText="The module license terms" ResourceKey="License">License: </Label>
+                    <div class="col-sm-9">
                         <textarea id="license" class="form-control" @bind="@_license" rows="5" disabled></textarea>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="runtimes" HelpText="The Blazor runtimes which this module supports" ResourceKey="Runtimes">Runtimes: </Label>
-                    </td>
-                    <td>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="runtimes" HelpText="The Blazor runtimes which this module supports" ResourceKey="Runtimes">Runtimes: </Label>
+                    <div class="col-sm-9">
                         <input id="runtimes" class="form-control" @bind="@_runtimes" disabled />
-                    </td>
-                </tr>
-            </table>
+                    </div>
+                </div>
+            </div>
         </Section>
     </TabPanel>
     <TabPanel Name="Permissions" ResourceKey="Permissions">
-        <table class="table table-borderless">
-            <tr>
-                <td>
-                    <PermissionGrid EntityName="@EntityNames.ModuleDefinition" PermissionNames="@PermissionNames.Utilize" Permissions="@_permissions" @ref="_permissionGrid" />
-                </td>
-            </tr>
-        </table>
+        <div class="container">
+            <div class="row mb-1 align-items-center">
+                <PermissionGrid EntityName="@EntityNames.ModuleDefinition" PermissionNames="@PermissionNames.Utilize" Permissions="@_permissions" @ref="_permissionGrid" />
+            </div>
+        </div>
     </TabPanel>
 </TabStrip>
 <button type="button" class="btn btn-success" @onclick="SaveModuleDefinition">@SharedLocalizer["Save"]</button>

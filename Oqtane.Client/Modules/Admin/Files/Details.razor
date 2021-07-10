@@ -8,37 +8,31 @@
 
 @if (_folders != null)
 {
-    <table class="table table-borderless">
-        <tr>
-            <td width="30%">
-                <Label for="name" HelpText="The name of the file" ResourceKey="Name">Name: </Label>
-            </td>
-            <td>
-                <input id="name" class="form-control" @bind="@_name" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="parent" HelpText="The folder where the file is located" ResourceKey="Folder">Folder: </Label>
-            </td>
-            <td>
-                <select id="parent" class="form-select" @bind="@_folderId">
-                    @foreach (Folder folder in _folders)
-                    {
-                        <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
-                    }
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label for="size" HelpText="The size of the file (in bytes)" ResourceKey="Size">Size: </Label>
-            </td>
-            <td>
-                <input id="size" class="form-control" @bind="@_size" readonly />
-            </td>
-        </tr>
-    </table>
+<div class="container">
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="name" HelpText="The name of the file" ResourceKey="Name">Name: </Label>
+        <div class="col-sm-9">
+            <input id="name" class="form-control" @bind="@_name" />
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="parent" HelpText="The folder where the file is located" ResourceKey="Folder">Folder: </Label>
+        <div class="col-sm-9">
+            <select id="parent" class="form-select" @bind="@_folderId">
+                @foreach (Folder folder in _folders)
+                {
+                    <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="size" HelpText="The size of the file (in bytes)" ResourceKey="Size">Size: </Label>
+        <div class="col-sm-9">
+            <input id="size" class="form-control" @bind="@_size" readonly />
+        </div>
+    </div>
+</div>
     <button type="button" class="btn btn-success" @onclick="SaveFile">@SharedLocalizer["Save"]</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
     <br />

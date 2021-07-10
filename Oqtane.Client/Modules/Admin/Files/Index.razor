@@ -8,34 +8,34 @@
 
 @if (_files != null)
 {
-    <table class="table table-borderless">
-        <tr>
-            <td>
+    <div class="container">
+        <div class="row mb-1 align-items-center">
+            <div class="col-sm-2">
                 <label class="control-label">@Localizer["Folder"] </label>
-            </td>
-            <td>
+            </div>            
+            <div class="col-sm-6">
                 <select class="form-select" @onchange="(e => FolderChanged(e))">
                     @foreach (Folder folder in _folders)
                     {
                         <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
                     }
                 </select>
-            </td>
-            <td>
+            </div>            
+            <div class="col-sm-4">
                 <ActionLink Action="Edit" Text="Edit Folder" Class="btn btn-secondary" Parameters="@($"id=" + _folderId.ToString())" ResourceKey="EditFolder" />&nbsp;
                 <ActionLink Action="Edit" Text="Add Folder" Class="btn btn-secondary" ResourceKey="AddFolder" />&nbsp;
                 <ActionLink Action="Add" Text="Upload Files" Parameters="@($"id=" + _folderId.ToString())" ResourceKey="UploadFiles" />
-            </td>
-        </tr>
-    </table>
+            </div>
+        </div>
+    </div>
     <Pager Items="@_files">
         <Header>
-            <th style="width: 1px;">&nbsp;</th>
-            <th style="width: 1px;">&nbsp;</th>
-            <th>@SharedLocalizer["Name"]</th>
-            <th>@Localizer["Modified"]</th>
-            <th>@Localizer["Type"]</th>
-            <th>@Localizer["Size"]</th>
+        <th style="width: 1px;">&nbsp;</th>
+        <th style="width: 1px;">&nbsp;</th>
+        <th>@SharedLocalizer["Name"]</th>
+        <th>@Localizer["Modified"]</th>
+        <th>@Localizer["Type"]</th>
+        <th>@Localizer["Size"]</th>
         </Header>
         <Row>
             <td><ActionLink Action="Details" Text="Edit" Parameters="@($"id=" + context.FileId.ToString())" ResourceKey="Details" /></td>
