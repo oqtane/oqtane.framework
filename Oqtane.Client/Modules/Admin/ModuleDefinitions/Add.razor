@@ -10,18 +10,19 @@
 <TabStrip>
     <TabPanel Name="Download" ResourceKey="Download">
         <ModuleMessage Type="MessageType.Info" Message="Download one or more modules from the list below. Once you are ready click Install to complete the installation."></ModuleMessage>
-
-        <table class="table table-borderless" style="margin: auto; width: 50% !important;">
-            <tr>
-                <td>
+        <div class="container">
+            <div class="row mb-1 align-items-center">
+                <div class="col-3"></div>
+                <div class="col-sm-4">
                     <input id="search" class="form-control" placeholder="@SharedLocalizer["Search.Hint"]" @bind="@_search" />
-                </td>
-                <td>
+                </div>
+                <div class="col-sm-2">
                     <button type="button" class="btn btn-primary" @onclick="Search">@SharedLocalizer["Search"]</button>&nbsp;
                     <button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Reset"]</button>
-                </td>
-            </tr>
-        </table>
+                </div>
+                <div class="col-3"></div>
+            </div>
+        </div>
 
         @if (_packages != null)
         {
@@ -50,16 +51,14 @@
         }
     </TabPanel>
     <TabPanel Name="Upload" ResourceKey="Upload">
-        <table class="table table-borderless">
-            <tr>
-                <td>
-                    <Label HelpText="Upload one or more module packages. Once they are uploaded click Install to complete the installation." ResourceKey="Module">Module: </Label>
-                </td>
-                <td>
+        <div class="container">
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" HelpText="Upload one or more module packages. Once they are uploaded click Install to complete the installation." ResourceKey="Module">Module: </Label>
+                <div class="col-sm-9">
                     <FileManager Filter="nupkg" ShowFiles="false" Folder="Packages" UploadMultiple="true" />
-                </td>
-            </tr>
-        </table>
+                </div>
+            </div>
+        </div>
     </TabPanel>
 </TabStrip>
 

@@ -5,94 +5,75 @@
 @inject IStringLocalizer<Edit> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-<table class="table table-borderless">
-    <tr>
-        <td width="30%">
-            <Label For="name" HelpText="The name of this profile item" ResourceKey="Name">Name: </Label>
-        </td>
-        <td>
+<div class="container">
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="name" HelpText="The name of this profile item" ResourceKey="Name">Name: </Label>
+        <div class="col-sm-9">
             <input id="name" class="form-control" @bind="@_name" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="title" HelpText="The title of the profile item to display to the user" ResourceKey="Title">Title: </Label>
-        </td>
-        <td>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="title" HelpText="The title of the profile item to display to the user" ResourceKey="Title">Title: </Label>
+        <div class="col-sm-9">
             <input id="title" class="form-control" @bind="@_title" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="description" HelpText="The help text displayed to the user for this profile item" ResourceKey="Description">Description: </Label>
-        </td>
-        <td>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="description" HelpText="The help text displayed to the user for this profile item" ResourceKey="Description">Description: </Label>
+        <div class="col-sm-9">
             <textarea id="description" class="form-control" @bind="@_description" rows="5"></textarea>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="category" HelpText="The category of this profile item (for grouping)" ResourceKey="Category">Category: </Label>
-        </td>
-        <td>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="category" HelpText="The category of this profile item (for grouping)" ResourceKey="Category">Category: </Label>
+        <div class="col-sm-9">
             <input id="category" class="form-control" @bind="@_category" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="order" HelpText="The index order of where this profile item should be displayed" ResourceKey="Order">Order: </Label>
-        </td>
-        <td>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="order" HelpText="The index order of where this profile item should be displayed" ResourceKey="Order">Order: </Label>
+        <div class="col-sm-9">
             <input id="order" class="form-control" @bind="@_vieworder" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="length" HelpText="The max number of characters this profile item should accept (enter zero for unlimited)" ResourceKey="Length">Length: </Label>
-        </td>
-        <td>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="length" HelpText="The max number of characters this profile item should accept (enter zero for unlimited)" ResourceKey="Length">Length: </Label>
+        <div class="col-sm-9">
             <input id="length" class="form-control" @bind="@_maxlength" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="defaultVal" HelpText="The default value for this profile item" ResourceKey="DefaultValue">Default Value: </Label>
-        </td>
-        <td>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="defaultVal" HelpText="The default value for this profile item" ResourceKey="DefaultValue">Default Value: </Label>
+        <div class="col-sm-9">
             <input id="defaultVal" class="form-control" @bind="@_defaultvalue" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="options" HelpText="A comma delimited list of options the user can select from" ResourceKey="Options">Options: </Label>
-        </td>
-        <td>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="options" HelpText="A comma delimited list of options the user can select from" ResourceKey="Options">Options: </Label>
+        <div class="col-sm-9">
             <input id="options" class="form-control" @bind="@_options" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="required" HelpText="Should a user be required to provide a value for this profile item?" ResourceKey="Required">Required? </Label>
-        </td>
-        <td>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="required" HelpText="Should a user be required to provide a value for this profile item?" ResourceKey="Required">Required? </Label>
+        <div class="col-sm-9">
             <select id="required" class="form-select" @bind="@_isrequired">
                 <option value="True">@SharedLocalizer["Yes"]</option>
                 <option value="False">@SharedLocalizer["No"]</option>
             </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="private" HelpText="Should this profile item be visible to all users?" ResourceKey="Private">Private? </Label>
-        </td>
-        <td>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="private" HelpText="Should this profile item be visible to all users?" ResourceKey="Private">Private? </Label>
+        <div class="col-sm-9">
             <select id="private" class="form-select" @bind="@_isprivate">
                 <option value="True">@SharedLocalizer["Yes"]</option>
                 <option value="False">@SharedLocalizer["No"]</option>
             </select>
-        </td>
-    </tr>
-</table>
+        </div>
+    </div>
+</div>
+<br />
 <button type="button" class="btn btn-success" @onclick="SaveProfile">@SharedLocalizer["Save"]</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 @if (PageState.QueryString.ContainsKey("id"))

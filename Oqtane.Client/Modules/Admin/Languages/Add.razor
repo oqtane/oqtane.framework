@@ -23,50 +23,45 @@ else
             }
             else
             {
-                <table class="table table-borderless">
-                    <tr>
-                        <td width="30%">
-                            <Label For="name" HelpText="Name Of The Language" ResourceKey="Name">Name:</Label>
-                        </td>
-                        <td>
+                <div class="container">
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="name" HelpText="Name Of The Language" ResourceKey="Name">Name:</Label>
+                        <div class="col-sm-9">
                             <select id="_code" class="form-select" @bind="@_code">
                                 @foreach (var culture in _availableCultures)
                                 {
                                     <option value="@culture.Name">@culture.DisplayName</option>
                                 }
                             </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <Label For="default" HelpText="Indicates Whether Or Not This Language Is The Default For The Site" ResourceKey="IsDefault">Default?</Label>
-                        </td>
-                        <td>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="default" HelpText="Indicates Whether Or Not This Language Is The Default For The Site" ResourceKey="IsDefault">Default?</Label>
+                        <div class="col-sm-9">
                             <select id="default" class="form-select" @bind="@_isDefault">
                                 <option value="True">@SharedLocalizer["Yes"]</option>
                                 <option value="False">@SharedLocalizer["No"]</option>
                             </select>
-                        </td>
-                    </tr>
-                </table>
+                        </div>
+                    </div>
+                </div>
                 <button type="button" class="btn btn-success" @onclick="SaveLanguage">@SharedLocalizer["Save"]</button>
             }
             <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
         </TabPanel>
         <TabPanel Name="Download" ResourceKey="Download" Security="SecurityAccessLevel.Host">
             <ModuleMessage Type="MessageType.Info" Message="Download one or more translations from the list below. Once you are ready click Install to complete the installation."></ModuleMessage>
-
-            <table class="table table-borderless" style=" margin: auto; width: 50% !important;">
-                <tr>
-                    <td>
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <div class="col-sm-9">
                         <input id="search" class="form-control" placeholder="@SharedLocalizer["Search.Hint"]" @bind="@_search" />
-                    </td>
-                    <td>
+                    </div>
+                    <div class="col-sm-3">
                         <button type="button" class="btn btn-primary" @onclick="Search">@SharedLocalizer["Search"]</button>&nbsp;
                         <button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Reset"]</button>
-                    </td>
-                </tr>
-            </table>
+                    </div>
+                </div>
+            </div>
 
             @if (_packages != null)
             {
@@ -97,16 +92,14 @@ else
             }
         </TabPanel>
         <TabPanel Name="Upload" ResourceKey="Upload" Security="SecurityAccessLevel.Host">
-            <table class="table table-borderless">
-                <tr>
-                    <td>
-                        <Label HelpText="Upload one or more translations. Once they are uploaded click Install to complete the installation." ResourceKey="Module">Language: </Label>
-                    </td>
-                    <td>
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" HelpText="Upload one or more translations. Once they are uploaded click Install to complete the installation." ResourceKey="Module">Language: </Label>
+                    <div class="col-sm-9">
                         <FileManager Filter="nupkg" ShowFiles="false" Folder="Packages" UploadMultiple="true" />
-                    </td>
-                </tr>
-            </table>
+                    </div>
+                </div>
+            </div>
             <button type="button" class="btn btn-success" @onclick="InstallLanguages">@SharedLocalizer["Install"]</button>
             <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
         </TabPanel>

@@ -16,50 +16,39 @@
         </Authorized>
         <NotAuthorized>
             <ModuleMessage Message="@Localizer["Info.Registration.InvalidEmail"]" Type="MessageType.Info" />
-
-            <table class="table table-borderless">
-                <tr>
-                    <td width="30%">
-                        <Label For="username" HelpText="Your username. Note that this field can not be modified once it is saved." ResourceKey="Username"></Label>
-                    </td>
-                    <td>
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="username" HelpText="Your username. Note that this field can not be modified once it is saved." ResourceKey="Username"></Label>
+                    <div class="col-sm-9">
                         <input id="username" class="form-control" @bind="@_username" readonly />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="password" HelpText="If you wish to change your password you can enter it here. Please choose a sufficiently secure password." ResourceKey="Password"></Label>
-                    </td>
-                    <td>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="password" HelpText="If you wish to change your password you can enter it here. Please choose a sufficiently secure password." ResourceKey="Password"></Label>
+                    <div class="col-sm-9">
                         <input id="password" type="password" class="form-control" @bind="@_password" autocomplete="new-password" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="confirm" HelpText="If you are changing your password you must enter it again to confirm it matches" ResourceKey="Confirm"></Label>
-                    </td>
-                    <td>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="confirm" HelpText="If you are changing your password you must enter it again to confirm it matches" ResourceKey="Confirm"></Label>
+                    <div class="col-sm-9">
                         <input id="confirm" type="password" class="form-control" @bind="@_confirm" autocomplete="new-password" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="email" HelpText="Your email address where you wish to receive notifications" ResourceKey="Email"></Label>
-                    </td>
-                    <td>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="email" HelpText="Your email address where you wish to receive notifications" ResourceKey="Email"></Label>
+                    <div class="col-sm-9">
                         <input id="email" class="form-control" @bind="@_email" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="displayname" HelpText="Your full name" ResourceKey="DisplayName"></Label>
-                    </td>
-                    <td>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="displayname" HelpText="Your full name" ResourceKey="DisplayName"></Label>
+                    <div class="col-sm-9">
                         <input id="displayname" class="form-control" @bind="@_displayname" />
-                    </td>
-                </tr>
-            </table>
-
+                    </div>
+                </div>
+            </div>
+            <br />
             <button type="button" class="btn btn-primary" @onclick="Register">@Localizer["Register"]</button>
             <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
         </NotAuthorized>

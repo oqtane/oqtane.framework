@@ -10,20 +10,16 @@
     <TabPanel Name="Settings" ResourceKey="Settings">
         @if (_themeList != null)
         {
-            <table class="table table-borderless">
-                <tr>
-                    <td width="30%">
-                        <Label For="Name" HelpText="Enter the page name" ResourceKey="Name">Name: </Label>
-                    </td>
-                    <td>
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="Name" HelpText="Enter the page name" ResourceKey="Name">Name: </Label>
+                    <div class="col-sm-9">
                         <input id="Name" class="form-control" @bind="@_name" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="Parent" HelpText="Select the parent for the page in the site hierarchy" ResourceKey="Parent">Parent: </Label>
-                    </td>
-                    <td>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="Parent" HelpText="Select the parent for the page in the site hierarchy" ResourceKey="Parent">Parent: </Label>
+                    <div class="col-sm-9">
                         <select id="Parent" class="form-select" @onchange="(e => ParentChanged(e))">
                             <option value="-1">&lt;@Localizer["SiteRoot"]&gt;</option>
                             @foreach (Page page in _pageList)
@@ -31,13 +27,11 @@
                                 <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
                             }
                         </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="Insert" HelpText="Select the location where you would like the page to be inserted in relation to other pages" ResourceKey="Insert">Insert: </Label>
-                    </td>
-                    <td>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="Insert" HelpText="Select the location where you would like the page to be inserted in relation to other pages" ResourceKey="Insert">Insert: </Label>
+                    <div class="col-sm-9">
                         <select id="Insert" class="form-select" @bind="@_insert">
                             <option value="<<">@Localizer["AtBeginning"]</option>
                             @if (_children != null && _children.Count > 0)
@@ -57,75 +51,62 @@
                                 }
                             </select>
                         }
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="navigation" HelpText="Select whether the page is part of the site navigation or hidden" ResourceKey="Navigation">Navigation? </Label>
-                    </td>
-                    <td>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="navigation" HelpText="Select whether the page is part of the site navigation or hidden" ResourceKey="Navigation">Navigation? </Label>
+                    <div class="col-sm-9">
                         <select id="navigation" class="form-select" @bind="@_isnavigation">
                             <option value="True">@SharedLocalizer["Yes"]</option>
                             <option value="False">@SharedLocalizer["No"]</option>
                         </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="clickable" HelpText="Select whether the link in the site navigation is enabled or disabled" ResourceKey="Clickable">Clickable? </Label>
-                    </td>
-                    <td>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="clickable" HelpText="Select whether the link in the site navigation is enabled or disabled" ResourceKey="Clickable">Clickable? </Label>
+                    <div class="col-sm-9">
                         <select id="clickable" class="form-select" @bind="@_isclickable">
                             <option value="True">@SharedLocalizer["Yes"]</option>
                             <option value="False">@SharedLocalizer["No"]</option>
                         </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="Path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used." ResourceKey="UrlPath">Url Path: </Label>
-                    </td>
-                    <td>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="Path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used." ResourceKey="UrlPath">Url Path: </Label>
+                    <div class="col-sm-9">
                         <input id="Path" class="form-control" @bind="@_path" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="Url" HelpText="Optionally enter a url which this page should redirect to when a user navigates to it" ResourceKey="Redirect">Redirect: </Label>
-                    </td>
-                    <td>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="Url" HelpText="Optionally enter a url which this page should redirect to when a user navigates to it" ResourceKey="Redirect">Redirect: </Label>
+                    <div class="col-sm-9">
                         <input id="Url" class="form-control" @bind="@_url" />
-                    </td>
-                </tr>
-            </table>
+                    </div>
+                </div>
+            </div>
+
             <Section Name="Appearance" ResourceKey="Appearance">
-                <table class="table table-borderless">
-                    <tr>
-                        <td width="30%">
-                            <Label For="Title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used." ResourceKey="Title">Title: </Label>
-                        </td>
-                        <td>
+                <div class="container">
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="Title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used." ResourceKey="Title">Title: </Label>
+                        <div class="col-sm-9">
                             <input id="Title" class="form-control" @bind="@_title" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <Label For="Theme" HelpText="Select the theme for this page" ResourceKey="Theme">Theme: </Label>
-                        </td>
-                        <td>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="Theme" HelpText="Select the theme for this page" ResourceKey="Theme">Theme: </Label>
+                        <div class="col-sm-9">
                             <select id="Theme" class="form-select" value="@_themetype" @onchange="(e => ThemeChanged(e))">
                                 @foreach (var theme in _themes)
                                 {
                                     <option value="@theme.TypeName">@theme.Name</option>
                                 }
                             </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <Label For="defaultContainer" HelpText="Select the default container for the page" ResourceKey="DefaultContainer">Default Container: </Label>
-                        </td>
-                        <td>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="defaultContainer" HelpText="Select the default container for the page" ResourceKey="DefaultContainer">Default Container: </Label>
+                        <div class="col-sm-9">
                             <select id="defaultContainer" class="form-select" @bind="@_containertype">
                                 <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
                                 @foreach (var container in _containers)
@@ -133,28 +114,24 @@
                                     <option value="@container.TypeName">@container.Name</option>
                                 }
                             </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <Label For="Icon" HelpText="Optionally provide an icon class name for this page which will be displayed in the site navigation" ResourceKey="Icon">Icon: </Label>
-                        </td>
-                        <td>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="Icon" HelpText="Optionally provide an icon class name for this page which will be displayed in the site navigation" ResourceKey="Icon">Icon: </Label>
+                        <div class="col-sm-9">
                             <input id="Icon" class="form-control" @bind="@_icon" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <Label For="Personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content" ResourceKey="Personalizable">Personalizable? </Label>
-                        </td>
-                        <td>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="Personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content" ResourceKey="Personalizable">Personalizable? </Label>
+                        <div class="col-sm-9">
                             <select id="Personalizable" class="form-select" @bind="@_ispersonalizable">
                                 <option value="True">@SharedLocalizer["Yes"]</option>
                                 <option value="False">@SharedLocalizer["No"]</option>
                             </select>
-                        </td>
-                    </tr>
-                </table>
+                        </div>
+                    </div>
+                </div>
             </Section>
         }
     </TabPanel>

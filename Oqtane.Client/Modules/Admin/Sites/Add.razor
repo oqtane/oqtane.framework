@@ -19,28 +19,22 @@
 }
 else
 {
-    <table class="table table-borderless">
-        <tr>
-            <td width="30%">
-                <Label For="name" HelpText="Enter the name of the site" ResourceKey="Name">Site Name: </Label>
-            </td>
-            <td>
+    <div class="container">
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="name" HelpText="Enter the name of the site" ResourceKey="Name">Site Name: </Label>
+            <div class="col-sm-9">
                 <input id="name" class="form-control" @bind="@_name" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="alias" HelpText="Enter the aliases for the site. An alias can be a domain name (www.site.com) or a virtual folder (ie. www.site.com/folder). If a site has multiple aliases they can be separated by commas." ResourceKey="Aliases">Aliases: </Label>
-            </td>
-            <td>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="alias" HelpText="Enter the aliases for the site. An alias can be a domain name (www.site.com) or a virtual folder (ie. www.site.com/folder). If a site has multiple aliases they can be separated by commas." ResourceKey="Aliases">Aliases: </Label>
+            <div class="col-sm-9">
                 <textarea id="alias" class="form-control" @bind="@_urls" rows="3"></textarea>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="defaultTheme" HelpText="Select the default theme for the website" ResourceKey="DefaultTheme">Default Theme: </Label>
-            </td>
-            <td>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="defaultTheme" HelpText="Select the default theme for the website" ResourceKey="DefaultTheme">Default Theme: </Label>
+            <div class="col-sm-9">
                 <select id="defaultTheme" class="form-select" @onchange="(e => ThemeChanged(e))">
                     <option value="-">&lt;@Localizer["Theme.Select"]&gt;</option>
                     @foreach (var theme in _themes)
@@ -48,13 +42,11 @@ else
                         <option value="@theme.TypeName">@theme.Name</option>
                     }
                 </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="defaultContainer" HelpText="Select the default container for the site" ResourceKey="DefaultContainer">Default Container: </Label>
-            </td>
-            <td>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="defaultContainer" HelpText="Select the default container for the site" ResourceKey="DefaultContainer">Default Container: </Label>
+            <div class="col-sm-9">
                 <select id="defaultContainer" class="form-select" @bind="@_containertype">
                     <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
                     @foreach (var container in _containers)
@@ -62,13 +54,11 @@ else
                         <option value="@container.TypeName">@container.Name</option>
                     }
                 </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="adminContainer" HelpText="Select the admin container for the site" ResourceKey="AdminContainer">Admin Container: </Label>
-            </td>
-            <td>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="adminContainer" HelpText="Select the admin container for the site" ResourceKey="AdminContainer">Admin Container: </Label>
+            <div class="col-sm-9">
                 <select id="adminContainer" class="form-select" @bind="@_admincontainertype">
                     <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
                     <option value="">&lt;@Localizer["DefaultContainer.Admin"]&gt;</option>
@@ -77,13 +67,11 @@ else
                         <option value="@container.TypeName">@container.Name</option>
                     }
                 </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="siteTemplate" HelpText="Select the site template" ResourceKey="SiteTemplate">Site Template: </Label>
-            </td>
-            <td>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="siteTemplate" HelpText="Select the site template" ResourceKey="SiteTemplate">Site Template: </Label>
+            <div class="col-sm-9">
                 <select id="siteTemplate" class="form-select" @bind="@_sitetemplatetype">
                     <option value="-">&lt;@Localizer["SiteTemplate.Select"]&gt;</option>
                     @foreach (SiteTemplate siteTemplate in _siteTemplates)
@@ -91,13 +79,11 @@ else
                         <option value="@siteTemplate.TypeName">@siteTemplate.Name</option>
                     }
                 </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="tenant" HelpText="Select the tenant for the site" ResourceKey="Tenant">Tenant: </Label>
-            </td>
-            <td>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="tenant" HelpText="Select the tenant for the site" ResourceKey="Tenant">Tenant: </Label>
+            <div class="col-sm-9">
                 <select id="tenant" class="form-select" @onchange="(e => TenantChanged(e))">
                     <option value="-">&lt;@Localizer["Tenant.Select"]&gt;</option>
                     <option value="+">&lt;@Localizer["Tenant.Add"]&gt;</option>
@@ -106,28 +92,22 @@ else
                         <option value="@tenant.TenantId">@tenant.Name</option>
                     }
                 </select>
-            </td>
-        </tr>
+            </div>
+        </div>
         @if (_tenantid == "+")
         {
-            <tr>
-                <td colspan="2">
-                    <hr class="app-rule" />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="name" HelpText="Enter the name for the tenant" ResourceKey="TenantName">Tenant Name: </Label>
-                </td>
-                <td>
+            <div class="row mb-1 align-items-center">
+                <hr class="app-rule" />
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="name" HelpText="Enter the name for the tenant" ResourceKey="TenantName">Tenant Name: </Label>
+                <div class="col-sm-9">
                     <input id="name" class="form-control" @bind="@_tenantName" />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="databaseType" HelpText="Select the database type for the tenant" ResourceKey="DatabaseType">Database Type: </Label>
-                </td>
-                <td>
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="databaseType" HelpText="Select the database type for the tenant" ResourceKey="DatabaseType">Database Type: </Label>
+                <div class="col-sm-9">
                     <select id="databaseType" class="form-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))">
                         @foreach (var database in _databases)
                         {
@@ -141,30 +121,28 @@ else
                             }
                         }
                     </select>
-                </td>
-            </tr>
+                </div>
+            </div>
             if (_databaseConfigType != null)
             {
                 @DatabaseConfigComponent;
             }
-            <tr>
-                <td>
-                    <Label For="hostUsername" HelpText="Enter the username of the host for this site" ResourceKey="HostUsername">Host Username:</Label>
-                </td>
-                <td>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="hostUsername" HelpText="Enter the username of the host for this site" ResourceKey="HostUsername">Host Username:</Label>
+                <div class="col-sm-9">
                     <input id="hostUsername" class="form-control" @bind="@_hostUserName" readonly />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="hostPassword" HelpText="Enter the password for the host of this site" ResourceKey="HostPassword">Host Password:</Label>
-                </td>
-                <td>
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="hostPassword" HelpText="Enter the password for the host of this site" ResourceKey="HostPassword">Host Password:</Label>
+                <div class="col-sm-9">
                     <input id="hostPassword" type="password" class="form-control" @bind="@_hostpassword" />
-                </td>
-            </tr>
+                </div>
+            </div>
         }
-    </table>
+    </div>
+    <br />
+    <br />
     <button type="button" class="btn btn-success" @onclick="SaveSite">@SharedLocalizer["Save"]</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 }

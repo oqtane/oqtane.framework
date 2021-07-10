@@ -10,9 +10,9 @@
 }
 else
 {
-    <table class="table table-borderless">
-        <tr>
-            <td>
+    <div class="container g-0">
+        <div class="row mb-1 align-items-center">
+            <div class="col-sm-4">
                 <Label For="level" HelpText="Select the log level for event log items" ResourceKey="Level">Level: </Label><br /><br />
                 <select id="level" class="form-select" @onchange="(e => LevelChanged(e))">
                     <option value="-">&lt;@Localizer["AllLevels"]&gt;</option>
@@ -23,8 +23,8 @@ else
                     <option value="Error">@Localizer["Error"]</option>
                     <option value="Critical">@Localizer["Critical"]</option>
                 </select>
-            </td>
-            <td>
+            </div>            
+            <div class="col-sm-4">
                 <Label For="function" HelpText="Select the function for event log items" ResourceKey="Function">Function: </Label><br /><br />
                 <select id="function" class="form-select" @onchange="(e => FunctionChanged(e))">
                     <option value="-">&lt;@Localizer["AllFunctions"]&gt;</option>
@@ -35,27 +35,27 @@ else
                     <option value="Security">@Localizer["Security"]</option>
                     <option value="Other">@Localizer["Other"]</option>
                 </select>
-            </td>
-            <td>
+            </div>            
+            <div class="col-sm-4">
                 <Label For="rows" HelpText="Select the maximum number of event log items to review. Please note that if you choose more than 10 items the information will be split into pages." ResourceKey="Rows">Maximum Items: </Label><br /><br />
                 <select id="rows" class="form-select" @onchange="(e => RowsChanged(e))">
                     <option value="10">10</option>
                     <option value="50">50</option>
                     <option value="100">100</option>
                 </select>
-            </td>
-        </tr>
-    </table>
+            </div>
+        </div>
+    </div>
 
     @if (_logs.Any())
     {
         <Pager Items="@_logs">
             <Header>
-                <th style="width: 1px;">&nbsp;</th>
-                <th>@Localizer["Date"]</th>
-                <th>@Localizer["Level"]</th>
-                <th>@Localizer["Feature"]</th>
-                <th>@Localizer["Function"]</th>
+            <th style="width: 1px;">&nbsp;</th>
+            <th>@Localizer["Date"]</th>
+            <th>@Localizer["Level"]</th>
+            <th>@Localizer["Feature"]</th>
+            <th>@Localizer["Function"]</th>
             </Header>
             <Row>
                 <td class="@GetClass(context.Function)"><ActionLink Action="Detail" Parameters="@($"id=" + context.LogId.ToString())" ResourceKey="LogDetails" /></td>

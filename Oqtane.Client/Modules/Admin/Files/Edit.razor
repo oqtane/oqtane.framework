@@ -8,57 +8,53 @@
 
 @if (_folders != null)
 {
-    <table class="table table-borderless">
-        <tr>
-            <td width="30%">
-                <Label For="parent" HelpText="Select the parent folder" ResourceKey="Parent">Parent: </Label>
-            </td>
-            <td>
-                <select id="parent" class="form-select" @bind="@_parentId">
-                    @if (PageState.QueryString.ContainsKey("id"))
-                    {
-                        <option value="-1">&lt;@Localizer["NoParent"]&gt;</option>
-                    }
-                    @foreach (Folder folder in _folders)
-                    {
-                        <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
-                    }
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label for="name" HelpText="Enter the folder name" ResourceKey="Name">Name: </Label>
-            </td>
-            <td>
-                <input id="name" class="form-control" @bind="@_name" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label for="type" HelpText="Select the folder type. Private folders are only accessible by authorized users. Public folders can be accessed by all users" ResourceKey="Name">Type: </Label>
-            </td>
-            <td>
+<div class="container">
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="parent" HelpText="Select the parent folder" ResourceKey="Parent">Parent: </Label>
+        <div class="col-sm-9">
+            <select id="parent" class="form-select" @bind="@_parentId">
                 @if (PageState.QueryString.ContainsKey("id"))
                 {
-                    <input id="type" class="form-control" readonly @bind="@_type" />
+                    <option value="-1">&lt;@Localizer["NoParent"]&gt;</option>
                 }
-                else
+                @foreach (Folder folder in _folders)
                 {
-                    <select id="type" class="form-select" @bind="@_type">
-                        <option value="@FolderTypes.Private">@Localizer[FolderTypes.Private]</option>
-                        <option value="@FolderTypes.Public">@Localizer[FolderTypes.Public]</option>
-                    </select>
+                    <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
                 }
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2" align="center">
-                <Label For="permissions" HelpText="Select the permissions you want for the folder" ResourceKey="Permissions">Permissions: </Label>
-                <PermissionGrid EntityName="@EntityNames.Folder" PermissionNames="@(PermissionNames.Browse + "," + PermissionNames.View + "," + PermissionNames.Edit)" Permissions="@_permissions" @ref="_permissionGrid" />
-            </td>
-        </tr>
-    </table>
+            </select>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="name" HelpText="Enter the folder name" ResourceKey="Name">Name: </Label>
+        <div class="col-sm-9">
+            <input id="name" class="form-control" @bind="@_name" />
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="type" HelpText="Select the folder type. Private folders are only accessible by authorized users. Public folders can be accessed by all users" ResourceKey="Name">Type: </Label>
+        <div class="col-sm-9">
+            @if (PageState.QueryString.ContainsKey("id"))
+            {
+                <input id="type" class="form-control" readonly @bind="@_type" />
+            }
+            else
+            {
+                <select id="type" class="form-select" @bind="@_type">
+                    <option value="@FolderTypes.Private">@Localizer[FolderTypes.Private]</option>
+                    <option value="@FolderTypes.Public">@Localizer[FolderTypes.Public]</option>
+                </select>
+            }
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <div class="col-sm-12">
+            <Label Class="col-sm-3" For="permissions" HelpText="Select the permissions you want for the folder" ResourceKey="Permissions">Permissions: </Label>
+            <PermissionGrid EntityName="@EntityNames.Folder" PermissionNames="@(PermissionNames.Browse + "," + PermissionNames.View + "," + PermissionNames.Edit)" Permissions="@_permissions" @ref="_permissionGrid" />
+
+        </div>
+    </div>
+</div>
+
     @if (!_isSystem)
     {
         <button type="button" class="btn btn-success" @onclick="SaveFolder">@SharedLocalizer["Save"]</button>
