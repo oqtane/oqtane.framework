@@ -8,32 +8,27 @@
 
 @if (PageState.User != null)
 {
-    <table class="table table-borderless">
-        <tr>
-            <td width="30%">
-                <Label For="to" HelpText="Enter the username you wish to send a message to" ResourceKey="To">To: </Label>
-            </td>
-            <td>
-                <input id="to" class="form-control" @bind="@username" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="subject" HelpText="Enter the subject of the message" ResourceKey="Subject">Subject: </Label>
-            </td>
-            <td>
-                <input id="subject" class="form-control" @bind="@subject" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="message" HelpText="Enter the message" ResourceKey="Message">Message: </Label>
-            </td>
-            <td>
-                <textarea id="message" class="form-control" @bind="@body" rows="5" />
-            </td>
-        </tr>
-    </table>
+<div class="container">
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="to" HelpText="Enter the username you wish to send a message to" ResourceKey="To">To: </Label>
+        <div class="col-sm-9">
+            <input id="to" class="form-control" @bind="@username" />
+        </div> >
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="subject" HelpText="Enter the subject of the message" ResourceKey="Subject">Subject: </Label>
+        <div class="col-sm-9">
+            <input id="subject" class="form-control" @bind="@subject" />
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="message" HelpText="Enter the message" ResourceKey="Message">Message: </Label>
+        <div class="col-sm-9">
+            <textarea id="message" class="form-control" @bind="@body" rows="5" />
+        </div>
+    </div>
+</div>
+<br/>
     <button type="button" class="btn btn-primary" @onclick="Send">@SharedLocalizer["Send"]</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 }

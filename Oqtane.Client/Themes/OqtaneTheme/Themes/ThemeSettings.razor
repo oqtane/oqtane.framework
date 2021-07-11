@@ -4,46 +4,45 @@
 @inject ISettingService SettingService
 @attribute [OqtaneIgnore]
 
-<table class="table table-borderless">
-    <tr>
-        <td width="30%">
-            <Label For="footer" ResourceKey="Footer" HelpText="Specify If A Footer Should Always Be Displayed In A Fixed Location At The Bottom Of The Browser Window">Display Fixed Footer?</Label>
-        </td>
-        <td>
-            <select id="footer" class="form-select" @bind="@_footer">
-                <option value="true">Yes</option>
-                <option value="false">No</option>
-            </select>
-        </td>
-    </tr>
-</table>
+    <div class="container">
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="footer" ResourceKey="Footer" HelpText="Specify If A Footer Should Always Be Displayed In A Fixed Location At The Bottom Of The Browser Window">Display Fixed Footer?</Label>
+            <div class="col-sm-9">
+                <select id="footer" class="form-select" @bind="@_footer">
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                </select>
+            </div>
+        </div>
+    </div>
 
-@code {
-    private string _footer = "false";
 
-    protected override void OnInitialized()
-    {
-        try
+    @code {
+        private string _footer = "false";
+
+        protected override void OnInitialized()
         {
-            _footer = SettingService.GetSetting(PageState.Page.Settings, GetType().Namespace + ":Footer", "false");
+            try
+            {
+                _footer = SettingService.GetSetting(PageState.Page.Settings, GetType().Namespace + ":Footer", "false");
+            }
+            catch (Exception ex)
+            {
+                ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+            }
         }
-        catch (Exception ex)
+
+        public async Task UpdateSettings()
         {
-            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+            try
+            {
+                var settings = PageState.Page.Settings;
+                settings = SettingService.SetSetting(settings, GetType().Namespace + ":Footer", _footer);
+                await SettingService.UpdatePageSettingsAsync(settings, PageState.Page.PageId);
+            }
+            catch (Exception ex)
+            {
+                ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+            }
         }
     }
-
-    public async Task UpdateSettings()
-    {
-        try
-        {
-            var settings = PageState.Page.Settings;
-            settings = SettingService.SetSetting(settings, GetType().Namespace + ":Footer", _footer);
-            await SettingService.UpdatePageSettingsAsync(settings, PageState.Page.PageId);
-        }
-        catch (Exception ex)
-        {
-            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
-        }
-    }
-}
