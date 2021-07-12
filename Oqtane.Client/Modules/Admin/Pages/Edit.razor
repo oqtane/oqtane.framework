@@ -13,13 +13,13 @@
         {
             <div class="container">
                 <div class="row mb-1 align-items-center">
-                    <Label For="Name" HelpText="Enter the page name" ResourceKey="Name">Name: </Label>
+                    <Label Class="col-sm-3" For="Name" HelpText="Enter the page name" ResourceKey="Name">Name: </Label>
                     <div class="col-sm-9">
                         <input id="Name" class="form-control" @bind="@_name" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label For="Parent" HelpText="Select the parent for the page in the site hierarchy" ResourceKey="Parent">Parent: </Label>
+                    <Label Class="col-sm-3" For="Parent" HelpText="Select the parent for the page in the site hierarchy" ResourceKey="Parent">Parent: </Label>
                     <div class="col-sm-9">
                         <select id="Parent" class="form-select" value="@_parentid" @onchange="(e => ParentChanged(e))">
                             <option value="-1">&lt;@Localizer["SiteRoot"]&gt;</option>
@@ -34,7 +34,7 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label For="Move" HelpText="Select the location where you would like the page to be moved in relation to other pages" ResourceKey="Move">Move: </Label>
+                    <Label Class="col-sm-3" For="Move" HelpText="Select the location where you would like the page to be moved in relation to other pages" ResourceKey="Move">Move: </Label>
                     <div class="col-sm-9">
                         <select id="Move" class="form-select" @bind="@_insert">
                             @if (_parentid == _currentparentid)
@@ -62,7 +62,7 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label For="Navigation" HelpText="Select whether the page is part of the site navigation or hidden" ResourceKey="Navigation">Navigation? </Label>
+                    <Label Class="col-sm-3" For="Navigation" HelpText="Select whether the page is part of the site navigation or hidden" ResourceKey="Navigation">Navigation? </Label>
                     <div class="col-sm-9">
                         <select id="Navigation" class="form-select" @bind="@_isnavigation">
                             <option value="True">@SharedLocalizer["Yes"]</option>
@@ -71,7 +71,7 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label For="Clickablen" HelpText="Select whether the link in the site navigation is enabled or disabled" ResourceKey="Clickable">Clickable? </Label>
+                    <Label Class="col-sm-3" For="Clickablen" HelpText="Select whether the link in the site navigation is enabled or disabled" ResourceKey="Clickable">Clickable? </Label>
                     <div class="col-sm-9">
                         <select id="Navigation" class="form-select" @bind="@_isclickable">
                             <option value="True">@SharedLocalizer["Yes"]</option>
@@ -80,13 +80,13 @@
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label For="Path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used." ResourceKey="UrlPath">Url Path: </Label>
+                    <Label Class="col-sm-3" For="Path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used." ResourceKey="UrlPath">Url Path: </Label>
                     <div class="col-sm-9">
                         <input id="Path" class="form-control" @bind="@_path" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label For="Url" HelpText="Optionally enter a url which this page should redirect to when a user navigates to it" ResourceKey="Redirect">Redirect: </Label>
+                    <Label Class="col-sm-3" For="Url" HelpText="Optionally enter a url which this page should redirect to when a user navigates to it" ResourceKey="Redirect">Redirect: </Label>
                     <div class="col-sm-9">
                         <input id="Url" class="form-control" @bind="@_url" />
                     </div>
@@ -95,13 +95,13 @@
             <Section Name="Appearance" ResourceKey="Appearance">
                 <div class="container">
                     <div class="row mb-1 align-items-center">
-                        <Label For="Title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used." ResourceKey="Title">Title: </Label>
+                        <Label Class="col-sm-3" For="Title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used." ResourceKey="Title">Title: </Label>
                         <div class="col-sm-9">
                             <input id="Title" class="form-control" @bind="@_title" />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label For="Theme" HelpText="Select the theme for this page" ResourceKey="Theme">Theme: </Label>
+                        <Label Class="col-sm-3" For="Theme" HelpText="Select the theme for this page" ResourceKey="Theme">Theme: </Label>
                         <div class="col-sm-9">
                             <select id="Theme" class="form-select" value="@_themetype" @onchange="(e => ThemeChanged(e))">
                                 @foreach (var theme in _themes)
@@ -112,7 +112,7 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label For="defaultContainer" HelpText="Select the default container for the page" ResourceKey="DefaultContainer">Default Container: </Label>
+                        <Label Class="col-sm-3" For="defaultContainer" HelpText="Select the default container for the page" ResourceKey="DefaultContainer">Default Container: </Label>
                         <div class="col-sm-9">
                             <select id="defaultContainer" class="form-select" @bind="@_containertype">
                                 <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
@@ -124,13 +124,13 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label For="Icon" HelpText="Optionally provide an icon class name for this page which will be displayed in the site navigation" ResourceKey="Icon">Icon: </Label>
+                        <Label Class="col-sm-3" For="Icon" HelpText="Optionally provide an icon class name for this page which will be displayed in the site navigation" ResourceKey="Icon">Icon: </Label>
                         <div class="col-sm-9">
                             <input id="Icon" class="form-control" @bind="@_icon" />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label For="Personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content" ResourceKey="Personalizable">Personalizable? </Label>
+                        <Label Class="col-sm-3" For="Personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content" ResourceKey="Personalizable">Personalizable? </Label>
                         <div class="col-sm-9">
                             <select id="Personalizable" class="form-select" @bind="@_ispersonalizable">
                                 <option value="True">@SharedLocalizer["Yes"]</option>

@@ -86,7 +86,7 @@
                 <hr class="app-rule" />
                 <div class="row">
                     <div class="col text-center">
-                        <label for="Module" class="control-label">@Localizer["Module.Manage"] </label>
+                        <label Class="col-sm-3" For="Module" >@Localizer["Module.Manage"] </label>
                         <select class="form-select" @bind="@ModuleType">
                             <option value="new">@Localizer["Module.AddNew"]</option>
                             <option value="existing">@Localizer["Module.AddExisting"]</option>
@@ -152,7 +152,7 @@
                 </div>
                 <div class="row">
                     <div class="col text-center">
-                        <label for="Title" class="control-label">@Localizer["Title"] </label>
+                        <label Class="col-sm-3" For="Title">@Localizer["Title"] </label>
                         <input type="text" name="Title" class="form-control" @bind="@Title" />
                     </div>
                 </div>
@@ -160,7 +160,7 @@
                 {
                     <div class="row">
                         <div class="col text-center">
-                            <label for="Pane" class="control-label">@Localizer["Pane"] </label>
+                            <label Class="col-sm-3" For="Pane">@Localizer["Pane"] </label>
                             <select class="form-select" @bind="@Pane">
                                 @foreach (string pane in PageState.Page.Panes)
                                 {
@@ -172,7 +172,7 @@
                 }
                 <div class="row">
                     <div class="col text-center">
-                        <label for="Container" class="control-label">@Localizer["Container"] </label>
+                        <label Class="col-sm-3" For="Container">@Localizer["Container"] </label>
                         <select class="form-select" @bind="@ContainerType">
                             @foreach (var container in _containers)
                             {

@@ -8,75 +8,71 @@
 
 @if (PageState.User != null)
 {
-    <table class="table table-borderless">
-        <tr>
-            <td width="30%">
-                <label class="control-label">@Localizer["Title"] </label>
-            </td>
+    <div class="container">
+        <div class="row mb-1 align-items-center">
+            <label Class="col-sm-3">@Localizer["Title"] </label>
             @if (title == "From")
             {
-                <td>
+                <div class="col-sm-3">
                     <input class="form-control" @bind="@username" readonly />
-                </td>
+                </div>
             }
             @if (title == "To")
             {
-                <td>
+                <div class="col-sm-3">
                     <input class="form-control" @bind="@username" />
-                </td>
+                </div>
             }
-        </tr>
-        <tr>
-            <td>
-                <label class="control-label">@Localizer["Subject"] </label>
-            </td>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <label Class="col-sm-3">@Localizer["Subject"] </label>
             @if (title == "From")
             {
-                <td>
+                <div class="col-sm-3">
                     <input class="form-control" @bind="@subject" readonly />
-                </td>
+                </div>
             }
             @if (title == "To")
             {
-                <td>
+                <div class="col-sm-3">
                     <input class="form-control" @bind="@subject" />
-                </td>
+                </div>
             }
-        </tr>
+        </div>
+    </div>
+    <div class="container">
         @if (title == "From")
         {
-            <tr>
-                <td>
-                    <label class="control-label">@Localizer["Date"] </label>
-                </td>
-                <td>
+            <div class="row mb-1 align-items-center">
+                <label class="col-sm-3">@Localizer["Date"] </label>
+                <div class="col-sm-9">
                     <input class="form-control" @bind="@createdon" readonly />
-                </td>
-            </tr>
+                </div>
+            </div>
         }
         @if (title == "From")
         {
-            <tr>
-                <td>
-                    <label class="control-label">@Localizer["Message"] </label>
-                </td>
-                <td>
-                    <textarea class="form-control" @bind="@body" rows="5" readonly />
-                </td>
-            </tr>
+                <div class="row mb-1 align-items-center">
+                    <label class="col-sm-3">@Localizer["Message"] </label>
+                    <div class="col-sm-9">
+                        <textarea class="form-control" @bind="@body" rows="5" readonly />
+                    </div>
+                </div>
+
         }
         @if (title == "To")
         {
-            <tr>
-                <td>
-                    <label class="control-label">@Localizer["Message"] </label>
-                </td>
-                <td>
-                    <textarea class="form-control" @bind="@body" rows="5" />
-                </td>
-            </tr>
+
+                <div class="row mb-1 align-items-center">
+                    <label class="col-sm-3">@Localizer["Message"] </label>
+                    <div class="col-sm-9">
+                        <textarea class="form-control" @bind="@body" rows="5" readonly />
+                    </div>
+                </div>
+
         }
-    </table>
+
+    </div>
 
 
     @if (reply != string.Empty)

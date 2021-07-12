@@ -4,23 +4,19 @@
 @inject ISettingService SettingService
 @attribute [OqtaneIgnore]
 
-<table class="table table-borderless">
-    <tr>
-        <td width="30%">
-            <Label For="title" ResourceKey="Title" HelpText="Specify If The Module Title Should Be Displayed">Display Title?</Label>
-        </td>
-        <td>
+<div class="container">
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="title" ResourceKey="Title" HelpText="Specify If The Module Title Should Be Displayed">Display Title?</Label>
+        <div class="col-sm-9">
             <select id="title" class="form-select" @bind="@_title">
                 <option value="true">Yes</option>
                 <option value="false">No</option>
             </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="background\" ResourceKey="Background" HelpText="Optionally Specify A Background Color For The Container">Background Color:</Label>
-        </td>
-        <td>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="background\" ResourceKey="Background" HelpText="Optionally Specify A Background Color For The Container">Background Color:</Label>
+        <div class="col-sm-9">
             <select id="background" class="form-select" @bind="@_background">
                 <option value="">None</option>
                 <option value="bg-primary">Primary</option>
@@ -32,13 +28,11 @@
                 <option value="bg-light">Light</option>
                 <option value="bg-dark">Dark</option>
             </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="text" ResourceKey="Text" HelpText="Optionally Specify A Text Color For The Container">Text Color:</Label>
-        </td>
-        <td>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="text" ResourceKey="Text" HelpText="Optionally Specify A Text Color For The Container">Text Color:</Label>
+        <div class="col-sm-9">
             <select id="text" class="form-select" @bind="@_text">
                 <option value="">None</option>
                 <option value="text-primary">Primary</option>
@@ -50,13 +44,11 @@
                 <option value="text-light">Light</option>
                 <option value="text-dark">Dark</option>
             </select>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <Label For="border" ResourceKey="Border" HelpText="Optionally Specify A Border For The Container">Border Color:</Label>
-        </td>
-        <td>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="border" ResourceKey="Border" HelpText="Optionally Specify A Border For The Container">Border Color:</Label>
+        <div class="col-sm-9">
             <select id="border" class="form-select" @bind="@_border">
                 <option value="">None</option>
                 <option value="border">Default</option>
@@ -69,45 +61,45 @@
                 <option value="border border-light">Light</option>
                 <option value="border border-dark">Dark</option>
             </select>
-        </td>
-    </tr>
-</table>
+        </div>
+    </div>
+</div>
 
-@code {
-    private string _title = "true";
-    private string _background = "";
-    private string _text = "";
-    private string _border = "";
+    @code {
+        private string _title = "true";
+        private string _background = "";
+        private string _text = "";
+        private string _border = "";
 
-    protected override void OnInitialized()
-    {
-        try
+        protected override void OnInitialized()
         {
-            _title = SettingService.GetSetting(ModuleState.Settings, GetType().Namespace + ":Title", "true");
-            _background = SettingService.GetSetting(ModuleState.Settings, GetType().Namespace + ":Background", "");
-            _text = SettingService.GetSetting(ModuleState.Settings, GetType().Namespace + ":Text", "");
-            _border = SettingService.GetSetting(ModuleState.Settings, GetType().Namespace + ":Border", "");
+            try
+            {
+                _title = SettingService.GetSetting(ModuleState.Settings, GetType().Namespace + ":Title", "true");
+                _background = SettingService.GetSetting(ModuleState.Settings, GetType().Namespace + ":Background", "");
+                _text = SettingService.GetSetting(ModuleState.Settings, GetType().Namespace + ":Text", "");
+                _border = SettingService.GetSetting(ModuleState.Settings, GetType().Namespace + ":Border", "");
+            }
+            catch (Exception ex)
+            {
+                ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+            }
         }
-        catch (Exception ex)
+
+        public async Task UpdateSettings()
         {
-            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+            try
+            {
+                var settings = ModuleState.Settings;
+                settings = SettingService.SetSetting(settings, GetType().Namespace + ":Title", _title);
+                settings = SettingService.SetSetting(settings, GetType().Namespace + ":Background", _background);
+                settings = SettingService.SetSetting(settings, GetType().Namespace + ":Text", _text);
+                settings = SettingService.SetSetting(settings, GetType().Namespace + ":Border", _border);
+                await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
+            }
+            catch (Exception ex)
+            {
+                ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+            }
         }
     }
-
-    public async Task UpdateSettings()
-    {
-        try
-        {
-            var settings = ModuleState.Settings;
-            settings = SettingService.SetSetting(settings, GetType().Namespace + ":Title", _title);
-            settings = SettingService.SetSetting(settings, GetType().Namespace + ":Background", _background);
-            settings = SettingService.SetSetting(settings, GetType().Namespace + ":Text", _text);
-            settings = SettingService.SetSetting(settings, GetType().Namespace + ":Border", _border);
-            await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
-        }
-        catch (Exception ex)
-        {
-            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
-        }
-    }
-}

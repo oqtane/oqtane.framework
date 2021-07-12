@@ -136,13 +136,11 @@
         }
     </TabPanel>
     <TabPanel Name="Permissions" ResourceKey="Permissions">
-        <table class="table table-borderless">
-            <tr>
-                <td>
-                    <PermissionGrid EntityName="@EntityNames.Page" Permissions="@_permissions" @ref="_permissionGrid" />
-                </td>
-            </tr>
-        </table>
+        <div class="container">
+            <div class="row mb-1 align-items-center">
+                <PermissionGrid EntityName="@EntityNames.Page" Permissions="@_permissions" @ref="_permissionGrid" />
+            </div>
+        </div>
     </TabPanel>
     @if (_themeSettingsType != null)
     {

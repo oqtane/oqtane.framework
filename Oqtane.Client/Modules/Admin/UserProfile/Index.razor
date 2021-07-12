@@ -21,56 +21,45 @@ else
     <TabPanel Name="Identity" ResourceKey="Identity">
         @if (PageState.User != null)
         {
-            <table class="table table-borderless">
-                <tr>
-                    <td width="30%">
-                        <Label For="username" HelpText="Your username. Note that this field can not be modified." ResourceKey="Username"></Label>
-                    </td>
-                    <td>
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="username" HelpText="Your username. Note that this field can not be modified." ResourceKey="Username"></Label>
+                    <div class="col-sm-9">
                         <input id="username" class="form-control" @bind="@username" readonly />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="password" HelpText="If you wish to change your password you can enter it here. Please choose a sufficiently secure password." ResourceKey="Password"></Label>
-                    </td>
-                    <td>
-                        <input id ="password" type="password" class="form-control" @bind="@password" autocomplete="new-password" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="confirm" HelpText="If you are changing your password you must enter it again to confirm it matches" ResourceKey="Confirm"></Label>
-                    </td>
-                    <td>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="password" HelpText="If you wish to change your password you can enter it here. Please choose a sufficiently secure password." ResourceKey="Password"></Label>
+                    <div class="col-sm-9">
+                        <input id="password" type="password" class="form-control" @bind="@password" autocomplete="new-password" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="confirm" HelpText="If you are changing your password you must enter it again to confirm it matches" ResourceKey="Confirm"></Label>
+                    <div class="col-sm-9">
                         <input id="confirm" type="password" class="form-control" @bind="@confirm" autocomplete="new-password" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="email" HelpText="Your email address where you wish to receive notifications" ResourceKey="Email"></Label>
-                    </td>
-                    <td>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="email" HelpText="Your email address where you wish to receive notifications" ResourceKey="Email"></Label>
+                    <div class="col-sm-9">
                         <input id="email" class="form-control" @bind="@email" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="displayname" HelpText="Your full name" ResourceKey="DisplayName"></Label>
-                    </td>
-                    <td>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="displayname" HelpText="Your full name" ResourceKey="DisplayName"></Label>
+                    <div class="col-sm-9">
                         <input id="displayname" class="form-control" @bind="@displayname" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="@photofileid.ToString()" HelpText="A photo of yourself" ResourceKey="Photo"></Label>
-                    </td>
-                    <td>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="@photofileid.ToString()" HelpText="A photo of yourself" ResourceKey="Photo"></Label>
+                    <div class="col-sm-9">
                         <FileManager FileId="@photofileid" @ref="filemanager" />
-                    </td>
-                </tr>
-            </table>
+                    </div>
+                </div>
+            </div>
+            <br />
             <button type="button" class="btn btn-success" @onclick="Save">@SharedLocalizer["Save"]</button>
             <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
         }
@@ -78,58 +67,58 @@ else
     <TabPanel Name="Profile" ResourceKey="Profile">
         @if (profiles != null && settings != null)
         {
-            <table class="table table-borderless">
-                @foreach (Profile profile in profiles)
-                {
-                    var p = profile;
-                    if (!p.IsPrivate || UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
+
+
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    @foreach (Profile profile in profiles)
                     {
-                        if (p.Category != category)
+                        var p = profile;
+                        if (!p.IsPrivate || UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
                         {
-                            <tr>
-                                <th colspan="2" style="text-align: center;">
+                            if (p.Category != category)
+                            {
+                                <div class="col text-center pb-2">
                                     @p.Category
-                                </th>
-                            </tr>
-                            category = p.Category;
-                        }
-                        <tr>
-                            <td width="30%">
-                                <Label For="@p.Name" HelpText="@p.Description">@p.Title</Label>
-                            </td>
-                            <td>
-                                @if (!string.IsNullOrEmpty(p.Options))
-                                {
-                                    <select id="@p.Name" class="form-select" @onchange="@(e => ProfileChanged(e, p.Name))">
-                                        @foreach (var option in p.Options.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                                        {
-                                            @if (GetProfileValue(p.Name, "") == option || (GetProfileValue(p.Name, "") == "" && p.DefaultValue == option))
-                                            {
-                                                <option value="@option" selected>@option</option>
-                                            }
-                                            else
-                                            {
-                                                <option value="@option">@option</option>
-                                            }
-                                        }
-                                    </select>
-                                }
-                                else
-                                {
-                                    @if (p.IsRequired)
+                                </div>
+                                category = p.Category;
+                            }
+                            <div class="row mb-1 align-items-center">
+                                <Label Class="col-sm-3" For="@p.Name" HelpText="@p.Description">@p.Title</Label>
+                                <div class="col-sm-9">
+                                    @if (!string.IsNullOrEmpty(p.Options))
                                     {
-                                        <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                        <select id="@p.Name" class="form-select" @onchange="@(e => ProfileChanged(e, p.Name))">
+                                            @foreach (var option in p.Options.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                                            {
+                                                @if (GetProfileValue(p.Name, "") == option || (GetProfileValue(p.Name, "") == "" && p.DefaultValue == option))
+                                                {
+                                                    <option value="@option" selected>@option</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@option">@option</option>
+                                                }
+                                            }
+                                        </select>
                                     }
                                     else
                                     {
-                                        <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                        @if (p.IsRequired)
+                                        {
+                                            <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                        }
+                                        else
+                                        {
+                                            <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                        }
                                     }
-                                }
-                            </td>
-                        </tr>
+                                </div>
+                            </div>
+                        }
                     }
-                }
-            </table>
+                </div>
+            </div>
             <button type="button" class="btn btn-success" @onclick="Save">@SharedLocalizer["Save"]</button>
             <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
         }
@@ -143,11 +132,11 @@ else
             {
                 <Pager Items="@notifications">
                     <Header>
-                        <th style="width: 1px;">&nbsp;</th>
-                        <th style="width: 1px;">&nbsp;</th>
-                        <th>@Localizer["From"]</th>
-                        <th>@Localizer["Subject"]</th>
-                        <th>@Localizer["Received"]</th>
+                    <th style="width: 1px;">&nbsp;</th>
+                    <th style="width: 1px;">&nbsp;</th>
+                    <th>@Localizer["From"]</th>
+                    <th>@Localizer["Subject"]</th>
+                    <th>@Localizer["Received"]</th>
                     </Header>
                     <Row>
                         <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" /></td>
@@ -176,11 +165,11 @@ else
             {
                 <Pager Items="@notifications">
                     <Header>
-                        <th>&nbsp;</th>
-                        <th>&nbsp;</th>
-                        <th>@Localizer["To"]</th>
-                        <th>@Localizer["Subject"]</th>
-                        <th>@Localizer["Sent"]</th>
+                    <th>&nbsp;</th>
+                    <th>&nbsp;</th>
+                    <th>@Localizer["To"]</th>
+                    <th>@Localizer["Subject"]</th>
+                    <th>@Localizer["Sent"]</th>
                     </Header>
                     <Row>
                         <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" /></td>

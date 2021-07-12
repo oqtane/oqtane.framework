@@ -99,41 +99,8 @@ else
                             </div>
                         </div>
                     }
-
                 </div>
             </div>
-
-
-            @*<table class="table table-borderless">
-                @foreach (Profile profile in profiles)
-                {
-                    var p = profile;
-                    if (p.Category != category)
-                    {
-                        <tr>
-                            <th colspan="2" style="text-align: center;">
-                                @p.Category
-                            </th>
-                        </tr>
-                        category = p.Category;
-                    }
-                    <tr>
-                        <td width="30%">
-                            <Label For="@p.Name" HelpText="@p.Description">@p.Title</Label>
-                        </td>
-                        <td>
-                            @if (p.IsRequired)
-                            {
-                                <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
-                            }
-                            else
-                            {
-                                <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
-                            }
-                        </td>
-                    </tr>
-                }
-            </table>*@
         }
     </TabPanel>
 </TabStrip>
