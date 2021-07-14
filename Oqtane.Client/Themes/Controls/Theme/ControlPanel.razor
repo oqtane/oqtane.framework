@@ -14,12 +14,12 @@
 
 @if (_moduleDefinitions != null && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions))
 {
-    <div class="app-controlpanel" style="@_display">
+    <div class="offcanvas offcanvas-end" tabindex="-1" data-bs-scroll="true" data-bs-backdrop="false" id="offcanvasControlPanel" aria-labelledby="offcanvasControlPanelLabel">
         <div class="@CardClass">
             <div class="@HeaderClass d-flex">
                 <span class="font-weight-bold">@Localizer["ControlPanel"]</span>
                 <div class="ms-auto">
-                    <button type="button" class="btn-close" aria-label="Close" @onclick="HideControlPanel"></button>
+                    <button type="button" class="btn-close" aria-label="Close" data-bs-dismiss="offcanvas"></button>
                 </div>
             </div>
             <div class="@BodyClass">
@@ -41,8 +41,8 @@
                     </div>
                     <div class="row d-flex">
                         <div class="col d-flex justify-content-between">
-                            <button type="button" class="btn btn-secondary col-3" @onclick=@(async () => Navigate("Add"))>@SharedLocalizer["Add"]</button>
-                            <button type="button" class="btn btn-secondary col-3" @onclick=@(async () => Navigate("Edit"))>@SharedLocalizer["Edit"]</button>
+                            <button type="button" class="btn btn-secondary col-3" data-bs-dismiss="offcanvas" @onclick=@(async () => Navigate("Add"))>@SharedLocalizer["Add"]</button>
+                            <button type="button" class="btn btn-secondary col-3" data-bs-dismiss="offcanvas" @onclick=@(async () => Navigate("Edit"))>@SharedLocalizer["Edit"]</button>
                             <button type="button" class="btn btn-danger col-3" @onclick="ConfirmDelete">@SharedLocalizer["Delete"]</button>
                         </div>
                     </div>
@@ -86,7 +86,7 @@
                 <hr class="app-rule" />
                 <div class="row">
                     <div class="col text-center">
-                        <label Class="col-sm-3" For="Module" >@Localizer["Module.Manage"] </label>
+                        <label for="Module" class="control-label">@Localizer["Module.Manage"] </label>
                         <select class="form-select" @bind="@ModuleType">
                             <option value="new">@Localizer["Module.AddNew"]</option>
                             <option value="existing">@Localizer["Module.AddExisting"]</option>
@@ -152,7 +152,7 @@
                 </div>
                 <div class="row">
                     <div class="col text-center">
-                        <label Class="col-sm-3" For="Title">@Localizer["Title"] </label>
+                        <label for="Title" class="control-label">@Localizer["Title"] </label>
                         <input type="text" name="Title" class="form-control" @bind="@Title" />
                     </div>
                 </div>
@@ -160,7 +160,7 @@
                 {
                     <div class="row">
                         <div class="col text-center">
-                            <label Class="col-sm-3" For="Pane">@Localizer["Pane"] </label>
+                            <label for="Pane" class="control-label">@Localizer["Pane"] </label>
                             <select class="form-select" @bind="@Pane">
                                 @foreach (string pane in PageState.Page.Panes)
                                 {
@@ -172,7 +172,7 @@
                 }
                 <div class="row">
                     <div class="col text-center">
-                        <label Class="col-sm-3" For="Container">@Localizer["Container"] </label>
+                        <label for="Container" class="control-label">@Localizer["Container"] </label>
                         <select class="form-select" @bind="@ContainerType">
                             @foreach (var container in _containers)
                             {
@@ -217,7 +217,8 @@
 
 @if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions))
 {
-    <button type="button" class="btn @ButtonClass" @onclick="ShowControlPanel">
+
+    <button class="btn @ButtonClass" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasControlPanel" aria-controls="offcanvasControlPanel">
         <span class="oi oi-cog"></span>
     </button>
 }
@@ -445,23 +446,9 @@
         }
     }
 
-    private void ShowControlPanel()
-    {
-        Message = "";
-        _display = "width: 25%; min-width: 375px;";
-        StateHasChanged();
-    }
-
-    private void HideControlPanel()
-    {
-        Message = "";
-        _display = "width: 0%;";
-        StateHasChanged();
-    }
-
     private void Navigate(string location)
     {
-        HideControlPanel();
+        //HideControlPanel();
         Module module;
         switch (location)
         {
