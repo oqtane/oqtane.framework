@@ -10,24 +10,6 @@ app {
     flex-direction: column;
 }
 
-/* Control Panel */
-.app-controlpanel {
-    height: 100%;
-    width: 0%;
-    position: fixed; /* Stay in place */
-    z-index: 9999; /* Sit on top */
-    right: 0;
-    top: 0;
-    overflow-x: hidden; /* Disable horizontal scroll */
-    transition: 0.5s; /* 0.5 second transition effect to slide in or slide down the overlay (height or width, depending on reveal) */
-}
-
-    /* Position the content inside the overlay */
-    .app-controlpanel .card-body {
-            position: relative;
-            width: 100%; /* 100% width */
-    }
-
 /* Admin Modal */
 .app-admin-modal .modal {
     position: fixed; /* Stay in place */

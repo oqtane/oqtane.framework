@@ -73,10 +73,6 @@
     margin-bottom: 0;
 }
 
-.app-controlpanel {
-    z-index: 9999;
-}
-
 .app-menu .nav-item {
     font-size: 0.9rem;
     padding-bottom: 0.5rem;
