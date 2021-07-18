@@ -52,7 +52,7 @@ This project is a work in progress and the schedule for implementing enhancement
 V.3.0.0 ( Q4 2021 )
 - [ ] Migration to .NET 6
 
-V.2.2.0 ( Q3 2021 )
+V.2.3.0 ( Q3 2021 )
 - [ ] Authentication extensibility ( ie. Azure B2C, Social logins, etc... )
 - [ ] Configurable password complexity for local authentication
 
