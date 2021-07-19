@@ -1,54 +1,58 @@
 @namespace Oqtane.Installer.Controls
 @implements Oqtane.Interfaces.IDatabaseConfigControl
-@inject IStringLocalizer<Installer> Localizer
 
-@{
-    foreach (var field in _connectionStringFields)
-    {
-        var fieldId = field.Name.ToLowerInvariant();
-        var fieldType = (field.Name == "Pwd") ? "password" : "text";
-        field.Value = field.Value.Replace("{{Date}}", DateTime.UtcNow.ToString("yyyyMMddHHmm"));
-            
-        <tr>
-            <td>
-                <Label For="@fieldId" HelpText="@field.HelpText" ResourceKey="@field.Name">@Localizer[$"{field.FriendlyName}:"]</Label>
-            </td>
-            <td>
-                <input id="@fieldId" type="@fieldType" class="form-control" @bind="@field.Value" />
-            </td>
-        </tr>
-    }
-}
+<div class="row mb-1 align-items-center">
+    <Label Class="col-sm-3" For="server" HelpText="Enter the database server" ResourceKey="Server">Server:</Label>
+    <div class="col-sm-9">
+        <input id="server" type="text" class="form-control" @bind="@_server" />
+    </div>
+</div>
+<div class="row mb-1 align-items-center">
+    <Label Class="col-sm-3" For="port" HelpText="Enter the port used to connect to the server" ResourceKey="Port">Port:</Label>
+    <div class="col-sm-9">
+        <input id="port" type="text" class="form-control" @bind="@_port" />
+    </div>
+</div>
+<div class="row mb-1 align-items-center">
+    <Label Class="col-sm-3" For="database" HelpText="Enter the name of the database" ResourceKey="Database">Database:</Label>
+    <div class="col-sm-9">
+        <input id="database" type="text" class="form-control" @bind="@_database" />
+    </div>
+</div>
+<div class="row mb-1 align-items-center">
+    <Label Class="col-sm-3" For="uid" HelpText="Enter the username to use for the database" ResourceKey="Uid">User Id:</Label>
+    <div class="col-sm-9">
+        <input id="uid" type="text" class="form-control" @bind="@_uid" />
+    </div>
+</div>
+<div class="row mb-1 align-items-center">
+    <Label Class="col-sm-3" For="pwd" HelpText="Enter the password to use for the database" ResourceKey="Pwd">Password:</Label>
+    <div class="col-sm-9">
+        <input id="pwd" type="password" class="form-control" @bind="@_pwd" />
+    </div>
+</div>
 
 @code {
-    private readonly List<ConnectionStringField> _connectionStringFields = new()
-    {
-        new() {Name = "Server", FriendlyName = "Server", Value = "127.0.0.1", HelpText="Enter the database server"},
-        new() {Name = "Port", FriendlyName = "Port", Value = "3306", HelpText="Enter the port used to connect to the server"},
-        new() {Name = "Database", FriendlyName = "Database", Value = "Oqtane-{{Date}}", HelpText="Enter the name of the database"},
-        new() {Name = "Uid", FriendlyName = "User Id", Value = "", HelpText="Enter the username to use for the database"},
-        new() {Name = "Pwd", FriendlyName = "Password", Value = "", HelpText="Enter the password to use for the database"}
-    };
+    private string _server = "127.0.0.1";
+    private string _port = "3306";
+    private string _database = "Oqtane-" + DateTime.UtcNow.ToString("yyyyMMddHHmm");
+    private string _uid = String.Empty;
+    private string _pwd = String.Empty;
 
     public string GetConnectionString()
     {
         var connectionString = String.Empty;
 
-        var server = _connectionStringFields[0].Value;
-        var port = _connectionStringFields[1].Value;
-        var database = _connectionStringFields[2].Value;
-        var userId = _connectionStringFields[3].Value;
-        var password = _connectionStringFields[4].Value;
-
-        if (!String.IsNullOrEmpty(server) && !String.IsNullOrEmpty(database) && !String.IsNullOrEmpty(userId) && !String.IsNullOrEmpty(password))
+        if (!String.IsNullOrEmpty(_server) && !String.IsNullOrEmpty(_database) && !String.IsNullOrEmpty(_uid) && !String.IsNullOrEmpty(_pwd))
         {
-            connectionString = $"Server={server};Database={database};Uid={userId};Pwd={password};";
+            connectionString = $"Server={_server};Database={_database};Uid={_uid};Pwd={_pwd};";
         }
 
-        if (!String.IsNullOrEmpty(port))
+        if (!String.IsNullOrEmpty(_port))
         {
-            connectionString += $"Port={port};";
+            connectionString += $"Port={_port};";
         }
+
         return connectionString;
     }
 }
