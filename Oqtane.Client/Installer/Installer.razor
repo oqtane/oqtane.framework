@@ -20,78 +20,64 @@
     <div class="row justify-content-center">
         <div class="col text-center">
             <h2>@Localizer["DatabaseConfig"]</h2><br />
-            <table class="form-group" cellpadding="4" cellspacing="4" style="margin: auto;">
-                <tbody>
-                    <tr>
-                        <td>
-                            <Label For="databasetype" HelpText="Select the type of database you wish to create" ResourceKey="DatabaseType">Database Type:</Label>
-                        </td>
-                        <td>
-                            <select id="databasetype" class="custom-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))">
-                                @if (_databases != null)
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="databasetype" HelpText="Select the type of database you wish to use" ResourceKey="DatabaseType">Database:</Label>
+                    <div class="col-sm-9">
+                        <select id="databasetype" class="form-select custom-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))">
+                            @if (_databases != null)
+                            {
+                                foreach (var database in _databases)
                                 {
-                                    foreach (var database in _databases)
+                                    if (database.IsDefault)
                                     {
-                                        if (database.IsDefault)
-                                        {
-                                            <option value="@database.Name" selected>@Localizer[@database.Name]</option>
-                                        }
-                                        else
-                                        {
-                                            <option value="@database.Name">@Localizer[@database.Name]</option>
-                                        }
+                                        <option value="@database.Name" selected>@Localizer[@database.Name]</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@database.Name">@Localizer[@database.Name]</option>
                                     }
                                 }
-                            </select>
-                        </td>
-                    </tr>
-                    @{
-                        if (_databaseConfigType != null)
-                        {
-                            @DatabaseConfigComponent;
-                        }
+                            }
+                        </select>
+                    </div>
+                </div>
+                @{
+                    if (_databaseConfigType != null)
+                    {
+                        @DatabaseConfigComponent;
                     }
-                </tbody>
-            </table>
+                }
+            </div>
         </div>
         <div class="col text-center">
             <h2>@Localizer["ApplicationAdmin"]</h2><br />
-            <table class="form-group" cellpadding="4" cellspacing="4" style="margin: auto;">
-                <tbody>
-                    <tr>
-                        <td>
-                            <Label For="username" HelpText="The username of the host user account ( this is not customizable )" ResourceKey="Username">Username:</Label>
-                        </td>
-                        <td>
-                            <input id="username" type="text" class="form-control" @bind="@_hostUsername" readonly />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <Label For="password" HelpText="Provide the password for the host user account" ResourceKey="Password">Password:</Label>
-                        </td>
-                        <td>
-                            <input id="password" type="password" class="form-control" @bind="@_hostPassword" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <Label For="confirm" HelpText="Please confirm the password entered above by entering it again" ResourceKey="Confirm">Confirm:</Label>
-                        </td>
-                        <td>
-                            <input id="confirm" type="password" class="form-control" @bind="@_confirmPassword" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <Label For="email" HelpText="Provide the email address for the host user account" ResourceKey="Email">Email:</Label>
-                        </td>
-                        <td>
-                            <input type="text" class="form-control" @bind="@_hostEmail" />
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="username" HelpText="The username of the host user account (this is not customizable)" ResourceKey="Username">Username:</Label>
+                    <div class="col-sm-9">
+                        <input id="username" type="text" class="form-control" @bind="@_hostUsername" readonly />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="password" HelpText="Provide the password for the host user account" ResourceKey="Password">Password:</Label>
+                    <div class="col-sm-9">
+                        <input id="password" type="password" class="form-control" @bind="@_hostPassword" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="confirm" HelpText="Please confirm the password entered above by entering it again" ResourceKey="Confirm">Confirm:</Label>
+                    <div class="col-sm-9">
+                        <input id="confirm" type="password" class="form-control" @bind="@_confirmPassword" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="email" HelpText="Provide the email address for the host user account" ResourceKey="Email">Email:</Label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" @bind="@_hostEmail" />
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <hr class="app-rule" />
@@ -215,5 +201,4 @@
             _message = Localizer["Message.Require.DbInfo"];
         }
     }
-
 }

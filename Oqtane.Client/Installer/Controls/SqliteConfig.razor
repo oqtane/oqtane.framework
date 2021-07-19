@@ -1,39 +1,23 @@
 @namespace Oqtane.Installer.Controls
 @implements Oqtane.Interfaces.IDatabaseConfigControl
-@inject IStringLocalizer<Installer> Localizer
 
-@{
-    foreach (var field in _connectionStringFields)
-    {        
-        var fieldId = field.Name.ToLowerInvariant();
-        field.Value = field.Value.Replace("{{Date}}", DateTime.UtcNow.ToString("yyyyMMddHHmm"));
-        
-        <tr>
-            <td>
-                <Label For="@fieldId" HelpText="@field.HelpText" ResourceKey="@field.Name">@Localizer[$"{field.FriendlyName}:"]</Label>
-            </td>
-            <td>
-                <input id="@fieldId" type="text" class="form-control" @bind="@field.Value" />
-            </td>
-        </tr>
-    }
-}
+<div class="row mb-1 align-items-center">
+    <Label Class="col-sm-3" For="server" HelpText="Enter the file name to use for the database" ResourceKey="Server">File Name:</Label>
+    <div class="col-sm-9">
+        <input id="server" type="text" class="form-control" @bind="@_server" />
+    </div>
+</div>
 
 @code {
-    private readonly List<ConnectionStringField> _connectionStringFields = new()
-    {
-        new() {Name = "Server", FriendlyName = "File Name", Value = "Oqtane-{{Date}}.db", HelpText="Enter the file name to use for the database"}
-    };
+    private string _server = "Oqtane-" + DateTime.UtcNow.ToString("yyyyMMddHHmm") + ".db";
 
     public string GetConnectionString()
     {
         var connectionstring = String.Empty;
 
-        var server = _connectionStringFields[0].Value;
-
-        if (!String.IsNullOrEmpty(server))
+        if (!String.IsNullOrEmpty(_server))
         {
-            connectionstring = $"Data Source={server};";
+            connectionstring = $"Data Source={_server};";
         }
 
         return connectionstring;

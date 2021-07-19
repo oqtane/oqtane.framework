@@ -1,41 +1,30 @@
 @namespace Oqtane.Installer.Controls
 @implements Oqtane.Interfaces.IDatabaseConfigControl
-@inject IStringLocalizer<Installer> Localizer
 
-@{
-    foreach (var field in _connectionStringFields)
-    {
-        var fieldId = field.Name.ToLowerInvariant();
-        field.Value = field.Value.Replace("{{Date}}", DateTime.UtcNow.ToString("yyyyMMddHHmm"));
-
-        <tr>
-            <td>
-                <Label For="@fieldId" HelpText="@field.HelpText" ResourceKey="@field.Name">@Localizer[$"{field.FriendlyName}:"]</Label>
-            </td>
-            <td>
-                <input id="@fieldId" type="text" class="form-control" @bind="@field.Value" />
-            </td>
-        </tr>
-    }
-}
+<div class="row mb-1 align-items-center">
+    <Label Class="col-sm-3" For="server" HelpText="Enter the database server" ResourceKey="Server">Server:</Label>
+    <div class="col-sm-9">
+        <input id="server" type="text" class="form-control" @bind="@_server" />
+    </div>
+</div>
+<div class="row mb-1 align-items-center">
+    <Label Class="col-sm-3" For="database" HelpText="Enter the name of the database" ResourceKey="Database">Database:</Label>
+    <div class="col-sm-9">
+        <input id="database" type="text" class="form-control" @bind="@_database" />
+    </div>
+</div>
 
 @code {
-    private readonly List<ConnectionStringField> _connectionStringFields = new()
-    {
-        new() {Name = "Server", FriendlyName = "Server", Value = "(LocalDb)\\MSSQLLocalDB", HelpText="Enter the database server"},
-        new() {Name = "Database", FriendlyName = "Database", Value = "Oqtane-{{Date}}", HelpText="Enter the name of the database"}
-    };
+    private string _server = "(LocalDb)\\MSSQLLocalDB";
+    private string _database = "Oqtane-" + DateTime.UtcNow.ToString("yyyyMMddHHmm");
 
     public string GetConnectionString()
     {
         var connectionString = String.Empty;
 
-        var server = _connectionStringFields[0].Value;
-        var database = _connectionStringFields[1].Value;
-
-        if (!String.IsNullOrEmpty(server)  && !String.IsNullOrEmpty(database))
+        if (!String.IsNullOrEmpty(_server) && !String.IsNullOrEmpty(_database))
         {
-            connectionString = $"Data Source={server};AttachDbFilename=|DataDirectory|\\{database}.mdf;Initial Catalog={database};Integrated Security=SSPI;";
+            connectionString = $"Data Source={_server};AttachDbFilename=|DataDirectory|\\{_database}.mdf;Initial Catalog={_database};Integrated Security=SSPI;";
         }
 
         return connectionString;
