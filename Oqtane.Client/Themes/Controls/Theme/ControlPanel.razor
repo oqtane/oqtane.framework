@@ -14,7 +14,7 @@
 
 @if (_moduleDefinitions != null && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions))
 {
-    <div class="offcanvas offcanvas-end" tabindex="-1" data-bs-scroll="true" data-bs-backdrop="false" id="offcanvasControlPanel" aria-labelledby="offcanvasControlPanelLabel">
+    <div class="offcanvas offcanvas-end" tabindex="-1" data-bs-scroll="true" data-bs-backdrop="true" id="offcanvasControlPanel" aria-labelledby="offcanvasControlPanelLabel">
         <div class="@CardClass">
             <div class="@HeaderClass d-flex">
                 <span class="font-weight-bold">@Localizer["ControlPanel"]</span>
@@ -28,7 +28,7 @@
                 {
                     <div class="row d-flex">
                         <div class="col">
-                            <button type="button" class="btn btn-primary col-12" @onclick=@(async () => Navigate("Admin"))>@Localizer["AdminDash"]</button>
+                            <button data-bs-dismiss="offcanvas"  type="button" class="btn btn-primary col-12" @onclick=@(async () => Navigate("Admin"))>@Localizer["AdminDash"]</button>
                         </div>
                     </div>
 
