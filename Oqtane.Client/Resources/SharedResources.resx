@@ -273,10 +273,13 @@
   <data name="FullName" xml:space="preserve">
     <value>Full Name:</value>
   </data>
-    <data name="LocalVersion" xml:space="preserve">
+  <data name="LocalVersion" xml:space="preserve">
     <value>Local Version</value>
   </data>
   <data name="Search.Source" xml:space="preserve">
     <value>source</value>
+  </data>
+  <data name="Message.InfoRequired" xml:space="preserve">
+    <value>Please Provide All Required Information</value>
   </data>
 </root>

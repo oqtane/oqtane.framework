@@ -12,51 +12,51 @@
 }
 else
 {
-    <ActionLink Action="Add" Text="Add Site" ResourceKey="AddSite" />
+        <ActionLink Action="Add" Text="Add Site" ResourceKey="AddSite" />
 
-    <Pager Items="@_sites">
-        <Header>
-            <th style="width: 1px;">&nbsp;</th>
-            <th style="width: 1px;">&nbsp;</th>
-            <th>@SharedLocalizer["Name"]</th>
-        </Header>
-        <Row>
-            <td><button type="button" class="btn btn-primary" @onclick="@(async () => Edit(context.Name))">@SharedLocalizer["Edit"]</button></td>
-            <td><button type="button" class="btn btn-secondary" @onclick="@(async () => Browse(context.Name))">@Localizer["Browse"]</button></td>
-            <td>@context.Name</td>
-        </Row>
-    </Pager>
+        <Pager Items="@_sites">
+            <Header>
+                <th style="width: 1px;">&nbsp;</th>
+                <th style="width: 1px;">&nbsp;</th>
+                <th>@SharedLocalizer["Name"]</th>
+            </Header>
+            <Row>
+                <td><button type="button" class="btn btn-primary" @onclick="@(async () => Edit(context.Name))">@SharedLocalizer["Edit"]</button></td>
+                <td><button type="button" class="btn btn-secondary" @onclick="@(async () => Browse(context.Name))">@Localizer["Browse"]</button></td>
+                <td>@context.Name</td>
+            </Row>
+        </Pager>
 }
 
-@code {
-    private List<Alias> _sites;
-    private string _scheme;
+        @code {
+            private List<Alias> _sites;
+            private string _scheme;
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+            public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-    protected override async Task OnParametersSetAsync()
-    {
-        var uri = new Uri(NavigationManager.Uri);
-        _scheme = uri.Scheme + "://";
-
-        var aliases = await AliasService.GetAliasesAsync();
-        _sites = new List<Alias>();
-        foreach (Alias alias in aliases)
-        {
-            if (!_sites.Exists(item => item.TenantId == alias.TenantId && item.SiteId == alias.SiteId))
+            protected override async Task OnParametersSetAsync()
             {
-                _sites.Add(alias);
+                    var uri = new Uri(NavigationManager.Uri);
+                    _scheme = uri.Scheme + "://";
+
+                    var aliases = await AliasService.GetAliasesAsync();
+                    _sites = new List<Alias>();
+                    foreach (Alias alias in aliases)
+                    {
+                        if (!_sites.Exists(item => item.TenantId == alias.TenantId && item.SiteId == alias.SiteId))
+                        {
+                            _sites.Add(alias);
+                        }
+                    }
+            }
+
+            private void Edit(string name)
+            {
+                NavigationManager.NavigateTo(_scheme + name + "/admin/site/?reload");
+            }
+
+            private void Browse(string name)
+            {
+                NavigationManager.NavigateTo(_scheme + name + "/?reload");
             }
         }
-    }
-
-    private void Edit(string name)
-    {
-        NavigationManager.NavigateTo(_scheme + name + "/admin/site/?reload");
-    }
-
-    private void Browse(string name)
-    {
-        NavigationManager.NavigateTo(_scheme + name + "/?reload");
-    }
-}

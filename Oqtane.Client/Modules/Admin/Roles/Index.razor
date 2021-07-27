@@ -10,22 +10,21 @@
 }
 else
 {
-    <ActionLink Action="Add" Text="Add Role" ResourceKey="AddRole" />
-
-    <Pager Items="@_roles">
-        <Header>
-            <th style="width: 1px;">&nbsp;</th>
-            <th style="width: 1px;">&nbsp;</th>
-            <th style="width: 1px;">&nbsp;</th>
-            <th>@SharedLocalizer["Name"]</th>
-        </Header>
-        <Row>
-            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.RoleId.ToString())" Disabled="@(context.IsSystem)" ResourceKey="Edit" /></td>
-            <td><ActionDialog Header="Delete Role" Message="@string.Format(Localizer["Confirm.DeleteUser"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteRole(context))" Disabled="@(context.IsSystem)" ResourceKey="DeleteRole" /></td>
-            <td><ActionLink Action="Users" Parameters="@($"id=" + context.RoleId.ToString())" ResourceKey="Users" /></td>
-            <td>@context.Name</td>
-        </Row>
-    </Pager>
+        <ActionLink Action="Add" Text="Add Role" ResourceKey="AddRole" />
+        <Pager Items="@_roles">
+            <Header>
+                <th style="width: 1px;">&nbsp;</th>
+                <th style="width: 1px;">&nbsp;</th>
+                <th style="width: 1px;">&nbsp;</th>
+                <th>@SharedLocalizer["Name"]</th>
+            </Header>
+            <Row>
+                <td><ActionLink Action="Edit" Parameters="@($"id=" + context.RoleId.ToString())" Disabled="@(context.IsSystem)" ResourceKey="Edit" /></td>
+                <td><ActionDialog Header="Delete Role" Message="@string.Format(Localizer["Confirm.DeleteUser"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteRole(context))" Disabled="@(context.IsSystem)" ResourceKey="DeleteRole" /></td>
+                <td><ActionLink Action="Users" Parameters="@($"id=" + context.RoleId.ToString())" ResourceKey="Users" /></td>
+                <td>@context.Name</td>
+            </Row>
+        </Pager>
 }
 
 @code {
@@ -40,30 +39,30 @@ else
 
     private async Task DeleteRole(Role role)
     {
-        try
-        {
-            await RoleService.DeleteRoleAsync(role.RoleId);
-            await logger.LogInformation("Role Deleted {Role}", role);
-            await GetRoles();
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Deleting Role {Role} {Error}", role, ex.Message);
-            AddModuleMessage(Localizer["Error.DeleteRole"], MessageType.Error);
-        }
+            try
+            {
+                await RoleService.DeleteRoleAsync(role.RoleId);
+                await logger.LogInformation("Role Deleted {Role}", role);
+                await GetRoles();
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Deleting Role {Role} {Error}", role, ex.Message);
+                AddModuleMessage(Localizer["Error.DeleteRole"], MessageType.Error);
+            }
     }
 
     private async Task GetRoles()
     {
-        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-        {
-            _roles = await RoleService.GetRolesAsync(PageState.Site.SiteId, true);
-            _roles = _roles.Where(item => item.Name != RoleNames.Everyone).ToList();
-        }
-        else
-        {
-            _roles = await RoleService.GetRolesAsync(PageState.Site.SiteId);
-        }
+            if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+            {
+                _roles = await RoleService.GetRolesAsync(PageState.Site.SiteId, true);
+                _roles = _roles.Where(item => item.Name != RoleNames.Everyone).ToList();
+            }
+            else
+            {
+                _roles = await RoleService.GetRolesAsync(PageState.Site.SiteId);
+            }
     }
 }

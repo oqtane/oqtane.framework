@@ -7,208 +7,182 @@
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-<TabStrip>
-    <TabPanel Name="Pages" ResourceKey="Pages">
-        @if (_pages == null)
-        {
-            <br />
-            <p>@Localizer["NoPage.Deleted"]</p>
-        }
-        else
-        {
-            <Pager Items="@_pages">
-                <Header>
-                    <th style="width: 1px;">&nbsp;</th>
-                    <th style="width: 1px;">&nbsp;</th>
-                    <th>@SharedLocalizer["Name"]</th>
-                    <th>@Localizer["DeletedBy"]</th>
-                    <th>@Localizer["DeletedOn"]</th>
-                </Header>
-                <Row>
-                    <td><button @onclick="@(() => RestorePage(context))" class="btn btn-info" title="Restore">Restore</button></td>
-                    <td><ActionDialog Header="Delete Page" Message="@string.Format(Localizer["Confirm.Page.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeletePage(context))" ResourceKey="DeletePage" /></td>
-                    <td>@context.Name</td>
-                    <td>@context.DeletedBy</td>
-                    <td>@context.DeletedOn</td>
-                </Row>
-            </Pager>
-            @if (_pages.Any())
+    <TabStrip>
+        <TabPanel Name="Pages" ResourceKey="Pages">
+            @if (_pages == null)
             {
-                <div style="text-align:right;">
-                    <ActionDialog Header="Delete All Pages" Message="Are You Sure You Wish To Permanently Delete All Pages?" Action="Delete All Pages" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteAllPages())" ResourceKey="DeleteAllPages" />
-                </div>
+                <br />
+                <p>@Localizer["NoPage.Deleted"]</p>
+            }
+            else
+            {
+                <Pager Items="@_pages">
+                    <Header>
+                        <th style="width: 1px;">&nbsp;</th>
+                        <th style="width: 1px;">&nbsp;</th>
+                        <th>@SharedLocalizer["Name"]</th>
+                        <th>@Localizer["DeletedBy"]</th>
+                        <th>@Localizer["DeletedOn"]</th>
+                    </Header>
+                    <Row>
+                        <td><button @onclick="@(() => RestorePage(context))" class="btn btn-info" title="Restore">Restore</button></td>
+                        <td><ActionDialog Header="Delete Page" Message="@string.Format(Localizer["Confirm.Page.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeletePage(context))" ResourceKey="DeletePage" /></td>
+                        <td>@context.Name</td>
+                        <td>@context.DeletedBy</td>
+                        <td>@context.DeletedOn</td>
+                    </Row>
+                </Pager>
+                @if (_pages.Any())
+                {
+                    <div style="text-align:right;">
+                        <ActionDialog Header="Delete All Pages" Message="Are You Sure You Wish To Permanently Delete All Pages?" Action="Delete All Pages" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteAllPages())" ResourceKey="DeleteAllPages" />
+                    </div>
+                }
+            }
+        </TabPanel>
+        <TabPanel Name="Modules" ResourceKey="Modules">
+            @if (_modules == null)
+            {
+                <br />
+                <p>@Localizer["NoModule.Deleted"]</p>
+            }
+            else
+            {
+                <Pager Items="@_modules">
+                    <Header>
+                        <th style="width: 1px;">&nbsp;</th>
+                        <th style="width: 1px;">&nbsp;</th>
+                        <th>@Localizer["Page"]</th>
+                        <th>@Localizer["Module"]</th>
+                        <th>@Localizer["DeletedBy"]</th>
+                        <th>@Localizer["DeletedOn"]</th>
+                    </Header>
+                    <Row>
+                        <td><button @onclick="@(() => RestoreModule(context))" class="btn btn-info" title="Restore">@Localizer["Restore"]</button></td>
+                        <td><ActionDialog Header="Delete Module" Message="@string.Format(Localizer["Confirm.Module.Delete"], context.Title)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" /></td>
+                        <td>@PageState.Pages.Find(item => item.PageId == context.PageId).Name</td>
+                        <td>@context.Title</td>
+                        <td>@context.DeletedBy</td>
+                        <td>@context.DeletedOn</td>
+                    </Row>
+                </Pager>
+                @if (_modules.Any())
+                {
+                    <div style="text-align:right;">
+                        <ActionDialog Header="Delete All Modules" Message="Are You Sure You Wish To Permanently Delete All Modules?" Action="Delete All Modules" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteAllModules())" ResourceKey="DeleteAllModules" />
+                    </div>
+                }
+
+            }
+        </TabPanel>
+    </TabStrip>
+
+    @code {
+        private List<Page> _pages;
+        private List<Module> _modules;
+
+        public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+
+        protected override async Task OnInitializedAsync()
+        {
+            try
+            {
+                await Load();
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Loading Deleted Pages Or Modules {Error}", ex.Message);
+                AddModuleMessage(Localizer["Error.DeletedModulePage.Load"], MessageType.Error);
             }
         }
-    </TabPanel>
-    <TabPanel Name="Modules" ResourceKey="Modules">
-        @if (_modules == null)
+
+        private async Task Load()
         {
-            <br />
-            <p>@Localizer["NoModule.Deleted"]</p>
+                _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
+                _pages = _pages.Where(item => item.IsDeleted).ToList();
+
+                _modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId);
+                _modules = _modules.Where(item => item.IsDeleted).ToList();
         }
-        else
+
+        private async Task RestorePage(Page page)
         {
-            <Pager Items="@_modules">
-                <Header>
-                    <th style="width: 1px;">&nbsp;</th>
-                    <th style="width: 1px;">&nbsp;</th>
-                    <th>@Localizer["Page"]</th>
-                    <th>@Localizer["Module"]</th>
-                    <th>@Localizer["DeletedBy"]</th>
-                    <th>@Localizer["DeletedOn"]</th>
-                </Header>
-                <Row>
-                    <td><button @onclick="@(() => RestoreModule(context))" class="btn btn-info" title="Restore">@Localizer["Restore"]</button></td>
-                    <td><ActionDialog Header="Delete Module" Message="@string.Format(Localizer["Confirm.Module.Delete"], context.Title)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" /></td>
-                    <td>@PageState.Pages.Find(item => item.PageId == context.PageId).Name</td>
-                    <td>@context.Title</td>
-                    <td>@context.DeletedBy</td>
-                    <td>@context.DeletedOn</td>
-                </Row>
-            </Pager>
-            @if (_modules.Any())
+            try
             {
-                <div style="text-align:right;">
-                    <ActionDialog Header="Delete All Modules" Message="Are You Sure You Wish To Permanently Delete All Modules?" Action="Delete All Modules" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteAllModules())" ResourceKey="DeleteAllModules" />
-                </div>
+                page.IsDeleted = false;
+                await PageService.UpdatePageAsync(page);
+                await logger.LogInformation("Page Restored {Page}", page);
+                await Load();
+                StateHasChanged();
+                NavigationManager.NavigateTo(NavigateUrl());
             }
-
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Restoring Deleted Page {Page} {Error}", page, ex.Message);
+                AddModuleMessage(Localizer["Error.Page.Restore"], MessageType.Error);
+            }
         }
-    </TabPanel>
-</TabStrip>
 
-@code {
-    private List<Page> _pages;
-    private List<Module> _modules;
-
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
-
-    protected override async Task OnInitializedAsync()
-    {
-        try
+        private async Task DeletePage(Page page)
         {
-            await Load();
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Loading Deleted Pages Or Modules {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error.DeletedModulePage.Load"], MessageType.Error);
-        }
-    }
-
-    private async Task Load()
-    {
-        _pages = await PageService.GetPagesAsync(PageState.Site.SiteId);
-        _pages = _pages.Where(item => item.IsDeleted).ToList();
-
-        _modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId);
-        _modules = _modules.Where(item => item.IsDeleted).ToList();
-    }
-
-    private async Task RestorePage(Page page)
-    {
-        try
-        {
-            page.IsDeleted = false;
-            await PageService.UpdatePageAsync(page);
-            await logger.LogInformation("Page Restored {Page}", page);
-            await Load();
-            StateHasChanged();
-            NavigationManager.NavigateTo(NavigateUrl());
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Restoring Deleted Page {Page} {Error}", page, ex.Message);
-            AddModuleMessage(Localizer["Error.Page.Restore"], MessageType.Error);
-        }
-    }
-
-    private async Task DeletePage(Page page)
-    {
-        try
-        {
-            await PageService.DeletePageAsync(page.PageId);
-            await logger.LogInformation("Page Permanently Deleted {Page}", page);
-            await Load();
-            StateHasChanged();
-            NavigationManager.NavigateTo(NavigateUrl());
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Permanently Deleting Page {Page} {Error}", page, ex.Message);
-            AddModuleMessage(ex.Message, MessageType.Error);
-        }
-    }
-
-    private async Task DeleteAllPages()
-    {
-        try
-        {
-            foreach (Page page in _pages)
+            try
             {
                 await PageService.DeletePageAsync(page.PageId);
                 await logger.LogInformation("Page Permanently Deleted {Page}", page);
+                await Load();
+                StateHasChanged();
+                NavigationManager.NavigateTo(NavigateUrl());
             }
-
-            await logger.LogInformation("Pages Permanently Deleted");
-            await Load();
-            StateHasChanged();
-            NavigationManager.NavigateTo(NavigateUrl());
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Permanently Deleting Pages {Error}", ex.Message);
-            AddModuleMessage(ex.Message, MessageType.Error);
-        }
-    }
-
-    private async Task RestoreModule(Module module)
-    {
-        try
-        {
-            var pagemodule = await PageModuleService.GetPageModuleAsync(module.PageModuleId);
-            pagemodule.IsDeleted = false;
-            await PageModuleService.UpdatePageModuleAsync(pagemodule);
-            await logger.LogInformation("Module Restored {Module}", module);
-            await Load();
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Restoring Deleted Module {Module} {Error}", module, ex.Message);
-            AddModuleMessage(Localizer["Error.Module.Restore"], MessageType.Error);
-        }
-    }
-
-    private async Task DeleteModule(Module module)
-    {
-        try
-        {
-            await PageModuleService.DeletePageModuleAsync(module.PageModuleId);
-            // check if there are any remaining module instances in the site
-            _modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId);
-
-            if (!_modules.Exists(item => item.ModuleId == module.ModuleId))
+            catch (Exception ex)
             {
-                await ModuleService.DeleteModuleAsync(module.ModuleId);
+                await logger.LogError(ex, "Error Permanently Deleting Page {Page} {Error}", page, ex.Message);
+                AddModuleMessage(ex.Message, MessageType.Error);
             }
-
-            await logger.LogInformation("Module Permanently Deleted {Module}", module);
-            await Load();
-            StateHasChanged();
         }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Permanently Deleting Module {Module} {Error}", module, ex.Message);
-            AddModuleMessage(Localizer["Error.Module.Delete"], MessageType.Error);
-        }
-    }
 
-    private async Task DeleteAllModules()
-    {
-        try
+        private async Task DeleteAllPages()
         {
-            foreach (Module module in _modules)
+            try
+            {
+                foreach (Page page in _pages)
+                {
+                    await PageService.DeletePageAsync(page.PageId);
+                    await logger.LogInformation("Page Permanently Deleted {Page}", page);
+                }
+
+                await logger.LogInformation("Pages Permanently Deleted");
+                await Load();
+                StateHasChanged();
+                NavigationManager.NavigateTo(NavigateUrl());
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Permanently Deleting Pages {Error}", ex.Message);
+                AddModuleMessage(ex.Message, MessageType.Error);
+            }
+        }
+
+        private async Task RestoreModule(Module module)
+        {
+            try
+            {
+                var pagemodule = await PageModuleService.GetPageModuleAsync(module.PageModuleId);
+                pagemodule.IsDeleted = false;
+                await PageModuleService.UpdatePageModuleAsync(pagemodule);
+                await logger.LogInformation("Module Restored {Module}", module);
+                await Load();
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Restoring Deleted Module {Module} {Error}", module, ex.Message);
+                AddModuleMessage(Localizer["Error.Module.Restore"], MessageType.Error);
+            }
+        }
+
+        private async Task DeleteModule(Module module)
+        {
+            try
             {
                 await PageModuleService.DeletePageModuleAsync(module.PageModuleId);
                 // check if there are any remaining module instances in the site
@@ -218,16 +192,42 @@
                 {
                     await ModuleService.DeleteModuleAsync(module.ModuleId);
                 }
-            }
 
-            await logger.LogInformation("Modules Permanently Deleted");
-            await Load();
-            StateHasChanged();
+                await logger.LogInformation("Module Permanently Deleted {Module}", module);
+                await Load();
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Permanently Deleting Module {Module} {Error}", module, ex.Message);
+                AddModuleMessage(Localizer["Error.Module.Delete"], MessageType.Error);
+            }
         }
-        catch (Exception ex)
+
+        private async Task DeleteAllModules()
         {
-            await logger.LogError(ex, "Error Permanently Deleting Modules {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error.Modules.Delete"], MessageType.Error);
+            try
+            {
+                foreach (Module module in _modules)
+                {
+                    await PageModuleService.DeletePageModuleAsync(module.PageModuleId);
+                    // check if there are any remaining module instances in the site
+                    _modules = await ModuleService.GetModulesAsync(PageState.Site.SiteId);
+
+                    if (!_modules.Exists(item => item.ModuleId == module.ModuleId))
+                    {
+                        await ModuleService.DeleteModuleAsync(module.ModuleId);
+                    }
+                }
+
+                await logger.LogInformation("Modules Permanently Deleted");
+                await Load();
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Permanently Deleting Modules {Error}", ex.Message);
+                AddModuleMessage(Localizer["Error.Modules.Delete"], MessageType.Error);
+            }
         }
     }
-}

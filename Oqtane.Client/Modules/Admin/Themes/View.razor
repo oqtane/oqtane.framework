@@ -6,84 +6,84 @@
 @inject IStringLocalizer<View> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-<div class="container">
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="name" HelpText="The name of the theme" ResourceKey="Name">Name: </Label>
-        <div class="col-sm-9">
-            <input id="name" class="form-control" @bind="@_name" disabled />
+    <div class="container">
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="name" HelpText="The name of the theme" ResourceKey="Name">Name: </Label>
+            <div class="col-sm-9">
+                <input id="name" class="form-control" @bind="@_name" disabled />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="themename" HelpText="The internal name of the module" ResourceKey="InternalName">Internal Name: </Label>
+            <div class="col-sm-9">
+                <input id="themename" class="form-control" @bind="@_themeName" disabled />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="version" HelpText="The version of the theme" ResourceKey="Version">Version: </Label>
+            <div class="col-sm-9">
+                <input id="version" class="form-control" @bind="@_version" disabled />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="owner" HelpText="The owner or creator of the theme" ResourceKey="Owner">Owner: </Label>
+            <div class="col-sm-9">
+                <input id="owner" class="form-control" @bind="@_owner" disabled />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="url" HelpText="The reference url of the theme" ResourceKey="ReferenceUrl">Reference Url: </Label>
+            <div class="col-sm-9">
+                <input id="url" class="form-control" @bind="@_url" disabled />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="contact" HelpText="The contact for the theme" ResourceKey="Contact">Contact: </Label>
+            <div class="col-sm-9">
+                <input id="contact" class="form-control" @bind="@_contact" disabled />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="license" HelpText="The license of the theme" ResourceKey="License">License: </Label>
+            <div class="col-sm-9">
+                <textarea id="license" class="form-control" @bind="@_license" rows="5" disabled></textarea>
+            </div>
         </div>
     </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="themename" HelpText="The internal name of the module" ResourceKey="InternalName">Internal Name: </Label>
-        <div class="col-sm-9">
-            <input id="themename" class="form-control" @bind="@_themeName" disabled />
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="version" HelpText="The version of the theme" ResourceKey="Version">Version: </Label>
-        <div class="col-sm-9">
-            <input id="version" class="form-control" @bind="@_version" disabled />
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="owner" HelpText="The owner or creator of the theme" ResourceKey="Owner">Owner: </Label>
-        <div class="col-sm-9">
-            <input id="owner" class="form-control" @bind="@_owner" disabled />
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="url" HelpText="The reference url of the theme" ResourceKey="ReferenceUrl">Reference Url: </Label>
-        <div class="col-sm-9">
-            <input id="url" class="form-control" @bind="@_url" disabled />
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="contact" HelpText="The contact for the theme" ResourceKey="Contact">Contact: </Label>
-        <div class="col-sm-9">
-            <input id="contact" class="form-control" @bind="@_contact" disabled />
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="license" HelpText="The license of the theme" ResourceKey="License">License: </Label>
-        <div class="col-sm-9">
-            <textarea id="license" class="form-control" @bind="@_license" rows="5" disabled></textarea>
-        </div>
-    </div>
-</div>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 
-@code {
-    private string _themeName = "";
-    private string _name;
-    private string _version;
-    private string _owner = "";
-    private string _url = "";
-    private string _contact = "";
-    private string _license = "";
+    @code {
+        private string _themeName = "";
+        private string _name;
+        private string _version;
+        private string _owner = "";
+        private string _url = "";
+        private string _contact = "";
+        private string _license = "";
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+        public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-    protected override async Task OnInitializedAsync()
-    {
-        try
+        protected override async Task OnInitializedAsync()
         {
-            _themeName = WebUtility.UrlDecode(PageState.QueryString["name"]);
-            var themes = await ThemeService.GetThemesAsync();
-            var theme = themes.FirstOrDefault(item => item.ThemeName == _themeName);
-            if (theme != null)
-            {
-                _name = theme.Name;
-                _version = theme.Version;
-                _owner = theme.Owner;
-                _url = theme.Url;
-                _contact = theme.Contact;
-                _license = theme.License;
-            }
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Loading Theme {ThemeName} {Error}", _themeName, ex.Message);
-            AddModuleMessage(Localizer["Error.Theme.Loading"], MessageType.Error);
+                try
+                {
+                    _themeName = WebUtility.UrlDecode(PageState.QueryString["name"]);
+                    var themes = await ThemeService.GetThemesAsync();
+                    var theme = themes.FirstOrDefault(item => item.ThemeName == _themeName);
+                    if (theme != null)
+                    {
+                        _name = theme.Name;
+                        _version = theme.Version;
+                        _owner = theme.Owner;
+                        _url = theme.Url;
+                        _contact = theme.Contact;
+                        _license = theme.License;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    await logger.LogError(ex, "Error Loading Theme {ThemeName} {Error}", _themeName, ex.Message);
+                    AddModuleMessage(Localizer["Error.Theme.Loading"], MessageType.Error);
+                }
         }
     }
-}

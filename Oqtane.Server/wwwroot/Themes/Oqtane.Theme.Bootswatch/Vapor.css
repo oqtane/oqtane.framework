@@ -1,0 +1,16 @@
+/* CSS overrides */
+.card {
+    background-color: #1a0a33;
+}
+
+.table .form-control {
+    background-color: transparent !important;
+}
+
+.table .form-select {
+    background-color: transparent !important;
+}
+
+option {
+    background-color: #ad82fc !important;
+}

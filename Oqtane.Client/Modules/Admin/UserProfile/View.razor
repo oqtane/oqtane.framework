@@ -8,50 +8,50 @@
 
 @if (PageState.User != null)
 {
-    <div class="container">
-        <div class="row mb-1 align-items-center">
-            <label Class="col-sm-3">@Localizer["Title"] </label>
-            @if (title == "From")
-            {
-                <div class="col-sm-3">
-                    <input class="form-control" @bind="@username" readonly />
-                </div>
-            }
-            @if (title == "To")
-            {
-                <div class="col-sm-3">
-                    <input class="form-control" @bind="@username" />
-                </div>
-            }
-        </div>
-        <div class="row mb-1 align-items-center">
-            <label Class="col-sm-3">@Localizer["Subject"] </label>
-            @if (title == "From")
-            {
-                <div class="col-sm-3">
-                    <input class="form-control" @bind="@subject" readonly />
-                </div>
-            }
-            @if (title == "To")
-            {
-                <div class="col-sm-3">
-                    <input class="form-control" @bind="@subject" />
-                </div>
-            }
-        </div>
-    </div>
-    <div class="container">
-        @if (title == "From")
-        {
+        <div class="container">
             <div class="row mb-1 align-items-center">
-                <label class="col-sm-3">@Localizer["Date"] </label>
-                <div class="col-sm-9">
-                    <input class="form-control" @bind="@createdon" readonly />
-                </div>
+                <label Class="col-sm-3">@Localizer["Title"] </label>
+                @if (title == "From")
+                {
+                    <div class="col-sm-3">
+                        <input class="form-control" @bind="@username" readonly />
+                    </div>
+                }
+                @if (title == "To")
+                {
+                    <div class="col-sm-3">
+                        <input class="form-control" @bind="@username"/>
+                    </div>
+                }
             </div>
-        }
-        @if (title == "From")
-        {
+            <div class="row mb-1 align-items-center">
+                <label Class="col-sm-3">@Localizer["Subject"] </label>
+                @if (title == "From")
+                {
+                    <div class="col-sm-3">
+                        <input class="form-control" @bind="@subject" readonly />
+                    </div>
+                }
+                @if (title == "To")
+                {
+                    <div class="col-sm-3">
+                        <input class="form-control" @bind="@subject"/>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="container">
+            @if (title == "From")
+            {
+                <div class="row mb-1 align-items-center">
+                    <label class="col-sm-3">@Localizer["Date"] </label>
+                    <div class="col-sm-9">
+                        <input class="form-control" @bind="@createdon" readonly />
+                    </div>
+                </div>
+            }
+            @if (title == "From")
+            {
                 <div class="row mb-1 align-items-center">
                     <label class="col-sm-3">@Localizer["Message"] </label>
                     <div class="col-sm-9">
@@ -59,140 +59,140 @@
                     </div>
                 </div>
 
+            }
+            @if (title == "To")
+            {
+
+                <div class="row mb-1 align-items-center">
+                    <label class="col-sm-3">@Localizer["Message"] </label>
+                    <div class="col-sm-9">
+                        <textarea class="form-control" @bind="@body" rows="5" readonly />
+                    </div>
+                </div>
+
+            }
+
+        </div>
+
+
+        @if (reply != string.Empty)
+        {
+            <button type="button" class="btn btn-primary" @onclick="Send">@SharedLocalizer["Send"]</button>
         }
+        else
+        {
+            if (title == "From")
+            {
+                <button type="button" class="btn btn-primary" @onclick="Reply">@Localizer["Reply"]</button>
+            }
+        }
+        <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+        <br />
+        <br />
         @if (title == "To")
         {
-
-                <div class="row mb-1 align-items-center">
-                    <label class="col-sm-3">@Localizer["Message"] </label>
-                    <div class="col-sm-9">
-                        <textarea class="form-control" @bind="@body" rows="5" readonly />
-                    </div>
-                </div>
-
+            <div class="control-group">
+                <label class="control-label">@Localizer["OriginalMessage"] </label>
+                <textarea class="form-control" @bind="@reply" rows="5" readonly />
+            </div>
         }
-
-    </div>
-
-
-    @if (reply != string.Empty)
-    {
-        <button type="button" class="btn btn-primary" @onclick="Send">@SharedLocalizer["Send"]</button>
-    }
-    else
-    {
-        if (title == "From")
-        {
-            <button type="button" class="btn btn-primary" @onclick="Reply">@Localizer["Reply"]</button>
-        }
-    }
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-    <br />
-    <br />
-    @if (title == "To")
-    {
-        <div class="control-group">
-            <label class="control-label">@Localizer["OriginalMessage"] </label>
-            <textarea class="form-control" @bind="@reply" rows="5" readonly />
-        </div>
-    }
 }
 
-@code {
-    private int notificationid;
-    private string title = string.Empty;
-    private string username = "";
-    private string subject = string.Empty;
-    private string createdon = string.Empty;
-    private string body = string.Empty;
-    private string reply = string.Empty;
+        @code {
+            private int notificationid;
+            private string title = string.Empty;
+            private string username = "";
+            private string subject = string.Empty;
+            private string createdon = string.Empty;
+            private string body = string.Empty;
+            private string reply = string.Empty;
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
-    public override string Title => "View Notification";
+            public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
+            public override string Title => "View Notification";
 
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            notificationid = Int32.Parse(PageState.QueryString["id"]);
-            Notification notification = await NotificationService.GetNotificationAsync(notificationid);
-            if (notification != null)
+            protected override async Task OnInitializedAsync()
             {
-                int userid = -1;
-                if (notification.ToUserId == PageState.User.UserId)
+                try
                 {
-                    title = "From";
-                    if (notification.FromUserId != null)
+                    notificationid = Int32.Parse(PageState.QueryString["id"]);
+                    Notification notification = await NotificationService.GetNotificationAsync(notificationid);
+                    if (notification != null)
                     {
-                        userid = notification.FromUserId.Value;
+                        int userid = -1;
+                        if (notification.ToUserId == PageState.User.UserId)
+                        {
+                            title = "From";
+                            if (notification.FromUserId != null)
+                            {
+                                userid = notification.FromUserId.Value;
+                            }
+                        }
+                        else
+                        {
+                            title = "To";
+                            if (notification.ToUserId != null)
+                            {
+                                userid = notification.ToUserId.Value;
+                            }
+                        }
+                        if (userid != -1)
+                        {
+                            var user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
+                            if (user != null)
+                            {
+                                username = user.Username;
+                            }
+                        }
+                        if (username == "")
+                        {
+                            username = "System";
+                        }
+                        subject = notification.Subject;
+                        createdon = notification.CreatedOn.ToString();
+                        body = notification.Body;
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    title = "To";
-                    if (notification.ToUserId != null)
-                    {
-                        userid = notification.ToUserId.Value;
-                    }
+                    await logger.LogError(ex, "Error Loading Users {Error}", ex.Message);
+                    AddModuleMessage(Localizer["Error.User.Load"], MessageType.Error);
                 }
-                if (userid != -1)
-                {
-                    var user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
-                    if (user != null)
-                    {
-                        username = user.Username;
-                    }
-                }
-                if (username == "")
-                {
-                    username = "System";
-                }
-                subject = notification.Subject;
-                createdon = notification.CreatedOn.ToString();
-                body = notification.Body;
             }
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Loading Users {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error.User.Load"], MessageType.Error);
-        }
-    }
 
-    private void Reply()
-    {
-        title = "To";
-        if (!subject.Contains("RE:"))
-        {
-            subject = "RE: " + subject;
-        }
-        reply = body;
-        body = "\n\n____________________________________________\nSent: " + createdon + "\nSubject: " + subject + "\n\n" + body;
-        StateHasChanged();
-    }
+            private void Reply()
+            {
+                title = "To";
+                if (!subject.Contains("RE:"))
+                {
+                    subject = "RE: " + subject;
+                }
+                reply = body;
+                body = "\n\n____________________________________________\nSent: " + createdon + "\nSubject: " + subject + "\n\n" + body;
+                StateHasChanged();
+            }
 
-    private async Task Send()
-    {
-        try
-        {
-            var user = await UserService.GetUserAsync(username, PageState.Site.SiteId);
-            if (user != null)
+            private async Task Send()
             {
-                var notification = new Notification(PageState.Site.SiteId, PageState.User, user, subject, body, notificationid);
-                notification = await NotificationService.AddNotificationAsync(notification);
-                await logger.LogInformation("Notification Created {NotificationId}", notification.NotificationId);
-                NavigationManager.NavigateTo(NavigateUrl());
-            }
-            else
-            {
-                AddModuleMessage(Localizer["Message.User.Invalid"], MessageType.Warning);
+                    try
+                    {
+                        var user = await UserService.GetUserAsync(username, PageState.Site.SiteId);
+                        if (user != null)
+                        {
+                            var notification = new Notification(PageState.Site.SiteId, PageState.User, user, subject, body, notificationid);
+                            notification = await NotificationService.AddNotificationAsync(notification);
+                            await logger.LogInformation("Notification Created {NotificationId}", notification.NotificationId);
+                            NavigationManager.NavigateTo(NavigateUrl());
+                        }
+                        else
+                        {
+                            AddModuleMessage(Localizer["Message.User.Invalid"], MessageType.Warning);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        await logger.LogError(ex, "Error Adding Notification {Error}", ex.Message);
+                        AddModuleMessage(Localizer["Error.Notification.Add"], MessageType.Error);
+                    }
             }
         }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Adding Notification {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error.Notification.Add"], MessageType.Error);
-        }
-    }
-}
 

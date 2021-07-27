@@ -1,0 +1,13 @@
+/* CSS overrides */
+.btn {
+    font-size: 0.8rem;
+}
+
+body {
+    padding-top: 8rem;
+}
+
+[contenteditable].form-control, [type=email].form-control, [type=password].form-control, [type=tel].form-control, [type=text].form-control, input.form-control, input[type=email], input[type=number], input[type=password], input[type=text], textarea, textarea.form-control {
+    box-shadow: inset 0 -1px 0 #ddd !important;
+    transition: box-shadow .2s !important;
+}

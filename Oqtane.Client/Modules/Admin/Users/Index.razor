@@ -14,110 +14,110 @@
 }
 else
 {
-    <div class="container">
-        <div class="row mb-1 align-items-center">
-            <div class="col-sm-4">
-                <ActionLink Action="Add" Text="Add User" ResourceKey="AddUser" />
-            </div>
-            <div class="col-sm-4">
-                <input class="form-control" @bind="@_search" />
-            </div>
-            <div class="col-sm-4">
-                <button class="btn btn-secondary" @onclick="OnSearch">@SharedLocalizer["Search"]</button>
+        <div class="container">
+            <div class="row mb-1 align-items-center">
+                <div class="col-sm-4">
+                    <ActionLink Action="Add" Text="Add User" ResourceKey="AddUser" />
+                </div>
+                <div class="col-sm-4">
+                    <input class="form-control" @bind="@_search" />
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-secondary" @onclick="OnSearch">@SharedLocalizer["Search"]</button>
+                </div>
             </div>
         </div>
-    </div>
-    <Pager Items="@userroles">
-        <Header>
-        <th style="width: 1px;">&nbsp;</th>
-        <th style="width: 1px;">&nbsp;</th>
-        <th style="width: 1px;">&nbsp;</th>
-        <th>@SharedLocalizer["Name"]</th>
-        </Header>
-        <Row>
-            <td>
-                <ActionLink Action="Edit" Parameters="@($"id=" + context.UserId.ToString())" ResourceKey="EditUser" />
-            </td>
-            <td>
-                <ActionDialog Header="Delete User" Message="@string.Format(Localizer["Confirm.User.Delete"], context.User.DisplayName)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteUser(context))" Disabled="@(context.Role.Name == RoleNames.Host)" ResourceKey="DeleteUser" />
-            </td>
-            <td>
-                <ActionLink Action="Roles" Parameters="@($"id=" + context.UserId.ToString())" ResourceKey="Roles" />
-            </td>
-            <td>@context.User.DisplayName</td>
-        </Row>
-    </Pager>
+        <Pager Items="@userroles">
+            <Header>
+                <th style="width: 1px;">&nbsp;</th>
+                <th style="width: 1px;">&nbsp;</th>
+                <th style="width: 1px;">&nbsp;</th>
+                <th>@SharedLocalizer["Name"]</th>
+            </Header>
+            <Row>
+                <td>
+                    <ActionLink Action="Edit" Parameters="@($"id=" + context.UserId.ToString())" ResourceKey="EditUser" />
+                </td>
+                <td>
+                    <ActionDialog Header="Delete User" Message="@string.Format(Localizer["Confirm.User.Delete"], context.User.DisplayName)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteUser(context))" Disabled="@(context.Role.Name == RoleNames.Host)" ResourceKey="DeleteUser" />
+                </td>
+                <td>
+                    <ActionLink Action="Roles" Parameters="@($"id=" + context.UserId.ToString())" ResourceKey="Roles" />
+                </td>
+                <td>@context.User.DisplayName</td>
+            </Row>
+        </Pager>
 }
 
-@code {
-    private List<UserRole> allroles;
-    private List<UserRole> userroles;
-    private string _search;
+        @code {
+            private List<UserRole> allroles;
+            private List<UserRole> userroles;
+            private string _search;
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+            public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-    protected override async Task OnInitializedAsync()
-    {
-        allroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
-        await LoadSettingsAsync();
-        userroles = Search(_search);
-    }
-
-    private List<UserRole> Search(string search)
-    {
-        var results = allroles.Where(item => item.Role.Name == RoleNames.Registered || (item.Role.Name == RoleNames.Host && UserSecurity.IsAuthorized(PageState.User, RoleNames.Host)));
-
-        if (string.IsNullOrEmpty(_search))
-        {
-            results = results.Where(item =>
-                (
-                    item.User.Username.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                    item.User.Email.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                    item.User.DisplayName.Contains(search, StringComparison.OrdinalIgnoreCase)
-                )
-            );
-        }
-        return results.ToList();
-    }
-
-    private async Task OnSearch()
-    {
-        userroles = Search(_search);
-        await UpdateSettingsAsync();
-    }
-
-    private async Task DeleteUser(UserRole UserRole)
-    {
-        try
-        {
-            var user = await UserService.GetUserAsync(UserRole.UserId, PageState.Site.SiteId);
-            if (user != null)
+            protected override async Task OnInitializedAsync()
             {
-                await UserService.DeleteUserAsync(user.UserId, PageState.Site.SiteId);
-                await logger.LogInformation("User Deleted {User}", UserRole.User);
-                StateHasChanged();
+                allroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
+                await LoadSettingsAsync();
+                userroles = Search(_search);
             }
+
+            private List<UserRole> Search(string search)
+            {
+                var results = allroles.Where(item => item.Role.Name == RoleNames.Registered || (item.Role.Name == RoleNames.Host && UserSecurity.IsAuthorized(PageState.User, RoleNames.Host)));
+
+                if (string.IsNullOrEmpty(_search))
+                {
+                    results = results.Where(item =>
+                        (
+                            item.User.Username.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                            item.User.Email.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                            item.User.DisplayName.Contains(search, StringComparison.OrdinalIgnoreCase)
+                        )
+                    );
+                }
+                return results.ToList();
+            }
+
+            private async Task OnSearch()
+            {
+                userroles = Search(_search);
+                await UpdateSettingsAsync();
+            }
+
+            private async Task DeleteUser(UserRole UserRole)
+            {
+                    try
+                    {
+                        var user = await UserService.GetUserAsync(UserRole.UserId, PageState.Site.SiteId);
+                        if (user != null)
+                        {
+                            await UserService.DeleteUserAsync(user.UserId, PageState.Site.SiteId);
+                            await logger.LogInformation("User Deleted {User}", UserRole.User);
+                            StateHasChanged();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        await logger.LogError(ex, "Error Deleting User {User} {Error}", UserRole.User, ex.Message);
+                        AddModuleMessage(ex.Message, MessageType.Error);
+                    }
+            }
+
+            private string settingSearch = "AU-search";
+
+            private async Task LoadSettingsAsync()
+            {
+                Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
+                _search = SettingService.GetSetting(settings, settingSearch, "");
+            }
+
+            private async Task UpdateSettingsAsync()
+            {
+                Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
+                SettingService.SetSetting(settings, settingSearch, _search);
+                await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
+            }
+
         }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Deleting User {User} {Error}", UserRole.User, ex.Message);
-            AddModuleMessage(ex.Message, MessageType.Error);
-        }
-    }
-
-    private string settingSearch = "AU-search";
-
-    private async Task LoadSettingsAsync()
-    {
-        Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
-        _search = SettingService.GetSetting(settings, settingSearch, "");
-    }
-
-    private async Task UpdateSettingsAsync()
-    {
-        Dictionary<string, string> settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
-        SettingService.SetSetting(settings, settingSearch, _search);
-        await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
-    }
-
-}

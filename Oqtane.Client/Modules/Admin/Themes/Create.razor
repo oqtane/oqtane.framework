@@ -11,135 +11,149 @@
 
 @if (_templates != null)
 {
-<div class="container">
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="owner" HelpText="Enter the name of the organization who is developing this theme. It should not contain spaces or punctuation." ResourceKey="OwnerName">Owner Name: </Label>
-        <div class="col-sm-9">
-            <input id="owner" class="form-control" @bind="@_owner" />
+    <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+        <div class="container">
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="owner" HelpText="Enter the name of the organization who is developing this theme. It should not contain spaces or punctuation." ResourceKey="OwnerName">Owner Name: </Label>
+                <div class="col-sm-9">
+                    <input id="owner" class="form-control" @bind="@_owner" maxlength="256" required/>
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="module" HelpText="Enter a name for this theme. It should not contain spaces or punctuation." ResourceKey="ThemeName">Theme Name: </Label>
+                <div class="col-sm-9">
+                    <input id="module" class="form-control" @bind="@_theme" maxlength="256" required/>
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="template" HelpText="Select a theme template. Templates are located in the wwwroot/Themes/Templates folder on the server." ResourceKey="Template">Template: </Label>
+                <div class="col-sm-9">
+                    <select id="template" class="form-select" @onchange="(e => TemplateChanged(e))" required>
+                        <option value="-">&lt;@Localizer["Template.Select"]&gt;</option>
+                        @foreach (Template template in _templates)
+                        {
+                            <option value="@template.Name">@template.Title</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="reference" HelpText="Select a framework reference version" ResourceKey="FrameworkReference">Framework Reference: </Label>
+                <div class="col-sm-9">
+                    <select id="reference" class="form-select" @bind="@_reference" required>
+                        @foreach (string version in _versions)
+                        {
+                            if (Version.Parse(version).CompareTo(Version.Parse(_minversion)) >= 0)
+                            {
+                                <option value="@(version)">@(version)</option>
+                            }
+                        }
+                        <option value="local">@SharedLocalizer["LocalVersion"]</option>
+                    </select>
+                </div>
+            </div>
+            @if (!string.IsNullOrEmpty(_location))
+            {
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="location" HelpText="Location where the theme will be created" ResourceKey="Location">Location: </Label>
+                    <div class="col-sm-9">
+                        <input id="module" class="form-control" @bind="@_location" readonly />
+                    </div>
+                </div>
+            }
         </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="module" HelpText="Enter a name for this theme. It should not contain spaces or punctuation." ResourceKey="ThemeName">Theme Name: </Label>
-        <div class="col-sm-9">
-            <input id="module" class="form-control" @bind="@_theme" />
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="template" HelpText="Select a theme template. Templates are located in the wwwroot/Themes/Templates folder on the server." ResourceKey="Template">Template: </Label>
-        <div class="col-sm-9">
-            <select id="template" class="form-select" @onchange="(e => TemplateChanged(e))">
-                <option value="-">&lt;@Localizer["Template.Select"]&gt;</option>
-                @foreach (Template template in _templates)
+        <br />
+        <button type="button" class="btn btn-success" @onclick="CreateTheme">@Localizer["Theme.Create"]</button>
+        <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+    </form>
+}
+
+        @code {
+            private ElementReference form;
+            private bool validated = false;
+            private string _owner = string.Empty;
+            private string _theme = string.Empty;
+            private List<Template> _templates;
+            private string _template = "-";
+            private string[] _versions;
+            private string _reference = Constants.Version;
+            private string _minversion = "2.0.0";
+            private string _location = string.Empty;
+
+            public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+
+            protected override async Task OnParametersSetAsync()
+            {
+                try
                 {
-                    <option value="@template.Name">@template.Title</option>
+                    _templates = await ThemeService.GetThemeTemplatesAsync();
+                    _versions = Constants.ReleaseVersions.Split(',').Where(item => Version.Parse(item).CompareTo(Version.Parse("2.0.0")) >= 0).ToArray();
+                    AddModuleMessage(Localizer["Info.Theme.CreatorIntent"], MessageType.Info);
                 }
-            </select>
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="reference" HelpText="Select a framework reference version" ResourceKey="FrameworkReference">Framework Reference: </Label>
-        <div class="col-sm-9">
-            <select id="reference" class="form-select" @bind="@_reference">
-                @foreach (string version in _versions)
+                catch (Exception ex)
                 {
-                    if (Version.Parse(version).CompareTo(Version.Parse(_minversion)) >= 0)
+                    await logger.LogError(ex, "Error Loading Theme Creator");
+                }
+            }
+
+            private async Task CreateTheme()
+            {
+                validated = true;
+                var interop = new Interop(JSRuntime);
+                if (await interop.FormValid(form))
+                {
+                    try
                     {
-                        <option value="@(version)">@(version)</option>
+                        if (IsValid(_owner) && IsValid(_theme) && _owner != _theme && _template != "-")
+                        {
+                            var theme = new Theme { Owner = _owner, Name = _theme, Template = _template, Version = _reference };
+                            theme = await ThemeService.CreateThemeAsync(theme);
+                            GetLocation();
+                            AddModuleMessage(string.Format(Localizer["Success.Theme.Create"], NavigateUrl("admin/system")), MessageType.Success);
+                        }
+                        else
+                        {
+                            AddModuleMessage(Localizer["Message.Required.ValidName"], MessageType.Warning);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        await logger.LogError(ex, "Error Creating Theme");
                     }
                 }
-                <option value="local">@SharedLocalizer["LocalVersion"]</option>
-            </select>
-        </div>
-    </div>
-    @if (!string.IsNullOrEmpty(_location)) {
-        <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="location" HelpText="Location where the theme will be created" ResourceKey="Location">Location: </Label>
-            <div class="col-sm-9">
-                <input id="module" class="form-control" @bind="@_location" readonly />
-            </div>
-        </div>
-    }
-</div>
-    <br />
-    <button type="button" class="btn btn-success" @onclick="CreateTheme">@Localizer["Theme.Create"]</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-}
+                else
+                {
+                    AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+                }
+            }
 
-@code {
-    private string _owner = string.Empty;
-    private string _theme = string.Empty;
-    private List<Template> _templates;
-    private string _template = "-";
-    private string[] _versions;
-    private string _reference = Constants.Version;
-    private string _minversion = "2.0.0";
-    private string _location = string.Empty;
-
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
-
-    protected override async Task OnParametersSetAsync()
-    {
-        try
-        {
-            _templates = await ThemeService.GetThemeTemplatesAsync();
-            _versions = Constants.ReleaseVersions.Split(',').Where(item => Version.Parse(item).CompareTo(Version.Parse("2.0.0")) >= 0).ToArray();
-            AddModuleMessage(Localizer["Info.Theme.CreatorIntent"], MessageType.Info);
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Loading Theme Creator");
-        }
-    }
-
-    private async Task CreateTheme()
-    {
-        try
-        {
-            if (IsValid(_owner) && IsValid(_theme) && _owner != _theme && _template != "-")
+            private bool IsValid(string name)
             {
-                var theme = new Theme { Owner = _owner, Name = _theme, Template = _template, Version = _reference };
-                theme = await ThemeService.CreateThemeAsync(theme);
+                // must contain letters, underscores and digits and first character must be letter or underscore
+                return !string.IsNullOrEmpty(name) && name.ToLower() != "theme" && Regex.IsMatch(name, "^[A-Za-z_][A-Za-z0-9_]*$");
+            }
+
+            private void TemplateChanged(ChangeEventArgs e)
+            {
+                _template = (string)e.Value;
+                _minversion = "2.0.0";
+                if (_template != "-")
+                {
+                    var template = _templates.FirstOrDefault(item => item.Name == _template);
+                    _minversion = template.Version;
+                }
                 GetLocation();
-                AddModuleMessage(string.Format(Localizer["Success.Theme.Create"], NavigateUrl("admin/system")), MessageType.Success);
             }
-            else
+
+            private void GetLocation()
             {
-                AddModuleMessage(Localizer["Message.Required.ValidName"], MessageType.Warning);
+                _location = string.Empty;
+                if (_owner != "" && _theme != "" && _template != "-")
+                {
+                    var template = _templates.FirstOrDefault(item => item.Name == _template);
+                    _location = template.Location + _owner + "." + _theme;
+
+                }
+                StateHasChanged();
             }
         }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Creating Theme");
-        }
-    }
-
-    private bool IsValid(string name)
-    {
-        // must contain letters, underscores and digits and first character must be letter or underscore
-        return !string.IsNullOrEmpty(name) && name.ToLower() != "theme" && Regex.IsMatch(name, "^[A-Za-z_][A-Za-z0-9_]*$");
-    }
-
-    private void TemplateChanged(ChangeEventArgs e)
-    {
-        _template = (string)e.Value;
-        _minversion = "2.0.0";
-        if (_template != "-")
-        {
-            var template = _templates.FirstOrDefault(item => item.Name == _template);
-            _minversion = template.Version;
-        }
-        GetLocation();
-    }
-
-    private void GetLocation()
-    {
-        _location = string.Empty;
-        if (_owner != "" && _theme != "" && _template != "-")
-        {
-            var template = _templates.FirstOrDefault(item => item.Name == _template);
-            _location = template.Location + _owner + "." + _theme;
-
-        }
-        StateHasChanged();
-    }
-}

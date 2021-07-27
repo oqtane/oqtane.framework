@@ -17,360 +17,373 @@ else
 {
     <br />
 }
-<TabStrip>
-    <TabPanel Name="Identity" ResourceKey="Identity">
-        @if (PageState.User != null)
-        {
-            <div class="container">
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="username" HelpText="Your username. Note that this field can not be modified." ResourceKey="Username"></Label>
-                    <div class="col-sm-9">
-                        <input id="username" class="form-control" @bind="@username" readonly />
+    <TabStrip>
+        <TabPanel Name="Identity" ResourceKey="Identity">
+            @if (PageState.User != null)
+            {
+                <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+                    <div class="container">
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="username" HelpText="Your username. Note that this field can not be modified." ResourceKey="Username"></Label>
+                            <div class="col-sm-9">
+                                <input id="username" class="form-control" @bind="@username" readonly />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="password" HelpText="If you wish to change your password you can enter it here. Please choose a sufficiently secure password." ResourceKey="Password"></Label>
+                            <div class="col-sm-9">
+                                <input id="password" type="password" class="form-control" @bind="@password" autocomplete="new-password" maxlength="256" required />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="confirm" HelpText="If you are changing your password you must enter it again to confirm it matches" ResourceKey="Confirm"></Label>
+                            <div class="col-sm-9">
+                                <input id="confirm" type="password" class="form-control" @bind="@confirm" autocomplete="new-password" maxlength="256" required />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="email" HelpText="Your email address where you wish to receive notifications" ResourceKey="Email"></Label>
+                            <div class="col-sm-9">
+                                <input id="email" class="form-control" @bind="@email" />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="displayname" HelpText="Your full name" ResourceKey="DisplayName"></Label>
+                            <div class="col-sm-9">
+                                <input id="displayname" class="form-control" @bind="@displayname" />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="@photofileid.ToString()" HelpText="A photo of yourself" ResourceKey="Photo"></Label>
+                            <div class="col-sm-9">
+                                <FileManager FileId="@photofileid" @ref="filemanager" />
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="password" HelpText="If you wish to change your password you can enter it here. Please choose a sufficiently secure password." ResourceKey="Password"></Label>
-                    <div class="col-sm-9">
-                        <input id="password" type="password" class="form-control" @bind="@password" autocomplete="new-password" />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="confirm" HelpText="If you are changing your password you must enter it again to confirm it matches" ResourceKey="Confirm"></Label>
-                    <div class="col-sm-9">
-                        <input id="confirm" type="password" class="form-control" @bind="@confirm" autocomplete="new-password" />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="email" HelpText="Your email address where you wish to receive notifications" ResourceKey="Email"></Label>
-                    <div class="col-sm-9">
-                        <input id="email" class="form-control" @bind="@email" />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="displayname" HelpText="Your full name" ResourceKey="DisplayName"></Label>
-                    <div class="col-sm-9">
-                        <input id="displayname" class="form-control" @bind="@displayname" />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="@photofileid.ToString()" HelpText="A photo of yourself" ResourceKey="Photo"></Label>
-                    <div class="col-sm-9">
-                        <FileManager FileId="@photofileid" @ref="filemanager" />
-                    </div>
-                </div>
-            </div>
-            <br />
-            <button type="button" class="btn btn-success" @onclick="Save">@SharedLocalizer["Save"]</button>
-            <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
-        }
-    </TabPanel>
-    <TabPanel Name="Profile" ResourceKey="Profile">
-        @if (profiles != null && settings != null)
-        {
+                    <br />
+                    <button type="button" class="btn btn-success" @onclick="Save">@SharedLocalizer["Save"]</button>
+                    <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
+                </form>
+            }
+        </TabPanel>
+        <TabPanel Name="Profile" ResourceKey="Profile">
+            @if (profiles != null && settings != null)
+            {
 
 
-            <div class="container">
-                <div class="row mb-1 align-items-center">
-                    @foreach (Profile profile in profiles)
-                    {
-                        var p = profile;
-                        if (!p.IsPrivate || UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
+                <div class="container">
+                    <div class="row mb-1 align-items-center">
+                        @foreach (Profile profile in profiles)
                         {
-                            if (p.Category != category)
+                            var p = profile;
+                            if (!p.IsPrivate || UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
                             {
-                                <div class="col text-center pb-2">
-                                    @p.Category
-                                </div>
-                                category = p.Category;
-                            }
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="@p.Name" HelpText="@p.Description">@p.Title</Label>
-                                <div class="col-sm-9">
-                                    @if (!string.IsNullOrEmpty(p.Options))
-                                    {
-                                        <select id="@p.Name" class="form-select" @onchange="@(e => ProfileChanged(e, p.Name))">
-                                            @foreach (var option in p.Options.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                                            {
-                                                @if (GetProfileValue(p.Name, "") == option || (GetProfileValue(p.Name, "") == "" && p.DefaultValue == option))
-                                                {
-                                                    <option value="@option" selected>@option</option>
-                                                }
-                                                else
-                                                {
-                                                    <option value="@option">@option</option>
-                                                }
-                                            }
-                                        </select>
-                                    }
-                                    else
-                                    {
-                                        @if (p.IsRequired)
+                                if (p.Category != category)
+                                {
+                                    <div class="col text-center pb-2">
+                                        @p.Category
+                                    </div>
+                                    category = p.Category;
+                                }
+                                <div class="row mb-1 align-items-center">
+                                    <Label Class="col-sm-3" For="@p.Name" HelpText="@p.Description">@p.Title</Label>
+                                    <div class="col-sm-9">
+                                        @if (!string.IsNullOrEmpty(p.Options))
                                         {
-                                            <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                            <select id="@p.Name" class="form-select" @onchange="@(e => ProfileChanged(e, p.Name))">
+                                                @foreach (var option in p.Options.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                                                {
+                                                    @if (GetProfileValue(p.Name, "") == option || (GetProfileValue(p.Name, "") == "" && p.DefaultValue == option))
+                                                    {
+                                                        <option value="@option" selected>@option</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@option">@option</option>
+                                                    }
+                                                }
+                                            </select>
                                         }
                                         else
                                         {
-                                            <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                            @if (p.IsRequired)
+                                            {
+                                                <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                            }
+                                            else
+                                            {
+                                                <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                            }
                                         }
-                                    }
+                                    </div>
                                 </div>
-                            </div>
+                            }
+                        }
+                    </div>
+                </div>
+                <button type="button" class="btn btn-success" @onclick="Save">@SharedLocalizer["Save"]</button>
+                <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
+            }
+        </TabPanel>
+        <TabPanel Name="Notifications" ResourceKey="Notifications">
+            @if (notifications != null)
+            {
+                <ActionLink Action="Add" Text="Send Notification" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="SendNotification" />
+                <br /><br />
+                @if (filter == "to")
+                {
+                    <Pager Items="@notifications">
+                        <Header>
+                            <th style="width: 1px;">&nbsp;</th>
+                            <th style="width: 1px;">&nbsp;</th>
+                            <th>@Localizer["From"]</th>
+                            <th>@Localizer["Subject"]</th>
+                            <th>@Localizer["Received"]</th>
+                        </Header>
+                        <Row>
+                            <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" /></td>
+                            <td><ActionDialog Header="Delete Notification" Message="Are You Sure You Wish To Delete This Notification?" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" ResourceKey="DeleteNotification" /></td>
+                            <td>@context.FromDisplayName</td>
+                            <td>@context.Subject</td>
+                            <td>@context.CreatedOn</td>
+                        </Row>
+                        <Detail>
+                            <td colspan="2"></td>
+                            <td colspan="3">
+                                @{
+                                            string input = "___";
+                                            if (context.Body.Contains(input))
+                                            {
+                                                context.Body = context.Body.Split(input)[0];
+                                                context.Body = context.Body.Replace("\n", "");
+                                                context.Body = context.Body.Replace("\r", "");
+                                            } }
+                                @(context.Body.Length > 100 ? (context.Body.Substring(0, 97) + "...") : context.Body)
+                            </td>
+                        </Detail>
+                    </Pager>
+                }
+                else
+                {
+                    <Pager Items="@notifications">
+                        <Header>
+                            <th>&nbsp;</th>
+                            <th>&nbsp;</th>
+                            <th>@Localizer["To"]</th>
+                            <th>@Localizer["Subject"]</th>
+                            <th>@Localizer["Sent"]</th>
+                        </Header>
+                        <Row>
+                            <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" /></td>
+                            <td><ActionDialog Header="Delete Notification" Message="Are You Sure You Wish To Delete This Notification?" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" ResourceKey="DeleteNotification" /></td>
+                            <td>@context.ToDisplayName</td>
+                            <td>@context.Subject</td>
+                            <td>@context.CreatedOn</td>
+                        </Row>
+                        <Detail>
+                            <td colspan="2"></td>
+                            <td colspan="3">
+                                @{
+                                            string input = "___";
+                                            if (context.Body.Contains(input))
+                                            {
+                                                context.Body = context.Body.Split(input)[0];
+                                                context.Body = context.Body.Replace("\n", "");
+                                                context.Body = context.Body.Replace("\r", "");
+                                            } }
+                                @(context.Body.Length > 100 ? (context.Body.Substring(0, 97) + "...") : context.Body)
+                            </td>
+                        </Detail>
+                    </Pager>
+                }
+                <br /><hr />
+                <select class="form-select" @onchange="(e => FilterChanged(e))">
+                    <option value="to">@Localizer["Inbox"]</option>
+                    <option value="from">@Localizer["Items.Sent"]</option>
+                </select>
+            }
+        </TabPanel>
+    </TabStrip>
+
+    @code {
+        private ElementReference form;
+        private bool validated = false;
+        private string username = string.Empty;
+        private string password = string.Empty;
+        private string confirm = string.Empty;
+        private string email = string.Empty;
+        private string displayname = string.Empty;
+        private FileManager filemanager;
+        private int photofileid = -1;
+        private File photo = null;
+        private List<Profile> profiles;
+        private Dictionary<string, string> settings;
+        private string category = string.Empty;
+        private string filter = "to";
+        private List<Notification> notifications;
+
+        public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
+
+        protected override async Task OnParametersSetAsync()
+        {
+            try
+            {
+                if (PageState.User != null)
+                {
+                    username = PageState.User.Username;
+                    email = PageState.User.Email;
+                    displayname = PageState.User.DisplayName;
+
+                    if (PageState.User.PhotoFileId != null)
+                    {
+                        photofileid = PageState.User.PhotoFileId.Value;
+                        photo = await FileService.GetFileAsync(photofileid);
+                    }
+                    else
+                    {
+                        photofileid = -1;
+                        photo = null;
+                    }
+
+                    profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
+                    settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
+
+                    await LoadNotificationsAsync();
+                }
+                else
+                {
+                    AddModuleMessage(Localizer["Message.User.NoLogIn"], MessageType.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Loading User Profile {Error}", ex.Message);
+                AddModuleMessage(Localizer["Error.Profile.Load"], MessageType.Error);
+            }
+        }
+
+        private async Task LoadNotificationsAsync()
+        {
+            notifications = await NotificationService.GetNotificationsAsync(PageState.Site.SiteId, filter, PageState.User.UserId);
+            notifications = notifications.Where(item => item.DeletedBy != PageState.User.Username).ToList();
+        }
+
+        private string GetProfileValue(string SettingName, string DefaultValue)
+            => SettingService.GetSetting(settings, SettingName, DefaultValue);
+
+        private async Task Save()
+        {
+            validated = true;
+            var interop = new Interop(JSRuntime);
+            if (await interop.FormValid(form))
+            {
+                try
+                {
+                    if (username != string.Empty && email != string.Empty && ValidateProfiles())
+                    {
+                        if (password == confirm)
+                        {
+                            var user = PageState.User;
+                            user.Username = username;
+                            user.Password = password;
+                            user.Email = email;
+                            user.DisplayName = (displayname == string.Empty ? username : displayname);
+                            user.PhotoFileId = filemanager.GetFileId();
+                            if (user.PhotoFileId == -1)
+                            {
+                                user.PhotoFileId = null;
+                            }
+
+                            await UserService.UpdateUserAsync(user);
+                            await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
+                            await logger.LogInformation("User Profile Saved");
+
+                            NavigationManager.NavigateTo(NavigateUrl());
+                        }
+                        else
+                        {
+                            AddModuleMessage(Localizer["Message.Password.Invalid"], MessageType.Warning);
                         }
                     }
-                </div>
-            </div>
-            <button type="button" class="btn btn-success" @onclick="Save">@SharedLocalizer["Save"]</button>
-            <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
-        }
-    </TabPanel>
-    <TabPanel Name="Notifications" ResourceKey="Notifications">
-        @if (notifications != null)
-        {
-            <ActionLink Action="Add" Text="Send Notification" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="SendNotification" />
-            <br /><br />
-            @if (filter == "to")
-            {
-                <Pager Items="@notifications">
-                    <Header>
-                    <th style="width: 1px;">&nbsp;</th>
-                    <th style="width: 1px;">&nbsp;</th>
-                    <th>@Localizer["From"]</th>
-                    <th>@Localizer["Subject"]</th>
-                    <th>@Localizer["Received"]</th>
-                    </Header>
-                    <Row>
-                        <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" /></td>
-                        <td><ActionDialog Header="Delete Notification" Message="Are You Sure You Wish To Delete This Notification?" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" ResourceKey="DeleteNotification" /></td>
-                        <td>@context.FromDisplayName</td>
-                        <td>@context.Subject</td>
-                        <td>@context.CreatedOn</td>
-                    </Row>
-                    <Detail>
-                        <td colspan="2"></td>
-                        <td colspan="3">
-                            @{
-                                        string input = "___";
-                                        if (context.Body.Contains(input))
-                                        {
-                                            context.Body = context.Body.Split(input)[0];
-                                            context.Body = context.Body.Replace("\n", "");
-                                            context.Body = context.Body.Replace("\r", "");
-                                        } }
-                            @(context.Body.Length > 100 ? (context.Body.Substring(0, 97) + "...") : context.Body)
-                        </td>
-                    </Detail>
-                </Pager>
-            }
-            else
-            {
-                <Pager Items="@notifications">
-                    <Header>
-                    <th>&nbsp;</th>
-                    <th>&nbsp;</th>
-                    <th>@Localizer["To"]</th>
-                    <th>@Localizer["Subject"]</th>
-                    <th>@Localizer["Sent"]</th>
-                    </Header>
-                    <Row>
-                        <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" /></td>
-                        <td><ActionDialog Header="Delete Notification" Message="Are You Sure You Wish To Delete This Notification?" Action="Delete" Security="SecurityAccessLevel.View" Class="btn btn-danger" OnClick="@(async () => await Delete(context))" EditMode="false" ResourceKey="DeleteNotification" /></td>
-                        <td>@context.ToDisplayName</td>
-                        <td>@context.Subject</td>
-                        <td>@context.CreatedOn</td>
-                    </Row>
-                    <Detail>
-                        <td colspan="2"></td>
-                        <td colspan="3">
-                            @{
-                                        string input = "___";
-                                        if (context.Body.Contains(input))
-                                        {
-                                            context.Body = context.Body.Split(input)[0];
-                                            context.Body = context.Body.Replace("\n", "");
-                                            context.Body = context.Body.Replace("\r", "");
-                                        } }
-                            @(context.Body.Length > 100 ? (context.Body.Substring(0, 97) + "...") : context.Body)
-                        </td>
-                    </Detail>
-                </Pager>
-            }
-            <br /><hr />
-            <select class="form-select" @onchange="(e => FilterChanged(e))">
-                <option value="to">@Localizer["Inbox"]</option>
-                <option value="from">@Localizer["Items.Sent"]</option>
-            </select>
-        }
-    </TabPanel>
-</TabStrip>
-
-@code {
-    private string username = string.Empty;
-    private string password = string.Empty;
-    private string confirm = string.Empty;
-    private string email = string.Empty;
-    private string displayname = string.Empty;
-    private FileManager filemanager;
-    private int photofileid = -1;
-    private File photo = null;
-    private List<Profile> profiles;
-    private Dictionary<string, string> settings;
-    private string category = string.Empty;
-    private string filter = "to";
-    private List<Notification> notifications;
-
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.View;
-
-    protected override async Task OnParametersSetAsync()
-    {
-        try
-        {
-            if (PageState.User != null)
-            {
-                username = PageState.User.Username;
-                email = PageState.User.Email;
-                displayname = PageState.User.DisplayName;
-
-                if (PageState.User.PhotoFileId != null)
-                {
-                    photofileid = PageState.User.PhotoFileId.Value;
-                    photo = await FileService.GetFileAsync(photofileid);
-                }
-                else
-                {
-                    photofileid = -1;
-                    photo = null;
-                }
-
-                profiles = await ProfileService.GetProfilesAsync(ModuleState.SiteId);
-                settings = await SettingService.GetUserSettingsAsync(PageState.User.UserId);
-
-                await LoadNotificationsAsync();
-            }
-            else
-            {
-                AddModuleMessage(Localizer["Message.User.NoLogIn"], MessageType.Warning);
-            }
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Loading User Profile {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error.Profile.Load"], MessageType.Error);
-        }
-    }
-
-    private async Task LoadNotificationsAsync()
-    {
-        notifications = await NotificationService.GetNotificationsAsync(PageState.Site.SiteId, filter, PageState.User.UserId);
-        notifications = notifications.Where(item => item.DeletedBy != PageState.User.Username).ToList();
-    }
-
-    private string GetProfileValue(string SettingName, string DefaultValue)
-        => SettingService.GetSetting(settings, SettingName, DefaultValue);
-
-    private async Task Save()
-    {
-        try
-        {
-            if (username != string.Empty && email != string.Empty && ValidateProfiles())
-            {
-                if (password == confirm)
-                {
-                    var user = PageState.User;
-                    user.Username = username;
-                    user.Password = password;
-                    user.Email = email;
-                    user.DisplayName = (displayname == string.Empty ? username : displayname);
-                    user.PhotoFileId = filemanager.GetFileId();
-                    if (user.PhotoFileId == -1)
+                    else
                     {
-                        user.PhotoFileId = null;
+                        AddModuleMessage(Localizer["Message.Required.ProfileInfo"], MessageType.Warning);
                     }
+                }
+                catch (Exception ex)
+                {
+                    await logger.LogError(ex, "Error Saving User Profile {Error}", ex.Message);
+                    AddModuleMessage(Localizer["Error.Profile.Save"], MessageType.Error);
+                }
+            }
+            else
+            {
+                AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+            }
+        }
 
-                    await UserService.UpdateUserAsync(user);
-                    await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
-                    await logger.LogInformation("User Profile Saved");
+        private bool ValidateProfiles()
+        {
+            bool valid = true;
+            foreach (Profile profile in profiles)
+            {
+                if (string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)) && !string.IsNullOrEmpty(profile.DefaultValue))
+                {
+                    settings = SettingService.SetSetting(settings, profile.Name, profile.DefaultValue);
+                }
+                if (!profile.IsPrivate || UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
+                {
+                    if (profile.IsRequired && string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)))
+                    {
+                        valid = false;
+                    }
+                }
+            }
+            return valid;
+        }
 
-                    NavigationManager.NavigateTo(NavigateUrl());
+        private void Cancel()
+        {
+            NavigationManager.NavigateTo(NavigateUrl(string.Empty));
+        }
+
+        private void ProfileChanged(ChangeEventArgs e, string SettingName)
+        {
+            var value = (string)e.Value;
+            settings = SettingService.SetSetting(settings, SettingName, value);
+        }
+
+        private async Task Delete(Notification Notification)
+        {
+            try
+            {
+                if (!Notification.IsDeleted)
+                {
+                    Notification.IsDeleted = true;
+                    await NotificationService.UpdateNotificationAsync(Notification);
                 }
                 else
                 {
-                    AddModuleMessage(Localizer["Message.Password.Invalid"], MessageType.Warning);
+                    await NotificationService.DeleteNotificationAsync(Notification.NotificationId);
                 }
+
+                await logger.LogInformation("Notification Deleted {Notification}", Notification);
+                await LoadNotificationsAsync();
+                StateHasChanged();
             }
-            else
+            catch (Exception ex)
             {
-                AddModuleMessage(Localizer["Message.Required.ProfileInfo"], MessageType.Warning);
+                await logger.LogError(ex, "Error Deleting Notification {Notification} {Error}", Notification, ex.Message);
+                AddModuleMessage(ex.Message, MessageType.Error);
             }
         }
-        catch (Exception ex)
+
+        private async void FilterChanged(ChangeEventArgs e)
         {
-            await logger.LogError(ex, "Error Saving User Profile {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error.Profile.Save"], MessageType.Error);
-        }
-    }
+            filter = (string)e.Value;
 
-    private bool ValidateProfiles()
-    {
-        bool valid = true;
-        foreach (Profile profile in profiles)
-        {
-            if (string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)) && !string.IsNullOrEmpty(profile.DefaultValue))
-            {
-                settings = SettingService.SetSetting(settings, profile.Name, profile.DefaultValue);
-            }
-            if (!profile.IsPrivate || UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
-            {
-                if (profile.IsRequired && string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)))
-                {
-                    valid = false;
-                }
-            }
-        }
-        return valid;
-    }
-
-    private void Cancel()
-    {
-        NavigationManager.NavigateTo(NavigateUrl(string.Empty));
-    }
-
-    private void ProfileChanged(ChangeEventArgs e, string SettingName)
-    {
-        var value = (string)e.Value;
-        settings = SettingService.SetSetting(settings, SettingName, value);
-    }
-
-    private async Task Delete(Notification Notification)
-    {
-        try
-        {
-            if (!Notification.IsDeleted)
-            {
-                Notification.IsDeleted = true;
-                await NotificationService.UpdateNotificationAsync(Notification);
-            }
-            else
-            {
-                await NotificationService.DeleteNotificationAsync(Notification.NotificationId);
-            }
-
-            await logger.LogInformation("Notification Deleted {Notification}", Notification);
             await LoadNotificationsAsync();
             StateHasChanged();
         }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Deleting Notification {Notification} {Error}", Notification, ex.Message);
-            AddModuleMessage(ex.Message, MessageType.Error);
-        }
+
     }
-
-    private async void FilterChanged(ChangeEventArgs e)
-    {
-        filter = (string)e.Value;
-
-        await LoadNotificationsAsync();
-        StateHasChanged();
-    }
-
-}

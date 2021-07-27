@@ -7,92 +7,92 @@
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-<TabStrip>
-    <TabPanel Name="Download" ResourceKey="Download">
-        @if (_package != null && _upgradeavailable)
-        {
-            <ModuleMessage Type="MessageType.Info" Message="Select The Download Button To Download The Framework Upgrade Package And Then Select Upgrade"></ModuleMessage>
-            <button type="button" class="btn btn-primary" @onclick=@(async () => await Download(Constants.PackageId, @_package.Version))>@SharedLocalizer["Download"] @_package.Version</button>
-            <button type="button" class="btn btn-success" @onclick="Upgrade">@SharedLocalizer["Upgrade"]</button>
-        }
-        else
-        {
-            <ModuleMessage Type="MessageType.Info" Message="Framework Is Already Up To Date"></ModuleMessage>
-        }
-    </TabPanel>
-    <TabPanel Name="Upload" ResourceKey="Upload">
-        <ModuleMessage Type="MessageType.Info" Message="Upload A Framework Package (Oqtane.Framework.version.nupkg) And Then Select Upgrade"></ModuleMessage>
-        <div class="container">
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" HelpText="Upload A Framework Package And Then Select Upgrade" ResourceKey="Framework">Framework: </Label>
-                <div class="col-sm-9">
-                    <FileManager Filter="nupkg" ShowFiles="false" Folder="Packages" />
+    <TabStrip>
+        <TabPanel Name="Download" ResourceKey="Download">
+            @if (_package != null && _upgradeavailable)
+            {
+                <ModuleMessage Type="MessageType.Info" Message="Select The Download Button To Download The Framework Upgrade Package And Then Select Upgrade"></ModuleMessage>
+                <button type="button" class="btn btn-primary" @onclick=@(async () => await Download(Constants.PackageId, @_package.Version))>@SharedLocalizer["Download"] @_package.Version</button>
+                <button type="button" class="btn btn-success" @onclick="Upgrade">@SharedLocalizer["Upgrade"]</button>
+            }
+            else
+            {
+                <ModuleMessage Type="MessageType.Info" Message="Framework Is Already Up To Date"></ModuleMessage>
+            }
+        </TabPanel>
+        <TabPanel Name="Upload" ResourceKey="Upload">
+            <ModuleMessage Type="MessageType.Info" Message="Upload A Framework Package (Oqtane.Framework.version.nupkg) And Then Select Upgrade"></ModuleMessage>
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" HelpText="Upload A Framework Package And Then Select Upgrade" ResourceKey="Framework">Framework: </Label>
+                    <div class="col-sm-9">
+                        <FileManager Filter="nupkg" ShowFiles="false" Folder="Packages" />
+                    </div>
                 </div>
             </div>
-        </div>
-        <button type="button" class="btn btn-success" @onclick="Upgrade">@SharedLocalizer["Upgrade"]</button>
-    </TabPanel>
-</TabStrip>
+            <button type="button" class="btn btn-success" @onclick="Upgrade">@SharedLocalizer["Upgrade"]</button>
+        </TabPanel>
+    </TabStrip>
 
-@code {
-    private Package _package;
-    private bool _upgradeavailable = false;
+    @code {
+        private Package _package;
+        private bool _upgradeavailable = false;
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+        public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-    protected override async Task OnInitializedAsync()
-    {
-        try
+        protected override async Task OnInitializedAsync()
         {
-            List<Package> packages = await PackageService.GetPackagesAsync("framework");
-            if (packages != null)
+                try
+                {
+                    List<Package> packages = await PackageService.GetPackagesAsync("framework");
+                    if (packages != null)
+                    {
+                        _package = packages.Where(item => item.PackageId.StartsWith(Constants.PackageId)).FirstOrDefault();
+                        if (_package != null)
+                        {
+                            _upgradeavailable = (Version.Parse(_package.Version).CompareTo(Version.Parse(Constants.Version)) > 0);
+                        }
+                        else
+                        {
+                            _package = new Package { Name = Constants.PackageId, Version = Constants.Version };
+                        }
+                    }
+                }
+                catch
+                {
+                    // can be caused by no network connection
+                }
+        }
+
+        private async Task Upgrade()
+        {
+            try
             {
-                _package = packages.Where(item => item.PackageId.StartsWith(Constants.PackageId)).FirstOrDefault();
-                if (_package != null)
-                {
-                    _upgradeavailable = (Version.Parse(_package.Version).CompareTo(Version.Parse(Constants.Version)) > 0);
-                }
-                else
-                {
-                    _package = new Package { Name = Constants.PackageId, Version = Constants.Version };
-                }
+                AddModuleMessage(Localizer["Info.Upgrade.Wait"], MessageType.Info);
+                ShowProgressIndicator();
+                var interop = new Interop(JSRuntime);
+                await interop.RedirectBrowser(NavigateUrl(), 10);
+                await InstallationService.Upgrade();
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Executing Upgrade {Error}", ex.Message);
+                AddModuleMessage(Localizer["Error.Upgrade.Execute"], MessageType.Error);
             }
         }
-        catch
-        {
-            // can be caused by no network connection
-        }
-    }
 
-    private async Task Upgrade()
-    {
-        try
+        private async Task Download(string packageid, string version)
         {
-            AddModuleMessage(Localizer["Info.Upgrade.Wait"], MessageType.Info);
-            ShowProgressIndicator();
-            var interop = new Interop(JSRuntime);
-            await interop.RedirectBrowser(NavigateUrl(), 10);
-            await InstallationService.Upgrade();
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Executing Upgrade {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error.Upgrade.Execute"], MessageType.Error);
-        }
-    }
-
-    private async Task Download(string packageid, string version)
-    {
-        try
-        {
-            await PackageService.DownloadPackageAsync(packageid, version, "Packages");
-            await PackageService.DownloadPackageAsync(Constants.UpdaterPackageId, version, "Packages");
-            AddModuleMessage(Localizer["Success.Framework.Download"], MessageType.Success);
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Downloading Framework Package {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error.Framework.Download"], MessageType.Error);
+            try
+            {
+                await PackageService.DownloadPackageAsync(packageid, version, "Packages");
+                await PackageService.DownloadPackageAsync(Constants.UpdaterPackageId, version, "Packages");
+                AddModuleMessage(Localizer["Success.Framework.Download"], MessageType.Success);
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Downloading Framework Package {Error}", ex.Message);
+                AddModuleMessage(Localizer["Error.Framework.Download"], MessageType.Error);
+            }
         }
     }
-}

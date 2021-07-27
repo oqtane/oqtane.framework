@@ -13,104 +13,104 @@
 }
 else
 {
-    <ActionLink Action="Add" Text="Install Theme" />
-    @((MarkupString)"&nbsp;")
-    <ActionLink Action="Create" Text="Create Theme" ResourceKey="CreateTheme" Class="btn btn-secondary" />
+        <ActionLink Action="Add" Text="Install Theme" />
+        @((MarkupString)"&nbsp;")
+        <ActionLink Action="Create" Text="Create Theme" ResourceKey="CreateTheme" Class="btn btn-secondary" />
 
-    <Pager Items="@_themes">
-        <Header>
-            <th style="width: 1px;">&nbsp;</th>
-            <th style="width: 1px;">&nbsp;</th>
-            <th scope="col">@SharedLocalizer["Name"]</th>
-            <th scope="col">@SharedLocalizer["Version"]</th>
-            <th>&nbsp;</th>
-        </Header>
-        <Row>
-            <td><ActionLink Action="View" Parameters="@($"name=" + WebUtility.UrlEncode(context.ThemeName))" ResourceKey="ViewTheme" /></td>
-            <td>
-                @if (context.AssemblyName != "Oqtane.Client")
-                    {
-                    <ActionDialog Header="Delete Theme" Message="@string.Format(Localizer["Confirm.Theme.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteTheme(context))" ResourceKey="DeleteTheme" />
-                    }
-            </td>
-            <td>@context.Name</td>
-            <td>@context.Version</td>
-            <td>
-                @if (UpgradeAvailable(context.PackageName, context.Version))
-                    {
-                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadTheme(context.PackageName, context.Version))>@SharedLocalizer["Upgrade"]</button>
-                    }
-            </td>
-            <td></td>
-        </Row>
-    </Pager>
+        <Pager Items="@_themes">
+            <Header>
+                <th style="width: 1px;">&nbsp;</th>
+                <th style="width: 1px;">&nbsp;</th>
+                <th scope="col">@SharedLocalizer["Name"]</th>
+                <th scope="col">@SharedLocalizer["Version"]</th>
+                <th>&nbsp;</th>
+            </Header>
+            <Row>
+                <td><ActionLink Action="View" Parameters="@($"name=" + WebUtility.UrlEncode(context.ThemeName))" ResourceKey="ViewTheme" /></td>
+                <td>
+                    @if (context.AssemblyName != "Oqtane.Client")
+                        {
+                        <ActionDialog Header="Delete Theme" Message="@string.Format(Localizer["Confirm.Theme.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteTheme(context))" ResourceKey="DeleteTheme" />
+                        }
+                </td>
+                <td>@context.Name</td>
+                <td>@context.Version</td>
+                <td>
+                    @if (UpgradeAvailable(context.PackageName, context.Version))
+                        {
+                        <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadTheme(context.PackageName, context.Version))>@SharedLocalizer["Upgrade"]</button>
+                        }
+                </td>
+                <td></td>
+            </Row>
+        </Pager>
 }
 
-@code {
-    private List<Theme> _themes;
-    private List<Package> _packages;
+        @code {
+            private List<Theme> _themes;
+            private List<Package> _packages;
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+            public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-    protected override async Task OnParametersSetAsync()
-    {
-        try
-        {
-            _themes = await ThemeService.GetThemesAsync();
-            _packages = await PackageService.GetPackagesAsync("theme");
-        }
-        catch (Exception ex)
-        {
-            if (_themes == null)
+            protected override async Task OnParametersSetAsync()
             {
-                await logger.LogError(ex, "Error Loading Themes {Error}", ex.Message);
-                AddModuleMessage(Localizer["Error.Theme.Load"], MessageType.Error);
+                    try
+                    {
+                        _themes = await ThemeService.GetThemesAsync();
+                        _packages = await PackageService.GetPackagesAsync("theme");
+                    }
+                    catch (Exception ex)
+                    {
+                        if (_themes == null)
+                        {
+                            await logger.LogError(ex, "Error Loading Themes {Error}", ex.Message);
+                            AddModuleMessage(Localizer["Error.Theme.Load"], MessageType.Error);
+                        }
+                    }
+            }
+
+            private bool UpgradeAvailable(string packagename, string version)
+            {
+                var upgradeavailable = false;
+                if (_packages != null)
+                {
+                    var package = _packages.Where(item => item.PackageId == packagename).FirstOrDefault();
+                    if (package != null)
+                    {
+                        upgradeavailable = (Version.Parse(package.Version).CompareTo(Version.Parse(version)) > 0);
+                    }
+                }
+                return upgradeavailable;
+            }
+
+            private async Task DownloadTheme(string packagename, string version)
+            {
+                try
+                {
+                    await PackageService.DownloadPackageAsync(packagename, version, "Packages");
+                    await logger.LogInformation("Theme Downloaded {ThemeName} {Version}", packagename, version);
+                    await ThemeService.InstallThemesAsync();
+                    AddModuleMessage(string.Format(Localizer["Success.Theme.Install"], NavigateUrl("admin/system")), MessageType.Success);
+                }
+                catch (Exception ex)
+                {
+                    await logger.LogError(ex, "Error Downloading Theme {ThemeName} {Version} {Error}", packagename, version, ex.Message);
+                    AddModuleMessage(Localizer["Error.Theme.Download"], MessageType.Error);
+                }
+            }
+
+            private async Task DeleteTheme(Theme Theme)
+            {
+                try
+                {
+                    await ThemeService.DeleteThemeAsync(Theme.ThemeName);
+                    AddModuleMessage(Localizer["Success.Theme.Delete"], MessageType.Success);
+                    NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, true));
+                }
+                catch (Exception ex)
+                {
+                    await logger.LogError(ex, "Error Deleting Theme {Theme} {Error}", Theme, ex.Message);
+                    AddModuleMessage(Localizer["Error.Theme.Delete"], MessageType.Error);
+                }
             }
         }
-    }
-
-    private bool UpgradeAvailable(string packagename, string version)
-    {
-        var upgradeavailable = false;
-        if (_packages != null)
-        {
-            var package = _packages.Where(item => item.PackageId == packagename).FirstOrDefault();
-            if (package != null)
-            {
-                upgradeavailable = (Version.Parse(package.Version).CompareTo(Version.Parse(version)) > 0);
-            }
-        }
-        return upgradeavailable;
-    }
-
-    private async Task DownloadTheme(string packagename, string version)
-    {
-        try
-        {
-            await PackageService.DownloadPackageAsync(packagename, version, "Packages");
-            await logger.LogInformation("Theme Downloaded {ThemeName} {Version}", packagename, version);
-            await ThemeService.InstallThemesAsync();
-            AddModuleMessage(string.Format(Localizer["Success.Theme.Install"], NavigateUrl("admin/system")), MessageType.Success);
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Downloading Theme {ThemeName} {Version} {Error}", packagename, version, ex.Message);
-            AddModuleMessage(Localizer["Error.Theme.Download"], MessageType.Error);
-        }
-    }
-
-    private async Task DeleteTheme(Theme Theme)
-    {
-        try
-        {
-            await ThemeService.DeleteThemeAsync(Theme.ThemeName);
-            AddModuleMessage(Localizer["Success.Theme.Delete"], MessageType.Success);
-            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, true));
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Deleting Theme {Theme} {Error}", Theme, ex.Message);
-            AddModuleMessage(Localizer["Error.Theme.Delete"], MessageType.Error);
-        }
-    }
-}

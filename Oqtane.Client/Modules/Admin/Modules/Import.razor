@@ -5,6 +5,7 @@
 @inject IStringLocalizer<Import> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
+<form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
     <div class="container">
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="content" HelpText="Enter the module content" ResourceKey="Content">Content: </Label>
@@ -17,39 +18,50 @@
 
     <button type="button" class="btn btn-success" @onclick="ImportModule">@Localizer["Import"]</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-
+</form>
 
     @code {
         private string _content = string.Empty;
+        private ElementReference form;
+        private bool validated = false;
 
         public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
         public override string Title => "Import Content";
 
         private async Task ImportModule()
         {
-            if (_content != string.Empty)
+            validated = true;
+            var interop = new Interop(JSRuntime);
+            if (await interop.FormValid(form))
             {
-                try
+                if (_content != string.Empty)
                 {
-                    bool success = await ModuleService.ImportModuleAsync(ModuleState.ModuleId, _content);
-                    if (success)
+                    try
                     {
-                        AddModuleMessage(Localizer["Success.Content.Import"], MessageType.Success);
+                        bool success = await ModuleService.ImportModuleAsync(ModuleState.ModuleId, _content);
+                        if (success)
+                        {
+                            AddModuleMessage(Localizer["Success.Content.Import"], MessageType.Success);
+                        }
+                        else
+                        {
+                            AddModuleMessage(Localizer["Message.Content.ImportProblem"], MessageType.Warning);
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        AddModuleMessage(Localizer["Message.Content.ImportProblem"], MessageType.Warning);
+                        await logger.LogError(ex, "Error Importing Module {ModuleId} {Error}", ModuleState.ModuleId, ex.Message);
+                        AddModuleMessage(Localizer["Error.Module.Import"], MessageType.Error);
                     }
                 }
-                catch (Exception ex)
+                else
                 {
-                    await logger.LogError(ex, "Error Importing Module {ModuleId} {Error}", ModuleState.ModuleId, ex.Message);
-                    AddModuleMessage(Localizer["Error.Module.Import"], MessageType.Error);
+                    AddModuleMessage(Localizer["Message.Required.ImportContent"], MessageType.Warning);
                 }
             }
             else
             {
-                AddModuleMessage(Localizer["Message.Required.ImportContent"], MessageType.Warning);
+                AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
             }
         }
     }

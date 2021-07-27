@@ -5,88 +5,101 @@
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-<div class="container">
-    <div class="form-group">
-        <label for="Username" class="control-label">@SharedLocalizer["Username"] </label>
-        <input type="text" class="form-control" placeholder="Username" @bind="@_username" readonly id="Username" />
+<form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+    <div class="container">
+        <div class="form-group">
+            <label for="Username" class="control-label">@SharedLocalizer["Username"] </label>
+            <input type="text" class="form-control" placeholder="Username" @bind="@_username" readonly id="Username"/>
+        </div>
+        <div class="form-group">
+            <label for="Password" class="control-label">@SharedLocalizer["Password"] </label>
+            <input type="password" class="form-control" placeholder="Password" @bind="@_password" id="Password" maxlength="256" required />
+        </div>
+        <div class="form-group">
+            <label for="Confirm" class="control-label">@Localizer["Password.Confirm"] </label>
+            <input type="password" class="form-control" placeholder="Password" @bind="@_confirm" id="Confirm" maxlength="256" required />
+        </div>
+        <button type="button" class="btn btn-primary" @onclick="Reset">@Localizer["Password.Reset"]</button>
+        <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
     </div>
-    <div class="form-group">
-        <label for="Password" class="control-label">@SharedLocalizer["Password"] </label>
-        <input type="password" class="form-control" placeholder="Password" @bind="@_password" id="Password" />
-    </div>
-    <div class="form-group">
-        <label for="Confirm" class="control-label">@Localizer["Password.Confirm"] </label>
-        <input type="password" class="form-control" placeholder="Password" @bind="@_confirm" id="Confirm" />
-    </div>
-    <button type="button" class="btn btn-primary" @onclick="Reset">@Localizer["Password.Reset"]</button>
-    <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
-</div>
+</form>
 
-@code {
-    private string _username = string.Empty;
-    private string _password = string.Empty;
-    private string _confirm = string.Empty;
+    @code {
+        private ElementReference form;
+        private bool validated = false;
+        private string _username = string.Empty;
+        private string _password = string.Empty;
+        private string _confirm = string.Empty;
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
+        public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
 
-    protected override void OnInitialized()
-    {
-        if (PageState.QueryString.ContainsKey("name") && PageState.QueryString.ContainsKey("token"))
+        protected override void OnInitialized()
         {
-            _username = PageState.QueryString["name"];
-        }
-        else
-        {
-            NavigationManager.NavigateTo(NavigateUrl(string.Empty));
-        }
-    }
-
-    private async Task Reset()
-    {
-        try
-        {
-            if (_username != string.Empty && _password != string.Empty && _confirm != string.Empty)
+            if (PageState.QueryString.ContainsKey("name") && PageState.QueryString.ContainsKey("token"))
             {
-                if (_password == _confirm)
-                {
-                    var user = new User
-                    {
-                        SiteId = PageState.Site.SiteId,
-                        Username = _username,
-                        Password = _password
-                    };
-                    user = await UserService.ResetPasswordAsync(user, PageState.QueryString["token"]);
+                _username = PageState.QueryString["name"];
+            }
+            else
+            {
+                NavigationManager.NavigateTo(NavigateUrl(string.Empty));
+            }
+        }
 
-                    if (user != null)
+        private async Task Reset()
+        {
+            validated = true;
+            var interop = new Interop(JSRuntime);
+            if (await interop.FormValid(form))
+            {
+                try
+                {
+                    if (_username != string.Empty && _password != string.Empty && _confirm != string.Empty)
                     {
-                        await logger.LogInformation("User Password Reset {Username}", _username);
-                        NavigationManager.NavigateTo(NavigateUrl("login"));
+                        if (_password == _confirm)
+                        {
+                            var user = new User
+                            {
+                                SiteId = PageState.Site.SiteId,
+                                Username = _username,
+                                Password = _password
+                            };
+                            user = await UserService.ResetPasswordAsync(user, PageState.QueryString["token"]);
+
+                            if (user != null)
+                            {
+                                await logger.LogInformation("User Password Reset {Username}", _username);
+                                NavigationManager.NavigateTo(NavigateUrl("login"));
+                            }
+                            else
+                            {
+                                await logger.LogError("Error Resetting User Password {Username}", _username);
+                                AddModuleMessage(Localizer["Error.Password.ResetInfo"], MessageType.Error);
+                            }
+                        }
+                        else
+                        {
+                            AddModuleMessage(Localizer["Message.Password.NoMatch"], MessageType.Warning);
+                        }
                     }
                     else
                     {
-                        await logger.LogError("Error Resetting User Password {Username}", _username);
-                        AddModuleMessage(Localizer["Error.Password.ResetInfo"], MessageType.Error);
+                        AddModuleMessage(Localizer["Message.Required.UserInfo"], MessageType.Warning);
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    AddModuleMessage(Localizer["Message.Password.NoMatch"], MessageType.Warning);
+                    await logger.LogError(ex, "Error Resetting User Password {Username} {Error}", _username, ex.Message);
+                    AddModuleMessage(Localizer["Error.Password.Reset"], MessageType.Error);
                 }
             }
             else
             {
-                AddModuleMessage(Localizer["Message.Required.UserInfo"], MessageType.Warning);
+                AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
             }
         }
-        catch (Exception ex)
+
+        private void Cancel()
         {
-            await logger.LogError(ex, "Error Resetting User Password {Username} {Error}", _username, ex.Message);
-            AddModuleMessage(Localizer["Error.Password.Reset"], MessageType.Error);
+            NavigationManager.NavigateTo(NavigateUrl(string.Empty));
         }
     }
-
-    private void Cancel()
-    {
-        NavigationManager.NavigateTo(NavigateUrl(string.Empty));
-    }
-}

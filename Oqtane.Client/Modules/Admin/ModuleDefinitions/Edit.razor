@@ -5,74 +5,75 @@
 @inject IStringLocalizer<Edit> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-<TabStrip>
-    <TabPanel Name="Definition" ResourceKey="Definition">
-        <div class="container">
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="name" HelpText="The name of the module" ResourceKey="Name">Name: </Label>
-                <div class="col-sm-9">
-                    <input id="name" class="form-control" @bind="@_name" />
-                </div>
-            </div>
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="description" HelpText="The description of the module" ResourceKey="Description">Description: </Label>
-                <div class="col-sm-9">
-                    <textarea id="description" class="form-control" @bind="@_description" rows="2"></textarea>
-                </div>
-            </div>
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="categories" HelpText="Comma delimited list of module categories" ResourceKey="Categories">Categories: </Label>
-                <div class="col-sm-9">
-                    <input id="categories" class="form-control" @bind="@_categories" />
-                </div>
-            </div>
-        </div>
-        <Section Name="Information" ResourceKey="Information">
+<form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+    <TabStrip>
+        <TabPanel Name="Definition" ResourceKey="Definition">
             <div class="container">
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="moduledefinitionname" HelpText="The internal name of the module" ResourceKey="InternalName">Internal Name: </Label>
+                    <Label Class="col-sm-3" For="name" HelpText="The name of the module" ResourceKey="Name">Name: </Label>
                     <div class="col-sm-9">
-                        <input id="moduledefinitionname" class="form-control" @bind="@_moduledefinitionname" disabled />
+                        <input id="name" class="form-control" @bind="@_name" maxlength="256" required />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="version" HelpText="The version of the module" ResourceKey="Version">Version: </Label>
+                    <Label Class="col-sm-3" For="description" HelpText="The description of the module" ResourceKey="Description">Description: </Label>
                     <div class="col-sm-9">
-                        <input id="version" class="form-control" @bind="@_version" disabled />
+                        <textarea id="description" class="form-control" @bind="@_description" rows="2" required></textarea>
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="owner" HelpText="The owner or creator of the module" ResourceKey="Owner">Owner: </Label>
+                    <Label Class="col-sm-3" For="categories" HelpText="Comma delimited list of module categories" ResourceKey="Categories">Categories: </Label>
                     <div class="col-sm-9">
-                        <input id="owner" class="form-control" @bind="@_owner" disabled />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="url" HelpText="The reference url of the module" ResourceKey="ReferenceUrl">Reference Url: </Label>
-                    <div class="col-sm-9">
-                        <input id="url" class="form-control" @bind="@_url" disabled />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="contact" HelpText="The contact for the module" ResourceKey="Contact">Contact: </Label>
-                    <div class="col-sm-9">
-                        <input id="contact" class="form-control" @bind="@_contact" disabled />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="license" HelpText="The module license terms" ResourceKey="License">License: </Label>
-                    <div class="col-sm-9">
-                        <textarea id="license" class="form-control" @bind="@_license" rows="5" disabled></textarea>
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="runtimes" HelpText="The Blazor runtimes which this module supports" ResourceKey="Runtimes">Runtimes: </Label>
-                    <div class="col-sm-9">
-                        <input id="runtimes" class="form-control" @bind="@_runtimes" disabled />
+                        <input id="categories" class="form-control" @bind="@_categories" required />
                     </div>
                 </div>
             </div>
-        </Section>
+            <Section Name="Information" ResourceKey="Information">
+                <div class="container">
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="moduledefinitionname" HelpText="The internal name of the module" ResourceKey="InternalName">Internal Name: </Label>
+                        <div class="col-sm-9">
+                            <input id="moduledefinitionname" class="form-control" @bind="@_moduledefinitionname" disabled />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="version" HelpText="The version of the module" ResourceKey="Version">Version: </Label>
+                        <div class="col-sm-9">
+                            <input id="version" class="form-control" @bind="@_version" disabled />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="owner" HelpText="The owner or creator of the module" ResourceKey="Owner">Owner: </Label>
+                        <div class="col-sm-9">
+                            <input id="owner" class="form-control" @bind="@_owner" disabled />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="url" HelpText="The reference url of the module" ResourceKey="ReferenceUrl">Reference Url: </Label>
+                        <div class="col-sm-9">
+                            <input id="url" class="form-control" @bind="@_url" disabled />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="contact" HelpText="The contact for the module" ResourceKey="Contact">Contact: </Label>
+                        <div class="col-sm-9">
+                            <input id="contact" class="form-control" @bind="@_contact" disabled />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="license" HelpText="The module license terms" ResourceKey="License">License: </Label>
+                        <div class="col-sm-9">
+                            <textarea id="license" class="form-control" @bind="@_license" rows="5" disabled></textarea>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="runtimes" HelpText="The Blazor runtimes which this module supports" ResourceKey="Runtimes">Runtimes: </Label>
+                        <div class="col-sm-9">
+                            <input id="runtimes" class="form-control" @bind="@_runtimes" disabled />
+                        </div>
+                    </div>
+                </div>
+            </Section>
     </TabPanel>
     <TabPanel Name="Permissions" ResourceKey="Permissions">
         <div class="container">
@@ -87,8 +88,11 @@
 <br />
 <br />
 <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon"></AuditInfo>
+</form>
 
 @code {
+    private ElementReference form;
+    private bool validated = false;
     private int _moduleDefinitionId;
     private string _name;
     private string _version;
@@ -146,30 +150,39 @@
 
     private async Task SaveModuleDefinition()
     {
-        try
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
         {
-            var moduledefinition = await ModuleDefinitionService.GetModuleDefinitionAsync(_moduleDefinitionId, ModuleState.SiteId);
-            if (moduledefinition.Name != _name)
+            try
             {
-                moduledefinition.Name = _name;
+                var moduledefinition = await ModuleDefinitionService.GetModuleDefinitionAsync(_moduleDefinitionId, ModuleState.SiteId);
+                if (moduledefinition.Name != _name)
+                {
+                    moduledefinition.Name = _name;
+                }
+                if (moduledefinition.Description != _description)
+                {
+                    moduledefinition.Description = _description;
+                }
+                if (moduledefinition.Categories != _categories)
+                {
+                    moduledefinition.Categories = _categories;
+                }
+                moduledefinition.Permissions = _permissionGrid.GetPermissions();
+                await ModuleDefinitionService.UpdateModuleDefinitionAsync(moduledefinition);
+                await logger.LogInformation("ModuleDefinition Saved {ModuleDefinition}", moduledefinition);
+                NavigationManager.NavigateTo(NavigateUrl());
             }
-            if (moduledefinition.Description != _description)
+            catch (Exception ex)
             {
-                moduledefinition.Description = _description;
+                await logger.LogError(ex, "Error Saving ModuleDefinition {ModuleDefinitionId} {Error}", _moduleDefinitionId, ex.Message);
+                AddModuleMessage(Localizer["Error.Module.Save"], MessageType.Error);
             }
-            if (moduledefinition.Categories != _categories)
-            {
-                moduledefinition.Categories = _categories;
-            }
-            moduledefinition.Permissions = _permissionGrid.GetPermissions();
-            await ModuleDefinitionService.UpdateModuleDefinitionAsync(moduledefinition);
-            await logger.LogInformation("ModuleDefinition Saved {ModuleDefinition}", moduledefinition);
-            NavigationManager.NavigateTo(NavigateUrl());
         }
-        catch (Exception ex)
+        else
         {
-            await logger.LogError(ex, "Error Saving ModuleDefinition {ModuleDefinitionId} {Error}", _moduleDefinitionId, ex.Message);
-            AddModuleMessage(Localizer["Error.Module.Save"], MessageType.Error);
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
         }
     }
 }

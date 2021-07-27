@@ -1,0 +1,16 @@
+/* CSS overrides */
+.btn {
+    padding: 0.5rem 0.8rem;
+}
+
+.table .form-control {
+    background-color: transparent !important;
+}
+
+.table .form-select {
+    background-color: transparent !important;
+}
+
+option {
+    background-color: #6f749c !important;
+}
