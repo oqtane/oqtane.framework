@@ -65,16 +65,22 @@ namespace Oqtane.Pages
                 var alias = _tenantManager.GetAlias();
                 if (alias != null)
                 {
-                    // if culture not specified
+                    // if culture not specified (cookie .AspNetCore.Culture)
                     if (HttpContext.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName] == null)
                     {
-                        // set default language for site if the culture is not supported
                         var languages = _languages.GetLanguages(alias.SiteId);
-                        if (languages.Any() && languages.All(l => l.Code != CultureInfo.CurrentUICulture.Name))
+                        // set language to current ui culture if supported (listed in languages)
+                        if (languages.Any() && languages.Any(l => l.Code == CultureInfo.CurrentUICulture.Name))
+                        {
+                            SetLocalizationCookie(CultureInfo.CurrentUICulture.Name);
+                        }
+                        // set language to default language if current ui culture not supported (not listed in languages)
+                        else if (languages.Any() && languages.All(l => l.Code != CultureInfo.CurrentUICulture.Name))
                         {
                             var defaultLanguage = languages.Where(l => l.IsDefault).SingleOrDefault() ?? languages.First();
                             SetLocalizationCookie(defaultLanguage.Code);
                         }
+                        // set default language (from appsettings.json) if no language defined for current Site
                         else
                         {
                             SetLocalizationCookie(_localizationManager.GetDefaultCulture());
