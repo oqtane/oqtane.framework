@@ -67,56 +67,9 @@ else
     <TabPanel Name="Profile" ResourceKey="Profile">
         @if (profiles != null && settings != null)
         {
-
-
             <div class="container">
                 <div class="row mb-1 align-items-center">
-                    @foreach (Profile profile in profiles)
-                    {
-                        var p = profile;
-                        if (!p.IsPrivate || UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
-                        {
-                            if (p.Category != category)
-                            {
-                                <div class="col text-center pb-2">
-                                    @p.Category
-                                </div>
-                                category = p.Category;
-                            }
-                            <div class="row mb-1 align-items-center">
-                                <Label Class="col-sm-3" For="@p.Name" HelpText="@p.Description">@p.Title</Label>
-                                <div class="col-sm-9">
-                                    @if (!string.IsNullOrEmpty(p.Options))
-                                    {
-                                        <select id="@p.Name" class="form-select" @onchange="@(e => ProfileChanged(e, p.Name))">
-                                            @foreach (var option in p.Options.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                                            {
-                                                @if (GetProfileValue(p.Name, "") == option || (GetProfileValue(p.Name, "") == "" && p.DefaultValue == option))
-                                                {
-                                                    <option value="@option" selected>@option</option>
-                                                }
-                                                else
-                                                {
-                                                    <option value="@option">@option</option>
-                                                }
-                                            }
-                                        </select>
-                                    }
-                                    else
-                                    {
-                                        @if (p.IsRequired)
-                                        {
-                                            <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
-                                        }
-                                        else
-                                        {
-                                            <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
-                                        }
-                                    }
-                                </div>
-                            </div>
-                        }
-                    }
+                    <UserProfileComponent Profiles="profiles" Settings="settings" />
                 </div>
             </div>
             <button type="button" class="btn btn-success" @onclick="Save">@SharedLocalizer["Save"]</button>
@@ -132,11 +85,11 @@ else
             {
                 <Pager Items="@notifications">
                     <Header>
-                    <th style="width: 1px;">&nbsp;</th>
-                    <th style="width: 1px;">&nbsp;</th>
-                    <th>@Localizer["From"]</th>
-                    <th>@Localizer["Subject"]</th>
-                    <th>@Localizer["Received"]</th>
+                        <th style="width: 1px;">&nbsp;</th>
+                        <th style="width: 1px;">&nbsp;</th>
+                        <th>@Localizer["From"]</th>
+                        <th>@Localizer["Subject"]</th>
+                        <th>@Localizer["Received"]</th>
                     </Header>
                     <Row>
                         <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" /></td>
@@ -149,13 +102,14 @@ else
                         <td colspan="2"></td>
                         <td colspan="3">
                             @{
-                                        string input = "___";
-                                        if (context.Body.Contains(input))
-                                        {
-                                            context.Body = context.Body.Split(input)[0];
-                                            context.Body = context.Body.Replace("\n", "");
-                                            context.Body = context.Body.Replace("\r", "");
-                                        } }
+                                string input = "___";
+                                if (context.Body.Contains(input))
+                                {
+                                    context.Body = context.Body.Split(input)[0];
+                                    context.Body = context.Body.Replace("\n", "");
+                                    context.Body = context.Body.Replace("\r", "");
+                                } 
+                            }
                             @(context.Body.Length > 100 ? (context.Body.Substring(0, 97) + "...") : context.Body)
                         </td>
                     </Detail>
@@ -182,13 +136,13 @@ else
                         <td colspan="2"></td>
                         <td colspan="3">
                             @{
-                                        string input = "___";
-                                        if (context.Body.Contains(input))
-                                        {
-                                            context.Body = context.Body.Split(input)[0];
-                                            context.Body = context.Body.Replace("\n", "");
-                                            context.Body = context.Body.Replace("\r", "");
-                                        } }
+                                string input = "___";
+                                if (context.Body.Contains(input))
+                                {
+                                    context.Body = context.Body.Split(input)[0];
+                                    context.Body = context.Body.Replace("\n", "");
+                                    context.Body = context.Body.Replace("\r", "");
+                                } }
                             @(context.Body.Length > 100 ? (context.Body.Substring(0, 97) + "...") : context.Body)
                         </td>
                     </Detail>
@@ -309,35 +263,9 @@ else
         }
     }
 
-    private bool ValidateProfiles()
-    {
-        bool valid = true;
-        foreach (Profile profile in profiles)
-        {
-            if (string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)) && !string.IsNullOrEmpty(profile.DefaultValue))
-            {
-                settings = SettingService.SetSetting(settings, profile.Name, profile.DefaultValue);
-            }
-            if (!profile.IsPrivate || UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
-            {
-                if (profile.IsRequired && string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)))
-                {
-                    valid = false;
-                }
-            }
-        }
-        return valid;
-    }
-
     private void Cancel()
     {
         NavigationManager.NavigateTo(NavigateUrl(string.Empty));
-    }
-
-    private void ProfileChanged(ChangeEventArgs e, string SettingName)
-    {
-        var value = (string)e.Value;
-        settings = SettingService.SetSetting(settings, SettingName, value);
     }
 
     private async Task Delete(Notification Notification)
@@ -363,6 +291,32 @@ else
             await logger.LogError(ex, "Error Deleting Notification {Notification} {Error}", Notification, ex.Message);
             AddModuleMessage(ex.Message, MessageType.Error);
         }
+    }
+
+    private bool ValidateProfiles()
+    {
+        bool valid = true;
+        foreach (Profile profile in profiles)
+        {
+            if (string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)) && !string.IsNullOrEmpty(profile.DefaultValue))
+            {
+                settings = SettingService.SetSetting(settings, profile.Name, profile.DefaultValue);
+            }
+            if (!profile.IsPrivate || UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
+            {
+                if (profile.IsRequired && string.IsNullOrEmpty(SettingService.GetSetting(settings, profile.Name, string.Empty)))
+                {
+                    valid = false;
+                }
+            }
+        }
+        return valid;
+    }
+
+    private void ProfileChanged(ChangeEventArgs e, string SettingName)
+    {
+        var value = (string)e.Value;
+        settings = SettingService.SetSetting(settings, SettingName, value);
     }
 
     private async void FilterChanged(ChangeEventArgs e)

@@ -67,7 +67,6 @@ else
                     </div>
                 </div>
             </div>
-
         }
     </TabPanel>
     <TabPanel Name="Profile" ResourceKey="Profile">
@@ -75,30 +74,7 @@ else
         {
             <div class="container">
                 <div class="row mb-1 align-items-center">
-                    @foreach (Profile profile in profiles)
-                    {
-                        var p = profile;
-                        if (p.Category != category)
-                        {
-                            <div class="col text-center pb-2">
-                                <strong>@p.Category</strong>
-                            </div>
-                            category = p.Category;
-                        }
-                        <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="@p.Name" HelpText="@p.Description">@p.Title</Label>
-                            <div class="col-sm-9">
-                                @if (p.IsRequired)
-                                {
-                                    <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
-                                }
-                                else
-                                {
-                                    <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
-                                }
-                            </div>
-                        </div>
-                    }
+                    <UserProfileComponent Profiles="profiles" Settings="settings" />
                 </div>
             </div>
         }
