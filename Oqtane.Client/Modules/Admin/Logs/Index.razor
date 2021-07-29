@@ -23,7 +23,7 @@ else
                     <option value="Error">@Localizer["Error"]</option>
                     <option value="Critical">@Localizer["Critical"]</option>
                 </select>
-            </div>
+            </div>            
             <div class="col-sm-4">
                 <Label For="function" HelpText="Select the function for event log items" ResourceKey="Function">Function: </Label><br /><br />
                 <select id="function" class="form-select" @onchange="(e => FunctionChanged(e))">
@@ -35,7 +35,7 @@ else
                     <option value="Security">@Localizer["Security"]</option>
                     <option value="Other">@Localizer["Other"]</option>
                 </select>
-            </div>
+            </div>            
             <div class="col-sm-4">
                 <Label For="rows" HelpText="Select the maximum number of event log items to review. Please note that if you choose more than 10 items the information will be split into pages." ResourceKey="Rows">Maximum Items: </Label><br /><br />
                 <select id="rows" class="form-select" @onchange="(e => RowsChanged(e))">
@@ -51,11 +51,11 @@ else
     {
         <Pager Items="@_logs">
             <Header>
-                <th style="width: 1px;">&nbsp;</th>
-                <th>@Localizer["Date"]</th>
-                <th>@Localizer["Level"]</th>
-                <th>@Localizer["Feature"]</th>
-                <th>@Localizer["Function"]</th>
+            <th style="width: 1px;">&nbsp;</th>
+            <th>@Localizer["Date"]</th>
+            <th>@Localizer["Level"]</th>
+            <th>@Localizer["Feature"]</th>
+            <th>@Localizer["Function"]</th>
             </Header>
             <Row>
                 <td class="@GetClass(context.Function)"><ActionLink Action="Detail" Parameters="@($"id=" + context.LogId.ToString())" ResourceKey="LogDetails" /></td>

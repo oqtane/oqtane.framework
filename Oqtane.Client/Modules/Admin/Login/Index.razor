@@ -45,14 +45,13 @@
 </AuthorizeView>
 
 @code {
-    private ElementReference form;
-    private bool validated = false;
     private string _returnUrl = string.Empty;
     private string _message = string.Empty;
     private MessageType _type = MessageType.Info;
     private string _username = string.Empty;
     private string _password = string.Empty;
     private bool _remember = false;
+    private bool validated = false;
 
     private ElementReference login;
     private ElementReference username;
@@ -60,7 +59,7 @@
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
 
     public override List<Resource> Resources => new List<Resource>()
-    {
+{
         new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" }
     };
 

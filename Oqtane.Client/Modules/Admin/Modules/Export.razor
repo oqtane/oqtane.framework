@@ -5,39 +5,28 @@
 @inject IStringLocalizer<Export> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-<form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
     <div class="container">
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="content" HelpText="Enter the module content" ResourceKey="Content">Content: </Label>
             <div class="col-sm-9">
-                <textarea id="content" class="form-control" @bind="@_content" rows="5" required></textarea>
+                <textarea id="content" class="form-control" @bind="@_content" rows="5"></textarea>
             </div>
         </div>
     </div>
 
     <button type="button" class="btn btn-success" @onclick="ExportModule">@Localizer["Export"]</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-</form>
-
-@code {
-    private ElementReference form;
-    private bool validated = false;
-    private string _content = string.Empty;
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
-    public override string Title => "Export Content";
 
 
-    private async Task ExportModule()
-    {
-        validated = true;
-        var interop = new Interop(JSRuntime);
-        if (await interop.FormValid(form))
+    @code {
+        private string _content = string.Empty;
+
+        public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+        public override string Title => "Export Content";
+
+
+        private async Task ExportModule()
         {
             _content = await ModuleService.ExportModuleAsync(ModuleState.ModuleId);
         }
-        else
-        {
-            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
-        }
     }
-}

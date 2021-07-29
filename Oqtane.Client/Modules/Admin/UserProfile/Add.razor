@@ -8,36 +8,32 @@
 
 @if (PageState.User != null)
 {
-    <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
-        <div class="container">
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="to" HelpText="Enter the username you wish to send a message to" ResourceKey="To">To: </Label>
-                <div class="col-sm-9">
-                    <input id="to" class="form-control" @bind="@username" maxlength="256" required />
-                </div> >
-            </div>
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="subject" HelpText="Enter the subject of the message" ResourceKey="Subject">Subject: </Label>
-                <div class="col-sm-9">
-                    <input id="subject" class="form-control" @bind="@subject" maxlength="256" required />
-                </div>
-            </div>
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="message" HelpText="Enter the message" ResourceKey="Message">Message: </Label>
-                <div class="col-sm-9">
-                    <textarea id="message" class="form-control" @bind="@body" rows="5" required />
-                </div>
-            </div>
+<div class="container">
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="to" HelpText="Enter the username you wish to send a message to" ResourceKey="To">To: </Label>
+        <div class="col-sm-9">
+            <input id="to" class="form-control" @bind="@username" />
+        </div> >
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="subject" HelpText="Enter the subject of the message" ResourceKey="Subject">Subject: </Label>
+        <div class="col-sm-9">
+            <input id="subject" class="form-control" @bind="@subject" />
         </div>
-        <br />
-        <button type="button" class="btn btn-primary" @onclick="Send">@SharedLocalizer["Send"]</button>
-        <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-    </form>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="message" HelpText="Enter the message" ResourceKey="Message">Message: </Label>
+        <div class="col-sm-9">
+            <textarea id="message" class="form-control" @bind="@body" rows="5" />
+        </div>
+    </div>
+</div>
+<br/>
+    <button type="button" class="btn btn-primary" @onclick="Send">@SharedLocalizer["Send"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 }
 
 @code {
-    private ElementReference form;
-    private bool validated = false;
     private string username = "";
     private string subject = "";
     private string body = "";
@@ -48,34 +44,25 @@
 
     private async Task Send()
     {
-        validated = true;
-        var interop = new Interop(JSRuntime);
-        if (await interop.FormValid(form))
+        try
         {
-            try
+            var user = await UserService.GetUserAsync(username, PageState.Site.SiteId);
+            if (user != null)
             {
-                var user = await UserService.GetUserAsync(username, PageState.Site.SiteId);
-                if (user != null)
-                {
-                    var notification = new Notification(PageState.Site.SiteId, PageState.User, user, subject, body, null);
-                    notification = await NotificationService.AddNotificationAsync(notification);
-                    await logger.LogInformation("Notification Created {NotificationId}", notification.NotificationId);
-                    NavigationManager.NavigateTo(NavigateUrl());
-                }
-                else
-                {
-                    AddModuleMessage(Localizer["Message.User.Invalid"], MessageType.Warning);
-                }
+                var notification = new Notification(PageState.Site.SiteId, PageState.User, user, subject, body, null);
+                notification = await NotificationService.AddNotificationAsync(notification);
+                await logger.LogInformation("Notification Created {NotificationId}", notification.NotificationId);
+                NavigationManager.NavigateTo(NavigateUrl());
             }
-            catch (Exception ex)
+            else
             {
-                await logger.LogError(ex, "Error Adding Notification {Error}", ex.Message);
-                AddModuleMessage(Localizer["Error.Notification.Add"], MessageType.Error);
+                AddModuleMessage(Localizer["Message.User.Invalid"], MessageType.Warning);
             }
         }
-        else
+        catch (Exception ex)
         {
-            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+            await logger.LogError(ex, "Error Adding Notification {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.Notification.Add"], MessageType.Error);
         }
     }
 
