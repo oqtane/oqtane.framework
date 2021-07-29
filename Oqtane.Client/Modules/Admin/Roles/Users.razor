@@ -12,65 +12,70 @@
 else
 {
 
-<div class="container">
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="role" HelpText="The role you are assigning users to" ResourceKey="Role">Role: </Label>
-        <div class="col-sm-9">
-            <input id="role" class="form-control" @bind="@name" disabled />
+    <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+        <div class="container">
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="role" HelpText="The role you are assigning users to" ResourceKey="Role">Role: </Label>
+                <div class="col-sm-9">
+                    <input id="role" class="form-control" @bind="@name" disabled />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="user" HelpText="Select a user" ResourceKey="User">User: </Label>
+                <div class="col-sm-9">
+                    <select id="user" class="form-select" @bind="@userid" required>
+                        <option value="-1">&lt;@Localizer["User.Select"]&gt;</option>
+                        @foreach (UserRole userrole in users)
+                        {
+                            <option value="@(userrole.UserId)">@userrole.User.DisplayName</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="effectiveDate" HelpText="The date that this role assignment is active" ResourceKey="EffectiveDate">Effective Date: </Label>
+                <div class="col-sm-9">
+                    <input type="date" id="effectiveDate" class="form-control" @bind="@effectivedate" required />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="expiryDate" HelpText="The date that this role assignment expires" ResourceKey="ExpiryDate">Expiry Date: </Label>
+                <div class="col-sm-9">
+                    <input type="date" id="expiryDate" class="form-control" @bind="@expirydate" required />
+                </div>
+            </div>
+            <br /><br />
+            <button type="button" class="btn btn-success" @onclick="SaveUserRole">@SharedLocalizer["Save"]</button>
+            <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+            <hr class="app-rule" />
+            <div class="row mb-1 align-items-center">
+                <p align="center">
+                    <Pager Items="@userroles">
+                        <Header>
+                            <th>@Localizer["Users"]</th>
+                            <th>@Localizer["Effective"]</th>
+                            <th>@Localizer["Expiry"]</th>
+                            <th>&nbsp;</th>
+                        </Header>
+                        <Row>
+                            <td>@context.User.DisplayName</td>
+                            <td>@context.EffectiveDate</td>
+                            <td>@context.ExpiryDate</td>
+                            <td>
+                                <ActionDialog Header="Remove User" Message="@string.Format(Localizer["Confirm.User.DeleteRole"], context.User.DisplayName)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteUserRole(context.UserRoleId))" Disabled="@(context.Role.IsAutoAssigned || PageState.User.Username == UserNames.Host)" ResourceKey="DeleteUserRole" />
+                            </td>
+                        </Row>
+                    </Pager>
+                </p>
+            </div>
         </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="user" HelpText="Select a user" ResourceKey="User">User: </Label>
-        <div class="col-sm-9">
-            <select id="user" class="form-select" @bind="@userid">
-                <option value="-1">&lt;@Localizer["User.Select"]&gt;</option>
-                @foreach (UserRole userrole in users)
-                {
-                    <option value="@(userrole.UserId)">@userrole.User.DisplayName</option>
-                }
-            </select>
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="effectiveDate" HelpText="The date that this role assignment is active" ResourceKey="EffectiveDate">Effective Date: </Label>
-        <div class="col-sm-9">
-            <input type="date" id="effectiveDate" class="form-control" @bind="@effectivedate" />
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="expiryDate" HelpText="The date that this role assignment expires" ResourceKey="ExpiryDate">Expiry Date: </Label>
-        <div class="col-sm-9">
-            <input type="date" id="expiryDate" class="form-control" @bind="@expirydate" />
-        </div>
-    </div>
-    <br /><br />
-    <button type="button" class="btn btn-success" @onclick="SaveUserRole">@SharedLocalizer["Save"]</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-    <hr class="app-rule" />
-    <div class="row mb-1 align-items-center">
-        <p align="center">
-            <Pager Items="@userroles">
-                <Header>
-                <th>@Localizer["Users"]</th>
-                <th>@Localizer["Effective"]</th>
-                <th>@Localizer["Expiry"]</th>
-                <th>&nbsp;</th>
-                </Header>
-                <Row>
-                    <td>@context.User.DisplayName</td>
-                    <td>@context.EffectiveDate</td>
-                    <td>@context.ExpiryDate</td>
-                    <td>
-                        <ActionDialog Header="Remove User" Message="@string.Format(Localizer["Confirm.User.DeleteRole"], context.User.DisplayName)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteUserRole(context.UserRoleId))" Disabled="@(context.Role.IsAutoAssigned || PageState.User.Username == UserNames.Host)" ResourceKey="DeleteUserRole" />
-                    </td>
-                </Row>
-            </Pager>
-        </p>
-    </div>
-</div>
+    </form>
 }
 
 @code {
+    private ElementReference form;
+    private bool validated = false;
+
     private int roleid;
     private string name = string.Empty;
     private List<UserRole> users;
@@ -118,59 +123,78 @@ else
 
     private async Task SaveUserRole()
     {
-        try
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
         {
-            if (userid != -1)
+            try
             {
-                var userrole = userroles.Where(item => item.UserId == userid && item.RoleId == roleid).FirstOrDefault();
-                if (userrole != null)
+                if (userid != -1)
                 {
-                    userrole.EffectiveDate = effectivedate;
-                    userrole.ExpiryDate = expirydate;
-                    await UserRoleService.UpdateUserRoleAsync(userrole);
+                    var userrole = userroles.Where(item => item.UserId == userid && item.RoleId == roleid).FirstOrDefault();
+                    if (userrole != null)
+                    {
+                        userrole.EffectiveDate = effectivedate;
+                        userrole.ExpiryDate = expirydate;
+                        await UserRoleService.UpdateUserRoleAsync(userrole);
+                    }
+                    else
+                    {
+                        userrole = new UserRole();
+                        userrole.UserId = userid;
+                        userrole.RoleId = roleid;
+                        userrole.EffectiveDate = effectivedate;
+                        userrole.ExpiryDate = expirydate;
+
+                        await UserRoleService.AddUserRoleAsync(userrole);
+                    }
+
+                    await logger.LogInformation("User Assigned To Role {UserRole}", userrole);
+                    AddModuleMessage(Localizer["Success.User.AssignedRole"], MessageType.Success);
+                    await GetUserRoles();
+                    StateHasChanged();
                 }
                 else
                 {
-                    userrole = new UserRole();
-                    userrole.UserId = userid;
-                    userrole.RoleId = roleid;
-                    userrole.EffectiveDate = effectivedate;
-                    userrole.ExpiryDate = expirydate;
-
-                    await UserRoleService.AddUserRoleAsync(userrole);
+                    AddModuleMessage(Localizer["Message.Required.UserSelect"], MessageType.Warning);
                 }
-
-                await logger.LogInformation("User Assigned To Role {UserRole}", userrole);
-                AddModuleMessage(Localizer["Success.User.AssignedRole"], MessageType.Success);
-                await GetUserRoles();
-                StateHasChanged();
             }
-            else
+            catch (Exception ex)
             {
-                AddModuleMessage(Localizer["Message.Required.UserSelect"], MessageType.Warning);
+                await logger.LogError(ex, "Error Saving User Roles {RoleId} {Error}", roleid, ex.Message);
+                AddModuleMessage(Localizer["Error.User.SaveRole"], MessageType.Error);
             }
         }
-        catch (Exception ex)
+
+        else
         {
-            await logger.LogError(ex, "Error Saving User Roles {RoleId} {Error}", roleid, ex.Message);
-            AddModuleMessage(Localizer["Error.User.SaveRole"], MessageType.Error);
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
         }
     }
 
     private async Task DeleteUserRole(int UserRoleId)
     {
-        try
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
         {
-            await UserRoleService.DeleteUserRoleAsync(UserRoleId);
-            await logger.LogInformation("User Removed From Role {UserRoleId}", UserRoleId);
-            AddModuleMessage(Localizer["Confirm.User.RoleRemoved"], MessageType.Success);
-            await GetUserRoles();
-            StateHasChanged();
+            try
+            {
+                await UserRoleService.DeleteUserRoleAsync(UserRoleId);
+                await logger.LogInformation("User Removed From Role {UserRoleId}", UserRoleId);
+                AddModuleMessage(Localizer["Confirm.User.RoleRemoved"], MessageType.Success);
+                await GetUserRoles();
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Removing User From Role {UserRoleId} {Error}", UserRoleId, ex.Message);
+                AddModuleMessage(Localizer["Error.User.RemoveRole"], MessageType.Error);
+            }
         }
-        catch (Exception ex)
+        else
         {
-            await logger.LogError(ex, "Error Removing User From Role {UserRoleId} {Error}", UserRoleId, ex.Message);
-            AddModuleMessage(Localizer["Error.User.RemoveRole"], MessageType.Error);
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
         }
     }
 }
