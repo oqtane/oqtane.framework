@@ -52,66 +52,66 @@
     }
 }
 
-    @code {
-        private List<Folder> _folders;
-        private int _folderId = -1;
-        private List<File> _files;
+@code {
+    private List<Folder> _folders;
+    private int _folderId = -1;
+    private List<File> _files;
 
-        public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-        protected override async Task OnParametersSetAsync()
+    protected override async Task OnParametersSetAsync()
+    {
+        try
         {
-            try
-            {
-                _folders = await FolderService.GetFoldersAsync(PageState.Site.SiteId);
+            _folders = await FolderService.GetFoldersAsync(PageState.Site.SiteId);
 
-                if (_folderId == -1 && _folders.Count > 0)
-                {
-                    _folderId = _folders[0].FolderId;
-                    await GetFiles();
-                }
-            }
-            catch (Exception ex)
+            if (_folderId == -1 && _folders.Count > 0)
             {
-                await logger.LogError(ex, "Error Loading Files {Error}", ex.Message);
-                AddModuleMessage(Localizer["Error.File.Load"], MessageType.Error);
-            }
-        }
-
-        private async Task GetFiles()
-        {
-            _files = await FileService.GetFilesAsync(_folderId);
-        }
-
-        private async void FolderChanged(ChangeEventArgs e)
-        {
-            try
-            {
-                _folderId = int.Parse((string)e.Value);
+                _folderId = _folders[0].FolderId;
                 await GetFiles();
-                StateHasChanged();
-            }
-            catch (Exception ex)
-            {
-                await logger.LogError(ex, "Error Loading Files {Error}", ex.Message);
-                AddModuleMessage(Localizer["Error.File.Load"], MessageType.Error);
             }
         }
-
-        private async Task DeleteFile(File file)
+        catch (Exception ex)
         {
-                try
-                {
-                    await FileService.DeleteFileAsync(file.FileId);
-                    await logger.LogInformation("File Deleted {File}", file.Name);
-                    AddModuleMessage(string.Format(Localizer["Success.File.Delete"], file.Name), MessageType.Success);
-                    await GetFiles();
-                    StateHasChanged();
-                }
-                catch (Exception ex)
-                {
-                    await logger.LogError(ex, "Error Deleting File {File} {Error}", file.Name, ex.Message);
-                    AddModuleMessage(string.Format(Localizer["Error.File.Delete"], file.Name), MessageType.Error);
-                }
+            await logger.LogError(ex, "Error Loading Files {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.File.Load"], MessageType.Error);
         }
     }
+
+    private async Task GetFiles()
+    {
+        _files = await FileService.GetFilesAsync(_folderId);
+    }
+
+    private async void FolderChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            _folderId = int.Parse((string)e.Value);
+            await GetFiles();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Files {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.File.Load"], MessageType.Error);
+        }
+    }
+
+    private async Task DeleteFile(File file)
+    {
+        try
+        {
+            await FileService.DeleteFileAsync(file.FileId);
+            await logger.LogInformation("File Deleted {File}", file.Name);
+            AddModuleMessage(string.Format(Localizer["Success.File.Delete"], file.Name), MessageType.Success);
+            await GetFiles();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting File {File} {Error}", file.Name, ex.Message);
+            AddModuleMessage(string.Format(Localizer["Error.File.Delete"], file.Name), MessageType.Error);
+        }
+    }
+}

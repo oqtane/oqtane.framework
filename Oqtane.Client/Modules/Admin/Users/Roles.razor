@@ -72,153 +72,153 @@ else
     </form>
 }
 
-        @code {
-            private ElementReference form;
-            private bool validated = false;
-            private int userid;
-            private string name = string.Empty;
-            private List<Role> roles;
-            private int roleid = -1;
-            private string effectivedate = string.Empty;
-            private string expirydate = string.Empty;
-            private List<UserRole> userroles;
+@code {
+    private ElementReference form;
+    private bool validated = false;
+    private int userid;
+    private string name = string.Empty;
+    private List<Role> roles;
+    private int roleid = -1;
+    private string effectivedate = string.Empty;
+    private string expirydate = string.Empty;
+    private List<UserRole> userroles;
 
-            public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-            protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            userid = Int32.Parse(PageState.QueryString["id"]);
+            User user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
+            name = user.DisplayName;
+            if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
             {
-                try
-                {
-                    userid = Int32.Parse(PageState.QueryString["id"]);
-                    User user = await UserService.GetUserAsync(userid, PageState.Site.SiteId);
-                    name = user.DisplayName;
-                    if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-                    {
-                        roles = await RoleService.GetRolesAsync(PageState.Site.SiteId, true);
-                        roles = roles.Where(item => item.Name != RoleNames.Everyone).ToList();
-                    }
-                    else
-                    {
-                        roles = await RoleService.GetRolesAsync(PageState.Site.SiteId);
-                    }
-                    await GetUserRoles();
-                }
-                catch (Exception ex)
-                {
-                    await logger.LogError(ex, "Error Loading Roles {Error}", ex.Message);
-                    AddModuleMessage(Localizer["Error.LoadRole"], MessageType.Error);
-                }
+                roles = await RoleService.GetRolesAsync(PageState.Site.SiteId, true);
+                roles = roles.Where(item => item.Name != RoleNames.Everyone).ToList();
             }
-
-            private async Task GetUserRoles()
+            else
             {
-                try
-                {
-                    userroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
-                    userroles = userroles.Where(item => item.UserId == userid).ToList();
-                }
-                catch (Exception ex)
-                {
-                    await logger.LogError(ex, "Error Loading User Roles {UserId} {Error}", userid, ex.Message);
-                    AddModuleMessage(Localizer["Error.User.LoadRole"], MessageType.Error);
-                }
+                roles = await RoleService.GetRolesAsync(PageState.Site.SiteId);
             }
+            await GetUserRoles();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Roles {Error}", ex.Message);
+            AddModuleMessage(Localizer["Error.LoadRole"], MessageType.Error);
+        }
+    }
 
-            private async Task SaveUserRole()
+    private async Task GetUserRoles()
+    {
+        try
+        {
+            userroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
+            userroles = userroles.Where(item => item.UserId == userid).ToList();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading User Roles {UserId} {Error}", userid, ex.Message);
+            AddModuleMessage(Localizer["Error.User.LoadRole"], MessageType.Error);
+        }
+    }
+
+    private async Task SaveUserRole()
+    {
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
+        {
+            try
             {
-                validated = true;
-                var interop = new Interop(JSRuntime);
-                if (await interop.FormValid(form))
+                if (roleid != -1)
                 {
-                    try
+                    var userrole = userroles.Where(item => item.UserId == userid && item.RoleId == roleid).FirstOrDefault();
+                    if (userrole != null)
                     {
-                        if (roleid != -1)
+                        if (string.IsNullOrEmpty(effectivedate))
                         {
-                            var userrole = userroles.Where(item => item.UserId == userid && item.RoleId == roleid).FirstOrDefault();
-                            if (userrole != null)
-                            {
-                                if (string.IsNullOrEmpty(effectivedate))
-                                {
-                                    userrole.EffectiveDate = null;
-                                }
-                                else
-                                {
-                                    userrole.EffectiveDate = DateTime.Parse(effectivedate);
-                                }
-
-                                if (string.IsNullOrEmpty(expirydate))
-                                {
-                                    userrole.ExpiryDate = null;
-                                }
-                                else
-                                {
-                                    userrole.ExpiryDate = DateTime.Parse(expirydate);
-                                }
-                                await UserRoleService.UpdateUserRoleAsync(userrole);
-                            }
-                            else
-                            {
-                                userrole = new UserRole();
-                                userrole.UserId = userid;
-                                userrole.RoleId = roleid;
-
-                                if (string.IsNullOrEmpty(effectivedate))
-                                {
-                                    userrole.EffectiveDate = null;
-                                }
-                                else
-                                {
-                                    userrole.EffectiveDate = DateTime.Parse(effectivedate);
-                                }
-
-                                if (string.IsNullOrEmpty(expirydate))
-                                {
-                                    userrole.ExpiryDate = null;
-                                }
-                                else
-                                {
-                                    userrole.ExpiryDate = DateTime.Parse(expirydate);
-                                }
-
-                                await UserRoleService.AddUserRoleAsync(userrole);
-                            }
-
-                            await logger.LogInformation("User Assigned To Role {UserRole}", userrole);
-                            AddModuleMessage(Localizer["Success.User.AssignRole"], MessageType.Success);
-                            await GetUserRoles();
-                            StateHasChanged();
+                            userrole.EffectiveDate = null;
                         }
                         else
                         {
-                            AddModuleMessage(Localizer["Message.Required.Role"], MessageType.Warning);
+                            userrole.EffectiveDate = DateTime.Parse(effectivedate);
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        await logger.LogError(ex, "Error Saving User Roles {UserId} {Error}", userid, ex.Message);
-                        AddModuleMessage(Localizer["Error.User.SaveRole"], MessageType.Error);
-                    }
-                }
-                else
-                {
-                    AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
-                }
-            }
 
-            private async Task DeleteUserRole(int UserRoleId)
-            {
-                try
-                {
-                    await UserRoleService.DeleteUserRoleAsync(UserRoleId);
-                    await logger.LogInformation("User Removed From Role {UserRoleId}", UserRoleId);
-                    AddModuleMessage(Localizer["Success.User.Remove"], MessageType.Success);
+                        if (string.IsNullOrEmpty(expirydate))
+                        {
+                            userrole.ExpiryDate = null;
+                        }
+                        else
+                        {
+                            userrole.ExpiryDate = DateTime.Parse(expirydate);
+                        }
+                        await UserRoleService.UpdateUserRoleAsync(userrole);
+                    }
+                    else
+                    {
+                        userrole = new UserRole();
+                        userrole.UserId = userid;
+                        userrole.RoleId = roleid;
+
+                        if (string.IsNullOrEmpty(effectivedate))
+                        {
+                            userrole.EffectiveDate = null;
+                        }
+                        else
+                        {
+                            userrole.EffectiveDate = DateTime.Parse(effectivedate);
+                        }
+
+                        if (string.IsNullOrEmpty(expirydate))
+                        {
+                            userrole.ExpiryDate = null;
+                        }
+                        else
+                        {
+                            userrole.ExpiryDate = DateTime.Parse(expirydate);
+                        }
+
+                        await UserRoleService.AddUserRoleAsync(userrole);
+                    }
+
+                    await logger.LogInformation("User Assigned To Role {UserRole}", userrole);
+                    AddModuleMessage(Localizer["Success.User.AssignRole"], MessageType.Success);
                     await GetUserRoles();
                     StateHasChanged();
                 }
-                catch (Exception ex)
+                else
                 {
-                    await logger.LogError(ex, "Error Removing User From Role {UserRoleId} {Error}", UserRoleId, ex.Message);
-                    AddModuleMessage(Localizer["Error.User.RemoveRole"], MessageType.Error);
+                    AddModuleMessage(Localizer["Message.Required.Role"], MessageType.Warning);
                 }
             }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Saving User Roles {UserId} {Error}", userid, ex.Message);
+                AddModuleMessage(Localizer["Error.User.SaveRole"], MessageType.Error);
+            }
         }
+        else
+        {
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+        }
+    }
+
+    private async Task DeleteUserRole(int UserRoleId)
+    {
+        try
+        {
+            await UserRoleService.DeleteUserRoleAsync(UserRoleId);
+            await logger.LogInformation("User Removed From Role {UserRoleId}", UserRoleId);
+            AddModuleMessage(Localizer["Success.User.Remove"], MessageType.Success);
+            await GetUserRoles();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Removing User From Role {UserRoleId} {Error}", UserRoleId, ex.Message);
+            AddModuleMessage(Localizer["Error.User.RemoveRole"], MessageType.Error);
+        }
+    }
+}

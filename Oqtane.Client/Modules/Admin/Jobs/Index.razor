@@ -10,132 +10,132 @@
 }
 else
 {
-        <ActionLink Action="Log" Class="btn btn-secondary" Text="View Logs" ResourceKey="ViewJobs" />
-        <button type="button" class="btn btn-secondary" @onclick="(async () => await Refresh())">Refresh</button>
-        <br />
-        <br />
+    <ActionLink Action="Log" Class="btn btn-secondary" Text="View Logs" ResourceKey="ViewJobs" />
+    <button type="button" class="btn btn-secondary" @onclick="(async () => await Refresh())">Refresh</button>
+    <br />
+    <br />
 
-        <Pager Items="@_jobs">
-            <Header>
-                <th style="width: 1px;">&nbsp;</th>
-                <th style="width: 1px;">&nbsp;</th>
-                <th style="width: 1px;">&nbsp;</th>
-                <th>@SharedLocalizer["Name"]</th>
-                <th>@SharedLocalizer["Status"]</th>
-                <th>@Localizer["Frequency"]</th>
-                <th>@Localizer["NextExecution"]</th>
-                <th style="width: 1px;">&nbsp;</th>
-            </Header>
-            <Row>
-                <td><ActionLink Action="Edit" Parameters="@($"id=" + context.JobId.ToString())" ResourceKey="EditJob" /></td>
-                <td><ActionDialog Header="Delete Job" Message="Are You Sure You Wish To Delete This Job?" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteJob(context))" ResourceKey="DeleteJob" /></td>
-                <td><ActionLink Action="Log" Class="btn btn-secondary" Parameters="@($"id=" + context.JobId.ToString())" ResourceKey="JobLog" /></td>
-                <td>@context.Name</td>
-                <td>@DisplayStatus(context.IsEnabled, context.IsExecuting)</td>
-                <td>@DisplayFrequency(context.Interval, context.Frequency)</td>
-                <td>@context.NextExecution</td>
-                <td>
-                    @if (context.IsStarted)
-                        {
-                        <button type="button" class="btn btn-danger" @onclick="(async () => await StopJob(context.JobId))">@Localizer["Stop"]</button>
-                        }
-                        else
-                        {
-                        <button type="button" class="btn btn-success" @onclick="(async () => await StartJob(context.JobId))">@Localizer["Start"]</button>
-                        }
-                </td>
-            </Row>
-        </Pager>
-    }
-
-        @code {
-            private List<Job> _jobs;
-
-            public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
-
-            protected override async Task OnParametersSetAsync()
-            {
-                _jobs = await JobService.GetJobsAsync();
-            }
-
-            private string DisplayStatus(bool isEnabled, bool isExecuting)
-            {
-                var status = string.Empty;
-                if (!isEnabled)
-                {
-                    status = Localizer["Disabled"];
-                }
-                else
-                {
-                    if (isExecuting)
+    <Pager Items="@_jobs">
+        <Header>
+            <th style="width: 1px;">&nbsp;</th>
+            <th style="width: 1px;">&nbsp;</th>
+            <th style="width: 1px;">&nbsp;</th>
+            <th>@SharedLocalizer["Name"]</th>
+            <th>@SharedLocalizer["Status"]</th>
+            <th>@Localizer["Frequency"]</th>
+            <th>@Localizer["NextExecution"]</th>
+            <th style="width: 1px;">&nbsp;</th>
+        </Header>
+        <Row>
+            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.JobId.ToString())" ResourceKey="EditJob" /></td>
+            <td><ActionDialog Header="Delete Job" Message="Are You Sure You Wish To Delete This Job?" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteJob(context))" ResourceKey="DeleteJob" /></td>
+            <td><ActionLink Action="Log" Class="btn btn-secondary" Parameters="@($"id=" + context.JobId.ToString())" ResourceKey="JobLog" /></td>
+            <td>@context.Name</td>
+            <td>@DisplayStatus(context.IsEnabled, context.IsExecuting)</td>
+            <td>@DisplayFrequency(context.Interval, context.Frequency)</td>
+            <td>@context.NextExecution</td>
+            <td>
+                @if (context.IsStarted)
                     {
-                        status = Localizer["Executing"];
+                    <button type="button" class="btn btn-danger" @onclick="(async () => await StopJob(context.JobId))">@Localizer["Stop"]</button>
                     }
                     else
                     {
-                        status = Localizer["Idle"];
+                    <button type="button" class="btn btn-success" @onclick="(async () => await StartJob(context.JobId))">@Localizer["Start"]</button>
                     }
-                }
+            </td>
+        </Row>
+    </Pager>
+}
 
-                return status;
-            }
+@code {
+    private List<Job> _jobs;
 
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Host; } }
 
-            private string DisplayFrequency(int interval, string frequency)
+    protected override async Task OnParametersSetAsync()
+    {
+        _jobs = await JobService.GetJobsAsync();
+    }
+
+    private string DisplayStatus(bool isEnabled, bool isExecuting)
+    {
+        var status = string.Empty;
+        if (!isEnabled)
+        {
+            status = Localizer["Disabled"];
+        }
+        else
+        {
+            if (isExecuting)
             {
-                var result = $"{Localizer["Every"]} {interval.ToString()} ";
-                switch (frequency)
-                {
-                    case "m":
-                        result += Localizer["Minute"];
-                        break;
-                    case "H":
-                        result += Localizer["Hour"];
-                        break;
-                    case "d":
-                        result += Localizer["Day"];
-                        break;
-                    case "M":
-                        result += Localizer["Month"];
-                        break;
-                }
-
-                if (interval > 1)
-                {
-                    result += Localizer["s"];
-                }
-
-                return result;
+                status = Localizer["Executing"];
             }
-
-            private async Task DeleteJob(Job job)
+            else
             {
-                    try
-                    {
-                        await JobService.DeleteJobAsync(job.JobId);
-                        await logger.LogInformation("Job Deleted {Job}", job);
-                        StateHasChanged();
-                    }
-                    catch (Exception ex)
-                    {
-                        await logger.LogError(ex, "Error Deleting Job {Job} {Error}", job, ex.Message);
-                        AddModuleMessage(Localizer["Error.Job.Delete"], MessageType.Error);
-                    }
-            }
-
-            private async Task StartJob(int jobId)
-            {
-                await JobService.StartJobAsync(jobId);
-            }
-
-            private async Task StopJob(int jobId)
-            {
-                await JobService.StopJobAsync(jobId);
-            }
-
-            private async Task Refresh()
-            {
-                _jobs = await JobService.GetJobsAsync();
-                StateHasChanged();
+                status = Localizer["Idle"];
             }
         }
+
+        return status;
+    }
+
+
+    private string DisplayFrequency(int interval, string frequency)
+    {
+        var result = $"{Localizer["Every"]} {interval.ToString()} ";
+        switch (frequency)
+        {
+            case "m":
+                result += Localizer["Minute"];
+                break;
+            case "H":
+                result += Localizer["Hour"];
+                break;
+            case "d":
+                result += Localizer["Day"];
+                break;
+            case "M":
+                result += Localizer["Month"];
+                break;
+        }
+
+        if (interval > 1)
+        {
+            result += Localizer["s"];
+        }
+
+        return result;
+    }
+
+    private async Task DeleteJob(Job job)
+    {
+        try
+        {
+            await JobService.DeleteJobAsync(job.JobId);
+            await logger.LogInformation("Job Deleted {Job}", job);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Job {Job} {Error}", job, ex.Message);
+            AddModuleMessage(Localizer["Error.Job.Delete"], MessageType.Error);
+        }
+    }
+
+    private async Task StartJob(int jobId)
+    {
+        await JobService.StartJobAsync(jobId);
+    }
+
+    private async Task StopJob(int jobId)
+    {
+        await JobService.StopJobAsync(jobId);
+    }
+
+    private async Task Refresh()
+    {
+        _jobs = await JobService.GetJobsAsync();
+        StateHasChanged();
+    }
+}

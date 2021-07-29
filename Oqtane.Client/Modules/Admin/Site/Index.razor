@@ -18,7 +18,7 @@
             <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" For="name" HelpText="Enter the site name" ResourceKey="Name">Name: </Label>
                 <div class="col-sm-9">
-                    <input id="name" class="form-control" @bind="@_name" maxlength="256" required/>
+                    <input id="name" class="form-control" @bind="@_name" maxlength="256" required />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
@@ -119,13 +119,13 @@
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="host" HelpText="Enter the host name of the SMTP server" ResourceKey="Host">Host: </Label>
                     <div class="col-sm-9">
-                        <input id="host" class="form-control" @bind="@_smtphost"/>
+                        <input id="host" class="form-control" @bind="@_smtphost" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="port" HelpText="Enter the port number for the SMTP server. Please note this field is required if you provide a host name." ResourceKey="Port">Port: </Label>
                     <div class="col-sm-9">
-                        <input id="port" class="form-control" @bind="@_smtpport" required/>
+                        <input id="port" class="form-control" @bind="@_smtpport" required />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
@@ -146,7 +146,7 @@
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="password" HelpText="Enter the password for your SMTP account" ResourceKey="SmtpPassword">Password: </Label>
                     <div class="col-sm-9">
-                        <input id="password" type="password" class="form-control" @bind="@_smtppassword"/>
+                        <input id="password" type="password" class="form-control" @bind="@_smtppassword" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
@@ -217,362 +217,362 @@
         <ActionDialog Header="Delete Site" Message="@Localizer["Confirm.DeleteSite"]" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteSite())" ResourceKey="DeleteSite" />
         <br />
         <br />
-        <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo> 
+        <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
     </form>
 }
 
-        @code {
-            private ElementReference form;
-            private bool validated = false;
-            private bool _initialized = false;
-            private List<Theme> _themeList;
-            private List<ThemeControl> _themes = new List<ThemeControl>();
-            private List<ThemeControl> _containers = new List<ThemeControl>();
-            private string _name = string.Empty;
-            private List<Alias> _aliasList;
-            private string _urls = string.Empty;
-            private int _logofileid = -1;
-            private FileManager _logofilemanager;
-            private int _faviconfileid = -1;
-            private FileManager _faviconfilemanager;
-            private string _themetype = "-";
-            private string _containertype = "-";
-            private string _admincontainertype = "-";
-            private string _allowregistration;
-            private string _smtphost = string.Empty;
-            private string _smtpport = string.Empty;
-            private string _smtpssl = "False";
-            private string _smtpusername = string.Empty;
-            private string _smtppassword = string.Empty;
-            private string _smtpsender = string.Empty;
-            private string _pwaisenabled;
-            private int _pwaappiconfileid = -1;
-            private FileManager _pwaappiconfilemanager;
-            private int _pwasplashiconfileid = -1;
-            private FileManager _pwasplashiconfilemanager;
-            private string _tenant = string.Empty;
-            private string _database = string.Empty;
-            private string _connectionstring = string.Empty;
-            private string _createdby;
-            private DateTime _createdon;
-            private string _modifiedby;
-            private DateTime _modifiedon;
-            private string _deletedby;
-            private DateTime? _deletedon;
-            private string _isdeleted;
+@code {
+    private ElementReference form;
+    private bool validated = false;
+    private bool _initialized = false;
+    private List<Theme> _themeList;
+    private List<ThemeControl> _themes = new List<ThemeControl>();
+    private List<ThemeControl> _containers = new List<ThemeControl>();
+    private string _name = string.Empty;
+    private List<Alias> _aliasList;
+    private string _urls = string.Empty;
+    private int _logofileid = -1;
+    private FileManager _logofilemanager;
+    private int _faviconfileid = -1;
+    private FileManager _faviconfilemanager;
+    private string _themetype = "-";
+    private string _containertype = "-";
+    private string _admincontainertype = "-";
+    private string _allowregistration;
+    private string _smtphost = string.Empty;
+    private string _smtpport = string.Empty;
+    private string _smtpssl = "False";
+    private string _smtpusername = string.Empty;
+    private string _smtppassword = string.Empty;
+    private string _smtpsender = string.Empty;
+    private string _pwaisenabled;
+    private int _pwaappiconfileid = -1;
+    private FileManager _pwaappiconfilemanager;
+    private int _pwasplashiconfileid = -1;
+    private FileManager _pwasplashiconfilemanager;
+    private string _tenant = string.Empty;
+    private string _database = string.Empty;
+    private string _connectionstring = string.Empty;
+    private string _createdby;
+    private DateTime _createdon;
+    private string _modifiedby;
+    private DateTime _modifiedon;
+    private string _deletedby;
+    private DateTime? _deletedon;
+    private string _isdeleted;
 
-            public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-            protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _themeList = await ThemeService.GetThemesAsync();
+            Site site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
+            if (site != null)
             {
-                try
+                _name = site.Name;
+                _allowregistration = site.AllowRegistration.ToString();
+                _isdeleted = site.IsDeleted.ToString();
+
+                if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
                 {
-                    _themeList = await ThemeService.GetThemesAsync();
-                    Site site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
-                    if (site != null)
+                    _aliasList = await AliasService.GetAliasesAsync();
+                    foreach (Alias alias in _aliasList.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
                     {
-                        _name = site.Name;
-                        _allowregistration = site.AllowRegistration.ToString();
-                        _isdeleted = site.IsDeleted.ToString();
+                        _urls += alias.Name + ",";
+                    }
+                    _urls = _urls.Substring(0, _urls.Length - 1);
 
-                        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-                        {
-                            _aliasList = await AliasService.GetAliasesAsync();
-                            foreach (Alias alias in _aliasList.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
-                            {
-                                _urls += alias.Name + ",";
-                            }
-                            _urls = _urls.Substring(0, _urls.Length - 1);
+                }
 
-                        }
+                if (site.LogoFileId != null)
+                {
+                    _logofileid = site.LogoFileId.Value;
+                }
 
-                        if (site.LogoFileId != null)
-                        {
-                            _logofileid = site.LogoFileId.Value;
-                        }
+                if (site.FaviconFileId != null)
+                {
+                    _faviconfileid = site.FaviconFileId.Value;
+                }
 
-                        if (site.FaviconFileId != null)
-                        {
-                            _faviconfileid = site.FaviconFileId.Value;
-                        }
+                _themes = ThemeService.GetThemeControls(_themeList);
+                _themetype = (!string.IsNullOrEmpty(site.DefaultThemeType)) ? site.DefaultThemeType : Constants.DefaultTheme;
+                _containers = ThemeService.GetContainerControls(_themeList, _themetype);
+                _containertype = (!string.IsNullOrEmpty(site.DefaultContainerType)) ? site.DefaultContainerType : Constants.DefaultContainer;
+                _admincontainertype = (!string.IsNullOrEmpty(site.AdminContainerType)) ? site.AdminContainerType : Constants.DefaultAdminContainer;
 
-                        _themes = ThemeService.GetThemeControls(_themeList);
-                        _themetype = (!string.IsNullOrEmpty(site.DefaultThemeType)) ? site.DefaultThemeType : Constants.DefaultTheme;
-                        _containers = ThemeService.GetContainerControls(_themeList, _themetype);
-                        _containertype = (!string.IsNullOrEmpty(site.DefaultContainerType)) ? site.DefaultContainerType : Constants.DefaultContainer;
-                        _admincontainertype = (!string.IsNullOrEmpty(site.AdminContainerType)) ? site.AdminContainerType : Constants.DefaultAdminContainer;
+                var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
+                _smtphost = SettingService.GetSetting(settings, "SMTPHost", string.Empty);
+                _smtpport = SettingService.GetSetting(settings, "SMTPPort", string.Empty);
+                _smtpssl = SettingService.GetSetting(settings, "SMTPSSL", "False");
+                _smtpusername = SettingService.GetSetting(settings, "SMTPUsername", string.Empty);
+                _smtppassword = SettingService.GetSetting(settings, "SMTPPassword", string.Empty);
+                _smtpsender = SettingService.GetSetting(settings, "SMTPSender", string.Empty);
 
-                        var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
-                        _smtphost = SettingService.GetSetting(settings, "SMTPHost", string.Empty);
-                        _smtpport = SettingService.GetSetting(settings, "SMTPPort", string.Empty);
-                        _smtpssl = SettingService.GetSetting(settings, "SMTPSSL", "False");
-                        _smtpusername = SettingService.GetSetting(settings, "SMTPUsername", string.Empty);
-                        _smtppassword = SettingService.GetSetting(settings, "SMTPPassword", string.Empty);
-                        _smtpsender = SettingService.GetSetting(settings, "SMTPSender", string.Empty);
+                _pwaisenabled = site.PwaIsEnabled.ToString();
 
-                        _pwaisenabled = site.PwaIsEnabled.ToString();
+                if (site.PwaAppIconFileId != null)
+                {
+                    _pwaappiconfileid = site.PwaAppIconFileId.Value;
+                }
 
-                        if (site.PwaAppIconFileId != null)
-                        {
-                            _pwaappiconfileid = site.PwaAppIconFileId.Value;
-                        }
+                if (site.PwaSplashIconFileId != null)
+                {
+                    _pwasplashiconfileid = site.PwaSplashIconFileId.Value;
+                }
 
-                        if (site.PwaSplashIconFileId != null)
-                        {
-                            _pwasplashiconfileid = site.PwaSplashIconFileId.Value;
-                        }
+                _pwaisenabled = site.PwaIsEnabled.ToString();
+                if (site.PwaAppIconFileId != null)
+                {
+                    _pwaappiconfileid = site.PwaAppIconFileId.Value;
+                }
+                if (site.PwaSplashIconFileId != null)
+                {
+                    _pwasplashiconfileid = site.PwaSplashIconFileId.Value;
+                }
 
-                        _pwaisenabled = site.PwaIsEnabled.ToString();
-                        if (site.PwaAppIconFileId != null)
-                        {
-                            _pwaappiconfileid = site.PwaAppIconFileId.Value;
-                        }
-                        if (site.PwaSplashIconFileId != null)
-                        {
-                            _pwasplashiconfileid = site.PwaSplashIconFileId.Value;
-                        }
-
-                        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-                        {
-                            var tenants = await TenantService.GetTenantsAsync();
-                            var _databases = await DatabaseService.GetDatabasesAsync();
-                            var tenant = tenants.Find(item => item.TenantId == site.TenantId);
-                            if (tenant != null)
-                            {
-                                _tenant = tenant.Name;
-                                _database = _databases.Find(item => item.DBType == tenant.DBType)?.Name;
-                                _connectionstring = tenant.DBConnectionString;
-                            }
-                        }
-
-                        _createdby = site.CreatedBy;
-                        _createdon = site.CreatedOn;
-                        _modifiedby = site.ModifiedBy;
-                        _modifiedon = site.ModifiedOn;
-                        _deletedby = site.DeletedBy;
-                        _deletedon = site.DeletedOn;
-
-                        _initialized = true;
+                if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+                {
+                    var tenants = await TenantService.GetTenantsAsync();
+                    var _databases = await DatabaseService.GetDatabasesAsync();
+                    var tenant = tenants.Find(item => item.TenantId == site.TenantId);
+                    if (tenant != null)
+                    {
+                        _tenant = tenant.Name;
+                        _database = _databases.Find(item => item.DBType == tenant.DBType)?.Name;
+                        _connectionstring = tenant.DBConnectionString;
                     }
                 }
-                catch (Exception ex)
-                {
-                    await logger.LogError(ex, "Error Loading Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
-                    AddModuleMessage(ex.Message, MessageType.Error);
-                }
+
+                _createdby = site.CreatedBy;
+                _createdon = site.CreatedOn;
+                _modifiedby = site.ModifiedBy;
+                _modifiedon = site.ModifiedOn;
+                _deletedby = site.DeletedBy;
+                _deletedon = site.DeletedOn;
+
+                _initialized = true;
             }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
+            AddModuleMessage(ex.Message, MessageType.Error);
+        }
+    }
 
-            private async void ThemeChanged(ChangeEventArgs e)
+    private async void ThemeChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            _themetype = (string)e.Value;
+            if (_themetype != "-")
             {
-                try
-                {
-                    _themetype = (string)e.Value;
-                    if (_themetype != "-")
-                    {
-                        _containers = ThemeService.GetContainerControls(_themeList, _themetype);
-                    }
-                    else
-                    {
-                        _containers = new List<ThemeControl>();
-                    }
-                    _containertype = "-";
-                    _admincontainertype = Constants.DefaultAdminContainer;
-                    StateHasChanged();
-                }
-                catch (Exception ex)
-                {
-                    await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", _themetype, ex.Message);
-                    AddModuleMessage(Localizer["Error.Theme.LoadPane"], MessageType.Error);
-                }
+                _containers = ThemeService.GetContainerControls(_themeList, _themetype);
             }
-
-            private async Task SaveSite()
+            else
             {
-                validated = true;
-                var interop = new Interop(JSRuntime);
-                if (await interop.FormValid(form))
+                _containers = new List<ThemeControl>();
+            }
+            _containertype = "-";
+            _admincontainertype = Constants.DefaultAdminContainer;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", _themetype, ex.Message);
+            AddModuleMessage(Localizer["Error.Theme.LoadPane"], MessageType.Error);
+        }
+    }
+
+    private async Task SaveSite()
+    {
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
+        {
+            try
+            {
+                if (_name != string.Empty && _urls != string.Empty && _themetype != "-" && _containertype != "-")
                 {
-                    try
+                    var unique = true;
+                    if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
                     {
-                        if (_name != string.Empty && _urls != string.Empty && _themetype != "-" && _containertype != "-")
+                        foreach (string name in _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                         {
-                            var unique = true;
+                            if (_aliasList.Exists(item => item.Name == name && item.SiteId != PageState.Alias.SiteId && item.TenantId != PageState.Alias.TenantId))
+                            {
+                                unique = false;
+                            }
+                        }
+                    }
+
+                    if (unique)
+                    {
+                        var site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
+                        if (site != null)
+                        {
+                            bool refresh = (site.DefaultThemeType != _themetype || site.DefaultContainerType != _containertype);
+
+                            site.Name = _name;
+                            site.AllowRegistration = (_allowregistration == null ? true : Boolean.Parse(_allowregistration));
+                            site.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));
+
+                            site.LogoFileId = null;
+                            var logofileid = _logofilemanager.GetFileId();
+                            if (logofileid != -1)
+                            {
+                                site.LogoFileId = logofileid;
+                            }
+                            var faviconFieldId = _faviconfilemanager.GetFileId();
+                            if (faviconFieldId != -1)
+                            {
+                                site.FaviconFileId = faviconFieldId;
+                            }
+                            site.DefaultThemeType = _themetype;
+                            site.DefaultContainerType = _containertype;
+                            site.AdminContainerType = _admincontainertype;
+
+                            site.PwaIsEnabled = (_pwaisenabled == null ? true : Boolean.Parse(_pwaisenabled));
+                            var pwaappiconfileid = _pwaappiconfilemanager.GetFileId();
+                            if (pwaappiconfileid != -1)
+                            {
+                                site.PwaAppIconFileId = pwaappiconfileid;
+                            }
+                            var pwasplashiconfileid = _pwasplashiconfilemanager.GetFileId();
+                            if (pwasplashiconfileid != -1)
+                            {
+                                site.PwaSplashIconFileId = pwasplashiconfileid;
+                            }
+
+                            site = await SiteService.UpdateSiteAsync(site);
+
+                            var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
+                            SettingService.SetSetting(settings, "SMTPHost", _smtphost);
+                            SettingService.SetSetting(settings, "SMTPPort", _smtpport);
+                            SettingService.SetSetting(settings, "SMTPSSL", _smtpssl);
+                            SettingService.SetSetting(settings, "SMTPUsername", _smtpusername);
+                            SettingService.SetSetting(settings, "SMTPPassword", _smtppassword);
+                            SettingService.SetSetting(settings, "SMTPSender", _smtpsender);
+                            await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
+
                             if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
                             {
-                                foreach (string name in _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                                var names = _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                                foreach (Alias alias in _aliasList.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
                                 {
-                                    if (_aliasList.Exists(item => item.Name == name && item.SiteId != PageState.Alias.SiteId && item.TenantId != PageState.Alias.TenantId))
+                                    if (!names.Contains(alias.Name))
                                     {
-                                        unique = false;
+                                        await AliasService.DeleteAliasAsync(alias.AliasId);
+                                    }
+                                }
+
+                                foreach (string name in names)
+                                {
+                                    if (!_aliasList.Exists(item => item.Name == name))
+                                    {
+                                        Alias alias = new Alias();
+                                        alias.Name = name;
+                                        alias.TenantId = site.TenantId;
+                                        alias.SiteId = site.SiteId;
+                                        await AliasService.AddAliasAsync(alias);
                                     }
                                 }
                             }
 
-                            if (unique)
+                            await logger.LogInformation("Site Settings Saved {Site}", site);
+
+                            if (refresh)
                             {
-                                var site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
-                                if (site != null)
-                                {
-                                    bool refresh = (site.DefaultThemeType != _themetype || site.DefaultContainerType != _containertype);
-
-                                    site.Name = _name;
-                                    site.AllowRegistration = (_allowregistration == null ? true : Boolean.Parse(_allowregistration));
-                                    site.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));
-
-                                    site.LogoFileId = null;
-                                    var logofileid = _logofilemanager.GetFileId();
-                                    if (logofileid != -1)
-                                    {
-                                        site.LogoFileId = logofileid;
-                                    }
-                                    var faviconFieldId = _faviconfilemanager.GetFileId();
-                                    if (faviconFieldId != -1)
-                                    {
-                                        site.FaviconFileId = faviconFieldId;
-                                    }
-                                    site.DefaultThemeType = _themetype;
-                                    site.DefaultContainerType = _containertype;
-                                    site.AdminContainerType = _admincontainertype;
-
-                                    site.PwaIsEnabled = (_pwaisenabled == null ? true : Boolean.Parse(_pwaisenabled));
-                                    var pwaappiconfileid = _pwaappiconfilemanager.GetFileId();
-                                    if (pwaappiconfileid != -1)
-                                    {
-                                        site.PwaAppIconFileId = pwaappiconfileid;
-                                    }
-                                    var pwasplashiconfileid = _pwasplashiconfilemanager.GetFileId();
-                                    if (pwasplashiconfileid != -1)
-                                    {
-                                        site.PwaSplashIconFileId = pwasplashiconfileid;
-                                    }
-
-                                    site = await SiteService.UpdateSiteAsync(site);
-
-                                    var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
-                                    SettingService.SetSetting(settings, "SMTPHost", _smtphost);
-                                    SettingService.SetSetting(settings, "SMTPPort", _smtpport);
-                                    SettingService.SetSetting(settings, "SMTPSSL", _smtpssl);
-                                    SettingService.SetSetting(settings, "SMTPUsername", _smtpusername);
-                                    SettingService.SetSetting(settings, "SMTPPassword", _smtppassword);
-                                    SettingService.SetSetting(settings, "SMTPSender", _smtpsender);
-                                    await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
-
-                                    if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-                                    {
-                                        var names = _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                                        foreach (Alias alias in _aliasList.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
-                                        {
-                                            if (!names.Contains(alias.Name))
-                                            {
-                                                await AliasService.DeleteAliasAsync(alias.AliasId);
-                                            }
-                                        }
-
-                                        foreach (string name in names)
-                                        {
-                                            if (!_aliasList.Exists(item => item.Name == name))
-                                            {
-                                                Alias alias = new Alias();
-                                                alias.Name = name;
-                                                alias.TenantId = site.TenantId;
-                                                alias.SiteId = site.SiteId;
-                                                await AliasService.AddAliasAsync(alias);
-                                            }
-                                        }
-                                    }
-
-                                    await logger.LogInformation("Site Settings Saved {Site}", site);
-
-                                    if (refresh)
-                                    {
-                                        NavigationManager.NavigateTo(NavigateUrl()); // refresh to show new theme or container
-                                    }
-                                    else
-                                    {
-                                        AddModuleMessage(Localizer["Success.Settings.SaveSite"], MessageType.Success);
-                                    }
-                                }
+                                NavigationManager.NavigateTo(NavigateUrl()); // refresh to show new theme or container
                             }
                             else
                             {
-                                AddModuleMessage(Localizer["Message.Aliases.Taken"], MessageType.Warning);
+                                AddModuleMessage(Localizer["Success.Settings.SaveSite"], MessageType.Success);
                             }
                         }
-                        else
-                        {
-                            AddModuleMessage(Localizer["Message.Required.SiteName"], MessageType.Warning);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        await logger.LogError(ex, "Error Saving Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
-                        AddModuleMessage(Localizer["Error.SaveSite"], MessageType.Error);
-                    }
-                }
-                else
-                {
-                    AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
-                }
-            }
-
-            private async Task DeleteSite()
-            {
-                try
-                {
-                    var sites = await SiteService.GetSitesAsync();
-                    if (sites.Count > 1)
-                    {
-                        await SiteService.DeleteSiteAsync(PageState.Site.SiteId);
-                        await logger.LogInformation("Site Deleted {SiteId}", PageState.Site.SiteId);
-
-                        var aliases = await AliasService.GetAliasesAsync();
-                        foreach (Alias a in aliases.Where(item => item.SiteId == PageState.Site.SiteId && item.TenantId == PageState.Site.TenantId))
-                        {
-                            await AliasService.DeleteAliasAsync(a.AliasId);
-                        }
-
-                        NavigationManager.NavigateTo(NavigateUrl("admin/sites"));
                     }
                     else
                     {
-                        AddModuleMessage(Localizer["Message.FailAuth.DeleteSite"], MessageType.Warning);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    await logger.LogError(ex, "Error Deleting Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
-                    AddModuleMessage(Localizer["Error.DeleteSite"], MessageType.Error);
-                }
-            }
-
-            private async Task SendEmail()
-            {
-                if (_smtphost != "" && _smtpport != "" && _smtpsender != "")
-                {
-                    try
-                    {
-                        var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
-                        SettingService.SetSetting(settings, "SMTPHost", _smtphost);
-                        SettingService.SetSetting(settings, "SMTPPort", _smtpport);
-                        SettingService.SetSetting(settings, "SMTPSSL", _smtpssl);
-                        SettingService.SetSetting(settings, "SMTPUsername", _smtpusername);
-                        SettingService.SetSetting(settings, "SMTPPassword", _smtppassword);
-                        SettingService.SetSetting(settings, "SMTPSender", _smtpsender);
-                        await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
-                        await logger.LogInformation("Site SMTP Settings Saved");
-
-                        await NotificationService.AddNotificationAsync(new Notification(PageState.Site.SiteId, PageState.User.DisplayName, PageState.User.Email, PageState.User.DisplayName, PageState.User.Email, PageState.Site.Name + " SMTP Configuration Test", "SMTP Server Is Configured Correctly."));
-                        AddModuleMessage(Localizer["Info.Smtp.SaveSettings"], MessageType.Info);
-                    }
-                    catch (Exception ex)
-                    {
-                        await logger.LogError(ex, "Error Testing SMTP Configuration");
-                        AddModuleMessage(Localizer["Error.Smtp.TestConfig"], MessageType.Error);
+                        AddModuleMessage(Localizer["Message.Aliases.Taken"], MessageType.Warning);
                     }
                 }
                 else
                 {
-                    AddModuleMessage(Localizer["Message.required.Smtp"], MessageType.Warning);
+                    AddModuleMessage(Localizer["Message.Required.SiteName"], MessageType.Warning);
                 }
             }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Saving Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
+                AddModuleMessage(Localizer["Error.SaveSite"], MessageType.Error);
+            }
         }
+        else
+        {
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+        }
+    }
+
+    private async Task DeleteSite()
+    {
+        try
+        {
+            var sites = await SiteService.GetSitesAsync();
+            if (sites.Count > 1)
+            {
+                await SiteService.DeleteSiteAsync(PageState.Site.SiteId);
+                await logger.LogInformation("Site Deleted {SiteId}", PageState.Site.SiteId);
+
+                var aliases = await AliasService.GetAliasesAsync();
+                foreach (Alias a in aliases.Where(item => item.SiteId == PageState.Site.SiteId && item.TenantId == PageState.Site.TenantId))
+                {
+                    await AliasService.DeleteAliasAsync(a.AliasId);
+                }
+
+                NavigationManager.NavigateTo(NavigateUrl("admin/sites"));
+            }
+            else
+            {
+                AddModuleMessage(Localizer["Message.FailAuth.DeleteSite"], MessageType.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
+            AddModuleMessage(Localizer["Error.DeleteSite"], MessageType.Error);
+        }
+    }
+
+    private async Task SendEmail()
+    {
+        if (_smtphost != "" && _smtpport != "" && _smtpsender != "")
+        {
+            try
+            {
+                var settings = await SettingService.GetSiteSettingsAsync(PageState.Site.SiteId);
+                SettingService.SetSetting(settings, "SMTPHost", _smtphost);
+                SettingService.SetSetting(settings, "SMTPPort", _smtpport);
+                SettingService.SetSetting(settings, "SMTPSSL", _smtpssl);
+                SettingService.SetSetting(settings, "SMTPUsername", _smtpusername);
+                SettingService.SetSetting(settings, "SMTPPassword", _smtppassword);
+                SettingService.SetSetting(settings, "SMTPSender", _smtpsender);
+                await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
+                await logger.LogInformation("Site SMTP Settings Saved");
+
+                await NotificationService.AddNotificationAsync(new Notification(PageState.Site.SiteId, PageState.User.DisplayName, PageState.User.Email, PageState.User.DisplayName, PageState.User.Email, PageState.Site.Name + " SMTP Configuration Test", "SMTP Server Is Configured Correctly."));
+                AddModuleMessage(Localizer["Info.Smtp.SaveSettings"], MessageType.Info);
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Testing SMTP Configuration");
+                AddModuleMessage(Localizer["Error.Smtp.TestConfig"], MessageType.Error);
+            }
+        }
+        else
+        {
+            AddModuleMessage(Localizer["Message.required.Smtp"], MessageType.Warning);
+        }
+    }
+}

@@ -16,7 +16,7 @@
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="Name" HelpText="Enter the page name" ResourceKey="Name">Name: </Label>
                         <div class="col-sm-9">
-                            <input id="Name" class="form-control" @bind="@_name" required/>
+                            <input id="Name" class="form-control" @bind="@_name" required />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
@@ -168,347 +168,347 @@
     <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
 </form>
 
-    @code {
-        public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-        private ElementReference form;
-        private bool validated = false;
-        private List<Theme> _themeList;
-        private List<ThemeControl> _themes = new List<ThemeControl>();
-        private List<ThemeControl> _containers = new List<ThemeControl>();
-        private List<Page> _pageList;
-        private int _pageId;
-        private string _name;
-        private string _title;
-        private string _path;
-        private string _currentparentid;
-        private string _parentid;
-        private string _insert = "=";
-        private List<Page> _children;
-        private int _childid = -1;
-        private string _isnavigation;
-        private string _isclickable;
-        private string _url;
-        private string _ispersonalizable;
-        private string _themetype;
-        private string _containertype = "-";
-        private string _icon;
-        private string _permissions = null;
-        private string _createdby;
-        private DateTime _createdon;
-        private string _modifiedby;
-        private DateTime _modifiedon;
-        private string _deletedby;
-        private DateTime? _deletedon;
-        private PermissionGrid _permissionGrid;
-        private Type _themeSettingsType;
-        private object _themeSettings;
-        private RenderFragment ThemeSettingsComponent { get; set; }
-        private bool _refresh = false;
+    private ElementReference form;
+    private bool validated = false;
+    private List<Theme> _themeList;
+    private List<ThemeControl> _themes = new List<ThemeControl>();
+    private List<ThemeControl> _containers = new List<ThemeControl>();
+    private List<Page> _pageList;
+    private int _pageId;
+    private string _name;
+    private string _title;
+    private string _path;
+    private string _currentparentid;
+    private string _parentid;
+    private string _insert = "=";
+    private List<Page> _children;
+    private int _childid = -1;
+    private string _isnavigation;
+    private string _isclickable;
+    private string _url;
+    private string _ispersonalizable;
+    private string _themetype;
+    private string _containertype = "-";
+    private string _icon;
+    private string _permissions = null;
+    private string _createdby;
+    private DateTime _createdon;
+    private string _modifiedby;
+    private DateTime _modifiedon;
+    private string _deletedby;
+    private DateTime? _deletedon;
+    private PermissionGrid _permissionGrid;
+    private Type _themeSettingsType;
+    private object _themeSettings;
+    private RenderFragment ThemeSettingsComponent { get; set; }
+    private bool _refresh = false;
 
-        protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
+    {
+        try
         {
+            _pageList = PageState.Pages;
+            _children = PageState.Pages.Where(item => item.ParentId == null).ToList();
+
+            _themeList = await ThemeService.GetThemesAsync();
+            _themes = ThemeService.GetThemeControls(_themeList);
+
+            _pageId = Int32.Parse(PageState.QueryString["id"]);
+            var page = PageState.Pages.FirstOrDefault(item => item.PageId == _pageId);
+            if (page != null)
+            {
+                _name = page.Name;
+                _title = page.Title;
+                _path = page.Path;
+
+                if (_path.Contains("/"))
+                {
+                    _path = _path.Substring(_path.LastIndexOf("/") + 1);
+                }
+
+                if (page.ParentId == null)
+                {
+                    _parentid = string.Empty;
+                }
+                else
+                {
+                    _parentid = page.ParentId.ToString();
+                }
+
+                _currentparentid = _parentid;
+                _isnavigation = page.IsNavigation.ToString();
+                _isclickable = page.IsClickable.ToString();
+                _url = page.Url;
+                _ispersonalizable = page.IsPersonalizable.ToString();
+                _themetype = page.ThemeType;
+                if (string.IsNullOrEmpty(_themetype))
+                {
+                    _themetype = PageState.Site.DefaultThemeType;
+                }
+                _containers = ThemeService.GetContainerControls(_themeList, _themetype);
+                _containertype = page.DefaultContainerType;
+                if (string.IsNullOrEmpty(_containertype))
+                {
+                    _containertype = PageState.Site.DefaultContainerType;
+                }
+                _icon = page.Icon;
+                _permissions = page.Permissions;
+                _createdby = page.CreatedBy;
+                _createdon = page.CreatedOn;
+                _modifiedby = page.ModifiedBy;
+                _modifiedon = page.ModifiedOn;
+                _deletedby = page.DeletedBy;
+                _deletedon = page.DeletedOn;
+
+                ThemeSettings();
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Page {PageId} {Error}", _pageId, ex.Message);
+            AddModuleMessage(Localizer["Error.Page.Load"], MessageType.Error);
+        }
+    }
+
+    private async void ParentChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            _parentid = (string)e.Value;
+            _children = new List<Page>();
+            if (_parentid == "-1")
+            {
+                foreach (Page p in PageState.Pages.Where(item => item.ParentId == null))
+                {
+                    if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
+                    {
+                        _children.Add(p);
+                    }
+                }
+            }
+            else
+            {
+                foreach (Page p in PageState.Pages.Where(item => item.ParentId == int.Parse(_parentid)))
+                {
+                    if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
+                    {
+                        _children.Add(p);
+                    }
+                }
+            }
+            if (_parentid == _currentparentid)
+            {
+                _insert = "=";
+            }
+            else
+            {
+                _insert = ">>";
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Child Pages For Parent {PageId} {Error}", _parentid, ex.Message);
+            AddModuleMessage(Localizer["Error.ChildPage.Load"], MessageType.Error);
+        }
+    }
+
+    private async void ThemeChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            _themetype = (string)e.Value;
+            _containers = ThemeService.GetContainerControls(_themeList, _themetype);
+            _containertype = "-";
+            ThemeSettings();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", _themetype, ex.Message);
+            AddModuleMessage(Localizer["Error.Pane.Load"], MessageType.Error);
+        }
+    }
+
+    private void ThemeSettings()
+    {
+        _themeSettingsType = null;
+        var theme = _themeList.FirstOrDefault(item => item.Themes.Any(themecontrol => themecontrol.TypeName.Equals(_themetype)));
+        if (theme != null && !string.IsNullOrEmpty(theme.ThemeSettingsType))
+        {
+            _themeSettingsType = Type.GetType(theme.ThemeSettingsType);
+            if (_themeSettingsType != null)
+            {
+                ThemeSettingsComponent = builder =>
+                {
+                    builder.OpenComponent(0, _themeSettingsType);
+                    builder.AddComponentReferenceCapture(1, inst => { _themeSettings = Convert.ChangeType(inst, _themeSettingsType); });
+                    builder.CloseComponent();
+                };
+            }
+            _refresh = true;
+        }
+    }
+
+    private async Task SavePage()
+    {
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
+        {
+            Page page = null;
             try
             {
-                _pageList = PageState.Pages;
-                _children = PageState.Pages.Where(item => item.ParentId == null).ToList();
-
-                _themeList = await ThemeService.GetThemesAsync();
-                _themes = ThemeService.GetThemeControls(_themeList);
-
-                _pageId = Int32.Parse(PageState.QueryString["id"]);
-                var page = PageState.Pages.FirstOrDefault(item => item.PageId == _pageId);
-                if (page != null)
+                if (_name != string.Empty && !string.IsNullOrEmpty(_themetype) && _containertype != "-")
                 {
-                    _name = page.Name;
-                    _title = page.Title;
-                    _path = page.Path;
+                    page = PageState.Pages.FirstOrDefault(item => item.PageId == _pageId);
+                    string currentPath = page.Path;
 
+                    page.Name = _name;
+                    page.Title = _title;
+                    if (_path == "" && _name.ToLower() != "home")
+                        if (_path == string.Empty && _name.ToLower() != "home")
+                        {
+                            _path = _name;
+                        }
                     if (_path.Contains("/"))
                     {
                         _path = _path.Substring(_path.LastIndexOf("/") + 1);
                     }
-
-                    if (page.ParentId == null)
+                    if (string.IsNullOrEmpty(_parentid) || _parentid == "-1")
                     {
-                        _parentid = string.Empty;
+                        page.ParentId = null;
+                        page.Path = Utilities.GetFriendlyUrl(_path);
                     }
                     else
                     {
-                        _parentid = page.ParentId.ToString();
-                    }
-
-                    _currentparentid = _parentid;
-                    _isnavigation = page.IsNavigation.ToString();
-                    _isclickable = page.IsClickable.ToString();
-                    _url = page.Url;
-                    _ispersonalizable = page.IsPersonalizable.ToString();
-                    _themetype = page.ThemeType;
-                    if (string.IsNullOrEmpty(_themetype))
-                    {
-                        _themetype = PageState.Site.DefaultThemeType;
-                    }
-                    _containers = ThemeService.GetContainerControls(_themeList, _themetype);
-                    _containertype = page.DefaultContainerType;
-                    if (string.IsNullOrEmpty(_containertype))
-                    {
-                        _containertype = PageState.Site.DefaultContainerType;
-                    }
-                    _icon = page.Icon;
-                    _permissions = page.Permissions;
-                    _createdby = page.CreatedBy;
-                    _createdon = page.CreatedOn;
-                    _modifiedby = page.ModifiedBy;
-                    _modifiedon = page.ModifiedOn;
-                    _deletedby = page.DeletedBy;
-                    _deletedon = page.DeletedOn;
-
-                    ThemeSettings();
-                }
-            }
-            catch (Exception ex)
-            {
-                await logger.LogError(ex, "Error Loading Page {PageId} {Error}", _pageId, ex.Message);
-                AddModuleMessage(Localizer["Error.Page.Load"], MessageType.Error);
-            }
-        }
-
-        private async void ParentChanged(ChangeEventArgs e)
-        {
-            try
-            {
-                _parentid = (string)e.Value;
-                _children = new List<Page>();
-                if (_parentid == "-1")
-                {
-                    foreach (Page p in PageState.Pages.Where(item => item.ParentId == null))
-                    {
-                        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
+                        page.ParentId = Int32.Parse(_parentid);
+                        Page parent = PageState.Pages.FirstOrDefault(item => item.PageId == page.ParentId);
+                        if (parent.Path == string.Empty)
                         {
-                            _children.Add(p);
+                            page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(_path);
                         }
+                        else
+                        {
+                            page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(_path);
+                        }
+                    }
+
+                    if (!PagePathIsUnique(page.Path, page.SiteId, page.PageId, _pageList))
+                    {
+                        AddModuleMessage(string.Format(Localizer["Mesage.Page.PathExists"], _path), MessageType.Warning);
+                        return;
+                    }
+
+                    if (_insert != "=")
+                    {
+                        Page child;
+                        switch (_insert)
+                        {
+                            case "<<":
+                                page.Order = 0;
+                                break;
+                            case "<":
+                                child = PageState.Pages.FirstOrDefault(item => item.PageId == _childid);
+                                if (child != null) page.Order = child.Order - 1;
+                                break;
+                            case ">":
+                                child = PageState.Pages.FirstOrDefault(item => item.PageId == _childid);
+                                if (child != null) page.Order = child.Order + 1;
+                                break;
+                            case ">>":
+                                page.Order = int.MaxValue;
+                                break;
+                        }
+                    }
+                    page.IsNavigation = (_isnavigation == null || Boolean.Parse(_isnavigation));
+                    page.IsClickable = (_isclickable == null ? true : Boolean.Parse(_isclickable));
+                    page.Url = _url;
+                    page.ThemeType = (_themetype != "-") ? _themetype : string.Empty;
+                    if (!string.IsNullOrEmpty(page.ThemeType) && page.ThemeType == PageState.Site.DefaultThemeType)
+                    {
+                        page.ThemeType = string.Empty;
+                    }
+                    page.DefaultContainerType = (_containertype != "-") ? _containertype : string.Empty;
+                    if (!string.IsNullOrEmpty(page.DefaultContainerType) && page.DefaultContainerType == PageState.Site.DefaultContainerType)
+                    {
+                        page.DefaultContainerType = string.Empty;
+                    }
+                    page.Icon = _icon ?? string.Empty;
+                    page.Permissions = _permissionGrid.GetPermissions();
+                    page.IsPersonalizable = (_ispersonalizable != null && Boolean.Parse(_ispersonalizable));
+                    page.UserId = null;
+
+                    page = await PageService.UpdatePageAsync(page);
+                    await PageService.UpdatePageOrderAsync(page.SiteId, page.PageId, page.ParentId);
+                    if (_currentparentid == string.Empty)
+                    {
+                        await PageService.UpdatePageOrderAsync(page.SiteId, page.PageId, null);
+                    }
+                    else
+                    {
+                        await PageService.UpdatePageOrderAsync(page.SiteId, page.PageId, int.Parse(_currentparentid));
+                    }
+
+                    // update child paths
+                    if (_parentid != _currentparentid)
+                    {
+                        foreach (Page p in PageState.Pages.Where(item => item.Path.StartsWith(currentPath)))
+                        {
+                            p.Path = p.Path.Replace(currentPath, page.Path);
+                            await PageService.UpdatePageAsync(p);
+                        }
+                    }
+
+                    if (_themeSettingsType != null && _themeSettings is ISettingsControl themeSettingsControl)
+                    {
+                        await themeSettingsControl.UpdateSettings();
+                    }
+
+                    await logger.LogInformation("Page Saved {Page}", page);
+                    if (PageState.QueryString.ContainsKey("cp"))
+                    {
+                        NavigationManager.NavigateTo(NavigateUrl(PageState.Pages.First(item => item.PageId == int.Parse(PageState.QueryString["cp"])).Path));
+                    }
+                    else
+                    {
+                        NavigationManager.NavigateTo(NavigateUrl(page.Path));
                     }
                 }
                 else
                 {
-                    foreach (Page p in PageState.Pages.Where(item => item.ParentId == int.Parse(_parentid)))
-                    {
-                        if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
-                        {
-                            _children.Add(p);
-                        }
-                    }
+                    AddModuleMessage(Localizer["Message.Required.PageInfo"], MessageType.Warning);
                 }
-                if (_parentid == _currentparentid)
-                {
-                    _insert = "=";
-                }
-                else
-                {
-                    _insert = ">>";
-                }
-                StateHasChanged();
             }
             catch (Exception ex)
             {
-                await logger.LogError(ex, "Error Loading Child Pages For Parent {PageId} {Error}", _parentid, ex.Message);
-                AddModuleMessage(Localizer["Error.ChildPage.Load"], MessageType.Error);
+                await logger.LogError(ex, "Error Saving Page {Page} {Error}", page, ex.Message);
+                AddModuleMessage(Localizer["Error.Page.Save"], MessageType.Error);
             }
         }
-
-        private async void ThemeChanged(ChangeEventArgs e)
+        else
         {
-            try
-            {
-                _themetype = (string)e.Value;
-                _containers = ThemeService.GetContainerControls(_themeList, _themetype);
-                _containertype = "-";
-                ThemeSettings();
-                StateHasChanged();
-            }
-            catch (Exception ex)
-            {
-                await logger.LogError(ex, "Error Loading Pane Layouts For Theme {ThemeType} {Error}", _themetype, ex.Message);
-                AddModuleMessage(Localizer["Error.Pane.Load"], MessageType.Error);
-            }
-        }
-
-        private void ThemeSettings()
-        {
-            _themeSettingsType = null;
-            var theme = _themeList.FirstOrDefault(item => item.Themes.Any(themecontrol => themecontrol.TypeName.Equals(_themetype)));
-            if (theme != null && !string.IsNullOrEmpty(theme.ThemeSettingsType))
-            {
-                _themeSettingsType = Type.GetType(theme.ThemeSettingsType);
-                if (_themeSettingsType != null)
-                {
-                    ThemeSettingsComponent = builder =>
-                    {
-                        builder.OpenComponent(0, _themeSettingsType);
-                        builder.AddComponentReferenceCapture(1, inst => { _themeSettings = Convert.ChangeType(inst, _themeSettingsType); });
-                        builder.CloseComponent();
-                    };
-                }
-                _refresh = true;
-            }
-        }
-
-        private async Task SavePage()
-        {
-            validated = true;
-            var interop = new Interop(JSRuntime);
-            if (await interop.FormValid(form))
-            {
-                Page page = null;
-                try
-                {
-                    if (_name != string.Empty && !string.IsNullOrEmpty(_themetype) && _containertype != "-")
-                    {
-                        page = PageState.Pages.FirstOrDefault(item => item.PageId == _pageId);
-                        string currentPath = page.Path;
-
-                        page.Name = _name;
-                        page.Title = _title;
-                        if (_path == "" && _name.ToLower() != "home")
-                            if (_path == string.Empty && _name.ToLower() != "home")
-                            {
-                                _path = _name;
-                            }
-                        if (_path.Contains("/"))
-                        {
-                            _path = _path.Substring(_path.LastIndexOf("/") + 1);
-                        }
-                        if (string.IsNullOrEmpty(_parentid) || _parentid == "-1")
-                        {
-                            page.ParentId = null;
-                            page.Path = Utilities.GetFriendlyUrl(_path);
-                        }
-                        else
-                        {
-                            page.ParentId = Int32.Parse(_parentid);
-                            Page parent = PageState.Pages.FirstOrDefault(item => item.PageId == page.ParentId);
-                            if (parent.Path == string.Empty)
-                            {
-                                page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(_path);
-                            }
-                            else
-                            {
-                                page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(_path);
-                            }
-                        }
-
-                        if (!PagePathIsUnique(page.Path, page.SiteId, page.PageId, _pageList))
-                        {
-                            AddModuleMessage(string.Format(Localizer["Mesage.Page.PathExists"], _path), MessageType.Warning);
-                            return;
-                        }
-
-                        if (_insert != "=")
-                        {
-                            Page child;
-                            switch (_insert)
-                            {
-                                case "<<":
-                                    page.Order = 0;
-                                    break;
-                                case "<":
-                                    child = PageState.Pages.FirstOrDefault(item => item.PageId == _childid);
-                                    if (child != null) page.Order = child.Order - 1;
-                                    break;
-                                case ">":
-                                    child = PageState.Pages.FirstOrDefault(item => item.PageId == _childid);
-                                    if (child != null) page.Order = child.Order + 1;
-                                    break;
-                                case ">>":
-                                    page.Order = int.MaxValue;
-                                    break;
-                            }
-                        }
-                        page.IsNavigation = (_isnavigation == null || Boolean.Parse(_isnavigation));
-                        page.IsClickable = (_isclickable == null ? true : Boolean.Parse(_isclickable));
-                        page.Url = _url;
-                        page.ThemeType = (_themetype != "-") ? _themetype : string.Empty;
-                        if (!string.IsNullOrEmpty(page.ThemeType) && page.ThemeType == PageState.Site.DefaultThemeType)
-                        {
-                            page.ThemeType = string.Empty;
-                        }
-                        page.DefaultContainerType = (_containertype != "-") ? _containertype : string.Empty;
-                        if (!string.IsNullOrEmpty(page.DefaultContainerType) && page.DefaultContainerType == PageState.Site.DefaultContainerType)
-                        {
-                            page.DefaultContainerType = string.Empty;
-                        }
-                        page.Icon = _icon ?? string.Empty;
-                        page.Permissions = _permissionGrid.GetPermissions();
-                        page.IsPersonalizable = (_ispersonalizable != null && Boolean.Parse(_ispersonalizable));
-                        page.UserId = null;
-
-                        page = await PageService.UpdatePageAsync(page);
-                        await PageService.UpdatePageOrderAsync(page.SiteId, page.PageId, page.ParentId);
-                        if (_currentparentid == string.Empty)
-                        {
-                            await PageService.UpdatePageOrderAsync(page.SiteId, page.PageId, null);
-                        }
-                        else
-                        {
-                            await PageService.UpdatePageOrderAsync(page.SiteId, page.PageId, int.Parse(_currentparentid));
-                        }
-
-                        // update child paths
-                        if (_parentid != _currentparentid)
-                        {
-                            foreach (Page p in PageState.Pages.Where(item => item.Path.StartsWith(currentPath)))
-                            {
-                                p.Path = p.Path.Replace(currentPath, page.Path);
-                                await PageService.UpdatePageAsync(p);
-                            }
-                        }
-
-                        if (_themeSettingsType != null && _themeSettings is ISettingsControl themeSettingsControl)
-                        {
-                            await themeSettingsControl.UpdateSettings();
-                        }
-
-                        await logger.LogInformation("Page Saved {Page}", page);
-                        if (PageState.QueryString.ContainsKey("cp"))
-                        {
-                            NavigationManager.NavigateTo(NavigateUrl(PageState.Pages.First(item => item.PageId == int.Parse(PageState.QueryString["cp"])).Path));
-                        }
-                        else
-                        {
-                            NavigationManager.NavigateTo(NavigateUrl(page.Path));
-                        }
-                    }
-                    else
-                    {
-                        AddModuleMessage(Localizer["Message.Required.PageInfo"], MessageType.Warning);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    await logger.LogError(ex, "Error Saving Page {Page} {Error}", page, ex.Message);
-                    AddModuleMessage(Localizer["Error.Page.Save"], MessageType.Error);
-                }
-            }
-            else
-            {
-                AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
-            }
-        }
-
-        private void Cancel()
-        {
-            if (PageState.QueryString.ContainsKey("cp"))
-            {
-                NavigationManager.NavigateTo(NavigateUrl(PageState.Pages.First(item => item.PageId == int.Parse(PageState.QueryString["cp"])).Path));
-            }
-            else
-            {
-                NavigationManager.NavigateTo(NavigateUrl());
-            }
-        }
-
-        private static bool PagePathIsUnique(string pagePath, int siteId, int pageId, List<Page> existingPages)
-        {
-            return !existingPages.Any(page => page.SiteId == siteId && page.Path == pagePath && page.PageId != pageId);
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
         }
     }
+
+    private void Cancel()
+    {
+        if (PageState.QueryString.ContainsKey("cp"))
+        {
+            NavigationManager.NavigateTo(NavigateUrl(PageState.Pages.First(item => item.PageId == int.Parse(PageState.QueryString["cp"])).Path));
+        }
+        else
+        {
+            NavigationManager.NavigateTo(NavigateUrl());
+        }
+    }
+
+    private static bool PagePathIsUnique(string pagePath, int siteId, int pageId, List<Page> existingPages)
+    {
+        return !existingPages.Any(page => page.SiteId == siteId && page.Path == pagePath && page.PageId != pageId);
+    }
+}

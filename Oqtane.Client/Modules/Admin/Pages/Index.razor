@@ -7,42 +7,42 @@
 
 @if (PageState.Pages != null)
 {
-        <ActionLink Action="Add" Text="Add Page" ResourceKey="AddPage" />
+    <ActionLink Action="Add" Text="Add Page" ResourceKey="AddPage" />
 
-        <Pager Items="@PageState.Pages.Where(item => !item.IsDeleted)">
-            <Header>
-                <th style="width: 1px;">&nbsp;</th>
-                <th style="width: 1px;">&nbsp;</th>
-                <th>@SharedLocalizer["Name"]</th>
-            </Header>
-            <Row>
-                <td><ActionLink Action="Edit" Parameters="@($"id=" + context.PageId.ToString())" ResourceKey="EditPage" /></td>
-                <td><ActionDialog Header="Delete Page" Message="@string.Format(Localizer["Confirm.Page.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeletePage(context))" ResourceKey="DeletePage" /></td>
-                <td>@(new string('-', context.Level * 2))@(context.Name)</td>
-            </Row>
-        </Pager>
+    <Pager Items="@PageState.Pages.Where(item => !item.IsDeleted)">
+        <Header>
+            <th style="width: 1px;">&nbsp;</th>
+            <th style="width: 1px;">&nbsp;</th>
+            <th>@SharedLocalizer["Name"]</th>
+        </Header>
+        <Row>
+            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.PageId.ToString())" ResourceKey="EditPage" /></td>
+            <td><ActionDialog Header="Delete Page" Message="@string.Format(Localizer["Confirm.Page.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeletePage(context))" ResourceKey="DeletePage" /></td>
+            <td>@(new string('-', context.Level * 2))@(context.Name)</td>
+        </Row>
+    </Pager>
 }
 
-        @code {
-            public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
-            private ElementReference form;
-            private bool validated = false;
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+    private ElementReference form;
+    private bool validated = false;
 
-            private async Task DeletePage(Page page)
-            {
-                    try
-                    {
-                        page.IsDeleted = true;
+    private async Task DeletePage(Page page)
+    {
+        try
+        {
+            page.IsDeleted = true;
 
-                        await PageService.UpdatePageAsync(page);
-                        await logger.LogInformation("Page Deleted {Page}", page);
-                        NavigationManager.NavigateTo(NavigateUrl("admin/pages"));
-                    }
-                    catch (Exception ex)
-                    {
-                        await logger.LogError(ex, "Error Deleting Page {Page} {Error}", page, ex.Message);
-                        AddModuleMessage(Localizer["Error.Page.Delete"], MessageType.Error);
-                    }
-            }
+            await PageService.UpdatePageAsync(page);
+            await logger.LogInformation("Page Deleted {Page}", page);
+            NavigationManager.NavigateTo(NavigateUrl("admin/pages"));
         }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Page {Page} {Error}", page, ex.Message);
+            AddModuleMessage(Localizer["Error.Page.Delete"], MessageType.Error);
+        }
+    }
+}
 

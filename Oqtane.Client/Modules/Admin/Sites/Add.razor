@@ -24,7 +24,7 @@ else
             <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" For="name" HelpText="Enter the name of the site" ResourceKey="Name">Site Name: </Label>
                 <div class="col-sm-9">
-                    <input id="name" class="form-control" @bind="@_name" maxlength="256" required/>
+                    <input id="name" class="form-control" @bind="@_name" maxlength="256" required />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
@@ -103,7 +103,7 @@ else
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="name" HelpText="Enter the name for the tenant" ResourceKey="TenantName">Tenant Name: </Label>
                     <div class="col-sm-9">
-                        <input id="name" class="form-control" @bind="@_tenantName" maxlength="256" required/>
+                        <input id="name" class="form-control" @bind="@_tenantName" maxlength="256" required />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
@@ -137,7 +137,7 @@ else
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="hostPassword" HelpText="Enter the password for the host of this site" ResourceKey="HostPassword">Host Password:</Label>
                     <div class="col-sm-9">
-                        <input id="hostPassword" type="password" class="form-control" @bind="@_hostpassword" maxlength="256" required/>
+                        <input id="hostPassword" type="password" class="form-control" @bind="@_hostpassword" maxlength="256" required />
                     </div>
                 </div>
             }
@@ -149,227 +149,227 @@ else
     </form>
 }
 
-        @code {
-            private List<Database> _databases;
-            private ElementReference form;
-            private bool validated = false;
-            private string _databaseName = "LocalDB";
-            private Type _databaseConfigType;
-            private object _databaseConfig;
-            private RenderFragment DatabaseConfigComponent { get; set; }
+@code {
+    private List<Database> _databases;
+    private ElementReference form;
+    private bool validated = false;
+    private string _databaseName = "LocalDB";
+    private Type _databaseConfigType;
+    private object _databaseConfig;
+    private RenderFragment DatabaseConfigComponent { get; set; }
 
 
-            private List<Theme> _themeList;
-            private List<ThemeControl> _themes = new List<ThemeControl>();
-            private List<ThemeControl> _containers = new List<ThemeControl>();
-            private List<SiteTemplate> _siteTemplates;
-            private List<Tenant> _tenants;
-            private string _tenantid = "-";
+    private List<Theme> _themeList;
+    private List<ThemeControl> _themes = new List<ThemeControl>();
+    private List<ThemeControl> _containers = new List<ThemeControl>();
+    private List<SiteTemplate> _siteTemplates;
+    private List<Tenant> _tenants;
+    private string _tenantid = "-";
 
-            private string _tenantName = string.Empty;
+    private string _tenantName = string.Empty;
 
-            private string _hostUserName = UserNames.Host;
-            private string _hostpassword = string.Empty;
+    private string _hostUserName = UserNames.Host;
+    private string _hostpassword = string.Empty;
 
-            private string _name = string.Empty;
-            private string _urls = string.Empty;
-            private string _themetype = "-";
-            private string _containertype = "-";
-            private string _admincontainertype = "";
-            private string _sitetemplatetype = "-";
+    private string _name = string.Empty;
+    private string _urls = string.Empty;
+    private string _themetype = "-";
+    private string _containertype = "-";
+    private string _admincontainertype = "";
+    private string _sitetemplatetype = "-";
 
-            public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-            protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
+    {
+        _tenants = await TenantService.GetTenantsAsync();
+        _urls = PageState.Alias.Name;
+        _themeList = await ThemeService.GetThemesAsync();
+        _themes = ThemeService.GetThemeControls(_themeList);
+        _siteTemplates = await SiteTemplateService.GetSiteTemplatesAsync();
+        _databases = await DatabaseService.GetDatabasesAsync();
+        LoadDatabaseConfigComponent();
+    }
+
+    private void DatabaseChanged(ChangeEventArgs eventArgs)
+    {
+        try
+        {
+            _databaseName = (string)eventArgs.Value;
+
+            LoadDatabaseConfigComponent();
+        }
+        catch
+        {
+            AddModuleMessage(Localizer["Error.Database.LoadConfig"], MessageType.Error);
+        }
+    }
+
+    private void LoadDatabaseConfigComponent()
+    {
+        var database = _databases.SingleOrDefault(d => d.Name == _databaseName);
+        if (database != null)
+        {
+            _databaseConfigType = Type.GetType(database.ControlType);
+            DatabaseConfigComponent = builder =>
             {
-                _tenants = await TenantService.GetTenantsAsync();
-                _urls = PageState.Alias.Name;
-                _themeList = await ThemeService.GetThemesAsync();
-                _themes = ThemeService.GetThemeControls(_themeList);
-                _siteTemplates = await SiteTemplateService.GetSiteTemplatesAsync();
-                _databases = await DatabaseService.GetDatabasesAsync();
-                LoadDatabaseConfigComponent();
+                builder.OpenComponent(0, _databaseConfigType);
+                builder.AddComponentReferenceCapture(1, inst => { _databaseConfig = Convert.ChangeType(inst, _databaseConfigType); });
+                builder.CloseComponent();
+            };
+        }
+    }
+
+    private void TenantChanged(ChangeEventArgs e)
+    {
+        _tenantid = (string)e.Value;
+        if (string.IsNullOrEmpty(_tenantName))
+        {
+            _tenantName = _name;
+        }
+        StateHasChanged();
+    }
+
+    private async void ThemeChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            _themetype = (string)e.Value;
+            if (_themetype != "-")
+            {
+                _containers = ThemeService.GetContainerControls(_themeList, _themetype);
             }
-
-            private void DatabaseChanged(ChangeEventArgs eventArgs)
+            else
             {
-                try
-                {
-                    _databaseName = (string)eventArgs.Value;
-
-                    LoadDatabaseConfigComponent();
-                }
-                catch
-                {
-                    AddModuleMessage(Localizer["Error.Database.LoadConfig"], MessageType.Error);
-                }
+                _containers = new List<ThemeControl>();
             }
+            _containertype = "-";
+            _admincontainertype = "";
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Containers For Theme {ThemeType} {Error}", _themetype, ex.Message);
+            AddModuleMessage(Localizer["Error.Theme.LoadContainers"], MessageType.Error);
+        }
+    }
 
-            private void LoadDatabaseConfigComponent()
+    private async Task SaveSite()
+    {
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
+        {
+            if (_tenantid != "-" && _name != string.Empty && _urls != string.Empty && _themetype != "-" && _containertype != "-" && _sitetemplatetype != "-")
             {
-                var database = _databases.SingleOrDefault(d => d.Name == _databaseName);
-                if (database != null)
+                var duplicates = new List<string>();
+                var aliases = await AliasService.GetAliasesAsync();
+                foreach (string name in _urls.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    _databaseConfigType = Type.GetType(database.ControlType);
-                    DatabaseConfigComponent = builder =>
+                    if (aliases.Exists(item => item.Name == name))
                     {
-                        builder.OpenComponent(0, _databaseConfigType);
-                        builder.AddComponentReferenceCapture(1, inst => { _databaseConfig = Convert.ChangeType(inst, _databaseConfigType); });
-                        builder.CloseComponent();
-                    };
-                }
-            }
-
-            private void TenantChanged(ChangeEventArgs e)
-            {
-                _tenantid = (string)e.Value;
-                if (string.IsNullOrEmpty(_tenantName))
-                {
-                    _tenantName = _name;
-                }
-                StateHasChanged();
-            }
-
-            private async void ThemeChanged(ChangeEventArgs e)
-            {
-                try
-                {
-                    _themetype = (string)e.Value;
-                    if (_themetype != "-")
-                    {
-                        _containers = ThemeService.GetContainerControls(_themeList, _themetype);
+                        duplicates.Add(name);
                     }
-                    else
-                    {
-                        _containers = new List<ThemeControl>();
-                    }
-                    _containertype = "-";
-                    _admincontainertype = "";
-                    StateHasChanged();
                 }
-                catch (Exception ex)
-                {
-                    await logger.LogError(ex, "Error Loading Containers For Theme {ThemeType} {Error}", _themetype, ex.Message);
-                    AddModuleMessage(Localizer["Error.Theme.LoadContainers"], MessageType.Error);
-                }
-            }
 
-            private async Task SaveSite()
-            {
-                validated = true;
-                var interop = new Interop(JSRuntime);
-                if (await interop.FormValid(form))
+                if (duplicates.Count == 0)
                 {
-                    if (_tenantid != "-" && _name != string.Empty && _urls != string.Empty && _themetype != "-" && _containertype != "-" && _sitetemplatetype != "-")
+                    InstallConfig config = new InstallConfig();
+
+                    if (_tenantid == "+")
                     {
-                        var duplicates = new List<string>();
-                        var aliases = await AliasService.GetAliasesAsync();
-                        foreach (string name in _urls.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                        if (!string.IsNullOrEmpty(_tenantName) && _tenants.FirstOrDefault(item => item.Name == _tenantName) == null)
                         {
-                            if (aliases.Exists(item => item.Name == name))
+                            // validate host credentials
+                            var user = new User();
+                            user.SiteId = PageState.Site.SiteId;
+                            user.Username = UserNames.Host;
+                            user.Password = _hostpassword;
+                            user = await UserService.LoginUserAsync(user, false, false);
+                            if (user.IsAuthenticated)
                             {
-                                duplicates.Add(name);
-                            }
-                        }
-
-                        if (duplicates.Count == 0)
-                        {
-                            InstallConfig config = new InstallConfig();
-
-                            if (_tenantid == "+")
-                            {
-                                if (!string.IsNullOrEmpty(_tenantName) && _tenants.FirstOrDefault(item => item.Name == _tenantName) == null)
+                                var connectionString = String.Empty;
+                                if (_databaseConfig is IDatabaseConfigControl databaseConfigControl)
                                 {
-                                    // validate host credentials
-                                    var user = new User();
-                                    user.SiteId = PageState.Site.SiteId;
-                                    user.Username = UserNames.Host;
-                                    user.Password = _hostpassword;
-                                    user = await UserService.LoginUserAsync(user, false, false);
-                                    if (user.IsAuthenticated)
-                                    {
-                                        var connectionString = String.Empty;
-                                        if (_databaseConfig is IDatabaseConfigControl databaseConfigControl)
-                                        {
-                                            connectionString = databaseConfigControl.GetConnectionString();
-                                        }
-                                        var database = _databases.SingleOrDefault(d => d.Name == _databaseName);
+                                    connectionString = databaseConfigControl.GetConnectionString();
+                                }
+                                var database = _databases.SingleOrDefault(d => d.Name == _databaseName);
 
-                                        if (connectionString != "")
-                                        {
-                                            config.TenantName = _tenantName;
-                                            config.DatabaseType = database.DBType;
-                                            config.ConnectionString = connectionString;
-                                            config.HostEmail = user.Email;
-                                            config.HostPassword = _hostpassword;
-                                            config.HostName = user.DisplayName;
-                                            config.IsNewTenant = true;
-                                        }
-                                        else
-                                        {
-                                            AddModuleMessage(Localizer["Error.Required.ServerDatabase"], MessageType.Error);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        AddModuleMessage(Localizer["Error.InvalidPassword"], MessageType.Error);
-                                    }
+                                if (connectionString != "")
+                                {
+                                    config.TenantName = _tenantName;
+                                    config.DatabaseType = database.DBType;
+                                    config.ConnectionString = connectionString;
+                                    config.HostEmail = user.Email;
+                                    config.HostPassword = _hostpassword;
+                                    config.HostName = user.DisplayName;
+                                    config.IsNewTenant = true;
                                 }
                                 else
                                 {
-                                    AddModuleMessage(Localizer["Error.TenantName.Exists"], MessageType.Error);
+                                    AddModuleMessage(Localizer["Error.Required.ServerDatabase"], MessageType.Error);
                                 }
                             }
                             else
                             {
-                                var tenant = _tenants.FirstOrDefault(item => item.TenantId == int.Parse(_tenantid));
-                                if (tenant != null)
-                                {
-                                    config.TenantName = tenant.Name;
-                                    config.DatabaseType = tenant.DBType;
-                                    config.ConnectionString = tenant.DBConnectionString;
-                                    config.IsNewTenant = false;
-                                }
-                            }
-
-                            if (!string.IsNullOrEmpty(config.TenantName))
-                            {
-                                config.SiteName = _name;
-                                config.Aliases = _urls;
-                                config.DefaultTheme = _themetype;
-                                config.DefaultContainer = _containertype;
-                                config.DefaultAdminContainer = _admincontainertype;
-                                config.SiteTemplate = _sitetemplatetype;
-
-                                ShowProgressIndicator();
-
-                                var installation = await InstallationService.Install(config);
-                                if (installation.Success)
-                                {
-                                    var aliasname = config.Aliases.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)[0];
-                                    var uri = new Uri(NavigationManager.Uri);
-                                    NavigationManager.NavigateTo(uri.Scheme + "://" + aliasname, true);
-                                }
-                                else
-                                {
-                                    await logger.LogError("Error Creating Site {Error}", installation.Message);
-                                    AddModuleMessage(installation.Message, MessageType.Error);
-                                }
+                                AddModuleMessage(Localizer["Error.InvalidPassword"], MessageType.Error);
                             }
                         }
                         else
                         {
-                            AddModuleMessage(string.Format(Localizer["Message.SiteName.InUse"], string.Join(", ", duplicates.ToArray())), MessageType.Warning);
+                            AddModuleMessage(Localizer["Error.TenantName.Exists"], MessageType.Error);
                         }
                     }
                     else
                     {
-                        AddModuleMessage(Localizer["Message.Required.Tenant"], MessageType.Warning);
+                        var tenant = _tenants.FirstOrDefault(item => item.TenantId == int.Parse(_tenantid));
+                        if (tenant != null)
+                        {
+                            config.TenantName = tenant.Name;
+                            config.DatabaseType = tenant.DBType;
+                            config.ConnectionString = tenant.DBConnectionString;
+                            config.IsNewTenant = false;
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(config.TenantName))
+                    {
+                        config.SiteName = _name;
+                        config.Aliases = _urls;
+                        config.DefaultTheme = _themetype;
+                        config.DefaultContainer = _containertype;
+                        config.DefaultAdminContainer = _admincontainertype;
+                        config.SiteTemplate = _sitetemplatetype;
+
+                        ShowProgressIndicator();
+
+                        var installation = await InstallationService.Install(config);
+                        if (installation.Success)
+                        {
+                            var aliasname = config.Aliases.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)[0];
+                            var uri = new Uri(NavigationManager.Uri);
+                            NavigationManager.NavigateTo(uri.Scheme + "://" + aliasname, true);
+                        }
+                        else
+                        {
+                            await logger.LogError("Error Creating Site {Error}", installation.Message);
+                            AddModuleMessage(installation.Message, MessageType.Error);
+                        }
                     }
                 }
                 else
                 {
-                    AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+                    AddModuleMessage(string.Format(Localizer["Message.SiteName.InUse"], string.Join(", ", duplicates.ToArray())), MessageType.Warning);
                 }
             }
+            else
+            {
+                AddModuleMessage(Localizer["Message.Required.Tenant"], MessageType.Warning);
+            }
         }
+        else
+        {
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+        }
+    }
+}

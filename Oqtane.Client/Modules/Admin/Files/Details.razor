@@ -42,80 +42,79 @@
     </form>
 }
 
-        @code {
-            private ElementReference form;
-            private bool validated = false;
-            private int _fileId = -1;
-            private string _name;
-            private List<Folder> _folders;
-            private int _folderId = -1;
-            private int _size;
-            private string _createdBy;
-            private DateTime _createdOn;
-            private string _modifiedBy;
-            private DateTime _modifiedOn;
+@code {
+    private ElementReference form;
+    private bool validated = false;
+    private int _fileId = -1;
+    private string _name;
+    private List<Folder> _folders;
+    private int _folderId = -1;
+    private int _size;
+    private string _createdBy;
+    private DateTime _createdOn;
+    private string _modifiedBy;
+    private DateTime _modifiedOn;
 
-            public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-            public override string Title => "File Management";
+    public override string Title => "File Management";
 
-            protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _folders = await FolderService.GetFoldersAsync(PageState.Site.SiteId);
+            _fileId = Int32.Parse(PageState.QueryString["id"]);
+            File file = await FileService.GetFileAsync(_fileId);
+            if (file != null)
             {
-                try
-                {
-                    _folders = await FolderService.GetFoldersAsync(PageState.Site.SiteId);
-                    _fileId = Int32.Parse(PageState.QueryString["id"]);
-                    File file = await FileService.GetFileAsync(_fileId);
-                    if (file != null)
-                    {
-                        _name = file.Name;
-                        _folderId = file.FolderId;
-                        _size = file.Size;
-                        _createdBy = file.CreatedBy;
-                        _createdOn = file.CreatedOn;
-                        _modifiedBy = file.ModifiedBy;
-                        _modifiedOn = file.ModifiedOn;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    await logger.LogError(ex, "Error Loading File {FileId} {Error}", _fileId, ex.Message);
-                    AddModuleMessage(Localizer["Error.File.Load"], MessageType.Error);
-                }
+                _name = file.Name;
+                _folderId = file.FolderId;
+                _size = file.Size;
+                _createdBy = file.CreatedBy;
+                _createdOn = file.CreatedOn;
+                _modifiedBy = file.ModifiedBy;
+                _modifiedOn = file.ModifiedOn;
             }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading File {FileId} {Error}", _fileId, ex.Message);
+            AddModuleMessage(Localizer["Error.File.Load"], MessageType.Error);
+        }
+    }
 
-            private async Task SaveFile()
+    private async Task SaveFile()
+    {
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
+        {
+            try
             {
-                validated = true;
-                var interop = new Interop(JSRuntime);
-                if (await interop.FormValid(form))
+                if (_name.IsPathOrFileValid())
                 {
-                    try
-                    {
-                        if (_name.IsPathOrFileValid())
-                        {
-                            File file = await FileService.GetFileAsync(_fileId);
-                            file.Name = _name;
-                            file.FolderId = _folderId;
-                            file = await FileService.UpdateFileAsync(file);
-                            await logger.LogInformation("File Saved {File}", file);
-                            NavigationManager.NavigateTo(NavigateUrl());
-                        }
-                        else
-                        {
-                            AddModuleMessage(Localizer["Message.File.InvalidName"], MessageType.Warning);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        await logger.LogError(ex, "Error Saving File {FileId} {Error}", _fileId, ex.Message);
-                        AddModuleMessage(Localizer["Error.File.Save"], MessageType.Error);
-                    }
+                    File file = await FileService.GetFileAsync(_fileId);
+                    file.Name = _name;
+                    file.FolderId = _folderId;
+                    file = await FileService.UpdateFileAsync(file);
+                    await logger.LogInformation("File Saved {File}", file);
+                    NavigationManager.NavigateTo(NavigateUrl());
                 }
                 else
                 {
-                    AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+                    AddModuleMessage(Localizer["Message.File.InvalidName"], MessageType.Warning);
                 }
             }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Saving File {FileId} {Error}", _fileId, ex.Message);
+                AddModuleMessage(Localizer["Error.File.Save"], MessageType.Error);
+            }
         }
+        else
+        {
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+        }
+    }
 }

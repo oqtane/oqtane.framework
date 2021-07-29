@@ -72,93 +72,93 @@
     </form>
 }
 
-        @code {
-            private ElementReference form;
-            private bool validated = false;
-            private string _owner = string.Empty;
-            private string _module = string.Empty;
-            private string _description = string.Empty;
-            private List<Template> _templates;
-            private string _template = "-";
-            private string[] _versions;
-            private string _reference = Constants.Version;
-            private string _minversion = "2.0.0";
-            private string _location = string.Empty;
+@code {
+    private ElementReference form;
+    private bool validated = false;
+    private string _owner = string.Empty;
+    private string _module = string.Empty;
+    private string _description = string.Empty;
+    private List<Template> _templates;
+    private string _template = "-";
+    private string[] _versions;
+    private string _reference = Constants.Version;
+    private string _minversion = "2.0.0";
+    private string _location = string.Empty;
 
-            public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-            protected override async Task OnParametersSetAsync()
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            _templates = await ModuleDefinitionService.GetModuleDefinitionTemplatesAsync();
+            _versions = Constants.ReleaseVersions.Split(',').Where(item => Version.Parse(item).CompareTo(Version.Parse("2.0.0")) >= 0).ToArray();
+            AddModuleMessage(Localizer["Info.Module.Development"], MessageType.Info);
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Module Creator");
+        }
+    }
+
+    private async Task CreateModule()
+    {
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
+        {
+            try
             {
-                try
+                if (IsValid(_owner) && IsValid(_module) && _owner != _module && _template != "-")
                 {
-                    _templates = await ModuleDefinitionService.GetModuleDefinitionTemplatesAsync();
-                    _versions = Constants.ReleaseVersions.Split(',').Where(item => Version.Parse(item).CompareTo(Version.Parse("2.0.0")) >= 0).ToArray();
-                    AddModuleMessage(Localizer["Info.Module.Development"], MessageType.Info);
-                }
-                catch (Exception ex)
-                {
-                    await logger.LogError(ex, "Error Loading Module Creator");
-                }
-            }
-
-            private async Task CreateModule()
-            {
-                validated = true;
-                var interop = new Interop(JSRuntime);
-                if (await interop.FormValid(form))
-                {
-                    try
-                    {
-                        if (IsValid(_owner) && IsValid(_module) && _owner != _module && _template != "-")
-                        {
-                            var moduleDefinition = new ModuleDefinition { Owner = _owner, Name = _module, Description = _description, Template = _template, Version = _reference };
-                            moduleDefinition = await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition);
-                            GetLocation();
-                            AddModuleMessage(string.Format(Localizer["Success.Module.Create"], NavigateUrl("admin/system")), MessageType.Success);
-                        }
-                        else
-                        {
-                            AddModuleMessage(Localizer["Message.Require.ValidName"], MessageType.Warning);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        await logger.LogError(ex, "Error Creating Module");
-                    }
+                    var moduleDefinition = new ModuleDefinition { Owner = _owner, Name = _module, Description = _description, Template = _template, Version = _reference };
+                    moduleDefinition = await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition);
+                    GetLocation();
+                    AddModuleMessage(string.Format(Localizer["Success.Module.Create"], NavigateUrl("admin/system")), MessageType.Success);
                 }
                 else
                 {
-                    AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+                    AddModuleMessage(Localizer["Message.Require.ValidName"], MessageType.Warning);
                 }
             }
-
-            private bool IsValid(string name)
+            catch (Exception ex)
             {
-                // must contain letters, underscores and digits and first character must be letter or underscore
-                return !string.IsNullOrEmpty(name) && name.ToLower() != "module" && Regex.IsMatch(name, "^[A-Za-z_][A-Za-z0-9_]*$");
-            }
-
-            private void TemplateChanged(ChangeEventArgs e)
-            {
-                _template = (string)e.Value;
-                _minversion = "2.0.0";
-                if (_template != "-")
-                {
-                    var template = _templates.FirstOrDefault(item => item.Name == _template);
-                    _minversion = template.Version;
-                }
-                GetLocation();
-            }
-
-            private void GetLocation()
-            {
-                _location = string.Empty;
-                if (_owner != "" && _module != "" && _template != "-")
-                {
-                    var template = _templates.FirstOrDefault(item => item.Name == _template);
-                    _location = template.Location + _owner + "." + _module;
-
-                }
-                StateHasChanged();
+                await logger.LogError(ex, "Error Creating Module");
             }
         }
+        else
+        {
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+        }
+    }
+
+    private bool IsValid(string name)
+    {
+        // must contain letters, underscores and digits and first character must be letter or underscore
+        return !string.IsNullOrEmpty(name) && name.ToLower() != "module" && Regex.IsMatch(name, "^[A-Za-z_][A-Za-z0-9_]*$");
+    }
+
+    private void TemplateChanged(ChangeEventArgs e)
+    {
+        _template = (string)e.Value;
+        _minversion = "2.0.0";
+        if (_template != "-")
+        {
+            var template = _templates.FirstOrDefault(item => item.Name == _template);
+            _minversion = template.Version;
+        }
+        GetLocation();
+    }
+
+    private void GetLocation()
+    {
+        _location = string.Empty;
+        if (_owner != "" && _module != "" && _template != "-")
+        {
+            var template = _templates.FirstOrDefault(item => item.Name == _template);
+            _location = template.Location + _owner + "." + _module;
+
+        }
+        StateHasChanged();
+    }
+}

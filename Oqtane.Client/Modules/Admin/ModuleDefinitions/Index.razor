@@ -12,104 +12,104 @@
 }
 else
 {
-        <ActionLink Action="Add" Text="Install Module" ResourceKey="InstallModule" />
-        @((MarkupString)"&nbsp;")
-        <ActionLink Action="Create" Text="Create Module" ResourceKey="CreateModule" Class="btn btn-secondary" />
+    <ActionLink Action="Add" Text="Install Module" ResourceKey="InstallModule" />
+    @((MarkupString)"&nbsp;")
+    <ActionLink Action="Create" Text="Create Module" ResourceKey="CreateModule" Class="btn btn-secondary" />
 
-        <Pager Items="@_moduleDefinitions">
-            <Header>
-                <th style="width: 1px;">&nbsp;</th>
-                <th style="width: 1px;">&nbsp;</th>
-                <th>@SharedLocalizer["Name"]</th>
-                <th>@SharedLocalizer["Version"]</th>
-                <th style="width: 1px;">&nbsp;</th>
-            </Header>
-            <Row>
-                <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ModuleDefinitionId.ToString())" ResourceKey="EditModule" /></td>
-                <td>
-                    @if (context.AssemblyName != "Oqtane.Client")
-                        {
-                        <ActionDialog Header="Delete Module" Message="@string.Format(Localizer["Confirm.Module.Delete", context.Name])" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" />
-                        }
-                </td>
-                <td>@context.Name</td>
-                <td>@context.Version</td>
-                <td>
-                    @if (UpgradeAvailable(context.PackageName, context.Version))
-                        {
-                        <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadModule(context.PackageName, context.Version))>@SharedLocalizer["Upgrade"]</button>
-                        }
-                </td>
-            </Row>
-        </Pager>
-    }
+    <Pager Items="@_moduleDefinitions">
+        <Header>
+            <th style="width: 1px;">&nbsp;</th>
+            <th style="width: 1px;">&nbsp;</th>
+            <th>@SharedLocalizer["Name"]</th>
+            <th>@SharedLocalizer["Version"]</th>
+            <th style="width: 1px;">&nbsp;</th>
+        </Header>
+        <Row>
+            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ModuleDefinitionId.ToString())" ResourceKey="EditModule" /></td>
+            <td>
+                @if (context.AssemblyName != "Oqtane.Client")
+                    {
+                    <ActionDialog Header="Delete Module" Message="@string.Format(Localizer["Confirm.Module.Delete", context.Name])" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" />
+                    }
+            </td>
+            <td>@context.Name</td>
+            <td>@context.Version</td>
+            <td>
+                @if (UpgradeAvailable(context.PackageName, context.Version))
+                    {
+                    <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadModule(context.PackageName, context.Version))>@SharedLocalizer["Upgrade"]</button>
+                    }
+            </td>
+        </Row>
+    </Pager>
+}
 
-        @code {
-            private List<ModuleDefinition> _moduleDefinitions;
-            private List<Package> _packages;
+@code {
+    private List<ModuleDefinition> _moduleDefinitions;
+    private List<Package> _packages;
 
-            public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-            protected override async Task OnParametersSetAsync()
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            _moduleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
+            _packages = await PackageService.GetPackagesAsync("module");
+        }
+        catch (Exception ex)
+        {
+            if (_moduleDefinitions == null)
             {
-                try
-                {
-                    _moduleDefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
-                    _packages = await PackageService.GetPackagesAsync("module");
-                }
-                catch (Exception ex)
-                {
-                    if (_moduleDefinitions == null)
-                    {
-                        await logger.LogError(ex, "Error Loading Modules {Error}", ex.Message);
-                        AddModuleMessage(Localizer["Error.Module.Load"], MessageType.Error);
-                    }
-                }
-            }
-
-            private bool UpgradeAvailable(string packagename, string version)
-            {
-                var upgradeavailable = false;
-                if (_packages != null)
-                {
-                    var package = _packages.Where(item => item.PackageId == packagename).FirstOrDefault();
-                    if (package != null)
-                    {
-                        upgradeavailable = (Version.Parse(package.Version).CompareTo(Version.Parse(version)) > 0);
-                    }
-
-                }
-                return upgradeavailable;
-            }
-
-            private async Task DownloadModule(string packagename, string version)
-            {
-                    try
-                    {
-                        await PackageService.DownloadPackageAsync(packagename, version, "Packages");
-                        await logger.LogInformation("Module Downloaded {ModuleDefinitionName} {Version}", packagename, version);
-                        await ModuleDefinitionService.InstallModuleDefinitionsAsync();
-                        AddModuleMessage(string.Format(Localizer["Success.Module.Install"], NavigateUrl("admin/system")), MessageType.Success);
-                    }
-                    catch (Exception ex)
-                    {
-                        await logger.LogError(ex, "Error Downloading Module {ModuleDefinitionName} {Version} {Error}", packagename, version, ex.Message);
-                        AddModuleMessage(Localizer["Error.Module.Download"], MessageType.Error);
-                    }
-            }
-
-            private async Task DeleteModule(ModuleDefinition moduleDefinition)
-            {
-                    try
-                    {
-                        await ModuleDefinitionService.DeleteModuleDefinitionAsync(moduleDefinition.ModuleDefinitionId, moduleDefinition.SiteId);
-                        AddModuleMessage(Localizer["Success.Module.Delete"], MessageType.Success);
-                        NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, true));
-                    }
-                    catch (Exception ex)
-                    {
-                        await logger.LogError(ex, "Error Deleting Module {ModuleDefinition} {Error}", moduleDefinition, ex.Message);
-                        AddModuleMessage(Localizer["Error.Module.Delete"], MessageType.Error);
-                    }
+                await logger.LogError(ex, "Error Loading Modules {Error}", ex.Message);
+                AddModuleMessage(Localizer["Error.Module.Load"], MessageType.Error);
             }
         }
+    }
+
+    private bool UpgradeAvailable(string packagename, string version)
+    {
+        var upgradeavailable = false;
+        if (_packages != null)
+        {
+            var package = _packages.Where(item => item.PackageId == packagename).FirstOrDefault();
+            if (package != null)
+            {
+                upgradeavailable = (Version.Parse(package.Version).CompareTo(Version.Parse(version)) > 0);
+            }
+
+        }
+        return upgradeavailable;
+    }
+
+    private async Task DownloadModule(string packagename, string version)
+    {
+        try
+        {
+            await PackageService.DownloadPackageAsync(packagename, version, "Packages");
+            await logger.LogInformation("Module Downloaded {ModuleDefinitionName} {Version}", packagename, version);
+            await ModuleDefinitionService.InstallModuleDefinitionsAsync();
+            AddModuleMessage(string.Format(Localizer["Success.Module.Install"], NavigateUrl("admin/system")), MessageType.Success);
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Downloading Module {ModuleDefinitionName} {Version} {Error}", packagename, version, ex.Message);
+            AddModuleMessage(Localizer["Error.Module.Download"], MessageType.Error);
+        }
+    }
+
+    private async Task DeleteModule(ModuleDefinition moduleDefinition)
+    {
+        try
+        {
+            await ModuleDefinitionService.DeleteModuleDefinitionAsync(moduleDefinition.ModuleDefinitionId, moduleDefinition.SiteId);
+            AddModuleMessage(Localizer["Success.Module.Delete"], MessageType.Success);
+            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, true));
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Module {ModuleDefinition} {Error}", moduleDefinition, ex.Message);
+            AddModuleMessage(Localizer["Error.Module.Delete"], MessageType.Error);
+        }
+    }
+}

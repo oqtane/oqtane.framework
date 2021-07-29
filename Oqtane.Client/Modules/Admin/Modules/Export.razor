@@ -19,25 +19,25 @@
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 </form>
 
-    @code {
-        private ElementReference form;
-        private bool validated = false;
-        private string _content = string.Empty;
-        public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
-        public override string Title => "Export Content";
+@code {
+    private ElementReference form;
+    private bool validated = false;
+    private string _content = string.Empty;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+    public override string Title => "Export Content";
 
 
-        private async Task ExportModule()
+    private async Task ExportModule()
+    {
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
         {
-            validated = true;
-            var interop = new Interop(JSRuntime);
-            if (await interop.FormValid(form))
-            {
-                _content = await ModuleService.ExportModuleAsync(ModuleState.ModuleId);
-            }
-            else
-            {
-                AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
-            }
+            _content = await ModuleService.ExportModuleAsync(ModuleState.ModuleId);
+        }
+        else
+        {
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
         }
     }
+}

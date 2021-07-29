@@ -20,48 +20,48 @@
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 </form>
 
-    @code {
-        private string _content = string.Empty;
-        private ElementReference form;
-        private bool validated = false;
+@code {
+    private string _content = string.Empty;
+    private ElementReference form;
+    private bool validated = false;
 
-        public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
-        public override string Title => "Import Content";
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+    public override string Title => "Import Content";
 
-        private async Task ImportModule()
+    private async Task ImportModule()
+    {
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
         {
-            validated = true;
-            var interop = new Interop(JSRuntime);
-            if (await interop.FormValid(form))
+            if (_content != string.Empty)
             {
-                if (_content != string.Empty)
+                try
                 {
-                    try
+                    bool success = await ModuleService.ImportModuleAsync(ModuleState.ModuleId, _content);
+                    if (success)
                     {
-                        bool success = await ModuleService.ImportModuleAsync(ModuleState.ModuleId, _content);
-                        if (success)
-                        {
-                            AddModuleMessage(Localizer["Success.Content.Import"], MessageType.Success);
-                        }
-                        else
-                        {
-                            AddModuleMessage(Localizer["Message.Content.ImportProblem"], MessageType.Warning);
-                        }
+                        AddModuleMessage(Localizer["Success.Content.Import"], MessageType.Success);
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        await logger.LogError(ex, "Error Importing Module {ModuleId} {Error}", ModuleState.ModuleId, ex.Message);
-                        AddModuleMessage(Localizer["Error.Module.Import"], MessageType.Error);
+                        AddModuleMessage(Localizer["Message.Content.ImportProblem"], MessageType.Warning);
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    AddModuleMessage(Localizer["Message.Required.ImportContent"], MessageType.Warning);
+                    await logger.LogError(ex, "Error Importing Module {ModuleId} {Error}", ModuleState.ModuleId, ex.Message);
+                    AddModuleMessage(Localizer["Error.Module.Import"], MessageType.Error);
                 }
             }
             else
             {
-                AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+                AddModuleMessage(Localizer["Message.Required.ImportContent"], MessageType.Warning);
             }
         }
+        else
+        {
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+        }
     }
+}

@@ -27,7 +27,7 @@
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="url" HelpText="Enter the url of the file you wish to download" ResourceKey="Url">Url: </Label>
                         <div class="col-sm-9">
-                            <input id="url" class="form-control" @bind="@url" required/>
+                            <input id="url" class="form-control" @bind="@url" required />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
@@ -50,67 +50,67 @@
     </TabStrip>
 </form>
 
-    @code {
-        private ElementReference form;
-        private bool validated = false;
-        private string url = string.Empty;
-        private List<Folder> _folders;
-        private int _folderId = -1;
+@code {
+    private ElementReference form;
+    private bool validated = false;
+    private string url = string.Empty;
+    private List<Folder> _folders;
+    private int _folderId = -1;
 
-        public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-        protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
+    {
+        _folders = await FolderService.GetFoldersAsync(ModuleState.SiteId);
+
+        if (PageState.QueryString.ContainsKey("id"))
         {
-            _folders = await FolderService.GetFoldersAsync(ModuleState.SiteId);
+            _folderId = int.Parse(PageState.QueryString["id"]);
+        }
+    }
 
-            if (PageState.QueryString.ContainsKey("id"))
+    private async Task Download()
+    {
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
+        {
+            if (url == string.Empty || _folderId == -1)
             {
-                _folderId = int.Parse(PageState.QueryString["id"]);
+                AddModuleMessage(Localizer["Message.Required.UrlFolder"], MessageType.Warning);
+                return;
+            }
+
+            var filename = url.Substring(url.LastIndexOf("/", StringComparison.Ordinal) + 1);
+
+            if (!Constants.UploadableFiles.Split(',')
+                    .Contains(Path.GetExtension(filename).ToLower().Replace(".", "")))
+            {
+                AddModuleMessage(Localizer["Message.Download.InvalidExtension"], MessageType.Warning);
+                return;
+            }
+
+            if (!filename.IsPathOrFileValid())
+            {
+                AddModuleMessage(Localizer["Message.Required.UrlName"], MessageType.Warning);
+                return;
+            }
+
+            try
+            {
+                await FileService.UploadFileAsync(url, _folderId);
+                await logger.LogInformation("File Downloaded Successfully From Url {Url}", url);
+                AddModuleMessage(Localizer["Success.Download.File"], MessageType.Success);
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Downloading File From Url {Url} {Error}", url, ex.Message);
+                AddModuleMessage(Localizer["Error.Download.InvalidUrl"], MessageType.Error);
             }
         }
-
-        private async Task Download()
+        else
         {
-            validated = true;
-            var interop = new Interop(JSRuntime);
-            if (await interop.FormValid(form))
-            {
-                if (url == string.Empty || _folderId == -1)
-                {
-                    AddModuleMessage(Localizer["Message.Required.UrlFolder"], MessageType.Warning);
-                    return;
-                }
-
-                var filename = url.Substring(url.LastIndexOf("/", StringComparison.Ordinal) + 1);
-
-                if (!Constants.UploadableFiles.Split(',')
-                        .Contains(Path.GetExtension(filename).ToLower().Replace(".", "")))
-                {
-                    AddModuleMessage(Localizer["Message.Download.InvalidExtension"], MessageType.Warning);
-                    return;
-                }
-
-                if (!filename.IsPathOrFileValid())
-                {
-                    AddModuleMessage(Localizer["Message.Required.UrlName"], MessageType.Warning);
-                    return;
-                }
-
-                try
-                {
-                    await FileService.UploadFileAsync(url, _folderId);
-                    await logger.LogInformation("File Downloaded Successfully From Url {Url}", url);
-                    AddModuleMessage(Localizer["Success.Download.File"], MessageType.Success);
-                }
-                catch (Exception ex)
-                {
-                    await logger.LogError(ex, "Error Downloading File From Url {Url} {Error}", url, ex.Message);
-                    AddModuleMessage(Localizer["Error.Download.InvalidUrl"], MessageType.Error);
-                }
-            }
-            else
-            {
-                AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
-            }
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
         }
+    }
 }

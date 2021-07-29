@@ -16,13 +16,13 @@
             <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" For="owner" HelpText="Enter the name of the organization who is developing this theme. It should not contain spaces or punctuation." ResourceKey="OwnerName">Owner Name: </Label>
                 <div class="col-sm-9">
-                    <input id="owner" class="form-control" @bind="@_owner" maxlength="256" required/>
+                    <input id="owner" class="form-control" @bind="@_owner" maxlength="256" required />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" For="module" HelpText="Enter a name for this theme. It should not contain spaces or punctuation." ResourceKey="ThemeName">Theme Name: </Label>
                 <div class="col-sm-9">
-                    <input id="module" class="form-control" @bind="@_theme" maxlength="256" required/>
+                    <input id="module" class="form-control" @bind="@_theme" maxlength="256" required />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
@@ -68,92 +68,92 @@
     </form>
 }
 
-        @code {
-            private ElementReference form;
-            private bool validated = false;
-            private string _owner = string.Empty;
-            private string _theme = string.Empty;
-            private List<Template> _templates;
-            private string _template = "-";
-            private string[] _versions;
-            private string _reference = Constants.Version;
-            private string _minversion = "2.0.0";
-            private string _location = string.Empty;
+@code {
+    private ElementReference form;
+    private bool validated = false;
+    private string _owner = string.Empty;
+    private string _theme = string.Empty;
+    private List<Template> _templates;
+    private string _template = "-";
+    private string[] _versions;
+    private string _reference = Constants.Version;
+    private string _minversion = "2.0.0";
+    private string _location = string.Empty;
 
-            public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-            protected override async Task OnParametersSetAsync()
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            _templates = await ThemeService.GetThemeTemplatesAsync();
+            _versions = Constants.ReleaseVersions.Split(',').Where(item => Version.Parse(item).CompareTo(Version.Parse("2.0.0")) >= 0).ToArray();
+            AddModuleMessage(Localizer["Info.Theme.CreatorIntent"], MessageType.Info);
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Theme Creator");
+        }
+    }
+
+    private async Task CreateTheme()
+    {
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
+        {
+            try
             {
-                try
+                if (IsValid(_owner) && IsValid(_theme) && _owner != _theme && _template != "-")
                 {
-                    _templates = await ThemeService.GetThemeTemplatesAsync();
-                    _versions = Constants.ReleaseVersions.Split(',').Where(item => Version.Parse(item).CompareTo(Version.Parse("2.0.0")) >= 0).ToArray();
-                    AddModuleMessage(Localizer["Info.Theme.CreatorIntent"], MessageType.Info);
-                }
-                catch (Exception ex)
-                {
-                    await logger.LogError(ex, "Error Loading Theme Creator");
-                }
-            }
-
-            private async Task CreateTheme()
-            {
-                validated = true;
-                var interop = new Interop(JSRuntime);
-                if (await interop.FormValid(form))
-                {
-                    try
-                    {
-                        if (IsValid(_owner) && IsValid(_theme) && _owner != _theme && _template != "-")
-                        {
-                            var theme = new Theme { Owner = _owner, Name = _theme, Template = _template, Version = _reference };
-                            theme = await ThemeService.CreateThemeAsync(theme);
-                            GetLocation();
-                            AddModuleMessage(string.Format(Localizer["Success.Theme.Create"], NavigateUrl("admin/system")), MessageType.Success);
-                        }
-                        else
-                        {
-                            AddModuleMessage(Localizer["Message.Required.ValidName"], MessageType.Warning);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        await logger.LogError(ex, "Error Creating Theme");
-                    }
+                    var theme = new Theme { Owner = _owner, Name = _theme, Template = _template, Version = _reference };
+                    theme = await ThemeService.CreateThemeAsync(theme);
+                    GetLocation();
+                    AddModuleMessage(string.Format(Localizer["Success.Theme.Create"], NavigateUrl("admin/system")), MessageType.Success);
                 }
                 else
                 {
-                    AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+                    AddModuleMessage(Localizer["Message.Required.ValidName"], MessageType.Warning);
                 }
             }
-
-            private bool IsValid(string name)
+            catch (Exception ex)
             {
-                // must contain letters, underscores and digits and first character must be letter or underscore
-                return !string.IsNullOrEmpty(name) && name.ToLower() != "theme" && Regex.IsMatch(name, "^[A-Za-z_][A-Za-z0-9_]*$");
-            }
-
-            private void TemplateChanged(ChangeEventArgs e)
-            {
-                _template = (string)e.Value;
-                _minversion = "2.0.0";
-                if (_template != "-")
-                {
-                    var template = _templates.FirstOrDefault(item => item.Name == _template);
-                    _minversion = template.Version;
-                }
-                GetLocation();
-            }
-
-            private void GetLocation()
-            {
-                _location = string.Empty;
-                if (_owner != "" && _theme != "" && _template != "-")
-                {
-                    var template = _templates.FirstOrDefault(item => item.Name == _template);
-                    _location = template.Location + _owner + "." + _theme;
-
-                }
-                StateHasChanged();
+                await logger.LogError(ex, "Error Creating Theme");
             }
         }
+        else
+        {
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+        }
+    }
+
+    private bool IsValid(string name)
+    {
+        // must contain letters, underscores and digits and first character must be letter or underscore
+        return !string.IsNullOrEmpty(name) && name.ToLower() != "theme" && Regex.IsMatch(name, "^[A-Za-z_][A-Za-z0-9_]*$");
+    }
+
+    private void TemplateChanged(ChangeEventArgs e)
+    {
+        _template = (string)e.Value;
+        _minversion = "2.0.0";
+        if (_template != "-")
+        {
+            var template = _templates.FirstOrDefault(item => item.Name == _template);
+            _minversion = template.Version;
+        }
+        GetLocation();
+    }
+
+    private void GetLocation()
+    {
+        _location = string.Empty;
+        if (_owner != "" && _theme != "" && _template != "-")
+        {
+            var template = _templates.FirstOrDefault(item => item.Name == _template);
+            _location = template.Location + _owner + "." + _theme;
+
+        }
+        StateHasChanged();
+    }
+}

@@ -124,105 +124,105 @@
     </TabStrip>
 </form>
 
-    @code {
-        public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
+@code {
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-        private ElementReference form;
-        private bool validated = false;
-        private string _version = string.Empty;
-        private string _clrversion = string.Empty;
-        private string _osversion = string.Empty;
-        private string _serverpath = string.Empty;
-        private string _servertime = string.Empty;
-        private string _installationid = string.Empty;
+    private ElementReference form;
+    private bool validated = false;
+    private string _version = string.Empty;
+    private string _clrversion = string.Empty;
+    private string _osversion = string.Empty;
+    private string _serverpath = string.Empty;
+    private string _servertime = string.Empty;
+    private string _installationid = string.Empty;
 
-        private string _runtime = string.Empty;
-        private string _rendermode = string.Empty;
-        private string _detailederrors = string.Empty;
-        private string _logginglevel = string.Empty;
-        private string _swagger = string.Empty;
-        private string _packageservice = string.Empty;
+    private string _runtime = string.Empty;
+    private string _rendermode = string.Empty;
+    private string _detailederrors = string.Empty;
+    private string _logginglevel = string.Empty;
+    private string _swagger = string.Empty;
+    private string _packageservice = string.Empty;
 
-        protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
+    {
+        _version = Constants.Version;
+
+        Dictionary<string, string> systeminfo = await SystemService.GetSystemInfoAsync();
+        if (systeminfo != null)
         {
-            _version = Constants.Version;
+            _clrversion = systeminfo["clrversion"];
+            _osversion = systeminfo["osversion"];
+            _serverpath = systeminfo["serverpath"];
+            _servertime = systeminfo["servertime"];
+            _installationid = systeminfo["installationid"];
 
-            Dictionary<string, string> systeminfo = await SystemService.GetSystemInfoAsync();
-            if (systeminfo != null)
-            {
-                _clrversion = systeminfo["clrversion"];
-                _osversion = systeminfo["osversion"];
-                _serverpath = systeminfo["serverpath"];
-                _servertime = systeminfo["servertime"];
-                _installationid = systeminfo["installationid"];
-
-                _runtime = systeminfo["runtime"];
-                _rendermode = systeminfo["rendermode"];
-                _detailederrors = systeminfo["detailederrors"];
-                _logginglevel = systeminfo["logginglevel"];
-                _swagger = systeminfo["swagger"];
-                _packageservice = systeminfo["packageservice"];
-            }
-        }
-
-        private async Task SaveConfig()
-        {
-            validated = true;
-            var interop = new Interop(JSRuntime);
-            if (await interop.FormValid(form))
-            {
-                try
-                {
-                    var settings = new Dictionary<string, string>();
-                    settings.Add("runtime", _runtime);
-                    settings.Add("rendermode", _rendermode);
-                    settings.Add("detailederrors", _detailederrors);
-                    settings.Add("logginglevel", _logginglevel);
-                    settings.Add("swagger", _swagger);
-                    settings.Add("packageservice", _packageservice);
-                    await SystemService.UpdateSystemInfoAsync(settings);
-                    AddModuleMessage(Localizer["Success.UpdateConfig.Restart"], MessageType.Success);
-                }
-                catch (Exception ex)
-                {
-                    await logger.LogError(ex, "Error Saving Configuration");
-                    AddModuleMessage(Localizer["Error.UpdateConfig"], MessageType.Error);
-                }
-            }
-            else
-            {
-                AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
-            }
-        }
-
-        private async Task RestartApplication()
-        {
-            try
-            {
-                ShowProgressIndicator();
-                var interop = new Interop(JSRuntime);
-                await interop.RedirectBrowser(NavigateUrl(""), 20);
-                await InstallationService.RestartAsync();
-            }
-            catch (Exception ex)
-            {
-                await logger.LogError(ex, "Error Restarting Application");
-            }
-        }
-
-        private async Task RegisterChecked(ChangeEventArgs e)
-        {
-            try
-            {
-                if ((bool)e.Value)
-                {
-                    await InstallationService.RegisterAsync(PageState.User.Email);
-                    AddModuleMessage(Localizer["Success.Register"], MessageType.Success);
-                }
-            }
-            catch (Exception ex)
-            {
-                await logger.LogError(ex, "Error On Register");
-            }
+            _runtime = systeminfo["runtime"];
+            _rendermode = systeminfo["rendermode"];
+            _detailederrors = systeminfo["detailederrors"];
+            _logginglevel = systeminfo["logginglevel"];
+            _swagger = systeminfo["swagger"];
+            _packageservice = systeminfo["packageservice"];
         }
     }
+
+    private async Task SaveConfig()
+    {
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
+        {
+            try
+            {
+                var settings = new Dictionary<string, string>();
+                settings.Add("runtime", _runtime);
+                settings.Add("rendermode", _rendermode);
+                settings.Add("detailederrors", _detailederrors);
+                settings.Add("logginglevel", _logginglevel);
+                settings.Add("swagger", _swagger);
+                settings.Add("packageservice", _packageservice);
+                await SystemService.UpdateSystemInfoAsync(settings);
+                AddModuleMessage(Localizer["Success.UpdateConfig.Restart"], MessageType.Success);
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Saving Configuration");
+                AddModuleMessage(Localizer["Error.UpdateConfig"], MessageType.Error);
+            }
+        }
+        else
+        {
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+        }
+    }
+
+    private async Task RestartApplication()
+    {
+        try
+        {
+            ShowProgressIndicator();
+            var interop = new Interop(JSRuntime);
+            await interop.RedirectBrowser(NavigateUrl(""), 20);
+            await InstallationService.RestartAsync();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Restarting Application");
+        }
+    }
+
+    private async Task RegisterChecked(ChangeEventArgs e)
+    {
+        try
+        {
+            if ((bool)e.Value)
+            {
+                await InstallationService.RegisterAsync(PageState.User.Email);
+                AddModuleMessage(Localizer["Success.Register"], MessageType.Success);
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error On Register");
+        }
+    }
+}

@@ -16,7 +16,7 @@
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="type" HelpText="The fully qualified job type name" ResourceKey="Type">Type: </Label>
             <div class="col-sm-9">
-                <input id="type" class="form-control" @bind="@_jobType" readonly/>
+                <input id="type" class="form-control" @bind="@_jobType" readonly />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
@@ -73,115 +73,113 @@
     <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
 </form>
 
-    @code {
-        private ElementReference form;
-        private bool validated = false;
+@code {
+    private ElementReference form;
+    private bool validated = false;
+    private int _jobId;
+    private string _name = string.Empty;
+    private string _jobType = string.Empty;
+    private string _isEnabled = "True";
+    private string _interval = string.Empty;
+    private string _frequency = string.Empty;
+    private string _startDate = string.Empty;
+    private string _endDate = string.Empty;
+    private string _retentionHistory = string.Empty;
+    private string _nextExecution = string.Empty;
+    private string createdby;
+    private DateTime createdon;
+    private string modifiedby;
+    private DateTime modifiedon;
 
-        private int _jobId;
-        private string _name = string.Empty;
-        private string _jobType = string.Empty;
-        private string _isEnabled = "True";
-        private string _interval = string.Empty;
-        private string _frequency = string.Empty;
-        private string _startDate = string.Empty;
-        private string _endDate = string.Empty;
-        private string _retentionHistory = string.Empty;
-        private string _nextExecution = string.Empty;
-        private string createdby;
-        private DateTime createdon;
-        private string modifiedby;
-        private DateTime modifiedon;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
-        public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
-
-        protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
+    {
+        try
         {
-            try
+            _jobId = Int32.Parse(PageState.QueryString["id"]);
+            Job job = await JobService.GetJobAsync(_jobId);
+            if (job != null)
             {
-                _jobId = Int32.Parse(PageState.QueryString["id"]);
-                Job job = await JobService.GetJobAsync(_jobId);
-                if (job != null)
-                {
-                    _name = job.Name;
-                    _jobType = job.JobType;
-                    _isEnabled = job.IsEnabled.ToString();
-                    _interval = job.Interval.ToString();
-                    _frequency = job.Frequency;
-                    _startDate = (job.StartDate != null) ? job.StartDate.ToString() : string.Empty;
-                    _endDate = (job.EndDate != null) ? job.EndDate.ToString() : string.Empty;
-                    _retentionHistory = job.RetentionHistory.ToString();
-                    _nextExecution = job.NextExecution.ToString();
-                    createdby = job.CreatedBy;
-                    createdon = job.CreatedOn;
-                    modifiedby = job.ModifiedBy;
-                    modifiedon = job.ModifiedOn;
-                }
-            }
-            catch (Exception ex)
-            {
-                await logger.LogError(ex, "Error Loading Job {JobId} {Error}", _jobId, ex.Message);
-                AddModuleMessage(Localizer["Error.Job.Load"], MessageType.Error);
+                _name = job.Name;
+                _jobType = job.JobType;
+                _isEnabled = job.IsEnabled.ToString();
+                _interval = job.Interval.ToString();
+                _frequency = job.Frequency;
+                _startDate = (job.StartDate != null) ? job.StartDate.ToString() : string.Empty;
+                _endDate = (job.EndDate != null) ? job.EndDate.ToString() : string.Empty;
+                _retentionHistory = job.RetentionHistory.ToString();
+                _nextExecution = job.NextExecution.ToString();
+                createdby = job.CreatedBy;
+                createdon = job.CreatedOn;
+                modifiedby = job.ModifiedBy;
+                modifiedon = job.ModifiedOn;
             }
         }
-
-        private async Task SaveJob()
+        catch (Exception ex)
         {
-            validated = true;
-            var interop = new Interop(JSRuntime);
-            if (await interop.FormValid(form))
+            await logger.LogError(ex, "Error Loading Job {JobId} {Error}", _jobId, ex.Message);
+            AddModuleMessage(Localizer["Error.Job.Load"], MessageType.Error);
+        }
+    }
+
+    private async Task SaveJob()
+    {
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
+        {
+            var job = await JobService.GetJobAsync(_jobId);
+            job.Name = _name;
+            job.JobType = _jobType;
+            job.IsEnabled = Boolean.Parse(_isEnabled);
+            job.Frequency = _frequency;
+            job.Interval = int.Parse(_interval);
+
+            if (_startDate == string.Empty)
             {
-                var job = await JobService.GetJobAsync(_jobId);
-                job.Name = _name;
-                job.JobType = _jobType;
-                job.IsEnabled = Boolean.Parse(_isEnabled);
-                job.Frequency = _frequency;
-                job.Interval = int.Parse(_interval);
-
-                if (_startDate == string.Empty)
-                {
-                    job.StartDate = null;
-                }
-                else
-                {
-                    job.StartDate = DateTime.Parse(_startDate);
-                }
-
-                if (_endDate == string.Empty)
-                {
-                    job.EndDate = null;
-                }
-                else
-                {
-                    job.EndDate = DateTime.Parse(_endDate);
-                }
-
-                if (_nextExecution == string.Empty)
-                {
-                    job.NextExecution = null;
-                }
-                else
-                {
-                    job.NextExecution = DateTime.Parse(_nextExecution);
-                }
-
-                job.RetentionHistory = int.Parse(_retentionHistory);
-
-                try
-                {
-                    job = await JobService.UpdateJobAsync(job);
-                    await logger.LogInformation("Job Updated {Job}", job);
-                    NavigationManager.NavigateTo(NavigateUrl());
-                }
-                catch (Exception ex)
-                {
-                    await logger.LogError(ex, "Error Udate Job {Job} {Error}", job, ex.Message);
-                    AddModuleMessage(Localizer["Error.Job.Update"], MessageType.Error);
-                }
+                job.StartDate = null;
             }
             else
             {
-                AddModuleMessage(Localizer["Message.Required.JobInfo"], MessageType.Warning);
+                job.StartDate = DateTime.Parse(_startDate);
+            }
+
+            if (_endDate == string.Empty)
+            {
+                job.EndDate = null;
+            }
+            else
+            {
+                job.EndDate = DateTime.Parse(_endDate);
+            }
+
+            if (_nextExecution == string.Empty)
+            {
+                job.NextExecution = null;
+            }
+            else
+            {
+                job.NextExecution = DateTime.Parse(_nextExecution);
+            }
+
+            job.RetentionHistory = int.Parse(_retentionHistory);
+
+            try
+            {
+                job = await JobService.UpdateJobAsync(job);
+                await logger.LogInformation("Job Updated {Job}", job);
+                NavigationManager.NavigateTo(NavigateUrl());
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Udate Job {Job} {Error}", job, ex.Message);
+                AddModuleMessage(Localizer["Error.Job.Update"], MessageType.Error);
             }
         }
-
+        else
+        {
+            AddModuleMessage(Localizer["Message.Required.JobInfo"], MessageType.Warning);
+        }
     }
+}

@@ -74,20 +74,20 @@
                     </div>
                 </div>
             </Section>
-    </TabPanel>
-    <TabPanel Name="Permissions" ResourceKey="Permissions">
-        <div class="container">
-            <div class="row mb-1 align-items-center">
-                <PermissionGrid EntityName="@EntityNames.ModuleDefinition" PermissionNames="@PermissionNames.Utilize" Permissions="@_permissions" @ref="_permissionGrid" />
+        </TabPanel>
+        <TabPanel Name="Permissions" ResourceKey="Permissions">
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <PermissionGrid EntityName="@EntityNames.ModuleDefinition" PermissionNames="@PermissionNames.Utilize" Permissions="@_permissions" @ref="_permissionGrid" />
+                </div>
             </div>
-        </div>
-    </TabPanel>
-</TabStrip>
-<button type="button" class="btn btn-success" @onclick="SaveModuleDefinition">@SharedLocalizer["Save"]</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-<br />
-<br />
-<AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon"></AuditInfo>
+        </TabPanel>
+    </TabStrip>
+    <button type="button" class="btn btn-success" @onclick="SaveModuleDefinition">@SharedLocalizer["Save"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+    <br />
+    <br />
+    <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon"></AuditInfo>
 </form>
 
 @code {

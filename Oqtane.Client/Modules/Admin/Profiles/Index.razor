@@ -10,56 +10,56 @@
 }
 else
 {
-        <ActionLink Action="Add" Security="SecurityAccessLevel.Admin" Text="Add Profile" ResourceKey="AddProfile" />
+    <ActionLink Action="Add" Security="SecurityAccessLevel.Admin" Text="Add Profile" ResourceKey="AddProfile" />
 
-        <Pager Items="@_profiles">
-            <Header>
-                <th style="width: 1px;">&nbsp;</th>
-                <th style="width: 1px;">&nbsp;</th>
-                <th>@SharedLocalizer["Name"]</th>
-            </Header>
-            <Row>
-                <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ProfileId.ToString())" ResourceKey="EditProfile" /></td>
-                <td><ActionDialog Header="Delete Profile" Message="@string.Format(Localizer["Confirm.Profile.Delete"], context.Name)" Action="Delete" Class="btn btn-danger" OnClick="@(async () => await DeleteProfile(context.ProfileId))" ResourceKey="DeleteProfile" /></td>
-                <td>@context.Name</td>
-            </Row>
-        </Pager>
+    <Pager Items="@_profiles">
+        <Header>
+            <th style="width: 1px;">&nbsp;</th>
+            <th style="width: 1px;">&nbsp;</th>
+            <th>@SharedLocalizer["Name"]</th>
+        </Header>
+        <Row>
+            <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ProfileId.ToString())" ResourceKey="EditProfile" /></td>
+            <td><ActionDialog Header="Delete Profile" Message="@string.Format(Localizer["Confirm.Profile.Delete"], context.Name)" Action="Delete" Class="btn btn-danger" OnClick="@(async () => await DeleteProfile(context.ProfileId))" ResourceKey="DeleteProfile" /></td>
+            <td>@context.Name</td>
+        </Row>
+    </Pager>
 }
 
-        @code {
-            private List<Profile> _profiles;
-            private ElementReference form;
-            private bool validated = false;
+@code {
+    private List<Profile> _profiles;
+    private ElementReference form;
+    private bool validated = false;
 
-            public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-            protected override async Task OnParametersSetAsync()
-            {
-                await GetProfilesAsync();
-            }
+    protected override async Task OnParametersSetAsync()
+    {
+        await GetProfilesAsync();
+    }
 
-            private async Task DeleteProfile(int profileId)
-            {
-                    try
-                    {
-                        await ProfileService.DeleteProfileAsync(profileId);
-                        await logger.LogInformation("Profile Deleted {ProfileId}", profileId);
+    private async Task DeleteProfile(int profileId)
+    {
+        try
+        {
+            await ProfileService.DeleteProfileAsync(profileId);
+            await logger.LogInformation("Profile Deleted {ProfileId}", profileId);
 
-                        AddModuleMessage(Localizer["Success.Profile.Delete"], MessageType.Success);
+            AddModuleMessage(Localizer["Success.Profile.Delete"], MessageType.Success);
 
-                        await GetProfilesAsync();
+            await GetProfilesAsync();
 
-                        StateHasChanged();
-                    }
-                    catch (Exception ex)
-                    {
-                        await logger.LogError(ex, "Error Deleting Profile {ProfileId} {Error}", profileId, ex.Message);
-                        AddModuleMessage(Localizer["Error.Profile.Delete"], MessageType.Error);
-                    }
-            }
-
-            private async Task GetProfilesAsync()
-            {
-                    _profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
-            }
+            StateHasChanged();
         }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Profile {ProfileId} {Error}", profileId, ex.Message);
+            AddModuleMessage(Localizer["Error.Profile.Delete"], MessageType.Error);
+        }
+    }
+
+    private async Task GetProfilesAsync()
+    {
+        _profiles = await ProfileService.GetProfilesAsync(PageState.Site.SiteId);
+    }
+}
