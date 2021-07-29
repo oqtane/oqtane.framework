@@ -21,47 +21,49 @@ else
     <TabPanel Name="Identity" ResourceKey="Identity">
         @if (PageState.User != null)
         {
-            <div class="container">
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="username" HelpText="Your username. Note that this field can not be modified." ResourceKey="Username"></Label>
-                    <div class="col-sm-9">
-                        <input id="username" class="form-control" @bind="@username" readonly />
+            <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+                <div class="container">
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="username" HelpText="Your username. Note that this field can not be modified." ResourceKey="Username"></Label>
+                        <div class="col-sm-9">
+                            <input id="username" class="form-control" @bind="@username" readonly />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="password" HelpText="If you wish to change your password you can enter it here. Please choose a sufficiently secure password." ResourceKey="Password"></Label>
+                        <div class="col-sm-9">
+                            <input id="password" type="password" class="form-control" @bind="@password" autocomplete="new-password" maxlength="256" required />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="confirm" HelpText="If you are changing your password you must enter it again to confirm it matches" ResourceKey="Confirm"></Label>
+                        <div class="col-sm-9">
+                            <input id="confirm" type="password" class="form-control" @bind="@confirm" autocomplete="new-password" maxlength="256" required />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="email" HelpText="Your email address where you wish to receive notifications" ResourceKey="Email"></Label>
+                        <div class="col-sm-9">
+                            <input id="email" class="form-control" @bind="@email" />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="displayname" HelpText="Your full name" ResourceKey="DisplayName"></Label>
+                        <div class="col-sm-9">
+                            <input id="displayname" class="form-control" @bind="@displayname" />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="@photofileid.ToString()" HelpText="A photo of yourself" ResourceKey="Photo"></Label>
+                        <div class="col-sm-9">
+                            <FileManager FileId="@photofileid" @ref="filemanager" />
+                        </div>
                     </div>
                 </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="password" HelpText="If you wish to change your password you can enter it here. Please choose a sufficiently secure password." ResourceKey="Password"></Label>
-                    <div class="col-sm-9">
-                        <input id="password" type="password" class="form-control" @bind="@password" autocomplete="new-password" />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="confirm" HelpText="If you are changing your password you must enter it again to confirm it matches" ResourceKey="Confirm"></Label>
-                    <div class="col-sm-9">
-                        <input id="confirm" type="password" class="form-control" @bind="@confirm" autocomplete="new-password" />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="email" HelpText="Your email address where you wish to receive notifications" ResourceKey="Email"></Label>
-                    <div class="col-sm-9">
-                        <input id="email" class="form-control" @bind="@email" />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="displayname" HelpText="Your full name" ResourceKey="DisplayName"></Label>
-                    <div class="col-sm-9">
-                        <input id="displayname" class="form-control" @bind="@displayname" />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="@photofileid.ToString()" HelpText="A photo of yourself" ResourceKey="Photo"></Label>
-                    <div class="col-sm-9">
-                        <FileManager FileId="@photofileid" @ref="filemanager" />
-                    </div>
-                </div>
-            </div>
-            <br />
-            <button type="button" class="btn btn-success" @onclick="Save">@SharedLocalizer["Save"]</button>
-            <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
+                <br />
+                <button type="button" class="btn btn-success" @onclick="Save">@SharedLocalizer["Save"]</button>
+                <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
+            </form>
         }
     </TabPanel>
     <TabPanel Name="Profile" ResourceKey="Profile">
@@ -132,11 +134,11 @@ else
             {
                 <Pager Items="@notifications">
                     <Header>
-                    <th style="width: 1px;">&nbsp;</th>
-                    <th style="width: 1px;">&nbsp;</th>
-                    <th>@Localizer["From"]</th>
-                    <th>@Localizer["Subject"]</th>
-                    <th>@Localizer["Received"]</th>
+                        <th style="width: 1px;">&nbsp;</th>
+                        <th style="width: 1px;">&nbsp;</th>
+                        <th>@Localizer["From"]</th>
+                        <th>@Localizer["Subject"]</th>
+                        <th>@Localizer["Received"]</th>
                     </Header>
                     <Row>
                         <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" /></td>
@@ -165,11 +167,11 @@ else
             {
                 <Pager Items="@notifications">
                     <Header>
-                    <th>&nbsp;</th>
-                    <th>&nbsp;</th>
-                    <th>@Localizer["To"]</th>
-                    <th>@Localizer["Subject"]</th>
-                    <th>@Localizer["Sent"]</th>
+                        <th>&nbsp;</th>
+                        <th>&nbsp;</th>
+                        <th>@Localizer["To"]</th>
+                        <th>@Localizer["Subject"]</th>
+                        <th>@Localizer["Sent"]</th>
                     </Header>
                     <Row>
                         <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" /></td>
@@ -204,6 +206,8 @@ else
 </TabStrip>
 
 @code {
+    private ElementReference form;
+    private bool validated = false;
     private string username = string.Empty;
     private string password = string.Empty;
     private string confirm = string.Empty;
@@ -269,43 +273,52 @@ else
 
     private async Task Save()
     {
-        try
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
         {
-            if (username != string.Empty && email != string.Empty && ValidateProfiles())
+            try
             {
-                if (password == confirm)
+                if (username != string.Empty && email != string.Empty && ValidateProfiles())
                 {
-                    var user = PageState.User;
-                    user.Username = username;
-                    user.Password = password;
-                    user.Email = email;
-                    user.DisplayName = (displayname == string.Empty ? username : displayname);
-                    user.PhotoFileId = filemanager.GetFileId();
-                    if (user.PhotoFileId == -1)
+                    if (password == confirm)
                     {
-                        user.PhotoFileId = null;
+                        var user = PageState.User;
+                        user.Username = username;
+                        user.Password = password;
+                        user.Email = email;
+                        user.DisplayName = (displayname == string.Empty ? username : displayname);
+                        user.PhotoFileId = filemanager.GetFileId();
+                        if (user.PhotoFileId == -1)
+                        {
+                            user.PhotoFileId = null;
+                        }
+
+                        await UserService.UpdateUserAsync(user);
+                        await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
+                        await logger.LogInformation("User Profile Saved");
+
+                        NavigationManager.NavigateTo(NavigateUrl());
                     }
-
-                    await UserService.UpdateUserAsync(user);
-                    await SettingService.UpdateUserSettingsAsync(settings, PageState.User.UserId);
-                    await logger.LogInformation("User Profile Saved");
-
-                    NavigationManager.NavigateTo(NavigateUrl());
+                    else
+                    {
+                        AddModuleMessage(Localizer["Message.Password.Invalid"], MessageType.Warning);
+                    }
                 }
                 else
                 {
-                    AddModuleMessage(Localizer["Message.Password.Invalid"], MessageType.Warning);
+                    AddModuleMessage(Localizer["Message.Required.ProfileInfo"], MessageType.Warning);
                 }
             }
-            else
+            catch (Exception ex)
             {
-                AddModuleMessage(Localizer["Message.Required.ProfileInfo"], MessageType.Warning);
+                await logger.LogError(ex, "Error Saving User Profile {Error}", ex.Message);
+                AddModuleMessage(Localizer["Error.Profile.Save"], MessageType.Error);
             }
         }
-        catch (Exception ex)
+        else
         {
-            await logger.LogError(ex, "Error Saving User Profile {Error}", ex.Message);
-            AddModuleMessage(Localizer["Error.Profile.Save"], MessageType.Error);
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
         }
     }
 
