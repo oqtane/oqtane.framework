@@ -5,7 +5,6 @@
 @inject IStringLocalizer<Import> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-<form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
     <div class="container">
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="content" HelpText="Enter the module content" ResourceKey="Content">Content: </Label>
@@ -18,21 +17,15 @@
 
     <button type="button" class="btn btn-success" @onclick="ImportModule">@Localizer["Import"]</button>
     <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-</form>
 
-@code {
-    private string _content = string.Empty;
-    private ElementReference form;
-    private bool validated = false;
 
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
-    public override string Title => "Import Content";
+    @code {
+        private string _content = string.Empty;
 
-    private async Task ImportModule()
-    {
-        validated = true;
-        var interop = new Interop(JSRuntime);
-        if (await interop.FormValid(form))
+        public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+        public override string Title => "Import Content";
+
+        private async Task ImportModule()
         {
             if (_content != string.Empty)
             {
@@ -59,9 +52,4 @@
                 AddModuleMessage(Localizer["Message.Required.ImportContent"], MessageType.Warning);
             }
         }
-        else
-        {
-            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
-        }
     }
-}

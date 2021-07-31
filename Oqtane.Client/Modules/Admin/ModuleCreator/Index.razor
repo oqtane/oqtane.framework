@@ -10,75 +10,71 @@
 
 @if (string.IsNullOrEmpty(_moduledefinitionname) && _templates != null)
 {
-    <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
-        <div class="container">
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="owner" HelpText="Enter the name of the organization who is developing this module. It should not contain spaces or punctuation." ResourceKey="OwnerName">Owner Name: </Label>
-                <div class="col-sm-9">
-                    <input id="owner" class="form-control" @bind="@_owner" required />
-                </div>
+    <div class="container">
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="owner" HelpText="Enter the name of the organization who is developing this module. It should not contain spaces or punctuation." ResourceKey="OwnerName">Owner Name: </Label>
+            <div class="col-sm-9">
+                <input id="owner" class="form-control" @bind="@_owner" />
             </div>
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="module" HelpText="Enter a name for this module. It should not contain spaces or punctuation." ResourceKey="ModuleName">Module Name: </Label>
-                <div class="col-sm-9">
-                    <input id="module" class="form-control" @bind="@_module" required />
-                </div>
-            </div>
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="description" HelpText="Enter a short description for the module" ResourceKey="Description">Description: </Label>
-                <div class="col-sm-9">
-                    <textarea id="description" class="form-control" @bind="@_description" rows="3" required></textarea>
-                </div>
-            </div>
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="template" HelpText="Select a module template. Templates are located in the wwwroot/Modules/Templates folder on the server." ResourceKey="Template">Template: </Label>
-                <div class="col-sm-9">
-                    <select id="template" class="form-select" @onchange="(e => TemplateChanged(e))" required>
-                        <option value="-">&lt;@Localizer["Template.Select"]&gt;</option>
-                        @foreach (Template template in _templates)
-                        {
-                            <option value="@template.Name">@template.Title</option>
-                        }
-                    </select>
-                </div>
-            </div>
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="reference" HelpText="Select a framework reference version" ResourceKey="FrameworkReference">Framework Reference: </Label>
-                <div class="col-sm-9">
-                    <select id="reference" class="form-select" @bind="@_reference" required>
-                        @foreach (string version in _versions)
-                        {
-                            if (Version.Parse(version).CompareTo(Version.Parse(_minversion)) >= 0)
-                            {
-                                <option value="@(version)">@(version)</option>
-                            }
-                        }
-                        <option value="local">@SharedLocalizer["LocalVersion"]</option>
-                    </select>
-                </div>
-            </div>
-            @if (!string.IsNullOrEmpty(_location))
-            {
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="location" HelpText="Location where the module will be created" ResourceKey="Location">Location: </Label>
-                    <div class="col-sm-9">
-                        <input id="module" class="form-control" @bind="@_location" readonly />
-                    </div>
-                </div>
-            }
         </div>
-
-        <button type="button" class="btn btn-success" @onclick="CreateModule">@Localizer["Module.Create"]</button>
-        }
-        else
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="module" HelpText="Enter a name for this module. It should not contain spaces or punctuation." ResourceKey="ModuleName">Module Name: </Label>
+            <div class="col-sm-9">
+                <input id="module" class="form-control" @bind="@_module" />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="description" HelpText="Enter a short description for the module" ResourceKey="Description">Description: </Label>
+            <div class="col-sm-9">
+                <textarea id="description" class="form-control" @bind="@_description" rows="3"></textarea>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="template" HelpText="Select a module template. Templates are located in the wwwroot/Modules/Templates folder on the server." ResourceKey="Template">Template: </Label>
+            <div class="col-sm-9">
+                <select id="template" class="form-select" @onchange="(e => TemplateChanged(e))">
+                    <option value="-">&lt;@Localizer["Template.Select"]&gt;</option>
+                    @foreach (Template template in _templates)
+                    {
+                        <option value="@template.Name">@template.Title</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="reference" HelpText="Select a framework reference version" ResourceKey="FrameworkReference">Framework Reference: </Label>
+            <div class="col-sm-9">
+                <select id="reference" class="form-select" @bind="@_reference">
+                    @foreach (string version in _versions)
+                    {
+                        if (Version.Parse(version).CompareTo(Version.Parse(_minversion)) >= 0)
+                        {
+                            <option value="@(version)">@(version)</option>
+                        }
+                    }
+                    <option value="local">@SharedLocalizer["LocalVersion"]</option>
+                </select>
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(_location))
         {
-        <button type="button" class="btn btn-success" @onclick="ActivateModule">@Localizer["Module.Activate"]</button>
-    </form>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="location" HelpText="Location where the module will be created" ResourceKey="Location">Location: </Label>
+                <div class="col-sm-9">
+                    <input id="module" class="form-control" @bind="@_location" readonly />
+                </div>
+            </div>
+        }
+    </div>
+
+    <button type="button" class="btn btn-success" @onclick="CreateModule">@Localizer["Module.Create"]</button>
+}
+else
+{
+    <button type="button" class="btn btn-success" @onclick="ActivateModule">@Localizer["Module.Activate"]</button>
 }
 
 @code {
-    private ElementReference form;
-    private bool validated = false;
     private string _moduledefinitionname = string.Empty;
     private string _owner = string.Empty;
     private string _module = string.Empty;
@@ -117,11 +113,9 @@
 
     private async Task CreateModule()
     {
-        validated = true;
-        var interop = new Interop(JSRuntime);
-        if (await interop.FormValid(form))
+        try
         {
-            try
+            if (IsValid(_owner) && IsValid(_module) && _owner != _module && _template != "-")
             {
                 var moduleDefinition = new ModuleDefinition { Owner = _owner, Name = _module, Description = _description, Template = _template, Version = _reference };
                 moduleDefinition = await ModuleDefinitionService.CreateModuleDefinitionAsync(moduleDefinition);
@@ -134,14 +128,14 @@
 
                 AddModuleMessage(string.Format(Localizer["Success.Module.Create"], NavigateUrl("admin/system")), MessageType.Success);
             }
-            catch (Exception ex)
+            else
             {
-                await logger.LogError(ex, "Error Creating Module");
+                AddModuleMessage(Localizer["Message.Require.ValidName"], MessageType.Warning);
             }
         }
-        else
+        catch (Exception ex)
         {
-            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+            await logger.LogError(ex, "Error Creating Module");
         }
     }
 
