@@ -8,52 +8,54 @@
 
 @if (_folders != null)
 {
-<div class="container">
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="parent" HelpText="Select the parent folder" ResourceKey="Parent">Parent: </Label>
-        <div class="col-sm-9">
-            <select id="parent" class="form-select" @bind="@_parentId">
-                @if (PageState.QueryString.ContainsKey("id"))
-                {
-                    <option value="-1">&lt;@Localizer["NoParent"]&gt;</option>
-                }
-                @foreach (Folder folder in _folders)
-                {
-                    <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
-                }
-            </select>
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="name" HelpText="Enter the folder name" ResourceKey="Name">Name: </Label>
-        <div class="col-sm-9">
-            <input id="name" class="form-control" @bind="@_name" />
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="type" HelpText="Select the folder type. Private folders are only accessible by authorized users. Public folders can be accessed by all users" ResourceKey="Name">Type: </Label>
-        <div class="col-sm-9">
-            @if (PageState.QueryString.ContainsKey("id"))
-            {
-                <input id="type" class="form-control" readonly @bind="@_type" />
-            }
-            else
-            {
-                <select id="type" class="form-select" @bind="@_type">
-                    <option value="@FolderTypes.Private">@Localizer[FolderTypes.Private]</option>
-                    <option value="@FolderTypes.Public">@Localizer[FolderTypes.Public]</option>
-                </select>
-            }
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <div class="col-sm-12">
-            <Label Class="col-sm-3" For="permissions" HelpText="Select the permissions you want for the folder" ResourceKey="Permissions">Permissions: </Label>
-            <PermissionGrid EntityName="@EntityNames.Folder" PermissionNames="@(PermissionNames.Browse + "," + PermissionNames.View + "," + PermissionNames.Edit)" Permissions="@_permissions" @ref="_permissionGrid" />
+    <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+        <div class="container">
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="parent" HelpText="Select the parent folder" ResourceKey="Parent">Parent: </Label>
+                <div class="col-sm-9">
+                    <select id="parent" class="form-select" @bind="@_parentId" required>
+                        @if (PageState.QueryString.ContainsKey("id"))
+                        {
+                            <option value="-1">&lt;@Localizer["NoParent"]&gt;</option>
+                        }
+                        @foreach (Folder folder in _folders)
+                        {
+                            <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="name" HelpText="Enter the folder name" ResourceKey="Name">Name: </Label>
+                <div class="col-sm-9">
+                    <input id="name" class="form-control" @bind="@_name" maxlength="50" required />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="type" HelpText="Select the folder type. Private folders are only accessible by authorized users. Public folders can be accessed by all users" ResourceKey="Name">Type: </Label>
+                <div class="col-sm-9">
+                    @if (PageState.QueryString.ContainsKey("id"))
+                    {
+                        <input id="type" class="form-control" readonly @bind="@_type" />
+                    }
+                    else
+                    {
+                        <select id="type" class="form-select" @bind="@_type" required>
+                            <option value="@FolderTypes.Private">@Localizer[FolderTypes.Private]</option>
+                            <option value="@FolderTypes.Public">@Localizer[FolderTypes.Public]</option>
+                        </select>
+                    }
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <div class="col-sm-12">
+                    <Label Class="col-sm-3" For="permissions" HelpText="Select the permissions you want for the folder" ResourceKey="Permissions">Permissions: </Label>
+                    <PermissionGrid EntityName="@EntityNames.Folder" PermissionNames="@(PermissionNames.Browse + "," + PermissionNames.View + "," + PermissionNames.Edit)" Permissions="@_permissions" @ref="_permissionGrid" />
 
+                </div>
+            </div>
         </div>
-    </div>
-</div>
+    </form>
 
     @if (!_isSystem)
     {
@@ -75,6 +77,8 @@
 }
 
 @code {
+    private ElementReference form;
+    private bool validated = false;
     private List<Folder> _folders;
     private int _folderId = -1;
     private int _parentId = -1;
@@ -133,70 +137,79 @@
 
     private async Task SaveFolder()
     {
-        if (_name == string.Empty || _parentId == -1)
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
         {
-            AddModuleMessage(Localizer["Message.Required.FolderParent"], MessageType.Warning);
-            return;
-        }
-
-        if (!_name.IsPathOrFileValid())
-        {
-            AddModuleMessage(Localizer["Message.Folder.InvalidName"], MessageType.Warning);
-            return;
-        }
-
-        try
-        {
-            Folder folder;
-            if (_folderId != -1)
+            if (_name == string.Empty || _parentId == -1)
             {
-                folder = await FolderService.GetFolderAsync(_folderId);
-            }
-            else
-            {
-                folder = new Folder();
+                AddModuleMessage(Localizer["Message.Required.FolderParent"], MessageType.Warning);
+                return;
             }
 
-            folder.SiteId = PageState.Site.SiteId;
-
-            if (_parentId == -1)
+            if (!_name.IsPathOrFileValid())
             {
-                folder.ParentId = null;
-            }
-            else
-            {
-                folder.ParentId = _parentId;
+                AddModuleMessage(Localizer["Message.Folder.InvalidName"], MessageType.Warning);
+                return;
             }
 
-            folder.Name = _name;
-            folder.Type = _type;
-            folder.IsSystem = _isSystem;
-            folder.Permissions = _permissionGrid.GetPermissions();
+            try
+            {
+                Folder folder;
+                if (_folderId != -1)
+                {
+                    folder = await FolderService.GetFolderAsync(_folderId);
+                }
+                else
+                {
+                    folder = new Folder();
+                }
 
-            if (_folderId != -1)
-            {
-                folder = await FolderService.UpdateFolderAsync(folder);
-            }
-            else
-            {
-                folder = await FolderService.AddFolderAsync(folder);
-            }
+                folder.SiteId = PageState.Site.SiteId;
 
-            if (folder != null)
-            {
-                await FolderService.UpdateFolderOrderAsync(folder.SiteId, folder.FolderId, folder.ParentId);
-                await logger.LogInformation("Folder Saved {Folder}", folder);
-                NavigationManager.NavigateTo(NavigateUrl());
+                if (_parentId == -1)
+                {
+                    folder.ParentId = null;
+                }
+                else
+                {
+                    folder.ParentId = _parentId;
+                }
+
+                folder.Name = _name;
+                folder.Type = _type;
+                folder.IsSystem = _isSystem;
+                folder.Permissions = _permissionGrid.GetPermissions();
+
+                if (_folderId != -1)
+                {
+                    folder = await FolderService.UpdateFolderAsync(folder);
+                }
+                else
+                {
+                    folder = await FolderService.AddFolderAsync(folder);
+                }
+
+                if (folder != null)
+                {
+                    await FolderService.UpdateFolderOrderAsync(folder.SiteId, folder.FolderId, folder.ParentId);
+                    await logger.LogInformation("Folder Saved {Folder}", folder);
+                    NavigationManager.NavigateTo(NavigateUrl());
+                }
+                else
+                {
+                    AddModuleMessage(Localizer["Error.Folder.Save"], MessageType.Error);
+                }
             }
-            else
+            catch (Exception ex)
             {
+                await logger.LogError(ex, "Error Saving Folder {FolderId} {Error}", _folderId, ex.Message);
                 AddModuleMessage(Localizer["Error.Folder.Save"], MessageType.Error);
             }
         }
-        catch (Exception ex)
+        else
         {
-            await logger.LogError(ex, "Error Saving Folder {FolderId} {Error}", _folderId, ex.Message);
-            AddModuleMessage(Localizer["Error.Folder.Save"], MessageType.Error);
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
         }
     }
 

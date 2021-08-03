@@ -8,39 +8,43 @@
 
 @if (_folders != null)
 {
-<div class="container">
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="name" HelpText="The name of the file" ResourceKey="Name">Name: </Label>
-        <div class="col-sm-9">
-            <input id="name" class="form-control" @bind="@_name" />
+    <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+        <div class="container">
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="name" HelpText="The name of the file" ResourceKey="Name">Name: </Label>
+                <div class="col-sm-9">
+                    <input id="name" class="form-control" @bind="@_name" maxlength="50" required />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="parent" HelpText="The folder where the file is located" ResourceKey="Folder">Folder: </Label>
+                <div class="col-sm-9">
+                    <select id="parent" class="form-select" @bind="@_folderId" required>
+                        @foreach (Folder folder in _folders)
+                        {
+                            <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="size" HelpText="The size of the file (in bytes)" ResourceKey="Size">Size: </Label>
+                <div class="col-sm-9">
+                    <input id="size" class="form-control" @bind="@_size" readonly />
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="parent" HelpText="The folder where the file is located" ResourceKey="Folder">Folder: </Label>
-        <div class="col-sm-9">
-            <select id="parent" class="form-select" @bind="@_folderId">
-                @foreach (Folder folder in _folders)
-                {
-                    <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
-                }
-            </select>
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="size" HelpText="The size of the file (in bytes)" ResourceKey="Size">Size: </Label>
-        <div class="col-sm-9">
-            <input id="size" class="form-control" @bind="@_size" readonly />
-        </div>
-    </div>
-</div>
-    <button type="button" class="btn btn-success" @onclick="SaveFile">@SharedLocalizer["Save"]</button>
-    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-    <br />
-    <br />
-    <AuditInfo CreatedBy="@_createdBy" CreatedOn="@_createdOn" ModifiedBy="@_modifiedBy" ModifiedOn="@_modifiedOn"></AuditInfo>
+        <button type="button" class="btn btn-success" @onclick="SaveFile">@SharedLocalizer["Save"]</button>
+        <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+        <br />
+        <br />
+        <AuditInfo CreatedBy="@_createdBy" CreatedOn="@_createdOn" ModifiedBy="@_modifiedBy" ModifiedOn="@_modifiedOn"></AuditInfo>
+    </form>
 }
 
 @code {
+    private ElementReference form;
+    private bool validated = false;
     private int _fileId = -1;
     private string _name;
     private List<Folder> _folders;
@@ -82,26 +86,35 @@
 
     private async Task SaveFile()
     {
-        try
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
         {
-            if (_name.IsPathOrFileValid())
+            try
             {
-                File file = await FileService.GetFileAsync(_fileId);
-                file.Name = _name;
-                file.FolderId = _folderId;
-                file = await FileService.UpdateFileAsync(file);
-                await logger.LogInformation("File Saved {File}", file);
-                NavigationManager.NavigateTo(NavigateUrl());
+                if (_name.IsPathOrFileValid())
+                {
+                    File file = await FileService.GetFileAsync(_fileId);
+                    file.Name = _name;
+                    file.FolderId = _folderId;
+                    file = await FileService.UpdateFileAsync(file);
+                    await logger.LogInformation("File Saved {File}", file);
+                    NavigationManager.NavigateTo(NavigateUrl());
+                }
+                else
+                {
+                    AddModuleMessage(Localizer["Message.File.InvalidName"], MessageType.Warning);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                AddModuleMessage(Localizer["Message.File.InvalidName"], MessageType.Warning);
+                await logger.LogError(ex, "Error Saving File {FileId} {Error}", _fileId, ex.Message);
+                AddModuleMessage(Localizer["Error.File.Save"], MessageType.Error);
             }
         }
-        catch (Exception ex)
+        else
         {
-            await logger.LogError(ex, "Error Saving File {FileId} {Error}", _fileId, ex.Message);
-            AddModuleMessage(Localizer["Error.File.Save"], MessageType.Error);
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
         }
     }
 }
