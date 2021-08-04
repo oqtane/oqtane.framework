@@ -5,73 +5,77 @@
 @inject IStringLocalizer<Edit> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-<div class="container">
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="name" HelpText="Enter the job name" ResourceKey="Name">Name: </Label>
-        <div class="col-sm-9">
-            <input id="name" class="form-control" @bind="@_name" />
+<form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+    <div class="container">
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="name" HelpText="Enter the job name" ResourceKey="Name">Name: </Label>
+            <div class="col-sm-9">
+                <input id="name" class="form-control" @bind="@_name" maxlength="200" required />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="type" HelpText="The fully qualified job type name" ResourceKey="Type">Type: </Label>
+            <div class="col-sm-9">
+                <input id="type" class="form-control" @bind="@_jobType" readonly />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="enabled" HelpText="Select whether you want the job enabled or not" ResourceKey="Enabled">Enabled? </Label>
+            <div class="col-sm-9">
+                <select id="enabled" class="form-select" @bind="@_isEnabled" required>
+                    <option value="True">@SharedLocalizer["Yes"]</option>
+                    <option value="False">@SharedLocalizer["No"]</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="runs-every" HelpText="Select how often you want the job to run" ResourceKey="RunsEvery">Runs Every: </Label>
+            <div class="col-sm-9">
+                <input id="runs-every" class="form-control" @bind="@_interval" maxlength="4" required/>
+                <select id="runs-every" class="form-select" @bind="@_frequency" required>
+                    <option value="m">@Localizer["Minute(s)"]</option>
+                    <option value="H">@Localizer["Hour(s)"]</option>
+                    <option value="d">@Localizer["Day(s)"]</option>
+                    <option value="M">@Localizer["Month(s)"]</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="starting" HelpText="What time do you want the job to start" ResourceKey="Starting">Starting: </Label>
+            <div class="col-sm-9">
+                <input id="starting" class="form-control" @bind="@_startDate" maxlength="8"/>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="ending" HelpText="When do you want the job to end" ResourceKey="Ending">Ending: </Label>
+            <div class="col-sm-9">
+                <input id="ending" class="form-control" @bind="@_endDate" maxlength="8"/>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="retention" HelpText="Number of log entries to retain for this job" ResourceKey="RetentionLog">Retention Log (Items): </Label>
+            <div class="col-sm-9">
+                <input id="retention" class="form-control" @bind="@_retentionHistory" maxlength="4" required />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="next" HelpText="Next execution for this job." ResourceKey="NextExecution">Next Execution: </Label>
+            <div class="col-sm-9">
+                <input id="next" class="form-control" @bind="@_nextExecution" maxlength="8"/>
+            </div>
         </div>
     </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="type" HelpText="The fully qualified job type name" ResourceKey="Type">Type: </Label>
-        <div class="col-sm-9">
-            <input id="type" class="form-control" @bind="@_jobType" readonly />
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="enabled" HelpText="Select whether you want the job enabled or not" ResourceKey="Enabled">Enabled? </Label>
-        <div class="col-sm-9">
-            <select id="enabled" class="form-select" @bind="@_isEnabled">
-                <option value="True">@SharedLocalizer["Yes"]</option>
-                <option value="False">@SharedLocalizer["No"]</option>
-            </select>
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="runs-every" HelpText="Select how often you want the job to run" ResourceKey="RunsEvery">Runs Every: </Label>
-        <div class="col-sm-9">
-            <input id="runs-every" class="form-control" @bind="@_interval" />
-            <select id="runs-every" class="form-select" @bind="@_frequency">
-                <option value="m">@Localizer["Minute(s)"]</option>
-                <option value="H">@Localizer["Hour(s)"]</option>
-                <option value="d">@Localizer["Day(s)"]</option>
-                <option value="M">@Localizer["Month(s)"]</option>
-            </select>
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="starting" HelpText="What time do you want the job to start" ResourceKey="Starting">Starting: </Label>
-        <div class="col-sm-9">
-            <input id="starting" class="form-control" @bind="@_startDate" />
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="ending" HelpText="When do you want the job to end" ResourceKey="Ending">Ending: </Label>
-        <div class="col-sm-9">
-            <input id="ending" class="form-control" @bind="@_endDate" />
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="retention" HelpText="Number of log entries to retain for this job" ResourceKey="RetentionLog">Retention Log (Items): </Label>
-        <div class="col-sm-9">
-            <input id="retention" class="form-control" @bind="@_retentionHistory" />
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="next" HelpText="Next execution for this job." ResourceKey="NextExecution">Next Execution: </Label>
-        <div class="col-sm-9">
-            <input id="next" class="form-control" @bind="@_nextExecution" />
-        </div>
-    </div>
-</div>
-<br />
-<button type="button" class="btn btn-success" @onclick="SaveJob">@SharedLocalizer["Save"]</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-<br />
-<br />
-<AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
+    <br />
+    <button type="button" class="btn btn-success" @onclick="SaveJob">@SharedLocalizer["Save"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+    <br />
+    <br />
+    <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
+</form>
 
 @code {
+    private ElementReference form;
+    private bool validated = false;
     private int _jobId;
     private string _name = string.Empty;
     private string _jobType = string.Empty;
@@ -121,7 +125,9 @@
 
     private async Task SaveJob()
     {
-        if (_name != string.Empty && !string.IsNullOrEmpty(_jobType) && _frequency != string.Empty && _interval != string.Empty && _retentionHistory != string.Empty)
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
         {
             var job = await JobService.GetJobAsync(_jobId);
             job.Name = _name;
@@ -176,5 +182,4 @@
             AddModuleMessage(Localizer["Message.Required.JobInfo"], MessageType.Warning);
         }
     }
-
 }
