@@ -23,29 +23,31 @@ else
             }
             else
             {
-                <div class="container">
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="name" HelpText="Name Of The Language" ResourceKey="Name">Name:</Label>
-                        <div class="col-sm-9">
-                            <select id="_code" class="form-select" @bind="@_code">
-                                @foreach (var culture in _availableCultures)
-                                {
-                                    <option value="@culture.Name">@culture.DisplayName</option>
-                                }
-                            </select>
+                <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+                    <div class="container">
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="name" HelpText="Name Of The Language" ResourceKey="Name">Name:</Label>
+                            <div class="col-sm-9">
+                                <select id="_code" class="form-select" @bind="@_code" required>
+                                    @foreach (var culture in _availableCultures)
+                                    {
+                                        <option value="@culture.Name">@culture.DisplayName</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="default" HelpText="Indicates Whether Or Not This Language Is The Default For The Site" ResourceKey="IsDefault">Default?</Label>
+                            <div class="col-sm-9">
+                                <select id="default" class="form-select" @bind="@_isDefault" required>
+                                    <option value="True">@SharedLocalizer["Yes"]</option>
+                                    <option value="False">@SharedLocalizer["No"]</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="default" HelpText="Indicates Whether Or Not This Language Is The Default For The Site" ResourceKey="IsDefault">Default?</Label>
-                        <div class="col-sm-9">
-                            <select id="default" class="form-select" @bind="@_isDefault">
-                                <option value="True">@SharedLocalizer["Yes"]</option>
-                                <option value="False">@SharedLocalizer["No"]</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <button type="button" class="btn btn-success" @onclick="SaveLanguage">@SharedLocalizer["Save"]</button>
+                    <button type="button" class="btn btn-success" @onclick="SaveLanguage">@SharedLocalizer["Save"]</button>
+                </form>
             }
             <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
         </TabPanel>
@@ -107,6 +109,9 @@ else
 }
 
 @code {
+    private ElementReference form;
+    private bool validated = false;
+
     private string _code = string.Empty;
     private string _isDefault = "False";
     private string _message;
@@ -169,31 +174,40 @@ else
 
     private async Task SaveLanguage()
     {
-        var language = new Language
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
         {
-            SiteId = PageState.Page.SiteId,
-            Name = CultureInfo.GetCultureInfo(_code).DisplayName,
-            Code = _code,
-            IsDefault = (_isDefault == null ? false : Boolean.Parse(_isDefault))
-        };
-
-        try
-        {
-            language = await LanguageService.AddLanguageAsync(language);
-
-            if (language.IsDefault)
+            var language = new Language
             {
-                await SetCultureAsync(language.Code);
+                SiteId = PageState.Page.SiteId,
+                Name = CultureInfo.GetCultureInfo(_code).DisplayName,
+                Code = _code,
+                IsDefault = (_isDefault == null ? false : Boolean.Parse(_isDefault))
+            };
+
+            try
+            {
+                language = await LanguageService.AddLanguageAsync(language);
+
+                if (language.IsDefault)
+                {
+                    await SetCultureAsync(language.Code);
+                }
+
+                await logger.LogInformation("Language Added {Language}", language);
+
+                NavigationManager.NavigateTo(NavigateUrl());
             }
-
-            await logger.LogInformation("Language Added {Language}", language);
-
-            NavigationManager.NavigateTo(NavigateUrl());
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Adding Language {Language} {Error}", language, ex.Message);
+                AddModuleMessage(Localizer["Error.Language.Add"], MessageType.Error);
+            }
         }
-        catch (Exception ex)
+        else
         {
-            await logger.LogError(ex, "Error Adding Language {Language} {Error}", language, ex.Message);
-            AddModuleMessage(Localizer["Error.Language.Add"], MessageType.Error);
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
         }
     }
 
