@@ -98,7 +98,10 @@
     {
         if (firstRender)
         {
-            await username.FocusAsync();
+            if(PageState.User == null)
+            {
+                await username.FocusAsync();
+            }
         }
     }
 
