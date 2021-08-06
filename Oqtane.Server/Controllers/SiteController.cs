@@ -54,26 +54,19 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
+        [Authorize(Roles = RoleNames.Host)]
         public Site Post([FromBody] Site site)
         {
             if (ModelState.IsValid)
             {
-                bool authorized;
-                if (!_sites.GetSites().Any())
-                {
-                    // provision initial site during installation
-                    authorized = true; 
-                    site.TenantId = _alias.TenantId;
-                }
-                else
-                {
-                    authorized = User.IsInRole(RoleNames.Host);
-                }
-                if (authorized)
-                {
-                    site = _sites.AddSite(site);
-                    _logger.Log(site.SiteId, LogLevel.Information, this, LogFunction.Create, "Site Added {Site}", site);
-                }
+                site = _sites.AddSite(site);
+                _logger.Log(site.SiteId, LogLevel.Information, this, LogFunction.Create, "Site Added {Site}", site);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Site Post Attempt {Site}", site);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                site = null;
             }
             return site;
         }

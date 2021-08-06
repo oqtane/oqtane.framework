@@ -47,6 +47,7 @@ namespace Oqtane.Services
         {
             return await PutJsonAsync<Role>($"{Apiurl}/{role.RoleId}", role);
         }
+
         public async Task DeleteRoleAsync(int roleId)
         {
             await DeleteAsync($"{Apiurl}/{roleId}");

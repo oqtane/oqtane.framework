@@ -2,7 +2,7 @@
 @namespace Oqtane.Modules.HtmlText
 @inherits ModuleBase
 @inject IHtmlTextService HtmlTextService
-@inject IStringLocalizer<Edit> Localizer
+@inject IStringLocalizer<Index> Localizer
 
 @((MarkupString)content)
 
@@ -16,7 +16,7 @@
 
 @code {
     public override List<Resource> Resources => new List<Resource>()
-{
+    {
         new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" }
     };
 

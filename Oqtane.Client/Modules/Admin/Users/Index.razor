@@ -39,7 +39,7 @@ else
                 <ActionLink Action="Edit" Parameters="@($"id=" + context.UserId.ToString())" ResourceKey="EditUser" />
             </td>
             <td>
-                <ActionDialog Header="Delete User" Message="@string.Format(Localizer["Confirm.User.Delete"], context.User.DisplayName)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteUser(context))" Disabled="@(context.Role.Name == RoleNames.Host)" ResourceKey="DeleteUser" />
+                <ActionDialog Header="Delete User" Message="@string.Format(Localizer["Confirm.User.Delete"], context.User.DisplayName)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteUser(context))" Disabled="@(context.UserId == PageState.User.UserId)" ResourceKey="DeleteUser" />
             </td>
             <td>
                 <ActionLink Action="Roles" Parameters="@($"id=" + context.UserId.ToString())" ResourceKey="Roles" />
@@ -95,6 +95,8 @@ else
             {
                 await UserService.DeleteUserAsync(user.UserId, PageState.Site.SiteId);
                 await logger.LogInformation("User Deleted {User}", UserRole.User);
+                allroles = await UserRoleService.GetUserRolesAsync(PageState.Site.SiteId);
+                userroles = Search(_search);
                 StateHasChanged();
             }
         }

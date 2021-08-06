@@ -217,10 +217,10 @@
     <value>Enter the password for the integrated security</value>
   </data>
   <data name="HostUsername.HelpText" xml:space="preserve">
-    <value>Enter the username of the host for this site</value>
+    <value>Enter a valid host username</value>
   </data>
   <data name="HostPassword.HelpText" xml:space="preserve">
-    <value>Enter the password for the host of this site</value>
+    <value>Enter a valid host password</value>
   </data>
   <data name="Name.Text" xml:space="preserve">
     <value>Site Name: </value>

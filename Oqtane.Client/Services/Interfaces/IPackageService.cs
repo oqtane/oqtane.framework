@@ -8,6 +8,7 @@ namespace Oqtane.Services
     {
         Task<List<Package>> GetPackagesAsync(string type);
         Task<List<Package>> GetPackagesAsync(string type, string search);
+        Task<Package> GetPackageAsync(string packageId, string version);
         Task DownloadPackageAsync(string packageId, string version, string folder);
         Task InstallPackagesAsync();
     }

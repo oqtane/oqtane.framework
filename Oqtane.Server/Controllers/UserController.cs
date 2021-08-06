@@ -142,7 +142,7 @@ namespace Oqtane.Controllers
 
             bool verified;
             bool allowregistration;
-            if (user.Username == UserNames.Host || User.IsInRole(RoleNames.Admin))
+            if (User.IsInRole(RoleNames.Admin))
             {
                 verified = true;
                 allowregistration = true;
@@ -177,18 +177,6 @@ namespace Oqtane.Controllers
                             _notifications.AddNotification(notification);
                         }
 
-                        // assign to host role if this is the host user ( initial installation )
-                        if (user.Username == UserNames.Host)
-                        {
-                            int hostroleid = _roles.GetRoles(user.SiteId, true).Where(item => item.Name == RoleNames.Host).FirstOrDefault().RoleId;
-                            UserRole userrole = new UserRole();
-                            userrole.UserId = newUser.UserId;
-                            userrole.RoleId = hostroleid;
-                            userrole.EffectiveDate = null;
-                            userrole.ExpiryDate = null;
-                            _userRoles.AddUserRole(userrole);
-                        }
-
                         // add folder for user
                         Folder folder = _folders.GetFolder(user.SiteId, Utilities.PathCombine("Users",Path.DirectorySeparatorChar.ToString()));
                         if (folder != null)
@@ -221,7 +209,7 @@ namespace Oqtane.Controllers
                     }
                 }
 
-                if (newUser != null && user.Username != UserNames.Host)
+                if (newUser != null)
                 {
                     // add auto assigned roles to user for site
                     List<Role> roles = _roles.GetRoles(user.SiteId).Where(item => item.IsAutoAssigned).ToList();

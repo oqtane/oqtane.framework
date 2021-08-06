@@ -116,13 +116,14 @@ namespace Oqtane.Infrastructure
                 if (!installation.Success)
                 {
                     install.Aliases = GetInstallationConfig(SettingKeys.DefaultAliasKey, string.Empty);
+                    install.HostUsername = GetInstallationConfig(SettingKeys.HostUsernameKey, UserNames.Host);
                     install.HostPassword = GetInstallationConfig(SettingKeys.HostPasswordKey, string.Empty);
                     install.HostEmail = GetInstallationConfig(SettingKeys.HostEmailKey, string.Empty);
+                    install.HostName = GetInstallationConfig(SettingKeys.HostNameKey, UserNames.Host);
 
                     if (!string.IsNullOrEmpty(install.ConnectionString) && !string.IsNullOrEmpty(install.Aliases) && !string.IsNullOrEmpty(install.HostPassword) && !string.IsNullOrEmpty(install.HostEmail))
                     {
                         // silent install
-                        install.HostName = UserNames.Host;
                         install.SiteTemplate = GetInstallationConfig(SettingKeys.SiteTemplateKey, Constants.DefaultSiteTemplate);
                         install.DefaultTheme = GetInstallationConfig(SettingKeys.DefaultThemeKey, Constants.DefaultTheme);
                         install.DefaultContainer = GetInstallationConfig(SettingKeys.DefaultContainerKey, Constants.DefaultContainer);
@@ -583,49 +584,52 @@ namespace Oqtane.Infrastructure
                         };
                         site = sites.AddSite(site);
 
-                        var identityUser = identityUserManager.FindByNameAsync(UserNames.Host).GetAwaiter().GetResult();
-                        if (identityUser == null)
+                        if (!string.IsNullOrEmpty(install.HostUsername))
                         {
-                            identityUser = new IdentityUser {UserName = UserNames.Host, Email = install.HostEmail, EmailConfirmed = true};
-                            var create = identityUserManager.CreateAsync(identityUser, install.HostPassword).GetAwaiter().GetResult();
-                            if (create.Succeeded)
+                            var identityUser = identityUserManager.FindByNameAsync(install.HostUsername).GetAwaiter().GetResult();
+                            if (identityUser == null)
                             {
-                                var user = new User
+                                identityUser = new IdentityUser { UserName = install.HostUsername, Email = install.HostEmail, EmailConfirmed = true };
+                                var create = identityUserManager.CreateAsync(identityUser, install.HostPassword).GetAwaiter().GetResult();
+                                if (create.Succeeded)
                                 {
-                                    SiteId = site.SiteId,
-                                    Username = UserNames.Host,
-                                    Password = install.HostPassword,
-                                    Email = install.HostEmail,
-                                    DisplayName = install.HostName,
-                                    LastIPAddress = "",
-                                    LastLoginOn = null
-                                };
-
-                                user = users.AddUser(user);
-                                var hostRoleId = roles.GetRoles(user.SiteId, true).FirstOrDefault(item => item.Name == RoleNames.Host)?.RoleId ?? 0;
-                                var userRole = new UserRole {UserId = user.UserId, RoleId = hostRoleId, EffectiveDate = null, ExpiryDate = null};
-                                userRoles.AddUserRole(userRole);
-
-                                // add user folder
-                                var folder = folders.GetFolder(user.SiteId, Utilities.PathCombine("Users", Path.DirectorySeparatorChar.ToString()));
-                                if (folder != null)
-                                {
-                                    folders.AddFolder(new Folder
+                                    var user = new User
                                     {
-                                        SiteId = folder.SiteId,
-                                        ParentId = folder.FolderId,
-                                        Name = "My Folder",
-                                        Type = FolderTypes.Private,
-                                        Path = Utilities.PathCombine(folder.Path, user.UserId.ToString(), Path.DirectorySeparatorChar.ToString()),
-                                        Order = 1,
-                                        IsSystem = true,
-                                        Permissions = new List<Permission>
+                                        SiteId = site.SiteId,
+                                        Username = install.HostUsername,
+                                        Password = install.HostPassword,
+                                        Email = install.HostEmail,
+                                        DisplayName = install.HostName,
+                                        LastIPAddress = "",
+                                        LastLoginOn = null
+                                    };
+
+                                    user = users.AddUser(user);
+                                    var hostRoleId = roles.GetRoles(user.SiteId, true).FirstOrDefault(item => item.Name == RoleNames.Host)?.RoleId ?? 0;
+                                    var userRole = new UserRole { UserId = user.UserId, RoleId = hostRoleId, EffectiveDate = null, ExpiryDate = null };
+                                    userRoles.AddUserRole(userRole);
+
+                                    // add user folder
+                                    var folder = folders.GetFolder(user.SiteId, Utilities.PathCombine("Users", Path.DirectorySeparatorChar.ToString()));
+                                    if (folder != null)
+                                    {
+                                        folders.AddFolder(new Folder
+                                        {
+                                            SiteId = folder.SiteId,
+                                            ParentId = folder.FolderId,
+                                            Name = "My Folder",
+                                            Type = FolderTypes.Private,
+                                            Path = Utilities.PathCombine(folder.Path, user.UserId.ToString(), Path.DirectorySeparatorChar.ToString()),
+                                            Order = 1,
+                                            IsSystem = true,
+                                            Permissions = new List<Permission>
                                         {
                                             new Permission(PermissionNames.Browse, user.UserId, true),
                                             new Permission(PermissionNames.View, RoleNames.Everyone, true),
                                             new Permission(PermissionNames.Edit, user.UserId, true),
                                         }.EncodePermissions(),
-                                    });
+                                        });
+                                    }
                                 }
                             }
                         }
