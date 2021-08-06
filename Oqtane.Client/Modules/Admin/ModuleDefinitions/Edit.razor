@@ -7,26 +7,28 @@
 
 <TabStrip>
     <TabPanel Name="Definition" ResourceKey="Definition">
-        <div class="container">
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="name" HelpText="The name of the module" ResourceKey="Name">Name: </Label>
-                <div class="col-sm-9">
-                    <input id="name" class="form-control" @bind="@_name" />
+        <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="name" HelpText="The name of the module" ResourceKey="Name">Name: </Label>
+                    <div class="col-sm-9">
+                        <input id="name" class="form-control" @bind="@_name" maxlength="200" required />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="description" HelpText="The description of the module" ResourceKey="Description">Description: </Label>
+                    <div class="col-sm-9">
+                        <textarea id="description" class="form-control" @bind="@_description" rows="2" maxlength="2000" required></textarea>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="categories" HelpText="Comma delimited list of module categories" ResourceKey="Categories">Categories: </Label>
+                    <div class="col-sm-9">
+                        <input id="categories" class="form-control" @bind="@_categories" maxlength="200" required />
+                    </div>
                 </div>
             </div>
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="description" HelpText="The description of the module" ResourceKey="Description">Description: </Label>
-                <div class="col-sm-9">
-                    <textarea id="description" class="form-control" @bind="@_description" rows="2"></textarea>
-                </div>
-            </div>
-            <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="categories" HelpText="Comma delimited list of module categories" ResourceKey="Categories">Categories: </Label>
-                <div class="col-sm-9">
-                    <input id="categories" class="form-control" @bind="@_categories" />
-                </div>
-            </div>
-        </div>
+        </form>
         <Section Name="Information" ResourceKey="Information">
             <div class="container">
                 <div class="row mb-1 align-items-center">
@@ -89,6 +91,8 @@
 <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon"></AuditInfo>
 
 @code {
+    private ElementReference form;
+    private bool validated = false;
     private int _moduleDefinitionId;
     private string _name;
     private string _version;
@@ -146,30 +150,39 @@
 
     private async Task SaveModuleDefinition()
     {
-        try
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
         {
-            var moduledefinition = await ModuleDefinitionService.GetModuleDefinitionAsync(_moduleDefinitionId, ModuleState.SiteId);
-            if (moduledefinition.Name != _name)
+            try
             {
-                moduledefinition.Name = _name;
+                var moduledefinition = await ModuleDefinitionService.GetModuleDefinitionAsync(_moduleDefinitionId, ModuleState.SiteId);
+                if (moduledefinition.Name != _name)
+                {
+                    moduledefinition.Name = _name;
+                }
+                if (moduledefinition.Description != _description)
+                {
+                    moduledefinition.Description = _description;
+                }
+                if (moduledefinition.Categories != _categories)
+                {
+                    moduledefinition.Categories = _categories;
+                }
+                moduledefinition.Permissions = _permissionGrid.GetPermissions();
+                await ModuleDefinitionService.UpdateModuleDefinitionAsync(moduledefinition);
+                await logger.LogInformation("ModuleDefinition Saved {ModuleDefinition}", moduledefinition);
+                NavigationManager.NavigateTo(NavigateUrl());
             }
-            if (moduledefinition.Description != _description)
+            catch (Exception ex)
             {
-                moduledefinition.Description = _description;
+                await logger.LogError(ex, "Error Saving ModuleDefinition {ModuleDefinitionId} {Error}", _moduleDefinitionId, ex.Message);
+                AddModuleMessage(Localizer["Error.Module.Save"], MessageType.Error);
             }
-            if (moduledefinition.Categories != _categories)
-            {
-                moduledefinition.Categories = _categories;
-            }
-            moduledefinition.Permissions = _permissionGrid.GetPermissions();
-            await ModuleDefinitionService.UpdateModuleDefinitionAsync(moduledefinition);
-            await logger.LogInformation("ModuleDefinition Saved {ModuleDefinition}", moduledefinition);
-            NavigationManager.NavigateTo(NavigateUrl());
         }
-        catch (Exception ex)
+        else
         {
-            await logger.LogError(ex, "Error Saving ModuleDefinition {ModuleDefinitionId} {Error}", _moduleDefinitionId, ex.Message);
-            AddModuleMessage(Localizer["Error.Module.Save"], MessageType.Error);
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
         }
     }
 }
