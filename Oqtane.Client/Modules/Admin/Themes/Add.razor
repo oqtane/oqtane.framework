@@ -74,7 +74,7 @@
                         <p style="height: 200px; overflow-y: scroll;">
                             @if (!string.IsNullOrEmpty(_license))
                             {
-                                @_license
+                                @((MarkupString)_license)
                             }
                             else
                             {
@@ -175,7 +175,7 @@
             if (package != null)
             {
                 _productname = package.Name;
-                _license = package.License;
+                _license = package.License.Replace("\n", "<br />");
                 _packageid = package.PackageId;
                 _version = package.Version;
             }
