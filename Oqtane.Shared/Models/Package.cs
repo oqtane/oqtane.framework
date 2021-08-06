@@ -33,6 +33,11 @@ namespace Oqtane.Models
         public string Description { get; set; }
 
         /// <summary>
+        /// License for the Package. 
+        /// </summary>
+        public string License { get; set; }
+
+        /// <summary>
         /// Friendly name of the package
         /// </summary>
         public string ProductUrl { get; set; }

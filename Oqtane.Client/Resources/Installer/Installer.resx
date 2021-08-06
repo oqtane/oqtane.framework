@@ -154,13 +154,13 @@
     <value>Email:</value>
   </data>
   <data name="Password.HelpText" xml:space="preserve">
-    <value>Provide the password for the host user account</value>
+    <value>Provide a password for the primary user account</value>
   </data>
   <data name="Password.Text" xml:space="preserve">
     <value>Password:</value>
   </data>
   <data name="Username.HelpText" xml:space="preserve">
-    <value>The username of the host user account (this is not customizable)</value>
+    <value>Provide a username for the primary user account</value>
   </data>
   <data name="Username.Text" xml:space="preserve">
     <value>Username:</value>

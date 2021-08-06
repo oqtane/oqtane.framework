@@ -30,6 +30,11 @@ namespace Oqtane.Services
             return await GetJsonAsync<List<Package>>($"{Apiurl}?type={type}&search={WebUtility.UrlEncode(search)}");
         }
 
+        public async Task<Package> GetPackageAsync(string packageId, string version)
+        {
+            return await PostJsonAsync<Package>($"{Apiurl}?packageid={packageId}&version={version}", null);
+        }
+
         public async Task DownloadPackageAsync(string packageId, string version, string folder)
         {
             await PostAsync($"{Apiurl}?packageid={packageId}&version={version}&folder={folder}");

@@ -10,11 +10,12 @@ namespace Oqtane.Shared
 
         public const string InstallationSection = "Installation";
         public const string DefaultAliasKey = "DefaultAlias";
+        public const string HostUsernameKey = "HostUsername";
         public const string HostPasswordKey = "HostPassword";
         public const string HostEmailKey = "HostEmail";
+        public const string HostNameKey = "HostName";
         public const string SiteTemplateKey = "SiteTemplate";
         public const string DefaultThemeKey = "DefaultTheme";
-        public const string DefaultLayoutKey = "DefaultLayout";
         public const string DefaultContainerKey = "DefaultContainer";
 
         public const string AvailableDatabasesSection = "AvailableDatabases";

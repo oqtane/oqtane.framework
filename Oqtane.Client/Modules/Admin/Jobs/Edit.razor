@@ -31,7 +31,7 @@
         <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="runs-every" HelpText="Select how often you want the job to run" ResourceKey="RunsEvery">Runs Every: </Label>
             <div class="col-sm-9">
-                <input id="runs-every" class="form-control" @bind="@_interval" maxlength="4" required/>
+                <input id="runs-every" class="form-control" @bind="@_interval" maxlength="4" required />
                 <select id="runs-every" class="form-select" @bind="@_frequency" required>
                     <option value="m">@Localizer["Minute(s)"]</option>
                     <option value="H">@Localizer["Hour(s)"]</option>
@@ -41,27 +41,48 @@
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="starting" HelpText="What time do you want the job to start" ResourceKey="Starting">Starting: </Label>
-            <div class="col-sm-9">
-                <input id="starting" class="form-control" @bind="@_startDate" maxlength="8"/>
-            </div>
-        </div>
-        <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="ending" HelpText="When do you want the job to end" ResourceKey="Ending">Ending: </Label>
-            <div class="col-sm-9">
-                <input id="ending" class="form-control" @bind="@_endDate" maxlength="8"/>
-            </div>
-        </div>
-        <div class="row mb-1 align-items-center">
             <Label Class="col-sm-3" For="retention" HelpText="Number of log entries to retain for this job" ResourceKey="RetentionLog">Retention Log (Items): </Label>
             <div class="col-sm-9">
                 <input id="retention" class="form-control" @bind="@_retentionHistory" maxlength="4" required />
             </div>
         </div>
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="next" HelpText="Next execution for this job." ResourceKey="NextExecution">Next Execution: </Label>
+            <Label Class="col-sm-3" For="starting" HelpText="Optionally enter the date and time when this job should start executing" ResourceKey="Starting">Starting: </Label>
             <div class="col-sm-9">
-                <input id="next" class="form-control" @bind="@_nextExecution" maxlength="8"/>
+                <div class="row">
+                    <div class="col">
+                        <input id="starting" type="date" class="form-control" @bind="@_startDate" />
+                    </div>
+                    <div class="col">
+                        <input id="starting" type="text" class="form-control" placeholder="hh:mm" @bind="@_startTime" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="ending" HelpText="Optionally enter the date and time when this job should stop executing" ResourceKey="Ending">Ending: </Label>
+            <div class="col-sm-9">
+                <div class="row">
+                    <div class="col">
+                        <input id="ending" type="date" class="form-control" @bind="@_endDate" />
+                    </div>
+                    <div class="col">
+                        <input id="ending" type="text" class="form-control" placeholder="hh:mm" @bind="@_endTime" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="next" HelpText="Optionally modify the date and time when this job should execute next" ResourceKey="NextExecution">Next Execution: </Label>
+            <div class="col-sm-9">
+                <div class="row">
+                    <div class="col">
+                        <input id="next" type="date" class="form-control" @bind="@_nextDate" />
+                    </div>
+                    <div class="col">
+                        <input id="next" type="text" class="form-control" placeholder="hh:mm" @bind="@_nextTime" />
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -82,10 +103,13 @@
     private string _isEnabled = "True";
     private string _interval = string.Empty;
     private string _frequency = string.Empty;
-    private string _startDate = string.Empty;
-    private string _endDate = string.Empty;
+    private DateTime? _startDate = null;
+    private string _startTime = string.Empty;
+    private DateTime? _endDate = null;
+    private string _endTime = string.Empty;
     private string _retentionHistory = string.Empty;
-    private string _nextExecution = string.Empty;
+    private DateTime? _nextDate = null;
+    private string _nextTime = string.Empty;
     private string createdby;
     private DateTime createdon;
     private string modifiedby;
@@ -106,10 +130,22 @@
                 _isEnabled = job.IsEnabled.ToString();
                 _interval = job.Interval.ToString();
                 _frequency = job.Frequency;
-                _startDate = (job.StartDate != null) ? job.StartDate.ToString() : string.Empty;
-                _endDate = (job.EndDate != null) ? job.EndDate.ToString() : string.Empty;
+                _startDate = job.StartDate;
+                if (job.StartDate != null && job.StartDate.Value.TimeOfDay.TotalSeconds != 0)
+                {
+                    _startTime = job.StartDate.Value.ToString("HH:mm");
+                }
+                _endDate = job.EndDate;
+                if (job.EndDate != null && job.EndDate.Value.TimeOfDay.TotalSeconds != 0)
+                {
+                    _endTime = job.EndDate.Value.ToString("HH:mm");
+                }
                 _retentionHistory = job.RetentionHistory.ToString();
-                _nextExecution = job.NextExecution.ToString();
+                _nextDate = job.NextExecution;
+                if (job.NextExecution != null && job.NextExecution.Value.TimeOfDay.TotalSeconds != 0)
+                {
+                    _nextTime = job.NextExecution.Value.ToString("HH:mm");
+                }
                 createdby = job.CreatedBy;
                 createdon = job.CreatedOn;
                 modifiedby = job.ModifiedBy;
@@ -135,35 +171,34 @@
             job.IsEnabled = Boolean.Parse(_isEnabled);
             job.Frequency = _frequency;
             job.Interval = int.Parse(_interval);
-
-            if (_startDate == string.Empty)
+            job.StartDate = _startDate;
+            if (job.StartDate != null)
             {
-                job.StartDate = null;
+                job.StartDate = job.StartDate.Value.Date;
+                if (!string.IsNullOrEmpty(_startTime))
+                {
+                    job.StartDate = DateTime.Parse(job.StartDate.Value.ToShortDateString() + " " + _startTime);
+                }
             }
-            else
+            job.EndDate = _endDate;
+            if (job.EndDate != null)
             {
-                job.StartDate = DateTime.Parse(_startDate);
+                job.EndDate = job.EndDate.Value.Date;
+                if (!string.IsNullOrEmpty(_endTime))
+                {
+                    job.EndDate = DateTime.Parse(job.EndDate.Value.ToShortDateString() + " " + _endTime);
+                }
             }
-
-            if (_endDate == string.Empty)
-            {
-                job.EndDate = null;
-            }
-            else
-            {
-                job.EndDate = DateTime.Parse(_endDate);
-            }
-
-            if (_nextExecution == string.Empty)
-            {
-                job.NextExecution = null;
-            }
-            else
-            {
-                job.NextExecution = DateTime.Parse(_nextExecution);
-            }
-
             job.RetentionHistory = int.Parse(_retentionHistory);
+            job.NextExecution = _nextDate;
+            if (job.NextExecution != null)
+            {
+                job.NextExecution = job.NextExecution.Value.Date;
+                if (!string.IsNullOrEmpty(_nextTime))
+                {
+                    job.NextExecution = DateTime.Parse(job.NextExecution.Value.ToShortDateString() + " " + _nextTime);
+                }
+            }
 
             try
             {

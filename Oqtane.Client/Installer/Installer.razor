@@ -54,13 +54,13 @@
             <h2>@Localizer["ApplicationAdmin"]</h2><br />
             <div class="container">
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="username" HelpText="The username of the host user account (this is not customizable)" ResourceKey="Username">Username:</Label>
+                    <Label Class="col-sm-3" For="username" HelpText="Provide a username for the primary user accountt" ResourceKey="Username">Username:</Label>
                     <div class="col-sm-9">
-                        <input id="username" type="text" class="form-control" @bind="@_hostUsername" readonly />
+                        <input id="username" type="text" class="form-control" @bind="@_hostUsername" />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="password" HelpText="Provide the password for the host user account" ResourceKey="Password">Password:</Label>
+                    <Label Class="col-sm-3" For="password" HelpText="Provide a password for the primary user account" ResourceKey="Password">Password:</Label>
                     <div class="col-sm-9">
                         <input id="password" type="password" class="form-control" @bind="@_hostPassword" />
                     </div>
@@ -102,7 +102,7 @@
     private object _databaseConfig;
     private RenderFragment DatabaseConfigComponent { get; set; }
 
-    private string _hostUsername = UserNames.Host;
+    private string _hostUsername = string.Empty;
     private string _hostPassword = string.Empty;
     private string _confirmPassword = string.Empty;
     private string _hostEmail = string.Empty;
@@ -162,7 +162,7 @@
             connectionString = databaseConfigControl.GetConnectionString();
         }
 
-        if (connectionString != "" && _hostUsername != "" && _hostPassword.Length >= 6 && _hostPassword == _confirmPassword && _hostEmail != "" && _hostEmail.Contains("@"))
+        if (connectionString != "" && !string.IsNullOrEmpty(_hostUsername) && _hostPassword.Length >= 6 && _hostPassword == _confirmPassword && !string.IsNullOrEmpty(_hostEmail) && _hostEmail.Contains("@"))
         {
             _loadingDisplay = "";
             StateHasChanged();
@@ -176,9 +176,10 @@
                 DatabaseType = database.DBType,
                 ConnectionString = connectionString,
                 Aliases = uri.Authority,
-                HostEmail = _hostEmail,
+                HostUsername = _hostUsername,
                 HostPassword = _hostPassword,
-                HostName = UserNames.Host,
+                HostEmail = _hostEmail,
+                HostName = _hostUsername,
                 TenantName = TenantNames.Master,
                 IsNewTenant = true,
                 SiteName = Constants.DefaultSite,

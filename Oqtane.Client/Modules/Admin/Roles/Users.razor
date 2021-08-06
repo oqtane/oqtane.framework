@@ -61,7 +61,7 @@ else
                     <td>@context.EffectiveDate</td>
                     <td>@context.ExpiryDate</td>
                     <td>
-                        <ActionDialog Header="Remove User" Message="@string.Format(Localizer["Confirm.User.DeleteRole"], context.User.DisplayName)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteUserRole(context.UserRoleId))" Disabled="@(context.Role.IsAutoAssigned || PageState.User.Username == UserNames.Host)" ResourceKey="DeleteUserRole" />
+                        <ActionDialog Header="Remove User" Message="@string.Format(Localizer["Confirm.User.DeleteRole"], context.User.DisplayName)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteUserRole(context.UserRoleId))" Disabled="@context.Role.IsAutoAssigned" ResourceKey="DeleteUserRole" />
                     </td>
                 </Row>
             </Pager>
