@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Content.HelpText" xml:space="preserve">
-    <value>Enter the module content</value>
+    <value>Enter The Module Content To Import</value>
   </data>
   <data name="Content.Text" xml:space="preserve">
     <value>Content: </value>
@@ -133,7 +133,7 @@
     <value>A Problem Was Encountered Importing Content. Please Ensure The Content Is Formatted Correctly For The Module.</value>
   </data>
   <data name="Error.Module.Import" xml:space="preserve">
-    <value>Error Importing Module</value>
+    <value>Error Importing Module Content</value>
   </data>
   <data name="Message.Required.ImportContent" xml:space="preserve">
     <value>You Must Enter Some Content To Import</value>
