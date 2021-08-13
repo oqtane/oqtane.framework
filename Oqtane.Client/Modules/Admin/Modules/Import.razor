@@ -8,7 +8,7 @@
 <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
     <div class="container">
         <div class="row mb-1 align-items-center">
-            <Label Class="col-sm-3" For="content" HelpText="Enter the module content" ResourceKey="Content">Content: </Label>
+            <Label Class="col-sm-3" For="content" HelpText="Enter The Module Content To Import" ResourceKey="Content">Content: </Label>
             <div class="col-sm-9">
                 <textarea id="content" class="form-control" @bind="@_content" rows="5" required></textarea>
 

@@ -282,4 +282,13 @@
   <data name="Message.InfoRequired" xml:space="preserve">
     <value>Please Provide All Required Information</value>
   </data>
+  <data name="Free" xml:space="preserve">
+    <value>Free</value>
+  </data>
+  <data name="Paid" xml:space="preserve">
+    <value>Paid</value>
+  </data>
+  <data name="Search.Price" xml:space="preserve">
+    <value>price</value>
+  </data>
 </root>

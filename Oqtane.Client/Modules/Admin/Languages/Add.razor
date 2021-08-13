@@ -53,13 +53,16 @@ else
         </TabPanel>
         <TabPanel Name="Download" ResourceKey="Download" Security="SecurityAccessLevel.Host">
             <ModuleMessage Type="MessageType.Info" Message="Download one or more translations from the list below. Once you are ready click Install to complete the installation."></ModuleMessage>
-            <div class="container">
-                <div class="row mb-1 align-items-center">
-                    <div class="col-sm-9">
+
+            <div class="row justify-content-center mb-3">
+                <div class="col-sm-6">
+                    <div class="input-group">
+                        <select id="price" class="form-select custom-select" @onchange="(e => PriceChanged(e))">
+                            <option value="free">@SharedLocalizer["Free"]</option>
+                            <option value="paid">@SharedLocalizer["Paid"]</option>
+                        </select>
                         <input id="search" class="form-control" placeholder="@SharedLocalizer["Search.Hint"]" @bind="@_search" />
-                    </div>
-                    <div class="col-sm-3">
-                        <button type="button" class="btn btn-primary" @onclick="Search">@SharedLocalizer["Search"]</button>&nbsp;
+                        <button type="button" class="btn btn-primary" @onclick="Search">@SharedLocalizer["Search"]</button>
                         <button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Reset"]</button>
                     </div>
                 </div>
@@ -77,7 +80,7 @@ else
                                 <strong>@(String.Format("{0:n0}", context.Downloads))</strong> @SharedLocalizer["Search.Downloads"]&nbsp;&nbsp;|&nbsp;&nbsp; @SharedLocalizer["Search.Released"]: <strong>@context.ReleaseDate.ToString("MMM dd, yyyy")</strong>&nbsp;&nbsp;|&nbsp;&nbsp;@SharedLocalizer["Search.Version"]: <strong>@context.Version</strong>&nbsp;&nbsp;|&nbsp;&nbsp;@SharedLocalizer["Search.Source"]: <strong>@context.PackageUrl</strong>
                             </td>
                             <td style="vertical-align: middle;">
-                                <button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadLanguage(context.PackageId, context.Version))>@SharedLocalizer["Download"]</button>
+                                <button type="button" class="btn btn-primary" @onclick=@(async () => await GetLanguage(context.PackageId, context.Version))>@SharedLocalizer["Download"]</button>
                             </td>
                         </Row>
                     </Pager>
@@ -108,6 +111,38 @@ else
     </TabStrip>
 }
 
+@if (_productname != "")
+{
+    <div class="app-actiondialog">
+        <div class="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">@_productname  @Localizer["License Terms"]</h5>
+                        <button type="button" class="btn-close" aria-label="Close" @onclick="HideModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p style="height: 200px; overflow-y: scroll;">
+                            @if (!string.IsNullOrEmpty(_license))
+                            {
+                                @((MarkupString)_license)
+                            }
+                            else
+                            {
+                                @Localizer["License Not Specified"]
+                            }
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-success" @onclick="DownloadPackage">@Localizer["Accept"]</button>
+                        <button type="button" class="btn btn-secondary" @onclick="HideModal">@Localizer["Cancel"]</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     private ElementReference form;
     private bool validated = false;
@@ -118,7 +153,12 @@ else
     private IEnumerable<Culture> _supportedCultures;
     private IEnumerable<Culture> _availableCultures;
     private List<Package> _packages;
+    private string _price = "free";
     private string _search = "";
+    private string _productname = "";
+    private string _license = "";
+    private string _packageid = "";
+    private string _version = "";
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
@@ -144,9 +184,24 @@ else
 
     private async Task LoadTranslations()
     {
-        _packages = await PackageService.GetPackagesAsync("translation", _search);
+        _packages = await PackageService.GetPackagesAsync("translation", _search, _price);
     }
 
+    private async void PriceChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            _price = (string)e.Value;
+            _search = "";
+            await LoadTranslations();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error On PriceChanged");
+        }
+    }
+    
     private async Task Search()
     {
         try
@@ -211,6 +266,51 @@ else
         }
     }
 
+
+    private void HideModal()
+    {
+        _productname = "";
+        _license = "";
+        StateHasChanged();
+    }
+
+    private async Task GetLanguage(string packageid, string version)
+    {
+        try
+        {
+            var package = await PackageService.GetPackageAsync(packageid, version);
+            if (package != null)
+            {
+                _productname = package.Name;
+                _license = package.License.Replace("\n", "<br />");
+                _packageid = package.PackageId;
+                _version = package.Version;
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Getting Package {PackageId} {Version}", packageid, version);
+            AddModuleMessage(Localizer["Error.Module.Download"], MessageType.Error);
+        }
+    }
+
+    private async Task DownloadPackage()
+    {
+        try
+        {
+            await PackageService.DownloadPackageAsync(_packageid, _version, "Packages");
+            await logger.LogInformation("Language Package {Name} {Version} Downloaded Successfully", _packageid, _version);
+            AddModuleMessage(Localizer["Success.Language.Download"], MessageType.Success);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Downloading Translation {Name} {Version}", _packageid, _version);
+            AddModuleMessage(Localizer["Error.Language.Download"], MessageType.Error);
+        }
+    }
+
     private async Task InstallLanguages()
     {
         try
@@ -221,22 +321,6 @@ else
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Installing Translations");
-        }
-    }
-
-    private async Task DownloadLanguage(string packageid, string version)
-    {
-        try
-        {
-            await PackageService.DownloadPackageAsync(packageid, version, "Packages");
-            await logger.LogInformation("Language Paclage {Name} {Version} Downloaded Successfully", packageid, version);
-            AddModuleMessage(Localizer["Success.Language.Download"], MessageType.Success);
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Downloading Translation {Name} {Version}", packageid, version);
-            AddModuleMessage(Localizer["Error.Language.Download"], MessageType.Error);
         }
     }
 
