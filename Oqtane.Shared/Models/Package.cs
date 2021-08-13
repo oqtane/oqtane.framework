@@ -66,5 +66,10 @@ namespace Oqtane.Models
         /// Indicates if any known security vulnerabilities exist 
         /// </summary>
         public int Vulnerabilities { get; set; }
+
+        /// <summary>
+        /// The price of the package 
+        /// </summary>
+        public decimal Price { get; set; }
     }
 }

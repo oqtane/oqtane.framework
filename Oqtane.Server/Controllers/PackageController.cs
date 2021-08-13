@@ -32,10 +32,10 @@ namespace Oqtane.Controllers
             _logger = logger;
         }
 
-        // GET: api/<controller>?type=x&search=y
+        // GET: api/<controller>?type=x&search=y&license=z
         [HttpGet]
         [Authorize(Roles = RoleNames.Host)]
-        public async Task<IEnumerable<Package>> Get(string type, string search)
+        public async Task<IEnumerable<Package>> Get(string type, string search, string price)
         {
             // get packages
             List<Package> packages = new List<Package>();
@@ -45,7 +45,7 @@ namespace Oqtane.Controllers
                 {
                     client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value);
                     client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Constants.PackageId, Constants.Version));
-                    packages = await GetJson<List<Package>>(client, Constants.PackageRegistryUrl + $"/api/registry/packages/?id={_configManager.GetInstallationId()}&type={type.ToLower()}&version={Constants.Version}&search={search}");
+                    packages = await GetJson<List<Package>>(client, Constants.PackageRegistryUrl + $"/api/registry/packages/?id={_configManager.GetInstallationId()}&type={type.ToLower()}&version={Constants.Version}&search={search}&price={price}");
                 }
             }
             return packages;

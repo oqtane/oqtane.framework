@@ -14,6 +14,10 @@
         <div class="row justify-content-center mb-3">
             <div class="col-sm-6">
                 <div class="input-group">
+                    <select id="price" class="form-select custom-select" @onchange="(e => PriceChanged(e))">
+                        <option value="free">@SharedLocalizer["Free"]</option>
+                        <option value="paid">@SharedLocalizer["Paid"]</option>
+                    </select>
                     <input id="search" class="form-control" placeholder="@SharedLocalizer["Search.Hint"]" @bind="@_search" />
                     <button type="button" class="btn btn-primary" @onclick="Search">@SharedLocalizer["Search"]</button>
                     <button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Reset"]</button>
@@ -97,6 +101,7 @@
 
 @code {
     private List<Package> _packages;
+    private string _price = "free";
     private string _search = "";
     private string _productname = "";
     private string _license = "";
@@ -121,7 +126,7 @@
     private async Task LoadThemes()
     {
         var themes = await ThemeService.GetThemesAsync();
-        _packages = await PackageService.GetPackagesAsync("theme", _search);
+        _packages = await PackageService.GetPackagesAsync("theme", _search, _price);
 
         if (_packages != null)
         {
@@ -135,6 +140,21 @@
         }
     }
 
+    private async void PriceChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            _price = (string)e.Value;
+            _search = "";
+            await LoadThemes();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error On PriceChanged");
+        }
+    }
+    
     private async Task Search()
     {
         try
