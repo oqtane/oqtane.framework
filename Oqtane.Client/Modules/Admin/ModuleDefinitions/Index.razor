@@ -70,7 +70,7 @@ else
     private bool UpgradeAvailable(string packagename, string version)
     {
         var upgradeavailable = false;
-        if (_packages != null)
+        if (!string.IsNullOrEmpty(packagename) && _packages != null)
         {
             var package = _packages.Where(item => item.PackageId == packagename).FirstOrDefault();
             if (package != null)

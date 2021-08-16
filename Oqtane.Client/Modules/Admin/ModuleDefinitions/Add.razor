@@ -129,7 +129,7 @@
     private async Task LoadModuleDefinitions()
     {
         var moduledefinitions = await ModuleDefinitionService.GetModuleDefinitionsAsync(PageState.Site.SiteId);
-        _packages = await PackageService.GetPackagesAsync("module", _search, _price);
+        _packages = await PackageService.GetPackagesAsync("module", _search, _price, "");
 
         if (_packages != null)
         {

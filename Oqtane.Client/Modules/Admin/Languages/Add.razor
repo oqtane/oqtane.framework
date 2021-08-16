@@ -77,7 +77,11 @@ else
                             <td>
                                 <h3 style="display: inline;"><a href="@context.ProductUrl" target="_new">@context.Name</a></h3>&nbsp;&nbsp;by:&nbsp;&nbsp;<strong><a href="@context.OwnerUrl" target="new">@context.Owner</a></strong><br />
                                 @(context.Description.Length > 400 ? (context.Description.Substring(0, 400) + "...") : context.Description)<br />
-                                <strong>@(String.Format("{0:n0}", context.Downloads))</strong> @SharedLocalizer["Search.Downloads"]&nbsp;&nbsp;|&nbsp;&nbsp; @SharedLocalizer["Search.Released"]: <strong>@context.ReleaseDate.ToString("MMM dd, yyyy")</strong>&nbsp;&nbsp;|&nbsp;&nbsp;@SharedLocalizer["Search.Version"]: <strong>@context.Version</strong>&nbsp;&nbsp;|&nbsp;&nbsp;@SharedLocalizer["Search.Source"]: <strong>@context.PackageUrl</strong>
+                                <strong>@(String.Format("{0:n0}", context.Downloads))</strong> @SharedLocalizer["Search.Downloads"]&nbsp;&nbsp;|&nbsp;&nbsp;
+                                @SharedLocalizer["Search.Released"]: <strong>@context.ReleaseDate.ToString("MMM dd, yyyy")</strong>&nbsp;&nbsp;|&nbsp;&nbsp;
+                                @SharedLocalizer["Search.Version"]: <strong>@context.Version</strong>&nbsp;&nbsp;|&nbsp;&nbsp;
+                                @SharedLocalizer["Search.Source"]: <strong>@context.PackageUrl</strong>&nbsp;&nbsp;|&nbsp;&nbsp;
+                                @SharedLocalizer["Search.Price"]: <strong>@((context.Price == 0) ? "FREE" : context.Price.ToString("$#,##0.00") )</strong>
                             </td>
                             <td style="vertical-align: middle;">
                                 <button type="button" class="btn btn-primary" @onclick=@(async () => await GetLanguage(context.PackageId, context.Version))>@SharedLocalizer["Download"]</button>
@@ -184,7 +188,7 @@ else
 
     private async Task LoadTranslations()
     {
-        _packages = await PackageService.GetPackagesAsync("translation", _search, _price);
+        _packages = await PackageService.GetPackagesAsync("translation", _search, _price, "");
     }
 
     private async void PriceChanged(ChangeEventArgs e)
