@@ -6,151 +6,154 @@
 @inject IStringLocalizer<Add> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-<TabStrip Refresh="@_refresh">
-    <TabPanel Name="Settings" ResourceKey="Settings">
-        @if (_themeList != null)
-        {
-            <div class="container">
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="Name" HelpText="Enter the page name" ResourceKey="Name">Name: </Label>
-                    <div class="col-sm-9">
-                        <input id="Name" class="form-control" @bind="@_name" />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="Parent" HelpText="Select the parent for the page in the site hierarchy" ResourceKey="Parent">Parent: </Label>
-                    <div class="col-sm-9">
-                        <select id="Parent" class="form-select" @onchange="(e => ParentChanged(e))">
-                            <option value="-1">&lt;@Localizer["SiteRoot"]&gt;</option>
-                            @foreach (Page page in _pageList)
-                            {
-                                <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
-                            }
-                        </select>
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="Insert" HelpText="Select the location where you would like the page to be inserted in relation to other pages" ResourceKey="Insert">Insert: </Label>
-                    <div class="col-sm-9">
-                        <select id="Insert" class="form-select" @bind="@_insert">
-                            <option value="<<">@Localizer["AtBeginning"]</option>
-                            @if (_children != null && _children.Count > 0)
-                            {
-                                <option value="<">@Localizer["Before"]</option>
-                                <option value=">">@Localizer["After"]</option>
-                            }
-                            <option value=">>">@Localizer["AtEnd"]</option>
-                        </select>
-                        @if (_children != null && _children.Count > 0 && (_insert == "<" || _insert == ">"))
-                        {
-                            <select class="form-select" @bind="@_childid">
-                                <option value="-1">&lt;@Localizer["Page.Select"]&gt;</option>
-                                @foreach (Page page in _children)
-                                {
-                                    <option value="@(page.PageId)">@(page.Name)</option>
-                                }
-                            </select>
-                        }
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="navigation" HelpText="Select whether the page is part of the site navigation or hidden" ResourceKey="Navigation">Navigation? </Label>
-                    <div class="col-sm-9">
-                        <select id="navigation" class="form-select" @bind="@_isnavigation">
-                            <option value="True">@SharedLocalizer["Yes"]</option>
-                            <option value="False">@SharedLocalizer["No"]</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="clickable" HelpText="Select whether the link in the site navigation is enabled or disabled" ResourceKey="Clickable">Clickable? </Label>
-                    <div class="col-sm-9">
-                        <select id="clickable" class="form-select" @bind="@_isclickable">
-                            <option value="True">@SharedLocalizer["Yes"]</option>
-                            <option value="False">@SharedLocalizer["No"]</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="Path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used." ResourceKey="UrlPath">Url Path: </Label>
-                    <div class="col-sm-9">
-                        <input id="Path" class="form-control" @bind="@_path" />
-                    </div>
-                </div>
-                <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="Url" HelpText="Optionally enter a url which this page should redirect to when a user navigates to it" ResourceKey="Redirect">Redirect: </Label>
-                    <div class="col-sm-9">
-                        <input id="Url" class="form-control" @bind="@_url" />
-                    </div>
-                </div>
-            </div>
 
-            <Section Name="Appearance" ResourceKey="Appearance">
+<form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+    <TabStrip Refresh="@_refresh">
+        <TabPanel Name="Settings" ResourceKey="Settings">
+            @if (_themeList != null)
+            {
                 <div class="container">
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="Title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used." ResourceKey="Title">Title: </Label>
+                        <Label Class="col-sm-3" For="Name" HelpText="Enter the page name" ResourceKey="Name">Name: </Label>
                         <div class="col-sm-9">
-                            <input id="Title" class="form-control" @bind="@_title" />
+                            <input id="Name" class="form-control" @bind="@_name" required />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="Theme" HelpText="Select the theme for this page" ResourceKey="Theme">Theme: </Label>
+                        <Label Class="col-sm-3" For="Parent" HelpText="Select the parent for the page in the site hierarchy" ResourceKey="Parent">Parent: </Label>
                         <div class="col-sm-9">
-                            <select id="Theme" class="form-select" value="@_themetype" @onchange="(e => ThemeChanged(e))">
-                                @foreach (var theme in _themes)
+                            <select id="Parent" class="form-select" @onchange="(e => ParentChanged(e))" required>
+                                <option value="-1">&lt;@Localizer["SiteRoot"]&gt;</option>
+                                @foreach (Page page in _pageList)
                                 {
-                                    <option value="@theme.TypeName">@theme.Name</option>
+                                    <option value="@(page.PageId)">@(new string('-', page.Level * 2))@(page.Name)</option>
                                 }
                             </select>
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="defaultContainer" HelpText="Select the default container for the page" ResourceKey="DefaultContainer">Default Container: </Label>
+                        <Label Class="col-sm-3" For="Insert" HelpText="Select the location where you would like the page to be inserted in relation to other pages" ResourceKey="Insert">Insert: </Label>
                         <div class="col-sm-9">
-                            <select id="defaultContainer" class="form-select" @bind="@_containertype">
-                                <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
-                                @foreach (var container in _containers)
+                            <select id="Insert" class="form-select" @bind="@_insert" required>
+                                <option value="<<">@Localizer["AtBeginning"]</option>
+                                @if (_children != null && _children.Count > 0)
                                 {
-                                    <option value="@container.TypeName">@container.Name</option>
+                                    <option value="<">@Localizer["Before"]</option>
+                                    <option value=">">@Localizer["After"]</option>
                                 }
+                                <option value=">>">@Localizer["AtEnd"]</option>
                             </select>
+                            @if (_children != null && _children.Count > 0 && (_insert == "<" || _insert == ">"))
+                            {
+                                <select class="form-select" @bind="@_childid">
+                                    <option value="-1">&lt;@Localizer["Page.Select"]&gt;</option>
+                                    @foreach (Page page in _children)
+                                    {
+                                        <option value="@(page.PageId)">@(page.Name)</option>
+                                    }
+                                </select>
+                            }
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="Icon" HelpText="Optionally provide an icon class name for this page which will be displayed in the site navigation" ResourceKey="Icon">Icon: </Label>
+                        <Label Class="col-sm-3" For="navigation" HelpText="Select whether the page is part of the site navigation or hidden" ResourceKey="Navigation">Navigation? </Label>
                         <div class="col-sm-9">
-                            <input id="Icon" class="form-control" @bind="@_icon" />
-                        </div>
-                    </div>
-                    <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="Personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content" ResourceKey="Personalizable">Personalizable? </Label>
-                        <div class="col-sm-9">
-                            <select id="Personalizable" class="form-select" @bind="@_ispersonalizable">
+                            <select id="navigation" class="form-select" @bind="@_isnavigation" required>
                                 <option value="True">@SharedLocalizer["Yes"]</option>
                                 <option value="False">@SharedLocalizer["No"]</option>
                             </select>
                         </div>
                     </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="clickable" HelpText="Select whether the link in the site navigation is enabled or disabled" ResourceKey="Clickable">Clickable? </Label>
+                        <div class="col-sm-9">
+                            <select id="clickable" class="form-select" @bind="@_isclickable" required>
+                                <option value="True">@SharedLocalizer["Yes"]</option>
+                                <option value="False">@SharedLocalizer["No"]</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="Path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used." ResourceKey="UrlPath">Url Path: </Label>
+                        <div class="col-sm-9">
+                            <input id="Path" class="form-control" @bind="@_path" />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="Url" HelpText="Optionally enter a url which this page should redirect to when a user navigates to it" ResourceKey="Redirect">Redirect: </Label>
+                        <div class="col-sm-9">
+                            <input id="Url" class="form-control" @bind="@_url" />
+                        </div>
+                    </div>
                 </div>
-            </Section>
-        }
-    </TabPanel>
-    <TabPanel Name="Permissions" ResourceKey="Permissions">
-        <div class="container">
-            <div class="row mb-1 align-items-center">
-                <PermissionGrid EntityName="@EntityNames.Page" Permissions="@_permissions" @ref="_permissionGrid" />
-            </div>
-        </div>
-    </TabPanel>
-    @if (_themeSettingsType != null)
-    {
-        <TabPanel Name="ThemeSettings" Heading="Theme Settings" ResourceKey="ThemeSettings">
-            @ThemeSettingsComponent
+
+                <Section Name="Appearance" ResourceKey="Appearance">
+                    <div class="container">
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="Title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used." ResourceKey="Title">Title: </Label>
+                            <div class="col-sm-9">
+                                <input id="Title" class="form-control" @bind="@_title" />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="Theme" HelpText="Select the theme for this page" ResourceKey="Theme">Theme: </Label>
+                            <div class="col-sm-9">
+                                <select id="Theme" class="form-select" value="@_themetype" @onchange="(e => ThemeChanged(e))" required>
+                                    @foreach (var theme in _themes)
+                                    {
+                                        <option value="@theme.TypeName">@theme.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="defaultContainer" HelpText="Select the default container for the page" ResourceKey="DefaultContainer">Default Container: </Label>
+                            <div class="col-sm-9">
+                                <select id="defaultContainer" class="form-select" @bind="@_containertype" required>
+                                    <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
+                                    @foreach (var container in _containers)
+                                    {
+                                        <option value="@container.TypeName">@container.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="Icon" HelpText="Optionally provide an icon class name for this page which will be displayed in the site navigation" ResourceKey="Icon">Icon: </Label>
+                            <div class="col-sm-9">
+                                <input id="Icon" class="form-control" @bind="@_icon" />
+                            </div>
+                        </div>
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="Personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content" ResourceKey="Personalizable">Personalizable? </Label>
+                            <div class="col-sm-9">
+                                <select id="Personalizable" class="form-select" @bind="@_ispersonalizable" required>
+                                    <option value="True">@SharedLocalizer["Yes"]</option>
+                                    <option value="False">@SharedLocalizer["No"]</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </Section>
+            }
         </TabPanel>
-    }
-</TabStrip>
-<button type="button" class="btn btn-success" @onclick="SavePage">@SharedLocalizer["Save"]</button>
-<button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
+        <TabPanel Name="Permissions" ResourceKey="Permissions">
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <PermissionGrid EntityName="@EntityNames.Page" Permissions="@_permissions" @ref="_permissionGrid" />
+                </div>
+            </div>
+        </TabPanel>
+        @if (_themeSettingsType != null)
+        {
+            <TabPanel Name="ThemeSettings" Heading="Theme Settings" ResourceKey="ThemeSettings">
+                @ThemeSettingsComponent
+            </TabPanel>
+        }
+    </TabStrip>
+    <button type="button" class="btn btn-success" @onclick="SavePage">@SharedLocalizer["Save"]</button>
+    <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
+</form>
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
@@ -179,6 +182,8 @@
     private object _themeSettings;
     private RenderFragment ThemeSettingsComponent { get; set; }
     private bool _refresh = false;
+    private ElementReference form;
+    private bool validated = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -275,110 +280,119 @@
 
     private async Task SavePage()
     {
-        Page page = null;
-        try
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
         {
-            if (!string.IsNullOrEmpty(_name) && !string.IsNullOrEmpty(_themetype) && _containertype != "-")
+            Page page = null;
+            try
             {
-                page = new Page();
-                page.SiteId = PageState.Page.SiteId;
-                page.Name = _name;
-                page.Title = _title;
-                if (_path == "")
+                if (!string.IsNullOrEmpty(_name) && !string.IsNullOrEmpty(_themetype) && _containertype != "-")
                 {
-                    _path = _name;
-                }
-
-                if (_path.Contains("/"))
-                {
-                    _path = _path.Substring(_path.LastIndexOf("/") + 1);
-                }
-
-                if (string.IsNullOrEmpty(_parentid))
-                {
-                    page.ParentId = null;
-                    page.Path = Utilities.GetFriendlyUrl(_path);
-                }
-                else
-                {
-                    page.ParentId = Int32.Parse(_parentid);
-                    var parent = PageState.Pages.Where(item => item.PageId == page.ParentId).FirstOrDefault();
-                    if (parent.Path == string.Empty)
+                    page = new Page();
+                    page.SiteId = PageState.Page.SiteId;
+                    page.Name = _name;
+                    page.Title = _title;
+                    if (_path == "")
                     {
-                        page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(_path);
+                        _path = _name;
+                    }
+
+                    if (_path.Contains("/"))
+                    {
+                        _path = _path.Substring(_path.LastIndexOf("/") + 1);
+                    }
+
+                    if (string.IsNullOrEmpty(_parentid))
+                    {
+                        page.ParentId = null;
+                        page.Path = Utilities.GetFriendlyUrl(_path);
                     }
                     else
                     {
-                        page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(_path);
+                        page.ParentId = Int32.Parse(_parentid);
+                        var parent = PageState.Pages.Where(item => item.PageId == page.ParentId).FirstOrDefault();
+                        if (parent.Path == string.Empty)
+                        {
+                            page.Path = Utilities.GetFriendlyUrl(parent.Name) + "/" + Utilities.GetFriendlyUrl(_path);
+                        }
+                        else
+                        {
+                            page.Path = parent.Path + "/" + Utilities.GetFriendlyUrl(_path);
+                        }
                     }
-                }
 
-                if (!PagePathIsUnique(page.Path, page.SiteId, _pageList))
-                {
-                    AddModuleMessage(string.Format(Localizer["Message.Page.Exists"], _path), MessageType.Warning);
-                    return;
-                }
+                    if (!PagePathIsUnique(page.Path, page.SiteId, _pageList))
+                    {
+                        AddModuleMessage(string.Format(Localizer["Message.Page.Exists"], _path), MessageType.Warning);
+                        return;
+                    }
 
-                Page child;
-                switch (_insert)
-                {
-                    case "<<":
-                        page.Order = 0;
-                        break;
-                    case "<":
-                        child = PageState.Pages.Where(item => item.PageId == _childid).FirstOrDefault();
-                        page.Order = child.Order - 1;
-                        break;
-                    case ">":
-                        child = PageState.Pages.Where(item => item.PageId == _childid).FirstOrDefault();
-                        page.Order = child.Order + 1;
-                        break;
-                    case ">>":
-                        page.Order = int.MaxValue;
-                        break;
-                }
+                    Page child;
+                    switch (_insert)
+                    {
+                        case "<<":
+                            page.Order = 0;
+                            break;
+                        case "<":
+                            child = PageState.Pages.Where(item => item.PageId == _childid).FirstOrDefault();
+                            page.Order = child.Order - 1;
+                            break;
+                        case ">":
+                            child = PageState.Pages.Where(item => item.PageId == _childid).FirstOrDefault();
+                            page.Order = child.Order + 1;
+                            break;
+                        case ">>":
+                            page.Order = int.MaxValue;
+                            break;
+                    }
 
-                page.IsNavigation = (_isnavigation == null ? true : Boolean.Parse(_isnavigation));
-                page.IsClickable = (_isclickable == null ? true : Boolean.Parse(_isclickable));
-                page.Url = _url;
-                page.ThemeType = (_themetype != "-") ? _themetype : string.Empty;
-                if (!string.IsNullOrEmpty(page.ThemeType) && page.ThemeType == PageState.Site.DefaultThemeType)
-                {
-                    page.ThemeType = string.Empty;
-                }
-                page.DefaultContainerType = (_containertype != "-") ? _containertype : string.Empty;
-                if (!string.IsNullOrEmpty(page.DefaultContainerType) && page.DefaultContainerType == PageState.Site.DefaultContainerType)
-                {
-                    page.DefaultContainerType = string.Empty;
-                }
-                page.Icon = (_icon == null ? string.Empty : _icon);
-                page.Permissions = _permissionGrid.GetPermissions();
-                page.IsPersonalizable = (_ispersonalizable == null ? false : Boolean.Parse(_ispersonalizable));
-                page.UserId = null;
+                    page.IsNavigation = (_isnavigation == null ? true : Boolean.Parse(_isnavigation));
+                    page.IsClickable = (_isclickable == null ? true : Boolean.Parse(_isclickable));
+                    page.Url = _url;
+                    page.ThemeType = (_themetype != "-") ? _themetype : string.Empty;
+                    if (!string.IsNullOrEmpty(page.ThemeType) && page.ThemeType == PageState.Site.DefaultThemeType)
+                    {
+                        page.ThemeType = string.Empty;
+                    }
+                    page.DefaultContainerType = (_containertype != "-") ? _containertype : string.Empty;
+                    if (!string.IsNullOrEmpty(page.DefaultContainerType) && page.DefaultContainerType == PageState.Site.DefaultContainerType)
+                    {
+                        page.DefaultContainerType = string.Empty;
+                    }
+                    page.Icon = (_icon == null ? string.Empty : _icon);
+                    page.Permissions = _permissionGrid.GetPermissions();
+                    page.IsPersonalizable = (_ispersonalizable == null ? false : Boolean.Parse(_ispersonalizable));
+                    page.UserId = null;
 
-                page = await PageService.AddPageAsync(page);
-                await PageService.UpdatePageOrderAsync(page.SiteId, page.PageId, page.ParentId);
+                    page = await PageService.AddPageAsync(page);
+                    await PageService.UpdatePageOrderAsync(page.SiteId, page.PageId, page.ParentId);
 
-                await logger.LogInformation("Page Added {Page}", page);
-                if (PageState.QueryString.ContainsKey("cp"))
-                {
-                    NavigationManager.NavigateTo(NavigateUrl(PageState.Pages.First(item => item.PageId == int.Parse(PageState.QueryString["cp"])).Path));
+                    await logger.LogInformation("Page Added {Page}", page);
+                    if (PageState.QueryString.ContainsKey("cp"))
+                    {
+                        NavigationManager.NavigateTo(NavigateUrl(PageState.Pages.First(item => item.PageId == int.Parse(PageState.QueryString["cp"])).Path));
+                    }
+                    else
+                    {
+                        NavigationManager.NavigateTo(NavigateUrl(page.Path));
+                    }
                 }
                 else
                 {
-                    NavigationManager.NavigateTo(NavigateUrl(page.Path));
+                    AddModuleMessage(Localizer["Message.Required.PageInfo"], MessageType.Warning);
                 }
-            }
-            else
-            {
-                AddModuleMessage(Localizer["Message.Required.PageInfo"], MessageType.Warning);
-            }
 
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Saving Page {Page} {Error}", page, ex.Message);
+                AddModuleMessage(Localizer["Error.Page.Save"], MessageType.Error);
+            }
         }
-        catch (Exception ex)
+        else
         {
-            await logger.LogError(ex, "Error Saving Page {Page} {Error}", page, ex.Message);
-            AddModuleMessage(Localizer["Error.Page.Save"], MessageType.Error);
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
         }
     }
 
