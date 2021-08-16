@@ -186,41 +186,45 @@ namespace Oqtane.Infrastructure
 
         public bool UninstallPackage(string PackageName)
         {
-            // get manifest with highest version
-            string packagename = "";
-            string[] packages = Directory.GetFiles(Path.Combine(_environment.ContentRootPath, "Packages"), PackageName + "*.log");
-            if (packages.Length > 0)
+            if (!string.IsNullOrEmpty(PackageName))
             {
-                packagename = packages[packages.Length - 1]; // use highest version 
-            }
-
-            if (!string.IsNullOrEmpty(packagename))
-            {
-                // use manifest to clean up file resources
-                List<string> assets = JsonSerializer.Deserialize<List<string>>(File.ReadAllText(packagename));
-                assets.Reverse();
-                foreach (string asset in assets)
+                // get manifest with highest version
+                string packagename = "";
+                string[] packages = Directory.GetFiles(Path.Combine(_environment.ContentRootPath, "Packages"), PackageName + "*.log");
+                if (packages.Length > 0)
                 {
-                    // legacy support for assets that were stored as absolute paths
-                    string filepath = asset.StartsWith("\\") ? Path.Combine(_environment.ContentRootPath, asset.Substring(1)) : asset;
-                    if (File.Exists(filepath))
+                    packagename = packages[packages.Length - 1]; // use highest version 
+                }
+
+                if (!string.IsNullOrEmpty(packagename))
+                {
+                    // use manifest to clean up file resources
+                    List<string> assets = JsonSerializer.Deserialize<List<string>>(File.ReadAllText(packagename));
+                    assets.Reverse();
+                    foreach (string asset in assets)
                     {
-                        File.Delete(filepath);
-                        if (!Directory.EnumerateFiles(Path.GetDirectoryName(filepath)).Any())
+                        // legacy support for assets that were stored as absolute paths
+                        string filepath = asset.StartsWith("\\") ? Path.Combine(_environment.ContentRootPath, asset.Substring(1)) : asset;
+                        if (File.Exists(filepath))
                         {
-                            Directory.Delete(Path.GetDirectoryName(filepath));
+                            File.Delete(filepath);
+                            if (!Directory.EnumerateFiles(Path.GetDirectoryName(filepath)).Any())
+                            {
+                                Directory.Delete(Path.GetDirectoryName(filepath));
+                            }
                         }
                     }
-                }
 
-                // clean up package asset manifests
-                foreach(string asset in packages)
-                {
-                    File.Delete(asset);
-                }
+                    // clean up package asset manifests
+                    foreach (string asset in packages)
+                    {
+                        File.Delete(asset);
+                    }
 
-                return true;
+                    return true;
+                }
             }
+
             return false;
         }
 

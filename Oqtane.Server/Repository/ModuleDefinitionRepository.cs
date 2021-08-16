@@ -241,10 +241,6 @@ namespace Oqtane.Repository
                     moduledefinition.ModuleDefinitionName = qualifiedModuleType;
                     moduledefinition.ControlTypeTemplate = modulecontroltype.Namespace + "." + Constants.ActionToken + ", " + modulecontroltype.Assembly.GetName().Name;
                     moduledefinition.AssemblyName = assembly.GetName().Name;
-                    if (string.IsNullOrEmpty(moduledefinition.PackageName))
-                    {
-                        moduledefinition.PackageName = Utilities.GetTypeName(moduledefinition.ModuleDefinitionName);
-                    }
 
                     if (string.IsNullOrEmpty(moduledefinition.Categories))
                     {
