@@ -14,15 +14,15 @@
             {
                 <div class="container">
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="Name" HelpText="Enter the page name" ResourceKey="Name">Name: </Label>
+                        <Label Class="col-sm-3" For="name" HelpText="Enter the page name" ResourceKey="Name">Name: </Label>
                         <div class="col-sm-9">
-                            <input id="Name" class="form-control" @bind="@_name" required />
+                            <input id="name" class="form-control" @bind="@_name" required />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="Parent" HelpText="Select the parent for the page in the site hierarchy" ResourceKey="Parent">Parent: </Label>
+                        <Label Class="col-sm-3" For="parent" HelpText="Select the parent for the page in the site hierarchy" ResourceKey="Parent">Parent: </Label>
                         <div class="col-sm-9">
-                            <select id="Parent" class="form-select" @onchange="(e => ParentChanged(e))" required>
+                            <select id="parent" class="form-select" @onchange="(e => ParentChanged(e))" required>
                                 <option value="-1">&lt;@Localizer["SiteRoot"]&gt;</option>
                                 @foreach (Page page in _pageList)
                                 {
@@ -32,9 +32,9 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="Insert" HelpText="Select the location where you would like the page to be inserted in relation to other pages" ResourceKey="Insert">Insert: </Label>
+                        <Label Class="col-sm-3" For="insert" HelpText="Select the location where you would like the page to be inserted in relation to other pages" ResourceKey="Insert">Insert: </Label>
                         <div class="col-sm-9">
-                            <select id="Insert" class="form-select" @bind="@_insert" required>
+                            <select id="insert" class="form-select" @bind="@_insert" required>
                                 <option value="<<">@Localizer["AtBeginning"]</option>
                                 @if (_children != null && _children.Count > 0)
                                 {
@@ -74,15 +74,15 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="Path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used." ResourceKey="UrlPath">Url Path: </Label>
+                        <Label Class="col-sm-3" For="path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used." ResourceKey="UrlPath">Url Path: </Label>
                         <div class="col-sm-9">
-                            <input id="Path" class="form-control" @bind="@_path" />
+                            <input id="path" class="form-control" @bind="@_path" />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="Url" HelpText="Optionally enter a url which this page should redirect to when a user navigates to it" ResourceKey="Redirect">Redirect: </Label>
+                        <Label Class="col-sm-3" For="url" HelpText="Optionally enter a url which this page should redirect to when a user navigates to it" ResourceKey="Redirect">Redirect: </Label>
                         <div class="col-sm-9">
-                            <input id="Url" class="form-control" @bind="@_url" />
+                            <input id="url" class="form-control" @bind="@_url" />
                         </div>
                     </div>
                 </div>
@@ -90,15 +90,15 @@
                 <Section Name="Appearance" ResourceKey="Appearance">
                     <div class="container">
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="Title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used." ResourceKey="Title">Title: </Label>
+                            <Label Class="col-sm-3" For="title" HelpText="Optionally enter the page title. If you do not provide a page title, the page name will be used." ResourceKey="Title">Title: </Label>
                             <div class="col-sm-9">
-                                <input id="Title" class="form-control" @bind="@_title" />
+                                <input id="title" class="form-control" @bind="@_title" />
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="Theme" HelpText="Select the theme for this page" ResourceKey="Theme">Theme: </Label>
+                            <Label Class="col-sm-3" For="theme" HelpText="Select the theme for this page" ResourceKey="Theme">Theme: </Label>
                             <div class="col-sm-9">
-                                <select id="Theme" class="form-select" value="@_themetype" @onchange="(e => ThemeChanged(e))" required>
+                                <select id="theme" class="form-select" value="@_themetype" @onchange="(e => ThemeChanged(e))" required>
                                     @foreach (var theme in _themes)
                                     {
                                         <option value="@theme.TypeName">@theme.Name</option>
@@ -107,9 +107,9 @@
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="defaultContainer" HelpText="Select the default container for the page" ResourceKey="DefaultContainer">Default Container: </Label>
+                            <Label Class="col-sm-3" For="container" HelpText="Select the default container for the page" ResourceKey="DefaultContainer">Default Container: </Label>
                             <div class="col-sm-9">
-                                <select id="defaultContainer" class="form-select" @bind="@_containertype" required>
+                                <select id="container" class="form-select" @bind="@_containertype" required>
                                     <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
                                     @foreach (var container in _containers)
                                     {
@@ -119,15 +119,15 @@
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="Icon" HelpText="Optionally provide an icon class name for this page which will be displayed in the site navigation" ResourceKey="Icon">Icon: </Label>
+                            <Label Class="col-sm-3" For="icon" HelpText="Optionally provide an icon class name for this page which will be displayed in the site navigation" ResourceKey="Icon">Icon: </Label>
                             <div class="col-sm-9">
-                                <input id="Icon" class="form-control" @bind="@_icon" />
+                                <input id="icon" class="form-control" @bind="@_icon" />
                             </div>
                         </div>
                         <div class="row mb-1 align-items-center">
-                            <Label Class="col-sm-3" For="Personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content" ResourceKey="Personalizable">Personalizable? </Label>
+                            <Label Class="col-sm-3" For="personalizable" HelpText="Select whether you would like users to be able to personalize this page with their own content" ResourceKey="Personalizable">Personalizable? </Label>
                             <div class="col-sm-9">
-                                <select id="Personalizable" class="form-select" @bind="@_ispersonalizable" required>
+                                <select id="personalizable" class="form-select" @bind="@_ispersonalizable" required>
                                     <option value="True">@SharedLocalizer["Yes"]</option>
                                     <option value="False">@SharedLocalizer["No"]</option>
                                 </select>
@@ -165,7 +165,7 @@
     private string _name;
     private string _title;
     private string _path = string.Empty;
-    private string _parentid;
+    private string _parentid = "-1";
     private string _insert = ">>";
     private List<Page> _children;
     private int _childid = -1;
@@ -287,13 +287,13 @@
             Page page = null;
             try
             {
-                if (!string.IsNullOrEmpty(_name) && !string.IsNullOrEmpty(_themetype) && _containertype != "-")
+                if (!string.IsNullOrEmpty(_themetype) && _containertype != "-")
                 {
                     page = new Page();
                     page.SiteId = PageState.Page.SiteId;
                     page.Name = _name;
                     page.Title = _title;
-                    if (_path == "")
+                    if (string.IsNullOrEmpty(_path))
                     {
                         _path = _name;
                     }
@@ -303,7 +303,7 @@
                         _path = _path.Substring(_path.LastIndexOf("/") + 1);
                     }
 
-                    if (string.IsNullOrEmpty(_parentid))
+                    if (_parentid == "-1")
                     {
                         page.ParentId = null;
                         page.Path = Utilities.GetFriendlyUrl(_path);
