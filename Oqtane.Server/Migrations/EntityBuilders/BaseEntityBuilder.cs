@@ -260,7 +260,7 @@ namespace Oqtane.Migrations.EntityBuilders
             _migrationBuilder.Sql(deleteSql);
         }
 
-        public void UpdateColumn(string columnName, string value, string condition = "")
+        public void UpdateColumn(string columnName, dynamic value, string condition = "")
         {
             var updateSql = $"UPDATE {RewriteName(EntityTableName)} SET {RewriteName(columnName)} = {value} ";
             if (!string.IsNullOrEmpty(condition))
