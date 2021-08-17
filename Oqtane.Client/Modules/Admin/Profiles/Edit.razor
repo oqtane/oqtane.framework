@@ -5,86 +5,90 @@
 @inject IStringLocalizer<Edit> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-<div class="container">
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="name" HelpText="The name of this profile item" ResourceKey="Name">Name: </Label>
-        <div class="col-sm-9">
-            <input id="name" class="form-control" @bind="@_name" />
+<form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+    <div class="container">
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="name" HelpText="The name of this profile item" ResourceKey="Name">Name: </Label>
+            <div class="col-sm-9">
+                <input id="name" class="form-control" @bind="@_name" maxlength="50" required />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="title" HelpText="The title of the profile item to display to the user" ResourceKey="Title">Title: </Label>
+            <div class="col-sm-9">
+                <input id="title" class="form-control" @bind="@_title" maxlength="50" required />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="description" HelpText="The help text displayed to the user for this profile item" ResourceKey="Description">Description: </Label>
+            <div class="col-sm-9">
+                <textarea id="description" class="form-control" @bind="@_description" rows="5" maxlength="256"></textarea>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="category" HelpText="The category of this profile item (for grouping)" ResourceKey="Category">Category: </Label>
+            <div class="col-sm-9">
+                <input id="category" class="form-control" @bind="@_category" maxlength="50" required />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="order" HelpText="The index order of where this profile item should be displayed" ResourceKey="Order">Order: </Label>
+            <div class="col-sm-9">
+                <input id="order" class="form-control" @bind="@_vieworder" maxlength="4" required />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="length" HelpText="The max number of characters this profile item should accept (enter zero for unlimited)" ResourceKey="Length">Length: </Label>
+            <div class="col-sm-9">
+                <input id="length" class="form-control" @bind="@_maxlength" maxlength="4" required />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="defaultVal" HelpText="The default value for this profile item" ResourceKey="DefaultValue">Default Value: </Label>
+            <div class="col-sm-9">
+                <input id="defaultVal" class="form-control" @bind="@_defaultvalue" maxlength="2000"/>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="options" HelpText="A comma delimited list of options the user can select from" ResourceKey="Options">Options: </Label>
+            <div class="col-sm-9">
+                <input id="options" class="form-control" @bind="@_options" maxlength="2000" />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="required" HelpText="Should a user be required to provide a value for this profile item?" ResourceKey="Required">Required? </Label>
+            <div class="col-sm-9">
+                <select id="required" class="form-select" @bind="@_isrequired" required>
+                    <option value="True">@SharedLocalizer["Yes"]</option>
+                    <option value="False">@SharedLocalizer["No"]</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="private" HelpText="Should this profile item be visible to all users?" ResourceKey="Private">Private? </Label>
+            <div class="col-sm-9">
+                <select id="private" class="form-select" @bind="@_isprivate" required>
+                    <option value="True">@SharedLocalizer["Yes"]</option>
+                    <option value="False">@SharedLocalizer["No"]</option>
+                </select>
+            </div>
         </div>
     </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="title" HelpText="The title of the profile item to display to the user" ResourceKey="Title">Title: </Label>
-        <div class="col-sm-9">
-            <input id="title" class="form-control" @bind="@_title" />
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="description" HelpText="The help text displayed to the user for this profile item" ResourceKey="Description">Description: </Label>
-        <div class="col-sm-9">
-            <textarea id="description" class="form-control" @bind="@_description" rows="5"></textarea>
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="category" HelpText="The category of this profile item (for grouping)" ResourceKey="Category">Category: </Label>
-        <div class="col-sm-9">
-            <input id="category" class="form-control" @bind="@_category" />
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="order" HelpText="The index order of where this profile item should be displayed" ResourceKey="Order">Order: </Label>
-        <div class="col-sm-9">
-            <input id="order" class="form-control" @bind="@_vieworder" />
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="length" HelpText="The max number of characters this profile item should accept (enter zero for unlimited)" ResourceKey="Length">Length: </Label>
-        <div class="col-sm-9">
-            <input id="length" class="form-control" @bind="@_maxlength" />
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="defaultVal" HelpText="The default value for this profile item" ResourceKey="DefaultValue">Default Value: </Label>
-        <div class="col-sm-9">
-            <input id="defaultVal" class="form-control" @bind="@_defaultvalue" />
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="options" HelpText="A comma delimited list of options the user can select from" ResourceKey="Options">Options: </Label>
-        <div class="col-sm-9">
-            <input id="options" class="form-control" @bind="@_options" />
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="required" HelpText="Should a user be required to provide a value for this profile item?" ResourceKey="Required">Required? </Label>
-        <div class="col-sm-9">
-            <select id="required" class="form-select" @bind="@_isrequired">
-                <option value="True">@SharedLocalizer["Yes"]</option>
-                <option value="False">@SharedLocalizer["No"]</option>
-            </select>
-        </div>
-    </div>
-    <div class="row mb-1 align-items-center">
-        <Label Class="col-sm-3" For="private" HelpText="Should this profile item be visible to all users?" ResourceKey="Private">Private? </Label>
-        <div class="col-sm-9">
-            <select id="private" class="form-select" @bind="@_isprivate">
-                <option value="True">@SharedLocalizer["Yes"]</option>
-                <option value="False">@SharedLocalizer["No"]</option>
-            </select>
-        </div>
-    </div>
-</div>
-<br />
-<button type="button" class="btn btn-success" @onclick="SaveProfile">@SharedLocalizer["Save"]</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-@if (PageState.QueryString.ContainsKey("id"))
-{
     <br />
-    <br />
-    <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
-}
+    <button type="button" class="btn btn-success" @onclick="SaveProfile">@SharedLocalizer["Save"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+    @if (PageState.QueryString.ContainsKey("id"))
+    {
+        <br />
+        <br />
+        <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
+    }
+</form>
 
 @code {
     private int _profileid = -1;
+    private ElementReference form;
+    private bool validated = false;
     private string _name = string.Empty;
     private string _title = string.Empty;
     private string _description = string.Empty;
@@ -140,45 +144,54 @@
 
     private async Task SaveProfile()
     {
-        try
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
         {
-            Profile profile;
-            if (_profileid != -1)
+            try
             {
-                profile = await ProfileService.GetProfileAsync(_profileid);
-            }
-            else
-            {
-                profile = new Profile();
-            }
+                Profile profile;
+                if (_profileid != -1)
+                {
+                    profile = await ProfileService.GetProfileAsync(_profileid);
+                }
+                else
+                {
+                    profile = new Profile();
+                }
 
-            profile.SiteId = PageState.Site.SiteId;
-            profile.Name = _name;
-            profile.Title = _title;
-            profile.Description = _description;
-            profile.Category = _category;
-            profile.ViewOrder = int.Parse(_vieworder);
-            profile.MaxLength = int.Parse(_maxlength);
-            profile.DefaultValue = _defaultvalue;
-            profile.Options = _options;
-            profile.IsRequired = (_isrequired == null ? false : Boolean.Parse(_isrequired));
-            profile.IsPrivate = (_isprivate == null ? false : Boolean.Parse(_isprivate));
-            if (_profileid != -1)
-            {
-                profile = await ProfileService.UpdateProfileAsync(profile);
-            }
-            else
-            {
-                profile = await ProfileService.AddProfileAsync(profile);
-            }
+                profile.SiteId = PageState.Site.SiteId;
+                profile.Name = _name;
+                profile.Title = _title;
+                profile.Description = _description;
+                profile.Category = _category;
+                profile.ViewOrder = int.Parse(_vieworder);
+                profile.MaxLength = int.Parse(_maxlength);
+                profile.DefaultValue = _defaultvalue;
+                profile.Options = _options;
+                profile.IsRequired = (_isrequired == null ? false : Boolean.Parse(_isrequired));
+                profile.IsPrivate = (_isprivate == null ? false : Boolean.Parse(_isprivate));
+                if (_profileid != -1)
+                {
+                    profile = await ProfileService.UpdateProfileAsync(profile);
+                }
+                else
+                {
+                    profile = await ProfileService.AddProfileAsync(profile);
+                }
 
-            await logger.LogInformation("Profile Saved {Profile}", profile);
-            NavigationManager.NavigateTo(NavigateUrl());
+                await logger.LogInformation("Profile Saved {Profile}", profile);
+                NavigationManager.NavigateTo(NavigateUrl());
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Saving Profile {ProfleId} {Error}", _profileid, ex.Message);
+                AddModuleMessage(Localizer["Error.Profile.Save"], MessageType.Error);
+            }
         }
-        catch (Exception ex)
+        else
         {
-            await logger.LogError(ex, "Error Saving Profile {ProfleId} {Error}", _profileid, ex.Message);
-            AddModuleMessage(Localizer["Error.Profile.Save"], MessageType.Error);
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
         }
     }
 }
