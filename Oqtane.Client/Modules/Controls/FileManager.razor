@@ -58,7 +58,6 @@
                         </span>
                     </div>
                 }
-                <ModuleMessage Message="@_message" Type="@_messagetype"></ModuleMessage>
             </div>
             @if (_image != string.Empty)
             {
@@ -67,6 +66,14 @@
                 </div>
             }
         </div>
+        @if (!string.IsNullOrEmpty(_message))
+        {
+            <div class="row">
+                <div class="col mt-2">
+                    <ModuleMessage Message="@_message" Type="@_messagetype" />
+                </div>
+            </div>
+        }
     </div>
 }
 

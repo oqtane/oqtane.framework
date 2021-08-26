@@ -36,12 +36,23 @@
                             @(context.Description.Length > 400 ? (context.Description.Substring(0, 400) + "...") : context.Description)<br />
                             <strong>@(String.Format("{0:n0}", context.Downloads))</strong> @SharedLocalizer["Search.Downloads"]&nbsp;&nbsp;|&nbsp;&nbsp;
                             @SharedLocalizer["Search.Released"]: <strong>@context.ReleaseDate.ToString("MMM dd, yyyy")</strong>&nbsp;&nbsp;|&nbsp;&nbsp;
-                            @SharedLocalizer["Search.Version"]: <strong>@context.Version</strong>&nbsp;&nbsp;|&nbsp;&nbsp;
-                            @SharedLocalizer["Search.Source"]: <strong>@context.PackageUrl</strong>&nbsp;&nbsp;|&nbsp;&nbsp;
-                            @SharedLocalizer["Search.Price"]: <strong>@((context.Price == 0) ? "FREE" : context.Price.ToString("$#,##0.00") )</strong>
+                            @SharedLocalizer["Search.Version"]: <strong>@context.Version</strong>
                         </td>
-                        <td style="vertical-align: middle;">
-                            <button type="button" class="btn btn-primary" @onclick=@(async () => await GetPackage(context.PackageId, context.Version))>@SharedLocalizer["Download"]</button>
+                        <td style="width: 1px; vertical-align: middle;">
+                            @if (context.Price > 0 && !string.IsNullOrEmpty(context.PackageUrl))
+                            {
+                                <button type="button" class="btn btn-primary" @onclick=@(async () => await GetPackage(context.PackageId, context.Version))>@SharedLocalizer["Download"]</button>
+                            }
+                        </td>
+                        <td style="width: 1px; vertical-align: middle;">
+                            @if (context.Price > 0 && !string.IsNullOrEmpty(context.PaymentUrl))
+                            {
+                                <a class="btn btn-primary" style="text-decoration: none !important" href="@context.PaymentUrl" target="_new">@context.Price.ToString("$#,##0.00")</a>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-primary" @onclick=@(async () => await GetPackage(context.PackageId, context.Version))>@SharedLocalizer["Download"]</button>
+                            }
                         </td>
                     </Row>
                 </Pager>

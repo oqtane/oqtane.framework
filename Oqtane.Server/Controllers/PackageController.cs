@@ -34,7 +34,6 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>?type=x&search=y&price=z&package=a
         [HttpGet]
-        [Authorize(Roles = RoleNames.Host)]
         public async Task<IEnumerable<Package>> Get(string type, string search, string price, string package)
         {
             // get packages

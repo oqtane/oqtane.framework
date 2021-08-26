@@ -89,7 +89,7 @@
         else
         {
             // reload the client application if the user navigated to a site with a different alias or there is a forced reload
-            if ((!path.StartsWith(SiteState.Alias.Path) && SiteState.Alias.Path != "") || querystring.ContainsKey("reload"))
+            if ((!path.ToLower().StartsWith(SiteState.Alias.Path.ToLower()) && !string.IsNullOrEmpty(SiteState.Alias.Path)) || querystring.ContainsKey("reload"))
             {
                 NavigationManager.NavigateTo(_absoluteUri.Replace("?reload", ""), true);
                 return;

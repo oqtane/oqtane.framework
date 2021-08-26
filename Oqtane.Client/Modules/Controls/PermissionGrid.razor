@@ -7,73 +7,96 @@
 
 @if (_permissions != null)
 {
-    <br />
-    <table class="table table-borderless" style="width: 50%; min-width: 250px;">
-        <tbody>
-            <tr>
-                <th scope="col">@Localizer["Role"]</th>
-                @foreach (PermissionString permission in _permissions)
-                {
-                    <th style="text-align: center; width: 1px;">@Localizer[permission.PermissionName]</th>
-                }
-            </tr>
-            @foreach (Role role in _roles)
-            {
-                <tr>
-                    <td>@role.Name</td>
-                    @foreach (PermissionString permission in _permissions)
-                    {
-                        var p = permission;
-                        <td style="text-align: center;">
-                            <TriStateCheckBox Value=@GetPermissionValue(p.Permissions, role.Name) Disabled=@GetPermissionDisabled(role.Name) OnChange="@(e => PermissionChanged(e, p.PermissionName, role.Name))" />
-                        </td>
-                    }
-                </tr>
-            }
-        </tbody>
-    </table>
-    @if (_users.Count != 0)
-    {
-        <table class="table table-borderless" style="width: 50%; min-width: 250px;">
-            <thead>
-                <tr>
-                    <th scope="col">@Localizer["User"]</th>
-                    @foreach (PermissionString permission in _permissions)
-                    {
-                        <th style="text-align: center; width: 1px;">@Localizer[permission.PermissionName]</th>
-                    }
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (User user in _users)
-                {
-                    string userid = "[" + user.UserId.ToString() + "]";
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <table class="table table-borderless">
+                <tbody>
                     <tr>
-                        <td>@user.DisplayName</td>
+                        <th scope="col">@Localizer["Role"]</th>
                         @foreach (PermissionString permission in _permissions)
                         {
-                            var p = permission;
-                            <td style="text-align: center; width: 1px;">
-                                <TriStateCheckBox Value=@GetPermissionValue(p.Permissions, userid) Disabled=false OnChange="@(e => PermissionChanged(e, p.PermissionName, userid))" />
-                            </td>
+                            <th style="text-align: center; width: 1px;">@Localizer[permission.PermissionName]</th>
                         }
                     </tr>
-                }
-            </tbody>
-        </table>
-    }
-    <table class="table table-borderless" style="width: 50%; min-width: 250px;">
-        <tbody>
-            <tr>
-                <td class="input-group">
-                    <input type="text" name="Username" class="form-control" placeholder="@Localizer["Username.Enter"]" @bind="@_username" />
-                    <button type="button" class="btn btn-primary" @onclick="AddUser">@SharedLocalizer["Add"]</button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <br />
-    <ModuleMessage Type="MessageType.Error" Message="@_message" />
+                    @foreach (Role role in _roles)
+                    {
+                        <tr>
+                            <td>@role.Name</td>
+                            @foreach (PermissionString permission in _permissions)
+                            {
+                                var p = permission;
+                                <td style="text-align: center;">
+                                    <TriStateCheckBox Value=@GetPermissionValue(p.Permissions, role.Name) Disabled=@GetPermissionDisabled(role.Name) OnChange="@(e => PermissionChanged(e, p.PermissionName, role.Name))" />
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <br />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            @if (_users.Count != 0)
+            {
+                <div class="row">
+                    <div class="col">
+                    </div>
+                </div>
+                <table class="table table-borderless">
+                    <thead>
+                        <tr>
+                            <th scope="col">@Localizer["User"]</th>
+                            @foreach (PermissionString permission in _permissions)
+                            {
+                                <th style="text-align: center; width: 1px;">@Localizer[permission.PermissionName]</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (User user in _users)
+                        {
+                            string userid = "[" + user.UserId.ToString() + "]";
+                            <tr>
+                                <td>@user.DisplayName</td>
+                                @foreach (PermissionString permission in _permissions)
+                                {
+                                    var p = permission;
+                                    <td style="text-align: center; width: 1px;">
+                                        <TriStateCheckBox Value=@GetPermissionValue(p.Permissions, userid) Disabled=false OnChange="@(e => PermissionChanged(e, p.PermissionName, userid))" />
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <br />
+            }
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <table class="table table-borderless">
+                <tbody>
+                    <tr>
+                        <td class="input-group">
+                            <input type="text" name="Username" class="form-control" placeholder="@Localizer["Username.Enter"]" @bind="@_username" />
+                            <button type="button" class="btn btn-primary" @onclick="AddUser">@SharedLocalizer["Add"]</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <br />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <ModuleMessage Type="MessageType.Error" Message="@_message" />
+        </div>
+    </div>
+</div>
 }
 
 @code {

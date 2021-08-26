@@ -71,5 +71,10 @@ namespace Oqtane.Models
         /// The price of the package 
         /// </summary>
         public decimal Price { get; set; }
+
+        /// <summary>
+        /// The Url for purchasing the package ( if commercial )
+        /// </summary>
+        public string PaymentUrl { get; set; }
     }
 }

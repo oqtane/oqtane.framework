@@ -344,6 +344,10 @@ namespace Oqtane.Shared
 
         public static string UrlCombine(params string[] segments)
         {
+            for (int i = 1; i < segments.Length; i++)
+            {
+                segments[i] = segments[i].Replace("\\", "/");
+            }
             return string.Join("/", segments);
         }
 
