@@ -27,6 +27,8 @@
 
     protected override void OnParametersSet()
     {
+        _message = "";
+
         DynamicComponent = builder =>
         {
             Type moduleType = null;

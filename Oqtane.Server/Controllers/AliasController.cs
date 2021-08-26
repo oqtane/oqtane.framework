@@ -8,7 +8,6 @@ using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Microsoft.AspNetCore.Http;
-using Oqtane.Themes.Controls;
 using System.Linq;
 
 namespace Oqtane.Controllers
