@@ -86,11 +86,12 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">@_productname  @Localizer["License Terms"]</h5>
+                        <h5 class="modal-title">@Localizer["License Terms"]</h5>
                         <button type="button" class="btn-close" aria-label="Close" @onclick="HideModal"></button>
                     </div>
                     <div class="modal-body">
                         <p style="height: 200px; overflow-y: scroll;">
+                            <h3>@_productname</h3>
                             @if (!string.IsNullOrEmpty(_license))
                             {
                                 @((MarkupString)_license)
@@ -169,7 +170,7 @@
             await logger.LogError(ex, "Error On PriceChanged");
         }
     }
-    
+
     private async Task Search()
     {
         try
@@ -210,7 +211,10 @@
             if (package != null)
             {
                 _productname = package.Name;
-                _license = package.License.Replace("\n", "<br />");
+                if (!string.IsNullOrEmpty(package.License))
+                {
+                    _license = package.License.Replace("\n", "<br />");
+                }
                 _packageid = package.PackageId;
                 _version = package.Version;
             }
