@@ -291,4 +291,13 @@
   <data name="Search.Price" xml:space="preserve">
     <value>price</value>
   </data>
+  <data name="Accept" xml:space="preserve">
+    <value>Accept</value>
+  </data>
+  <data name="License Not Specified" xml:space="preserve">
+    <value>License Not Specified</value>
+  </data>
+  <data name="Review License Terms" xml:space="preserve">
+    <value>Review License Terms</value>
+  </data>
 </root>

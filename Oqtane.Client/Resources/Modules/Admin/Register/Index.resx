@@ -148,7 +148,7 @@
     <value>Error Adding User</value>
   </data>
   <data name="Confirm.HelpText" xml:space="preserve">
-    <value>If you are changing your password you must enter it again to confirm it matches</value>
+    <value>Enter your password again to confirm it matches the value entered above</value>
   </data>
   <data name="Confirm.Text" xml:space="preserve">
     <value>Confirm Password:</value>
@@ -166,7 +166,7 @@
     <value>Email:</value>
   </data>
   <data name="Password.HelpText" xml:space="preserve">
-    <value>If you wish to change your password you can enter it here. Please choose a sufficiently secure password.</value>
+    <value>Please choose a sufficiently secure password and enter it here</value>
   </data>
   <data name="Password.Text" xml:space="preserve">
     <value>Password:</value>
