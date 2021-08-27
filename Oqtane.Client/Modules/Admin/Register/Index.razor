@@ -7,16 +7,16 @@
 
 @if (PageState.Site.AllowRegistration)
 {
-    <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
-        <AuthorizeView Roles="@RoleNames.Registered">
-            <Authorizing>
-                <text>...</text>
-            </Authorizing>
-            <Authorized>
-                <ModuleMessage Message="@Localizer["Info.Registration.Exists"]" Type="MessageType.Info" />
-            </Authorized>
-            <NotAuthorized>
-                <ModuleMessage Message="@Localizer["Info.Registration.InvalidEmail"]" Type="MessageType.Info" />
+    <AuthorizeView Roles="@RoleNames.Registered">
+        <Authorizing>
+            <text>...</text>
+        </Authorizing>
+        <Authorized>
+            <ModuleMessage Message="@Localizer["Info.Registration.Exists"]" Type="MessageType.Info" />
+        </Authorized>
+        <NotAuthorized>
+            <ModuleMessage Message="@Localizer["Info.Registration.InvalidEmail"]" Type="MessageType.Info" />
+            <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
                 <div class="container">
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="username" HelpText="Your username. Note that this field can not be modified once it is saved." ResourceKey="Username"></Label>
@@ -25,13 +25,13 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="password" HelpText="If you wish to change your password you can enter it here. Please choose a sufficiently secure password." ResourceKey="Password"></Label>
+                        <Label Class="col-sm-3" For="password" HelpText="Please choose a sufficiently secure password and enter it here" ResourceKey="Password"></Label>
                         <div class="col-sm-9">
                             <input id="password" type="password" class="form-control" @bind="@_password" autocomplete="new-password" required />
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="confirm" HelpText="If you are changing your password you must enter it again to confirm it matches" ResourceKey="Confirm"></Label>
+                        <Label Class="col-sm-3" For="confirm" HelpText="Enter your password again to confirm it matches the value entered above" ResourceKey="Confirm"></Label>
                         <div class="col-sm-9">
                             <input id="confirm" type="password" class="form-control" @bind="@_confirm" autocomplete="new-password" required />
                         </div>
@@ -45,16 +45,16 @@
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="displayname" HelpText="Your full name" ResourceKey="DisplayName"></Label>
                         <div class="col-sm-9">
-                            <input id="displayname" class="form-control" @bind="@_displayname" maxlength="50" required />
+                            <input id="displayname" class="form-control" @bind="@_displayname" maxlength="50" />
                         </div>
                     </div>
                 </div>
                 <br />
                 <button type="button" class="btn btn-primary" @onclick="Register">@Localizer["Register"]</button>
                 <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
-            </NotAuthorized>
-        </AuthorizeView>
-    </form>
+            </form>
+        </NotAuthorized>
+    </AuthorizeView>
 }
 else
 {
@@ -82,7 +82,7 @@ else
             {
                 bool _isEmailValid = Utilities.IsValidEmail(_email);
 
-                if (_username != "" && _password != "" && _confirm != "" && _isEmailValid)
+                if (_isEmailValid)
                 {
                     if (_password == _confirm)
                     {

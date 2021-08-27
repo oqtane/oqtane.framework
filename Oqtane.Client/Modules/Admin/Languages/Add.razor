@@ -133,7 +133,7 @@ else
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">@Localizer["License Terms"]</h5>
+                        <h5 class="modal-title">@SharedLocalizer["Review License Terms"]</h5>
                         <button type="button" class="btn-close" aria-label="Close" @onclick="HideModal"></button>
                     </div>
                     <div class="modal-body">
@@ -145,13 +145,13 @@ else
                             }
                             else
                             {
-                                @Localizer["License Not Specified"]
+                                @SharedLocalizer["License Not Specified"]
                             }
                         </p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-success" @onclick="DownloadPackage">@Localizer["Accept"]</button>
-                        <button type="button" class="btn btn-secondary" @onclick="HideModal">@Localizer["Cancel"]</button>
+                        <button type="button" class="btn btn-success" @onclick="DownloadPackage">@SharedLocalizer["Accept"]</button>
+                        <button type="button" class="btn btn-secondary" @onclick="HideModal">@SharedLocalizer["Cancel"]</button>
                     </div>
                 </div>
             </div>
