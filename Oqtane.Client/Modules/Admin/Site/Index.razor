@@ -391,6 +391,7 @@
                 var unique = true;
                 if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
                 {
+                    _urls = _urls.Replace("\n", ",");
                     foreach (string name in _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                     {
                         if (_aliasList.Exists(item => item.Name == name && item.SiteId != PageState.Alias.SiteId && item.TenantId != PageState.Alias.TenantId))
