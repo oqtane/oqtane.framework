@@ -206,6 +206,38 @@ namespace Oqtane.Modules
         // logging methods
         public async Task Log(Alias alias, LogLevel level, string function, Exception exception, string message, params object[] args)
         {
+            LogFunction logFunction;
+            if (string.IsNullOrEmpty(function))
+            {
+                // try to infer from page action
+                function = PageState.Action;
+            }
+            if (!Enum.TryParse(function, out logFunction))
+            {
+                switch (function.ToLower())
+                {
+                    case "add":
+                        logFunction = LogFunction.Create;
+                        break;
+                    case "edit":
+                        logFunction = LogFunction.Update;
+                        break;
+                    case "delete":
+                        logFunction = LogFunction.Delete;
+                        break;
+                    case "":
+                        logFunction = LogFunction.Read;
+                        break;
+                    default:
+                        logFunction = LogFunction.Other;
+                        break;
+                }
+            }
+            await Log(alias, level, logFunction, exception, message, args);
+        }
+
+        public async Task Log(Alias alias, LogLevel level, LogFunction function, Exception exception, string message, params object[] args)
+        {
             int pageId = ModuleState.PageId;
             int moduleId = ModuleState.ModuleId;
             int? userId = null;
@@ -215,34 +247,8 @@ namespace Oqtane.Modules
             }
             string category = GetType().AssemblyQualifiedName;
             string feature = Utilities.GetTypeNameLastSegment(category, 1);
-            LogFunction logFunction;
-            if (string.IsNullOrEmpty(function))
-            {
-                function = PageState.Action;
-            }
-            switch (function.ToLower())
-            {
-                case "add":
-                    logFunction = LogFunction.Create;
-                    break;
 
-                case "edit":
-                    logFunction = LogFunction.Update;
-                    break;
-
-                case "delete":
-                    logFunction = LogFunction.Delete;
-                    break;
-
-                default:
-                    logFunction = LogFunction.Read;
-                    break;
-            }
-            if (feature == "Login")
-            {
-                logFunction = LogFunction.Security;
-            }
-            await LoggingService.Log(alias, pageId, moduleId, userId, category, feature, logFunction, level, exception, message, args);
+            await LoggingService.Log(alias, pageId, moduleId, userId, category, feature, function, level, exception, message, args);
         }
 
         public class Logger
@@ -259,6 +265,11 @@ namespace Oqtane.Modules
                 await _moduleBase.Log(null, LogLevel.Trace, "", null, message, args);
             }
 
+            public async Task LogTrace(LogFunction function, string message, params object[] args)
+            {
+                await _moduleBase.Log(null, LogLevel.Trace, function, null, message, args);
+            }
+
             public async Task LogTrace(Exception exception, string message, params object[] args)
             {
                 await _moduleBase.Log(null, LogLevel.Trace, "", exception, message, args);
@@ -267,6 +278,11 @@ namespace Oqtane.Modules
             public async Task LogDebug(string message, params object[] args)
             {
                 await _moduleBase.Log(null, LogLevel.Debug, "", null, message, args);
+            }
+
+            public async Task LogDebug(LogFunction function, string message, params object[] args)
+            {
+                await _moduleBase.Log(null, LogLevel.Debug, function, null, message, args);
             }
 
             public async Task LogDebug(Exception exception, string message, params object[] args)
@@ -279,6 +295,11 @@ namespace Oqtane.Modules
                 await _moduleBase.Log(null, LogLevel.Information, "", null, message, args);
             }
 
+            public async Task LogInformation(LogFunction function, string message, params object[] args)
+            {
+                await _moduleBase.Log(null, LogLevel.Information, function, null, message, args);
+            }
+
             public async Task LogInformation(Exception exception, string message, params object[] args)
             {
                 await _moduleBase.Log(null, LogLevel.Information, "", exception, message, args);
@@ -287,6 +308,11 @@ namespace Oqtane.Modules
             public async Task LogWarning(string message, params object[] args)
             {
                 await _moduleBase.Log(null, LogLevel.Warning, "", null, message, args);
+            }
+
+            public async Task LogWarning(LogFunction function, string message, params object[] args)
+            {
+                await _moduleBase.Log(null, LogLevel.Warning, function, null, message, args);
             }
 
             public async Task LogWarning(Exception exception, string message, params object[] args)
@@ -299,6 +325,11 @@ namespace Oqtane.Modules
                 await _moduleBase.Log(null, LogLevel.Error, "", null, message, args);
             }
 
+            public async Task LogError(LogFunction function, string message, params object[] args)
+            {
+                await _moduleBase.Log(null, LogLevel.Error, function, null, message, args);
+            }
+
             public async Task LogError(Exception exception, string message, params object[] args)
             {
                 await _moduleBase.Log(null, LogLevel.Error, "", exception, message, args);
@@ -307,6 +338,11 @@ namespace Oqtane.Modules
             public async Task LogCritical(string message, params object[] args)
             {
                 await _moduleBase.Log(null, LogLevel.Critical, "", null, message, args);
+            }
+
+            public async Task LogCritical(LogFunction function, string message, params object[] args)
+            {
+                await _moduleBase.Log(null, LogLevel.Critical, function, null, message, args);
             }
 
             public async Task LogCritical(Exception exception, string message, params object[] args)
