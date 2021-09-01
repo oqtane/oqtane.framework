@@ -35,8 +35,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IServiceCollection AddOqtaneDbContext(this IServiceCollection services)
         {
-            services.AddDbContext<MasterDBContext>(options => { });
-            services.AddDbContext<TenantDBContext>(options => { });
+            services.AddDbContext<MasterDBContext>(options => { }, ServiceLifetime.Transient);
+            services.AddDbContext<TenantDBContext>(options => { }, ServiceLifetime.Transient);
 
             return services;
         }

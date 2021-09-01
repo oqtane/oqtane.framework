@@ -54,6 +54,12 @@ namespace Oqtane.Infrastructure
 
             var filepath = Path.Combine(folder, "error.log");
 
+            // only retain an error log for the current day as it is intended for development purposes
+            if (File.GetCreationTime(filepath).ToUniversalTime().Date < DateTime.UtcNow.Date && File.Exists(filepath))
+            {
+                File.Delete(filepath);
+            }
+
             var logentry = string.Format("{0} [{1}] {2} {3}", "[" + DateTimeOffset.UtcNow.ToString("yyyy-MM-dd HH:mm:ss+00:00") + "]", logLevel.ToString(), formatter(state, exception), exception != null ? exception.StackTrace : "");
 
             try

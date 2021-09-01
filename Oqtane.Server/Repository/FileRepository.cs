@@ -42,6 +42,7 @@ namespace Oqtane.Repository
         {
             _db.File.Add(file);
             _db.SaveChanges();
+            file.Folder = _folderRepository.GetFolder(file.FolderId);
             file.Url = GetFileUrl(file, _tenants.GetAlias());
             return file;
         }
@@ -50,6 +51,7 @@ namespace Oqtane.Repository
         {
             _db.Entry(file).State = EntityState.Modified;
             _db.SaveChanges();
+            file.Folder = _folderRepository.GetFolder(file.FolderId);
             file.Url = GetFileUrl(file, _tenants.GetAlias());
             return file;
         }
