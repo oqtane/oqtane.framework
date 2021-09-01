@@ -14,7 +14,7 @@
 
 @if (_moduleDefinitions != null && UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, PageState.Page.Permissions))
 {
-    <div class="offcanvas offcanvas-end" tabindex="-1" data-bs-scroll="true" data-bs-backdrop="true" id="offcanvasControlPanel" aria-labelledby="offcanvasScrollingLabel">
+    <div class="@ContainerClass" tabindex="-1" data-bs-scroll="true" data-bs-backdrop="true" id="offcanvasControlPanel" aria-labelledby="offcanvasScrollingLabel">
         <div class="@HeaderClass">
             <h5 id="offcanvasScrollingLabel">@Localizer["ControlPanel"]</h5>
             <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -273,6 +273,9 @@
 
     [Parameter]
     public string ButtonClass { get; set; } = "btn-outline-secondary";
+
+    [Parameter]
+    public string ContainerClass { get; set; } = "offcanvas offcanvas-end";
 
     [Parameter]
     public string HeaderClass { get; set; } = "offcanvas-header";
