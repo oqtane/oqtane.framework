@@ -39,7 +39,6 @@
         if (_installation.Alias != null)
         {
             SiteState.Alias = _installation.Alias;
-            StateHasChanged();
         }
         else
         {
@@ -54,6 +53,7 @@
         {
             var interop = new Interop(JSRuntime);
             SiteState.AntiForgeryToken = await interop.GetElementByName(Constants.RequestVerificationToken);
+            StateHasChanged();
         }
     }
 
