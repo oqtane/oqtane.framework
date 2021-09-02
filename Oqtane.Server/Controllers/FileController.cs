@@ -11,12 +11,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Oqtane.Security;
 using System.Linq;
-using System.Drawing;
 using System.Net;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Extensions;
+using SixLabors.ImageSharp;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
@@ -517,12 +517,11 @@ namespace Oqtane.Controllers
             if (Constants.ImageFiles.Split(',').Contains(file.Extension.ToLower()))
             {
                 FileStream stream = new FileStream(filepath, FileMode.Open, FileAccess.Read);
-                using (var image = Image.FromStream(stream))
+                using (Image image = Image.Load(stream))
                 {
                     file.ImageHeight = image.Height;
                     file.ImageWidth = image.Width;
                 }
-
                 stream.Close();
             }
 
