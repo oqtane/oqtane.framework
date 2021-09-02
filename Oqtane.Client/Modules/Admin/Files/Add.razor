@@ -19,10 +19,10 @@
         </div>
         <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
     </TabPanel>
-    <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
-        <TabPanel Name="Download" Heading="Download Files" ResourceKey="DownloadFiles">
-            @if (_folders != null)
-            {
+    <TabPanel Name="Download" Heading="Download Files" ResourceKey="DownloadFiles">
+        @if (_folders != null)
+        {
+            <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
                 <div class="container">
                     <div class="row mb-1 align-items-center">
                         <Label Class="col-sm-3" For="url" HelpText="Enter the url of the file you wish to download" ResourceKey="Url">Url: </Label>
@@ -45,9 +45,9 @@
                 </div>
                 <button type="button" class="btn btn-success" @onclick="Download">@SharedLocalizer["Download"]</button>
                 <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-            }
-        </TabPanel>
-    </form>
+            </form>
+        }
+    </TabPanel>
 </TabStrip>
 
 @code {
