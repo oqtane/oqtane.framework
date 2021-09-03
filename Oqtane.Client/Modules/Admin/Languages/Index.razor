@@ -29,9 +29,13 @@ else
             <td><TriStateCheckBox Value="@(context.IsDefault)" Disabled="true"></TriStateCheckBox></td>
             <td>
                 @if (UpgradeAvailable(context.Code))
-                    {
+                {
                     <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadLanguage(context.Code))>@SharedLocalizer["Upgrade"]</button>
-                    }
+                }
+                else
+                {
+                    @((MarkupString)PurchaseLink(context.Code))
+                }
             </td>
         </Row>
     </Pager>
@@ -89,6 +93,23 @@ else
 
         }
         return upgradeavailable;
+    }
+
+    private string PurchaseLink(string code)
+    {
+        string link = "";
+        if (_packages != null)
+        {
+            var package = _packages.Where(item => item.PackageId == (Constants.PackageId + ".Client." + code)).FirstOrDefault();
+            if (package != null)
+            {
+                if (package.Price > 0 && !string.IsNullOrEmpty(package.PaymentUrl))
+                {
+                    link = "<a class=\"btn btn-primary\" style=\"text-decoration: none !important\" href=\"" + package.PaymentUrl + "\" target=\"_new\">" + package.Price.ToString("$#,##0.00") + "</a>";
+                }
+            }
+        }
+        return link;
     }
 
     private async Task DownloadLanguage(string code)

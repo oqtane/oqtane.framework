@@ -76,5 +76,10 @@ namespace Oqtane.Models
         /// The Url for purchasing the package ( if commercial )
         /// </summary>
         public string PaymentUrl { get; set; }
+
+        /// <summary>
+        /// The trial period in days ( if commercial )
+        /// </summary>
+        public int TrialPeriod { get; set; }
     }
 }

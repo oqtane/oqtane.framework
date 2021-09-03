@@ -28,17 +28,21 @@ else
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ModuleDefinitionId.ToString())" ResourceKey="EditModule" /></td>
             <td>
                 @if (context.AssemblyName != "Oqtane.Client")
-                    {
+                {
                     <ActionDialog Header="Delete Module" Message="@string.Format(Localizer["Confirm.Module.Delete", context.Name])" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" />
-                    }
+                }
             </td>
             <td>@context.Name</td>
             <td>@context.Version</td>
             <td>
                 @if (UpgradeAvailable(context.PackageName, context.Version))
-                    {
+                {
                     <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadModule(context.PackageName, context.Version))>@SharedLocalizer["Upgrade"]</button>
-                    }
+                }
+                else
+                {
+                    @((MarkupString)PurchaseLink(context.PackageName))
+                }
             </td>
         </Row>
     </Pager>
@@ -80,6 +84,23 @@ else
 
         }
         return upgradeavailable;
+    }
+
+    private string PurchaseLink(string packagename)
+    {
+        string link = "";
+        if (!string.IsNullOrEmpty(packagename) && _packages != null)
+        {
+            var package = _packages.Where(item => item.PackageId == packagename).FirstOrDefault();
+            if (package != null)
+            {
+                if (package.Price > 0 && !string.IsNullOrEmpty(package.PaymentUrl))
+                {
+                    link = "<a class=\"btn btn-primary\" style=\"text-decoration: none !important\" href=\"" + package.PaymentUrl + "\" target=\"_new\">" + package.Price.ToString("$#,##0.00") + "</a>";
+                }
+            }
+        }
+        return link;
     }
 
     private async Task DownloadModule(string packagename, string version)
