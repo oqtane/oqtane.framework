@@ -300,4 +300,7 @@
   <data name="Review License Terms" xml:space="preserve">
     <value>Review License Terms</value>
   </data>
+  <data name="Trial" xml:space="preserve">
+    <value>Day Trial</value>
+  </data>
 </root>

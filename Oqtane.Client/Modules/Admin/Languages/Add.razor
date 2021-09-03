@@ -80,6 +80,7 @@ else
                                 <strong>@(String.Format("{0:n0}", context.Downloads))</strong> @SharedLocalizer["Search.Downloads"]&nbsp;&nbsp;|&nbsp;&nbsp;
                                 @SharedLocalizer["Search.Released"]: <strong>@context.ReleaseDate.ToString("MMM dd, yyyy")</strong>&nbsp;&nbsp;|&nbsp;&nbsp;
                                 @SharedLocalizer["Search.Version"]: <strong>@context.Version</strong>
+                                @((MarkupString)(context.TrialPeriod > 0 ? "&nbsp;&nbsp;|&nbsp;&nbsp;<strong>" + context.TrialPeriod + " " + @SharedLocalizer["Trial"] + "</strong>" : ""))
                             </td>
                             <td style="width: 1px; vertical-align: middle;">
                                 @if (context.Price > 0 && !string.IsNullOrEmpty(context.PackageUrl))
