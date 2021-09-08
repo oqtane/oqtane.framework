@@ -322,6 +322,12 @@
                         }
                     }
 
+                    if(!PagePathIsDeleted(page.Path, page.SiteId, _pageList))
+                    {
+                        AddModuleMessage(string.Format(Localizer["Message.Page.Deleted"], _path), MessageType.Warning);
+                        return;
+                    }
+
                     if (!PagePathIsUnique(page.Path, page.SiteId, _pageList))
                     {
                         AddModuleMessage(string.Format(Localizer["Message.Page.Exists"], _path), MessageType.Warning);
@@ -411,5 +417,10 @@
     private static bool PagePathIsUnique(string pagePath, int siteId, List<Page> existingPages)
     {
         return !existingPages.Any(page => page.SiteId == siteId && page.Path == pagePath);
+    }
+
+    private static bool PagePathIsDeleted(string pagePath, int siteId, List<Page> existingPages)
+    {
+        return !existingPages.Any(page => page.SiteId == siteId && page.Path == pagePath && page.IsDeleted == true);
     }
 }
