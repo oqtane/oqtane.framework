@@ -228,4 +228,7 @@
   <data name="Appearance.Name" xml:space="preserve">
     <value>Appearance</value>
   </data>
+  <data name="Message.Page.Deleted" xml:space="preserve">
+    <value>A page with path {0} already exists for the selected parent page in the Recycle Bin. Either recover the page or remove from the Recycle Bin and create it again.</value>
+  </data>
 </root>
