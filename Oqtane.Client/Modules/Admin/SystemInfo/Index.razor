@@ -44,12 +44,6 @@
                     <input id="installationid" class="form-control" @bind="@_installationid" readonly />
                 </div>
             </div>
-            <div class="row mb-1 align-items-center">
-                <div class="col-sm-3"></div>
-                <div class="col-sm-9">
-                    <br /><input type="checkbox" @onchange="(e => RegisterChecked(e))" /> @Localizer["Register"]
-                </div>
-            </div>
         </div>
         <br /><br />
         <ActionDialog Header="Restart Application" Message="Are You Sure You Wish To Restart The Application?" Action="Restart Application" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await RestartApplication())" ResourceKey="RestartApplication" />
@@ -194,22 +188,6 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Restarting Application");
-        }
-    }
-
-    private async Task RegisterChecked(ChangeEventArgs e)
-    {
-        try
-        {
-            if ((bool)e.Value)
-            {
-                await InstallationService.RegisterAsync(PageState.User.Email);
-                AddModuleMessage(Localizer["Success.Register"], MessageType.Success);
-            }
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error On Register");
         }
     }
 }

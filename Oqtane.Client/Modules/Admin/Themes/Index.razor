@@ -21,28 +21,28 @@ else
         <Header>
             <th style="width: 1px;">&nbsp;</th>
             <th style="width: 1px;">&nbsp;</th>
-            <th scope="col">@SharedLocalizer["Name"]</th>
-            <th scope="col">@SharedLocalizer["Version"]</th>
+            <th>@SharedLocalizer["Name"]</th>
+            <th>@SharedLocalizer["Version"]</th>
+            <th>@SharedLocalizer["Expires"]</th>
             <th>&nbsp;</th>
         </Header>
         <Row>
             <td><ActionLink Action="View" Parameters="@($"name=" + WebUtility.UrlEncode(context.ThemeName))" ResourceKey="ViewTheme" /></td>
             <td>
                 @if (context.AssemblyName != "Oqtane.Client")
-                {
+                    {
                     <ActionDialog Header="Delete Theme" Message="@string.Format(Localizer["Confirm.Theme.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteTheme(context))" ResourceKey="DeleteTheme" />
-                }
+                    }
             </td>
             <td>@context.Name</td>
             <td>@context.Version</td>
             <td>
+                @((MarkupString)PurchaseLink(context.PackageName))
+            </td>
+            <td>
                 @if (UpgradeAvailable(context.PackageName, context.Version))
                 {
                     <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadTheme(context.PackageName, context.Version))>@SharedLocalizer["Upgrade"]</button>
-                }
-                else
-                {
-                    @((MarkupString)PurchaseLink(context.PackageName))
                 }
             </td>
             <td></td>
@@ -73,6 +73,27 @@ else
         }
     }
 
+    private string PurchaseLink(string packagename)
+    {
+        string link = "";
+        if (!string.IsNullOrEmpty(packagename) && _packages != null)
+        {
+            var package = _packages.Where(item => item.PackageId == packagename).FirstOrDefault();
+            if (package != null)
+            {
+                if (package.ExpiryDate != null && package.ExpiryDate.Value.Date != DateTime.MaxValue.Date)
+                {
+                    link += "<span>" + package.ExpiryDate.Value.Date.ToString("MMM dd, yyyy") + "</span>";
+                    if (!string.IsNullOrEmpty(package.PaymentUrl))
+                    {
+                        link += "&nbsp;&nbsp;<a class=\"btn btn-primary\" style=\"text-decoration: none !important\" href=\"" + package.PaymentUrl + "\" target=\"_new\">" + SharedLocalizer["Extend"] + "</a>";
+                    }
+                }
+            }
+        }
+        return link;
+    }
+
     private bool UpgradeAvailable(string packagename, string version)
     {
         var upgradeavailable = false;
@@ -101,23 +122,6 @@ else
             await logger.LogError(ex, "Error Downloading Theme {ThemeName} {Version} {Error}", packagename, version, ex.Message);
             AddModuleMessage(Localizer["Error.Theme.Download"], MessageType.Error);
         }
-    }
-
-    private string PurchaseLink(string packagename)
-    {
-        string link = "";
-        if (!string.IsNullOrEmpty(packagename) && _packages != null)
-        {
-            var package = _packages.Where(item => item.PackageId == packagename).FirstOrDefault();
-            if (package != null)
-            {
-                if (package.Price > 0 && !string.IsNullOrEmpty(package.PaymentUrl))
-                {
-                    link = "<a class=\"btn btn-primary\" style=\"text-decoration: none !important\" href=\"" + package.PaymentUrl + "\" target=\"_new\">" + package.Price.ToString("$#,##0.00") + "</a>";
-                }
-            }
-        }
-        return link;
     }
 
     private async Task DeleteTheme(Theme Theme)
