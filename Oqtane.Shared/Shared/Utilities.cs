@@ -1,6 +1,7 @@
 using Oqtane.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -60,13 +61,16 @@ namespace Oqtane.Shared
             string urlparameters;
             string querystring;
             string anchor;
-            (urlparameters, querystring, anchor) = ParseParameters(parameters);
 
+            // parse parameters
+            (urlparameters, querystring, anchor) = ParseParameters(parameters);
             if (!string.IsNullOrEmpty(urlparameters))
             {
                 if (urlparameters.StartsWith("/")) urlparameters = urlparameters.Remove(0, 1);
                 path += $"/{Constants.UrlParametersDelimiter}/{urlparameters}";
             }
+
+            // build url
             var uriBuilder = new UriBuilder
             {
                 Path = !string.IsNullOrEmpty(alias)
@@ -76,9 +80,9 @@ namespace Oqtane.Shared
                     : $"{path}",
                 Query = querystring,
             };
+
             anchor = string.IsNullOrEmpty(anchor) ? "" : "#" + anchor;
-            var navigateUrl = uriBuilder.Uri.PathAndQuery + anchor;
-            return navigateUrl;
+            return uriBuilder.Uri.PathAndQuery + anchor;
         }
 
         public static string EditUrl(string alias, string path, int moduleid, string action, string parameters)
