@@ -96,7 +96,7 @@ namespace Oqtane.Themes.Controls
             {
                 PageModule pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
 
-                string url = NavigateUrl();
+                string url = NavigateUrl(true);
 
                 if (action.Action != null)
                 {
@@ -115,7 +115,7 @@ namespace Oqtane.Themes.Controls
             await PageModuleService.UpdatePageModuleAsync(pagemodule);
             await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
             await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, oldPane);
-            return NavigateUrl(url, true);
+            return url;
         }
 
         private async Task<string> DeleteModule(string url, PageModule pagemodule)
@@ -123,7 +123,7 @@ namespace Oqtane.Themes.Controls
             pagemodule.IsDeleted = true;
             await PageModuleService.UpdatePageModuleAsync(pagemodule);
             await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
-            return NavigateUrl(url, true);
+            return url;
         }
 
         private async Task<string> Settings(string url, PageModule pagemodule)
@@ -133,7 +133,7 @@ namespace Oqtane.Themes.Controls
             return url;
         }
 
-        private async Task<string> Publish(string s, PageModule pagemodule)
+        private async Task<string> Publish(string url, PageModule pagemodule)
         {
             var permissions = UserSecurity.GetPermissionStrings(pagemodule.Module.Permissions);
             foreach (var permissionstring in permissions)
@@ -148,10 +148,10 @@ namespace Oqtane.Themes.Controls
             }
             pagemodule.Module.Permissions = UserSecurity.SetPermissionStrings(permissions);
             await ModuleService.UpdateModuleAsync(pagemodule.Module);
-            return NavigateUrl(s, true);
+            return url;
         }
 
-        private async Task<string> Unpublish(string s, PageModule pagemodule)
+        private async Task<string> Unpublish(string url, PageModule pagemodule)
         {
             var permissions = UserSecurity.GetPermissionStrings(pagemodule.Module.Permissions);
             foreach (var permissionstring in permissions)
@@ -166,39 +166,39 @@ namespace Oqtane.Themes.Controls
             }
             pagemodule.Module.Permissions = UserSecurity.SetPermissionStrings(permissions);
             await ModuleService.UpdateModuleAsync(pagemodule.Module);
-            return NavigateUrl(s, true);
+            return url;
         }
 
-        private async Task<string> MoveTop(string s, PageModule pagemodule)
+        private async Task<string> MoveTop(string url, PageModule pagemodule)
         {
             pagemodule.Order = 0;
             await PageModuleService.UpdatePageModuleAsync(pagemodule);
             await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
-            return NavigateUrl(s, true);
+            return url;
         }
 
-        private async Task<string> MoveBottom(string s, PageModule pagemodule)
+        private async Task<string> MoveBottom(string url, PageModule pagemodule)
         {
             pagemodule.Order = int.MaxValue;
             await PageModuleService.UpdatePageModuleAsync(pagemodule);
             await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
-            return NavigateUrl(s, true);
+            return url;
         }
 
-        private async Task<string> MoveUp(string s, PageModule pagemodule)
+        private async Task<string> MoveUp(string url, PageModule pagemodule)
         {
             pagemodule.Order -= 3;
             await PageModuleService.UpdatePageModuleAsync(pagemodule);
             await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
-            return NavigateUrl(s, true);
+            return url;
         }
 
-        private async Task<string> MoveDown(string s, PageModule pagemodule)
+        private async Task<string> MoveDown(string url, PageModule pagemodule)
         {
             pagemodule.Order += 3;
             await PageModuleService.UpdatePageModuleAsync(pagemodule);
             await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
-            return NavigateUrl(s, true);
+            return url;
         }
 
         public class ActionViewModel
