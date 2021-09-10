@@ -322,7 +322,7 @@
                         }
                     }
 
-                    if(!PagePathIsDeleted(page.Path, page.SiteId, _pageList))
+                    if(PagePathIsDeleted(page.Path, page.SiteId, _pageList))
                     {
                         AddModuleMessage(string.Format(Localizer["Message.Page.Deleted"], _path), MessageType.Warning);
                         return;
@@ -421,6 +421,6 @@
 
     private static bool PagePathIsDeleted(string pagePath, int siteId, List<Page> existingPages)
     {
-        return !existingPages.Any(page => page.SiteId == siteId && page.Path == pagePath && page.IsDeleted == true);
+        return existingPages.Any(page => page.SiteId == siteId && page.Path == pagePath && page.IsDeleted == true);
     }
 }
