@@ -22,26 +22,26 @@ else
             <th style="width: 1px;">&nbsp;</th>
             <th>@SharedLocalizer["Name"]</th>
             <th>@SharedLocalizer["Version"]</th>
+            <th>@SharedLocalizer["Expires"]</th>
             <th style="width: 1px;">&nbsp;</th>
         </Header>
         <Row>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.ModuleDefinitionId.ToString())" ResourceKey="EditModule" /></td>
             <td>
                 @if (context.AssemblyName != "Oqtane.Client")
-                {
+                    {
                     <ActionDialog Header="Delete Module" Message="@string.Format(Localizer["Confirm.Module.Delete", context.Name])" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" />
-                }
+                    }
             </td>
             <td>@context.Name</td>
             <td>@context.Version</td>
             <td>
+                @((MarkupString)PurchaseLink(context.PackageName))
+            </td>
+            <td>
                 @if (UpgradeAvailable(context.PackageName, context.Version))
                 {
                     <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadModule(context.PackageName, context.Version))>@SharedLocalizer["Upgrade"]</button>
-                }
-                else
-                {
-                    @((MarkupString)PurchaseLink(context.PackageName))
                 }
             </td>
         </Row>
@@ -71,6 +71,27 @@ else
         }
     }
 
+    private string PurchaseLink(string packagename)
+    {
+        string link = "";
+        if (!string.IsNullOrEmpty(packagename) && _packages != null)
+        {
+            var package = _packages.Where(item => item.PackageId == packagename).FirstOrDefault();
+            if (package != null)
+            {
+                if (package.ExpiryDate != null && package.ExpiryDate.Value.Date != DateTime.MaxValue.Date)
+                {
+                    link += "<span>" + package.ExpiryDate.Value.Date.ToString("MMM dd, yyyy") + "</span>";
+                    if (!string.IsNullOrEmpty(package.PaymentUrl))
+                    {
+                        link += "&nbsp;&nbsp;<a class=\"btn btn-primary\" style=\"text-decoration: none !important\" href=\"" + package.PaymentUrl + "\" target=\"_new\">" + SharedLocalizer["Extend"] + "</a>";
+                    }
+                }
+            }
+        }
+        return link;
+    }
+
     private bool UpgradeAvailable(string packagename, string version)
     {
         var upgradeavailable = false;
@@ -84,23 +105,6 @@ else
 
         }
         return upgradeavailable;
-    }
-
-    private string PurchaseLink(string packagename)
-    {
-        string link = "";
-        if (!string.IsNullOrEmpty(packagename) && _packages != null)
-        {
-            var package = _packages.Where(item => item.PackageId == packagename).FirstOrDefault();
-            if (package != null)
-            {
-                if (package.Price > 0 && !string.IsNullOrEmpty(package.PaymentUrl))
-                {
-                    link = "<a class=\"btn btn-primary\" style=\"text-decoration: none !important\" href=\"" + package.PaymentUrl + "\" target=\"_new\">" + package.Price.ToString("$#,##0.00") + "</a>";
-                }
-            }
-        }
-        return link;
     }
 
     private async Task DownloadModule(string packagename, string version)

@@ -68,7 +68,7 @@ namespace Oqtane.Models
         public int Vulnerabilities { get; set; }
 
         /// <summary>
-        /// The price of the package 
+        /// The price of the package  ( if commercial )
         /// </summary>
         public decimal Price { get; set; }
 
@@ -81,5 +81,10 @@ namespace Oqtane.Models
         /// The trial period in days ( if commercial )
         /// </summary>
         public int TrialPeriod { get; set; }
+
+        /// <summary>
+        /// The expiry date of the package ( if commercial )
+        /// </summary>
+        public DateTime? ExpiryDate { get; set; }
     }
 }

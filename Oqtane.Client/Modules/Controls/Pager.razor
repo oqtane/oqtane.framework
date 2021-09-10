@@ -5,40 +5,63 @@
 <p>
     @if (Toolbar == "Top")
     {
-        <div class="mx-auto text-center">
+        <ul class="pagination justify-content-center my-2">
             @if (_endPage > 1)
             {
-                <button class="btn btn-secondary m-1" @onclick=@(async () => UpdateList(1))><span class="oi oi-media-step-backward" title="first" aria-hidden="true"></span></button>
+                <li class="page-item">
+                    <a class="page-link" @onclick=@(async () => UpdateList(1))><span class="oi oi-media-step-backward" title="first" aria-hidden="true"></span></a>
+                </li>
             }
             @if (_page > _maxPages)
             {
-                <button class="btn btn-secondary m-1" @onclick=@(async () => SetPagerSize("back"))><span class="oi oi-media-skip-backward" title="back" aria-hidden="true"></span></button>
+                <li class="page-item">
+                    <a class="page-link" @onclick=@(async () => SetPagerSize("back"))><span class="oi oi-media-skip-backward" title="back" aria-hidden="true"></span></a>
+                </li>
             }
             @if (_endPage > 1)
             {
-                <button class="btn btn-secondary m-1" @onclick=@(async () => NavigateToPage("previous"))><span class="oi oi-chevron-left" title="previous" aria-hidden="true"></span></button>
+                <li class="page-item">
+                    <a class="page-link" @onclick=@(async () => NavigateToPage("previous"))><span class="oi oi-chevron-left" title="previous" aria-hidden="true"></span></a>
+                </li>
                 @for (int i = _startPage; i <= _endPage; i++)
                 {
                     var pager = i;
-                    <button class="btn @((pager == _page) ? "btn-primary" : "btn-link")" @onclick=@(async () => UpdateList(pager))>
-                        @pager
-                    </button>
+                    if (pager == _page)
+                    {
+                        <li class="page-item active">
+                            <a class="page-link" @onclick=@(async () => UpdateList(pager))>@pager</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item">
+                            <a class="page-link" @onclick=@(async () => UpdateList(pager))>@pager</a>
+                        </li>
+                    }
                 }
-                <button class="btn btn-secondary m-1" @onclick=@(async () => NavigateToPage("next"))><span class="oi oi-chevron-right" title="next" aria-hidden="true"></span></button>
+                <li class="page-item">
+                    <a class="page-link" @onclick=@(async () => NavigateToPage("next"))><span class="oi oi-chevron-right" title="next" aria-hidden="true"></span></a>
+                </li>
             }
             @if (_endPage < _pages)
             {
-                <button class="btn btn-secondary m-1" @onclick=@(async () => SetPagerSize("forward"))><span class="oi oi-media-skip-forward" title="forward" aria-hidden="true"></span></button>
+                <li class="page-item">
+                    <a class="page-link" @onclick=@(async () => SetPagerSize("forward"))><span class="oi oi-media-skip-forward" title="forward" aria-hidden="true"></span></a>
+                </li>
             }
             @if (_endPage > 1)
             {
-                <button class="btn btn-secondary m-1" @onclick=@(async () => UpdateList(_pages))><span class="oi oi-media-step-forward" title="last" aria-hidden="true"></span></button>
+                <li class="page-item">
+                    <a class="page-link" @onclick=@(async () => UpdateList(_pages))><span class="oi oi-media-step-forward" title="last" aria-hidden="true"></span></a>
+                </li>
             }
             @if (_endPage > 1)
             {
-                <span class="btn btn-link disabled">Page @_page of @_pages</span>
+                <li class="page-item disabled">
+                    <a class="page-link">Page @_page of @_pages</a>
+                </li>
             }
-        </div>
+        </ul>
     }
     @if (Format == "Table")
     {
@@ -74,40 +97,63 @@
     }
     @if (Toolbar == "Bottom")
     {
-        <div class="mx-auto text-center">
+        <ul class="pagination justify-content-center my-2">
             @if (_endPage > 1)
             {
-                <button class="btn btn-secondary mr-1" @onclick=@(async () => UpdateList(1))><span class="oi oi-media-step-backward" title="first" aria-hidden="true"></span></button>
+                <li class="page-item">
+                    <a class="page-link" @onclick=@(async () => UpdateList(1))><span class="oi oi-media-step-backward" title="first" aria-hidden="true"></span></a>
+                </li>
             }
             @if (_page > _maxPages)
             {
-                <button class="btn btn-secondary mr-1" @onclick=@(async () => SetPagerSize("back"))><span class="oi oi-media-skip-backward" title="back" aria-hidden="true"></span></button>
+                <li class="page-item">
+                    <a class="page-link" @onclick=@(async () => SetPagerSize("back"))><span class="oi oi-media-skip-backward" title="back" aria-hidden="true"></span></a>
+                </li>
             }
             @if (_endPage > 1)
             {
-                <button class="btn btn-secondary mr-1" @onclick=@(async () => NavigateToPage("previous"))><span class="oi oi-chevron-left" title="previous" aria-hidden="true"></span></button>
+                <li class="page-item">
+                    <a class="page-link" @onclick=@(async () => NavigateToPage("previous"))><span class="oi oi-chevron-left" title="previous" aria-hidden="true"></span></a>
+                </li>
                 @for (int i = _startPage; i <= _endPage; i++)
                 {
                     var pager = i;
-                    <button class="btn @((pager == _page) ? "btn-primary" : "btn-link")" @onclick=@(async () => UpdateList(pager))>
-                        @pager
-                    </button>
+                    if (pager == _page)
+                    {
+                        <li class="page-item active">
+                            <a class="page-link" @onclick=@(async () => UpdateList(pager))>@pager</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item">
+                            <a class="page-link" @onclick=@(async () => UpdateList(pager))>@pager</a>
+                        </li>
+                    }
                 }
-                <button class="btn btn-secondary mr-1" @onclick=@(async () => NavigateToPage("next"))><span class="oi oi-chevron-right" title="next" aria-hidden="true"></span></button>
+                <li class="page-item">
+                    <a class="page-link" @onclick=@(async () => NavigateToPage("next"))><span class="oi oi-chevron-right" title="next" aria-hidden="true"></span></a>
+                </li>
             }
             @if (_endPage < _pages)
             {
-                <button class="btn btn-secondary mr-1" @onclick=@(async () => SetPagerSize("forward"))><span class="oi oi-media-skip-forward" title="forward" aria-hidden="true"></span></button>
+                <li class="page-item">
+                    <a class="page-link" @onclick=@(async () => SetPagerSize("forward"))><span class="oi oi-media-skip-forward" title="forward" aria-hidden="true"></span></a>
+                </li>
             }
             @if (_endPage > 1)
             {
-                <button class="btn btn-secondary mr-1" @onclick=@(async () => UpdateList(_pages))><span class="oi oi-media-step-forward" title="last" aria-hidden="true"></span></button>
+                <li class="page-item">
+                    <a class="page-link" @onclick=@(async () => UpdateList(_pages))><span class="oi oi-media-step-forward" title="last" aria-hidden="true"></span></a>
+                </li>
             }
             @if (_endPage > 1)
             {
-                <span class="btn btn-link disabled">Page @_page of @_pages</span>
+                <li class="page-item disabled">
+                    <a class="page-link">Page @_page of @_pages</a>
+                </li>
             }
-        </div>
+        </ul>
     }
 </p>
 

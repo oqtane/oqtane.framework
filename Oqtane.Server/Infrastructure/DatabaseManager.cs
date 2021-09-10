@@ -250,6 +250,7 @@ namespace Oqtane.Infrastructure
             catch (Exception ex)
             {
                 result.Message = ex.Message;
+                _filelogger.LogError(Utilities.LogMessage(this, result.Message));
             }
 
             return result;
@@ -288,6 +289,7 @@ namespace Oqtane.Infrastructure
                 catch (Exception ex)
                 {
                     result.Message = ex.Message;
+                    _filelogger.LogError(Utilities.LogMessage(this, result.Message));
                 }
             }
             else
@@ -328,6 +330,7 @@ namespace Oqtane.Infrastructure
                     catch (Exception ex)
                     {
                         result.Message = ex.Message;
+                        _filelogger.LogError(Utilities.LogMessage(this, result.Message));
                     }
                 }
             }
@@ -432,6 +435,7 @@ namespace Oqtane.Infrastructure
                         catch (Exception ex)
                         {
                             result.Message = ex.Message;
+                            _filelogger.LogError(Utilities.LogMessage(this, result.Message));
                         }
 
                         // execute any version specific upgrade logic
@@ -539,6 +543,10 @@ namespace Oqtane.Infrastructure
             {
                 result.Success = true;
             }
+            else
+            {
+                _filelogger.LogError(Utilities.LogMessage(this, result.Message));
+            }
 
             return result;
         }
@@ -549,110 +557,124 @@ namespace Oqtane.Infrastructure
 
             if (!string.IsNullOrEmpty(install.TenantName) && !string.IsNullOrEmpty(install.Aliases) && !string.IsNullOrEmpty(install.SiteName))
             {
-                using (var scope = _serviceScopeFactory.CreateScope())
+                try
                 {
-                    // set the alias explicitly so the tenant can be resolved
-                    var aliases = scope.ServiceProvider.GetRequiredService<IAliasRepository>();
-                    var firstAlias = install.Aliases.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)[0];
-                    var alias = aliases.GetAliases().FirstOrDefault(item => item.Name == firstAlias);
-                    var tenantManager = scope.ServiceProvider.GetRequiredService<ITenantManager>();
-                    tenantManager.SetAlias(alias);
-
-                    var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
-                    var site = sites.GetSites().FirstOrDefault(item => item.Name == install.SiteName);
-                    if (site == null)
+                    using (var scope = _serviceScopeFactory.CreateScope())
                     {
-                        var tenants = scope.ServiceProvider.GetRequiredService<ITenantRepository>();
-                        var users = scope.ServiceProvider.GetRequiredService<IUserRepository>();
-                        var roles = scope.ServiceProvider.GetRequiredService<IRoleRepository>();
-                        var userRoles = scope.ServiceProvider.GetRequiredService<IUserRoleRepository>();
-                        var folders = scope.ServiceProvider.GetRequiredService<IFolderRepository>();
-                        var log = scope.ServiceProvider.GetRequiredService<ILogManager>();
-                        var identityUserManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+                        // set the alias explicitly so the tenant can be resolved
+                        var aliases = scope.ServiceProvider.GetRequiredService<IAliasRepository>();
+                        var firstAlias = install.Aliases.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)[0];
+                        var alias = aliases.GetAliases().FirstOrDefault(item => item.Name == firstAlias);
+                        var tenantManager = scope.ServiceProvider.GetRequiredService<ITenantManager>();
+                        tenantManager.SetAlias(alias);
 
-                        var tenant = tenants.GetTenants().FirstOrDefault(item => item.Name == install.TenantName);
-
-                        site = new Site
+                        var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
+                        var site = sites.GetSites().FirstOrDefault(item => item.Name == install.SiteName);
+                        if (site == null)
                         {
-                            TenantId = tenant.TenantId,
-                            Name = install.SiteName,
-                            LogoFileId = null,
-                            DefaultThemeType = (!string.IsNullOrEmpty(install.DefaultTheme)) ? install.DefaultTheme : Constants.DefaultTheme,
-                            DefaultContainerType = (!string.IsNullOrEmpty(install.DefaultContainer)) ? install.DefaultContainer : Constants.DefaultContainer,
-                            AdminContainerType = (!string.IsNullOrEmpty(install.DefaultAdminContainer)) ? install.DefaultAdminContainer : Constants.DefaultAdminContainer,
-                            SiteTemplateType = install.SiteTemplate
-                        };
-                        site = sites.AddSite(site);
+                            var tenants = scope.ServiceProvider.GetRequiredService<ITenantRepository>();
+                            var users = scope.ServiceProvider.GetRequiredService<IUserRepository>();
+                            var roles = scope.ServiceProvider.GetRequiredService<IRoleRepository>();
+                            var userRoles = scope.ServiceProvider.GetRequiredService<IUserRoleRepository>();
+                            var folders = scope.ServiceProvider.GetRequiredService<IFolderRepository>();
+                            var log = scope.ServiceProvider.GetRequiredService<ILogManager>();
+                            var identityUserManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
 
-                        if (!string.IsNullOrEmpty(install.HostUsername))
-                        {
-                            var identityUser = identityUserManager.FindByNameAsync(install.HostUsername).GetAwaiter().GetResult();
-                            if (identityUser == null)
+                            var tenant = tenants.GetTenants().FirstOrDefault(item => item.Name == install.TenantName);
+
+                            site = new Site
                             {
-                                identityUser = new IdentityUser { UserName = install.HostUsername, Email = install.HostEmail, EmailConfirmed = true };
-                                var create = identityUserManager.CreateAsync(identityUser, install.HostPassword).GetAwaiter().GetResult();
-                                if (create.Succeeded)
+                                TenantId = tenant.TenantId,
+                                Name = install.SiteName,
+                                LogoFileId = null,
+                                DefaultThemeType = (!string.IsNullOrEmpty(install.DefaultTheme)) ? install.DefaultTheme : Constants.DefaultTheme,
+                                DefaultContainerType = (!string.IsNullOrEmpty(install.DefaultContainer)) ? install.DefaultContainer : Constants.DefaultContainer,
+                                AdminContainerType = (!string.IsNullOrEmpty(install.DefaultAdminContainer)) ? install.DefaultAdminContainer : Constants.DefaultAdminContainer,
+                                SiteTemplateType = install.SiteTemplate
+                            };
+                            site = sites.AddSite(site);
+
+                            if (!string.IsNullOrEmpty(install.HostUsername))
+                            {
+                                var identityUser = identityUserManager.FindByNameAsync(install.HostUsername).GetAwaiter().GetResult();
+                                if (identityUser == null)
                                 {
-                                    var user = new User
+                                    identityUser = new IdentityUser { UserName = install.HostUsername, Email = install.HostEmail, EmailConfirmed = true };
+                                    var create = identityUserManager.CreateAsync(identityUser, install.HostPassword).GetAwaiter().GetResult();
+                                    if (create.Succeeded)
                                     {
-                                        SiteId = site.SiteId,
-                                        Username = install.HostUsername,
-                                        Password = install.HostPassword,
-                                        Email = install.HostEmail,
-                                        DisplayName = install.HostName,
-                                        LastIPAddress = "",
-                                        LastLoginOn = null
-                                    };
-
-                                    user = users.AddUser(user);
-                                    var hostRoleId = roles.GetRoles(user.SiteId, true).FirstOrDefault(item => item.Name == RoleNames.Host)?.RoleId ?? 0;
-                                    var userRole = new UserRole { UserId = user.UserId, RoleId = hostRoleId, EffectiveDate = null, ExpiryDate = null };
-                                    userRoles.AddUserRole(userRole);
-
-                                    // add user folder
-                                    var folder = folders.GetFolder(user.SiteId, Utilities.PathCombine("Users", Path.DirectorySeparatorChar.ToString()));
-                                    if (folder != null)
-                                    {
-                                        folders.AddFolder(new Folder
+                                        var user = new User
                                         {
-                                            SiteId = folder.SiteId,
-                                            ParentId = folder.FolderId,
-                                            Name = "My Folder",
-                                            Type = FolderTypes.Private,
-                                            Path = Utilities.PathCombine(folder.Path, user.UserId.ToString(), Path.DirectorySeparatorChar.ToString()),
-                                            Order = 1,
-                                            IsSystem = true,
-                                            Permissions = new List<Permission>
+                                            SiteId = site.SiteId,
+                                            Username = install.HostUsername,
+                                            Password = install.HostPassword,
+                                            Email = install.HostEmail,
+                                            DisplayName = install.HostName,
+                                            LastIPAddress = "",
+                                            LastLoginOn = null
+                                        };
+
+                                        user = users.AddUser(user);
+                                        var hostRoleId = roles.GetRoles(user.SiteId, true).FirstOrDefault(item => item.Name == RoleNames.Host)?.RoleId ?? 0;
+                                        var userRole = new UserRole { UserId = user.UserId, RoleId = hostRoleId, EffectiveDate = null, ExpiryDate = null };
+                                        userRoles.AddUserRole(userRole);
+
+                                        // add user folder
+                                        var folder = folders.GetFolder(user.SiteId, Utilities.PathCombine("Users", Path.DirectorySeparatorChar.ToString()));
+                                        if (folder != null)
+                                        {
+                                            folders.AddFolder(new Folder
+                                            {
+                                                SiteId = folder.SiteId,
+                                                ParentId = folder.FolderId,
+                                                Name = "My Folder",
+                                                Type = FolderTypes.Private,
+                                                Path = Utilities.PathCombine(folder.Path, user.UserId.ToString(), Path.DirectorySeparatorChar.ToString()),
+                                                Order = 1,
+                                                IsSystem = true,
+                                                Permissions = new List<Permission>
                                         {
                                             new Permission(PermissionNames.Browse, user.UserId, true),
                                             new Permission(PermissionNames.View, RoleNames.Everyone, true),
                                             new Permission(PermissionNames.Edit, user.UserId, true),
                                         }.EncodePermissions(),
-                                        });
+                                            });
+                                        }
                                     }
                                 }
                             }
-                        }
 
-                        foreach (var aliasName in install.Aliases.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries))
-                        {
-                            alias = aliases.GetAliases().FirstOrDefault(item => item.Name == aliasName);
-                            if (alias != null)
+                            foreach (var aliasName in install.Aliases.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                             {
-                                alias.SiteId = site.SiteId;
-                                aliases.UpdateAlias(alias);
+                                alias = aliases.GetAliases().FirstOrDefault(item => item.Name == aliasName);
+                                if (alias != null)
+                                {
+                                    alias.SiteId = site.SiteId;
+                                    aliases.UpdateAlias(alias);
+                                }
                             }
+
+                            tenant.Version = Constants.Version;
+                            tenants.UpdateTenant(tenant);
+
+                            if (site != null) log.Log(site.SiteId, Shared.LogLevel.Information, this, LogFunction.Create, "Site Created {Site}", site);
                         }
-
-                        tenant.Version = Constants.Version;
-                        tenants.UpdateTenant(tenant);
-
-                        if (site != null) log.Log(site.SiteId, Shared.LogLevel.Information, this, LogFunction.Create, "Site Created {Site}", site);
                     }
+                }
+                catch (Exception ex)
+                {
+                    result.Message = "An Error Occurred Creating Site - " + ex.Message;
                 }
             }
 
-            result.Success = true;
+            if (string.IsNullOrEmpty(result.Message))
+            {
+                result.Success = true;
+            }
+            else
+            {
+                _filelogger.LogError(Utilities.LogMessage(this, result.Message));
+            }
 
             return result;
         }

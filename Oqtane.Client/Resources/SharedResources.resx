@@ -303,4 +303,10 @@
   <data name="Trial" xml:space="preserve">
     <value>Day Trial</value>
   </data>
+  <data name="Expires" xml:space="preserve">
+    <value>Expires</value>
+  </data>
+  <data name="Extend" xml:space="preserve">
+    <value>Extend</value>
+  </data>
 </root>

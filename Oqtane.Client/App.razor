@@ -33,23 +33,26 @@
 
     private PageState PageState { get; set; }
 
+    protected override async Task OnParametersSetAsync()
+    {
+        _installation = await InstallationService.IsInstalled();
+        if (_installation.Alias != null)
+        {
+            SiteState.Alias = _installation.Alias;
+        }
+        else
+        {
+            _installation.Message = "Site Not Configured Correctly - No Matching Alias Exists For Host Name";
+        }
+        _initialized = true;
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && !_initialized)
+        if (firstRender)
         {
             var interop = new Interop(JSRuntime);
             SiteState.AntiForgeryToken = await interop.GetElementByName(Constants.RequestVerificationToken);
-            _installation = await InstallationService.IsInstalled();
-            if (_installation.Alias != null)
-            {
-                SiteState.Alias = _installation.Alias;
-            }
-            else
-            {
-                _installation.Message = "Site Not Configured Correctly - No Matching Alias Exists For Host Name";
-            }
-            _initialized = true;
-            StateHasChanged();
         }
     }
 
