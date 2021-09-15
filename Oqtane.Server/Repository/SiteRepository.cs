@@ -124,7 +124,7 @@ namespace Oqtane.Repository
 
             Folder folder = _folderRepository.AddFolder(new Folder
             {
-                SiteId = site.SiteId, ParentId = null, Name = "Root", Type = FolderTypes.Private, Path = "", Order = 1, IsSystem = true,
+                SiteId = site.SiteId, ParentId = null, Name = "Root", Type = FolderTypes.Private, Path = "", Order = 1, ImageSizes = "", Capacity = 0, IsSystem = true,
                 Permissions = new List<Permission>
                 {
                     new Permission(PermissionNames.Browse, RoleNames.Admin, true),
@@ -132,7 +132,7 @@ namespace Oqtane.Repository
                     new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                 }.EncodePermissions()
             });
-            _folderRepository.AddFolder(new Folder { SiteId = site.SiteId, ParentId = folder.FolderId, Name = "Public", Type = FolderTypes.Public, Path = Utilities.PathCombine("Public", Path.DirectorySeparatorChar.ToString()), Order = 1, IsSystem = false,
+            _folderRepository.AddFolder(new Folder { SiteId = site.SiteId, ParentId = folder.FolderId, Name = "Public", Type = FolderTypes.Public, Path = Utilities.PathCombine("Public", Path.DirectorySeparatorChar.ToString()), Order = 1, ImageSizes = "", Capacity = 0, IsSystem = false,
                 Permissions = new List<Permission>
                 {
                     new Permission(PermissionNames.Browse, RoleNames.Admin, true),
@@ -142,7 +142,7 @@ namespace Oqtane.Repository
             });
             _folderRepository.AddFolder(new Folder
             {
-                SiteId = site.SiteId, ParentId = folder.FolderId, Name = "Users", Type = FolderTypes.Private, Path = Utilities.PathCombine("Users",Path.DirectorySeparatorChar.ToString()), Order = 3, IsSystem = true,
+                SiteId = site.SiteId, ParentId = folder.FolderId, Name = "Users", Type = FolderTypes.Private, Path = Utilities.PathCombine("Users",Path.DirectorySeparatorChar.ToString()), Order = 3, ImageSizes = "", Capacity = 0, IsSystem = true,
                 Permissions = new List<Permission>
                 {
                     new Permission(PermissionNames.Browse, RoleNames.Admin, true),

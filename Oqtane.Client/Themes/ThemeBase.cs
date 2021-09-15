@@ -103,5 +103,10 @@ namespace Oqtane.Themes
         {
             return Utilities.ContentUrl(PageState.Alias, fileid, asAttachment);
         }
+
+        public string ImageUrl(int fileid, string size, string mode)
+        {
+            return Utilities.ImageUrl(PageState.Alias, fileid, size, mode);
+        }
     }
 }

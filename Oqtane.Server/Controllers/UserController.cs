@@ -187,8 +187,10 @@ namespace Oqtane.Controllers
                                 ParentId = folder.FolderId,
                                 Name = "My Folder",
                                 Type = FolderTypes.Private,
-                                Path = Utilities.PathCombine(folder.Path, newUser.UserId.ToString(),Path.DirectorySeparatorChar.ToString()),
+                                Path = Utilities.PathCombine(folder.Path, newUser.UserId.ToString(), Path.DirectorySeparatorChar.ToString()),
                                 Order = 1,
+                                ImageSizes = "",
+                                Capacity = Constants.UserFolderCapacity,
                                 IsSystem = true,
                                 Permissions = new List<Permission>
                                 {
@@ -196,7 +198,7 @@ namespace Oqtane.Controllers
                                     new Permission(PermissionNames.View, RoleNames.Everyone, true),
                                     new Permission(PermissionNames.Edit, newUser.UserId, true)
                                 }.EncodePermissions()
-                            });
+                            }) ;
                         }
                     }
                 }

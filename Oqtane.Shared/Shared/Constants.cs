@@ -40,6 +40,8 @@ namespace Oqtane.Shared {
         public const string DefaultSiteTemplate = "Oqtane.SiteTemplates.DefaultSiteTemplate, Oqtane.Server";
 
         public const string ContentUrl = "/api/file/download/";
+        public const string ImageUrl = "/api/file/image/";
+        public const int UserFolderCapacity = 20; // megabytes
 
         [Obsolete("Use UserNames.Host instead.")]
         public const string HostUser = UserNames.Host;

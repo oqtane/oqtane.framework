@@ -400,17 +400,17 @@
                 await PageModuleService.AddPageModuleAsync(pageModule);
                 await PageModuleService.UpdatePageModuleOrderAsync(pageModule.PageId, pageModule.Pane);
 
-                Message = $"<br /><div class=\"alert alert-success\" role=\"alert\">{Localizer["Success.Page.ModuleAdd"]}</div>";
+                Message = $"<div class=\"alert alert-success mt-2 text-center\" role=\"alert\">{Localizer["Success.Page.ModuleAdd"]}</div>";
                 NavigationManager.NavigateTo(NavigateUrl());
             }
             else
             {
-                Message = $"<br /><div class=\"alert alert-warning\" role=\"alert\">{Localizer["Message.Require.ModuleSelect"]}</div>";
+                Message = $"<div class=\"alert alert-warning mt-2 text-center\" role=\"alert\">{Localizer["Message.Require.ModuleSelect"]}</div>";
             }
         }
         else
         {
-            Message = $"<br /><div class=\"alert alert-error\" role=\"alert\">{Localizer["Error.Authorize.No"]}</div>";
+            Message = $"<div class=\"alert alert-error mt-2 text-center\" role=\"alert\">{Localizer["Error.Authorize.No"]}</div>";
         }
     }
 

@@ -40,15 +40,15 @@
                             @((MarkupString)(context.TrialPeriod > 0 ? "&nbsp;&nbsp;|&nbsp;&nbsp;<strong>" + context.TrialPeriod + " " + @SharedLocalizer["Trial"] + "</strong>" : ""))
                         </td>
                         <td style="width: 1px; vertical-align: middle;">
-                            @if (context.Price > 0 && !string.IsNullOrEmpty(context.PackageUrl))
+                            @if (context.Price != null && !string.IsNullOrEmpty(context.PackageUrl))
                             {
                                 <button type="button" class="btn btn-primary" @onclick=@(async () => await GetPackage(context.PackageId, context.Version))>@SharedLocalizer["Download"]</button>
                             }
                         </td>
                         <td style="width: 1px; vertical-align: middle;">
-                            @if (context.Price > 0 && !string.IsNullOrEmpty(context.PaymentUrl))
+                            @if (context.Price != null && !string.IsNullOrEmpty(context.PaymentUrl))
                             {
-                                <a class="btn btn-primary" style="text-decoration: none !important" href="@context.PaymentUrl" target="_new">@context.Price.ToString("$#,##0.00")</a>
+                                <a class="btn btn-primary" style="text-decoration: none !important" href="@context.PaymentUrl" target="_new">@context.Price.Value.ToString("$#,##0.00")</a>
                             }
                             else
                             {
