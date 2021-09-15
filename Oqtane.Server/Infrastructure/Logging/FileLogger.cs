@@ -55,7 +55,7 @@ namespace Oqtane.Infrastructure
             var filepath = Path.Combine(folder, "error.log");
 
             // only retain an error log for the current day as it is intended for development purposes
-            if (File.GetCreationTime(filepath).ToUniversalTime().Date < DateTime.UtcNow.Date && File.Exists(filepath))
+            if (File.Exists(filepath) && File.GetLastWriteTimeUtc(filepath).Date < DateTime.UtcNow.Date)
             {
                 File.Delete(filepath);
             }

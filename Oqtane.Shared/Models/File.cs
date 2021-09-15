@@ -50,6 +50,11 @@ namespace Oqtane.Models
         /// </summary>
         public int ImageWidth { get; set; }
 
+        /// <summary>
+        /// Description of a file
+        /// </summary>
+        public string Description { get; set; }
+
         #region IAuditable Properties
 
         /// <inheritdoc />

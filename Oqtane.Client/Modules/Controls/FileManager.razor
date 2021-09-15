@@ -59,7 +59,7 @@
                     </div>
                 }
             </div>
-            @if (_image != string.Empty)
+            @if (_image != string.Empty && ShowImage)
             {
                 <div class="col-auto">
                     @((MarkupString) _image)
@@ -109,6 +109,9 @@
 
     [Parameter]
     public bool ShowFolders { get; set; } = true; // optional - for indicating whether a list of folders should be displayed - default is true
+
+    [Parameter]
+    public bool ShowImage { get; set; } = true; // optional - for indicating whether an image thumbnail should be displayed - default is true
 
     [Parameter]
     public int FileId { get; set; } = -1; // optional - for setting a specific file by default

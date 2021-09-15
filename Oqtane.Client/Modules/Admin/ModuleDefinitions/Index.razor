@@ -22,6 +22,7 @@ else
             <th style="width: 1px;">&nbsp;</th>
             <th>@SharedLocalizer["Name"]</th>
             <th>@SharedLocalizer["Version"]</th>
+            <th>@SharedLocalizer["Expires"]</th>
             <th style="width: 1px;">&nbsp;</th>
         </Header>
         <Row>
@@ -35,10 +36,13 @@ else
             <td>@context.Name</td>
             <td>@context.Version</td>
             <td>
+                @((MarkupString)PurchaseLink(context.PackageName))
+            </td>
+            <td>
                 @if (UpgradeAvailable(context.PackageName, context.Version))
-                    {
+                {
                     <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadModule(context.PackageName, context.Version))>@SharedLocalizer["Upgrade"]</button>
-                    }
+                }
             </td>
         </Row>
     </Pager>
@@ -65,6 +69,27 @@ else
                 AddModuleMessage(Localizer["Error.Module.Load"], MessageType.Error);
             }
         }
+    }
+
+    private string PurchaseLink(string packagename)
+    {
+        string link = "";
+        if (!string.IsNullOrEmpty(packagename) && _packages != null)
+        {
+            var package = _packages.Where(item => item.PackageId == packagename).FirstOrDefault();
+            if (package != null)
+            {
+                if (package.ExpiryDate != null && package.ExpiryDate.Value.Date != DateTime.MaxValue.Date)
+                {
+                    link += "<span>" + package.ExpiryDate.Value.Date.ToString("MMM dd, yyyy") + "</span>";
+                    if (!string.IsNullOrEmpty(package.PaymentUrl))
+                    {
+                        link += "&nbsp;&nbsp;<a class=\"btn btn-primary\" style=\"text-decoration: none !important\" href=\"" + package.PaymentUrl + "\" target=\"_new\">" + SharedLocalizer["Extend"] + "</a>";
+                    }
+                }
+            }
+        }
+        return link;
     }
 
     private bool UpgradeAvailable(string packagename, string version)
