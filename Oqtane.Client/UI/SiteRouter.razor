@@ -138,6 +138,7 @@
                 if (authState.User.Identity.IsAuthenticated)
                 {
                     user = await UserService.GetUserAsync(authState.User.Identity.Name, site.SiteId);
+                    user.IsAuthenticated = authState.User.Identity.IsAuthenticated;
                 }
             }
             else

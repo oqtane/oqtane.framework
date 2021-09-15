@@ -6,12 +6,13 @@
 @inject ISettingService SettingService
 @inject INotificationService NotificationService
 @inject IFileService FileService
+@inject IFolderService FolderService
 @inject IStringLocalizer<Index> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
 @if (PageState.User != null && photo != null)
 {
-    <img src="@photo.Url" alt="@displayname" style="max-width: 400px" class="rounded-circle mx-auto d-block">
+    <img src="@ImageUrl(photofileid, "400x400", "crop")" alt="@displayname" style="max-width: 400px" class="rounded-circle mx-auto d-block">
 }
 else
 {
@@ -19,7 +20,7 @@ else
 }
 <TabStrip>
     <TabPanel Name="Identity" ResourceKey="Identity">
-        @if (PageState.User != null)
+        @if (profiles != null && settings != null)
         {
             <div class="container">
                 <div class="row mb-1 align-items-center">
@@ -55,7 +56,7 @@ else
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="@photofileid.ToString()" HelpText="A photo of yourself" ResourceKey="Photo"></Label>
                     <div class="col-sm-9">
-                        <FileManager FileId="@photofileid" @ref="filemanager" />
+                        <FileManager FileId="@photofileid" Filter="@Constants.ImageFiles" ShowFolders="false" ShowFiles="true" UploadMultiple="false" FolderId="@folderid" @ref="filemanager" />
                     </div>
                 </div>
             </div>
@@ -67,8 +68,6 @@ else
     <TabPanel Name="Profile" ResourceKey="Profile">
         @if (profiles != null && settings != null)
         {
-
-
             <div class="container">
                 <div class="row mb-1 align-items-center">
                     @foreach (Profile profile in profiles)
@@ -132,11 +131,11 @@ else
             {
                 <Pager Items="@notifications">
                     <Header>
-                    <th style="width: 1px;">&nbsp;</th>
-                    <th style="width: 1px;">&nbsp;</th>
-                    <th>@Localizer["From"]</th>
-                    <th>@Localizer["Subject"]</th>
-                    <th>@Localizer["Received"]</th>
+                        <th style="width: 1px;">&nbsp;</th>
+                        <th style="width: 1px;">&nbsp;</th>
+                        <th>@Localizer["From"]</th>
+                        <th>@Localizer["Subject"]</th>
+                        <th>@Localizer["Received"]</th>
                     </Header>
                     <Row>
                         <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" /></td>
@@ -165,11 +164,11 @@ else
             {
                 <Pager Items="@notifications">
                     <Header>
-                    <th>&nbsp;</th>
-                    <th>&nbsp;</th>
-                    <th>@Localizer["To"]</th>
-                    <th>@Localizer["Subject"]</th>
-                    <th>@Localizer["Sent"]</th>
+                        <th>&nbsp;</th>
+                        <th>&nbsp;</th>
+                        <th>@Localizer["To"]</th>
+                        <th>@Localizer["Subject"]</th>
+                        <th>@Localizer["Sent"]</th>
                     </Header>
                     <Row>
                         <td><ActionLink Action="View" Parameters="@($"id=" + context.NotificationId.ToString())" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="ViewNotification" /></td>
@@ -210,6 +209,7 @@ else
     private string email = string.Empty;
     private string displayname = string.Empty;
     private FileManager filemanager;
+    private int folderid = -1;
     private int photofileid = -1;
     private File photo = null;
     private List<Profile> profiles;
@@ -229,6 +229,13 @@ else
                 username = PageState.User.Username;
                 email = PageState.User.Email;
                 displayname = PageState.User.DisplayName;
+
+                // get user folder
+                var folder = await FolderService.GetFolderAsync(ModuleState.SiteId, PageState.User.FolderPath);
+                if (folder != null)
+                {
+                    folderid = folder.FolderId;
+                }
 
                 if (PageState.User.PhotoFileId != null)
                 {
