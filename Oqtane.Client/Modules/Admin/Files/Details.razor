@@ -28,6 +28,12 @@
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="description" HelpText="A description of the file. This can be used as a caption for image files." ResourceKey="Description">Description: </Label>
+                <div class="col-sm-9">
+                    <input id="description" class="form-control" @bind="@_description" />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" For="size" HelpText="The size of the file (in bytes)" ResourceKey="Size">Size: </Label>
                 <div class="col-sm-9">
                     <input id="size" class="form-control" @bind="@_size" readonly />
@@ -49,6 +55,7 @@
     private string _name;
     private List<Folder> _folders;
     private int _folderId = -1;
+    private string _description = string.Empty;
     private int _size;
     private string _createdBy;
     private DateTime _createdOn;
@@ -70,6 +77,7 @@
             {
                 _name = file.Name;
                 _folderId = file.FolderId;
+                _description = file.Description;
                 _size = file.Size;
                 _createdBy = file.CreatedBy;
                 _createdOn = file.CreatedOn;
@@ -97,6 +105,7 @@
                     File file = await FileService.GetFileAsync(_fileId);
                     file.Name = _name;
                     file.FolderId = _folderId;
+                    file.Description = _description;
                     file = await FileService.UpdateFileAsync(file);
                     await logger.LogInformation("File Saved {File}", file);
                     NavigationManager.NavigateTo(NavigateUrl());

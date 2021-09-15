@@ -171,4 +171,16 @@
   <data name="Type.Text" xml:space="preserve">
     <value>Type:</value>
   </data>
+  <data name="Capacity.HelpText" xml:space="preserve">
+    <value>Enter the maximum folder capacity (in megabytes). Specify zero if the capacity is unlimited.</value>
+  </data>
+  <data name="Capacity.Text" xml:space="preserve">
+    <value>Capacity:</value>
+  </data>
+  <data name="ImageSizes.HelpText" xml:space="preserve">
+    <value>Enter a list of image sizes which can be generated dynamically from uploaded images (ie. 200x200,x200,200x)</value>
+  </data>
+  <data name="ImageSizes.Text" xml:space="preserve">
+    <value>Image Sizes:</value>
+  </data>
 </root>

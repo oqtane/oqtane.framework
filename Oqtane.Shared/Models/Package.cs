@@ -67,24 +67,28 @@ namespace Oqtane.Models
         /// </summary>
         public int Vulnerabilities { get; set; }
 
-        /// <summary>
-        /// The price of the package  ( if commercial )
-        /// </summary>
-        public decimal Price { get; set; }
+        #region Commercial Properties
 
         /// <summary>
-        /// The Url for purchasing the package ( if commercial )
+        /// The price of the package 
+        /// </summary>
+        public decimal? Price { get; set; }
+
+        /// <summary>
+        /// The Url for purchasing the package 
         /// </summary>
         public string PaymentUrl { get; set; }
 
         /// <summary>
-        /// The trial period in days ( if commercial )
+        /// The trial period in days 
         /// </summary>
         public int TrialPeriod { get; set; }
 
         /// <summary>
-        /// The expiry date of the package ( if commercial )
+        /// The expiry date of the package 
         /// </summary>
         public DateTime? ExpiryDate { get; set; }
+
+        #endregion
     }
 }

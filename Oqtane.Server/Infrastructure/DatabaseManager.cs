@@ -631,13 +631,15 @@ namespace Oqtane.Infrastructure
                                                 Type = FolderTypes.Private,
                                                 Path = Utilities.PathCombine(folder.Path, user.UserId.ToString(), Path.DirectorySeparatorChar.ToString()),
                                                 Order = 1,
+                                                ImageSizes = "",
+                                                Capacity = Constants.UserFolderCapacity,
                                                 IsSystem = true,
                                                 Permissions = new List<Permission>
-                                        {
-                                            new Permission(PermissionNames.Browse, user.UserId, true),
-                                            new Permission(PermissionNames.View, RoleNames.Everyone, true),
-                                            new Permission(PermissionNames.Edit, user.UserId, true),
-                                        }.EncodePermissions(),
+                                                {
+                                                    new Permission(PermissionNames.Browse, user.UserId, true),
+                                                    new Permission(PermissionNames.View, RoleNames.Everyone, true),
+                                                    new Permission(PermissionNames.Edit, user.UserId, true),
+                                                }.EncodePermissions(),
                                             });
                                         }
                                     }

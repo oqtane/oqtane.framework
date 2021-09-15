@@ -88,5 +88,14 @@ namespace Oqtane.Models
         /// </summary>
         [NotMapped]
         public bool IsAuthenticated { get; set; }
+
+        /// <summary>
+        /// The path name of the user's personal folder
+        /// </summary>
+        [NotMapped]
+        public string FolderPath
+        {
+            get => "Users\\" + UserId.ToString() + "\\";
+        }
     }
 }

@@ -28,7 +28,7 @@
             <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" For="name" HelpText="Enter the folder name" ResourceKey="Name">Name: </Label>
                 <div class="col-sm-9">
-                    <input id="name" class="form-control" @bind="@_name" maxlength="50" required />
+                    <input id="name" class="form-control" @bind="@_name" maxlength="256" required />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
@@ -45,6 +45,18 @@
                             <option value="@FolderTypes.Public">@Localizer[FolderTypes.Public]</option>
                         </select>
                     }
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="imagesizes" HelpText="Enter a list of image sizes which can be generated dynamically from uploaded images (ie. 200x200,x200,200x)" ResourceKey="ImageSizes">Image Sizes: </Label>
+                <div class="col-sm-9">
+                    <input id="imagesizes" class="form-control" @bind="@_imagesizes" maxlength="512" />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="capacity" HelpText="Enter the maximum folder capacity (in megabytes). Specify zero if the capacity is unlimited." ResourceKey="Capacity">Capacity: </Label>
+                <div class="col-sm-9">
+                    <input id="capacity" class="form-control" @bind="@_capacity" required />
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
@@ -84,6 +96,8 @@
     private int _parentId = -1;
     private string _name;
     private string _type = FolderTypes.Private;
+    private string _imagesizes = string.Empty;
+    private string _capacity = "0";
     private bool _isSystem;
     private string _permissions = string.Empty;
     private string _createdBy;
@@ -114,6 +128,8 @@
                     _parentId = folder.ParentId ?? -1;
                     _name = folder.Name;
                     _type = folder.Type;
+                    _imagesizes = folder.ImageSizes;
+                    _capacity = folder.Capacity.ToString();
                     _isSystem = folder.IsSystem;
                     _permissions = folder.Permissions;
                     _createdBy = folder.CreatedBy;
@@ -125,7 +141,6 @@
             else
             {
                 _parentId = _folders[0].FolderId;
-                _permissions = string.Empty;
             }
         }
         catch (Exception ex)
@@ -178,6 +193,8 @@
 
                 folder.Name = _name;
                 folder.Type = _type;
+                folder.ImageSizes = _imagesizes;
+                folder.Capacity = int.Parse(_capacity);
                 folder.IsSystem = _isSystem;
                 folder.Permissions = _permissionGrid.GetPermissions();
 
