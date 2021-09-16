@@ -59,7 +59,7 @@
                     </div>
                 }
             </div>
-            @if (_image != string.Empty && ShowImage)
+            @if (_image != string.Empty)
             {
                 <div class="col-auto">
                     @((MarkupString) _image)
@@ -126,7 +126,7 @@
     public EventCallback<int> OnUpload { get; set; } // optional - executes a method in the calling component when a file is uploaded
 
     [Parameter]
-    public EventCallback<int> OnChange { get; set; } // optional - executes a method in the calling component when a file is selected
+    public EventCallback<int> OnSelect { get; set; } // optional - executes a method in the calling component when a file is selected
 
     [Parameter]
     public EventCallback<int> OnDelete { get; set; } // optional - executes a method in the calling component when a file is deleted
@@ -138,6 +138,11 @@
             _id = Id;
         }
 
+        if (!ShowFiles)
+        {
+            ShowImage = false;
+        }
+        
         if (!string.IsNullOrEmpty(Folder))
         {
             _folders = new List<Folder> { new Folder { FolderId = -1, Name = Folder } };
@@ -154,12 +159,14 @@
             if (file != null)
             {
                 FolderId = file.FolderId;
+                await OnSelect.InvokeAsync(FileId);
             }
             else
             {
                 FileId = -1; // file does not exist
             }
         }
+
         await SetImage();
 
         if (!string.IsNullOrEmpty(Filter))
@@ -237,7 +244,10 @@
     {
         _message = string.Empty;
         FileId = int.Parse((string)e.Value);
-        await OnChange.InvokeAsync(FileId);
+        if (FileId != -1)
+        {
+            await OnSelect.InvokeAsync(FileId);
+        }
 
         await SetImage();
         StateHasChanged();
@@ -250,7 +260,7 @@
         if (FileId != -1)
         {
             _file = await FileService.GetFileAsync(FileId);
-            if (_file != null && _file.ImageHeight != 0 && _file.ImageWidth != 0)
+            if (_file != null && ShowImage && _file.ImageHeight != 0 && _file.ImageWidth != 0)
             {
                 var maxwidth = 200;
                 var maxheight = 200;
@@ -292,21 +302,14 @@
                     _message = Localizer["Success.File.Upload"];
                     _messagetype = MessageType.Success;
 
+                    // set FileId to first file in upload collection
                     await GetFiles();
-
-                    if (upload.Length == 1)
+                    var file = _files.Where(item => item.Name == upload[0]).FirstOrDefault();
+                    if (file != null)
                     {
-                        var file = _files.Where(item => item.Name == upload[0]).FirstOrDefault();
-                        if (file != null)
-                        {
-                            FileId = file.FileId;
-                            await SetImage();
-                            await OnUpload.InvokeAsync(FileId);
-                        }
-                    }
-                    else
-                    {
-                        await OnUpload.InvokeAsync(-1);
+                        FileId = file.FileId;
+                        await SetImage();
+                        await OnUpload.InvokeAsync(FileId);
                     }
                     StateHasChanged();
                 }

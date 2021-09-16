@@ -136,7 +136,7 @@ namespace Oqtane.Repository
                 Permissions = new List<Permission>
                 {
                     new Permission(PermissionNames.Browse, RoleNames.Admin, true),
-                    new Permission(PermissionNames.View, RoleNames.Admin, true),
+                    new Permission(PermissionNames.View, RoleNames.Everyone, true),
                     new Permission(PermissionNames.Edit, RoleNames.Admin, true)
                 }.EncodePermissions()
             });
