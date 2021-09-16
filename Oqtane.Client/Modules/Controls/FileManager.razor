@@ -96,7 +96,7 @@
     public string Id { get; set; } // optional - for setting the id of the FileManager component for accessibility
 
     [Parameter]
-    public string Folder { get; set; } // optional - for setting a specific folder by default
+    public string Folder { get; set; } // optional - for setting a specific folder by default ( only relevant for host functions )
 
     [Parameter]
     public int FolderId { get; set; } = -1; // optional - for setting a specific folderid by default
@@ -114,13 +114,22 @@
     public bool ShowImage { get; set; } = true; // optional - for indicating whether an image thumbnail should be displayed - default is true
 
     [Parameter]
-    public int FileId { get; set; } = -1; // optional - for setting a specific file by default
+    public int FileId { get; set; } = -1; // optional - for selecting a specific file by default
 
     [Parameter]
     public string Filter { get; set; } // optional - comma delimited list of file types that can be selected or uploaded ie. "jpg,gif"
 
     [Parameter]
     public bool UploadMultiple { get; set; } = false; // optional - enable multiple file uploads - default false
+
+    [Parameter]
+    public EventCallback<int> OnUpload { get; set; } // optional - executes a method in the calling component when a file is uploaded
+
+    [Parameter]
+    public EventCallback<int> OnChange { get; set; } // optional - executes a method in the calling component when a file is selected
+
+    [Parameter]
+    public EventCallback<int> OnDelete { get; set; } // optional - executes a method in the calling component when a file is deleted
 
     protected override async Task OnInitializedAsync()
     {
@@ -228,6 +237,7 @@
     {
         _message = string.Empty;
         FileId = int.Parse((string)e.Value);
+        await OnChange.InvokeAsync(FileId);
 
         await SetImage();
         StateHasChanged();
@@ -291,7 +301,12 @@
                         {
                             FileId = file.FileId;
                             await SetImage();
+                            await OnUpload.InvokeAsync(FileId);
                         }
+                    }
+                    else
+                    {
+                        await OnUpload.InvokeAsync(-1);
                     }
                     StateHasChanged();
                 }
@@ -325,6 +340,7 @@
         {
             await FileService.DeleteFileAsync(FileId);
             await logger.LogInformation("File Deleted {File}", FileId);
+            await OnDelete.InvokeAsync(FileId);
 
             _message = Localizer["Success.File.Delete"];
             _messagetype = MessageType.Success;
