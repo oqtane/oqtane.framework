@@ -4,31 +4,40 @@
 
 @if (_initialized)
 {
-    @if (!_installation.Success)
-    {
-        <Installer />
-    }
-    else
-    {
-        @if (string.IsNullOrEmpty(_installation.Message))
+    <div style="@_display">
+        @if (!_installation.Success)
         {
-            <CascadingAuthenticationState>
-                <CascadingValue Value="@PageState">
-                    <SiteRouter OnStateChange="@ChangeState" />
-                </CascadingValue>
-            </CascadingAuthenticationState>
+            <Installer />
         }
         else
         {
-            <div class="app-alert">
-                @_installation.Message
-            </div>
+            @if (string.IsNullOrEmpty(_installation.Message))
+            {
+                <CascadingAuthenticationState>
+                    <CascadingValue Value="@PageState">
+                        <SiteRouter OnStateChange="@ChangeState" />
+                    </CascadingValue>
+                </CascadingAuthenticationState>
+            }
+            else
+            {
+                <div class="app-alert">
+                    @_installation.Message
+                </div>
+            }
         }
-    }
+    </div>
 }
 
 @code {
+    [Parameter]
+    public string Runtime { get; set; }
+
+    [Parameter]
+    public string RenderMode { get; set; }
+
     private bool _initialized = false;
+    private string _display = "display: none;";
     private Installation _installation = new Installation { Success = false, Message = "" };
 
     private PageState PageState { get; set; }
@@ -53,6 +62,8 @@
         {
             var interop = new Interop(JSRuntime);
             SiteState.AntiForgeryToken = await interop.GetElementByName(Constants.RequestVerificationToken);
+            _display = "";
+            StateHasChanged();
         }
     }
 
