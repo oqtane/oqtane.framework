@@ -9,8 +9,6 @@
 
 <TabStrip>
     <TabPanel Name="Download" ResourceKey="Download">
-        <ModuleMessage Type="MessageType.Info" Message="Download one or more modules from the list below. Once you are ready click Install to complete the installation."></ModuleMessage>
-
         <div class="row justify-content-center mb-3">
             <div class="col-sm-6">
                 <div class="input-group">
@@ -36,7 +34,7 @@
                             @(context.Description.Length > 400 ? (context.Description.Substring(0, 400) + "...") : context.Description)<br />
                             <strong>@(String.Format("{0:n0}", context.Downloads))</strong> @SharedLocalizer["Search.Downloads"]&nbsp;&nbsp;|&nbsp;&nbsp;
                             @SharedLocalizer["Search.Released"]: <strong>@context.ReleaseDate.ToString("MMM dd, yyyy")</strong>&nbsp;&nbsp;|&nbsp;&nbsp;
-                            @SharedLocalizer["Search.Version"]: <strong>@context.Version</strong> 
+                            @SharedLocalizer["Search.Version"]: <strong>@context.Version</strong>
                             @((MarkupString)(context.TrialPeriod > 0 ? "&nbsp;&nbsp;|&nbsp;&nbsp;<strong>" + context.TrialPeriod + " " + @SharedLocalizer["Trial"] + "</strong>" : ""))
                         </td>
                         <td style="width: 1px; vertical-align: middle;">
