@@ -53,12 +53,12 @@
         {
             var interop = new Interop(JSRuntime);
             SiteState.AntiForgeryToken = await interop.GetElementByName(Constants.RequestVerificationToken);
-            StateHasChanged();
         }
     }
 
     private void ChangeState(PageState pageState)
     {
         PageState = pageState;
+        StateHasChanged();
     }
 }
