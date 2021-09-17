@@ -88,6 +88,15 @@ namespace Oqtane.Database.PostgreSQL
             return _rewriter.RewriteName(name);
         }
 
+        public override string RewriteValue(string value, string type)
+        {
+            if (type == "bool")
+            {
+                value = (value == "1") ? "true" : "false";
+            }
+            return value;
+        }
+
         public override void UpdateIdentityStoreTableNames(ModelBuilder builder)
         {
             foreach(var entity in builder.Model.GetEntityTypes())

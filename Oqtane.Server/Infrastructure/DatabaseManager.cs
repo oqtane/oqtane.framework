@@ -107,7 +107,7 @@ namespace Oqtane.Infrastructure
                 };
 
                 // on upgrade install the associated Nuget package
-                if (!string.IsNullOrEmpty(install.ConnectionString) && Type.GetType(install.DatabaseType) == null)
+                if (!string.IsNullOrEmpty(install.ConnectionString))
                 {
                     InstallDatabase(install);
                 }
@@ -206,46 +206,41 @@ namespace Oqtane.Infrastructure
 
             try
             {
-                var databaseType = install.DatabaseType;
+                bool installPackages = false;
 
-                //Get database Type
-                var type = Type.GetType(databaseType);
-
-                //Deploy the database components (if necessary)
-                if (type == null)
+                // iterate database packages in installation folder
+                var packagesFolder = new DirectoryInfo(Path.Combine(_environment.ContentRootPath, "Packages"));
+                foreach (var package in packagesFolder.GetFiles("*.nupkg.bak"))
                 {
-                    //Rename bak extension
-                    var packageFolderName = "Packages";
-                    var path = _environment.ContentRootPath;
-                    var packagesFolder = new DirectoryInfo(Path.Combine(path, packageFolderName));
-
-                    // iterate through Nuget packages in source folder
-                    foreach (var package in packagesFolder.GetFiles("*.nupkg.bak"))
+                    // determine if package needs to be upgraded or installed
+                    bool upgrade = System.IO.File.Exists(package.FullName.Replace(".nupkg.bak",".log"));
+                    if (upgrade || package.Name.StartsWith(Utilities.GetAssemblyName(install.DatabaseType)))
                     {
-                        if (package.Name.StartsWith(Utilities.GetAssemblyName(install.DatabaseType)))
-                        {
-                            //rename file
-                            var packageName = Path.Combine(package.DirectoryName, package.Name);
-                            packageName = packageName.Substring(0, packageName.IndexOf(".bak"));
-                            package.MoveTo(packageName, true);
-                        }
+                        var packageName = Path.Combine(package.DirectoryName, package.Name);
+                        packageName = packageName.Substring(0, packageName.IndexOf(".bak"));
+                        package.MoveTo(packageName, true);
+                        installPackages = true;
                     }
-
-                    //Call InstallationManager to install Database Package
+                }
+                if (installPackages)
+                {
                     using (var scope = _serviceScopeFactory.CreateScope())
                     {
                         var installationManager = scope.ServiceProvider.GetRequiredService<IInstallationManager>();
                         installationManager.InstallPackages();
-
-                        var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
-                        var assembliesFolder = new DirectoryInfo(assemblyPath);
-                        var assemblyFile = new FileInfo($"{assembliesFolder}/{Utilities.GetAssemblyName(install.DatabaseType)}.dll");
-
-                        AssemblyLoadContext.Default.LoadOqtaneAssembly(assemblyFile);
-
-                        result.Success = true;
                     }
                 }
+
+                // load the installation database type (if necessary)
+                if (Type.GetType(install.DatabaseType) == null)
+                {
+                    var assemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
+                    var assembliesFolder = new DirectoryInfo(assemblyPath);
+                    var assemblyFile = new FileInfo($"{assembliesFolder}/{Utilities.GetAssemblyName(install.DatabaseType)}.dll");
+                    AssemblyLoadContext.Default.LoadOqtaneAssembly(assemblyFile);
+                }
+
+                result.Success = true;
             }
             catch (Exception ex)
             {

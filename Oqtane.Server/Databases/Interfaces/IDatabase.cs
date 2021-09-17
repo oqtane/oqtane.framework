@@ -27,6 +27,8 @@ namespace Oqtane.Databases.Interfaces
 
         public string RewriteName(string name);
 
+        public string RewriteValue(string value, string type);
+
         public void UpdateIdentityStoreTableNames(ModelBuilder builder);
 
         public DbContextOptionsBuilder UseDatabase(DbContextOptionsBuilder optionsBuilder, string connectionString);
