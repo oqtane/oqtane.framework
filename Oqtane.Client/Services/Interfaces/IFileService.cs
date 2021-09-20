@@ -62,8 +62,9 @@ namespace Oqtane.Services
         /// </summary>
         /// <param name="url"></param>
         /// <param name="folderId"></param>
+        /// <param name="name"></param>
         /// <returns></returns>
-        Task<File> UploadFileAsync(string url, int folderId);
+        Task<File> UploadFileAsync(string url, int folderId, string name);
 
         /// <summary>
         /// Upload one or more files.

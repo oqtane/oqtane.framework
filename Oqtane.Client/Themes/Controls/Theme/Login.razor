@@ -12,7 +12,16 @@
             <button type="button" class="btn btn-primary" @onclick="LogoutUser">@Localizer["Logout"]</button>
         </Authorized>
         <NotAuthorized>
-            <button type="button" class="btn btn-primary" @onclick="LoginUser">@SharedLocalizer["Login"]</button>
+            @if (ShowLogin)
+            {
+                <button type="button" class="btn btn-primary" @onclick="LoginUser">@SharedLocalizer["Login"]</button>
+            }
         </NotAuthorized>
     </AuthorizeView>
 </span>
+
+@code
+{
+    [Parameter]
+    public bool ShowLogin { get; set; }
+}

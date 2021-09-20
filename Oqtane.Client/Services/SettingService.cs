@@ -109,21 +109,31 @@ namespace Oqtane.Services
 
             foreach (KeyValuePair<string, string> kvp in settings)
             {
-                Setting setting = settingsList.FirstOrDefault(item => item.SettingName.Equals(kvp.Key,StringComparison.OrdinalIgnoreCase));
+                string value = kvp.Value;
+                bool ispublic = false;
+                if (value.StartsWith("[Public]"))
+                {
+                    value = value.Substring(8); // remove [Public]
+                    ispublic = true;
+                }
+
+                Setting setting = settingsList.FirstOrDefault(item => item.SettingName.Equals(kvp.Key, StringComparison.OrdinalIgnoreCase));
                 if (setting == null)
                 {
                     setting = new Setting();
                     setting.EntityName = entityName;
                     setting.EntityId = entityId;
                     setting.SettingName = kvp.Key;
-                    setting.SettingValue = kvp.Value;
+                    setting.SettingValue = value;
+                    setting.IsPublic = ispublic;
                     setting = await AddSettingAsync(setting);
                 }
                 else
                 {
                     if (setting.SettingValue != kvp.Value)
                     {
-                        setting.SettingValue = kvp.Value;
+                        setting.SettingValue = value;
+                        setting.IsPublic = ispublic;
                         setting = await UpdateSettingAsync(setting);
                     }
                 }
@@ -164,12 +174,18 @@ namespace Oqtane.Services
 
         public Dictionary<string, string> SetSetting(Dictionary<string, string> settings, string settingName, string settingValue)
         {
+            return SetSetting(settings, settingName, settingValue, false);
+        }
+
+        public Dictionary<string, string> SetSetting(Dictionary<string, string> settings, string settingName, string settingValue, bool isPublic)
+        {
             if (settings == null)
             {
                 settings = new Dictionary<string, string>();
             }
+            settingValue = (isPublic) ? "[Public]" + settingValue : settingValue;
             if (settings.ContainsKey(settingName))
-            { 
+            {
                 settings[settingName] = settingValue;
             }
             else
@@ -177,6 +193,29 @@ namespace Oqtane.Services
                 settings.Add(settingName, settingValue);
             }
             return settings;
+        }
+
+        public Dictionary<string, string> MergeSettings(Dictionary<string, string> settings1, Dictionary<string, string> settings2)
+        {
+            if (settings1 == null)
+            {
+                settings1 = new Dictionary<string, string>();
+            }
+            if (settings2 != null)
+            {
+                foreach (var setting in settings2)
+                {
+                    if (settings1.ContainsKey(setting.Key))
+                    {
+                        settings1[setting.Key] = setting.Value;
+                    }
+                    else
+                    {
+                        settings1.Add(setting.Key, setting.Value);
+                    }
+                }
+            }
+            return settings1;
         }
     }
 }

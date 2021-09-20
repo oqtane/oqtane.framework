@@ -156,4 +156,10 @@
   <data name="UploadFiles.Heading" xml:space="preserve">
     <value>Upload Files</value>
   </data>
+  <data name="Name.HelpText" xml:space="preserve">
+    <value>Enter the name of the file being downloaded</value>
+  </data>
+  <data name="Name.Text" xml:space="preserve">
+    <value>Name:</value>
+  </data>
 </root>

@@ -13,15 +13,18 @@
             <button type="button" class="btn btn-primary" @onclick="UpdateProfile">@context.User.Identity.Name</button>
         </Authorized>
         <NotAuthorized>
-            @if (PageState.Site.AllowRegistration)
+            @if (ShowRegister && PageState.Site.AllowRegistration)
             {
-            <button type="button" class="btn btn-primary" @onclick="RegisterUser">@Localizer["Register"]</button>
+                <button type="button" class="btn btn-primary" @onclick="RegisterUser">@Localizer["Register"]</button>
             }
         </NotAuthorized>
     </AuthorizeView>
 </span>
 
 @code {
+
+    [Parameter]
+    public bool ShowRegister { get; set; }
 
     private void RegisterUser()
     {

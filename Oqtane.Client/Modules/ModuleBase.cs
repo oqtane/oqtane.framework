@@ -134,9 +134,9 @@ namespace Oqtane.Modules
             return Utilities.ContentUrl(PageState.Alias, fileid, asAttachment);
         }
 
-        public string ImageUrl(int fileid, string size, string mode)
+        public string ImageUrl(int fileid, int width, int height, string mode)
         {
-            return Utilities.ImageUrl(PageState.Alias, fileid, size, mode);
+            return Utilities.ImageUrl(PageState.Alias, fileid, width, height, mode);
         }
 
         public virtual Dictionary<string, string> GetUrlParameters(string parametersTemplate = "")
