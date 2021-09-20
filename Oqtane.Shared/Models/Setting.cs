@@ -32,6 +32,11 @@ namespace Oqtane.Models
         /// </summary>
         public string SettingValue { get; set; }
 
+        /// <summary>
+        /// Indicates if this setting is publicly available - only applicable to Site Settings as other entities have more granular permissions
+        /// </summary>
+        public bool IsPublic { get; set; }
+
         #region IAuditable Properties
 
         /// <inheritdoc/>

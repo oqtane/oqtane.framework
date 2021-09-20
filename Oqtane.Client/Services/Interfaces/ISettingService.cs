@@ -176,5 +176,9 @@ namespace Oqtane.Services
         /// <param name="defaultValue"></param>
         /// <returns></returns>
         Dictionary<string, string> SetSetting(Dictionary<string, string> settings, string settingName, string settingValue);
-     }
+
+        Dictionary<string, string> SetSetting(Dictionary<string, string> settings, string settingName, string settingValue, bool isPublic);
+
+        Dictionary<string, string> MergeSettings(Dictionary<string, string> settings1, Dictionary<string, string> settings2);
+}
 }

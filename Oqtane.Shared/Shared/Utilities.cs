@@ -112,10 +112,10 @@ namespace Oqtane.Shared
             return $"{aliasUrl}{Constants.ContentUrl}{fileId}{method}";
         }
 
-        public static string ImageUrl(Alias alias, int fileId, string size, string mode)
+        public static string ImageUrl(Alias alias, int fileId, int width, int height, string mode)
         {
             var aliasUrl = (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path : "";
-            return $"{aliasUrl}{Constants.ImageUrl}{fileId}/{size}/{mode}";
+            return $"{aliasUrl}{Constants.ImageUrl}{fileId}/{width}/{height}/{mode}";
         }
 
         public static string TenantUrl(Alias alias, string url)

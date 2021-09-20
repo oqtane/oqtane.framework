@@ -39,6 +39,10 @@ namespace Oqtane.Controllers
             if (IsAuthorized(entityname, entityid, PermissionNames.View))
             {
                 settings = _settings.GetSettings(entityname, entityid).ToList();
+                if (entityname == EntityNames.Site && !User.IsInRole(RoleNames.Admin))
+                {
+                    settings = settings.Where(item => item.IsPublic).ToList();
+                }
             }
             else
             {
@@ -55,6 +59,10 @@ namespace Oqtane.Controllers
             Setting setting = _settings.GetSetting(id);
             if (IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.View))
             {
+                if (setting.EntityName == EntityNames.Site && !User.IsInRole(RoleNames.Admin) && !setting.IsPublic)
+                {
+                    setting = null;
+                }
                 return setting;
             }
             else
@@ -72,10 +80,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit))
             {
                 setting = _settings.AddSetting(setting);
-                if (setting.EntityName == EntityNames.Module)
-                {
-                    _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId);
-                }
+                AddSyncEvent(setting.EntityName);
                 _logger.Log(LogLevel.Information, this, LogFunction.Create, "Setting Added {Setting}", setting);
             }
             else
@@ -94,10 +99,7 @@ namespace Oqtane.Controllers
             if (ModelState.IsValid && IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit))
             {
                 setting = _settings.UpdateSetting(setting);
-                if (setting.EntityName == EntityNames.Module)
-                {
-                    _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId);
-                }
+                AddSyncEvent(setting.EntityName);
                 _logger.Log(LogLevel.Information, this, LogFunction.Update, "Setting Updated {Setting}", setting);
             }
             else
@@ -117,10 +119,7 @@ namespace Oqtane.Controllers
             if (IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit))
             {
                 _settings.DeleteSetting(id);
-                if (setting.EntityName == EntityNames.Module)
-                {
-                    _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId);
-                }
+                AddSyncEvent(setting.EntityName);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Setting Deleted {Setting}", setting);
             }
             else
@@ -144,7 +143,14 @@ namespace Oqtane.Controllers
                     authorized = User.IsInRole(RoleNames.Host);
                     break;
                 case EntityNames.Site:
-                    authorized = User.IsInRole(RoleNames.Admin);
+                    if (permissionName == PermissionNames.Edit)
+                    {
+                        authorized = User.IsInRole(RoleNames.Admin);
+                    }
+                    else
+                    {
+                        authorized = true;
+                    }
                     break;
                 case EntityNames.Page:
                 case EntityNames.Module:
@@ -160,6 +166,18 @@ namespace Oqtane.Controllers
                     break;
             }
             return authorized;
+        }
+
+        private void AddSyncEvent(string EntityName)
+        {
+            switch (EntityName)
+            {
+                case EntityNames.Module:
+                case EntityNames.Page:
+                case EntityNames.Site:
+                    _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, _alias.SiteId);
+                    break;
+            }
         }
     }
 }

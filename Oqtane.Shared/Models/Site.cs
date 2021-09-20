@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Oqtane.Models
@@ -80,6 +81,9 @@ namespace Oqtane.Models
         
         [NotMapped]
         public string SiteTemplateType { get; set; }
+
+        [NotMapped]
+        public Dictionary<string, string> Settings { get; set; }
 
         [NotMapped]
         [Obsolete("This property is deprecated.", false)]

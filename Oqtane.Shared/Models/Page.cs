@@ -104,10 +104,13 @@ namespace Oqtane.Models
         /// </summary>
         [NotMapped]
         public List<Resource> Resources { get; set; }
+
         [NotMapped]
         public string Permissions { get; set; }
+
         [NotMapped]
         public Dictionary<string, string> Settings { get; set; }
+
         [NotMapped]
         public int Level { get; set; }
 
