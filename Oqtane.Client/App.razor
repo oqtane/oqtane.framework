@@ -15,7 +15,7 @@
             {
                 <CascadingAuthenticationState>
                     <CascadingValue Value="@PageState">
-                        <SiteRouter Runtime="@Runtime" OnStateChange="@ChangeState" />
+                        <SiteRouter Runtime="@Runtime" RenderMode="@RenderMode" OnStateChange="@ChangeState" />
                     </CascadingValue>
                 </CascadingAuthenticationState>
             }
@@ -30,15 +30,11 @@
 }
 
 @code {
-    [Parameter]
-    public string Runtime { get; set; }
-
-    [Parameter]
-    public string RenderMode { get; set; }
-
     private bool _initialized = false;
     private string _display = "display: none;";
     private Installation _installation = new Installation { Success = false, Message = "" };
+    private string Runtime = "";
+    private string RenderMode = "";
 
     private PageState PageState { get; set; }
 
@@ -62,6 +58,8 @@
         {
             var interop = new Interop(JSRuntime);
             SiteState.AntiForgeryToken = await interop.GetElementByName(Constants.RequestVerificationToken);
+            Runtime = await interop.GetElementByName("app_runtime");
+            RenderMode = await interop.GetElementByName("app_rendermode");
             _display = "";
             StateHasChanged();
         }
