@@ -22,6 +22,9 @@
     [Parameter]
     public string Runtime { get; set; }
 
+    [Parameter]
+    public string RenderMode { get; set; }
+
     [CascadingParameter]
     PageState PageState { get; set; }
 
@@ -52,7 +55,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        if (PageState == null)
+        if (PageState == null && !string.IsNullOrEmpty(Runtime))
         {
             await Refresh();
         }
