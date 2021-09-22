@@ -38,4 +38,10 @@
     <Folder Include="Resources\" />
     <Folder Include="Resources\Themes\Controls\Theme\" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <PublishTrimmed>false</PublishTrimmed>
+    <BlazorEnableCompression>false</BlazorEnableCompression>
+  </PropertyGroup>
+
 </Project>
