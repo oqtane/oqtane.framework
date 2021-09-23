@@ -20,7 +20,7 @@
 <body>
     @(Html.AntiForgeryToken())
     <app>
-        <component type="typeof(Oqtane.App)" render-mode="@Model.RenderMode" />
+        <component type="typeof(Oqtane.App)" render-mode="@Model.RenderMode" param-AntiForgeryToken="@Model.AntiForgeryToken" param-Runtime="@Model.Runtime" param-RenderMode="@Model.RenderMode.ToString()" />
     </app>
 
     <div id="blazor-error-ui">
