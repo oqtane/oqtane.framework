@@ -55,7 +55,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        if (PageState == null && !string.IsNullOrEmpty(Runtime))
+        if (PageState == null)
         {
             await Refresh();
         }

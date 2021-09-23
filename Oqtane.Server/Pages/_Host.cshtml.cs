@@ -12,6 +12,7 @@ using Oqtane.Repository;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Antiforgery;
 
 namespace Oqtane.Pages
 {
@@ -21,19 +22,18 @@ namespace Oqtane.Pages
         private readonly ITenantManager _tenantManager;
         private readonly ILocalizationManager _localizationManager;
         private readonly ILanguageRepository _languages;
+        private readonly IAntiforgery _antiforgery;
 
-        public HostModel(
-            IConfiguration configuration,
-            ITenantManager tenantManager,
-            ILocalizationManager localizationManager,
-            ILanguageRepository languages)
+        public HostModel(IConfiguration configuration, ITenantManager tenantManager, ILocalizationManager localizationManager, ILanguageRepository languages, IAntiforgery antiforgery)
         {
             _configuration = configuration;
             _tenantManager = tenantManager;
             _localizationManager = localizationManager;
             _languages = languages;
+            _antiforgery = antiforgery;
         }
 
+        public string AntiForgeryToken = "";
         public string Runtime = "Server";
         public RenderMode RenderMode = RenderMode.Server;
         public string HeadResources = "";
@@ -41,6 +41,8 @@ namespace Oqtane.Pages
 
         public void OnGet()
         {
+            AntiForgeryToken = _antiforgery.GetAndStoreTokens(HttpContext).RequestToken;
+
             if (_configuration.GetSection("Runtime").Exists())
             {
                 Runtime = _configuration.GetSection("Runtime").Value;
@@ -50,7 +52,7 @@ namespace Oqtane.Pages
             {
                 RenderMode = (RenderMode)Enum.Parse(typeof(RenderMode), _configuration.GetSection("RenderMode").Value, true);
             }
-
+            
             var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
             foreach (Assembly assembly in assemblies)
             {

@@ -4,37 +4,44 @@
 
 @if (_initialized)
 {
-    <div style="@_display">
-        @if (!_installation.Success)
+    @if (!_installation.Success)
+    {
+        <Installer />
+    }
+    else
+    {
+        @if (string.IsNullOrEmpty(_installation.Message))
         {
-            <Installer />
-        }
-        else
-        {
-            @if (string.IsNullOrEmpty(_installation.Message))
-            {
+            <div style="@_display">
                 <CascadingAuthenticationState>
                     <CascadingValue Value="@PageState">
                         <SiteRouter Runtime="@Runtime" RenderMode="@RenderMode" OnStateChange="@ChangeState" />
                     </CascadingValue>
                 </CascadingAuthenticationState>
-            }
-            else
-            {
-                <div class="app-alert">
-                    @_installation.Message
-                </div>
-            }
+            </div>
         }
-    </div>
+        else
+        {
+            <div class="app-alert">
+                @_installation.Message
+            </div>
+        }
+    }
 }
 
 @code {
+    [Parameter]
+    public string AntiForgeryToken { get; set; }
+
+    [Parameter]
+    public string Runtime { get; set; }
+
+    [Parameter]
+    public string RenderMode { get; set; }
+
     private bool _initialized = false;
     private string _display = "display: none;";
     private Installation _installation = new Installation { Success = false, Message = "" };
-    private string Runtime = "";
-    private string RenderMode = "";
 
     private PageState PageState { get; set; }
 
@@ -44,6 +51,7 @@
         if (_installation.Alias != null)
         {
             SiteState.Alias = _installation.Alias;
+            SiteState.AntiForgeryToken = AntiForgeryToken;
         }
         else
         {
@@ -56,10 +64,15 @@
     {
         if (firstRender)
         {
-            var interop = new Interop(JSRuntime);
-            SiteState.AntiForgeryToken = await interop.GetElementByName(Constants.RequestVerificationToken);
-            Runtime = await interop.GetElementByName("app_runtime");
-            RenderMode = await interop.GetElementByName("app_rendermode");
+            if (string.IsNullOrEmpty(AntiForgeryToken))
+            {
+                // parameter values are not set when running on WebAssembly (seems to be a .NET 5 bug) - need to retrieve using JSInterop
+                var interop = new Interop(JSRuntime);
+                AntiForgeryToken = await interop.GetElementByName(Constants.RequestVerificationToken);
+                SiteState.AntiForgeryToken = AntiForgeryToken;
+                Runtime = await interop.GetElementByName("app_runtime");
+                RenderMode = await interop.GetElementByName("app_rendermode");
+            }
             _display = "";
             StateHasChanged();
         }
