@@ -44,7 +44,7 @@ else
             <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" For="sqlQeury" HelpText="Enter the query for the SQL server" ResourceKey="SqlQuery">SQL Query: </Label>
                 <div class="col-sm-9">
-                    <textarea id="sqlQeury" class="form-control" @bind="@_sql" rows="5"></textarea>
+                    <textarea id="sqlQeury" class="form-control" @bind="@_sql" rows="3"></textarea>
                 </div>
             </div>
         }
@@ -53,9 +53,31 @@ else
     <button type="button" class="btn btn-success" @onclick="Execute">@Localizer["Execute"]</button>
     <br />
     <br />
-    @if (!string.IsNullOrEmpty(_results))
+    @if (_results != null)
     {
-        @((MarkupString)_results)
+        @if (_results.Count > 0)
+        {
+            <div class="table-responsive">
+                <Pager Class="table table-bordered" Items="@_results">
+                    <Header>
+                        @foreach (KeyValuePair<string, string> kvp in _results.First())
+                        {
+                            <th>@kvp.Key</th>
+                        }
+                    </Header>
+                    <Row>
+                        @foreach (KeyValuePair<string, string> kvp in context)
+                        {
+                            <td>@kvp.Value</td>
+                        }
+                    </Row>
+                </Pager>
+            </div>
+        }
+        else
+        {
+            @Localizer["Return.NoResult"]
+        }
         <br />
         <br />
     }
@@ -67,7 +89,7 @@ else
     private string _database = string.Empty;
     private string _connectionstring = string.Empty;
     private string _sql = string.Empty;
-    private string _results = string.Empty;
+    private List<Dictionary<string, string>> _results;
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
@@ -114,7 +136,7 @@ else
             {
                 var sqlquery = new SqlQuery { TenantId = int.Parse(_tenantid), Query = _sql };
                 sqlquery = await SqlService.ExecuteQueryAsync(sqlquery);
-                _results = DisplayResults(sqlquery.Results);
+                _results = sqlquery.Results;
                 AddModuleMessage(Localizer["Success.QueryExecuted"], MessageType.Success);
             }
             else
@@ -127,45 +149,5 @@ else
             await logger.LogError(ex, "Error Executing SQL Query {SQL} {Error}", _sql, ex.Message);
             AddModuleMessage(ex.Message, MessageType.Error);
         }
-    }
-
-    private string DisplayResults(List<Dictionary<string, string>> results)
-    {
-        var table = string.Empty;
-        foreach (Dictionary<string, string> item in results)
-        {
-            if (table == string.Empty)
-            {
-                table = "<div class=\"table-responsive\">";
-                table += "<table class=\"table table-bordered\"><thead><tr>";
-
-                foreach (KeyValuePair<string, string> kvp in item)
-                {
-                    table += "<th scope=\"col\">" + kvp.Key + "</th>";
-                }
-
-                table += "</tr></thead><tbody>";
-            }
-
-            table += "<tr>";
-
-            foreach (KeyValuePair<string, string> kvp in item)
-            {
-                table += "<td>" + kvp.Value + "</td>";
-            }
-
-            table += "</tr>";
-        }
-
-        if (table != string.Empty)
-        {
-            table += "</tbody></table></div>";
-        }
-        else
-        {
-            table = Localizer["Return.NoResult"];
-        }
-
-        return table;
     }
 }
