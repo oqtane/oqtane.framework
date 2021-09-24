@@ -1,6 +1,7 @@
 using Oqtane.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -60,13 +61,16 @@ namespace Oqtane.Shared
             string urlparameters;
             string querystring;
             string anchor;
-            (urlparameters, querystring, anchor) = ParseParameters(parameters);
 
+            // parse parameters
+            (urlparameters, querystring, anchor) = ParseParameters(parameters);
             if (!string.IsNullOrEmpty(urlparameters))
             {
                 if (urlparameters.StartsWith("/")) urlparameters = urlparameters.Remove(0, 1);
                 path += $"/{Constants.UrlParametersDelimiter}/{urlparameters}";
             }
+
+            // build url
             var uriBuilder = new UriBuilder
             {
                 Path = !string.IsNullOrEmpty(alias)
@@ -76,9 +80,9 @@ namespace Oqtane.Shared
                     : $"{path}",
                 Query = querystring,
             };
+
             anchor = string.IsNullOrEmpty(anchor) ? "" : "#" + anchor;
-            var navigateUrl = uriBuilder.Uri.PathAndQuery + anchor;
-            return navigateUrl;
+            return uriBuilder.Uri.PathAndQuery + anchor;
         }
 
         public static string EditUrl(string alias, string path, int moduleid, string action, string parameters)
@@ -106,6 +110,12 @@ namespace Oqtane.Shared
             var method = asAttachment ? "/attach":"";
 
             return $"{aliasUrl}{Constants.ContentUrl}{fileId}{method}";
+        }
+
+        public static string ImageUrl(Alias alias, int fileId, int width, int height, string mode)
+        {
+            var aliasUrl = (alias != null && !string.IsNullOrEmpty(alias.Path)) ? "/" + alias.Path : "";
+            return $"{aliasUrl}{Constants.ImageUrl}{fileId}/{width}/{height}/{mode}";
         }
 
         public static string TenantUrl(Alias alias, string url)
@@ -344,6 +354,10 @@ namespace Oqtane.Shared
 
         public static string UrlCombine(params string[] segments)
         {
+            for (int i = 1; i < segments.Length; i++)
+            {
+                segments[i] = segments[i].Replace("\\", "/");
+            }
             return string.Join("/", segments);
         }
 

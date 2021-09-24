@@ -2,34 +2,105 @@
 @inherits ModuleBase
 @implements Oqtane.Interfaces.ISettingsControl
 @inject ISettingService SettingService
+@inject IStringLocalizer<ThemeSettings> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 @attribute [OqtaneIgnore]
 
-<table class="table table-borderless">
-    <tr>
-        <td width="30%">
-            <Label For="footer" ResourceKey="Footer" HelpText="Specify If A Footer Should Always Be Displayed In A Fixed Location At The Bottom Of The Browser Window">Display Fixed Footer?</Label>
-        </td>
-        <td>
-            <select id="footer" class="form-select" @bind="@_footer">
-                <option value="true">Yes</option>
-                <option value="false">No</option>
+<div class="container">
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="scope" ResourceKey="Scope" HelpText="Specify if the settings are applicable to this page or the entire site.">Setting Scope:</Label>
+        <div class="col-sm-9">
+            <select id="scope" class="form-select" value="@_scope" @onchange="(e => ScopeChanged(e))">
+                @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin))
+                {
+                <option value="site">@Localizer["Site"]</option>
+                }
+            <option value="page">@Localizer["Page"]</option>
             </select>
-        </td>
-    </tr>
-</table>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="login" ResourceKey="Login" HelpText="Specify if a Login option should be displayed. Note that this option does not prevent the login page from being accessible via a direct url.">Show Login?</Label>
+        <div class="col-sm-9">
+            <select id="login" class="form-select" @bind="@_login">
+                <option value="-">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
+                <option value="true">@SharedLocalizer["Yes"]</option>
+                <option value="false">@SharedLocalizer["No"]</option>
+            </select>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="register" ResourceKey="Register" HelpText="Specify if a Register option should be displayed. Note that this option is also dependent on the Allow Registration option in Site Settings.">Show Register?</Label>
+        <div class="col-sm-9">
+            <select id="register" class="form-select" @bind="@_register">
+                <option value="-">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
+                <option value="true">@SharedLocalizer["Yes"]</option>
+                <option value="false">@SharedLocalizer["No"]</option>
+            </select>
+        </div>
+    </div>
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="footer" ResourceKey="Footer" HelpText="Specify if a Footer pane should always be displayed in a fixed location at the bottom of the page">Display Fixed Footer?</Label>
+        <div class="col-sm-9">
+            <select id="footer" class="form-select" @bind="@_footer">
+                <option value="-">&lt;@SharedLocalizer["Not Specified"]&gt;</option>
+                <option value="true">@SharedLocalizer["Yes"]</option>
+                <option value="false">@SharedLocalizer["No"]</option>
+            </select>
+        </div>
+    </div>
+</div>
 
 @code {
-    private string _footer = "false";
+    private string _scope = "page";
+    private string _login = "-";
+    private string _register = "-";
+    private string _footer = "-";
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         try
         {
-            _footer = SettingService.GetSetting(PageState.Page.Settings, GetType().Namespace + ":Footer", "false");
+            await LoadSettings();
         }
         catch (Exception ex)
         {
-            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Loading Settings {Error}", ex.Message);
+            AddModuleMessage("Error Loading Settings", MessageType.Error);
+        }
+    }
+
+    private async Task LoadSettings()
+    {
+        if (_scope == "site")
+        {
+            var settings = PageState.Site.Settings;
+            _login = SettingService.GetSetting(settings, GetType().Namespace + ":Login", "true");
+            _register = SettingService.GetSetting(settings, GetType().Namespace + ":Register", "true");
+            _footer = SettingService.GetSetting(settings, GetType().Namespace + ":Footer", "false");
+        }
+        else
+        {
+            var settings = SettingService.MergeSettings(PageState.Site.Settings, PageState.Page.Settings);
+            _login = SettingService.GetSetting(settings, GetType().Namespace + ":Login", "-");
+            _register = SettingService.GetSetting(settings, GetType().Namespace + ":Register", "-");
+            _footer = SettingService.GetSetting(settings, GetType().Namespace + ":Footer", "-");
+        }
+        await Task.Yield();
+    }
+
+    private async Task ScopeChanged(ChangeEventArgs eventArgs)
+    {
+        try
+        {
+            _scope = (string)eventArgs.Value;
+            await LoadSettings();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Settings {Error}", ex.Message);
+            AddModuleMessage("Error Loading Settings", MessageType.Error);
         }
     }
 
@@ -37,13 +108,45 @@
     {
         try
         {
-            var settings = PageState.Page.Settings;
-            settings = SettingService.SetSetting(settings, GetType().Namespace + ":Footer", _footer);
-            await SettingService.UpdatePageSettingsAsync(settings, PageState.Page.PageId);
+            if (_scope == "site")
+            {
+                var settings = PageState.Site.Settings;
+                if (_login != "-")
+                {
+                    settings = SettingService.SetSetting(settings, GetType().Namespace + ":Login", _login, true);
+                }
+                if (_register != "-")
+                {
+                    settings = SettingService.SetSetting(settings, GetType().Namespace + ":Register", _register, true);
+                }
+                if (_footer != "-")
+                {
+                    settings = SettingService.SetSetting(settings, GetType().Namespace + ":Footer", _footer, true);
+                }
+                await SettingService.UpdateSiteSettingsAsync(settings, PageState.Site.SiteId);
+            }
+            else
+            {
+                var settings = PageState.Page.Settings;
+                if (_login != "-")
+                {
+                    settings = SettingService.SetSetting(settings, GetType().Namespace + ":Login", _login);
+                }
+                if (_register != "-")
+                {
+                    settings = SettingService.SetSetting(settings, GetType().Namespace + ":Register", _register);
+                }
+                if (_footer != "-")
+                {
+                    settings = SettingService.SetSetting(settings, GetType().Namespace + ":Footer", _footer);
+                }
+                await SettingService.UpdatePageSettingsAsync(settings, PageState.Page.PageId);
+            }
         }
         catch (Exception ex)
         {
-            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+            await logger.LogError(ex, "Error Saving Settings {Error}", ex.Message);
+            AddModuleMessage("Error Saving Settings", MessageType.Error);
         }
     }
 }

@@ -58,7 +58,6 @@
                         </span>
                     </div>
                 }
-                <ModuleMessage Message="@_message" Type="@_messagetype"></ModuleMessage>
             </div>
             @if (_image != string.Empty)
             {
@@ -67,6 +66,14 @@
                 </div>
             }
         </div>
+        @if (!string.IsNullOrEmpty(_message))
+        {
+            <div class="row">
+                <div class="col mt-2">
+                    <ModuleMessage Message="@_message" Type="@_messagetype" />
+                </div>
+            </div>
+        }
     </div>
 }
 
@@ -89,7 +96,7 @@
     public string Id { get; set; } // optional - for setting the id of the FileManager component for accessibility
 
     [Parameter]
-    public string Folder { get; set; } // optional - for setting a specific folder by default
+    public string Folder { get; set; } // optional - for setting a specific folder by default ( only relevant for host functions )
 
     [Parameter]
     public int FolderId { get; set; } = -1; // optional - for setting a specific folderid by default
@@ -104,13 +111,25 @@
     public bool ShowFolders { get; set; } = true; // optional - for indicating whether a list of folders should be displayed - default is true
 
     [Parameter]
-    public int FileId { get; set; } = -1; // optional - for setting a specific file by default
+    public bool ShowImage { get; set; } = true; // optional - for indicating whether an image thumbnail should be displayed - default is true
+
+    [Parameter]
+    public int FileId { get; set; } = -1; // optional - for selecting a specific file by default
 
     [Parameter]
     public string Filter { get; set; } // optional - comma delimited list of file types that can be selected or uploaded ie. "jpg,gif"
 
     [Parameter]
     public bool UploadMultiple { get; set; } = false; // optional - enable multiple file uploads - default false
+
+    [Parameter]
+    public EventCallback<int> OnUpload { get; set; } // optional - executes a method in the calling component when a file is uploaded
+
+    [Parameter]
+    public EventCallback<int> OnSelect { get; set; } // optional - executes a method in the calling component when a file is selected
+
+    [Parameter]
+    public EventCallback<int> OnDelete { get; set; } // optional - executes a method in the calling component when a file is deleted
 
     protected override async Task OnInitializedAsync()
     {
@@ -119,6 +138,11 @@
             _id = Id;
         }
 
+        if (!ShowFiles)
+        {
+            ShowImage = false;
+        }
+        
         if (!string.IsNullOrEmpty(Folder))
         {
             _folders = new List<Folder> { new Folder { FolderId = -1, Name = Folder } };
@@ -135,12 +159,14 @@
             if (file != null)
             {
                 FolderId = file.FolderId;
+                await OnSelect.InvokeAsync(FileId);
             }
             else
             {
                 FileId = -1; // file does not exist
             }
         }
+
         await SetImage();
 
         if (!string.IsNullOrEmpty(Filter))
@@ -218,6 +244,10 @@
     {
         _message = string.Empty;
         FileId = int.Parse((string)e.Value);
+        if (FileId != -1)
+        {
+            await OnSelect.InvokeAsync(FileId);
+        }
 
         await SetImage();
         StateHasChanged();
@@ -230,7 +260,7 @@
         if (FileId != -1)
         {
             _file = await FileService.GetFileAsync(FileId);
-            if (_file != null && _file.ImageHeight != 0 && _file.ImageWidth != 0)
+            if (_file != null && ShowImage && _file.ImageHeight != 0 && _file.ImageWidth != 0)
             {
                 var maxwidth = 200;
                 var maxheight = 200;
@@ -272,16 +302,14 @@
                     _message = Localizer["Success.File.Upload"];
                     _messagetype = MessageType.Success;
 
+                    // set FileId to first file in upload collection
                     await GetFiles();
-
-                    if (upload.Length == 1)
+                    var file = _files.Where(item => item.Name == upload[0]).FirstOrDefault();
+                    if (file != null)
                     {
-                        var file = _files.Where(item => item.Name == upload[0]).FirstOrDefault();
-                        if (file != null)
-                        {
-                            FileId = file.FileId;
-                            await SetImage();
-                        }
+                        FileId = file.FileId;
+                        await SetImage();
+                        await OnUpload.InvokeAsync(FileId);
                     }
                     StateHasChanged();
                 }
@@ -315,6 +343,7 @@
         {
             await FileService.DeleteFileAsync(FileId);
             await logger.LogInformation("File Deleted {File}", FileId);
+            await OnDelete.InvokeAsync(FileId);
 
             _message = Localizer["Success.File.Delete"];
             _messagetype = MessageType.Success;

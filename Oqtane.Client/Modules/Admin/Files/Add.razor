@@ -9,55 +9,60 @@
 
 <TabStrip>
     <TabPanel Name="Upload" Heading="Upload Files" ResourceKey="UploadFiles">
-        <table class="table table-borderless">
-            <tr>
-                <td>
-                    <Label For="upload" HelpText="Upload the file you want" ResourceKey="Upload">Upload: </Label>
-                </td>
-                <td>
+        <div class="container">
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="upload" HelpText="Upload the file you want" ResourceKey="Upload">Upload: </Label>
+                <div class="col-sm-9">
                     <FileManager UploadMultiple="true" ShowFiles="false" FolderId="@_folderId" />
-                </td>
-            </tr>
-        </table>
+                </div>
+            </div>
+        </div>
         <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
     </TabPanel>
     <TabPanel Name="Download" Heading="Download Files" ResourceKey="DownloadFiles">
         @if (_folders != null)
         {
-            <table class="table table-borderless">
-                <tr>
-                    <td>
-                        <Label For="url" HelpText="Enter the url of the file you wish to download" ResourceKey="Url">Url: </Label>
-                    </td>
-                    <td>
-                        <input id="url" class="form-control" @bind="@url" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="folder" HelpText="Select the folder to save the file in" ResourceKey="Folder">Folder: </Label>
-                    </td>
-                    <td>
-                        <select id="folder" class="form-select" @bind="@_folderId">
-                            <option value="-1">&lt;@Localizer["Folder.Select"]&gt;</option>
-                            @foreach (Folder folder in _folders)
-                            {
-                                <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
-                            }
-                        </select>
-                    </td>
-                </tr>
-            </table>
-            <button type="button" class="btn btn-success" @onclick="Download">@SharedLocalizer["Download"]</button>
-            <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+            <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+                <div class="container">
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="url" HelpText="Enter the url of the file you wish to download" ResourceKey="Url">Url: </Label>
+                        <div class="col-sm-9">
+                            <input id="url" class="form-control" @bind="@_url" required />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="folder" HelpText="Select the folder to save the file in" ResourceKey="Folder">Folder: </Label>
+                        <div class="col-sm-9">
+                            <select id="folder" class="form-select" @bind="@_folderId" required>
+                                <option value="-1">&lt;@Localizer["Folder.Select"]&gt;</option>
+                                @foreach (Folder folder in _folders)
+                                {
+                                    <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="name" HelpText="Enter the name of the file being downloaded" ResourceKey="Name">Name: </Label>
+                        <div class="col-sm-9">
+                            <input id="name" class="form-control" @bind="@_name" />
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-success" @onclick="Download">@SharedLocalizer["Download"]</button>
+                <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+            </form>
         }
     </TabPanel>
 </TabStrip>
 
 @code {
-    private string url = string.Empty;
+    private ElementReference form;
+    private bool validated = false;
+    private string _url = string.Empty;
     private List<Folder> _folders;
     private int _folderId = -1;
+    private string _name = "";
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
@@ -73,37 +78,48 @@
 
     private async Task Download()
     {
-        if (url == string.Empty || _folderId == -1)
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
         {
-            AddModuleMessage(Localizer["Message.Required.UrlFolder"], MessageType.Warning);
-            return;
-        }
+            if (_url == string.Empty || _folderId == -1)
+            {
+                AddModuleMessage(Localizer["Message.Required.UrlFolder"], MessageType.Warning);
+                return;
+            }
 
-        var filename = url.Substring(url.LastIndexOf("/", StringComparison.Ordinal) + 1);
+            if (string.IsNullOrEmpty(_name))
+            {
+                _name = _url.Substring(_url.LastIndexOf("/", StringComparison.Ordinal) + 1);
+            }
 
-        if (!Constants.UploadableFiles.Split(',')
-                .Contains(Path.GetExtension(filename).ToLower().Replace(".", "")))
-        {
-            AddModuleMessage(Localizer["Message.Download.InvalidExtension"], MessageType.Warning);
-            return;
-        }
+            if (!Constants.UploadableFiles.Split(',').Contains(Path.GetExtension(_name).ToLower().Replace(".", "")))
+            {
+                AddModuleMessage(Localizer["Message.Download.InvalidExtension"], MessageType.Warning);
+                return;
+            }
 
-        if (!filename.IsPathOrFileValid())
-        {
-            AddModuleMessage(Localizer["Message.Required.UrlName"], MessageType.Warning);
-            return;
-        }
+            if (!_name.IsPathOrFileValid())
+            {
+                AddModuleMessage(Localizer["Message.Required.UrlName"], MessageType.Warning);
+                return;
+            }
 
-        try
-        {
-            await FileService.UploadFileAsync(url, _folderId);
-            await logger.LogInformation("File Downloaded Successfully From Url {Url}", url);
-            AddModuleMessage(Localizer["Success.Download.File"], MessageType.Success);
+            try
+            {
+                await FileService.UploadFileAsync(_url, _folderId, _name);
+                await logger.LogInformation("File Downloaded Successfully From Url {Url}", _url);
+                AddModuleMessage(Localizer["Success.Download.File"], MessageType.Success);
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Downloading File From Url {Url} {Error}", _url, ex.Message);
+                AddModuleMessage(Localizer["Error.Download.InvalidUrl"], MessageType.Error);
+            }
         }
-        catch (Exception ex)
+        else
         {
-            await logger.LogError(ex, "Error Downloading File From Url {Url} {Error}", url, ex.Message);
-            AddModuleMessage(Localizer["Error.Download.InvalidUrl"], MessageType.Error);
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
         }
     }
 }

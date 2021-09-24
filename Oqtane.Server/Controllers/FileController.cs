@@ -11,12 +11,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Oqtane.Security;
 using System.Linq;
-using System.Drawing;
 using System.Net;
 using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Repository;
 using Oqtane.Extensions;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.PixelFormats;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
@@ -71,7 +74,7 @@ namespace Oqtane.Controllers
                     {
                         foreach (string file in Directory.GetFiles(folder))
                         {
-                            files.Add(new Models.File {Name = Path.GetFileName(file), Extension = Path.GetExtension(file)?.Replace(".", "")});
+                            files.Add(new Models.File { Name = Path.GetFileName(file), Extension = Path.GetExtension(file)?.Replace(".", "") });
                         }
                     }
                 }
@@ -169,7 +172,11 @@ namespace Oqtane.Controllers
                 string filepath = _files.GetFilePath(file);
                 if (System.IO.File.Exists(filepath))
                 {
-                    System.IO.File.Delete(filepath);
+                    // remove file and thumbnails
+                    foreach(var f in Directory.GetFiles(Path.GetDirectoryName(filepath), Path.GetFileNameWithoutExtension(filepath) + ".*"))
+                    {
+                        System.IO.File.Delete(f);
+                    }
                 }
 
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "File Deleted {File}", file);
@@ -181,9 +188,9 @@ namespace Oqtane.Controllers
             }
         }
 
-        // GET api/<controller>/upload?url=x&folderid=y
+        // GET api/<controller>/upload?url=x&folderid=y&name=z
         [HttpGet("upload")]
-        public Models.File UploadFile(string url, string folderid)
+        public Models.File UploadFile(string url, string folderid, string name)
         {
             Models.File file = null;
 
@@ -194,21 +201,24 @@ namespace Oqtane.Controllers
                 folder = _folders.GetFolder(FolderId);
             }
 
-            if (folder != null  && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.Edit, folder.Permissions))
+            if (folder != null && folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.Edit, folder.Permissions))
             {
                 string folderPath = _folders.GetFolderPath(folder);
                 CreateDirectory(folderPath);
 
-                string filename = url.Substring(url.LastIndexOf("/", StringComparison.Ordinal) + 1);
+                if (string.IsNullOrEmpty(name))
+                {
+                    name = url.Substring(url.LastIndexOf("/", StringComparison.Ordinal) + 1);
+                }
                 // check for allowable file extensions
-                if (!Constants.UploadableFiles.Split(',').Contains(Path.GetExtension(filename).ToLower().Replace(".", "")))
+                if (!Constants.UploadableFiles.Split(',').Contains(Path.GetExtension(name).ToLower().Replace(".", "")))
                 {
                     _logger.Log(LogLevel.Error, this, LogFunction.Create, "File Could Not Be Downloaded From Url Due To Its File Extension {Url}", url);
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
                     return file;
                 }
 
-                if (!filename.IsPathOrFileValid())
+                if (!name.IsPathOrFileValid())
                 {
                     _logger.Log(LogLevel.Error, this, LogFunction.Create, $"File Could Not Be Downloaded From Url Due To Its File Name Not Allowed {url}");
                     HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
@@ -218,7 +228,7 @@ namespace Oqtane.Controllers
                 try
                 {
                     var client = new WebClient();
-                    string targetPath = Path.Combine(folderPath, filename);
+                    string targetPath = Path.Combine(folderPath, name);
                     // remove file if it already exists
                     if (System.IO.File.Exists(targetPath))
                     {
@@ -226,16 +236,20 @@ namespace Oqtane.Controllers
                     }
 
                     client.DownloadFile(url, targetPath);
-                    file = _files.AddFile(CreateFile(filename, folder.FolderId, targetPath));
+                    file = CreateFile(name, folder.FolderId, targetPath);
+                    if (file != null)
+                    {
+                        file = _files.AddFile(file);
+                    }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    _logger.Log(LogLevel.Error, this, LogFunction.Create, "File Could Not Be Downloaded From Url {Url}", url);
+                    _logger.Log(LogLevel.Error, this, LogFunction.Create, "File Could Not Be Downloaded From Url {Url} {Error}", url, ex.Message);
                 }
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized File Upload Attempt {FolderId} {Url}", folderid, url);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized File Download Attempt {FolderId} {Url}", folderid, url);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
 
@@ -244,16 +258,16 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>/upload
         [HttpPost("upload")]
-        public async Task UploadFile(string folder, IFormFile file)
+        public async Task UploadFile(string folder, IFormFile formfile)
         {
-            if (file.Length <= 0)
+            if (formfile.Length <= 0)
             {
                 return;
             }
 
-            if (!file.FileName.IsPathOrFileValid())
+            if (!formfile.FileName.IsPathOrFileValid())
             {
-                HttpContext.Response.StatusCode = (int) HttpStatusCode.Conflict;
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
                 return;
             }
 
@@ -280,20 +294,24 @@ namespace Oqtane.Controllers
             if (!string.IsNullOrEmpty(folderPath))
             {
                 CreateDirectory(folderPath);
-                using (var stream = new FileStream(Path.Combine(folderPath, file.FileName), FileMode.Create))
+                using (var stream = new FileStream(Path.Combine(folderPath, formfile.FileName), FileMode.Create))
                 {
-                    await file.CopyToAsync(stream);
+                    await formfile.CopyToAsync(stream);
                 }
 
-                string upload = await MergeFile(folderPath, file.FileName);
+                string upload = await MergeFile(folderPath, formfile.FileName);
                 if (upload != "" && FolderId != -1)
                 {
-                    _files.AddFile(CreateFile(upload, FolderId, Path.Combine(folderPath, upload)));
+                    var file = CreateFile(upload, FolderId, Path.Combine(folderPath, upload));
+                    if (file != null)
+                    {
+                        _files.AddFile(file);
+                    }
                 }
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized File Upload Attempt {Folder} {File}", folder, file);
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized File Upload Attempt {Folder} {File}", folder, formfile.FileName);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
         }
@@ -479,6 +497,96 @@ namespace Oqtane.Controllers
             return System.IO.File.Exists(errorPath) ? PhysicalFile(errorPath, MimeUtilities.GetMimeType(errorPath)) : null;
         }
 
+        [HttpGet("image/{id}/{width}/{height}/{mode?}")]
+        public IActionResult GetImage(int id, int width, int height, string mode)
+        {
+            var file = _files.GetFile(id);
+            if (file != null && file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.Permissions))
+            {
+                if (Constants.ImageFiles.Split(',').Contains(file.Extension.ToLower()))
+                {
+                    var filepath = _files.GetFilePath(file);
+                    if (System.IO.File.Exists(filepath))
+                    {
+                        mode = (string.IsNullOrEmpty(mode)) ? "crop" : mode;
+
+                        string imagepath = filepath.Replace(Path.GetExtension(filepath), "." + width.ToString() + "x" + height.ToString() + "." + mode.ToLower() + ".png");
+                        if (!System.IO.File.Exists(imagepath))
+                        {
+                            if ((_userPermissions.IsAuthorized(User, PermissionNames.Edit, file.Folder.Permissions) ||
+                              !string.IsNullOrEmpty(file.Folder.ImageSizes) && file.Folder.ImageSizes.ToLower().Split(",").Contains(width.ToString() + "x" + height.ToString()))
+                              && Enum.TryParse(mode, true, out ResizeMode resizemode))
+                            {
+                                imagepath = CreateImage(filepath, width, height, resizemode.ToString(), imagepath);
+                            }
+                            else
+                            {
+                                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Invalid Image Size For Folder Or Invalid Mode Specification {Folder} {Width} {Height} {Mode}", file.Folder, width, height, mode);
+                                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(imagepath))
+                        {
+                            return PhysicalFile(imagepath, file.GetMimeType());
+                        }
+                        else
+                        {
+                            _logger.Log(LogLevel.Error, this, LogFunction.Create, "Error Displaying Image For File {File} {Width} {Height}", file, width, height);
+                            HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                        }
+                    }
+                    else
+                    {
+                        _logger.Log(LogLevel.Error, this, LogFunction.Read, "File Does Not Exist {FileId} {FilePath}", id, filepath);
+                        HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    }
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, this, LogFunction.Security, "File Is Not An Image {File}", file);
+                    HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                }
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized File Access Attempt {FileId}", id);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            }
+
+            string errorPath = Path.Combine(GetFolderPath("images"), "error.png");
+            return System.IO.File.Exists(errorPath) ? PhysicalFile(errorPath, MimeUtilities.GetMimeType(errorPath)) : null;
+        }
+
+        private string CreateImage(string filepath, int width, int height, string mode, string imagepath)
+        {
+            try
+            {
+                FileStream stream = new FileStream(filepath, FileMode.Open, FileAccess.Read);
+                using (Image image = Image.Load(stream))
+                {
+                    Enum.TryParse(mode, true, out ResizeMode resizemode);
+
+                    image.Mutate(x =>
+                        x.Resize(new ResizeOptions
+                        {
+                            Size = new Size(width, height),
+                            Mode = resizemode
+                        })
+                        .BackgroundColor(new Rgba32(255, 255, 255, 0)));
+
+                    image.Save(imagepath, new PngEncoder());
+                }
+                stream.Close();
+            }
+            catch (Exception ex) 
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Error Creating Image For File {FilePath} {Width} {Height} {Mode} {Error}", filepath, width, height, mode, ex.Message);
+                imagepath = "";
+            }
+
+            return imagepath;
+        }
+
         private string GetFolderPath(string folder)
         {
             return Utilities.PathCombine(_environment.ContentRootPath, folder);
@@ -489,7 +597,7 @@ namespace Oqtane.Controllers
             if (!Directory.Exists(folderpath))
             {
                 string path = "";
-                var separators = new char[] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar};
+                var separators = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
                 string[] folders = folderpath.Split(separators, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string folder in folders)
                 {
@@ -504,26 +612,52 @@ namespace Oqtane.Controllers
 
         private Models.File CreateFile(string filename, int folderid, string filepath)
         {
-            Models.File file = new Models.File();
-            file.Name = filename;
-            file.FolderId = folderid;
+            Models.File file = null;
+
+            int size = 0;
+            var folder = _folders.GetFolder(folderid);
+            if (folder.Capacity != 0)
+            {
+                foreach (var f in _files.GetFiles(folderid))
+                {
+                    size += f.Size;
+                }
+            }
 
             FileInfo fileinfo = new FileInfo(filepath);
-            file.Extension = fileinfo.Extension.ToLower().Replace(".", "");
-            file.Size = (int) fileinfo.Length;
-            file.ImageHeight = 0;
-            file.ImageWidth = 0;
-
-            if (Constants.ImageFiles.Split(',').Contains(file.Extension.ToLower()))
+            if (folder.Capacity == 0 || ((size + fileinfo.Length) / 1000000) < folder.Capacity)
             {
-                FileStream stream = new FileStream(filepath, FileMode.Open, FileAccess.Read);
-                using (var image = Image.FromStream(stream))
-                {
-                    file.ImageHeight = image.Height;
-                    file.ImageWidth = image.Width;
-                }
+                file = new Models.File();
+                file.Name = filename;
+                file.FolderId = folderid;
 
-                stream.Close();
+                file.Extension = fileinfo.Extension.ToLower().Replace(".", "");
+                file.Size = (int)fileinfo.Length;
+                file.ImageHeight = 0;
+                file.ImageWidth = 0;
+
+                if (Constants.ImageFiles.Split(',').Contains(file.Extension.ToLower()))
+                {
+                    try
+                    {
+                        FileStream stream = new FileStream(filepath, FileMode.Open, FileAccess.Read);
+                        using (Image image = Image.Load(stream))
+                        {
+                            file.ImageHeight = image.Height;
+                            file.ImageWidth = image.Width;
+                        }
+                        stream.Close();
+                    }
+                    catch
+                    {
+                        // error opening image file
+                    }
+                }
+            }
+            else
+            {
+                System.IO.File.Delete(filepath);
+                _logger.Log(LogLevel.Warning, this, LogFunction.Create, "File Exceeds Folder Capacity {Folder} {File}", folder, filepath);
             }
 
             return file;

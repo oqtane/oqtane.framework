@@ -45,6 +45,8 @@ namespace Oqtane.Infrastructure
             }
 
             string folder = Path.Combine(_environment.ContentRootPath, "Content", "Log");
+            var filepath = Path.Combine(folder, "error.log");
+            long size = 0;
 
             // ensure directory exists
             if (!Directory.Exists(folder))
@@ -52,20 +54,34 @@ namespace Oqtane.Infrastructure
                 Directory.CreateDirectory(folder);
             }
 
-            var filepath = Path.Combine(folder, "error.log");
-
-            var logentry = string.Format("{0} [{1}] {2} {3}", "[" + DateTimeOffset.UtcNow.ToString("yyyy-MM-dd HH:mm:ss+00:00") + "]", logLevel.ToString(), formatter(state, exception), exception != null ? exception.StackTrace : "");
-
-            try
+            if (File.Exists(filepath))
             {
-                using (var streamWriter = new StreamWriter(filepath, true))
+                var fileinfo = new FileInfo(filepath);
+                size = fileinfo.Length;
+
+                // only retain an error log for the current day as it is intended for development purposes
+                if (fileinfo.LastWriteTimeUtc.Date < DateTime.UtcNow.Date)
                 {
-                    streamWriter.WriteLine(logentry);
+                    File.Delete(filepath);
                 }
             }
-            catch
+
+            // do not allow the log to exceed 1 MB
+            if (size < 1000000)
             {
-                // error occurred
+                try
+                {
+                    var logentry = string.Format("{0} [{1}] {2} {3}", "[" + DateTimeOffset.UtcNow.ToString("yyyy-MM-dd HH:mm:ss+00:00") + "]", logLevel.ToString(), formatter(state, exception), exception != null ? exception.StackTrace : "");
+
+                    using (var streamWriter = new StreamWriter(filepath, true))
+                    {
+                        streamWriter.WriteLine(logentry);
+                    }
+                }
+                catch
+                {
+                    // error occurred
+                }
             }
         }
     }

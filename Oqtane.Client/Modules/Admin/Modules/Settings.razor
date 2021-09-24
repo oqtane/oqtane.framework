@@ -8,97 +8,93 @@
 @inject IStringLocalizer<Settings> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-<TabStrip>
-    <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings">
-        @if (_containers != null)
-        {
-            <table class="table table-borderless">
-                <tr>
-                    <td width="30%">
-                        <Label For="title" HelpText="Enter the title of the module" ResourceKey="Title">Title: </Label>
-                    </td>
-                    <td>
-                        <input id="title" type="text" name="Title" class="form-control" @bind="@_title" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="container" HelpText="Select the module's container" ResourceKey="Container">Container: </Label>
-                    </td>
-                    <td>
-                        <select id="container" class="form-select" @bind="@_containerType">
-                            @foreach (var container in _containers)
-                            {
-                                <option value="@container.TypeName">@container.Name</option>
-                            }
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="allpages" HelpText="Indicate if this module should be displayed on all pages" ResourceKey="DisplayOnAllPages">Display On All Pages? </Label>
-                    </td>
-                    <td>
-                        <select id="allpages" class="form-select" @bind="@_allPages">
-                            <option value="True">@SharedLocalizer["Yes"]</option>
-                            <option value="False">@SharedLocalizer["No"]</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="page" HelpText="The page that the module is located on" ResourceKey="Page">Page: </Label>
-                    </td>
-                    <td>
-                        <select id="page" class="form-select" @bind="@_pageId">
-                            @foreach (Page p in PageState.Pages)
-                            {
-                                if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
+<form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+    <TabStrip>
+        <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings">
+            @if (_containers != null)
+            {
+                <div class="container">
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="title" HelpText="Enter the title of the module" ResourceKey="Title">Title: </Label>
+                        <div class="col-sm-9">
+                            <input id="title" type="text" name="Title" class="form-control" @bind="@_title" required />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="container" HelpText="Select the module's container" ResourceKey="Container">Container: </Label>
+                        <div class="col-sm-9">
+                            <select id="container" class="form-select" @bind="@_containerType" required>
+                                @foreach (var container in _containers)
                                 {
-                                    <option value="@p.PageId">@(new string('-', p.Level * 2))@(p.Name)</option>
+                                    <option value="@container.TypeName">@container.Name</option>
                                 }
-                            }
-                        </select>
-                    </td>
-                </tr>
-            </table>
-        }
-    </TabPanel>
-    <TabPanel Name="Permissions" ResourceKey="Permissions">
-        @if (_permissions != null)
-        {
-            <table class="table table-borderless">
-                <tr>
-                    <td>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="allpages" HelpText="Indicate if this module should be displayed on all pages" ResourceKey="DisplayOnAllPages">Display On All Pages? </Label>
+                        <div class="col-sm-9">
+                            <select id="allpages" class="form-select" @bind="@_allPages" required>
+                                <option value="True">@SharedLocalizer["Yes"]</option>
+                                <option value="False">@SharedLocalizer["No"]</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="page" HelpText="The page that the module is located on" ResourceKey="Page">Page: </Label>
+                        <div class="col-sm-9">
+                            <select id="page" class="form-select" @bind="@_pageId" required>
+                                @foreach (Page p in PageState.Pages)
+                                {
+                                    if (UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, p.Permissions))
+                                    {
+                                        <option value="@p.PageId">@(new string('-', p.Level * 2))@(p.Name)</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            }
+        </TabPanel>
+        <TabPanel Name="Permissions" ResourceKey="Permissions">
+            @if (_permissions != null)
+            {
+                <div class="container">
+                    <div class="row mb-1 align-items-center">
                         <PermissionGrid EntityName="@EntityNames.Module" PermissionNames="@_permissionNames" Permissions="@_permissions" @ref="_permissionGrid" />
-                    </td>
-                </tr>
-            </table>
+                    </div>
+                </div>
+
+            }
+        </TabPanel>
+        @if (_moduleSettingsType != null)
+        {
+            <TabPanel Name="ModuleSettings" Heading="@_moduleSettingsTitle" ResourceKey="ModuleSettings">
+                @ModuleSettingsComponent
+            </TabPanel>
         }
-    </TabPanel>
-    @if (_moduleSettingsType != null)
-    {
-        <TabPanel Name="ModuleSettings" Heading="@_moduleSettingsTitle" ResourceKey="ModuleSettings">
-            @ModuleSettingsComponent
-        </TabPanel>
-    }
-    @if (_containerSettingsType != null)
-    {
-        <TabPanel Name="ContainerSettings" Heading="Container Settings" ResourceKey="ContainerSettings">
-            @ContainerSettingsComponent
-        </TabPanel>
-    }
-</TabStrip>
-<button type="button" class="btn btn-success" @onclick="SaveModule">@SharedLocalizer["Save"]</button>
-<NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
-<br />
-<br />
-<AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
+        @if (_containerSettingsType != null)
+        {
+            <TabPanel Name="ContainerSettings" Heading="Container Settings" ResourceKey="ContainerSettings">
+                @ContainerSettingsComponent
+            </TabPanel>
+        }
+    </TabStrip>
+    <br />
+    <button type="button" class="btn btn-success" @onclick="SaveModule">@SharedLocalizer["Save"]</button>
+    <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+    <br />
+    <br />
+    <AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>
+</form>
 
 @code {
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Edit;
     public override string Title => "Module Settings";
 
+    private ElementReference form;
+    private bool validated = false;
     private List<Theme> _themes;
     private List<ThemeControl> _containers = new List<ThemeControl>();
     private string _title;
@@ -179,52 +175,61 @@
 
     private async Task SaveModule()
     {
-        if (!string.IsNullOrEmpty(_title))
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
         {
-            var pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
-            pagemodule.PageId = int.Parse(_pageId);
-            pagemodule.Title = _title;
-            pagemodule.ContainerType = (_containerType != "-") ? _containerType : string.Empty;
-            if (!string.IsNullOrEmpty(pagemodule.ContainerType) && pagemodule.ContainerType == PageState.Page.DefaultContainerType)
+            if (!string.IsNullOrEmpty(_title))
             {
-                pagemodule.ContainerType = string.Empty;
-            }
-            if (!string.IsNullOrEmpty(pagemodule.ContainerType) && pagemodule.ContainerType == PageState.Site.DefaultContainerType)
-            {
-                pagemodule.ContainerType = string.Empty;
-            }
-            await PageModuleService.UpdatePageModuleAsync(pagemodule);
-            await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
-
-            var module = ModuleState;
-            module.AllPages = bool.Parse(_allPages);
-            module.Permissions = _permissionGrid.GetPermissions();
-            await ModuleService.UpdateModuleAsync(module);
-
-            if (_moduleSettingsType != null)
-            {
-                if (_moduleSettings is ISettingsControl moduleSettingsControl)
+                var pagemodule = await PageModuleService.GetPageModuleAsync(ModuleState.PageModuleId);
+                pagemodule.PageId = int.Parse(_pageId);
+                pagemodule.Title = _title;
+                pagemodule.ContainerType = (_containerType != "-") ? _containerType : string.Empty;
+                if (!string.IsNullOrEmpty(pagemodule.ContainerType) && pagemodule.ContainerType == PageState.Page.DefaultContainerType)
                 {
-                    // module settings updated using explicit interface
-                    await moduleSettingsControl.UpdateSettings();
+                    pagemodule.ContainerType = string.Empty;
                 }
-                else
+                if (!string.IsNullOrEmpty(pagemodule.ContainerType) && pagemodule.ContainerType == PageState.Site.DefaultContainerType)
                 {
-                    // legacy support - module settings updated by convention ( ie. by calling a public method named "UpdateSettings" in settings component )
-                    _moduleSettings?.GetType().GetMethod("UpdateSettings")?.Invoke(_moduleSettings, null);
+                    pagemodule.ContainerType = string.Empty;
                 }
-            }
+                await PageModuleService.UpdatePageModuleAsync(pagemodule);
+                await PageModuleService.UpdatePageModuleOrderAsync(pagemodule.PageId, pagemodule.Pane);
 
-            if (_containerSettingsType != null && _containerSettings is ISettingsControl containerSettingsControl)
+                var module = ModuleState;
+                module.AllPages = bool.Parse(_allPages);
+                module.Permissions = _permissionGrid.GetPermissions();
+                await ModuleService.UpdateModuleAsync(module);
+
+                if (_moduleSettingsType != null)
+                {
+                    if (_moduleSettings is ISettingsControl moduleSettingsControl)
+                    {
+                        // module settings updated using explicit interface
+                        await moduleSettingsControl.UpdateSettings();
+                    }
+                    else
+                    {
+                        // legacy support - module settings updated by convention ( ie. by calling a public method named "UpdateSettings" in settings component )
+                        _moduleSettings?.GetType().GetMethod("UpdateSettings")?.Invoke(_moduleSettings, null);
+                    }
+                }
+
+                if (_containerSettingsType != null && _containerSettings is ISettingsControl containerSettingsControl)
+                {
+                    await containerSettingsControl.UpdateSettings();
+                }
+
+                NavigationManager.NavigateTo(NavigateUrl());
+            }
+            else
             {
-                await containerSettingsControl.UpdateSettings();
+                AddModuleMessage(Localizer["Message.Required.Title"], MessageType.Warning);
             }
-
-            NavigationManager.NavigateTo(NavigateUrl());
         }
         else
         {
-            AddModuleMessage(Localizer["Message.Required.Title"], MessageType.Warning);
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
         }
     }
 

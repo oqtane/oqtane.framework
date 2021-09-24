@@ -101,10 +101,6 @@ namespace Oqtane.Repository
                     theme.Themes = new List<ThemeControl>();
                     theme.Containers = new List<ThemeControl>();
                     theme.AssemblyName = assembly.FullName.Split(",")[0];
-                    if (string.IsNullOrEmpty(theme.PackageName))
-                    {
-                        theme.PackageName = Utilities.GetTypeName(theme.ThemeName);
-                    }
 
                     Debug.WriteLine($"Oqtane Info: Registering Theme {theme.ThemeName}");
                     themes.Add(theme);

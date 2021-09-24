@@ -59,7 +59,7 @@
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Anonymous;
 
     public override List<Resource> Resources => new List<Resource>()
-{
+    {
         new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" }
     };
 
@@ -84,10 +84,12 @@
 
             if (user != null)
             {
+                await logger.LogInformation(LogFunction.Security, "Email Verified For For Username {Username}", _username);
                 _message = Localizer["Success.Account.Verified"];
             }
             else
             {
+                await logger.LogError(LogFunction.Security, "Email Verification Failed For Username {Username}", _username);
                 _message = Localizer["Message.Account.NotVerfied"];
                 _type = MessageType.Warning;
             }
@@ -98,7 +100,10 @@
     {
         if (firstRender)
         {
-            await username.FocusAsync();
+            if(PageState.User == null)
+            {
+                await username.FocusAsync();
+            }
         }
     }
 
@@ -118,7 +123,7 @@
 
                 if (user.IsAuthenticated)
                 {
-                    await logger.LogInformation("Login Successful For Username {Username}", _username);
+                    await logger.LogInformation(LogFunction.Security, "Login Successful For Username {Username}", _username);
                     // server-side Blazor needs to post to the Login page so that the cookies are set correctly
                     var fields = new { __RequestVerificationToken = SiteState.AntiForgeryToken, username = _username, password = _password, remember = _remember, returnurl = _returnUrl };
                     string url = Utilities.TenantUrl(PageState.Alias, "/pages/login/");
@@ -126,7 +131,7 @@
                 }
                 else
                 {
-                    await logger.LogInformation("Login Failed For Username {Username}", _username);
+                    await logger.LogError(LogFunction.Security, "Login Failed For Username {Username}", _username);
                     AddModuleMessage(Localizer["Error.Login.Fail"], MessageType.Error);
                 }
             }
@@ -140,14 +145,14 @@
                 user = await UserService.LoginUserAsync(user, true, _remember);
                 if (user.IsAuthenticated)
                 {
-                    await logger.LogInformation("Login Successful For Username {Username}", _username);
+                    await logger.LogInformation(LogFunction.Security, "Login Successful For Username {Username}", _username);
                     var authstateprovider = (IdentityAuthenticationStateProvider)ServiceProvider.GetService(typeof(IdentityAuthenticationStateProvider));
                     authstateprovider.NotifyAuthenticationChanged();
                     NavigationManager.NavigateTo(NavigateUrl(_returnUrl, true));
                 }
                 else
                 {
-                    await logger.LogInformation("Login Failed For Username {Username}", _username);
+                    await logger.LogError(LogFunction.Security, "Login Failed For Username {Username}", _username);
                     AddModuleMessage(Localizer["Error.Login.Fail"], MessageType.Error);
                 }
             }
@@ -171,6 +176,7 @@
             if (user != null)
             {
                 await UserService.ForgotPasswordAsync(user);
+                await logger.LogInformation(LogFunction.Security, "Password Reset Notification Sent For Username {Username}", _username);
                 _message = "Please Check The Email Address Associated To Your User Account For A Password Reset Notification";
             }
             else

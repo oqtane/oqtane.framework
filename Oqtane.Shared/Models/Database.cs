@@ -11,7 +11,7 @@ namespace Oqtane.Models
         public string Name { get; set; }
 
         /// <summary>
-        /// Namespace & name of the UI control to configure this database, like `Oqtane.Installer.Controls.SqlServerConfig, Oqtane.Client`
+        /// Namespace &amp; name of the UI control to configure this database, like `Oqtane.Installer.Controls.SqlServerConfig, Oqtane.Client`
         /// </summary>
         public string ControlType { get; set; }
 

@@ -65,6 +65,11 @@ namespace Oqtane.Databases
             return name;
         }
 
+        public virtual string RewriteValue(string value, string type)
+        {
+            return value;
+        }
+
         public virtual void UpdateIdentityStoreTableNames(ModelBuilder builder)
         {
 

@@ -32,9 +32,9 @@ namespace Oqtane.Controllers
             _logger = logger;
         }
 
-        // GET: api/<controller>?type=x&search=y
+        // GET: api/<controller>?type=x&search=y&price=z&package=a
         [HttpGet]
-        public async Task<IEnumerable<Package>> Get(string type, string search)
+        public async Task<IEnumerable<Package>> Get(string type, string search, string price, string package)
         {
             // get packages
             List<Package> packages = new List<Package>();
@@ -44,7 +44,7 @@ namespace Oqtane.Controllers
                 {
                     client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value);
                     client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Constants.PackageId, Constants.Version));
-                    packages = await GetJson<List<Package>>(client, Constants.PackageRegistryUrl + $"/api/registry/packages/?id={_configManager.GetInstallationId()}&type={type.ToLower()}&version={Constants.Version}&search={search}");
+                    packages = await GetJson<List<Package>>(client, Constants.PackageRegistryUrl + $"/api/registry/packages/?id={_configManager.GetInstallationId()}&type={type.ToLower()}&version={Constants.Version}&search={search}&price={price}&package={package}");
                 }
             }
             return packages;
@@ -52,36 +52,40 @@ namespace Oqtane.Controllers
 
         [HttpPost]
         [Authorize(Roles = RoleNames.Host)]
-        public async Task Post(string packageid, string version, string folder)
+        public async Task<Package> Post(string packageid, string version, string folder)
         {
             // get package info
             Package package = null;
             if (bool.Parse(_configManager.GetSetting("PackageService", "true")) == true)
             {
+                var download = (string.IsNullOrEmpty(folder)) ? "false" : "true";
                 using (var client = new HttpClient())
                 {
                     client.DefaultRequestHeaders.Add("Referer", HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value);
                     client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Constants.PackageId, Constants.Version));
-                    package = await GetJson<Package>(client, Constants.PackageRegistryUrl + $"/api/registry/package/?id={_configManager.GetInstallationId()}&package={packageid}&version={version}");
+                    package = await GetJson<Package>(client, Constants.PackageRegistryUrl + $"/api/registry/package/?id={_configManager.GetInstallationId()}&package={packageid}&version={version}&download={download}");
                 }
 
                 if (package != null)
                 {
-                    using (var httpClient = new HttpClient())
+                    if (bool.Parse(download))
                     {
-                        folder = Path.Combine(_environment.ContentRootPath, folder);
-                        var response = await httpClient.GetAsync(package.PackageUrl).ConfigureAwait(false);
-                        if (response.IsSuccessStatusCode)
+                        using (var httpClient = new HttpClient())
                         {
-                            string filename = packageid + "." + version + ".nupkg";
-                            using (var fileStream = new FileStream(Path.Combine(folder, filename), FileMode.Create, FileAccess.Write, FileShare.None))
+                            folder = Path.Combine(_environment.ContentRootPath, folder);
+                            var response = await httpClient.GetAsync(package.PackageUrl).ConfigureAwait(false);
+                            if (response.IsSuccessStatusCode)
                             {
-                                await response.Content.CopyToAsync(fileStream).ConfigureAwait(false);
+                                string filename = packageid + "." + version + ".nupkg";
+                                using (var fileStream = new FileStream(Path.Combine(folder, filename), FileMode.Create, FileAccess.Write, FileShare.None))
+                                {
+                                    await response.Content.CopyToAsync(fileStream).ConfigureAwait(false);
+                                }
                             }
-                        }
-                        else
-                        {
-                            _logger.Log(LogLevel.Error, this, LogFunction.Create, "Could Not Download {PackageUrl}", package.PackageUrl);
+                            else
+                            {
+                                _logger.Log(LogLevel.Error, this, LogFunction.Create, "Could Not Download {PackageUrl}", package.PackageUrl);
+                            }
                         }
                     }
                 }
@@ -90,6 +94,7 @@ namespace Oqtane.Controllers
                     _logger.Log(LogLevel.Error, this, LogFunction.Create, "Package {PackageId}.{Version} Is Not Registered", packageid, version);
                 }
             }
+            return package;
         }
 
         private async Task<T> GetJson<T>(HttpClient httpClient, string url)

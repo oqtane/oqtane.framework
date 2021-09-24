@@ -9,19 +9,19 @@
 
 <TabStrip>
     <TabPanel Name="Download" ResourceKey="Download">
-        <ModuleMessage Type="MessageType.Info" Message="Download one or more themes from the list below. Once you are ready click Install to complete the installation."></ModuleMessage>
-
-        <table class="table table-borderless" style=" margin: auto; width: 50% !important;">
-            <tr>
-                <td>
+        <div class="row justify-content-center mb-3">
+            <div class="col-sm-6">
+                <div class="input-group">
+                    <select id="price" class="form-select custom-select" @onchange="(e => PriceChanged(e))">
+                        <option value="free">@SharedLocalizer["Free"]</option>
+                        <option value="paid">@SharedLocalizer["Paid"]</option>
+                    </select>
                     <input id="search" class="form-control" placeholder="@SharedLocalizer["Search.Hint"]" @bind="@_search" />
-                </td>
-                <td>
-                    <button type="button" class="btn btn-primary" @onclick="Search">@SharedLocalizer["Search"]</button>&nbsp;
+                    <button type="button" class="btn btn-primary" @onclick="Search">@SharedLocalizer["Search"]</button>
                     <button type="button" class="btn btn-secondary" @onclick="Reset">@SharedLocalizer["Reset"]</button>
-                </td>
-            </tr>
-        </table>
+                </div>
+            </div>
+        </div>
 
         @if (_packages != null)
         {
@@ -32,10 +32,26 @@
                         <td>
                             <h3 style="display: inline;"><a href="@context.ProductUrl" target="_new">@context.Name</a></h3>&nbsp;&nbsp;@SharedLocalizer["Search.By"]:&nbsp;&nbsp;<strong><a href="@context.OwnerUrl" target="new">@context.Owner</a></strong><br />
                             @(context.Description.Length > 400 ? (context.Description.Substring(0, 400) + "...") : context.Description)<br />
-                            <strong>@(String.Format("{0:n0}", context.Downloads))</strong> @SharedLocalizer["Search.Downloads"]&nbsp;&nbsp;|&nbsp;&nbsp; @SharedLocalizer["Search.Released"]: <strong>@context.ReleaseDate.ToString("MMM dd, yyyy")</strong>&nbsp;&nbsp;|&nbsp;&nbsp;@SharedLocalizer["Search.Version"]: <strong>@context.Version</strong>&nbsp;&nbsp;|&nbsp;&nbsp;@SharedLocalizer["Search.Source"]: <strong>@context.PackageUrl</strong>
+                            <strong>@(String.Format("{0:n0}", context.Downloads))</strong> @SharedLocalizer["Search.Downloads"]&nbsp;&nbsp;|&nbsp;&nbsp;
+                            @SharedLocalizer["Search.Released"]: <strong>@context.ReleaseDate.ToString("MMM dd, yyyy")</strong>&nbsp;&nbsp;|&nbsp;&nbsp;
+                            @SharedLocalizer["Search.Version"]: <strong>@context.Version</strong>
+                            @((MarkupString)(context.TrialPeriod > 0 ? "&nbsp;&nbsp;|&nbsp;&nbsp;<strong>" + context.TrialPeriod + " " + @SharedLocalizer["Trial"] + "</strong>" : ""))
                         </td>
-                        <td style="vertical-align: middle;">
-                            <button type="button" class="btn btn-primary" @onclick=@(async () => await DownloadTheme(context.PackageId, context.Version))>@SharedLocalizer["Download"]</button>
+                        <td style="width: 1px; vertical-align: middle;">
+                            @if (context.Price != null && !string.IsNullOrEmpty(context.PackageUrl))
+                            {
+                                <button type="button" class="btn btn-primary" @onclick=@(async () => await GetPackage(context.PackageId, context.Version))>@SharedLocalizer["Download"]</button>
+                            }
+                        </td>
+                        <td style="width: 1px; vertical-align: middle;">
+                            @if (context.Price != null && !string.IsNullOrEmpty(context.PaymentUrl))
+                            {
+                                <a class="btn btn-primary" style="text-decoration: none !important" href="@context.PaymentUrl" target="_new">@context.Price.Value.ToString("$#,##0.00")</a>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-primary" @onclick=@(async () => await GetPackage(context.PackageId, context.Version))>@SharedLocalizer["Download"]</button>
+                            }
                         </td>
                     </Row>
                 </Pager>
@@ -50,25 +66,62 @@
         }
     </TabPanel>
     <TabPanel Name="Upload" ResourceKey="Upload">
-        <table class="table table-borderless">
-            <tr>
-                <td>
-                    <Label HelpText="Upload one or more theme packages. Once they are uploaded click Install to complete the installation." ResourceKey="Theme">Theme: </Label>
-                </td>
-                <td>
+        <div class="container">
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" HelpText="Upload one or more theme packages. Once they are uploaded click Install to complete the installation." ResourceKey="Theme">Theme: </Label>
+                <div class="col-sm-9">
                     <FileManager Filter="nupkg" ShowFiles="false" Folder="Packages" UploadMultiple="@true" />
-                </td>
-            </tr>
-        </table>
+
+                </div>
+            </div>
+        </div>
     </TabPanel>
 </TabStrip>
+
+@if (_productname != "")
+{
+    <div class="app-actiondialog">
+        <div class="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">@SharedLocalizer["Review License Terms"]</h5>
+                        <button type="button" class="btn-close" aria-label="Close" @onclick="HideModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p style="height: 200px; overflow-y: scroll;">
+                            <h3>@_productname</h3>
+                            @if (!string.IsNullOrEmpty(_license))
+                            {
+                                @((MarkupString)_license)
+                            }
+                            else
+                            {
+                                @SharedLocalizer["License Not Specified"]
+                            }
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-success" @onclick="DownloadPackage">@SharedLocalizer["Accept"]</button>
+                        <button type="button" class="btn btn-secondary" @onclick="HideModal">@SharedLocalizer["Cancel"]</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 <button type="button" class="btn btn-success" @onclick="InstallThemes">@SharedLocalizer["Install"]</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 
 @code {
     private List<Package> _packages;
+    private string _price = "free";
     private string _search = "";
+    private string _productname = "";
+    private string _license = "";
+    private string _packageid = "";
+    private string _version = "";
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
@@ -88,7 +141,7 @@
     private async Task LoadThemes()
     {
         var themes = await ThemeService.GetThemesAsync();
-        _packages = await PackageService.GetPackagesAsync("theme", _search);
+        _packages = await PackageService.GetPackagesAsync("theme", _search, _price, "");
 
         if (_packages != null)
         {
@@ -99,6 +152,21 @@
                     _packages.Remove(package);
                 }
             }
+        }
+    }
+
+    private async void PriceChanged(ChangeEventArgs e)
+    {
+        try
+        {
+            _price = (string)e.Value;
+            _search = "";
+            await LoadThemes();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error On PriceChanged");
         }
     }
 
@@ -127,6 +195,55 @@
         }
     }
 
+    private void HideModal()
+    {
+        _productname = "";
+        _license = "";
+        StateHasChanged();
+    }
+
+    private async Task GetPackage(string packageid, string version)
+    {
+        try
+        {
+            var package = await PackageService.GetPackageAsync(packageid, version);
+            if (package != null)
+            {
+                _productname = package.Name;
+                if (!string.IsNullOrEmpty(package.License))
+                {
+                    _license = package.License.Replace("\n", "<br />");
+                }
+                _packageid = package.PackageId;
+                _version = package.Version;
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Getting Package {PackageId} {Version}", packageid, version);
+            AddModuleMessage(Localizer["Error.Theme.Download"], MessageType.Error);
+        }
+    }
+
+    private async Task DownloadPackage()
+    {
+        try
+        {
+            await PackageService.DownloadPackageAsync(_packageid, _version, "Packages");
+            await logger.LogInformation("Package {PackageId} {Version} Downloaded Successfully", _packageid, _version);
+            AddModuleMessage(Localizer["Success.Theme.Download"], MessageType.Success);
+            _productname = "";
+            _license = "";
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Downloading Package {PackageId} {Version}", _packageid, _version);
+            AddModuleMessage(Localizer["Error.Theme.Download"], MessageType.Error);
+        }
+    }
+
     private async Task InstallThemes()
     {
         try
@@ -137,22 +254,6 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Installing Theme");
-        }
-    }
-
-    private async Task DownloadTheme(string packageid, string version)
-    {
-        try
-        {
-            await PackageService.DownloadPackageAsync(packageid, version, "Packages");
-            await logger.LogInformation("Theme {ThemeName} {Version} Downloaded Successfully", packageid, version);
-            AddModuleMessage(Localizer["Success.Theme.Download"], MessageType.Success);
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Downloading Module {ThemeName} {Version}", packageid, version);
-            AddModuleMessage(Localizer["Error.Theme.Download"], MessageType.Error);
         }
     }
 }

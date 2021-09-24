@@ -67,9 +67,9 @@ namespace Oqtane.Services
             await DeleteAsync($"{Apiurl}/{fileId}");
         }
 
-        public async Task<File> UploadFileAsync(string url, int folderId)
+        public async Task<File> UploadFileAsync(string url, int folderId, string name)
         {
-            return await GetJsonAsync<File>($"{Apiurl}/upload?url={WebUtility.UrlEncode(url)}&folderid={folderId}");
+            return await GetJsonAsync<File>($"{Apiurl}/upload?url={WebUtility.UrlEncode(url)}&folderid={folderId}&name={name}");
         }
 
         public async Task<string> UploadFilesAsync(int folderId, string[] files, string id)

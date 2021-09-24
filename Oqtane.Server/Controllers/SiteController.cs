@@ -15,13 +15,15 @@ namespace Oqtane.Controllers
     public class SiteController : Controller
     {
         private readonly ISiteRepository _sites;
+        private readonly ISettingRepository _settings;
         private readonly ISyncManager _syncManager;
         private readonly ILogManager _logger;
         private readonly Alias _alias;
 
-        public SiteController(ISiteRepository sites, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
+        public SiteController(ISiteRepository sites, ISettingRepository settings, ITenantManager tenantManager, ISyncManager syncManager, ILogManager logger)
         {
             _sites = sites;
+            _settings = settings;
             _syncManager = syncManager;
             _logger = logger;
             _alias = tenantManager.GetAlias();
@@ -42,6 +44,12 @@ namespace Oqtane.Controllers
             var site = _sites.GetSite(id);
             if (site.SiteId == _alias.SiteId)
             {
+                var settings = _settings.GetSettings(EntityNames.Site, site.SiteId);
+                if (!User.IsInRole(RoleNames.Admin))
+                {
+                    settings = settings.Where(item => item.IsPublic);
+                }
+                site.Settings = settings.ToDictionary(setting => setting.SettingName, setting => setting.SettingValue);
                 return site;
             }
             else
@@ -54,26 +62,19 @@ namespace Oqtane.Controllers
 
         // POST api/<controller>
         [HttpPost]
+        [Authorize(Roles = RoleNames.Host)]
         public Site Post([FromBody] Site site)
         {
             if (ModelState.IsValid)
             {
-                bool authorized;
-                if (!_sites.GetSites().Any())
-                {
-                    // provision initial site during installation
-                    authorized = true; 
-                    site.TenantId = _alias.TenantId;
-                }
-                else
-                {
-                    authorized = User.IsInRole(RoleNames.Host);
-                }
-                if (authorized)
-                {
-                    site = _sites.AddSite(site);
-                    _logger.Log(site.SiteId, LogLevel.Information, this, LogFunction.Create, "Site Added {Site}", site);
-                }
+                site = _sites.AddSite(site);
+                _logger.Log(site.SiteId, LogLevel.Information, this, LogFunction.Create, "Site Added {Site}", site);
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Site Post Attempt {Site}", site);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                site = null;
             }
             return site;
         }

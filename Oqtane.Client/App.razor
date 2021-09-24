@@ -12,11 +12,13 @@
     {
         @if (string.IsNullOrEmpty(_installation.Message))
         {
-            <CascadingAuthenticationState>
-                <CascadingValue Value="@PageState">
-                    <SiteRouter OnStateChange="@ChangeState" />
-                </CascadingValue>
-            </CascadingAuthenticationState>
+            <div style="@_display">
+                <CascadingAuthenticationState>
+                    <CascadingValue Value="@PageState">
+                        <SiteRouter Runtime="@Runtime" RenderMode="@RenderMode" OnStateChange="@ChangeState" />
+                    </CascadingValue>
+                </CascadingAuthenticationState>
+            </div>
         }
         else
         {
@@ -28,27 +30,50 @@
 }
 
 @code {
+    [Parameter]
+    public string AntiForgeryToken { get; set; }
+
+    [Parameter]
+    public string Runtime { get; set; }
+
+    [Parameter]
+    public string RenderMode { get; set; }
+
     private bool _initialized = false;
+    private string _display = "display: none;";
     private Installation _installation = new Installation { Success = false, Message = "" };
 
     private PageState PageState { get; set; }
 
+    protected override async Task OnParametersSetAsync()
+    {
+        _installation = await InstallationService.IsInstalled();
+        if (_installation.Alias != null)
+        {
+            SiteState.Alias = _installation.Alias;
+            SiteState.AntiForgeryToken = AntiForgeryToken;
+        }
+        else
+        {
+            _installation.Message = "Site Not Configured Correctly - No Matching Alias Exists For Host Name";
+        }
+        _initialized = true;
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && !_initialized)
+        if (firstRender)
         {
-            var interop = new Interop(JSRuntime);
-            SiteState.AntiForgeryToken = await interop.GetElementByName(Constants.RequestVerificationToken);
-            _installation = await InstallationService.IsInstalled();
-            if (_installation.Alias != null)
+            if (string.IsNullOrEmpty(AntiForgeryToken))
             {
-                SiteState.Alias = _installation.Alias;
+                // parameter values are not set when running on WebAssembly (seems to be a .NET 5 bug) - need to retrieve using JSInterop
+                var interop = new Interop(JSRuntime);
+                AntiForgeryToken = await interop.GetElementByName(Constants.RequestVerificationToken);
+                SiteState.AntiForgeryToken = AntiForgeryToken;
+                Runtime = await interop.GetElementByName("app_runtime");
+                RenderMode = await interop.GetElementByName("app_rendermode");
             }
-            else
-            {
-                _installation.Message = "Site Not Configured Correctly - No Matching Alias Exists For Host Name";
-            }
-            _initialized = true;
+            _display = "";
             StateHasChanged();
         }
     }

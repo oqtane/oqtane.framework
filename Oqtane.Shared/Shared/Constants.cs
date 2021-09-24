@@ -3,8 +3,8 @@ using System;
 namespace Oqtane.Shared {
 
     public class Constants {
-        public static readonly string Version = "2.2.0";
-        public const string ReleaseVersions = "1.0.0,1.0.1,1.0.2,1.0.3,1.0.4,2.0.0,2.0.1,2.0.2,2.1.0,2.2.0";
+        public static readonly string Version = "2.3.0";
+        public const string ReleaseVersions = "1.0.0,1.0.1,1.0.2,1.0.3,1.0.4,2.0.0,2.0.1,2.0.2,2.1.0,2.2.0,2.3.0";
         public const string PackageId = "Oqtane.Framework";
         public const string UpdaterPackageId = "Oqtane.Updater";
         public const string PackageRegistryUrl = "https://www.oqtane.net";
@@ -40,6 +40,8 @@ namespace Oqtane.Shared {
         public const string DefaultSiteTemplate = "Oqtane.SiteTemplates.DefaultSiteTemplate, Oqtane.Server";
 
         public const string ContentUrl = "/api/file/download/";
+        public const string ImageUrl = "/api/file/image/";
+        public const int UserFolderCapacity = 20; // megabytes
 
         [Obsolete("Use UserNames.Host instead.")]
         public const string HostUser = UserNames.Host;

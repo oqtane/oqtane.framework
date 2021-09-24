@@ -35,8 +35,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IServiceCollection AddOqtaneDbContext(this IServiceCollection services)
         {
-            services.AddDbContext<MasterDBContext>(options => { });
-            services.AddDbContext<TenantDBContext>(options => { });
+            services.AddDbContext<MasterDBContext>(options => { }, ServiceLifetime.Transient);
+            services.AddDbContext<TenantDBContext>(options => { }, ServiceLifetime.Transient);
 
             return services;
         }
@@ -291,7 +291,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 var assembliesFolder = new DirectoryInfo(Path.Combine(assemblyPath, culture));
                 if (assembliesFolder.Exists)
                 {
-                    foreach (var assemblyFile in assembliesFolder.EnumerateFiles(Constants.SatelliteAssemblyExtension))
+                    foreach (var assemblyFile in assembliesFolder.EnumerateFiles($"*{Constants.SatelliteAssemblyExtension}"))
                     {
                         AssemblyName assemblyName;
                         try

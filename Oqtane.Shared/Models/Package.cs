@@ -33,6 +33,11 @@ namespace Oqtane.Models
         public string Description { get; set; }
 
         /// <summary>
+        /// License for the Package. 
+        /// </summary>
+        public string License { get; set; }
+
+        /// <summary>
         /// Friendly name of the package
         /// </summary>
         public string ProductUrl { get; set; }
@@ -61,5 +66,29 @@ namespace Oqtane.Models
         /// Indicates if any known security vulnerabilities exist 
         /// </summary>
         public int Vulnerabilities { get; set; }
+
+        #region Commercial Properties
+
+        /// <summary>
+        /// The price of the package 
+        /// </summary>
+        public decimal? Price { get; set; }
+
+        /// <summary>
+        /// The Url for purchasing the package 
+        /// </summary>
+        public string PaymentUrl { get; set; }
+
+        /// <summary>
+        /// The trial period in days 
+        /// </summary>
+        public int TrialPeriod { get; set; }
+
+        /// <summary>
+        /// The expiry date of the package 
+        /// </summary>
+        public DateTime? ExpiryDate { get; set; }
+
+        #endregion
     }
 }

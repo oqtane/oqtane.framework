@@ -11,87 +11,78 @@
     <TabPanel Name="Identity" ResourceKey="Identity">
         @if (profiles != null)
         {
-            <table class="table table-borderless">
-                <tr>
-                    <td width="30%">
-                        <Label For="username" HelpText="A unique username for a user. Note that this field can not be modified once it is saved." ResourceKey="Username"></Label>
-                    </td>
-                    <td>
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="username" HelpText="A unique username for a user. Note that this field can not be modified once it is saved." ResourceKey="Username"></Label>
+                    <div class="col-sm-9">
                         <input id="username" class="form-control" @bind="@username" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="password" HelpText="The user's password. Please choose a password which is sufficiently secure." ResourceKey="Password"></Label>
-                    </td>
-                    <td>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="password" HelpText="The user's password. Please choose a password which is sufficiently secure." ResourceKey="Password"></Label>
+                    <div class="col-sm-9">
                         <input id="password" type="password" class="form-control" @bind="@password" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="confirm" HelpText="Please enter the password again to confirm it matches with the value above" ResourceKey="Confirm"></Label>
-                    </td>
-                    <td>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="confirm" HelpText="Please enter the password again to confirm it matches with the value above" ResourceKey="Confirm"></Label>
+                    <div class="col-sm-9">
                         <input id="confirm" type="password" class="form-control" @bind="@confirm" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="email" HelpText="The email address where the user will receive notifications" ResourceKey="Email"></Label>
-                    </td>
-                    <td>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="email" HelpText="The email address where the user will receive notifications" ResourceKey="Email"></Label>
+                    <div class="col-sm-9">
                         <input id="email" class="form-control" @bind="@email" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="displayname" HelpText="The full name of the user" ResourceKey="DisplayName"></Label>
-                    </td>
-                    <td>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="displayname" HelpText="The full name of the user" ResourceKey="DisplayName"></Label>
+                    <div class="col-sm-9">
                         <input id="displayname" class="form-control" @bind="@displayname" />
-                    </td>
-                </tr>
-            </table>
+                    </div>
+                </div>
+            </div>
+
         }
     </TabPanel>
     <TabPanel Name="Profile" ResourceKey="Profile">
         @if (profiles != null)
         {
-            <table class="table table-borderless">
-                @foreach (Profile profile in profiles)
-                {
-                    var p = profile;
-                    if (p.Category != category)
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    @foreach (Profile profile in profiles)
                     {
-                        <tr>
-                            <th colspan="2" style="text-align: center;">
-                                @p.Category
-                            </th>
-                        </tr>
-                        category = p.Category;
+                        var p = profile;
+                        if (p.Category != category)
+                        {
+                            <div class="col text-center pb-2">
+                                <strong>@p.Category</strong>
+                            </div>
+                            category = p.Category;
+                        }
+                        <div class="row mb-1 align-items-center">
+                            <Label Class="col-sm-3" For="@p.Name" HelpText="@p.Description">@p.Title</Label>
+                            <div class="col-sm-9">
+                                @if (p.IsRequired)
+                                {
+                                    <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                }
+                                else
+                                {
+                                    <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
+                                }
+                            </div>
+                        </div>
                     }
-                    <tr>
-                        <td width="30%">
-                            <Label For="@p.Name" HelpText="@p.Description">@p.Title</Label>
-                        </td>
-                        <td>
-                            @if (p.IsRequired)
-                            {
-                                <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" required @onchange="@(e => ProfileChanged(e, p.Name))" />
-                            }
-                            else
-                            {
-                                <input id="@p.Name" class="form-control" maxlength="@p.MaxLength" value="@GetProfileValue(p.Name, p.DefaultValue)" @onchange="@(e => ProfileChanged(e, p.Name))" />
-                            }
-                        </td>
-                    </tr>
-                }
-            </table>
+
+                </div>
+            </div>
         }
     </TabPanel>
 </TabStrip>
-
+<br />
+<br />
 <button type="button" class="btn btn-success" @onclick="SaveUser">@SharedLocalizer["Save"]</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 

@@ -273,10 +273,43 @@
   <data name="FullName" xml:space="preserve">
     <value>Full Name:</value>
   </data>
-    <data name="LocalVersion" xml:space="preserve">
+  <data name="LocalVersion" xml:space="preserve">
     <value>Local Version</value>
   </data>
   <data name="Search.Source" xml:space="preserve">
     <value>source</value>
+  </data>
+  <data name="Message.InfoRequired" xml:space="preserve">
+    <value>Please Provide All Required Information</value>
+  </data>
+  <data name="Free" xml:space="preserve">
+    <value>Free</value>
+  </data>
+  <data name="Paid" xml:space="preserve">
+    <value>Paid</value>
+  </data>
+  <data name="Search.Price" xml:space="preserve">
+    <value>price</value>
+  </data>
+  <data name="Accept" xml:space="preserve">
+    <value>Accept</value>
+  </data>
+  <data name="License Not Specified" xml:space="preserve">
+    <value>License Not Specified</value>
+  </data>
+  <data name="Review License Terms" xml:space="preserve">
+    <value>Review License Terms</value>
+  </data>
+  <data name="Trial" xml:space="preserve">
+    <value>Day Trial</value>
+  </data>
+  <data name="Expires" xml:space="preserve">
+    <value>Expires</value>
+  </data>
+  <data name="Extend" xml:space="preserve">
+    <value>Extend</value>
+  </data>
+  <data name="Not Specified" xml:space="preserve">
+    <value>Not Specified</value>
   </data>
 </root>

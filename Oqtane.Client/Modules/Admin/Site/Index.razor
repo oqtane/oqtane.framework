@@ -13,251 +13,217 @@
 
 @if (_initialized)
 {
-    <table class="table table-borderless">
-        <tr>
-            <td width="30%">
-                <Label For="name" HelpText="Enter the site name" ResourceKey="Name">Name: </Label>
-            </td>
-            <td>
-                <input id="name" class="form-control" @bind="@_name" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="alias" HelpText="The aliases for the site. An alias can be a domain name (www.site.com) or a virtual folder (ie. www.site.com/folder). If a site has multiple aliases they should be separated by commas." ResourceKey="Aliases">Aliases: </Label>
-            </td>
-            <td>
-                @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-                {
-                    <textarea id="alias" class="form-control" @bind="@_urls" rows="3"></textarea>
-                }
-                else
-                {
-                    <textarea id="alias" class="form-control" @bind="@_urls" rows="3" readonly></textarea>
-                }
-            </td>
-        </tr>
+    <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+        <div class="container">
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="name" HelpText="Enter the site name" ResourceKey="Name">Name: </Label>
+                <div class="col-sm-9">
+                    <input id="name" class="form-control" @bind="@_name" maxlength="200" required />
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="alias" HelpText="The aliases for the site. An alias can be a domain name (www.site.com) or a virtual folder (ie. www.site.com/folder). If a site has multiple aliases they should be separated by commas." ResourceKey="Aliases">Aliases: </Label>
+                <div class="col-sm-9">
+                    @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+                    {
+                        <textarea id="alias" class="form-control" @bind="@_urls" rows="3" required></textarea>
+                    }
+                    else
+                    {
+                        <textarea id="alias" class="form-control" @bind="@_urls" rows="3" readonly></textarea>
+                    }
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="allowRegister" HelpText="Do you want the users to be able to register for an account on the site" ResourceKey="AllowRegistration">Allow User Registration? </Label>
+                <div class="col-sm-9">
+                    <select id="allowRegister" class="form-select" @bind="@_allowregistration" required>
+                        <option value="True">@SharedLocalizer["Yes"]</option>
+                        <option value="False">@SharedLocalizer["No"]</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="isDeleted" HelpText="Is this site deleted?" ResourceKey="IsDeleted">Is Deleted? </Label>
+                <div class="col-sm-9">
+                    <select id="isDeleted" class="form-select" @bind="@_isdeleted" required>
+                        <option value="True">@SharedLocalizer["Yes"]</option>
+                        <option value="False">@SharedLocalizer["No"]</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <Section Name="Appearance" Heading="Appearance" ResourceKey="Appearance">
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="logo" HelpText="Specify a logo for the site" ResourceKey="Logo">Logo: </Label>
+                    <div class="col-sm-9">
+                        <FileManager FileId="@_logofileid" Filter="@Constants.ImageFiles" @ref="_logofilemanager" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="favicon" HelpText="Specify a Favicon" ResourceKey="FavoriteIcon">Favicon: </Label>
+                    <div class="col-sm-9">
+                        <FileManager FileId="@_faviconfileid" Filter="ico" @ref="_faviconfilemanager" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="defaultTheme" HelpText="Select the sites default theme" ResourceKey="DefaultTheme">Default Theme: </Label>
+                    <div class="col-sm-9">
+                        <select id="defaultTheme" class="form-select" value="@_themetype" @onchange="(e => ThemeChanged(e))" required>
+                            <option value="-">&lt;@Localizer["Theme.Select"]&gt;</option>
+                            @foreach (var theme in _themes)
+                            {
+                                <option value="@theme.TypeName">@theme.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="defaultContainer" HelpText="Select the default container for the site" ResourceKey="DefaultContainer">Default Container: </Label>
+                    <div class="col-sm-9">
+                        <select id="defaultContainer" class="form-select" @bind="@_containertype" required>
+                            <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
+                            @foreach (var container in _containers)
+                            {
+                                <option value="@container.TypeName">@container.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="defaultAdminContainer" HelpText="Select the default admin container for the site" ResourceKey="DefaultAdminContainer">Default Admin Container: </Label>
+                    <div class="col-sm-9">
+                        <select id="defaultAdminContainer" class="form-select" @bind="@_admincontainertype" required>
+                            <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
+                            <option value="@Constants.DefaultAdminContainer">&lt;@Localizer["DefaultAdminContainer"]&gt;</option>
+                            @foreach (var container in _containers)
+                            {
+                                <option value="@container.TypeName">@container.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
 
-        <tr>
-            <td>
-                <Label For="allowRegister" HelpText="Do you want the users to be able to register for an account on the site" ResourceKey="AllowRegistration">Allow User Registration? </Label>
-            </td>
-            <td>
-                <select id="allowRegister" class="form-select" @bind="@_allowregistration">
-                    <option value="True">@SharedLocalizer["Yes"]</option>
-                    <option value="False">@SharedLocalizer["No"]</option>
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <Label For="isDeleted" HelpText="Is this site deleted?" ResourceKey="IsDeleted">Is Deleted? </Label>
-            </td>
-            <td>
-                <select id="isDeleted" class="form-select" @bind="@_isdeleted">
-                    <option value="True">@SharedLocalizer["Yes"]</option>
-                    <option value="False">@SharedLocalizer["No"]</option>
-                </select>
-            </td>
-        </tr>
-    </table>
-    <Section Name="Appearance" Heading="Appearance" ResourceKey="Appearance">
-        <table class="table table-borderless">
-            <tr>
-                <td width="30%">
-                    <Label For="logo" HelpText="Specify a logo for the site" ResourceKey="Logo">Logo: </Label>
-                </td>
-                <td>
-                    <FileManager FileId="@_logofileid" Filter="@Constants.ImageFiles" @ref="_logofilemanager" />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="favicon" HelpText="Specify a Favicon" ResourceKey="FavoriteIcon">Favicon: </Label>
-                </td>
-                <td>
-                    <FileManager FileId="@_faviconfileid" Filter="ico" @ref="_faviconfilemanager" />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="defaultTheme" HelpText="Select the sites default theme" ResourceKey="DefaultTheme">Default Theme: </Label>
-                </td>
-                <td>
-                    <select id="defaultTheme" class="form-select" value="@_themetype" @onchange="(e => ThemeChanged(e))">
-                        <option value="-">&lt;@Localizer["Theme.Select"]&gt;</option>
-                        @foreach (var theme in _themes)
-                        {
-                            <option value="@theme.TypeName">@theme.Name</option>
-                        }
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="defaultContainer" HelpText="Select the default container for the site" ResourceKey="DefaultContainer">Default Container: </Label>
-                </td>
-                <td>
-                    <select id="defaultContainer" class="form-select" @bind="@_containertype">
-                        <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
-                        @foreach (var container in _containers)
-                        {
-                            <option value="@container.TypeName">@container.Name</option>
-                        }
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="defaultAdminContainer" HelpText="Select the default admin container for the site" ResourceKey="DefaultAdminContainer">Default Admin Container: </Label>
-                </td>
-                <td>
-                    <select id="defaultAdminContainer" class="form-select" @bind="@_admincontainertype">
-                        <option value="-">&lt;@Localizer["Container.Select"]&gt;</option>
-                        <option value="@Constants.DefaultAdminContainer">&lt;@Localizer["DefaultAdminContainer"]&gt;</option>
-                        @foreach (var container in _containers)
-                        {
-                            <option value="@container.TypeName">@container.Name</option>
-                        }
-                    </select>
-                </td>
-            </tr>
-        </table>
-    </Section>
-    <Section Name="SMTP" Heading="SMTP Settings" ResourceKey="SMTPSettings">
-        <table class="table table-borderless">
-            <tr>
-                <td width="30%">&nbsp;</td>
-                <td>
-                    <strong>@Localizer["Smtp.Required.EnableNotificationJob"]</strong><br />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="host" HelpText="Enter the host name of the SMTP server" ResourceKey="Host">Host: </Label>
-                </td>
-                <td>
-                    <input id="host" class="form-control" @bind="@_smtphost" />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="port" HelpText="Enter the port number for the SMTP server. Please note this field is required if you provide a host name." ResourceKey="Port">Port: </Label>
-                </td>
-                <td>
-                    <input id="port" class="form-control" @bind="@_smtpport" />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="enabledSSl" HelpText="Specify if SSL is required for your SMTP server" ResourceKey="UseSsl">SSL Enabled: </Label>
-                </td>
-                <td>
-                    <select id="enabledSSl" class="form-select" @bind="@_smtpssl">
-                        <option value="True">@SharedLocalizer["Yes"]</option>
-                        <option value="False">@SharedLocalizer["No"]</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="username" HelpText="Enter the username for your SMTP account" ResourceKey="SmptUsername">Username: </Label>
-                </td>
-                <td>
-                    <input id="username" class="form-control" @bind="@_smtpusername" />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="password" HelpText="Enter the password for your SMTP account" ResourceKey="SmtpPassword">Password: </Label>
-                </td>
-                <td>
-                    <input id="password" type="password" class="form-control" @bind="@_smtppassword" />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="sender" HelpText="Enter the email which emails will be sent from. Please note that this email address may need to be authorized with the SMTP server." ResourceKey="SmptSender">Email Sender: </Label>
-                </td>
-                <td>
-                    <input id="sender" class="form-control" @bind="@_smtpsender" />
-                </td>
-            </tr>
-        </table>
-        <button type="button" class="btn btn-secondary" @onclick="SendEmail">@Localizer["Smtp.TestConfig"]</button>
-        <br /><br />
-    </Section>
-    <Section Name="PWA" Heading="Progressive Web Application Settings" ResourceKey="PWASettings">
-        <table class="table table-borderless">
-            <tr>
-                <td width="30%">
-                    <Label For="isEnabled" HelpText="Select whether you would like this site to be available as a Progressive Web Application (PWA)" ResourceKey="EnablePWA">Is Enabled? </Label>
-                </td>
-                <td>
-                    <select id="isEnabled" class="form-select" @bind="@_pwaisenabled">
-                        <option value="True">@SharedLocalizer["Yes"]</option>
-                        <option value="False">@SharedLocalizer["No"]</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="appIcon" HelpText="Include an application icon for your PWA. It should be a PNG which is 192 X 192 pixels in dimension." ResourceKey="PwaApplicationIcon">App Icon: </Label>
-                </td>
-                <td>
-                    <FileManager FileId="@_pwaappiconfileid" Filter="png" @ref="_pwaappiconfilemanager" />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <Label For="splashIcon" HelpText="Include a splash icon for your PWA. It should be a PNG which is 512 X 512 pixels in dimension." ResourceKey="PwaSplashIcon">Splash Icon: </Label>
-                </td>
-                <td>
-                    <FileManager FileId="@_pwasplashiconfileid" Filter="png" @ref="_pwasplashiconfilemanager" />
-                </td>
-            </tr>
-        </table>
-    </Section>
-    @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-    {
-        <Section Name="TenantInformation" Heading="Tenant Information" ResourceKey="TenantInformation">
-            <table class="table table-borderless">
-                <tr>
-                    <td width="30%">
-                        <Label For="tenant" HelpText="The tenant for the site" ResourceKey="Tenant">Tenant: </Label>
-                    </td>
-                    <td>
-                        <input id="tenant" class="form-control" @bind="@_tenant" readonly />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="database" HelpText="The database for the tenant" ResourceKey="Database">Database: </Label>
-                    </td>
-                    <td>
-                        <input id="database" class="form-control" @bind="@_database" readonly />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Label For="connectionstring" HelpText="The connection information for the database" ResourceKey="ConnectionString">Connection: </Label>
-                    </td>
-                    <td>
-                        <textarea id="connectionstring" class="form-control" @bind="@_connectionstring" rows="2" readonly></textarea>
-                    </td>
-                </tr>
-            </table>
+            </div>
         </Section>
-    }
-    <br />
-    <button type="button" class="btn btn-success" @onclick="SaveSite">@SharedLocalizer["Save"]</button>
-    <ActionDialog Header="Delete Site" Message="@Localizer["Confirm.DeleteSite"]" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteSite())" ResourceKey="DeleteSite" />
-    <br />
-    <br />
-    <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
+        <Section Name="SMTP" Heading="SMTP Settings" ResourceKey="SMTPSettings">
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <div class="col-sm-3">
+                    </div>
+                    <div class="col-sm-9">
+                        <strong>@Localizer["Smtp.Required.EnableNotificationJob"]</strong><br />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="host" HelpText="Enter the host name of the SMTP server" ResourceKey="Host">Host: </Label>
+                    <div class="col-sm-9">
+                        <input id="host" class="form-control" @bind="@_smtphost" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="port" HelpText="Enter the port number for the SMTP server. Please note this field is required if you provide a host name." ResourceKey="Port">Port: </Label>
+                    <div class="col-sm-9">
+                        <input id="port" class="form-control" @bind="@_smtpport" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="enabledSSl" HelpText="Specify if SSL is required for your SMTP server" ResourceKey="UseSsl">SSL Enabled: </Label>
+                    <div class="col-sm-9">
+                        <select id="enabledSSl" class="form-select" @bind="@_smtpssl" >
+                            <option value="True">@SharedLocalizer["Yes"]</option>
+                            <option value="False">@SharedLocalizer["No"]</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="username" HelpText="Enter the username for your SMTP account" ResourceKey="SmptUsername">Username: </Label>
+                    <div class="col-sm-9">
+                        <input id="username" class="form-control" @bind="@_smtpusername" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="password" HelpText="Enter the password for your SMTP account" ResourceKey="SmtpPassword">Password: </Label>
+                    <div class="col-sm-9">
+                        <input id="password" type="password" class="form-control" @bind="@_smtppassword" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="sender" HelpText="Enter the email which emails will be sent from. Please note that this email address may need to be authorized with the SMTP server." ResourceKey="SmptSender">Email Sender: </Label>
+                    <div class="col-sm-9">
+                        <input id="sender" class="form-control" @bind="@_smtpsender" />
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary" @onclick="SendEmail">@Localizer["Smtp.TestConfig"]</button>
+                <br /><br />
+
+            </div>
+
+
+        </Section>
+        <Section Name="PWA" Heading="Progressive Web Application Settings" ResourceKey="PWASettings">
+            <div class="container">
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="isEnabled" HelpText="Select whether you would like this site to be available as a Progressive Web Application (PWA)" ResourceKey="EnablePWA">Is Enabled? </Label>
+                    <div class="col-sm-9">
+                        <select id="isEnabled" class="form-select" @bind="@_pwaisenabled" required>
+                            <option value="True">@SharedLocalizer["Yes"]</option>
+                            <option value="False">@SharedLocalizer["No"]</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="appIcon" HelpText="Include an application icon for your PWA. It should be a PNG which is 192 X 192 pixels in dimension." ResourceKey="PwaApplicationIcon">App Icon: </Label>
+                    <div class="col-sm-9">
+                        <FileManager FileId="@_pwaappiconfileid" Filter="png" @ref="_pwaappiconfilemanager" />
+                    </div>
+                </div>
+                <div class="row mb-1 align-items-center">
+                    <Label Class="col-sm-3" For="splashIcon" HelpText="Include a splash icon for your PWA. It should be a PNG which is 512 X 512 pixels in dimension." ResourceKey="PwaSplashIcon">Splash Icon: </Label>
+                    <div class="col-sm-9">
+                        <FileManager FileId="@_pwasplashiconfileid" Filter="png" @ref="_pwasplashiconfilemanager" />
+                    </div>
+                </div>
+            </div>
+        </Section>
+        @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+        {
+            <Section Name="TenantInformation" Heading="Tenant Information" ResourceKey="TenantInformation">
+                <div class="container">
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="tenant" HelpText="The tenant for the site" ResourceKey="Tenant">Tenant: </Label>
+                        <div class="col-sm-9">
+                            <input id="tenant" class="form-control" @bind="@_tenant" readonly />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="database" HelpText="The database for the tenant" ResourceKey="Database">Database: </Label>
+                        <div class="col-sm-9">
+                            <input id="database" class="form-control" @bind="@_database" readonly />
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="connectionstring" HelpText="The connection information for the database" ResourceKey="ConnectionString">Connection: </Label>
+                        <div class="col-sm-9">
+                            <textarea id="connectionstring" class="form-control" @bind="@_connectionstring" rows="2" readonly></textarea>
+                        </div>
+                    </div>
+                </div>
+            </Section>
+        }
+        <br />
+        <button type="button" class="btn btn-success" @onclick="SaveSite">@SharedLocalizer["Save"]</button>
+        <ActionDialog Header="Delete Site" Message="@Localizer["Confirm.DeleteSite"]" Action="Delete" Security="SecurityAccessLevel.Host" Class="btn btn-danger" OnClick="@(async () => await DeleteSite())" ResourceKey="DeleteSite" />
+        <br />
+        <br />
+        <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon" DeletedBy="@_deletedby" DeletedOn="@_deletedon"></AuditInfo>
+    </form>
 }
 
 @code {
+    private ElementReference form;
+    private bool validated = false;
     private bool _initialized = false;
     private List<Theme> _themeList;
     private List<ThemeControl> _themes = new List<ThemeControl>();
@@ -422,121 +388,130 @@
 
     private async Task SaveSite()
     {
-        try
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
         {
-            if (_name != string.Empty && _urls != string.Empty && _themetype != "-" && _containertype != "-")
+            try
             {
-                var unique = true;
-                if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+                if (_name != string.Empty && _urls != string.Empty && _themetype != "-" && _containertype != "-")
                 {
-                    foreach (string name in _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    var unique = true;
+                    if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
                     {
-                        if (_aliasList.Exists(item => item.Name == name && item.SiteId != PageState.Alias.SiteId && item.TenantId != PageState.Alias.TenantId))
+                        foreach (string name in _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                         {
-                            unique = false;
+                            if (_aliasList.Exists(item => item.Name == name && item.SiteId != PageState.Alias.SiteId && item.TenantId != PageState.Alias.TenantId))
+                            {
+                                unique = false;
+                            }
                         }
                     }
-                }
 
-                if (unique)
-                {
-                    var site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
-                    if (site != null)
+                    if (unique)
                     {
-                        bool refresh = (site.DefaultThemeType != _themetype || site.DefaultContainerType != _containertype);
-
-                        site.Name = _name;
-                        site.AllowRegistration = (_allowregistration == null ? true : Boolean.Parse(_allowregistration));
-                        site.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));
-
-                        site.LogoFileId = null;
-                        var logofileid = _logofilemanager.GetFileId();
-                        if (logofileid != -1)
+                        var site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
+                        if (site != null)
                         {
-                            site.LogoFileId = logofileid;
-                        }
-                        var faviconFieldId = _faviconfilemanager.GetFileId();
-                        if (faviconFieldId != -1)
-                        {
-                            site.FaviconFileId = faviconFieldId;
-                        }
-                        site.DefaultThemeType = _themetype;
-                        site.DefaultContainerType = _containertype;
-                        site.AdminContainerType = _admincontainertype;
+                            bool refresh = (site.DefaultThemeType != _themetype || site.DefaultContainerType != _containertype);
 
-                        site.PwaIsEnabled = (_pwaisenabled == null ? true : Boolean.Parse(_pwaisenabled));
-                        var pwaappiconfileid = _pwaappiconfilemanager.GetFileId();
-                        if (pwaappiconfileid != -1)
-                        {
-                            site.PwaAppIconFileId = pwaappiconfileid;
-                        }
-                        var pwasplashiconfileid = _pwasplashiconfilemanager.GetFileId();
-                        if (pwasplashiconfileid != -1)
-                        {
-                            site.PwaSplashIconFileId = pwasplashiconfileid;
-                        }
+                            site.Name = _name;
+                            site.AllowRegistration = (_allowregistration == null ? true : Boolean.Parse(_allowregistration));
+                            site.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));
 
-                        site = await SiteService.UpdateSiteAsync(site);
-
-                        var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
-                        SettingService.SetSetting(settings, "SMTPHost", _smtphost);
-                        SettingService.SetSetting(settings, "SMTPPort", _smtpport);
-                        SettingService.SetSetting(settings, "SMTPSSL", _smtpssl);
-                        SettingService.SetSetting(settings, "SMTPUsername", _smtpusername);
-                        SettingService.SetSetting(settings, "SMTPPassword", _smtppassword);
-                        SettingService.SetSetting(settings, "SMTPSender", _smtpsender);
-                        await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
-
-                        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
-                        {
-                            var names = _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                            foreach (Alias alias in _aliasList.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
+                            site.LogoFileId = null;
+                            var logofileid = _logofilemanager.GetFileId();
+                            if (logofileid != -1)
                             {
-                                if (!names.Contains(alias.Name))
+                                site.LogoFileId = logofileid;
+                            }
+                            var faviconFieldId = _faviconfilemanager.GetFileId();
+                            if (faviconFieldId != -1)
+                            {
+                                site.FaviconFileId = faviconFieldId;
+                            }
+                            site.DefaultThemeType = _themetype;
+                            site.DefaultContainerType = _containertype;
+                            site.AdminContainerType = _admincontainertype;
+
+                            site.PwaIsEnabled = (_pwaisenabled == null ? true : Boolean.Parse(_pwaisenabled));
+                            var pwaappiconfileid = _pwaappiconfilemanager.GetFileId();
+                            if (pwaappiconfileid != -1)
+                            {
+                                site.PwaAppIconFileId = pwaappiconfileid;
+                            }
+                            var pwasplashiconfileid = _pwasplashiconfilemanager.GetFileId();
+                            if (pwasplashiconfileid != -1)
+                            {
+                                site.PwaSplashIconFileId = pwasplashiconfileid;
+                            }
+
+                            site = await SiteService.UpdateSiteAsync(site);
+
+                            var settings = await SettingService.GetSiteSettingsAsync(site.SiteId);
+                            SettingService.SetSetting(settings, "SMTPHost", _smtphost);
+                            SettingService.SetSetting(settings, "SMTPPort", _smtpport);
+                            SettingService.SetSetting(settings, "SMTPSSL", _smtpssl);
+                            SettingService.SetSetting(settings, "SMTPUsername", _smtpusername);
+                            SettingService.SetSetting(settings, "SMTPPassword", _smtppassword);
+                            SettingService.SetSetting(settings, "SMTPSender", _smtpsender);
+                            await SettingService.UpdateSiteSettingsAsync(settings, site.SiteId);
+
+                            if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+                            {
+                                var names = _urls.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                                foreach (Alias alias in _aliasList.Where(item => item.SiteId == site.SiteId && item.TenantId == site.TenantId).ToList())
                                 {
-                                    await AliasService.DeleteAliasAsync(alias.AliasId);
+                                    if (!names.Contains(alias.Name))
+                                    {
+                                        await AliasService.DeleteAliasAsync(alias.AliasId);
+                                    }
+                                }
+
+                                foreach (string name in names)
+                                {
+                                    if (!_aliasList.Exists(item => item.Name == name))
+                                    {
+                                        Alias alias = new Alias();
+                                        alias.Name = name;
+                                        alias.TenantId = site.TenantId;
+                                        alias.SiteId = site.SiteId;
+                                        await AliasService.AddAliasAsync(alias);
+                                    }
                                 }
                             }
 
-                            foreach (string name in names)
+                            await logger.LogInformation("Site Settings Saved {Site}", site);
+
+                            if (refresh)
                             {
-                                if (!_aliasList.Exists(item => item.Name == name))
-                                {
-                                    Alias alias = new Alias();
-                                    alias.Name = name;
-                                    alias.TenantId = site.TenantId;
-                                    alias.SiteId = site.SiteId;
-                                    await AliasService.AddAliasAsync(alias);
-                                }
+                                NavigationManager.NavigateTo(NavigateUrl()); // refresh to show new theme or container
+                            }
+                            else
+                            {
+                                AddModuleMessage(Localizer["Success.Settings.SaveSite"], MessageType.Success);
                             }
                         }
-
-                        await logger.LogInformation("Site Settings Saved {Site}", site);
-
-                        if (refresh)
-                        {
-                            NavigationManager.NavigateTo(NavigateUrl()); // refresh to show new theme or container
-                        }
-                        else
-                        {
-                            AddModuleMessage(Localizer["Success.Settings.SaveSite"], MessageType.Success);
-                        }
+                    }
+                    else
+                    {
+                        AddModuleMessage(Localizer["Message.Aliases.Taken"], MessageType.Warning);
                     }
                 }
                 else
                 {
-                    AddModuleMessage(Localizer["Message.Aliases.Taken"], MessageType.Warning);
+                    AddModuleMessage(Localizer["Message.Required.SiteName"], MessageType.Warning);
                 }
             }
-            else
+            catch (Exception ex)
             {
-                AddModuleMessage(Localizer["Message.Required.SiteName"], MessageType.Warning);
+                await logger.LogError(ex, "Error Saving Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
+                AddModuleMessage(Localizer["Error.SaveSite"], MessageType.Error);
             }
         }
-        catch (Exception ex)
+        else
         {
-            await logger.LogError(ex, "Error Saving Site {SiteId} {Error}", PageState.Site.SiteId, ex.Message);
-            AddModuleMessage(Localizer["Error.SaveSite"], MessageType.Error);
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
         }
     }
 

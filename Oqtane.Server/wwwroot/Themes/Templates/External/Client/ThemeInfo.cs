@@ -8,7 +8,8 @@ namespace [Owner].[Theme]
         public Theme Theme => new Theme
         {
             Name = "[Theme]",
-            Version = "1.0.0"
+            Version = "1.0.0",
+            PackageName = "[Owner].[Theme]"
         };
 
     }

@@ -333,7 +333,7 @@ Oqtane.Interop = {
 
                 var data = new FormData();
                 data.append('folder', folder);
-                data.append('file', Chunk, FileName);
+                data.append('formfile', Chunk, FileName);
                 var request = new XMLHttpRequest();
                 request.open('POST', posturl, true);
                 request.upload.onloadstart = function (e) {

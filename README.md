@@ -14,7 +14,7 @@ Please note that this project is owned by the .NET Foundation and is governed by
 
 **Using Version 2+:**
 
-- Install **[.NET 5 SDK (v5.0.100)](https://dotnet.microsoft.com/download/dotnet/5.0)**.
+- Install **[.NET 5 SDK](https://dotnet.microsoft.com/download/dotnet/5.0)**.
    
 - Install the latest edition (v16.8 or higher) of [Visual Studio 2019](https://visualstudio.microsoft.com/vs/) (Community, Professional, or Enterprise Editions) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you do not have a SQL Server installation available already and you wish to use LocalDB for development, you must also install the **.NET desktop development workload**.  
 
@@ -22,7 +22,7 @@ Please note that this project is owned by the .NET Foundation and is governed by
 
 **Using Version 1:**
 
-- Install **[.NET Core 3.1 SDK (v3.1.300)](https://dotnet.microsoft.com/download/dotnet-core/thank-you/sdk-3.1.300-windows-x64-installer)**.
+- Install **[.NET Core 3.1 SDK](https://dotnet.microsoft.com/download/dotnet-core/thank-you/sdk-3.1.300-windows-x64-installer)**.
    
 - Install [Visual Studio 2019](https://visualstudio.microsoft.com/vs) (Community, Professional, or Enterprise Editions) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you do not have a SQL Server installation available already and you wish to use LocalDB for development, you must also install the **.NET desktop development workload**.  
 
@@ -52,7 +52,7 @@ This project is a work in progress and the schedule for implementing enhancement
 V.3.0.0 ( Q4 2021 )
 - [ ] Migration to .NET 6
 
-V.2.2.0 ( Q3 2021 )
+V.2.3.0 ( Q3 2021 )
 - [ ] Authentication extensibility ( ie. Azure B2C, Social logins, etc... )
 - [ ] Configurable password complexity for local authentication
 
@@ -166,4 +166,3 @@ Admin dashboard for accessing the various administrative features of the framewo
 Responsive design mobile view:
 
 ![Mobile View](https://github.com/oqtane/framework/blob/master/screenshots/screenshot7.png?raw=true "Mobile View")
-

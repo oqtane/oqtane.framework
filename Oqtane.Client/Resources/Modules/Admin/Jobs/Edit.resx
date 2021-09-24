@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -154,16 +154,16 @@
     <value>Select how often you want the job to run</value>
   </data>
   <data name="Starting.HelpText" xml:space="preserve">
-    <value>What time do you want the job to start</value>
+    <value>Optionally enter the date and time when this job should start executing</value>
   </data>
   <data name="Ending.HelpText" xml:space="preserve">
-    <value>When do you want the job to end</value>
+    <value>Optionally enter the date and time when this job should stop executing</value>
   </data>
   <data name="RetentionLog.HelpText" xml:space="preserve">
     <value>Number of log entries to retain for this job</value>
   </data>
   <data name="NextExecution.HelpText" xml:space="preserve">
-    <value>Next execution for this job.</value>
+    <value>Optionally modify the date and time when this job should execute next</value>
   </data>
   <data name="Type.Text" xml:space="preserve">
     <value>Type: </value>

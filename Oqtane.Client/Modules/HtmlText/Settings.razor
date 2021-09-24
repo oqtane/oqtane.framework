@@ -5,46 +5,44 @@
 @inject IStringLocalizer<Settings> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-<table class="table table-borderless">
-    <tr>
-        <td width="30%">
-            <Label For="files" ResourceKey="Allow File Management" HelpText="Specify If Editors Can Upload and Select Files">Allow File Management: </Label>
-        </td>
-        <td>
-            <select id="files" class="form-select" @bind="@_allowfilemanagement">
-                <option value="true">@SharedLocalizer["Yes"]</option>
-                <option value="false">@SharedLocalizer["No"]</option>
-            </select>
-        </td>
-    </tr>
-</table>
+    <div class="container">
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="files" ResourceKey="Allow File Management" HelpText="Specify If Editors Can Upload and Select Files">Allow File Management: </Label>
+            <div class="col-sm-9">
+                <select id="files" class="form-select" @bind="@_allowfilemanagement">
+                    <option value="true">@SharedLocalizer["Yes"]</option>
+                    <option value="false">@SharedLocalizer["No"]</option>
+                </select>
+            </div>
+        </div>
+    </div>
 
-@code {
-    private string _allowfilemanagement;
+    @code {
+        private string _allowfilemanagement;
 
-    protected override void OnInitialized()
-    {
-        try
+        protected override void OnInitialized()
         {
-            _allowfilemanagement = SettingService.GetSetting(ModuleState.Settings, "AllowFileManagement", "true");
+            try
+            {
+                _allowfilemanagement = SettingService.GetSetting(ModuleState.Settings, "AllowFileManagement", "true");
+            }
+            catch (Exception ex)
+            {
+                ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+            }
         }
-        catch (Exception ex)
+
+        public async Task UpdateSettings()
         {
-            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+            try
+            {
+                var settings = ModuleState.Settings;
+                settings = SettingService.SetSetting(settings, "AllowFileManagement", _allowfilemanagement);
+                await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
+            }
+            catch (Exception ex)
+            {
+                ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
+            }
         }
     }
-
-    public async Task UpdateSettings()
-    {
-        try
-        {
-            var settings = ModuleState.Settings;
-            settings = SettingService.SetSetting(settings, "AllowFileManagement", _allowfilemanagement);
-            await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
-        }
-        catch (Exception ex)
-        {
-            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
-        }
-    }
-}

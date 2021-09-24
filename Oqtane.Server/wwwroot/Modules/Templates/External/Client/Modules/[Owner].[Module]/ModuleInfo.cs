@@ -12,7 +12,8 @@ namespace [Owner].[Module]
             Version = "1.0.0",
             ServerManagerType = "[ServerManagerType]",
             ReleaseVersions = "1.0.0",
-            Dependencies = "[Owner].[Module].Shared.Oqtane"
+            Dependencies = "[Owner].[Module].Shared.Oqtane",
+            PackageName = "[Owner].[Module]" 
         };
     }
 }

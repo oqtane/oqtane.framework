@@ -29,9 +29,9 @@ else
             <td><TriStateCheckBox Value="@(context.IsDefault)" Disabled="true"></TriStateCheckBox></td>
             <td>
                 @if (UpgradeAvailable(context.Code))
-                    {
+                {
                     <button type="button" class="btn btn-success" @onclick=@(async () => await DownloadLanguage(context.Code))>@SharedLocalizer["Upgrade"]</button>
-                    }
+                }
             </td>
         </Row>
     </Pager>

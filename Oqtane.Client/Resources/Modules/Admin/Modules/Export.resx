@@ -121,9 +121,15 @@
     <value>Export</value>
   </data>
   <data name="Content.HelpText" xml:space="preserve">
-    <value>Enter the module content</value>
+    <value>The Exported Module Content</value>
   </data>
   <data name="Content.Text" xml:space="preserve">
     <value>Content: </value>
+  </data>
+  <data name="Error.Module.Export" xml:space="preserve">
+    <value>Error Exporting Module Content</value>
+  </data>
+  <data name="Success.Content.Export" xml:space="preserve">
+    <value>Content Exported Successfully</value>
   </data>
 </root>

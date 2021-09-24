@@ -5,31 +5,35 @@
 @inject IStringLocalizer<Export> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
-<table class="table table-borderless">
-    <tbody>
-        <tr>
-            <td width="30%">
-                <Label For="content" HelpText="Enter the module content" ResourceKey="Content">Content: </Label>
-            </td>
-            <td>
-                <textarea id="content" class="form-control" @bind="@_content" rows="5"></textarea>
-            </td>
-        </tr>
-    </tbody>
-</table>
+<div class="container">
+    <div class="row mb-1 align-items-center">
+        <Label Class="col-sm-3" For="content" HelpText="The Exported Module Content" ResourceKey="Content">Content: </Label>
+        <div class="col-sm-9">
+            <textarea id="content" class="form-control" @bind="@_content" rows="5" readonly></textarea>
+        </div>
+    </div>
+</div>
+
 <button type="button" class="btn btn-success" @onclick="ExportModule">@Localizer["Export"]</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
 
-
 @code {
     private string _content = string.Empty;
-
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
     public override string Title => "Export Content";
 
 
     private async Task ExportModule()
     {
-        _content = await ModuleService.ExportModuleAsync(ModuleState.ModuleId);
+        try
+        {
+            _content = await ModuleService.ExportModuleAsync(ModuleState.ModuleId);
+            AddModuleMessage(Localizer["Success.Content.Export"], MessageType.Success);
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Exporting Module {ModuleId} {Error}", ModuleState.ModuleId, ex.Message);
+            AddModuleMessage(Localizer["Error.Module.Export"], MessageType.Error);
+        }
     }
 }

@@ -37,6 +37,10 @@ namespace Oqtane.Migrations.EntityBuilders
             return ActiveDatabase.RewriteName(name);
         }
 
+        private string RewriteValue(string value, string type)
+        {
+            return ActiveDatabase.RewriteValue(value, type);
+        }
 
         // Column Operations
 
@@ -260,9 +264,19 @@ namespace Oqtane.Migrations.EntityBuilders
             _migrationBuilder.Sql(deleteSql);
         }
 
-        public void UpdateColumn(string columnName, string value, string condition = "")
+        public void UpdateColumn(string columnName, string value)
         {
-            var updateSql = $"UPDATE {RewriteName(EntityTableName)} SET {RewriteName(columnName)} = {value} ";
+            UpdateColumn(columnName, value, "", "");
+        }
+
+        public void UpdateColumn(string columnName, string value, string condition)
+        {
+            UpdateColumn(columnName, value, "", condition);
+        }
+
+        public void UpdateColumn(string columnName, string value, string type, string condition)
+        {
+            var updateSql = $"UPDATE {RewriteName(EntityTableName)} SET {RewriteName(columnName)} = {RewriteValue(value, type)} ";
             if (!string.IsNullOrEmpty(condition))
             {
                 updateSql += $"WHERE {condition}";

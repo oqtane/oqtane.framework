@@ -45,7 +45,17 @@ namespace Oqtane.Models
         public int Order { get; set; }
 
         /// <summary>
-        /// TODO: unclear what this is for
+        /// List of image sizes which can be generated dynamically from uploaded images (ie. 200x200,x200,200x)
+        /// </summary>
+        public string ImageSizes { get; set; }
+
+        /// <summary>
+        /// Maximum folder capacity (in bytes)
+        /// </summary>
+        public int Capacity { get; set; }
+
+        /// <summary>
+        /// Folder is a dependency of the framework and cannot be modified or removed
         /// </summary>
         public bool IsSystem { get; set; }
 

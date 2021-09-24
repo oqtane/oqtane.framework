@@ -1,5 +1,4 @@
 @using System.Diagnostics.CodeAnalysis
-@using System.Runtime.InteropServices
 @namespace Oqtane.UI
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject SiteState SiteState
@@ -16,10 +15,15 @@
 @DynamicComponent
 
 @code {
-
     private string _absoluteUri;
     private bool _navigationInterceptionEnabled;
     private PageState _pagestate;
+
+    [Parameter]
+    public string Runtime { get; set; }
+
+    [Parameter]
+    public string RenderMode { get; set; }
 
     [CascadingParameter]
     PageState PageState { get; set; }
@@ -71,7 +75,7 @@
         var editmode = false;
         var refresh = UI.Refresh.None;
         var lastsyncdate = DateTime.UtcNow.AddHours(-1);
-        var runtime = GetRuntime();
+        var runtime = (Shared.Runtime)Enum.Parse(typeof(Shared.Runtime), Runtime);
 
         Uri uri = new Uri(_absoluteUri);
 
@@ -89,7 +93,7 @@
         else
         {
             // reload the client application if the user navigated to a site with a different alias or there is a forced reload
-            if ((!path.StartsWith(SiteState.Alias.Path) && SiteState.Alias.Path != "") || querystring.ContainsKey("reload"))
+            if ((!path.ToLower().StartsWith(SiteState.Alias.Path.ToLower()) && !string.IsNullOrEmpty(SiteState.Alias.Path)) || querystring.ContainsKey("reload"))
             {
                 NavigationManager.NavigateTo(_absoluteUri.Replace("?reload", ""), true);
                 return;
@@ -138,6 +142,7 @@
                 if (authState.User.Identity.IsAuthenticated)
                 {
                     user = await UserService.GetUserAsync(authState.User.Identity.Name, site.SiteId);
+                    user.IsAuthenticated = authState.User.Identity.IsAuthenticated;
                 }
             }
             else
@@ -425,7 +430,7 @@
             if ((module.PageId == page.PageId || module.ModuleId == moduleid))
             {
                 var typename = Constants.ErrorModule;
-                if (module.ModuleDefinition != null && (module.ModuleDefinition.Runtimes == "" || module.ModuleDefinition.Runtimes.Contains(GetRuntime().ToString())))
+                if (module.ModuleDefinition != null && (module.ModuleDefinition.Runtimes == "" || module.ModuleDefinition.Runtimes.Contains(Runtime)))
                 {
                     typename = module.ModuleDefinition.ControlTypeTemplate;
 
@@ -543,10 +548,4 @@
         }
         return pageresources;
     }
-
-    private Oqtane.Shared.Runtime GetRuntime()
-=> RuntimeInformation.IsOSPlatform(OSPlatform.Create("BROWSER"))
-        ? Oqtane.Shared.Runtime.WebAssembly
-        : Oqtane.Shared.Runtime.Server;
-
 }

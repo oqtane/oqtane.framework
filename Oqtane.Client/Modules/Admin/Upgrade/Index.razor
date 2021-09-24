@@ -22,16 +22,14 @@
     </TabPanel>
     <TabPanel Name="Upload" ResourceKey="Upload">
         <ModuleMessage Type="MessageType.Info" Message="Upload A Framework Package (Oqtane.Framework.version.nupkg) And Then Select Upgrade"></ModuleMessage>
-        <table class="table table-borderless">
-            <tr>
-                <td>
-                    <Label HelpText="Upload A Framework Package And Then Select Upgrade" ResourceKey="Framework">Framework: </Label>
-                </td>
-                <td>
+        <div class="container">
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" HelpText="Upload A Framework Package And Then Select Upgrade" ResourceKey="Framework">Framework: </Label>
+                <div class="col-sm-9">
                     <FileManager Filter="nupkg" ShowFiles="false" Folder="Packages" />
-                </td>
-            </tr>
-        </table>
+                </div>
+            </div>
+        </div>
         <button type="button" class="btn btn-success" @onclick="Upgrade">@SharedLocalizer["Upgrade"]</button>
     </TabPanel>
 </TabStrip>
@@ -46,7 +44,7 @@
     {
         try
         {
-            List<Package> packages = await PackageService.GetPackagesAsync("framework");
+            List<Package> packages = await PackageService.GetPackagesAsync("framework", "", "", "");
             if (packages != null)
             {
                 _package = packages.Where(item => item.PackageId.StartsWith(Constants.PackageId)).FirstOrDefault();
@@ -73,7 +71,7 @@
             AddModuleMessage(Localizer["Info.Upgrade.Wait"], MessageType.Info);
             ShowProgressIndicator();
             var interop = new Interop(JSRuntime);
-            await interop.RedirectBrowser(NavigateUrl(), 20);
+            await interop.RedirectBrowser(NavigateUrl(), 10);
             await InstallationService.Upgrade();
         }
         catch (Exception ex)

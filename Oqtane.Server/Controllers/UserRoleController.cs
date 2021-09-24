@@ -53,7 +53,7 @@ namespace Oqtane.Controllers
         public UserRole Get(int id)
         {
             var userrole = _userRoles.GetUserRole(id);
-            if (userrole != null && userrole.Role.SiteId == _alias.SiteId)
+            if (userrole != null && SiteValid(userrole.Role.SiteId))
             {
                 return userrole;
             }
@@ -71,7 +71,7 @@ namespace Oqtane.Controllers
         public UserRole Post([FromBody] UserRole userRole)
         {
             var role = _roles.GetRole(userRole.RoleId);
-            if (ModelState.IsValid && role != null && role.SiteId == _alias.SiteId && (User.IsInRole(RoleNames.Host) || role.Name != RoleNames.Host))
+            if (ModelState.IsValid && role != null && SiteValid(role.SiteId) && RoleValid(role.Name))
             {
                 if (role.Name == RoleNames.Host)
                 {
@@ -100,7 +100,7 @@ namespace Oqtane.Controllers
         public UserRole Put(int id, [FromBody] UserRole userRole)
         {
             var role = _roles.GetRole(userRole.RoleId);
-            if (ModelState.IsValid && role != null && role.SiteId == _alias.SiteId && _userRoles.GetUserRole(userRole.UserRoleId, false) != null && (User.IsInRole(RoleNames.Host) || role.Name != RoleNames.Host))
+            if (ModelState.IsValid && role != null && SiteValid(role.SiteId) && RoleValid(role.Name) && _userRoles.GetUserRole(userRole.UserRoleId, false) != null)
             {
                 userRole = _userRoles.UpdateUserRole(userRole);
                 _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.User, userRole.UserId);
@@ -120,30 +120,40 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Admin)]
         public void Delete(int id)
         {
-            UserRole userRole = _userRoles.GetUserRole(id);
-            if (userRole != null && userRole.Role.SiteId == _alias.SiteId && (User.IsInRole(RoleNames.Host) || userRole.Role.Name != RoleNames.Host))
+            UserRole userrole = _userRoles.GetUserRole(id);
+            if (userrole != null && SiteValid(userrole.Role.SiteId) && RoleValid(userrole.Role.Name))
             {
                 _userRoles.DeleteUserRole(id);
-                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Role Deleted {UserRole}", userRole);
+                _logger.Log(LogLevel.Information, this, LogFunction.Delete, "User Role Deleted {UserRole}", userrole);
 
-                if (userRole.Role.Name == RoleNames.Host)
+                if (userrole.Role.Name == RoleNames.Host)
                 {
                     // add site specific user roles to preserve user access
                     var role = _roles.GetRoles(_alias.SiteId).FirstOrDefault(item => item.Name == RoleNames.Registered);
-                    userRole = _userRoles.AddUserRole(new UserRole { UserId = userRole.UserId, RoleId = role.RoleId, EffectiveDate = null, ExpiryDate = null });
-                    _logger.Log(LogLevel.Information, this, LogFunction.Create, "User Role Added {UserRole}", userRole);
+                    userrole = _userRoles.AddUserRole(new UserRole { UserId = userrole.UserId, RoleId = role.RoleId, EffectiveDate = null, ExpiryDate = null });
+                    _logger.Log(LogLevel.Information, this, LogFunction.Create, "User Role Added {UserRole}", userrole);
                     role = _roles.GetRoles(_alias.SiteId).FirstOrDefault(item => item.Name == RoleNames.Admin);
-                    userRole = _userRoles.AddUserRole(new UserRole { UserId = userRole.UserId, RoleId = role.RoleId, EffectiveDate = null, ExpiryDate = null });
-                    _logger.Log(LogLevel.Information, this, LogFunction.Create, "User Role Added {UserRole}", userRole);
+                    userrole = _userRoles.AddUserRole(new UserRole { UserId = userrole.UserId, RoleId = role.RoleId, EffectiveDate = null, ExpiryDate = null });
+                    _logger.Log(LogLevel.Information, this, LogFunction.Create, "User Role Added {UserRole}", userrole);
                 }
 
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.User, userRole.UserId);
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.User, userrole.UserId);
             }
             else
             {
                 _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized User Role Delete Attempt {UserRoleId}", id);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
+        }
+
+        private bool SiteValid(int? SiteId)
+        {
+            return (SiteId == _alias.SiteId || (SiteId == null && User.IsInRole(RoleNames.Host)));
+        }
+
+        private bool RoleValid(string RoleName)
+        {
+            return (RoleName != RoleNames.Host || User.IsInRole(RoleNames.Host));
         }
     }
 }

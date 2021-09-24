@@ -5,7 +5,7 @@
     <OutputType>Exe</OutputType>
     <RazorLangVersion>3.0</RazorLangVersion>
     <Configurations>Debug;Release</Configurations>
-    <Version>2.2.0</Version>
+    <Version>2.3.0</Version>
     <Product>Oqtane</Product>
     <Authors>Shaun Walker</Authors>
     <Company>.NET Foundation</Company>
@@ -13,7 +13,7 @@
     <Copyright>.NET Foundation</Copyright>
     <PackageProjectUrl>https://www.oqtane.org</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/oqtane/oqtane.framework/blob/dev/LICENSE</PackageLicenseUrl>
-    <PackageReleaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v2.2.0</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/oqtane/oqtane.framework/releases/tag/v2.3.0</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/oqtane/oqtane.framework</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <RootNamespace>Oqtane</RootNamespace>
@@ -38,4 +38,15 @@
     <Folder Include="Resources\" />
     <Folder Include="Resources\Themes\Controls\Theme\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <TrimmerRootAssembly Include="System.Runtime" />
+    <TrimmerRootAssembly Include="System.Linq.Parallel" />
+    <TrimmerRootAssembly Include="System.Runtime.CompilerServices.VisualC" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <BlazorEnableCompression>false</BlazorEnableCompression>
+  </PropertyGroup>
+
 </Project>

@@ -9,6 +9,7 @@ namespace Oqtane.Shared
         public string TenantName { get; set; }
         public bool IsNewTenant { get; set; }
         public string SiteName { get; set; }
+        public string HostUsername { get; set; }
         public string HostPassword { get; set; }
         public string HostEmail { get; set; }
         public string HostName { get; set; }
