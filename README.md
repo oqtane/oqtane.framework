@@ -83,7 +83,7 @@ V.2.0.2 ( Apr 19, 2021 )
 V.2.0.1 ( Feb 27, 2021 )
 - [x] Complete Static Localization of Admin UI
 
-V.2.0.0 ( released in conjuntion with .NET 5 on Nov 11, 2020 )
+V.2.0.0 ( Nov 11, 2020 - released in conjunction with .NET 5 )
 - [x] Migration to .NET 5
 - [x] Static Localization ( ie. labels, help text, etc.. )
 - [x] Improved JavaScript Reference Support
