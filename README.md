@@ -51,12 +51,16 @@ This project is a work in progress and the schedule for implementing enhancement
 
 V.3.0.0 ( Q4 2021 )
 - [ ] Migration to .NET 6
-
-V.2.3.0 ( Q3 2021 )
 - [ ] Authentication extensibility ( ie. Azure B2C, Social logins, etc... )
 - [ ] Configurable password complexity for local authentication
 
-V.2.2.0 ( Jul 2021 )
+V.2.3.0 ( Sep 24, 2021 )
+- [ ] Complete UI migration to Bootstrap 5
+- [ ] Improve module/theme installation and add support for commercial extensions
+- [ ] Replace System.Drawing with ImageSharp
+- [ ] Image resizing service
+
+V.2.2.0 ( Jul 6, 2021 )
 - [x] Bootstrap 5 Upgrade
 - [x] Package Service Integration
 - [x] Default and Shared Resource File Inclusion
