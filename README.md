@@ -62,20 +62,20 @@ V.2.3.0 ( Sep 24, 2021 )
 
 V.2.2.0 ( Jul 6, 2021 )
 - [x] Bootstrap 5 Upgrade
-- [x] Package Service Integration
-- [x] Default and Shared Resource File Inclusion
-- [x] Startup Error Logging
+- [x] Package Service integration
+- [x] Default and Shared Resource File inclusion
+- [x] Startup Error logging
 - [x] API Controller Validation and Logging
 
 V.2.1.0 ( Jun 4, 2021 )
 - [x] Cross Platform Database Support ( ie. LocalDB, SQL Server, SQLite, MySQL, PostgreSQL ) - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
 - [x] Utilize EF Core Migrations - see [#964](https://github.com/oqtane/oqtane.framework/discussions/964)
-- [x] Public Content Folder Support
-- [x] Multi-tenant Infrastructure Improvements
-- [x] User Authorization Optimization
-- [x] Consiolidation of Package Management
+- [x] Public Content Folder support
+- [x] Multi-tenant Infrastructure improvements
+- [x] User Authorization optimization
+- [x] Consolidation of Package Management
 - [x] Blazor Server Pre-rendering
-- [x] Translation Package Installation
+- [x] Translation Package installation support
 
 V.2.0.2 ( Apr 19, 2021 )
 - [x] Assorted fixes and user experience improvements
@@ -90,7 +90,7 @@ V.2.0.0 ( Nov 11, 2020 - released in conjunction with .NET 5 )
 - [x] Performance Optimizations
 - [x] Developer Productivity Enhancements
 
-V.1.0.0 ( released in conjunction with .NET Core 3.2 on May 19, 2020 )
+V.1.0.0 ( May 19, 2020 - released in conjunction with .NET Core 3.2 )
 - [x] Multi-Tenant ( Shared Database & Isolated Database ) 
 - [x] Modular Architecture
 - [x] Headless API with Swagger Support
@@ -114,6 +114,9 @@ V.1.0.0 ( released in conjunction with .NET Core 3.2 on May 19, 2020 )
 Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Initially created as a proof of concept, Oqtane is a native Blazor application written from the ground up using modern .NET Core technology. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly templates (skins), and extensibility via third party modules.
 
 # Release Announcements
+[Oqtane 2.2](https://www.oqtane.org/Resources/Blog/PostId/549/oqtane-22-upgrades-to-bootstrap-5)
+
+[Oqtane 2.1](https://www.oqtane.org/Resources/Blog/PostId/548/oqtane-21-now-supports-multiple-databases)
 
 [Oqtane 2.0](https://www.oqtane.org/Resources/Blog/PostId/544/announcing-oqtane-20-for-net-5)
 
