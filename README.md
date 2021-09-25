@@ -55,10 +55,10 @@ V.3.0.0 ( Q4 2021 )
 - [ ] Configurable password complexity for local authentication
 
 V.2.3.0 ( Sep 24, 2021 )
-- [ ] Complete UI migration to Bootstrap 5
-- [ ] Improve module/theme installation and add support for commercial extensions
-- [ ] Replace System.Drawing with ImageSharp
-- [ ] Image resizing service
+- [x] Complete UI migration to Bootstrap 5
+- [x] Improve module/theme installation and add support for commercial extensions
+- [x] Replace System.Drawing with ImageSharp
+- [x] Image resizing service
 
 V.2.2.0 ( Jul 6, 2021 )
 - [x] Bootstrap 5 Upgrade
