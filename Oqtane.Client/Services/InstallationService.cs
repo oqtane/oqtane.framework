@@ -25,8 +25,6 @@ namespace Oqtane.Services
 
         public async Task<Installation> IsInstalled()
         {
-            // add antiforgerytoken header so that it is included on all HttpClient calls for the lifetime of the app
-            AddRequestHeader(Constants.AntiForgeryTokenHeaderName, _siteState.AntiForgeryToken);
             var path = new Uri(_navigationManager.Uri).LocalPath.Substring(1);            
             return await GetJsonAsync<Installation>($"{ApiUrl}/installed/?path={WebUtility.UrlEncode(path)}");
         }
@@ -50,5 +48,14 @@ namespace Oqtane.Services
         {
             await PostJsonAsync($"{ApiUrl}/register?email={WebUtility.UrlEncode(email)}", true);
         }
+
+        public void SetAntiForgeryTokenHeader(string antiforgerytokenvalue)
+        {
+            if (!string.IsNullOrEmpty(antiforgerytokenvalue))
+            {
+                AddRequestHeader(Constants.AntiForgeryTokenHeaderName, antiforgerytokenvalue);
+            }
+        }
+
     }
 }
