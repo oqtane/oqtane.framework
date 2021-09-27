@@ -47,11 +47,13 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        SiteState.AntiForgeryToken = AntiForgeryToken;
+        InstallationService.SetAntiForgeryTokenHeader(AntiForgeryToken);
+
         _installation = await InstallationService.IsInstalled();
         if (_installation.Alias != null)
         {
             SiteState.Alias = _installation.Alias;
-            SiteState.AntiForgeryToken = AntiForgeryToken;
         }
         else
         {
@@ -68,8 +70,10 @@
             {
                 // parameter values are not set when running on WebAssembly (seems to be a .NET 5 bug) - need to retrieve using JSInterop
                 var interop = new Interop(JSRuntime);
-                AntiForgeryToken = await interop.GetElementByName(Constants.RequestVerificationToken);
-                SiteState.AntiForgeryToken = AntiForgeryToken;
+
+                SiteState.AntiForgeryToken = await interop.GetElementByName(Constants.RequestVerificationToken);
+                InstallationService.SetAntiForgeryTokenHeader(SiteState.AntiForgeryToken);
+
                 Runtime = await interop.GetElementByName("app_runtime");
                 RenderMode = await interop.GetElementByName("app_rendermode");
             }

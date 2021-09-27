@@ -41,5 +41,11 @@ namespace Oqtane.Services
         /// <param name="email">Email of the user to be registered</param>
         /// <returns></returns>
         Task RegisterAsync(string email);
+
+        /// <summary>
+        /// Sets the antiforgerytoken header so that it is included on all HttpClient calls for the lifetime of the app 
+        /// </summary>
+        /// <returns></returns>
+        void SetAntiForgeryTokenHeader(string antiforgerytokenvalue);
     }
 }
