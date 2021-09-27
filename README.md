@@ -54,7 +54,7 @@ V.3.0.0 ( Q4 2021 )
 - [ ] Authentication extensibility ( ie. Azure B2C, Social logins, etc... )
 - [ ] Configurable password complexity for local authentication
 
-V.2.3.0 ( Sep 24, 2021 )
+V.2.3.1 ( Sep 27, 2021 )
 - [x] Complete UI migration to Bootstrap 5 and HTML5 form validation
 - [x] Improve module/theme installation and add support for commercial extensions
 - [x] Replace System.Drawing with ImageSharp
