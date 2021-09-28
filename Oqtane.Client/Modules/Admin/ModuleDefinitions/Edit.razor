@@ -6,7 +6,7 @@
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <TabStrip>
-    <TabPanel Name="Definition" ResourceKey="Definition">
+    <TabPanel Name="Definition" Heading="Definition" ResourceKey="Definition">
         <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
             <div class="container">
                 <div class="row mb-1 align-items-center">
@@ -76,7 +76,7 @@
             </div>
         </Section>
     </TabPanel>
-    <TabPanel Name="Permissions" ResourceKey="Permissions">
+    <TabPanel Name="Permissions" Heading="Permissions" ResourceKey="Permissions">
         <div class="container">
             <div class="row mb-1 align-items-center">
                 <PermissionGrid EntityName="@EntityNames.ModuleDefinition" PermissionNames="@PermissionNames.Utilize" Permissions="@_permissions" @ref="_permissionGrid" />

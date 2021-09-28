@@ -9,7 +9,7 @@
 
 <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
     <TabStrip Refresh="@_refresh">
-        <TabPanel Name="Settings" ResourceKey="Settings">
+        <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings">
             @if (_themeList != null)
             {
                 <div class="container">
@@ -137,7 +137,7 @@
                 </Section>
             }
         </TabPanel>
-        <TabPanel Name="Permissions" ResourceKey="Permissions">
+        <TabPanel Name="Permissions" Heading="Permissions" ResourceKey="Permissions">
             <div class="container">
                 <div class="row mb-1 align-items-center">
                     <PermissionGrid EntityName="@EntityNames.Page" Permissions="@_permissions" @ref="_permissionGrid" />

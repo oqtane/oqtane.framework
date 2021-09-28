@@ -8,7 +8,7 @@
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <TabStrip>
-    <TabPanel Name="Identity" ResourceKey="Identity">
+    <TabPanel Name="Identity" Heading="Identity" ResourceKey="Identity">
         @if (profiles != null)
         {
             <div class="container">
@@ -46,7 +46,7 @@
 
         }
     </TabPanel>
-    <TabPanel Name="Profile" ResourceKey="Profile">
+    <TabPanel Name="Profile" Heading="Profile" ResourceKey="Profile">
         @if (profiles != null)
         {
             <div class="container">

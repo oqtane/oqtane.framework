@@ -8,7 +8,7 @@
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <TabStrip>
-    <TabPanel Name="Download" ResourceKey="Download">
+    <TabPanel Name="Download" Heading="Download" ResourceKey="Download">
         <div class="row justify-content-center mb-3">
             <div class="col-sm-6">
                 <div class="input-group">
@@ -65,7 +65,7 @@
             }
         }
     </TabPanel>
-    <TabPanel Name="Upload" ResourceKey="Upload">
+    <TabPanel Name="Upload" Heading="Upload" ResourceKey="Upload">
         <div class="container">
             <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" HelpText="Upload one or more theme packages. Once they are uploaded click Install to complete the installation." ResourceKey="Theme">Theme: </Label>

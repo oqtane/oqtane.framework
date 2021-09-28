@@ -8,7 +8,7 @@
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <TabStrip>
-    <TabPanel Name="Download" ResourceKey="Download">
+    <TabPanel Name="Download" Heading="Download" ResourceKey="Download">
         @if (_package != null && _upgradeavailable)
         {
             <ModuleMessage Type="MessageType.Info" Message="Select The Download Button To Download The Framework Upgrade Package And Then Select Upgrade"></ModuleMessage>
@@ -20,7 +20,7 @@
             <ModuleMessage Type="MessageType.Info" Message="Framework Is Already Up To Date"></ModuleMessage>
         }
     </TabPanel>
-    <TabPanel Name="Upload" ResourceKey="Upload">
+    <TabPanel Name="Upload" Heading="Upload" ResourceKey="Upload">
         <ModuleMessage Type="MessageType.Info" Message="Upload A Framework Package (Oqtane.Framework.version.nupkg) And Then Select Upgrade"></ModuleMessage>
         <div class="container">
             <div class="row mb-1 align-items-center">

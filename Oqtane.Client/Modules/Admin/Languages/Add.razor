@@ -16,7 +16,7 @@
 else
 {
     <TabStrip>
-        <TabPanel Name="Manage" ResourceKey="Manage">
+        <TabPanel Name="Manage" Heading="Manage" ResourceKey="Manage">
             @if (_availableCultures.Count() == 0)
             {
                 <ModuleMessage Type="MessageType.Info" Message="@_message"></ModuleMessage>
@@ -51,7 +51,7 @@ else
             }
             <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
         </TabPanel>
-        <TabPanel Name="Download" ResourceKey="Download" Security="SecurityAccessLevel.Host">
+        <TabPanel Name="Download" Heading="Download" ResourceKey="Download" Security="SecurityAccessLevel.Host">
             <div class="row justify-content-center mb-3">
                 <div class="col-sm-6">
                     <div class="input-group">
@@ -110,7 +110,7 @@ else
                 <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
             }
         </TabPanel>
-        <TabPanel Name="Upload" ResourceKey="Upload" Security="SecurityAccessLevel.Host">
+        <TabPanel Name="Upload" Heading="Upload" ResourceKey="Upload" Security="SecurityAccessLevel.Host">
             <div class="container">
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" HelpText="Upload one or more translations. Once they are uploaded click Install to complete the installation." ResourceKey="Module">Language: </Label>

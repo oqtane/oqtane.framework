@@ -19,7 +19,7 @@ else
     <br />
 }
 <TabStrip>
-    <TabPanel Name="Identity" ResourceKey="Identity">
+    <TabPanel Name="Identity" Heading="Identity" ResourceKey="Identity">
         @if (profiles != null && settings != null)
         {
             <div class="container">
@@ -65,7 +65,7 @@ else
             <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
         }
     </TabPanel>
-    <TabPanel Name="Profile" ResourceKey="Profile">
+    <TabPanel Name="Profile" Heading="Profile" ResourceKey="Profile">
         @if (profiles != null && settings != null)
         {
             <div class="container">
@@ -122,7 +122,7 @@ else
             <button type="button" class="btn btn-secondary" @onclick="Cancel">@SharedLocalizer["Cancel"]</button>
         }
     </TabPanel>
-    <TabPanel Name="Notifications" ResourceKey="Notifications">
+    <TabPanel Name="Notifications" Heading="Notifications" ResourceKey="Notifications">
         @if (notifications != null)
         {
             <ActionLink Action="Add" Text="Send Notification" Security="SecurityAccessLevel.View" EditMode="false" ResourceKey="SendNotification" />
