@@ -10,54 +10,63 @@
     <div id="@Id" class="container-fluid px-0">
         <div class="row">
             <div class="col">
-                @if (ShowFolders || FolderId <= 0)
-                {
-                    <div>
-                        <select class="form-select" value="@FolderId" @onchange="(e => FolderChanged(e))">
-                            @if (string.IsNullOrEmpty(Folder))
+                <div class="container-fluid px-0">
+                    @if (ShowFolders || FolderId <= 0)
+                    {
+                        <div class="row"><div class="col">
+                            <select class="form-select" value="@FolderId" @onchange="(e => FolderChanged(e))">
+                                @if (string.IsNullOrEmpty(Folder))
+                                {
+                                    <option value="-1">&lt;@Localizer["Folder.Select"]&gt;</option>
+                                }
+                                @foreach (Folder folder in _folders)
+                                {
+                                    <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                                }
+                            </select>
+                        </div></div>
+                    }
+                    @if (ShowFiles)
+                    {
+                        <div class="row"><div class="col mt-1">
+                            <select class="form-select" value="@FileId" @onchange="(e => FileChanged(e))">
+                                <option value="-1">&lt;@Localizer["File.Select"]&gt;</option>
+                                @foreach (File file in _files)
+                                {
+                                    <option value="@(file.FileId)">@(file.Name)</option>
+                                }
+                            </select>
+                        </div></div>
+                    }
+                    @if (ShowUpload && _haseditpermission)
+                    {
+                        <div class="row"><div class="col mt-1">
+                            @if (UploadMultiple)
                             {
-                                <option value="-1">&lt;@Localizer["Folder.Select"]&gt;</option>
+                                <input type="file" id="@_fileinputid" name="file" accept="@_filter" multiple />
                             }
-                            @foreach (Folder folder in _folders)
+                            else
                             {
-                                <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                                <input type="file" id="@_fileinputid" name="file" accept="@_filter" />
                             }
-                        </select>
-                    </div>
-                }
-                @if (ShowFiles)
-                {
-                    <div>
-                        <select class="form-select" value="@FileId" @onchange="(e => FileChanged(e))">
-                            <option value="-1">&lt;@Localizer["File.Select"]&gt;</option>
-                            @foreach (File file in _files)
-                            {
-                                <option value="@(file.FileId)">@(file.Name)</option>
-                            }
-                        </select>
-                    </div>
-                }
-                @if (ShowUpload && _haseditpermission)
-                {
-                    <div>
-                        @if (UploadMultiple)
-                        {
-                            <input type="file" id="@_fileinputid" name="file" accept="@_filter" multiple />
-                        }
-                        else
-                        {
-                            <input type="file" id="@_fileinputid" name="file" accept="@_filter" />
-                        }
-                        <span id="@_progressinfoid"></span><progress id="@_progressbarid" style="width: 150px; visibility: hidden;"></progress>
-                        <span class="float-end">
-                            <button type="button" class="btn btn-success" @onclick="UploadFile">@SharedLocalizer["Upload"]</button>
-                            @if (ShowFiles && GetFileId() != -1)
-                            {
-                                <button type="button" class="btn btn-danger" @onclick="DeleteFile">@SharedLocalizer["Delete"]</button>
-                            }
-                        </span>
-                    </div>
-                }
+                            <span class="float-end">
+                                <button type="button" class="btn btn-success" @onclick="UploadFile">@SharedLocalizer["Upload"]</button>
+                                @if (ShowFiles && GetFileId() != -1)
+                                {
+                                    <button type="button" class="btn btn-danger" @onclick="DeleteFile">@SharedLocalizer["Delete"]</button>
+                                }
+                            </span>
+                        </div></div>
+                        <div class="row"><div class="col mt-1">
+                            <div class="container-fluid px-0">
+                                <div class="row">
+                                    <div class="col-6"><span id="@_progressinfoid"></span></div>
+                                    <div class="col-6"><progress id="@_progressbarid" class="mt-1" style="visibility: hidden;"></progress></div>
+                                </div>
+                            </div>
+                        </div></div>
+                    }
+                </div>
             </div>
             @if (_image != string.Empty)
             {
@@ -69,7 +78,7 @@
         @if (!string.IsNullOrEmpty(_message))
         {
             <div class="row">
-                <div class="col mt-2">
+                <div class="col mt-1">
                     <ModuleMessage Message="@_message" Type="@_messagetype" />
                 </div>
             </div>
@@ -234,7 +243,6 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Files {Error}", ex.Message);
-
             _message = Localizer["Error.File.Load"];
             _messagetype = MessageType.Error;
         }
@@ -298,9 +306,6 @@
                 if (result == string.Empty)
                 {
                     await logger.LogInformation("File Upload Succeeded {Files}", upload);
-
-                    _message = Localizer["Success.File.Upload"];
-                    _messagetype = MessageType.Success;
 
                     // set FileId to first file in upload collection
                     await GetFiles();
