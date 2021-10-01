@@ -81,7 +81,7 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used." ResourceKey="UrlPath">Url Path: </Label>
+                        <Label Class="col-sm-3" For="path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used. If the page is intended to be the root path specify '/'." ResourceKey="UrlPath">Url Path: </Label>
                         <div class="col-sm-9">
                             <input id="path" class="form-control" @bind="@_path" maxlength="256"/>
                         </div>
@@ -225,9 +225,16 @@
                 _title = page.Title;
                 _path = page.Path;
 
-                if (_path.Contains("/"))
+                if (string.IsNullOrEmpty(_path))
                 {
-                    _path = _path.Substring(_path.LastIndexOf("/") + 1);
+                    _path = "/";
+                }
+                else
+                {
+                    if (_path.Contains("/"))
+                    {
+                        _path = _path.Substring(_path.LastIndexOf("/") + 1);
+                    }
                 }
 
                 if (page.ParentId == null)
@@ -370,7 +377,8 @@
 
                     page.Name = _name;
                     page.Title = _title;
-                    if (string.IsNullOrEmpty(_path) && _name.ToLower() != "home")
+
+                    if (string.IsNullOrEmpty(_path))
                     {
                         _path = _name;
                     }
@@ -378,6 +386,7 @@
                     {
                         _path = _path.Substring(_path.LastIndexOf("/") + 1);
                     }
+
                     if (_parentid == "-1")
                     {
                         page.ParentId = null;
