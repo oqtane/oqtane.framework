@@ -247,5 +247,20 @@ namespace Oqtane.UI
                 return new ValueTask<bool>(Task.FromResult(false));
             }
         }
+
+        public Task SetElementAttribute(string id, string attribute, string value)
+        {
+            try
+            {
+                _jsRuntime.InvokeVoidAsync(
+                    "Oqtane.Interop.setElementAttribute",
+                    id, attribute, value);
+                return Task.CompletedTask;
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
+        }
     }
 }

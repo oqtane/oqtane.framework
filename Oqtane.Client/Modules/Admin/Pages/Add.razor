@@ -74,7 +74,7 @@
                         </div>
                     </div>
                     <div class="row mb-1 align-items-center">
-                        <Label Class="col-sm-3" For="path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used." ResourceKey="UrlPath">Url Path: </Label>
+                        <Label Class="col-sm-3" For="path" HelpText="Optionally enter a url path for this page (ie. home ). If you do not provide a url path, the page name will be used. If the page is intended to be the root path specify '/'." ResourceKey="UrlPath">Url Path: </Label>
                         <div class="col-sm-9">
                             <input id="path" class="form-control" @bind="@_path" />
                         </div>
@@ -293,11 +293,11 @@
                     page.SiteId = PageState.Page.SiteId;
                     page.Name = _name;
                     page.Title = _title;
+
                     if (string.IsNullOrEmpty(_path))
                     {
                         _path = _name;
                     }
-
                     if (_path.Contains("/"))
                     {
                         _path = _path.Substring(_path.LastIndexOf("/") + 1);

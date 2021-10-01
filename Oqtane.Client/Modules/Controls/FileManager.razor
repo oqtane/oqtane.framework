@@ -13,58 +13,60 @@
                 <div class="container-fluid px-0">
                     @if (ShowFolders || FolderId <= 0)
                     {
-                        <div class="row"><div class="col">
-                            <select class="form-select" value="@FolderId" @onchange="(e => FolderChanged(e))">
-                                @if (string.IsNullOrEmpty(Folder))
-                                {
-                                    <option value="-1">&lt;@Localizer["Folder.Select"]&gt;</option>
-                                }
-                                @foreach (Folder folder in _folders)
-                                {
-                                    <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
-                                }
-                            </select>
-                        </div></div>
+                        <div class="row">
+                            <div class="col">
+                                <select class="form-select" value="@FolderId" @onchange="(e => FolderChanged(e))">
+                                    @if (string.IsNullOrEmpty(Folder))
+                                    {
+                                        <option value="-1">&lt;@Localizer["Folder.Select"]&gt;</option>
+                                    }
+                                    @foreach (Folder folder in _folders)
+                                    {
+                                        <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
                     }
                     @if (ShowFiles)
                     {
-                        <div class="row"><div class="col mt-1">
-                            <select class="form-select" value="@FileId" @onchange="(e => FileChanged(e))">
-                                <option value="-1">&lt;@Localizer["File.Select"]&gt;</option>
-                                @foreach (File file in _files)
-                                {
-                                    <option value="@(file.FileId)">@(file.Name)</option>
-                                }
-                            </select>
-                        </div></div>
+                        <div class="row mt-1">
+                            <div class="col">
+                                <select class="form-select" value="@FileId" @onchange="(e => FileChanged(e))">
+                                    <option value="-1">&lt;@Localizer["File.Select"]&gt;</option>
+                                    @foreach (File file in _files)
+                                    {
+                                        <option value="@(file.FileId)">@(file.Name)</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
                     }
                     @if (ShowUpload && _haseditpermission)
                     {
-                        <div class="row"><div class="col mt-1">
-                            @if (UploadMultiple)
-                            {
-                                <input type="file" id="@_fileinputid" name="file" accept="@_filter" multiple />
-                            }
-                            else
-                            {
-                                <input type="file" id="@_fileinputid" name="file" accept="@_filter" />
-                            }
-                            <span class="float-end">
+                        <div class="row">
+                            <div class="col mt-2">
+                                @if (UploadMultiple)
+                                {
+                                    <input type="file" id="@_fileinputid" name="file" accept="@_filter" multiple />
+                                }
+                                else
+                                {
+                                    <input type="file" id="@_fileinputid" name="file" accept="@_filter" />
+                                }
+                            </div>
+                            <div class="col mt-2 text-center">
                                 <button type="button" class="btn btn-success" @onclick="UploadFile">@SharedLocalizer["Upload"]</button>
                                 @if (ShowFiles && GetFileId() != -1)
                                 {
-                                    <button type="button" class="btn btn-danger" @onclick="DeleteFile">@SharedLocalizer["Delete"]</button>
+                                    <button type="button" class="btn btn-danger mx-1" @onclick="DeleteFile">@SharedLocalizer["Delete"]</button>
                                 }
-                            </span>
-                        </div></div>
-                        <div class="row"><div class="col mt-1">
-                            <div class="container-fluid px-0">
-                                <div class="row">
-                                    <div class="col-6"><span id="@_progressinfoid"></span></div>
-                                    <div class="col-6"><progress id="@_progressbarid" class="mt-1" style="visibility: hidden;"></progress></div>
-                                </div>
                             </div>
-                        </div></div>
+                        </div>
+                        <div class="row">
+                            <div class="col mt-1"><span id="@_progressinfoid" style="display: none;"></span></div>
+                            <div class="col text-center mt-1"><progress id="@_progressbarid" class="mt-1" style="display: none;"></progress></div>
+                        </div>
                     }
                 </div>
             </div>
@@ -77,8 +79,8 @@
         </div>
         @if (!string.IsNullOrEmpty(_message))
         {
-            <div class="row">
-                <div class="col mt-1">
+            <div class="row mt-1">
+                <div class="col">
                     <ModuleMessage Message="@_message" Type="@_messagetype" />
                 </div>
             </div>
@@ -151,7 +153,7 @@
         {
             ShowImage = false;
         }
-        
+
         if (!string.IsNullOrEmpty(Folder))
         {
             _folders = new List<Folder> { new Folder { FolderId = -1, Name = Folder } };
@@ -368,6 +370,8 @@
     }
 
     public int GetFileId() => FileId;
+
+    public int GetFolderId() => FolderId;
 
     public File GetFile() => _file;
 }
