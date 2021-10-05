@@ -83,6 +83,24 @@ else
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="runtime" HelpText="The runtime hosting model" ResourceKey="Runtime">Runtime: </Label>
+                <div class="col-sm-9">
+                    <select id="runtime" class="form-select" @bind="@_runtime" required>
+                        <option value="Server">@SharedLocalizer["BlazorServer"]</option>
+                        <option value="WebAssembly">@SharedLocalizer["BlazorWebAssembly"]</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
+                <Label Class="col-sm-3" For="prerender" HelpText="Specifies if the site should be prerendered (for search crawlers, etc...)" ResourceKey="Prerender">Prerender? </Label>
+                <div class="col-sm-9">
+                    <select id="prerender" class="form-select" @bind="@_prerender" required>
+                        <option value="Prerendered">@SharedLocalizer["Yes"]</option>
+                        <option value="">@SharedLocalizer["No"]</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" For="tenant" HelpText="Select the tenant for the site" ResourceKey="Tenant">Tenant: </Label>
                 <div class="col-sm-9">
                     <select id="tenant" class="form-select" @onchange="(e => TenantChanged(e))" required>
@@ -177,6 +195,8 @@ else
     private string _containertype = "-";
     private string _admincontainertype = "";
     private string _sitetemplatetype = "-";
+    private string _runtime = "Server";
+    private string _prerender = "Prerendered";
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
@@ -340,6 +360,8 @@ else
                         config.DefaultContainer = _containertype;
                         config.DefaultAdminContainer = _admincontainertype;
                         config.SiteTemplate = _sitetemplatetype;
+                        config.Runtime = _runtime;
+                        config.RenderMode = _runtime + _prerender;
 
                         ShowProgressIndicator();
 

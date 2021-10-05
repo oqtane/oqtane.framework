@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Oqtane.Models;
 
@@ -8,5 +8,6 @@ namespace Oqtane.Infrastructure
     {
         List<SyncEvent> GetSyncEvents(int tenantId, DateTime lastSyncDate);
         void AddSyncEvent(int tenantId, string entityName, int entityId);
+        void AddSyncEvent(int tenantId, string entityName, int entityId, bool reload);
     }
 }

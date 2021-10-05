@@ -84,10 +84,16 @@ namespace Oqtane.Controllers
         [Authorize(Roles = RoleNames.Admin)]
         public Site Put(int id, [FromBody] Site site)
         {
-            if (ModelState.IsValid && site.SiteId == _alias.SiteId && site.TenantId == _alias.TenantId && _sites.GetSite(site.SiteId, false) != null)
+            var current = _sites.GetSite(site.SiteId, false);
+            if (ModelState.IsValid && site.SiteId == _alias.SiteId && site.TenantId == _alias.TenantId && current != null)
             {
                 site = _sites.UpdateSite(site);
-                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, site.SiteId);
+                bool reload = false;
+                if (current.Runtime != site.Runtime || current.RenderMode != site.RenderMode)
+                {
+                    reload = true;
+                }
+                _syncManager.AddSyncEvent(_alias.TenantId, EntityNames.Site, site.SiteId, reload);
                 _logger.Log(site.SiteId, LogLevel.Information, this, LogFunction.Update, "Site Updated {Site}", site);
             }
             else

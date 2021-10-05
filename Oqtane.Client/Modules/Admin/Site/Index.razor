@@ -104,7 +104,6 @@
                         </select>
                     </div>
                 </div>
-
             </div>
         </Section>
         <Section Name="SMTP" Heading="SMTP Settings" ResourceKey="SMTPSettings">
@@ -157,10 +156,7 @@
                 </div>
                 <button type="button" class="btn btn-secondary" @onclick="SendEmail">@Localizer["Smtp.TestConfig"]</button>
                 <br /><br />
-
             </div>
-
-
         </Section>
         <Section Name="PWA" Heading="Progressive Web Application Settings" ResourceKey="PWASettings">
             <div class="container">
@@ -189,6 +185,28 @@
         </Section>
         @if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
         {
+            <Section Name="Hosting" Heading="Hosting Model" ResourceKey="Hosting">
+                <div class="container">
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="runtime" HelpText="The Blazor runtime hosting model" ResourceKey="Runtime">Runtime: </Label>
+                        <div class="col-sm-9">
+                            <select id="runtime" class="form-select" @bind="@_runtime" required>
+                                <option value="Server">@SharedLocalizer["BlazorServer"]</option>
+                                <option value="WebAssembly">@SharedLocalizer["BlazorWebAssembly"]</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-1 align-items-center">
+                        <Label Class="col-sm-3" For="prerender" HelpText="Specifies if the site should be prerendered (for search crawlers, etc...)" ResourceKey="Prerender">Prerender? </Label>
+                        <div class="col-sm-9">
+                            <select id="prerender" class="form-select" @bind="@_prerender" required>
+                                <option value="Prerendered">@SharedLocalizer["Yes"]</option>
+                                <option value="">@SharedLocalizer["No"]</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </Section>
             <Section Name="TenantInformation" Heading="Tenant Information" ResourceKey="TenantInformation">
                 <div class="container">
                     <div class="row mb-1 align-items-center">
@@ -231,6 +249,8 @@
     private string _name = string.Empty;
     private List<Alias> _aliasList;
     private string _urls = string.Empty;
+    private string _runtime = "";
+    private string _prerender = "";
     private int _logofileid = -1;
     private FileManager _logofilemanager;
     private int _faviconfileid = -1;
@@ -272,6 +292,8 @@
             if (site != null)
             {
                 _name = site.Name;
+                _runtime = site.Runtime;
+                _prerender = site.RenderMode.Replace(_runtime, "");
                 _allowregistration = site.AllowRegistration.ToString();
                 _isdeleted = site.IsDeleted.ToString();
 
@@ -413,9 +435,20 @@
                         var site = await SiteService.GetSiteAsync(PageState.Site.SiteId);
                         if (site != null)
                         {
+                            bool reload = false;
                             bool refresh = (site.DefaultThemeType != _themetype || site.DefaultContainerType != _containertype);
 
                             site.Name = _name;
+                            if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+                            {
+                                if (site.Runtime != _runtime || site.RenderMode != _runtime + _prerender)
+                                {
+                                    site.Runtime = _runtime;
+                                    site.RenderMode = _runtime + _prerender;
+                                    refresh = true;
+                                    reload = true;
+                                }
+                            }
                             site.AllowRegistration = (_allowregistration == null ? true : Boolean.Parse(_allowregistration));
                             site.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));
 
@@ -485,7 +518,7 @@
 
                             if (refresh)
                             {
-                                NavigationManager.NavigateTo(NavigateUrl()); // refresh to show new theme or container
+                                NavigationManager.NavigateTo(NavigateUrl(), reload); // refresh to show new theme or container
                             }
                             else
                             {

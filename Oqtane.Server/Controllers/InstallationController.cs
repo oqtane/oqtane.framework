@@ -102,15 +102,7 @@ namespace Oqtane.Controllers
         [HttpGet("load")]
         public IActionResult Load()
         {
-            if (_configManager.GetSection("Runtime").Value == "WebAssembly")
-            {
-                return File(GetAssemblies(), System.Net.Mime.MediaTypeNames.Application.Octet, "oqtane.dll");
-            }
-            else
-            {
-                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                return null;
-            }
+            return File(GetAssemblies(), System.Net.Mime.MediaTypeNames.Application.Octet, "oqtane.dll");
         }
 
         private byte[] GetAssemblies()

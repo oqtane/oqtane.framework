@@ -22,7 +22,12 @@ namespace Oqtane.Infrastructure
 
         public void AddSyncEvent(int tenantId, string entityName, int entityId)
         {
-            SyncEvents.Add(new SyncEvent { TenantId = tenantId, EntityName = entityName, EntityId = entityId, ModifiedOn = DateTime.UtcNow });
+            AddSyncEvent(tenantId, entityName, entityId, false);
+        }
+
+        public void AddSyncEvent(int tenantId, string entityName, int entityId, bool reload)
+        {
+            SyncEvents.Add(new SyncEvent { TenantId = tenantId, EntityName = entityName, EntityId = entityId, Reload = reload, ModifiedOn = DateTime.UtcNow });
             // trim sync events 
             SyncEvents.RemoveAll(item => item.ModifiedOn < DateTime.UtcNow.AddHours(-1));
         }
