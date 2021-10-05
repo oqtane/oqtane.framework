@@ -23,14 +23,16 @@ namespace Oqtane.Pages
         private readonly ILocalizationManager _localizationManager;
         private readonly ILanguageRepository _languages;
         private readonly IAntiforgery _antiforgery;
+        private readonly ISiteRepository _sites;
 
-        public HostModel(IConfiguration configuration, ITenantManager tenantManager, ILocalizationManager localizationManager, ILanguageRepository languages, IAntiforgery antiforgery)
+        public HostModel(IConfiguration configuration, ITenantManager tenantManager, ILocalizationManager localizationManager, ILanguageRepository languages, IAntiforgery antiforgery, ISiteRepository sites)
         {
             _configuration = configuration;
             _tenantManager = tenantManager;
             _localizationManager = localizationManager;
             _languages = languages;
             _antiforgery = antiforgery;
+            _sites = sites;
         }
 
         public string AntiForgeryToken = "";
@@ -48,7 +50,7 @@ namespace Oqtane.Pages
                 Runtime = _configuration.GetSection("Runtime").Value;
             }
 
-            if (Runtime != "WebAssembly" && _configuration.GetSection("RenderMode").Exists())
+            if (_configuration.GetSection("RenderMode").Exists())
             {
                 RenderMode = (RenderMode)Enum.Parse(typeof(RenderMode), _configuration.GetSection("RenderMode").Value, true);
             }
@@ -67,6 +69,19 @@ namespace Oqtane.Pages
                 var alias = _tenantManager.GetAlias();
                 if (alias != null)
                 {
+                    var site = _sites.GetSite(alias.SiteId);
+                    if (site != null)
+                    {
+                        if (!string.IsNullOrEmpty(site.Runtime))
+                        {
+                            Runtime = site.Runtime;
+                        }
+                        if (!string.IsNullOrEmpty(site.RenderMode))
+                        {
+                            RenderMode = (RenderMode)Enum.Parse(typeof(RenderMode), site.RenderMode, true);
+                        }
+                    }
+
                     // if culture not specified
                     if (HttpContext.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName] == null)
                     {
@@ -142,7 +157,6 @@ namespace Oqtane.Pages
                 }
             }
         }
-
         private void ProcessResource(Resource resource)
         {
             switch (resource.ResourceType)
@@ -171,7 +185,6 @@ namespace Oqtane.Pages
                     break;
             }
         }
-
         private string CrossOrigin(string crossorigin)
         {
             if (!string.IsNullOrEmpty(crossorigin))

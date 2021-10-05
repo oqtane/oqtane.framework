@@ -85,18 +85,18 @@
         // parse querystring
         var querystring = ParseQueryString(uri.Query);
 
-        // the refresh parameter is used to refresh the PageState
-        if (querystring.ContainsKey("refresh"))
+        // reload the client application if there is a forced reload or the user navigated to a site with a different alias 
+        if (querystring.ContainsKey("reload") || (!path.ToLower().StartsWith(SiteState.Alias.Path.ToLower()) && !string.IsNullOrEmpty(SiteState.Alias.Path)))
         {
-            refresh = UI.Refresh.Site;
+            NavigationManager.NavigateTo(_absoluteUri.Replace("?reload", ""), true);
+            return;
         }
         else
         {
-            // reload the client application if the user navigated to a site with a different alias or there is a forced reload
-            if ((!path.ToLower().StartsWith(SiteState.Alias.Path.ToLower()) && !string.IsNullOrEmpty(SiteState.Alias.Path)) || querystring.ContainsKey("reload"))
+            // the refresh parameter is used to refresh the PageState
+            if (querystring.ContainsKey("refresh"))
             {
-                NavigationManager.NavigateTo(_absoluteUri.Replace("?reload", ""), true);
-                return;
+                refresh = UI.Refresh.Site;
             }
         }
 
@@ -109,10 +109,10 @@
         // process any sync events
         var sync = await SyncService.GetSyncAsync(lastsyncdate);
         lastsyncdate = sync.SyncDate;
-        if (refresh != UI.Refresh.Site && sync.SyncEvents.Any())
+        if (sync.SyncEvents.Any())
         {
-            // if running on WebAssembly reload the client application if the server application was restarted
-            if (runtime == Shared.Runtime.WebAssembly && PageState != null && sync.SyncEvents.Exists(item => item.TenantId == -1))
+            // reload client application if server was restarted or site runtime/rendermode was modified
+            if (PageState != null && sync.SyncEvents.Exists(item => (item.TenantId == -1 || item.EntityName == EntityNames.Site && item.EntityId == SiteState.Alias.SiteId) && item.Reload))
             {
                 NavigationManager.NavigateTo(_absoluteUri, true);
                 return;

@@ -258,4 +258,16 @@
   <data name="Error.Database.LoadConfig" xml:space="preserve">
     <value>Error loading Database Configuration Control</value>
   </data>
+  <data name="Prerender.HelpText" xml:space="preserve">
+    <value>Specifies if the site should be prerendered (for search crawlers, etc...)</value>
+  </data>
+  <data name="Prerender.Text" xml:space="preserve">
+    <value>Prerender? </value>
+  </data>
+  <data name="Runtime.HelpText" xml:space="preserve">
+    <value>The Blazor runtime hosting model</value>
+  </data>
+  <data name="Runtime.Text" xml:space="preserve">
+    <value>Runtime: </value>
+  </data>
 </root>

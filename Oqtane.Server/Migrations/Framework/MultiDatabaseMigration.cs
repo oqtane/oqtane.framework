@@ -1,8 +1,5 @@
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Oqtane.Databases.Interfaces;
-using Oqtane.Interfaces;
 
 namespace Oqtane.Migrations
 {

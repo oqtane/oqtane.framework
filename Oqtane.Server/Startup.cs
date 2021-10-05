@@ -163,8 +163,8 @@ namespace Oqtane
                 endpoints.MapFallbackToPage("/_Host");
             });
 
-            // create a sync event to identify server application startup
-            sync.AddSyncEvent(-1, "Application", -1);
+            // create a global sync event to identify server application startup
+            sync.AddSyncEvent(-1, "Application", -1, true);
         }
     }
 }

@@ -17,6 +17,7 @@ del "..\Oqtane.Server\bin\Release\net5.0\publish\appsettings.json"
 ren "..\Oqtane.Server\bin\Release\net5.0\publish\appsettings.release.json" "appsettings.json"
 C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe ".\install.ps1"
 del "..\Oqtane.Server\bin\Release\net5.0\publish\appsettings.json"
+del "..\Oqtane.Server\bin\Release\net5.0\publish\web.config"
 C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe ".\upgrade.ps1"
 dotnet clean -c Release ..\Oqtane.Updater.sln 
 dotnet build -c Release ..\Oqtane.Updater.sln

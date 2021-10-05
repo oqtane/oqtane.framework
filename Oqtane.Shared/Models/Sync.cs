@@ -14,6 +14,7 @@ namespace Oqtane.Models
         public int TenantId { get; set; }
         public string EntityName { get; set; }
         public int EntityId { get; set; }
+        public bool Reload { get; set; }
         public DateTime ModifiedOn { get; set; }
     }
 }
