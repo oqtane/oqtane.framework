@@ -26,7 +26,7 @@
             <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" HelpText="Upload A Framework Package And Then Select Upgrade" ResourceKey="Framework">Framework: </Label>
                 <div class="col-sm-9">
-                    <FileManager Filter="nupkg" ShowFiles="false" Folder="Packages" />
+                    <FileManager Folder="@Constants.PackagesFolder" />
                 </div>
             </div>
         </div>
@@ -85,8 +85,8 @@
     {
         try
         {
-            await PackageService.DownloadPackageAsync(packageid, version, "Packages");
-            await PackageService.DownloadPackageAsync(Constants.UpdaterPackageId, version, "Packages");
+            await PackageService.DownloadPackageAsync(packageid, version, Constants.PackagesFolder);
+            await PackageService.DownloadPackageAsync(Constants.UpdaterPackageId, version, Constants.PackagesFolder);
             AddModuleMessage(Localizer["Success.Framework.Download"], MessageType.Success);
         }
         catch (Exception ex)

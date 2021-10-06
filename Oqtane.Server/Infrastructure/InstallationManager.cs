@@ -190,7 +190,7 @@ namespace Oqtane.Infrastructure
             {
                 // get manifest with highest version
                 string packagename = "";
-                string[] packages = Directory.GetFiles(Path.Combine(_environment.ContentRootPath, "Packages"), PackageName + "*.log");
+                string[] packages = Directory.GetFiles(Path.Combine(_environment.ContentRootPath, Constants.PackagesFolder), PackageName + "*.log");
                 if (packages.Length > 0)
                 {
                     packagename = packages[packages.Length - 1]; // use highest version 
@@ -230,7 +230,7 @@ namespace Oqtane.Infrastructure
 
         public void UpgradeFramework()
         {
-            string folder = Path.Combine(_environment.ContentRootPath, "Packages");
+            string folder = Path.Combine(_environment.ContentRootPath, Constants.PackagesFolder);
             if (Directory.Exists(folder))
             {
                 // get package with highest version

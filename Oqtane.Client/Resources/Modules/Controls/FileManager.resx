@@ -138,4 +138,7 @@
   <data name="Error.File.Delete" xml:space="preserve">
     <value>Error Deleting File</value>
   </data>
+  <data name="Success.File.Upload" xml:space="preserve">
+    <value>File Upload Succeeded</value>
+  </data>
 </root>

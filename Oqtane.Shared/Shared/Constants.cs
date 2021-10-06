@@ -42,6 +42,7 @@ namespace Oqtane.Shared {
         public const string ContentUrl = "/api/file/download/";
         public const string ImageUrl = "/api/file/image/";
         public const int UserFolderCapacity = 20; // megabytes
+        public const string PackagesFolder = "Packages";
 
         [Obsolete("Use UserNames.Host instead.")]
         public const string HostUser = UserNames.Host;

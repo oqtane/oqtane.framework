@@ -115,7 +115,7 @@ else
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" HelpText="Upload one or more translations. Once they are uploaded click Install to complete the installation." ResourceKey="Module">Language: </Label>
                     <div class="col-sm-9">
-                        <FileManager Filter="nupkg" ShowFiles="true" Folder="Packages" UploadMultiple="true" />
+                        <FileManager Folder="@Constants.PackagesFolder" UploadMultiple="true" />
                     </div>
                 </div>
             </div>
@@ -317,7 +317,7 @@ else
     {
         try
         {
-            await PackageService.DownloadPackageAsync(_packageid, _version, "Packages");
+            await PackageService.DownloadPackageAsync(_packageid, _version, Constants.PackagesFolder);
             await logger.LogInformation("Language Package {Name} {Version} Downloaded Successfully", _packageid, _version);
             AddModuleMessage(Localizer["Success.Language.Download"], MessageType.Success);
             StateHasChanged();
