@@ -49,10 +49,14 @@ There is a separate [Documentation repository](https://github.com/oqtane/oqtane.
 # Roadmap
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
 
-V.3.0.0 ( Q4 2021 )
-- [ ] Migration to .NET 6
+V.3.1.0 ( Q1 2022 )
 - [ ] Authentication extensibility ( ie. Azure B2C, Social logins, etc... )
 - [ ] Configurable password complexity for local authentication
+
+V.3.0.0 ( Q4 2021 )
+- [ ] Migration to .NET 6
+- [x] Blazor hosting model flexibility per site
+- [x] Blazor WebAssembly prerendering support
 
 V.2.3.1 ( Sep 27, 2021 )
 - [x] Complete UI migration to Bootstrap 5 and HTML5 form validation
