@@ -11,15 +11,12 @@
         <div class="row">
             <div class="col">
                 <div class="container-fluid px-0">
-                    @if (ShowFolders || FolderId <= 0)
+                    @if (ShowFolders)
                     {
                         <div class="row">
                             <div class="col">
                                 <select class="form-select" value="@FolderId" @onchange="(e => FolderChanged(e))">
-                                    @if (string.IsNullOrEmpty(Folder))
-                                    {
-                                        <option value="-1">&lt;@Localizer["Folder.Select"]&gt;</option>
-                                    }
+                                    <option value="-1">&lt;@Localizer["Folder.Select"]&gt;</option>
                                     @foreach (Folder folder in _folders)
                                     {
                                         <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
@@ -107,10 +104,16 @@
     public string Id { get; set; } // optional - for setting the id of the FileManager component for accessibility
 
     [Parameter]
-    public string Folder { get; set; } // optional - for setting a specific folder by default ( only relevant for host functions )
+    public int FolderId { get; set; } = -1; // optional - for setting a specific default folder by folderid 
 
     [Parameter]
-    public int FolderId { get; set; } = -1; // optional - for setting a specific folderid by default
+    public string Folder { get; set; } = ""; // optional - for setting a specific default folder by folder path 
+
+    [Parameter]
+    public int FileId { get; set; } = -1; // optional - for selecting a specific file by default
+
+    [Parameter]
+    public string Filter { get; set; } // optional - comma delimited list of file types that can be selected or uploaded ie. "jpg,gif"
 
     [Parameter]
     public bool ShowFiles { get; set; } = true; // optional - for indicating whether a list of files should be displayed - default is true
@@ -125,10 +128,7 @@
     public bool ShowImage { get; set; } = true; // optional - for indicating whether an image thumbnail should be displayed - default is true
 
     [Parameter]
-    public int FileId { get; set; } = -1; // optional - for selecting a specific file by default
-
-    [Parameter]
-    public string Filter { get; set; } // optional - comma delimited list of file types that can be selected or uploaded ie. "jpg,gif"
+    public bool ShowSuccess { get; set; } = false; // optional - for indicating whether a success message should be displayed upon successful upload - default is false
 
     [Parameter]
     public bool UploadMultiple { get; set; } = false; // optional - enable multiple file uploads - default false
@@ -149,19 +149,35 @@
             _id = Id;
         }
 
+        // packages folder is a framework folder for uploading installable nuget packages
+        if (Folder == Constants.PackagesFolder)
+        {
+            ShowFiles = false;
+            ShowFolders = false;
+            Filter = "nupkg";
+            ShowSuccess = true;
+        }
+
         if (!ShowFiles)
         {
             ShowImage = false;
         }
 
-        if (!string.IsNullOrEmpty(Folder))
+        _folders = await FolderService.GetFoldersAsync(ModuleState.SiteId);
+
+        if (!string.IsNullOrEmpty(Folder) && Folder != Constants.PackagesFolder)
         {
-            _folders = new List<Folder> { new Folder { FolderId = -1, Name = Folder } };
-            FolderId = -1;
-        }
-        else
-        {
-            _folders = await FolderService.GetFoldersAsync(ModuleState.SiteId);
+            Folder folder = await FolderService.GetFolderAsync(ModuleState.SiteId, Folder);
+            if (folder != null)
+            {
+                FolderId = folder.FolderId;
+            }
+            else
+            {
+                FolderId = -1;
+                _message = "Folder Path " + Folder + "Does Not Exist";
+                _messagetype = MessageType.Error;
+            }
         }
 
         if (FileId != -1)
@@ -175,6 +191,8 @@
             else
             {
                 FileId = -1; // file does not exist
+                _message = "FileId " + FileId.ToString() + "Does Not Exist";
+                _messagetype = MessageType.Error;
             }
         }
 
@@ -197,10 +215,10 @@
     private async Task GetFiles()
     {
         _haseditpermission = false;
-        if (!string.IsNullOrEmpty(Folder))
+        if (Folder == Constants.PackagesFolder)
         {
             _haseditpermission = UserSecurity.IsAuthorized(PageState.User, RoleNames.Host);
-            _files = await FileService.GetFilesAsync(Folder);
+            _files = new List<File>();
         }
         else
         {
@@ -296,7 +314,7 @@
             try
             {
                 string result;
-                if (!string.IsNullOrEmpty(Folder))
+                if (Folder == Constants.PackagesFolder)
                 {
                     result = await FileService.UploadFilesAsync(Folder, upload, _guid);
                 }
@@ -308,6 +326,11 @@
                 if (result == string.Empty)
                 {
                     await logger.LogInformation("File Upload Succeeded {Files}", upload);
+                    if (ShowSuccess)
+                    {
+                        _message = Localizer["Success.File.Upload"];
+                        _messagetype = MessageType.Success;
+                    }
 
                     // set FileId to first file in upload collection
                     await GetFiles();

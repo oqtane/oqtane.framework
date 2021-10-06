@@ -97,7 +97,7 @@ else
         {
             if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
             {
-                await PackageService.DownloadPackageAsync(Constants.PackageId + ".Client." + code, Constants.Version, "Packages");
+                await PackageService.DownloadPackageAsync(Constants.PackageId + ".Client." + code, Constants.Version, Constants.PackagesFolder);
                 await logger.LogInformation("Translation Downloaded {Code} {Version}", code, Constants.Version);
                 await PackageService.InstallPackagesAsync();
                 AddModuleMessage(string.Format(Localizer["Success.Language.Install"], NavigateUrl("admin/system")), MessageType.Success);

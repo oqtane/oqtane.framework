@@ -209,7 +209,7 @@ namespace Oqtane.Infrastructure
                 bool installPackages = false;
 
                 // iterate database packages in installation folder
-                var packagesFolder = new DirectoryInfo(Path.Combine(_environment.ContentRootPath, "Packages"));
+                var packagesFolder = new DirectoryInfo(Path.Combine(_environment.ContentRootPath, Constants.PackagesFolder));
                 foreach (var package in packagesFolder.GetFiles("*.nupkg.bak"))
                 {
                     // determine if package needs to be upgraded or installed
