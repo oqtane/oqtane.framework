@@ -169,7 +169,7 @@
     <value>Enter the tenant for the site</value>
   </data>
   <data name="Aliases.HelpText" xml:space="preserve">
-    <value>Enter the alias for the server</value>
+    <value>The aliases for the site. An alias can be a domain name (www.site.com) or a virtual folder (ie. www.site.com/folder). If a site has multiple aliases they should be separated by commas.</value>
   </data>
   <data name="AllowRegistration.HelpText" xml:space="preserve">
     <value>Do you want the users to be able to register for an account on the site</value>
