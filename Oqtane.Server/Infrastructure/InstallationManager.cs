@@ -4,10 +4,11 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
@@ -228,7 +229,7 @@ namespace Oqtane.Infrastructure
             return false;
         }
 
-        public void UpgradeFramework()
+        public async Task UpgradeFramework()
         {
             string folder = Path.Combine(_environment.ContentRootPath, Constants.PackagesFolder);
             if (Directory.Exists(folder))
@@ -281,10 +282,18 @@ namespace Oqtane.Infrastructure
                         // install Oqtane.Framework and Oqtane.Updater nuget packages
                         InstallPackages();
                         // download upgrade zip package
-                        var client = new WebClient();
                         Uri uri = new Uri(packageurl);
                         string upgradepackage = Path.Combine(folder, uri.Segments[uri.Segments.Length - 1]);
-                        client.DownloadFile(packageurl, upgradepackage);
+                        using (var client = new HttpClient())
+                        {
+                            using (var stream = await client.GetStreamAsync(packageurl))
+                            {
+                                using (var fileStream = new FileStream(upgradepackage, FileMode.CreateNew))
+                                {
+                                    await stream.CopyToAsync(fileStream);
+                                }
+                            }
+                        }
                         // install Oqtane.Upgrade zip package
                         if (File.Exists(upgradepackage))
                         {

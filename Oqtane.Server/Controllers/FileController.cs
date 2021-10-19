@@ -20,6 +20,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
+using System.Net.Http;
 
 // ReSharper disable StringIndexOfIsCultureSpecific.1
 
@@ -190,7 +191,7 @@ namespace Oqtane.Controllers
 
         // GET api/<controller>/upload?url=x&folderid=y&name=z
         [HttpGet("upload")]
-        public Models.File UploadFile(string url, string folderid, string name)
+        public async Task<Models.File> UploadFile(string url, string folderid, string name)
         {
             Models.File file = null;
 
@@ -227,15 +228,25 @@ namespace Oqtane.Controllers
 
                 try
                 {
-                    var client = new WebClient();
                     string targetPath = Path.Combine(folderPath, name);
+
                     // remove file if it already exists
                     if (System.IO.File.Exists(targetPath))
                     {
                         System.IO.File.Delete(targetPath);
                     }
 
-                    client.DownloadFile(url, targetPath);
+                    using (var client = new HttpClient())
+                    {
+                        using (var stream = await client.GetStreamAsync(url))
+                        {
+                            using (var fileStream = new FileStream(targetPath, FileMode.CreateNew))
+                            {
+                                await stream.CopyToAsync(fileStream);
+                            }
+                        }
+                    }
+
                     file = CreateFile(name, folder.FolderId, targetPath);
                     if (file != null)
                     {
