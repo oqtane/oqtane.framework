@@ -24,10 +24,10 @@
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="databasetype" HelpText="Select the type of database you wish to use" ResourceKey="DatabaseType">Database:</Label>
                     <div class="col-sm-9">
-                        <select id="databasetype" class="form-select custom-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))">
-                            @if (_databases != null)
-                            {
-                                foreach (var database in _databases)
+                        @if (_databases != null)
+                        {
+							<select id="databasetype" class="form-select custom-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))">
+                                @foreach (var database in _databases)
                                 {
                                     if (database.IsDefault)
                                     {
@@ -38,8 +38,8 @@
                                         <option value="@database.Name">@Localizer[@database.Name]</option>
                                     }
                                 }
-                            }
-                        </select>
+							</select>
+                        }
                     </div>
                 </div>
                 @{
@@ -96,23 +96,31 @@
 </div>
 
 @code {
-    private List<Database> _databases;
-    private string _databaseName = "LocalDB";
-    private Type _databaseConfigType;
-    private object _databaseConfig;
-    private RenderFragment DatabaseConfigComponent { get; set; }
+	private List<Database> _databases;
+	private string _databaseName;
+	private Type _databaseConfigType;
+	private object _databaseConfig;
+	private RenderFragment DatabaseConfigComponent { get; set; }
 
-    private string _hostUsername = string.Empty;
-    private string _hostPassword = string.Empty;
-    private string _confirmPassword = string.Empty;
-    private string _hostEmail = string.Empty;
-    private bool _register = true;
-    private string _message = string.Empty;
-    private string _loadingDisplay = "display: none;";
+	private string _hostUsername = string.Empty;
+	private string _hostPassword = string.Empty;
+	private string _confirmPassword = string.Empty;
+	private string _hostEmail = string.Empty;
+	private bool _register = true;
+	private string _message = string.Empty;
+	private string _loadingDisplay = "display: none;";
 
-    protected override async Task OnInitializedAsync()
-    {
-        _databases = await DatabaseService.GetDatabasesAsync();
+	protected override async Task OnInitializedAsync()
+	{
+		_databases = await DatabaseService.GetDatabasesAsync();
+		if (_databases.Exists(item => item.IsDefault))
+		{
+			_databaseName = _databases.Find(item => item.IsDefault).Name;
+		}
+		else
+		{
+			_databaseName = "LocalDB";
+		}
         LoadDatabaseConfigComponent();
     }
 

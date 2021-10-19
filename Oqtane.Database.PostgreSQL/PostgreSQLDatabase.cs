@@ -104,23 +104,31 @@ namespace Oqtane.Database.PostgreSQL
                 var tableName = entity.GetTableName();
                 if (tableName.StartsWith("AspNetUser"))
                 {
-                    // Replace table names
+                    // replace table name
                     entity.SetTableName(RewriteName(entity.GetTableName()));
 
-                    // Replace column names
+                    // replace column names
                     foreach(var property in entity.GetProperties())
                     {
-                        property.SetColumnName(RewriteName(property.GetColumnName()));
+                        property.SetColumnName(RewriteName(property.Name));
                     }
 
+                    // replace key names
                     foreach(var key in entity.GetKeys())
                     {
                         key.SetName(RewriteName(key.GetName()));
                     }
 
-                    foreach(var index in entity.GetIndexes())
+                    // replace foreign key names
+                    foreach (var key in entity.GetForeignKeys())
                     {
-                        index.SetName(RewriteName(index.GetName()));
+                        key.PrincipalKey.SetName(RewriteName(key.PrincipalKey.GetName()));
+                    }
+
+                    // replace index names
+                    foreach (var index in entity.GetIndexes())
+                    {
+                        index.SetDatabaseName(RewriteName(index.GetDatabaseName()));
                     }
                 }
             }
