@@ -61,7 +61,7 @@ V.3.1.0 ( Q1 2022 )
 - [ ] Authentication extensibility ( ie. Azure B2C, Social logins, etc... )
 - [ ] Configurable password complexity for local authentication
 - [ ] Enhance alias concept with a tabular UI and additional configuration properties
-- [ ] Allow language specification in Url
+- [ ] Allow language specification in Url (#1731)
 
 V.3.0.0 ( Q4 2021 )
 - [x] Migration to .NET 6
