@@ -57,11 +57,13 @@ There is a separate [Documentation repository](https://github.com/oqtane/oqtane.
 # Roadmap
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
 
-V.3.1.0 ( Q1 2022 )
-- [ ] Authentication extensibility ( ie. Azure B2C, Social logins, etc... )
-- [ ] Configurable password complexity for local authentication
+Backlog (Not Yet Assigned)
 - [ ] Enhance alias concept with a tabular UI and additional configuration properties
 - [ ] Allow language specification in Url (#1731)
+
+V.3.1.0 ( Q1 2022 )
+- [ ] Authentication extensibility
+- [ ] Configurable password complexity for local authentication
 
 V.3.0.0 ( Q4 2021 )
 - [x] Migration to .NET 6
