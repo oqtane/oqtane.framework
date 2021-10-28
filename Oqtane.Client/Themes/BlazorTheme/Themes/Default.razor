@@ -5,23 +5,24 @@
     <Breadcrumbs />
 </div>
 
+<div class="row flex-xl-nowrap">
 <div class="sidebar">
     <nav class="navbar">
         <Logo /><Menu Orientation="Vertical" />
     </nav>
 </div>
 
-<div class="main">
+<div class="main g-0">
     <div class="top-row px-4">
         <div class="ms-auto"><UserProfile /> <Login /> <ControlPanel /></div>
     </div>
-    <div class="container">
+    <div class="container-fluid">
         <div class="row px-4">
             <Pane Name="@PaneNames.Admin" />
         </div>
     </div>
 </div>
-
+</div>
 @code {
     public override string Panes => PaneNames.Admin;
 
