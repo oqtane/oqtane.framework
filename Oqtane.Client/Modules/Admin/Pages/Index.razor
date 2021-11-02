@@ -16,9 +16,9 @@
         <th>@SharedLocalizer["Name"]</th>
         </Header>
         <Row>
-            <td><button type="button" class="btn btn-secondary" @onclick="(() => NavigationManager.NavigateTo(GetUrl(context)))">@Localizer["Open"]</button></td>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.PageId.ToString())" ResourceKey="EditPage" /></td>
             <td><ActionDialog Header="Delete Page" Message="@string.Format(Localizer["Confirm.Page.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeletePage(context))" ResourceKey="DeletePage" /></td>
+            <td><button type="button" class="btn btn-secondary" @onclick="@(async () => Browse(context))">@Localizer["Browse"]</button></td>
             <td>@(new string('-', context.Level * 2))@(context.Name)</td>
         </Row>
     </Pager>
@@ -43,7 +43,7 @@
             AddModuleMessage(Localizer["Error.Page.Delete"], MessageType.Error);
         }
     }
-    protected string GetUrl(Page page)
+    protected string Browse(Page page)
     {
         return string.IsNullOrEmpty(page.Url) ? NavigateUrl(page.Path) : page.Url;
     }
