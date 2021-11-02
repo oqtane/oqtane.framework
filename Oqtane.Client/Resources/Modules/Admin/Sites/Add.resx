@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -217,10 +217,10 @@
     <value>Enter the password for the integrated security</value>
   </data>
   <data name="HostUsername.HelpText" xml:space="preserve">
-    <value>Enter a valid host username</value>
+    <value>Enter the username of an existing host user</value>
   </data>
   <data name="HostPassword.HelpText" xml:space="preserve">
-    <value>Enter a valid host password</value>
+    <value>Enter the password of an existing host user</value>
   </data>
   <data name="Name.Text" xml:space="preserve">
     <value>Site Name: </value>

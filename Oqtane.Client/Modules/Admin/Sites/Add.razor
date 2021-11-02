@@ -147,13 +147,13 @@ else
                     @DatabaseConfigComponent;
                 }
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="hostUsername" HelpText="Enter the username of the host for this site" ResourceKey="HostUsername">Host Username:</Label>
+                    <Label Class="col-sm-3" For="hostUsername" HelpText="Enter the username of an existing host user" ResourceKey="HostUsername">Host Username:</Label>
                     <div class="col-sm-9">
-                        <input id="hostUsername" class="form-control" @bind="@_hostUserName" readonly />
+                        <input id="hostUsername" class="form-control" @bind="@_hostusername" required />
                     </div>
                 </div>
                 <div class="row mb-1 align-items-center">
-                    <Label Class="col-sm-3" For="hostPassword" HelpText="Enter the password for the host of this site" ResourceKey="HostPassword">Host Password:</Label>
+                    <Label Class="col-sm-3" For="hostPassword" HelpText="Enter the password of an existing host user" ResourceKey="HostPassword">Host Password:</Label>
                     <div class="col-sm-9">
                         <input id="hostPassword" type="password" class="form-control" @bind="@_hostpassword" required />
                     </div>
@@ -186,7 +186,7 @@ else
 
     private string _tenantName = string.Empty;
 
-    private string _hostUserName = UserNames.Host;
+    private string _hostusername = string.Empty;
     private string _hostpassword = string.Empty;
 
     private string _name = string.Empty;
@@ -303,7 +303,7 @@ else
                             // validate host credentials
                             var user = new User();
                             user.SiteId = PageState.Site.SiteId;
-                            user.Username = UserNames.Host;
+                            user.Username = _hostusername;
                             user.Password = _hostpassword;
                             user = await UserService.LoginUserAsync(user, false, false);
                             if (user.IsAuthenticated)
@@ -320,8 +320,9 @@ else
                                     config.TenantName = _tenantName;
                                     config.DatabaseType = database.DBType;
                                     config.ConnectionString = connectionString;
-                                    config.HostEmail = user.Email;
+									config.HostUsername = _hostusername;
                                     config.HostPassword = _hostpassword;
+                                    config.HostEmail = user.Email;
                                     config.HostName = user.DisplayName;
                                     config.IsNewTenant = true;
                                 }
