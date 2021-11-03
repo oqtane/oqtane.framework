@@ -124,6 +124,7 @@
 @media (min-width: 768px) {
     app {
         flex-direction: row;
+        display: block;
     }
 
     .app-logo {
