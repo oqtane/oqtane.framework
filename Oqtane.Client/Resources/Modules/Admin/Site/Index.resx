@@ -297,4 +297,7 @@
   <data name="Runtime.Text" xml:space="preserve">
     <value>Runtime: </value>
   </data>
+  <data name="Browse" xml:space="preserve">
+    <value>Browse</value>
+  </data>
 </root>
