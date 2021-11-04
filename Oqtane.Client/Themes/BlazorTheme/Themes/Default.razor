@@ -1,23 +1,26 @@
 @namespace Oqtane.Themes.BlazorTheme
 @inherits ThemeBase
 
+
 <div class="breadcrumbs">
     <Breadcrumbs />
 </div>
 
-<div class="sidebar">
-    <nav class="navbar">
-        <Logo /><Menu Orientation="Vertical" />
-    </nav>
-</div>
-
-<div class="main">
-    <div class="top-row px-4">
-        <div class="ms-auto"><UserProfile /> <Login /> <ControlPanel /></div>
+<div class="row flex-xl-nowrap gx-0">
+    <div class="sidebar">
+        <nav class="navbar">
+            <Logo /><Menu Orientation="Vertical" />
+        </nav>
     </div>
-    <div class="container">
-        <div class="row px-4">
-            <Pane Name="@PaneNames.Admin" />
+
+    <div class="main g-0">
+        <div class="top-row px-4">
+            <div class="ms-auto"><UserProfile /> <Login /> <ControlPanel /></div>
+        </div>
+        <div class="container">
+            <div class="row px-4">
+                <Pane Name="@PaneNames.Admin" />
+            </div>
         </div>
     </div>
 </div>
