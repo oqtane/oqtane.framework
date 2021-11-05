@@ -20,12 +20,12 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="..\Client\bin\Release\net5.0\[Owner].[Module].Client.Oqtane.dll" target="lib\net5.0" /> 
-    <file src="..\Client\bin\Release\net5.0\[Owner].[Module].Client.Oqtane.pdb" target="lib\net5.0" /> 
-    <file src="..\Server\bin\Release\net5.0\[Owner].[Module].Server.Oqtane.dll" target="lib\net5.0" /> 
-    <file src="..\Server\bin\Release\net5.0\[Owner].[Module].Server.Oqtane.pdb" target="lib\net5.0" /> 
-    <file src="..\Shared\bin\Release\net5.0\[Owner].[Module].Shared.Oqtane.dll" target="lib\net5.0" /> 
-    <file src="..\Shared\bin\Release\net5.0\[Owner].[Module].Shared.Oqtane.pdb" target="lib\net5.0" /> 
+    <file src="..\Client\bin\Release\net6.0\[Owner].[Module].Client.Oqtane.dll" target="lib\net6.0" /> 
+    <file src="..\Client\bin\Release\net6.0\[Owner].[Module].Client.Oqtane.pdb" target="lib\net6.0" /> 
+    <file src="..\Server\bin\Release\net6.0\[Owner].[Module].Server.Oqtane.dll" target="lib\net6.0" /> 
+    <file src="..\Server\bin\Release\net6.0\[Owner].[Module].Server.Oqtane.pdb" target="lib\net6.0" /> 
+    <file src="..\Shared\bin\Release\net6.0\[Owner].[Module].Shared.Oqtane.dll" target="lib\net6.0" /> 
+    <file src="..\Shared\bin\Release\net6.0\[Owner].[Module].Shared.Oqtane.pdb" target="lib\net6.0" /> 
     <file src="..\Server\wwwroot\**\*.*" target="wwwroot" /> 
     <file src="icon.png" target="" />
   </files>
