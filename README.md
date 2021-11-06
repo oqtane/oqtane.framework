@@ -61,11 +61,13 @@ Backlog (Not Yet Assigned)
 - [ ] Enhance alias concept with a tabular UI and additional configuration properties
 - [ ] Allow language specification in Url (#1731)
 
-V.3.1.0 ( Q1 2022 )
-- [ ] Authentication extensibility
-- [ ] Configurable password complexity for local authentication
+V.3.1.0 ( Q4 2021 )
+- [ ] Token based authenticaton / authorization via OAuth2 / OpenID Connect
+- [ ] Provide Single Sign On (SSO) for other applications
+- [ ] Authentication extensibility via Social logins / Azure B2C
+- [ ] Allow configuration of password complexity for local authentication
 
-V.3.0.0 ( Q4 2021 )
+V.3.0.0 ( Nov 10, 2021 )
 - [x] Migration to .NET 6
 - [x] Blazor hosting model flexibility per site
 - [x] Blazor WebAssembly prerendering support
