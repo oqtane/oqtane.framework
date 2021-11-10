@@ -87,13 +87,17 @@
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
+    protected override void OnInitialized()
+    {
+        AddModuleMessage(Localizer["Info.Module.Development"], MessageType.Info);
+    }
+
     protected override async Task OnParametersSetAsync()
     {
         try
         {
             _templates = await ModuleDefinitionService.GetModuleDefinitionTemplatesAsync();
             _versions = Constants.ReleaseVersions.Split(',').Where(item => Version.Parse(item).CompareTo(Version.Parse("2.0.0")) >= 0).ToArray();
-            AddModuleMessage(Localizer["Info.Module.Development"], MessageType.Info);
         }
         catch (Exception ex)
         {
