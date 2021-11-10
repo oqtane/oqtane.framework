@@ -91,22 +91,25 @@ else
 
     public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Host;
 
+    protected override void OnInitialized()
+    {
+        _moduledefinitionname = SettingService.GetSetting(ModuleState.Settings, "ModuleDefinitionName", "");
+        if (string.IsNullOrEmpty(_moduledefinitionname))
+        {
+            AddModuleMessage(Localizer["Info.Module.Creator"], MessageType.Info);
+        }
+        else
+        {
+            AddModuleMessage(Localizer["Info.Module.Activate"], MessageType.Info);
+        }
+    }
+
     protected override async Task OnParametersSetAsync()
     {
         try
         {
-            _moduledefinitionname = SettingService.GetSetting(ModuleState.Settings, "ModuleDefinitionName", "");
             _templates = await ModuleDefinitionService.GetModuleDefinitionTemplatesAsync();
             _versions = Constants.ReleaseVersions.Split(',').Where(item => Version.Parse(item).CompareTo(Version.Parse("2.0.0")) >= 0).ToArray();
-
-            if (string.IsNullOrEmpty(_moduledefinitionname))
-            {
-                AddModuleMessage(Localizer["Info.Module.Creator"], MessageType.Info);
-            }
-            else
-            {
-                AddModuleMessage(Localizer["Info.Module.Activate"], MessageType.Info);
-            }
         }
         catch (Exception ex)
         {
@@ -130,7 +133,6 @@ else
                 await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
 
                 GetLocation();
-
                 AddModuleMessage(string.Format(Localizer["Success.Module.Create"], NavigateUrl("admin/system")), MessageType.Success);
             }
             catch (Exception ex)
