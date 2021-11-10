@@ -3,7 +3,7 @@
 @inject ISettingService SettingService
 
 <main role="main">
-    <nav class="navbar navbar-expand-md navbar-dark bg-primary fixed-top">
+    <nav class="navbar navbar-dark bg-primary fixed-top">
         <Logo /><Menu Orientation="Horizontal" />
         <div class="controls ms-auto">
             <div class="controls-group"><UserProfile ShowRegister="@_register" /> <Login ShowLogin="@_login" /> <ControlPanel /></div>
@@ -112,9 +112,9 @@
 
     public override List<Resource> Resources => new List<Resource>()
     {
-        new Resource { ResourceType = ResourceType.Stylesheet, Url = "https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.0.2/cyborg/bootstrap.min.css", Integrity = "sha512-X2u8dAWrVfvanPTlHwLh0fXttDDhkdV79q7cOibXR7hm9R3pRMFi53OwpGMdcbUiRk97isaXCRqFbm5LX1MiYw==", CrossOrigin = "anonymous" },
+        new Resource { ResourceType = ResourceType.Stylesheet, Url = "https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.1.3/cyborg/bootstrap.min.css", Integrity = "sha512-/in5IWTUhb7wOUd6iHotlyrLrZ7+2utJJR8ySzSxeeOMJ9fanjCr4fmyWzDW/ziw56shUNTVClBMWZaA677VhA==", CrossOrigin = "anonymous" },
         new Resource { ResourceType = ResourceType.Stylesheet, Url = ThemePath() + "Theme.css" },
-        new Resource { ResourceType = ResourceType.Script, Bundle = "Bootstrap", Url = "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js", Integrity = "sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM", CrossOrigin = "anonymous" }
+        new Resource { ResourceType = ResourceType.Script, Bundle = "Bootstrap", Url = "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js", Integrity = "sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p", CrossOrigin = "anonymous" }
     };
 
     private bool _login = true;
