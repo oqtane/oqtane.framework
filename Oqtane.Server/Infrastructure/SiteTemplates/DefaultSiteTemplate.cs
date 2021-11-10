@@ -38,6 +38,7 @@ namespace Oqtane.SiteTemplates
             {
                 Name = "Home",
                 Parent = "",
+                Order = 1,
                 Path = "",
                 Icon = "oi oi-home",
                 IsNavigation = true,
@@ -84,6 +85,7 @@ namespace Oqtane.SiteTemplates
             {
                 Name = "Private",
                 Parent = "",
+                Order = 3,
                 Path = "private",
                 Icon = "oi oi-lock-locked",
                 IsNavigation = true,
@@ -108,6 +110,7 @@ namespace Oqtane.SiteTemplates
             {
                 Name = "My Page",
                 Parent = "",
+                Order = 5,
                 Path = "mypage",
                 Icon = "oi oi-target",
                 IsNavigation = true,
