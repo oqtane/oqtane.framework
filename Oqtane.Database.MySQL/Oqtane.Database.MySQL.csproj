@@ -29,7 +29,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="MySql.EntityFrameworkCore" Version="6.0.0-preview3" />
+    <PackageReference Include="MySql.EntityFrameworkCore" Version="6.0.0-preview3.1" />
   </ItemGroup>
 
   <ItemGroup>
