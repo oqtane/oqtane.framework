@@ -1,7 +1,9 @@
+using Oqtane.Documentation;
 using Oqtane.Models;
 
 namespace Oqtane.Modules.HtmlText
 {
+    [PrivateApi("Mark HtmlText classes as private, since it's not very useful in the public docs")]
     public class ModuleInfo : IModule
     {
         public ModuleDefinition ModuleDefinition => new ModuleDefinition

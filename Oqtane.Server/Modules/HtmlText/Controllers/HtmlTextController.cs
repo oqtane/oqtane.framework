@@ -7,10 +7,12 @@ using Oqtane.Enums;
 using Oqtane.Infrastructure;
 using Oqtane.Controllers;
 using System.Net;
+using Oqtane.Documentation;
 
 namespace Oqtane.Modules.HtmlText.Controllers
 {
     [Route(ControllerRoutes.ApiRoute)]
+    [PrivateApi("Mark HtmlText classes as private, since it's not very useful in the public docs")]
     public class HtmlTextController : ModuleControllerBase
     {
         private readonly IHtmlTextRepository _htmlText;

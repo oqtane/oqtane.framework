@@ -7,9 +7,11 @@ using Oqtane.Infrastructure;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Oqtane.Shared;
+using Oqtane.Documentation;
 
 namespace Oqtane.Server
 {
+    [PrivateApi("Mark Entry-Program as private, since it's not very useful in the public docs")]
     public class Program
     {
         public static void Main(string[] args)
