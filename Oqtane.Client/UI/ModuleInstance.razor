@@ -2,9 +2,7 @@
 @inject IStringLocalizer<ModuleInstance> Localizer
 
 <ModuleMessage Message="@_message" Type="@_messagetype" />
-<CascadingValue Value="this" IsFixed="true">
-    @DynamicComponent
-</CascadingValue>
+@DynamicComponent
 @if (_progressindicator)
 {
     <div class="app-progress-indicator"></div>
@@ -39,6 +37,7 @@
                 if (moduleType != null)
                 {
                     builder.OpenComponent(0, moduleType);
+					builder.AddAttribute(1, "ModuleInstance", this);
                     builder.CloseComponent();
                 }
                 else

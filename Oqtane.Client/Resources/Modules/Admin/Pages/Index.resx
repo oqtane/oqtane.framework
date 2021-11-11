@@ -129,4 +129,7 @@
   <data name="DeletePage.Header" xml:space="preserve">
     <value>Delete Page</value>
   </data>
+  <data name="Browse" xml:space="preserve">
+    <value>Browse</value>
+  </data>
 </root>

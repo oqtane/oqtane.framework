@@ -58,6 +58,16 @@ namespace Oqtane.Models
         /// </summary>
         public string SiteGuid { get; set; }
 
+        /// <summary>
+        /// The hosting model for the site (ie. Server or WebAssembly ).
+        /// </summary>
+        public string Runtime { get; set; }
+
+        /// <summary>
+        /// The render mode for the site (ie. Server, ServerPrerendered, WebAssembly, WebAssemblyPrerendered ).
+        /// </summary>
+        public string RenderMode { get; set; }
+
         #region IAuditable Properties
 
         /// <inheritdoc/>

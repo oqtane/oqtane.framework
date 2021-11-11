@@ -123,9 +123,6 @@
   <data name="FrameworkVersion.HelpText" xml:space="preserve">
     <value>Framework Version</value>
   </data>
-  <data name="BlazorRuntime.HelpText" xml:space="preserve">
-    <value>Blazor Runtime (Server or WebAssembly)</value>
-  </data>
   <data name="CLRVersion.HelpText" xml:space="preserve">
     <value>Common Language Runtime Version</value>
   </data>
@@ -140,9 +137,6 @@
   </data>
   <data name="FrameworkVersion.Text" xml:space="preserve">
     <value>Framework Version: </value>
-  </data>
-  <data name="BlazorRuntime.Text" xml:space="preserve">
-    <value>Blazor Runtime: </value>
   </data>
   <data name="CLRVersion.Text" xml:space="preserve">
     <value>CLR Version: </value>
@@ -165,17 +159,8 @@
   <data name="Error.UpdateConfig" xml:space="preserve">
     <value>An Error Occurred Updating The Configuration</value>
   </data>
-  <data name="Server" xml:space="preserve">
-    <value>Server</value>
-  </data>
-  <data name="ServerPrerendered" xml:space="preserve">
-    <value>ServerPrerendered</value>
-  </data>
   <data name="Success.UpdateConfig.Restart" xml:space="preserve">
     <value>Configuration Updated. Please Select Restart Application For These Changes To Be Activated.</value>
-  </data>
-  <data name="WebAssembly" xml:space="preserve">
-    <value>WebAssembly</value>
   </data>
   <data name="InstallationId.Text" xml:space="preserve">
     <value>Installation ID: </value>

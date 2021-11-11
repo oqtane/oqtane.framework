@@ -169,7 +169,7 @@
     <value>Enter the tenant for the site</value>
   </data>
   <data name="Aliases.HelpText" xml:space="preserve">
-    <value>Enter the alias for the server</value>
+    <value>The aliases for the site. An alias can be a domain name (www.site.com) or a virtual folder (ie. www.site.com/folder). If a site has multiple aliases they should be separated by commas.</value>
   </data>
   <data name="AllowRegistration.HelpText" xml:space="preserve">
     <value>Do you want the users to be able to register for an account on the site</value>
@@ -281,5 +281,23 @@
   </data>
   <data name="Theme.Select" xml:space="preserve">
     <value>Select Theme</value>
+  </data>
+  <data name="Hosting" xml:space="preserve">
+    <value>Hosting Model</value>
+  </data>
+  <data name="Prerender.HelpText" xml:space="preserve">
+    <value>Specifies if the site should be prerendered (for search crawlers, etc...)</value>
+  </data>
+  <data name="Prerender.Text" xml:space="preserve">
+    <value>Prerender? </value>
+  </data>
+  <data name="Runtime.HelpText" xml:space="preserve">
+    <value>The Blazor runtime hosting model</value>
+  </data>
+  <data name="Runtime.Text" xml:space="preserve">
+    <value>Runtime: </value>
+  </data>
+  <data name="Browse" xml:space="preserve">
+    <value>Browse</value>
   </data>
 </root>

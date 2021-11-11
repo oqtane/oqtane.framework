@@ -10,54 +10,62 @@
     <div id="@Id" class="container-fluid px-0">
         <div class="row">
             <div class="col">
-                @if (ShowFolders || FolderId <= 0)
-                {
-                    <div>
-                        <select class="form-select" value="@FolderId" @onchange="(e => FolderChanged(e))">
-                            @if (string.IsNullOrEmpty(Folder))
-                            {
-                                <option value="-1">&lt;@Localizer["Folder.Select"]&gt;</option>
-                            }
-                            @foreach (Folder folder in _folders)
-                            {
-                                <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
-                            }
-                        </select>
-                    </div>
-                }
-                @if (ShowFiles)
-                {
-                    <div>
-                        <select class="form-select" value="@FileId" @onchange="(e => FileChanged(e))">
-                            <option value="-1">&lt;@Localizer["File.Select"]&gt;</option>
-                            @foreach (File file in _files)
-                            {
-                                <option value="@(file.FileId)">@(file.Name)</option>
-                            }
-                        </select>
-                    </div>
-                }
-                @if (ShowUpload && _haseditpermission)
-                {
-                    <div>
-                        @if (UploadMultiple)
-                        {
-                            <input type="file" id="@_fileinputid" name="file" accept="@_filter" multiple />
-                        }
-                        else
-                        {
-                            <input type="file" id="@_fileinputid" name="file" accept="@_filter" />
-                        }
-                        <span id="@_progressinfoid"></span><progress id="@_progressbarid" style="width: 150px; visibility: hidden;"></progress>
-                        <span class="float-end">
-                            <button type="button" class="btn btn-success" @onclick="UploadFile">@SharedLocalizer["Upload"]</button>
-                            @if (ShowFiles && GetFileId() != -1)
-                            {
-                                <button type="button" class="btn btn-danger" @onclick="DeleteFile">@SharedLocalizer["Delete"]</button>
-                            }
-                        </span>
-                    </div>
-                }
+                <div class="container-fluid px-0">
+                    @if (ShowFolders)
+                    {
+                        <div class="row">
+                            <div class="col">
+                                <select class="form-select" value="@FolderId" @onchange="(e => FolderChanged(e))">
+                                    <option value="-1">&lt;@Localizer["Folder.Select"]&gt;</option>
+                                    @foreach (Folder folder in _folders)
+                                    {
+                                        <option value="@(folder.FolderId)">@(new string('-', folder.Level * 2))@(folder.Name)</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    }
+                    @if (ShowFiles)
+                    {
+                        <div class="row mt-1">
+                            <div class="col">
+                                <select class="form-select" value="@FileId" @onchange="(e => FileChanged(e))">
+                                    <option value="-1">&lt;@Localizer["File.Select"]&gt;</option>
+                                    @foreach (File file in _files)
+                                    {
+                                        <option value="@(file.FileId)">@(file.Name)</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    }
+                    @if (ShowUpload && _haseditpermission)
+                    {
+                        <div class="row">
+                            <div class="col mt-2">
+                                @if (UploadMultiple)
+                                {
+                                    <input type="file" id="@_fileinputid" name="file" accept="@_filter" multiple />
+                                }
+                                else
+                                {
+                                    <input type="file" id="@_fileinputid" name="file" accept="@_filter" />
+                                }
+                            </div>
+                            <div class="col mt-2 text-center">
+                                <button type="button" class="btn btn-success" @onclick="UploadFile">@SharedLocalizer["Upload"]</button>
+                                @if (ShowFiles && GetFileId() != -1)
+                                {
+                                    <button type="button" class="btn btn-danger mx-1" @onclick="DeleteFile">@SharedLocalizer["Delete"]</button>
+                                }
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col mt-1"><span id="@_progressinfoid" style="display: none;"></span></div>
+                            <div class="col text-center mt-1"><progress id="@_progressbarid" class="mt-1" style="display: none;"></progress></div>
+                        </div>
+                    }
+                </div>
             </div>
             @if (_image != string.Empty)
             {
@@ -68,8 +76,8 @@
         </div>
         @if (!string.IsNullOrEmpty(_message))
         {
-            <div class="row">
-                <div class="col mt-2">
+            <div class="row mt-1">
+                <div class="col">
                     <ModuleMessage Message="@_message" Type="@_messagetype" />
                 </div>
             </div>
@@ -96,10 +104,16 @@
     public string Id { get; set; } // optional - for setting the id of the FileManager component for accessibility
 
     [Parameter]
-    public string Folder { get; set; } // optional - for setting a specific folder by default ( only relevant for host functions )
+    public int FolderId { get; set; } = -1; // optional - for setting a specific default folder by folderid 
 
     [Parameter]
-    public int FolderId { get; set; } = -1; // optional - for setting a specific folderid by default
+    public string Folder { get; set; } = ""; // optional - for setting a specific default folder by folder path 
+
+    [Parameter]
+    public int FileId { get; set; } = -1; // optional - for selecting a specific file by default
+
+    [Parameter]
+    public string Filter { get; set; } // optional - comma delimited list of file types that can be selected or uploaded ie. "jpg,gif"
 
     [Parameter]
     public bool ShowFiles { get; set; } = true; // optional - for indicating whether a list of files should be displayed - default is true
@@ -114,10 +128,7 @@
     public bool ShowImage { get; set; } = true; // optional - for indicating whether an image thumbnail should be displayed - default is true
 
     [Parameter]
-    public int FileId { get; set; } = -1; // optional - for selecting a specific file by default
-
-    [Parameter]
-    public string Filter { get; set; } // optional - comma delimited list of file types that can be selected or uploaded ie. "jpg,gif"
+    public bool ShowSuccess { get; set; } = false; // optional - for indicating whether a success message should be displayed upon successful upload - default is false
 
     [Parameter]
     public bool UploadMultiple { get; set; } = false; // optional - enable multiple file uploads - default false
@@ -138,19 +149,35 @@
             _id = Id;
         }
 
+        // packages folder is a framework folder for uploading installable nuget packages
+        if (Folder == Constants.PackagesFolder)
+        {
+            ShowFiles = false;
+            ShowFolders = false;
+            Filter = "nupkg";
+            ShowSuccess = true;
+        }
+
         if (!ShowFiles)
         {
             ShowImage = false;
         }
-        
-        if (!string.IsNullOrEmpty(Folder))
+
+        _folders = await FolderService.GetFoldersAsync(ModuleState.SiteId);
+
+        if (!string.IsNullOrEmpty(Folder) && Folder != Constants.PackagesFolder)
         {
-            _folders = new List<Folder> { new Folder { FolderId = -1, Name = Folder } };
-            FolderId = -1;
-        }
-        else
-        {
-            _folders = await FolderService.GetFoldersAsync(ModuleState.SiteId);
+            Folder folder = await FolderService.GetFolderAsync(ModuleState.SiteId, Folder);
+            if (folder != null)
+            {
+                FolderId = folder.FolderId;
+            }
+            else
+            {
+                FolderId = -1;
+                _message = "Folder Path " + Folder + "Does Not Exist";
+                _messagetype = MessageType.Error;
+            }
         }
 
         if (FileId != -1)
@@ -164,6 +191,8 @@
             else
             {
                 FileId = -1; // file does not exist
+                _message = "FileId " + FileId.ToString() + "Does Not Exist";
+                _messagetype = MessageType.Error;
             }
         }
 
@@ -186,10 +215,10 @@
     private async Task GetFiles()
     {
         _haseditpermission = false;
-        if (!string.IsNullOrEmpty(Folder))
+        if (Folder == Constants.PackagesFolder)
         {
             _haseditpermission = UserSecurity.IsAuthorized(PageState.User, RoleNames.Host);
-            _files = await FileService.GetFilesAsync(Folder);
+            _files = new List<File>();
         }
         else
         {
@@ -234,7 +263,6 @@
         catch (Exception ex)
         {
             await logger.LogError(ex, "Error Loading Files {Error}", ex.Message);
-
             _message = Localizer["Error.File.Load"];
             _messagetype = MessageType.Error;
         }
@@ -286,7 +314,7 @@
             try
             {
                 string result;
-                if (!string.IsNullOrEmpty(Folder))
+                if (Folder == Constants.PackagesFolder)
                 {
                     result = await FileService.UploadFilesAsync(Folder, upload, _guid);
                 }
@@ -298,9 +326,11 @@
                 if (result == string.Empty)
                 {
                     await logger.LogInformation("File Upload Succeeded {Files}", upload);
-
-                    _message = Localizer["Success.File.Upload"];
-                    _messagetype = MessageType.Success;
+                    if (ShowSuccess)
+                    {
+                        _message = Localizer["Success.File.Upload"];
+                        _messagetype = MessageType.Success;
+                    }
 
                     // set FileId to first file in upload collection
                     await GetFiles();
@@ -363,6 +393,8 @@
     }
 
     public int GetFileId() => FileId;
+
+    public int GetFolderId() => FolderId;
 
     public File GetFile() => _file;
 }

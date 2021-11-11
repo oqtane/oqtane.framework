@@ -24,7 +24,7 @@
 
         if (!String.IsNullOrEmpty(_server) && !String.IsNullOrEmpty(_database))
         {
-            connectionString = $"Data Source={_server};AttachDbFilename=|DataDirectory|\\{_database}.mdf;Initial Catalog={_database};Integrated Security=SSPI;";
+            connectionString = $"Data Source={_server};AttachDbFilename=|DataDirectory|\\{_database}.mdf;Initial Catalog={_database};Integrated Security=SSPI;Encrypt=false;";
         }
 
         return connectionString;

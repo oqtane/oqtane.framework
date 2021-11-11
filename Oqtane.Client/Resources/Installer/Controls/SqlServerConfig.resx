@@ -153,4 +153,22 @@
   <data name="Integrated" xml:space="preserve">
     <value>Integrated</value>
   </data>
+  <data name="Encryption,Text" xml:space="preserve">
+    <value>Encryption:</value>
+  </data>
+  <data name="Encryption.HelpText" xml:space="preserve">
+    <value>Specify if you are using an encrypted database connection. It is highly recommended to use encryption in a production environment.</value>
+  </data>
+  <data name="Self Signed" xml:space="preserve">
+    <value>Self Signed</value>
+  </data>
+  <data name="TrustServerCertificate.HelpText" xml:space="preserve">
+    <value>Specify the type of certificate you are using for encryption</value>
+  </data>
+  <data name="TrustServerCertificate.Text" xml:space="preserve">
+    <value>Trust Server Certificate:</value>
+  </data>
+  <data name="Verifiable" xml:space="preserve">
+    <value>Verifiable</value>
+  </data>
 </root>

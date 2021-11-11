@@ -109,6 +109,9 @@ namespace Oqtane.Services
                 attempts += 1;
             }
 
+            await interop.SetElementAttribute(id + "ProgressInfo", "style", "display: none;");
+            await interop.SetElementAttribute(id + "ProgressBar", "style", "display: none;");
+
             if (!success)
             {
                 result = result.Substring(0, result.Length - 1);

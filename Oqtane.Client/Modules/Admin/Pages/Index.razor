@@ -11,13 +11,14 @@
 
     <Pager Items="@PageState.Pages.Where(item => !item.IsDeleted)">
         <Header>
-            <th style="width: 1px;">&nbsp;</th>
-            <th style="width: 1px;">&nbsp;</th>
-            <th>@SharedLocalizer["Name"]</th>
+        <th style="width: 1px;">&nbsp;</th>
+        <th style="width: 1px;">&nbsp;</th>
+        <th>@SharedLocalizer["Name"]</th>
         </Header>
         <Row>
             <td><ActionLink Action="Edit" Parameters="@($"id=" + context.PageId.ToString())" ResourceKey="EditPage" /></td>
             <td><ActionDialog Header="Delete Page" Message="@string.Format(Localizer["Confirm.Page.Delete"], context.Name)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeletePage(context))" ResourceKey="DeletePage" /></td>
+            <td><button type="button" class="btn btn-secondary" @onclick="@(async () => NavigationManager.NavigateTo(Browse(context)))">@Localizer["Browse"]</button></td>
             <td>@(new string('-', context.Level * 2))@(context.Name)</td>
         </Row>
     </Pager>
@@ -41,5 +42,9 @@
             await logger.LogError(ex, "Error Deleting Page {Page} {Error}", page, ex.Message);
             AddModuleMessage(Localizer["Error.Page.Delete"], MessageType.Error);
         }
+    }
+    protected string Browse(Page page)
+    {
+        return string.IsNullOrEmpty(page.Url) ? NavigateUrl(page.Path) : page.Url;
     }
 }

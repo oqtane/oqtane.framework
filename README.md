@@ -12,19 +12,27 @@ Please note that this project is owned by the .NET Foundation and is governed by
 
 # Getting Started
 
-**Using Version 2+:**
+**Using Version 3:**
+
+- Install **[.NET 6 SDK](https://dotnet.microsoft.com/download/dotnet/6.0)**.
+   
+- Install the latest edition (v17.0 or higher) of [Visual Studio 2022](https://visualstudio.microsoft.com/vs/preview/#download-preview) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you wish to use LocalDB for development ( not a requirement as Oqtane supports SQLite, mySQL, and PostgreSQL ) you must also install the **Data storage and processing**.  
+
+- clone the Oqtane dev branch source code to your local system. Open the **Oqtane.sln** solution file and Build the solution. Make sure you specify Oqtane.Server as the Startup Project and then Run the application.
+
+**Using Version 2:**
 
 - Install **[.NET 5 SDK](https://dotnet.microsoft.com/download/dotnet/5.0)**.
    
-- Install the latest edition (v16.8 or higher) of [Visual Studio 2019](https://visualstudio.microsoft.com/vs/) (Community, Professional, or Enterprise Editions) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you do not have a SQL Server installation available already and you wish to use LocalDB for development, you must also install the **.NET desktop development workload**.  
+- Install the latest edition (v16.8 or higher) of [Visual Studio 2019](https://visualstudio.microsoft.com/vs/) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you wish to use LocalDB for development ( not a requirement as Oqtane supports SQLite, mySQL, and PostgreSQL ) you must also install the **.NET desktop development workload**.  
 
-- Download a release or Clone the Oqtane source code to your local system. Open the **Oqtane.sln** solution file and Build the solution. Make sure you specify Oqtane.Server as the Startup Project and then Run the application.
+- Download a release or Clone the Oqtane source code from a v2.x Tag to your local system. Open the **Oqtane.sln** solution file and Build the solution. Make sure you specify Oqtane.Server as the Startup Project and then Run the application.
 
 **Using Version 1:**
 
 - Install **[.NET Core 3.1 SDK](https://dotnet.microsoft.com/download/dotnet-core/thank-you/sdk-3.1.300-windows-x64-installer)**.
    
-- Install [Visual Studio 2019](https://visualstudio.microsoft.com/vs) (Community, Professional, or Enterprise Editions) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you do not have a SQL Server installation available already and you wish to use LocalDB for development, you must also install the **.NET desktop development workload**.  
+- Install [Visual Studio 2019](https://visualstudio.microsoft.com/vs) with the **ASP.NET and web development** workload enabled. Oqtane works with ALL editions of Visual Studio from Community to Enterprise. If you do not have a SQL Server installation available already and you wish to use LocalDB for development, you must also install the **.NET desktop development workload**.  
 
 - Download a release or Clone the Oqtane source code from a v1.x Tag to your local system. Open the **Oqtane.sln** solution file and Build the solution. Make sure you specify Oqtane.Server as the Startup Project and then Run the application.
 
@@ -49,10 +57,20 @@ There is a separate [Documentation repository](https://github.com/oqtane/oqtane.
 # Roadmap
 This project is a work in progress and the schedule for implementing enhancements is dependent upon the availability of community members who are willing/able to assist.
 
-V.3.0.0 ( Q4 2021 )
-- [ ] Migration to .NET 6
-- [ ] Authentication extensibility ( ie. Azure B2C, Social logins, etc... )
-- [ ] Configurable password complexity for local authentication
+Backlog (Not Yet Assigned)
+- [ ] Enhance alias concept with a tabular UI and additional configuration properties
+- [ ] Allow language specification in Url (#1731)
+
+V.3.1.0 ( Q4 2021 )
+- [ ] Token based authenticaton / authorization via OAuth2 / OpenID Connect
+- [ ] Provide Single Sign On (SSO) for other applications
+- [ ] Authentication extensibility via Social logins / Azure B2C
+- [ ] Allow configuration of password complexity for local authentication
+
+V.3.0.0 ( Nov 10, 2021 )
+- [x] Migration to .NET 6
+- [x] Blazor hosting model flexibility per site
+- [x] Blazor WebAssembly prerendering support
 
 V.2.3.1 ( Sep 27, 2021 )
 - [x] Complete UI migration to Bootstrap 5 and HTML5 form validation
@@ -111,7 +129,7 @@ V.1.0.0 ( May 19, 2020 - released in conjunction with .NET Core 3.2 )
 - [x] Dynamic CSS/Lazy Loading
 
 # Background
-Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Initially created as a proof of concept, Oqtane is a native Blazor application written from the ground up using modern .NET Core technology. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly templates (skins), and extensibility via third party modules.
+Oqtane was created by [Shaun Walker](https://www.linkedin.com/in/shaunbrucewalker/) and is inspired by the DotNetNuke web application framework. Initially created as a proof of concept, Oqtane is a native Blazor application written from the ground up using modern .NET Core technology and a Single Page Application (SPA) architecture. It is a modular application framework offering a fully dynamic page compositing model, multi-site support, designer friendly templates (skins), and extensibility via third party modules.
 
 # Release Announcements
 [Oqtane 2.2](https://www.oqtane.org/Resources/Blog/PostId/549/oqtane-22-upgrades-to-bootstrap-5)

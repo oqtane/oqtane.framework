@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -126,9 +126,6 @@
   <data name="Error.File.Load" xml:space="preserve">
     <value>Error Loading Files</value>
   </data>
-  <data name="Success.File.Upload" xml:space="preserve">
-    <value>File Upload Succeeded</value>
-  </data>
   <data name="Error.File.Upload" xml:space="preserve">
     <value>File Upload Failed</value>
   </data>
@@ -140,5 +137,8 @@
   </data>
   <data name="Error.File.Delete" xml:space="preserve">
     <value>Error Deleting File</value>
+  </data>
+  <data name="Success.File.Upload" xml:space="preserve">
+    <value>File Upload Succeeded</value>
   </data>
 </root>

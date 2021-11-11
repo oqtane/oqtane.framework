@@ -298,10 +298,13 @@ Oqtane.Interop = {
         return files;
     },
     uploadFiles: function (posturl, folder, id) {
-        var files = document.getElementById(id + 'FileInput').files;
+        var fileinput = document.getElementById(id + 'FileInput');
+        var files = fileinput.files;
         var progressinfo = document.getElementById(id + 'ProgressInfo');
         var progressbar = document.getElementById(id + 'ProgressBar');
-        var filename = '';
+
+        progressinfo.setAttribute("style", "display: inline;");
+        progressbar.setAttribute("style", "width: 200px; display: inline;");
 
         for (var i = 0; i < files.length; i++) {
             var FileChunk = [];
@@ -311,12 +314,6 @@ Oqtane.Interop = {
             var FileStreamPos = 0;
             var EndPos = BufferChunkSize;
             var Size = file.size;
-
-            progressbar.setAttribute("style", "visibility: visible;");
-
-            if (files.length > 1) {
-                filename = file.name;
-            }
 
             while (FileStreamPos < Size) {
                 FileChunk.push(file.slice(FileStreamPos, EndPos));
@@ -337,21 +334,22 @@ Oqtane.Interop = {
                 var request = new XMLHttpRequest();
                 request.open('POST', posturl, true);
                 request.upload.onloadstart = function (e) {
+                    progressinfo.innerHTML = file.name + ' 0%';
                     progressbar.value = 0;
-                    progressinfo.innerHTML = filename + ' 0%';
                 };
                 request.upload.onprogress = function (e) {
                     var percent = Math.ceil((e.loaded / e.total) * 100);
+                    progressinfo.innerHTML = file.name + '[' + PartCount + '] ' + percent + '%';
                     progressbar.value = (percent / 100);
-                    progressinfo.innerHTML = filename + '[' + PartCount + '] ' + percent + '%';
                 };
                 request.upload.onloadend = function (e) {
+                    progressinfo.innerHTML = file.name + ' 100%';
                     progressbar.value = 1;
-                    progressinfo.innerHTML = filename + ' 100%';
                 };
                 request.send(data);
             }
         }
+        fileinput.value = '';
     },
     refreshBrowser: function (reload, wait) {
         setInterval(function () {
@@ -365,5 +363,11 @@ Oqtane.Interop = {
     },
     formValid: function (formRef) {
         return formRef.checkValidity();
+    },
+    setElementAttribute: function (id, attribute, value) {
+        var element = document.getElementById(id);
+        if (element !== null) {
+            element.setAttribute(attribute, value);
+        }
     }
 };

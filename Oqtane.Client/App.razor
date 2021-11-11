@@ -62,21 +62,10 @@
         _initialized = true;
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
         {
-            if (string.IsNullOrEmpty(AntiForgeryToken))
-            {
-                // parameter values are not set when running on WebAssembly (seems to be a .NET 5 bug) - need to retrieve using JSInterop
-                var interop = new Interop(JSRuntime);
-
-                SiteState.AntiForgeryToken = await interop.GetElementByName(Constants.RequestVerificationToken);
-                InstallationService.SetAntiForgeryTokenHeader(SiteState.AntiForgeryToken);
-
-                Runtime = await interop.GetElementByName("app_runtime");
-                RenderMode = await interop.GetElementByName("app_rendermode");
-            }
             _display = "";
             StateHasChanged();
         }

@@ -111,7 +111,7 @@ else
     {
         try
         {
-            await PackageService.DownloadPackageAsync(packagename, version, "Packages");
+            await PackageService.DownloadPackageAsync(packagename, version, Constants.PackagesFolder);
             await logger.LogInformation("Module Downloaded {ModuleDefinitionName} {Version}", packagename, version);
             await ModuleDefinitionService.InstallModuleDefinitionsAsync();
             AddModuleMessage(string.Format(Localizer["Success.Module.Install"], NavigateUrl("admin/system")), MessageType.Success);

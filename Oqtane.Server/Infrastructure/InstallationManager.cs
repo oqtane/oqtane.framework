@@ -4,10 +4,11 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
@@ -112,7 +113,7 @@ namespace Oqtane.Infrastructure
                             // evaluate entry root folder
                             switch (entry.FullName.Split('/')[0])
                             {
-                                case "lib": // lib/net5.0/...
+                                case "lib": // lib/net*/...
                                     filename = ExtractFile(entry, binPath, 2);
                                     break;
                                 case "wwwroot": // wwwroot/...
@@ -121,7 +122,7 @@ namespace Oqtane.Infrastructure
                                 case "runtimes": // runtimes/name/...
                                     filename = ExtractFile(entry, binPath, 0);
                                     break;
-                                case "ref": // ref/net5.0/...
+                                case "ref": // ref/net*/...
                                     filename = ExtractFile(entry, Path.Combine(binPath, "ref"), 2);
                                     break;
                             }
@@ -190,7 +191,7 @@ namespace Oqtane.Infrastructure
             {
                 // get manifest with highest version
                 string packagename = "";
-                string[] packages = Directory.GetFiles(Path.Combine(_environment.ContentRootPath, "Packages"), PackageName + "*.log");
+                string[] packages = Directory.GetFiles(Path.Combine(_environment.ContentRootPath, Constants.PackagesFolder), PackageName + "*.log");
                 if (packages.Length > 0)
                 {
                     packagename = packages[packages.Length - 1]; // use highest version 
@@ -228,9 +229,9 @@ namespace Oqtane.Infrastructure
             return false;
         }
 
-        public void UpgradeFramework()
+        public async Task UpgradeFramework()
         {
-            string folder = Path.Combine(_environment.ContentRootPath, "Packages");
+            string folder = Path.Combine(_environment.ContentRootPath, Constants.PackagesFolder);
             if (Directory.Exists(folder))
             {
                 // get package with highest version
@@ -281,10 +282,18 @@ namespace Oqtane.Infrastructure
                         // install Oqtane.Framework and Oqtane.Updater nuget packages
                         InstallPackages();
                         // download upgrade zip package
-                        var client = new WebClient();
                         Uri uri = new Uri(packageurl);
                         string upgradepackage = Path.Combine(folder, uri.Segments[uri.Segments.Length - 1]);
-                        client.DownloadFile(packageurl, upgradepackage);
+                        using (var client = new HttpClient())
+                        {
+                            using (var stream = await client.GetStreamAsync(packageurl))
+                            {
+                                using (var fileStream = new FileStream(upgradepackage, FileMode.CreateNew))
+                                {
+                                    await stream.CopyToAsync(fileStream);
+                                }
+                            }
+                        }
                         // install Oqtane.Upgrade zip package
                         if (File.Exists(upgradepackage))
                         {

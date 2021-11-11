@@ -17,6 +17,8 @@ namespace Oqtane.Shared
         public string DefaultTheme { get; set; }
         public string DefaultContainer { get; set; }
         public string DefaultAdminContainer { get; set; }
+        public string Runtime { get; set; }
+        public string RenderMode { get; set; }
         public bool Register { get; set; }
     }
 }

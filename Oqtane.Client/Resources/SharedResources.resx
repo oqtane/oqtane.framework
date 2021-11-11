@@ -312,4 +312,10 @@
   <data name="Not Specified" xml:space="preserve">
     <value>Not Specified</value>
   </data>
+  <data name="BlazorServer" xml:space="preserve">
+    <value>Blazor Server</value>
+  </data>
+  <data name="BlazorWebAssembly" xml:space="preserve">
+    <value>Blazor WebAssembly</value>
+  </data>
 </root>

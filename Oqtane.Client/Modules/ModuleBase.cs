@@ -30,8 +30,8 @@ namespace Oqtane.Modules
         [CascadingParameter]
         protected Module ModuleState { get; set; }
 
-        [CascadingParameter]
-        protected ModuleInstance ModuleInstance { get; set; }
+        [Parameter]
+        public ModuleInstance ModuleInstance { get; set; }
 
         // optional interface properties
         public virtual SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.View; } set { } } // default security

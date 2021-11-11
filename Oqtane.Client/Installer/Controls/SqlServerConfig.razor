@@ -1,6 +1,7 @@
 @namespace Oqtane.Installer.Controls
 @implements Oqtane.Interfaces.IDatabaseConfigControl
 @inject IStringLocalizer<SqlServerConfig> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <div class="row mb-1 align-items-center">
     <Label Class="col-sm-3" For="server" HelpText="Enter the database server" ResourceKey="Server">Server:</Label>
@@ -38,6 +39,27 @@
         </div>
     </div>
 }
+<div class="row mb-1 align-items-center">
+    <Label Class="col-sm-3" For="encryption" HelpText="Specify if you are using an encrypted database connection. It is highly recommended to use encryption in a production environment." ResourceKey="Encryption">Encryption:</Label>
+    <div class="col-sm-9">
+        <select id="encryption" class="form-select custom-select" @bind="@_encryption">
+            <option value="true">@SharedLocalizer["True"]</option>
+            <option value="false">@SharedLocalizer["False"]</option>
+        </select>
+    </div>
+</div>
+@if (_encryption == "true")
+{
+	<div class="row mb-1 align-items-center">
+		<Label Class="col-sm-3" For="trustservercertificate" HelpText="Specify the type of certificate you are using for encryption" ResourceKey="TrustServerCertificate">Certificate:</Label>
+		<div class="col-sm-9">
+			<select id="encryption" class="form-select custom-select" @bind="@_trustservercertificate">
+				<option value="true">@Localizer["Self Signed"]</option>
+				<option value="false">@Localizer["Verifiable"]</option>
+			</select>
+		</div>
+	</div>
+}
 
 @code {
     private string _server = String.Empty;
@@ -45,6 +67,8 @@
     private string _security = "integrated";
     private string _uid = String.Empty;
     private string _pwd = String.Empty;
+    private string _encryption = "false";
+    private string _trustservercertificate = "false";
 
     public string GetConnectionString()
     {
@@ -61,15 +85,10 @@
         }
         else
         {
-            if (!String.IsNullOrEmpty(_uid) && !String.IsNullOrEmpty(_pwd))
-            {
-                connectionString += $"User ID={_uid};Password={_pwd};";
-            }
-            else
-            {
-                connectionString = String.Empty;
-            }
+            connectionString += $"User ID={_uid};Password={_pwd};";
         }
+		connectionString += $"Encrypt={_encryption};";
+		connectionString += $"TrustServerCertificate={_trustservercertificate};";
 
         return connectionString;
     }

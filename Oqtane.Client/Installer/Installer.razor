@@ -24,10 +24,10 @@
                 <div class="row mb-1 align-items-center">
                     <Label Class="col-sm-3" For="databasetype" HelpText="Select the type of database you wish to use" ResourceKey="DatabaseType">Database:</Label>
                     <div class="col-sm-9">
-                        <select id="databasetype" class="form-select custom-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))">
-                            @if (_databases != null)
-                            {
-                                foreach (var database in _databases)
+                        @if (_databases != null)
+                        {
+							<select id="databasetype" class="form-select custom-select" value="@_databaseName" @onchange="(e => DatabaseChanged(e))">
+                                @foreach (var database in _databases)
                                 {
                                     if (database.IsDefault)
                                     {
@@ -38,8 +38,8 @@
                                         <option value="@database.Name">@Localizer[@database.Name]</option>
                                     }
                                 }
-                            }
-                        </select>
+							</select>
+                        }
                     </div>
                 </div>
                 @{
@@ -96,23 +96,31 @@
 </div>
 
 @code {
-    private List<Database> _databases;
-    private string _databaseName = "LocalDB";
-    private Type _databaseConfigType;
-    private object _databaseConfig;
-    private RenderFragment DatabaseConfigComponent { get; set; }
+	private List<Database> _databases;
+	private string _databaseName;
+	private Type _databaseConfigType;
+	private object _databaseConfig;
+	private RenderFragment DatabaseConfigComponent { get; set; }
 
-    private string _hostUsername = string.Empty;
-    private string _hostPassword = string.Empty;
-    private string _confirmPassword = string.Empty;
-    private string _hostEmail = string.Empty;
-    private bool _register = true;
-    private string _message = string.Empty;
-    private string _loadingDisplay = "display: none;";
+	private string _hostUsername = string.Empty;
+	private string _hostPassword = string.Empty;
+	private string _confirmPassword = string.Empty;
+	private string _hostEmail = string.Empty;
+	private bool _register = true;
+	private string _message = string.Empty;
+	private string _loadingDisplay = "display: none;";
 
-    protected override async Task OnInitializedAsync()
-    {
-        _databases = await DatabaseService.GetDatabasesAsync();
+	protected override async Task OnInitializedAsync()
+	{
+		_databases = await DatabaseService.GetDatabasesAsync();
+		if (_databases.Exists(item => item.IsDefault))
+		{
+			_databaseName = _databases.Find(item => item.IsDefault).Name;
+		}
+		else
+		{
+			_databaseName = "LocalDB";
+		}
         LoadDatabaseConfigComponent();
     }
 
@@ -150,8 +158,8 @@
         if (firstRender)
         {
             var interop = new Interop(JSRuntime);
-            await interop.IncludeLink("", "stylesheet", "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css", "text/css", "sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC", "anonymous", "");
-            await interop.IncludeScript("", "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js", "sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM", "anonymous", "", "head", "");
+            await interop.IncludeLink("", "stylesheet", "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.2/css/bootstrap.min.css", "text/css", "sha512-usVBAd66/NpVNfBge19gws2j6JZinnca12rAe2l+d+QkLU9fiG02O1X8Q6hepIpr/EYKZvKx/I9WsnujJuOmBA==", "anonymous", "");
+            await interop.IncludeScript("", "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.2/js/bootstrap.min.js", "sha512-a6ctI6w1kg3J4dSjknHj3aWLEbjitAXAjLDRUxo2wyYmDFRcz2RJuQr5M3Kt8O/TtUSp8n2rAyaXYy1sjoKmrQ==", "anonymous", "", "head", "");
         }
     }
 
