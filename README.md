@@ -67,7 +67,7 @@ V.3.1.0 ( Q4 2021 )
 - [ ] Authentication extensibility via Social logins / Azure B2C
 - [ ] Allow configuration of password complexity for local authentication
 
-V.3.0.0 ( Nov 10, 2021 )
+V.3.0.0 ( Nov 11, 2021 )
 - [x] Migration to .NET 6
 - [x] Blazor hosting model flexibility per site
 - [x] Blazor WebAssembly prerendering support
