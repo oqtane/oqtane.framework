@@ -3,13 +3,14 @@
 @inherits ModuleBase
 @inject NavigationManager NavigationManager
 @inject IPageService PageService
+@inject IPageModuleService PageModuleService
 @inject IThemeService  ThemeService
 @inject IStringLocalizer<Edit> Localizer
 @inject IStringLocalizer<SharedResources> SharedLocalizer
 
 <form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
     <TabStrip Refresh="@_refresh">
-        <TabPanel Name="Settings" ResourceKey="Settings">
+        <TabPanel Name="Settings" ResourceKey="Settings" Heading=@Localizer["Settings.Heading"]>
             @if (_themeList != null)
             {
                 <div class="container">
@@ -157,6 +158,25 @@
 
             }
         </TabPanel>
+        <TabPanel Name="PageModules" ResourceKey="PageModules" Heading=@Localizer["PageModules.Heading"]>
+            @if(_pageModules != null)
+            {
+                <Pager Items="_pageModules">
+                    <Header>
+                        <th style="width: 1px;">&nbsp;</th>
+                        <th style="width: 1px;">&nbsp;</th>
+                        <th>@Localizer["ModuleTitle"]</th>
+                        <th>@Localizer["ModuleDefinition"]</th>
+                    </Header>
+                    <Row>
+                        <td><button type="button" class="btn btn-info" @onclick="() => LoadModuleSettings(context)">@SharedLocalizer["Settings"]</button></td>
+                        <td><button type="button" class="btn btn-danger" @onclick="@(async() => await DeleteModule(context))">@SharedLocalizer["Delete"]</button></td>
+                        <td>@context.Title</td>
+                        <td>@(context.ModuleDefinition.Name.Length > 0 ? context.ModuleDefinition.Name : context.ModuleDefinitionName)</td>
+                    </Row>
+                </Pager>
+            }
+        </TabPanel>
         @if (_themeSettingsType != null)
         {
             <TabPanel Name="ThemeSettings" Heading="Theme Settings" ResourceKey="ThemeSettings">
@@ -178,6 +198,7 @@
     private List<ThemeControl> _themes = new List<ThemeControl>();
     private List<ThemeControl> _containers = new List<ThemeControl>();
     private List<Page> _pageList;
+    private List<Module> _pageModules;
     private int _pageId;
     private string _name;
     private string _title;
@@ -206,6 +227,7 @@
     private object _themeSettings;
     private RenderFragment ThemeSettingsComponent { get; set; }
     private bool _refresh = false;
+    protected Page page;
 
     protected override async Task OnInitializedAsync()
     {
@@ -213,17 +235,18 @@
         {
             _pageList = PageState.Pages;
             _children = PageState.Pages.Where(item => item.ParentId == null).ToList();
-
             _themeList = await ThemeService.GetThemesAsync();
             _themes = ThemeService.GetThemeControls(_themeList);
 
             _pageId = Int32.Parse(PageState.QueryString["id"]);
-            var page = PageState.Pages.FirstOrDefault(item => item.PageId == _pageId);
+            page = PageState.Pages.FirstOrDefault(item => item.PageId == _pageId);
+
             if (page != null)
             {
                 _name = page.Name;
                 _title = page.Title;
                 _path = page.Path;
+                _pageModules = PageState.Modules.Where(m => m.PageId == page.PageId && m.IsDeleted == false).ToList();
 
                 if (string.IsNullOrEmpty(_path))
                 {
@@ -278,6 +301,29 @@
         {
             await logger.LogError(ex, "Error Loading Page {PageId} {Error}", _pageId, ex.Message);
             AddModuleMessage(Localizer["Error.Page.Load"], MessageType.Error);
+        }
+    }
+
+    protected void LoadModuleSettings(Module module)
+    {
+        NavigationManager.NavigateTo(EditUrl(module.ModuleId, "Settings"));
+    }
+
+    private async Task DeleteModule(Module module)
+    {
+        try
+        {
+            PageModule pagemodule = await PageModuleService.GetPageModuleAsync(page.PageId,module.ModuleId);
+            pagemodule.IsDeleted = true;
+
+            await PageModuleService.UpdatePageModuleAsync(pagemodule);
+            await logger.LogInformation(LogFunction.Update,"Module Deleted {Title}", module.Title);
+            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, true));
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Module {Title} {Error}", module.Title, ex.Message);
+            AddModuleMessage(Localizer["Error.Module.Delete"], MessageType.Error);
         }
     }
 

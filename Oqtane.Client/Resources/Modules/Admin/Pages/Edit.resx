@@ -231,4 +231,16 @@
   <data name="Move.Text" xml:space="preserve">
     <value>Move: </value>
   </data>
+  <data name="ModuleDefinition" xml:space="preserve">
+    <value>Module Name / Definition</value>
+  </data>
+  <data name="ModuleTitle" xml:space="preserve">
+    <value>Module Title</value>
+  </data>
+  <data name="PageModules.Heading" xml:space="preserve">
+    <value>Page Modules</value>
+  </data>
+  <data name="Settings.Text" xml:space="preserve">
+    <value />
+  </data>
 </root>
