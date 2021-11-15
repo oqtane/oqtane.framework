@@ -63,9 +63,9 @@
 				</div>
 				<div class="row d-flex">
 					<div class="col d-flex justify-content-between">
-						<button type="button" class="btn btn-secondary col-3" data-bs-dismiss="offcanvas" @onclick=@(async () => Navigate("Add"))>@SharedLocalizer["Add"]</button>
-						<button type="button" class="btn btn-secondary col-3" data-bs-dismiss="offcanvas" @onclick=@(async () => Navigate("Edit"))>@SharedLocalizer["Edit"]</button>
-						<button type="button" class="btn btn-danger col-3" @onclick="ConfirmDelete">@SharedLocalizer["Delete"]</button>
+						<button type="button" class="btn btn-secondary col me-1" data-bs-dismiss="offcanvas" @onclick=@(async () => Navigate("Add"))>@SharedLocalizer["Add"]</button>
+						<button type="button" class="btn btn-secondary col" data-bs-dismiss="offcanvas" @onclick=@(async () => Navigate("Edit"))>@SharedLocalizer["Edit"]</button>
+						<button type="button" class="btn btn-danger col ms-1" @onclick="ConfirmDelete">@SharedLocalizer["Delete"]</button>
 					</div>
 				</div>
 				<br />
