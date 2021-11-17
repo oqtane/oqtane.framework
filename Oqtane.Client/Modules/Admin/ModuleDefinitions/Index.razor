@@ -22,6 +22,7 @@ else
             <th style="width: 1px;">&nbsp;</th>
             <th>@SharedLocalizer["Name"]</th>
             <th>@SharedLocalizer["Version"]</th>
+            <th>@Localizer["InUse"]</th>
             <th>@SharedLocalizer["Expires"]</th>
             <th style="width: 1px;">&nbsp;</th>
         </Header>
@@ -35,6 +36,16 @@ else
             </td>
             <td>@context.Name</td>
             <td>@context.Version</td>
+            <td>
+                @if(context.AssemblyName == "Oqtane.Client" || PageState.Modules.Where(m => m.ModuleDefinition.ModuleDefinitionId == context.ModuleDefinitionId).Count() > 0)
+                {
+                    <span>@SharedLocalizer["Yes"]</span>
+                }
+                else
+                {
+                    <span>@SharedLocalizer["No"]</span>
+                }
+            </td>
             <td>
                 @((MarkupString)PurchaseLink(context.PackageName))
             </td>
