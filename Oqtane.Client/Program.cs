@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
+using Oqtane.Documentation;
 using Oqtane.Modules;
 using Oqtane.Services;
 using Oqtane.Shared;
@@ -19,6 +20,7 @@ using Oqtane.UI;
 
 namespace Oqtane.Client
 {
+    [PrivateApi("Mark Entry-Program as private, since it's not very useful in the public docs")]
     public class Program
     {
         public static async Task Main(string[] args)

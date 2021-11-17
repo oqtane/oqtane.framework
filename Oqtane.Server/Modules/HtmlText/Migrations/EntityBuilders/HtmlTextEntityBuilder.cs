@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Oqtane.Databases.Interfaces;
+using Oqtane.Documentation;
 using Oqtane.Interfaces;
 using Oqtane.Migrations;
 using Oqtane.Migrations.EntityBuilders;
@@ -11,6 +12,7 @@ using Oqtane.Migrations.EntityBuilders;
 
 namespace Oqtane.Modules.HtmlText.Migrations.EntityBuilders
 {
+    [PrivateApi("Mark HtmlText classes as private, since it's not very useful in the public docs")]
     public class HtmlTextEntityBuilder : AuditableBaseEntityBuilder<HtmlTextEntityBuilder>
     {
         private const string _entityTableName = "HtmlText";
