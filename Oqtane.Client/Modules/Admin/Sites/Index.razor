@@ -52,6 +52,11 @@ else
 
     private void Edit(string name)
     {
+        if (name.Equals("*"))
+        {
+            var uri = new Uri(NavigationManager.Uri);
+            name = uri.Authority;
+        }
         NavigationManager.NavigateTo(_scheme + name + "/admin/site/?reload");
     }
 
