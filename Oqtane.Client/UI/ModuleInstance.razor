@@ -1,17 +1,30 @@
 @namespace Oqtane.UI
 @inject IStringLocalizer<ModuleInstance> Localizer
 
-<ModuleMessage Message="@_message" Type="@_messagetype" />
-@DynamicComponent
-@if (_progressindicator)
-{
-    <div class="app-progress-indicator"></div>
-}
+<ErrorBoundary>
+    <ErrorContent>
+        <ModuleMessage Message="@ErrorMessage(context)" Type="@MessageType.Error"/>
+    </ErrorContent>
+    <ChildContent>
+        <ModuleMessage Message="@_message" Type="@_messageType"/>
+        @if (ModuleType != null)
+        {
+            <DynamicComponent Type="@ModuleType" Parameters="@ModuleParameters"></DynamicComponent>
+            @if (_progressIndicator)
+            {
+                <div class="app-progress-indicator"></div>
+            }
+        }
+    </ChildContent>
+</ErrorBoundary>
 
 @code {
     private string _message;
-    private MessageType _messagetype;
-    private bool _progressindicator = false;
+    private MessageType _messageType;
+    private bool _progressIndicator = false;
+
+    private Type ModuleType { get; set; }
+    private IDictionary<string, object> ModuleParameters { get; set; }
 
     [CascadingParameter]
     protected PageState PageState { get; set; }
@@ -26,53 +39,54 @@
     protected override void OnParametersSet()
     {
         _message = "";
-
-        DynamicComponent = builder =>
+        if (!string.IsNullOrEmpty(ModuleState.ModuleType))
         {
-            Type moduleType = null;
-            if (!string.IsNullOrEmpty(ModuleState.ModuleType))
+            ModuleType = Type.GetType(ModuleState.ModuleType);
+            if (ModuleType != null)
             {
-                moduleType = Type.GetType(ModuleState.ModuleType);
-
-                if (moduleType != null)
-                {
-                    builder.OpenComponent(0, moduleType);
-					builder.AddAttribute(1, "ModuleInstance", this);
-                    builder.CloseComponent();
-                }
-                else
-                {
-                    // module does not exist with typename specified
-                    _message = string.Format(Localizer["Error.Module.InvalidName"], Utilities.GetTypeNameLastSegment(ModuleState.ModuleType, 0));
-                    _messagetype = MessageType.Error;
-                }
+                ModuleParameters = new Dictionary<string, object> { { "ModuleInstance", this } };
+                return;
             }
-            else
-            {
-                _message = string.Format(Localizer["Error.Module.InvalidType"], ModuleState.ModuleDefinitionName);
-                _messagetype = MessageType.Error;
-            }
-
-        };
+    // module does not exist with typename specified
+            _message = string.Format(Localizer["Error.Module.InvalidName"], Utilities.GetTypeNameLastSegment(ModuleState.ModuleType, 0));
+            _messageType = MessageType.Error;
+        }
+        else
+        {
+            _message = string.Format(Localizer["Error.Module.InvalidType"], ModuleState.ModuleDefinitionName);
+            _messageType = MessageType.Error;
+        }
     }
 
     public void AddModuleMessage(string message, MessageType type)
     {
         _message = message;
-        _messagetype = type;
-        _progressindicator = false;
+        _messageType = type;
+        _progressIndicator = false;
         StateHasChanged();
     }
 
     public void ShowProgressIndicator()
     {
-        _progressindicator = true;
+        _progressIndicator = true;
         StateHasChanged();
     }
 
     public void HideProgressIndicator()
     {
-        _progressindicator = false;
+        _progressIndicator = false;
         StateHasChanged();
     }
+
+
+    private string ErrorMessage(Exception context)
+    {
+        var message = string.Format(Localizer["Error.Module.Exception"], ModuleState.ModuleDefinitionName);
+        if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
+        {
+            return $"{message}<br />{context}";
+        }
+        return message;
+    }
+
 }

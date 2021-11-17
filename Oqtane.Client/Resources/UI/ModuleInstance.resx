@@ -123,4 +123,7 @@
   <data name="Error.Module.InvalidType" xml:space="preserve">
     <value>Module Type Is Invalid For {0}</value>
   </data>
+  <data name="Error.Module.Exception" xml:space="preserve">
+      <value>Program error in module {0}</value>
+  </data>
 </root>
