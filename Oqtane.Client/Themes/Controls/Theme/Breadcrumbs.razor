@@ -16,7 +16,15 @@
                 else
                 {
                     <li class="breadcrumb-item">
-                        <a href="@NavigateUrl(p.Path)">@p.Name</a>
+                        @if(p.IsClickable)
+                        {
+                            <a href="@NavigateUrl(p.Path)">@p.Name</a>
+                        }
+                        else
+                        {
+                            @p.Name
+                        }
+
                     </li>
                 }
             }
