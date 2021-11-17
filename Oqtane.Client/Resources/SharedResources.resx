@@ -318,4 +318,7 @@
   <data name="BlazorWebAssembly" xml:space="preserve">
     <value>Blazor WebAssembly</value>
   </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
 </root>
