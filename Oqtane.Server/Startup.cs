@@ -117,6 +117,10 @@ namespace Oqtane
                 .AddOqtaneApplicationParts() // register any Controllers from custom modules
                 .ConfigureOqtaneMvc(); // any additional configuration from IStart classes.
 
+            services.AddSwaggerGen(options =>
+            {
+                options.CustomSchemaIds(type => type.ToString()); // Handle SchemaId already used for different type
+            });
             services.TryAddSwagger(_useSwagger);
         }
 
