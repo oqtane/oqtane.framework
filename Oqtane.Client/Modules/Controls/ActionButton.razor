@@ -1,0 +1,155 @@
+@namespace Oqtane.Modules.Controls
+@inherits LocalizableComponent
+@inject IUserService UserService
+
+@if (_authorized)
+{
+    if (Disabled)
+    {
+        <button class="@_classname" style="@_style" disabled>@((MarkupString)_iconSpan) @_text</button>
+    }
+    else
+    {
+        <button type="button" class="@_classname" style="@_style" @onclick="(() => ButtonClick())" >@((MarkupString)_iconSpan) @_text</button>
+    }
+}
+
+@code {
+    private string _text = string.Empty;
+    private string _classname = "btn btn-primary";
+    private string _style = string.Empty;
+    private bool _editmode = false;
+    private bool _authorized = false;
+    private string _iconSpan = string.Empty;
+
+
+    [Parameter] public EventCallback OnButtonClick { get; set; }
+
+    [Parameter]
+    public string Action { get; set; } // required
+
+    [Parameter]
+    public SecurityAccessLevel? Security { get; set; } // optional - can be used to explicitly specify SecurityAccessLevel
+
+    [Parameter]
+    public string Text { get; set; } // optional - defaults to Action if not specified
+
+    [Parameter]
+    public string Class { get; set; } // optional - defaults to primary if not specified
+
+    [Parameter]
+    public string Style { get; set; } // optional
+
+    [Parameter]
+    public bool Disabled { get; set; } // optional
+
+    [Parameter]
+    public string EditMode { get; set; } // optional - specifies if an authorized user must be in edit mode to see the action - default is false.
+
+    [Parameter]
+    public string IconName { get; set; } // optional - specifies an icon for the link - default is no icon
+
+    [Parameter]
+    public bool IconOnly { get; set; } // optional - specifies only icon in link
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        _text = Action;
+        if (!string.IsNullOrEmpty(Text))
+        {
+            _text = Text;
+        }
+
+        if (IconOnly && !string.IsNullOrEmpty(IconName))
+        {
+            _text = string.Empty;
+        }
+
+        if (!string.IsNullOrEmpty(Class))
+        {
+            _classname = Class;
+        }
+
+        if (!string.IsNullOrEmpty(Style))
+        {
+            _style = Style;
+        }
+
+        if (!string.IsNullOrEmpty(EditMode))
+        {
+            _editmode = bool.Parse(EditMode);
+        }
+
+        if (!string.IsNullOrEmpty(IconName))
+        {
+            if (!IconName.Contains(" "))
+            {
+                IconName = "oi oi-" + IconName;
+            }
+            _iconSpan = $"<span class=\"{IconName}\"></span>{(IconOnly ? "" : "&nbsp")}";
+
+        }
+
+        _text = Localize(nameof(Text), _text);
+        _authorized = IsAuthorized();
+    }
+   
+    protected void ButtonClick()
+    {
+        if(OnButtonClick.HasDelegate)
+        {
+        OnButtonClick.InvokeAsync();
+        }
+    }
+
+    private bool IsAuthorized()
+    {
+        var authorized = false;
+        if (PageState.EditMode || !_editmode)
+        {
+            var security = SecurityAccessLevel.Host;
+            if (Security == null)
+            {
+                var typename = ModuleState.ModuleType.Replace(Utilities.GetTypeNameLastSegment(ModuleState.ModuleType, 0) + ",", Action + ",");
+                var moduleType = Type.GetType(typename);
+                if (moduleType != null)
+                {
+                    var moduleobject = Activator.CreateInstance(moduleType) as IModuleControl;
+                    security = moduleobject.SecurityAccessLevel;
+                }
+                else
+                {
+                    security = SecurityAccessLevel.Anonymous; // occurs when an action does not have a corresponding module control
+                    Class = "btn btn-warning"; // alert developer of missing module comtrol
+                }
+            }
+            else
+            {
+                security = Security.Value;
+            }
+
+            switch (security)
+            {
+                case SecurityAccessLevel.Anonymous:
+                    authorized = true;
+                    break;
+                case SecurityAccessLevel.View:
+                    authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, ModuleState.Permissions);
+                    break;
+                case SecurityAccessLevel.Edit:
+                    authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.Permissions);
+                    break;
+                case SecurityAccessLevel.Admin:
+                    authorized = UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin);
+                    break;
+                case SecurityAccessLevel.Host:
+                    authorized = UserSecurity.IsAuthorized(PageState.User, RoleNames.Host);
+                    break;
+            }
+        }
+
+        return authorized;
+    }
+}
