@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -124,6 +124,6 @@
     <value>Module Type Is Invalid For {0}</value>
   </data>
   <data name="Error.Module.Exception" xml:space="preserve">
-      <value>Program error in module {0}</value>
+      <value>An Unexpected Error Has Occurred</value>
   </data>
 </root>
