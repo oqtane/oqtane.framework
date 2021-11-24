@@ -71,6 +71,16 @@ namespace Oqtane.Services
             await UpdateSettingsAsync(moduleSettings, EntityNames.Module, moduleId);
         }
 
+        public async Task<Dictionary<string, string>> GetModuleDefinitionSettingsAsync(int moduleDefinitionId)
+        {
+            return await GetSettingsAsync(EntityNames.ModuleDefinition, moduleDefinitionId);
+        }
+
+        public async Task UpdateModuleDefinitionSettingsAsync(Dictionary<string, string> moduleDefinitionSettings, int moduleDefinitionId)
+        {
+            await UpdateSettingsAsync(moduleDefinitionSettings, EntityNames.ModuleDefinition, moduleDefinitionId);
+        }
+
         public async Task<Dictionary<string, string>> GetUserSettingsAsync(int userId)
         {
             return await GetSettingsAsync(EntityNames.User, userId);
