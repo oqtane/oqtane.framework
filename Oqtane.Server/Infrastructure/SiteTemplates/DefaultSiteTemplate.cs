@@ -133,6 +133,35 @@ namespace Oqtane.SiteTemplates
                     }
                 }
             });
+            _pageTemplates.Add(new PageTemplate
+            {
+                Name = "Develop",
+                Parent = "",
+                Order = 7,
+                Path = "develop",
+                Icon = "oi oi-wrench",
+                IsNavigation = true,
+                IsPersonalizable = true,
+                PagePermissions = new List<Permission> {
+                    new Permission(PermissionNames.View, RoleNames.Host, true),
+                    new Permission(PermissionNames.Edit, RoleNames.Host, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule> {
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.HtmlText, Oqtane.Client", Title = "Software Development", Pane = PaneNames.Admin,
+                        ModulePermissions = new List<Permission> {
+                            new Permission(PermissionNames.View, RoleNames.Host, true),
+                            new Permission(PermissionNames.Edit, RoleNames.Host, true)
+                        }.EncodePermissions(),
+                        Content = "<p>Oqtane offers a Module Creator which allows you to create new modules to extend the framework with additional capabilities. Simply provide some basic information and the system will scaffold a completely functional module which includes all of the necessary code files and assets to get you up and running as quickly as possible.</p>"
+                    },
+                    new PageTemplateModule { ModuleDefinitionName = "Oqtane.Modules.Admin.ModuleCreator, Oqtane.Client", Title = "Module Creator", Pane = PaneNames.Admin,
+                        ModulePermissions = new List<Permission> {
+                            new Permission(PermissionNames.View, RoleNames.Host, true),
+                            new Permission(PermissionNames.Edit, RoleNames.Host, true)
+                        }.EncodePermissions()
+                    }
+                }
+            });
 
             if (System.IO.File.Exists(Path.Combine(_environment.WebRootPath, "images", "logo-white.png")))
             {
