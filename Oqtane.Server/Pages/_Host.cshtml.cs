@@ -40,6 +40,7 @@ namespace Oqtane.Pages
         public RenderMode RenderMode = RenderMode.Server;
         public string HeadResources = "";
         public string BodyResources = "";
+        public string Title = "";
 
         public void OnGet()
         {
@@ -80,6 +81,7 @@ namespace Oqtane.Pages
                         {
                             RenderMode = (RenderMode)Enum.Parse(typeof(RenderMode), site.RenderMode, true);
                         }
+                        Title = site.Name;
                     }
 
                     // if culture not specified

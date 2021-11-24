@@ -43,16 +43,12 @@
     [Parameter]
     public bool Refresh { get; set; } // optional - used in scenarios where TabPanels are added/removed dynamically within a parent form. ActiveTab may need to be reset as well when this property is used.
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
         if (PageState.QueryString.ContainsKey("tab"))
         {
             ActiveTab = PageState.QueryString["tab"];
         }
-    }
-
-    protected override void OnParametersSet()
-    {
         if (_tabPanels == null || Refresh)
         {
             _tabPanels = new List<TabPanel>();

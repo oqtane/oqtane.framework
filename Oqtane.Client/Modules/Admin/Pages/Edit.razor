@@ -152,13 +152,11 @@
                 <div class="container">
                     <div class="row mb-1 align-items-center">
                         <PermissionGrid EntityName="@EntityNames.Page" Permissions="@_permissions" @ref="_permissionGrid" />
-
                     </div>
                 </div>
-
             }
         </TabPanel>
-        <TabPanel Name="PageModules" ResourceKey="PageModules" Heading=@Localizer["PageModules.Heading"]>
+        <TabPanel Name="PageModules" Heading="Modules" ResourceKey="PageModules">
             @if(_pageModules != null)
             {
                 <Pager Items="_pageModules">
@@ -169,10 +167,10 @@
                         <th>@Localizer["ModuleDefinition"]</th>
                     </Header>
                     <Row>
-                        <td><button type="button" class="btn btn-info" @onclick="() => LoadModuleSettings(context)">@SharedLocalizer["Settings"]</button></td>
-                        <td><button type="button" class="btn btn-danger" @onclick="@(async() => await DeleteModule(context))">@SharedLocalizer["Delete"]</button></td>
+                        <td><ActionLink Action="Settings" Text="Edit" ModuleId="@context.ModuleId" Security="SecurityAccessLevel.Edit" Permissions="@context.Permissions" ResourceKey="ModuleSettings" /></td>
+                        <td><ActionDialog Header="Delete Module" Message="Are You Sure You Wish To Delete This Module?" Action="Delete" Security="SecurityAccessLevel.Edit" Permissions="@context.Permissions" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" /></td>
                         <td>@context.Title</td>
-                        <td>@(context.ModuleDefinition.Name.Length > 0 ? context.ModuleDefinition.Name : context.ModuleDefinitionName)</td>
+                        <td>@context.ModuleDefinition.Name</td>
                     </Row>
                 </Pager>
             }
@@ -190,135 +188,131 @@
 </form>
 
 @code {
-    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
 
-    private ElementReference form;
-    private bool validated = false;
-    private List<Theme> _themeList;
-    private List<ThemeControl> _themes = new List<ThemeControl>();
-    private List<ThemeControl> _containers = new List<ThemeControl>();
-    private List<Page> _pageList;
-    private List<Module> _pageModules;
-    private int _pageId;
-    private string _name;
-    private string _title;
-    private string _path;
-    private string _currentparentid;
-    private string _parentid = "-1";
-    private string _insert = "=";
-    private List<Page> _children;
-    private int _childid = -1;
-    private string _isnavigation;
-    private string _isclickable;
-    private string _url;
-    private string _ispersonalizable;
-    private string _themetype;
-    private string _containertype = "-";
-    private string _icon;
-    private string _permissions = null;
-    private string _createdby;
-    private DateTime _createdon;
-    private string _modifiedby;
-    private DateTime _modifiedon;
-    private string _deletedby;
-    private DateTime? _deletedon;
-    private PermissionGrid _permissionGrid;
-    private Type _themeSettingsType;
-    private object _themeSettings;
-    private RenderFragment ThemeSettingsComponent { get; set; }
-    private bool _refresh = false;
-    protected Page page;
+	private ElementReference form;
+	private bool validated = false;
+	private List<Theme> _themeList;
+	private List<ThemeControl> _themes = new List<ThemeControl>();
+	private List<ThemeControl> _containers = new List<ThemeControl>();
+	private List<Page> _pageList;
+	private List<Module> _pageModules;
+	private int _pageId;
+	private string _name;
+	private string _title;
+	private string _path;
+	private string _currentparentid;
+	private string _parentid = "-1";
+	private string _insert = "=";
+	private List<Page> _children;
+	private int _childid = -1;
+	private string _isnavigation;
+	private string _isclickable;
+	private string _url;
+	private string _ispersonalizable;
+	private string _themetype;
+	private string _containertype = "-";
+	private string _icon;
+	private string _permissions = null;
+	private string _createdby;
+	private DateTime _createdon;
+	private string _modifiedby;
+	private DateTime _modifiedon;
+	private string _deletedby;
+	private DateTime? _deletedon;
+	private PermissionGrid _permissionGrid;
+	private Type _themeSettingsType;
+	private object _themeSettings;
+	private RenderFragment ThemeSettingsComponent { get; set; }
+	private bool _refresh = false;
+	protected Page page;
 
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            _pageList = PageState.Pages;
-            _children = PageState.Pages.Where(item => item.ParentId == null).ToList();
-            _themeList = await ThemeService.GetThemesAsync();
-            _themes = ThemeService.GetThemeControls(_themeList);
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			_pageList = PageState.Pages;
+			_children = PageState.Pages.Where(item => item.ParentId == null).ToList();
+			_themeList = await ThemeService.GetThemesAsync();
+			_themes = ThemeService.GetThemeControls(_themeList);
 
-            _pageId = Int32.Parse(PageState.QueryString["id"]);
-            page = PageState.Pages.FirstOrDefault(item => item.PageId == _pageId);
+			_pageId = Int32.Parse(PageState.QueryString["id"]);
+			page = PageState.Pages.FirstOrDefault(item => item.PageId == _pageId);
 
-            if (page != null)
-            {
-                _name = page.Name;
-                _title = page.Title;
-                _path = page.Path;
-                _pageModules = PageState.Modules.Where(m => m.PageId == page.PageId && m.IsDeleted == false).ToList();
+			if (page != null)
+			{
+				_name = page.Name;
+				_title = page.Title;
+				_path = page.Path;
+				_pageModules = PageState.Modules.Where(m => m.PageId == page.PageId && m.IsDeleted == false).ToList();
 
-                if (string.IsNullOrEmpty(_path))
-                {
-                    _path = "/";
-                }
-                else
-                {
-                    if (_path.Contains("/"))
-                    {
-                        _path = _path.Substring(_path.LastIndexOf("/") + 1);
-                    }
-                }
+				if (string.IsNullOrEmpty(_path))
+				{
+					_path = "/";
+				}
+				else
+				{
+					if (_path.Contains("/"))
+					{
+						_path = _path.Substring(_path.LastIndexOf("/") + 1);
+					}
+				}
 
-                if (page.ParentId == null)
-                {
-                    _parentid = "-1";
-                }
-                else
-                {
-                    _parentid = page.ParentId.ToString();
-                }
+				if (page.ParentId == null)
+				{
+					_parentid = "-1";
+				}
+				else
+				{
+					_parentid = page.ParentId.ToString();
+				}
 
-                _currentparentid = _parentid;
-                _isnavigation = page.IsNavigation.ToString();
-                _isclickable = page.IsClickable.ToString();
-                _url = page.Url;
-                _ispersonalizable = page.IsPersonalizable.ToString();
-                _themetype = page.ThemeType;
-                if (string.IsNullOrEmpty(_themetype))
-                {
-                    _themetype = PageState.Site.DefaultThemeType;
-                }
-                _containers = ThemeService.GetContainerControls(_themeList, _themetype);
-                _containertype = page.DefaultContainerType;
-                if (string.IsNullOrEmpty(_containertype))
-                {
-                    _containertype = PageState.Site.DefaultContainerType;
-                }
-                _icon = page.Icon;
-                _permissions = page.Permissions;
-                _createdby = page.CreatedBy;
-                _createdon = page.CreatedOn;
-                _modifiedby = page.ModifiedBy;
-                _modifiedon = page.ModifiedOn;
-                _deletedby = page.DeletedBy;
-                _deletedon = page.DeletedOn;
+				_currentparentid = _parentid;
+				_isnavigation = page.IsNavigation.ToString();
+				_isclickable = page.IsClickable.ToString();
+				_url = page.Url;
+				_ispersonalizable = page.IsPersonalizable.ToString();
+				_themetype = page.ThemeType;
+				if (string.IsNullOrEmpty(_themetype))
+				{
+					_themetype = PageState.Site.DefaultThemeType;
+				}
+				_containers = ThemeService.GetContainerControls(_themeList, _themetype);
+				_containertype = page.DefaultContainerType;
+				if (string.IsNullOrEmpty(_containertype))
+				{
+					_containertype = PageState.Site.DefaultContainerType;
+				}
+				_icon = page.Icon;
+				_permissions = page.Permissions;
+				_createdby = page.CreatedBy;
+				_createdon = page.CreatedOn;
+				_modifiedby = page.ModifiedBy;
+				_modifiedon = page.ModifiedOn;
+				_deletedby = page.DeletedBy;
+				_deletedon = page.DeletedOn;
 
-                ThemeSettings();
-            }
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Loading Page {PageId} {Error}", _pageId, ex.Message);
-            AddModuleMessage(Localizer["Error.Page.Load"], MessageType.Error);
-        }
-    }
+				ThemeSettings();
+			}
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Loading Page {PageId} {Error}", _pageId, ex.Message);
+			AddModuleMessage(Localizer["Error.Page.Load"], MessageType.Error);
+		}
+	}
 
-    protected void LoadModuleSettings(Module module)
-    {
-        NavigationManager.NavigateTo(EditUrl(module.ModuleId, "Settings"));
-    }
-
-    private async Task DeleteModule(Module module)
-    {
-        try
-        {
-            PageModule pagemodule = await PageModuleService.GetPageModuleAsync(page.PageId,module.ModuleId);
-            pagemodule.IsDeleted = true;
-
-            await PageModuleService.UpdatePageModuleAsync(pagemodule);
-            await logger.LogInformation(LogFunction.Update,"Module Deleted {Title}", module.Title);
-            NavigationManager.NavigateTo(NavigateUrl(PageState.Page.Path, true));
+	private async Task DeleteModule(Module module)
+	{
+		try
+		{
+			PageModule pagemodule = await PageModuleService.GetPageModuleAsync(page.PageId, module.ModuleId);
+			pagemodule.IsDeleted = true;
+			await PageModuleService.UpdatePageModuleAsync(pagemodule);
+			await logger.LogInformation(LogFunction.Update,"Module Deleted {Title}", module.Title);
+			_pageModules.RemoveAll(item => item.PageModuleId == pagemodule.PageModuleId);
+			StateHasChanged();
+			NavigationManager.NavigateTo(NavigationManager.Uri + "&tab=PageModules");
         }
         catch (Exception ex)
         {
