@@ -17,7 +17,7 @@
                     <div class="modal-footer">
                         @if (!string.IsNullOrEmpty(Action))
                         {
-                            <button type="button" class="@Class" @onclick="Confirm">@((MarkupString)_iconSpan) @Localize(Action)</button>
+                            <button type="button" class="@Class" @onclick="Confirm">@((MarkupString)_iconSpan) @Text</button>
                         }
                         <button type="button" class="btn btn-secondary" @onclick="DisplayModal">@Localize("Cancel")</button>
                     </div>
@@ -30,16 +30,17 @@
 {
     if (Disabled)
     {
-        <button class="@Class" disabled>@((MarkupString)_iconSpan) @Text</button>
+        <button type="button" class="@Class" disabled>@((MarkupString)_iconSpan) @Text</button>
     }
     else
     {
-        <button class="@Class" @onclick="DisplayModal">@((MarkupString)_iconSpan) @Text</button>
+        <button type="button" class="@Class" @onclick="DisplayModal">@((MarkupString)_iconSpan) @Text</button>
     }
 }
 
 @code {
     private bool _visible = false;
+	private string _permissions = string.Empty;
     private bool _editmode = false;
     private bool _authorized = false;
     private string _iconSpan = string.Empty;
@@ -58,6 +59,9 @@
 
     [Parameter]
     public SecurityAccessLevel? Security { get; set; } // optional - can be used to explicitly specify SecurityAccessLevel
+
+	[Parameter]
+	public string Permissions { get; set; } // optional - can be used to specify a permission string
 
     [Parameter]
     public string Class { get; set; } // optional
@@ -105,6 +109,7 @@
         Header = Localize(nameof(Header), Header);
         Message = Localize(nameof(Message), Message);
 
+		_permissions = (string.IsNullOrEmpty(Permissions)) ? ModuleState.Permissions : Permissions;
         _authorized = IsAuthorized();
     }
 
@@ -138,10 +143,10 @@
                     authorized = true;
                     break;
                 case SecurityAccessLevel.View:
-                    authorized = UserSecurity.IsAuthorized(PageState.User,PermissionNames.View, ModuleState.Permissions);
+                    authorized = UserSecurity.IsAuthorized(PageState.User,PermissionNames.View, _permissions);
                     break;
                 case SecurityAccessLevel.Edit:
-                    authorized = UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, ModuleState.Permissions);
+                    authorized = UserSecurity.IsAuthorized(PageState.User,PermissionNames.Edit, _permissions);
                     break;
                 case SecurityAccessLevel.Admin:
                     authorized = UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin);

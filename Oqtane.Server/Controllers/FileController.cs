@@ -508,8 +508,8 @@ namespace Oqtane.Controllers
             return System.IO.File.Exists(errorPath) ? PhysicalFile(errorPath, MimeUtilities.GetMimeType(errorPath)) : null;
         }
 
-        [HttpGet("image/{id}/{width}/{height}/{mode?}")]
-        public IActionResult GetImage(int id, int width, int height, string mode)
+        [HttpGet("image/{id}/{width}/{height}/{mode?}/{rotate?}")]
+        public IActionResult GetImage(int id, int width, int height, string mode, string rotate)
         {
             var file = _files.GetFile(id);
             if (file != null && file.Folder.SiteId == _alias.SiteId && _userPermissions.IsAuthorized(User, PermissionNames.View, file.Folder.Permissions))
@@ -520,6 +520,7 @@ namespace Oqtane.Controllers
                     if (System.IO.File.Exists(filepath))
                     {
                         mode = (string.IsNullOrEmpty(mode)) ? "crop" : mode;
+                        rotate = (string.IsNullOrEmpty(rotate)) ? "0" : rotate;
 
                         string imagepath = filepath.Replace(Path.GetExtension(filepath), "." + width.ToString() + "x" + height.ToString() + "." + mode.ToLower() + ".png");
                         if (!System.IO.File.Exists(imagepath))
@@ -528,7 +529,7 @@ namespace Oqtane.Controllers
                               !string.IsNullOrEmpty(file.Folder.ImageSizes) && file.Folder.ImageSizes.ToLower().Split(",").Contains(width.ToString() + "x" + height.ToString()))
                               && Enum.TryParse(mode, true, out ResizeMode resizemode))
                             {
-                                imagepath = CreateImage(filepath, width, height, resizemode.ToString(), imagepath);
+                                imagepath = CreateImage(filepath, width, height, resizemode.ToString(), rotate, imagepath);
                             }
                             else
                             {
@@ -568,7 +569,7 @@ namespace Oqtane.Controllers
             return System.IO.File.Exists(errorPath) ? PhysicalFile(errorPath, MimeUtilities.GetMimeType(errorPath)) : null;
         }
 
-        private string CreateImage(string filepath, int width, int height, string mode, string imagepath)
+        private string CreateImage(string filepath, int width, int height, string mode, string rotate, string imagepath)
         {
             try
             {
@@ -584,6 +585,11 @@ namespace Oqtane.Controllers
                             Mode = resizemode
                         })
                         .BackgroundColor(new Rgba32(255, 255, 255, 0)));
+
+                    if (rotate != "0" && int.TryParse(rotate, out int angle))
+                    {
+                        image.Mutate(x => x.Rotate(angle));
+                    }
 
                     image.Save(imagepath, new PngEncoder());
                 }

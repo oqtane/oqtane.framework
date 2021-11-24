@@ -6,101 +6,118 @@
 {
     if (Disabled)
     {
-        <button class="@_classname" style="@_style" disabled>@((MarkupString)_iconSpan) @_text</button>
-    }
-    else
-    {
-        <NavLink class="@_classname" href="@_url" style="@_style">@((MarkupString)_iconSpan) @_text</NavLink>
-    }
+		<button type="button" class="@_classname" style="@_style" disabled>@((MarkupString)_iconSpan) @_text</button>
+	}
+	else
+	{
+		if (OnClick == null)
+		{
+			<NavLink class="@_classname" href="@_url" style="@_style">@((MarkupString)_iconSpan) @_text</NavLink>
+		}
+		else
+		{
+			<button type="button" class="@_classname" style="@_style" onclick="@OnClick">@((MarkupString)_iconSpan) @_text</button>
+		}
+	}
 }
 
 @code {
-    private string _text = string.Empty;
-    private string _url = string.Empty;
-    private string _parameters = string.Empty;
-    private string _classname = "btn btn-primary";
-    private string _style = string.Empty;
-    private bool _editmode = false;
-    private bool _authorized = false;
-    private string _iconSpan = string.Empty;
+	private string _text = string.Empty;
+	private string _parameters = string.Empty;
+	private string _url = string.Empty;
+	private string _permissions = string.Empty;
+	private bool _editmode = false;
+	private bool _authorized = false;
+	private string _classname = "btn btn-primary";
+	private string _style = string.Empty;
+	private string _iconSpan = string.Empty;
 
-    [Parameter]
-    public string Action { get; set; } // required
+	[Parameter]
+	public string Action { get; set; } // required
 
-    [Parameter]
-    public SecurityAccessLevel? Security { get; set; } // optional - can be used to explicitly specify SecurityAccessLevel
+	[Parameter]
+	public string Text { get; set; } // optional - defaults to Action if not specified
 
-    [Parameter]
-    public string Text { get; set; } // optional - defaults to Action if not specified
+	[Parameter]
+	public string Parameters { get; set; } // optional - querystring parameters should be in the form of "id=x&name=y"
 
-    [Parameter]
-    public string Parameters { get; set; } // optional - querystring parameter should be in the form of "id=x&name=y"
+	[Parameter]
+	public int ModuleId { get; set; } = -1; // optional - allows the link to target a specific moduleid
 
-    [Parameter]
-    public string Class { get; set; } // optional - defaults to primary if not specified
+	[Parameter]
+	public Action OnClick { get; set; } = null; // optional - executes a method in the calling component
 
-    [Parameter]
-    public string Style { get; set; } // optional
+	[Parameter]
+	public SecurityAccessLevel? Security { get; set; } // optional - can be used to explicitly specify SecurityAccessLevel
 
-    [Parameter]
-    public bool Disabled { get; set; } // optional
+	[Parameter]
+	public string Permissions { get; set; } // optional - can be used to specify a permission string
 
-    [Parameter]
-    public string EditMode { get; set; } // optional - specifies if an authorized user must be in edit mode to see the action - default is false.
+	[Parameter]
+	public bool Disabled { get; set; } // optional
 
-    [Parameter]
-    public string IconName { get; set; } // optional - specifies an icon for the link - default is no icon
+	[Parameter]
+	public string EditMode { get; set; } // optional - specifies if an authorized user must be in edit mode to see the action - default is false.
 
-    [Parameter]
-    public bool IconOnly { get; set; } // optional - specifies only icon in link
+	[Parameter]
+	public string Class { get; set; } // optional - defaults to primary if not specified
 
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
+	[Parameter]
+	public string Style { get; set; } // optional
 
-        _text = Action;
-        if (!string.IsNullOrEmpty(Text))
-        {
-            _text = Text;
-        }
+	[Parameter]
+	public string IconName { get; set; } // optional - specifies an icon for the link - default is no icon
 
-        if (IconOnly && !string.IsNullOrEmpty(IconName))
-        {
-            _text = string.Empty;
-        }
+	[Parameter]
+	public bool IconOnly { get; set; } // optional - specifies only icon in link
 
-        if (!string.IsNullOrEmpty(Parameters))
-        {
-            _parameters = Parameters;
-        }
+	protected override void OnParametersSet()
+	{
+		base.OnParametersSet();
 
-        if (!string.IsNullOrEmpty(Class))
-        {
-            _classname = Class;
-        }
+		_text = Action;
+		if (!string.IsNullOrEmpty(Text))
+		{
+			_text = Text;
+		}
 
-        if (!string.IsNullOrEmpty(Style))
-        {
-            _style = Style;
-        }
+		if (IconOnly && !string.IsNullOrEmpty(IconName))
+		{
+			_text = string.Empty;
+		}
 
-        if (!string.IsNullOrEmpty(EditMode))
-        {
-            _editmode = bool.Parse(EditMode);
-        }
+		if (!string.IsNullOrEmpty(Parameters))
+		{
+			_parameters = Parameters;
+		}
 
-        if (!string.IsNullOrEmpty(IconName))
-        {
-            if (!IconName.Contains(" "))
-            {
-                IconName = "oi oi-" + IconName;
-            }
-            _iconSpan = $"<span class=\"{IconName}\"></span>{(IconOnly ? "" : "&nbsp")}";
+		if (!string.IsNullOrEmpty(Class))
+		{
+			_classname = Class;
+		}
 
-        }
+		if (!string.IsNullOrEmpty(Style))
+		{
+			_style = Style;
+		}
 
-        _text = Localize(nameof(Text), _text);
-        _url = EditUrl(Action, _parameters);
+		if (!string.IsNullOrEmpty(EditMode))
+		{
+			_editmode = bool.Parse(EditMode);
+		}
+
+		if (!string.IsNullOrEmpty(IconName))
+		{
+			if (!IconName.Contains(" "))
+			{
+				IconName = "oi oi-" + IconName;
+			}
+			_iconSpan = $"<span class=\"{IconName}\"></span>{(IconOnly ? "" : "&nbsp")}";
+		}
+
+		_permissions = (string.IsNullOrEmpty(Permissions)) ? ModuleState.Permissions : Permissions;
+		_text = Localize(nameof(Text), _text);		
+        _url = (ModuleId == -1) ? EditUrl(Action, _parameters) : EditUrl(ModuleId, Action, _parameters);
         _authorized = IsAuthorized();
     }
 
@@ -136,10 +153,10 @@
                     authorized = true;
                     break;
                 case SecurityAccessLevel.View:
-                    authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, ModuleState.Permissions);
+                    authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.View, _permissions);
                     break;
                 case SecurityAccessLevel.Edit:
-                    authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, ModuleState.Permissions);
+                    authorized = UserSecurity.IsAuthorized(PageState.User, PermissionNames.Edit, _permissions);
                     break;
                 case SecurityAccessLevel.Admin:
                     authorized = UserSecurity.IsAuthorized(PageState.User, RoleNames.Admin);
