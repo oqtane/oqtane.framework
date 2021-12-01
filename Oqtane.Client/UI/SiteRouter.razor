@@ -15,78 +15,72 @@
 @DynamicComponent
 
 @code {
-    private string _absoluteUri;
-    private bool _navigationInterceptionEnabled;
-    private PageState _pagestate;
+	private string _absoluteUri;
+	private bool _navigationInterceptionEnabled;
+	private PageState _pagestate;
 
-    [Parameter]
-    public string Runtime { get; set; }
+	[Parameter]
+	public string Runtime { get; set; }
 
-    [Parameter]
-    public string RenderMode { get; set; }
+	[Parameter]
+	public string RenderMode { get; set; }
 
-    [CascadingParameter]
-    PageState PageState { get; set; }
+	[CascadingParameter]
+	PageState PageState { get; set; }
 
-    [Parameter]
-    public Action<PageState> OnStateChange { get; set; }
+	[Parameter]
+	public Action<PageState> OnStateChange { get; set; }
 
-    private RenderFragment DynamicComponent { get; set; }
+	private RenderFragment DynamicComponent { get; set; }
 
-    protected override void OnInitialized()
-    {
-        _absoluteUri = NavigationManager.Uri;
-        NavigationManager.LocationChanged += LocationChanged;
+	protected override void OnInitialized()
+	{
+		_absoluteUri = NavigationManager.Uri;
+		NavigationManager.LocationChanged += LocationChanged;
 
-        DynamicComponent = builder =>
-        {
-            if (PageState != null)
-            {
-                builder.OpenComponent(0, Type.GetType(Constants.PageComponent));
-                builder.CloseComponent();
-            }
-        };
-    }
+		DynamicComponent = builder =>
+		{
+			if (PageState != null)
+			{
+				builder.OpenComponent(0, Type.GetType(Constants.PageComponent));
+				builder.CloseComponent();
+			}
+		};
+	}
 
-    public void Dispose()
-    {
-        NavigationManager.LocationChanged -= LocationChanged;
-    }
+	public void Dispose()
+	{
+		NavigationManager.LocationChanged -= LocationChanged;
+	}
 
-    protected override async Task OnParametersSetAsync()
-    {
-        if (PageState == null)
-        {
-            await Refresh();
-        }
-    }
+	protected override async Task OnParametersSetAsync()
+	{
+		if (PageState == null)
+		{
+			await Refresh();
+		}
+	}
 
-    [SuppressMessage("ReSharper", "StringIndexOfIsCultureSpecific.1")]
-    private async Task Refresh()
-    {
-        Site site;
-        List<Page> pages;
-        Page page;
-        User user = null;
-        List<Module> modules;
-        var moduleid = -1;
-        var action = Constants.DefaultAction;
-        var urlparameters = string.Empty;
-        var editmode = false;
-        var refresh = UI.Refresh.None;
-        var lastsyncdate = DateTime.UtcNow.AddHours(-1);
-        var runtime = (Shared.Runtime)Enum.Parse(typeof(Shared.Runtime), Runtime);
+	[SuppressMessage("ReSharper", "StringIndexOfIsCultureSpecific.1")]
+	private async Task Refresh()
+	{
+		Site site;
+		List<Page> pages;
+		Page page;
+		User user = null;
+		List<Module> modules;		
+		var editmode = false;
+		var refresh = UI.Refresh.None;
+		var lastsyncdate = DateTime.UtcNow.AddHours(-1);
+		var runtime = (Shared.Runtime)Enum.Parse(typeof(Shared.Runtime), Runtime);
 
-        Uri uri = new Uri(_absoluteUri);
-
-        // get path
-        var path = uri.LocalPath.Substring(1);
-
-        // parse querystring
-        var querystring = ParseQueryString(uri.Query);
+		Route route = new Route(_absoluteUri, SiteState.Alias.Path);
+		var moduleid = (int.TryParse(route.ModuleId, out int mid)) ? mid : -1;
+		var action = (!string.IsNullOrEmpty(route.Action)) ? route.Action : Constants.DefaultAction; 
+		var querystring = ParseQueryString(route.Query);
 
         // reload the client application if there is a forced reload or the user navigated to a site with a different alias 
-        if (querystring.ContainsKey("reload") || (!path.ToLower().StartsWith(SiteState.Alias.Path.ToLower()) && !string.IsNullOrEmpty(SiteState.Alias.Path)))
+        if (querystring.ContainsKey("reload") || (!route.AbsolutePath.Substring(1).ToLower().StartsWith(SiteState.Alias.Path.ToLower()) && !string.IsNullOrEmpty(SiteState.Alias.Path)))
         {
             NavigationManager.NavigateTo(_absoluteUri.Replace("?reload", ""), true);
             return;
@@ -168,72 +162,9 @@
                 pages = PageState.Pages;
             }
 
-            // format path and remove alias
-            path = path.Replace("//", "/"); // in case of doubleslash at end
-            path += (!path.EndsWith("/")) ? "/" : "";
-            if (SiteState.Alias.Path != "" && path.StartsWith(SiteState.Alias.Path))
-            {
-                path = path.Substring(SiteState.Alias.Path.Length + 1);
-            }
-
-            // extract admin route elements from path
-            var segments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-            int result;
-
-            int modIdPos = 0;
-            int actionPos = 0;
-            int urlParametersPos = 0;
-
-            for (int i = 0; i < segments.Length; i++)
-            {
-
-                if (segments[i] == Constants.UrlParametersDelimiter)
-                {
-                    urlParametersPos = i + 1;
-                }
-
-                if (i >= urlParametersPos && urlParametersPos != 0)
-                {
-                    urlparameters += "/" + segments[i];
-                }
-
-                if (segments[i] == Constants.ModuleDelimiter)
-                {
-                    modIdPos = i + 1;
-                    actionPos = modIdPos + 1;
-                    if (actionPos <= segments.Length - 1)
-                    {
-                        action = segments[actionPos];
-                    }
-                }
-            }
-
-            // check if path has moduleid and action specification ie. pagename/*/moduleid/action/
-            if (modIdPos > 0)
-            {
-                int.TryParse(segments[modIdPos], out result);
-                moduleid = result;
-                if (actionPos > segments.Length - 1)
-                {
-                    path = path.Replace(segments[modIdPos - 1] + "/" + segments[modIdPos] + "/", "");
-                }
-                else
-                {
-                    path = path.Replace(segments[modIdPos - 1] + "/" + segments[modIdPos] + "/" + segments[actionPos] + "/", "");
-                }
-            }
-
-            if (urlParametersPos > 0)
-            {
-                path = path.Replace(segments[urlParametersPos - 1] + urlparameters + "/", "");
-            }
-
-            // remove trailing slash so it can be used as a key for Pages
-            if (path.EndsWith("/")) path = path.Substring(0, path.Length - 1);
-
             if (PageState == null || refresh == UI.Refresh.Site)
             {
-                page = pages.FirstOrDefault(item => item.Path.Equals(path, StringComparison.OrdinalIgnoreCase));
+                page = pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
             }
             else
             {
@@ -241,14 +172,13 @@
             }
 
             // get the page if the path has changed
-            if (page == null || page.Path != path)
+            if (page == null || page.Path != route.PagePath)
             {
-                page = pages.FirstOrDefault(item => item.Path.Equals(path, StringComparison.OrdinalIgnoreCase));
-				// if the home page path does not exist then use the first page in the collection (a future enhancement would allow the admin to specify a home page)
-				if (page == null && path == "")
+                page = pages.FirstOrDefault(item => item.Path.Equals(route.PagePath, StringComparison.OrdinalIgnoreCase));
+				// if the home page path does not exist then use the first page in the collection (a future enhancement would allow the admin to specify the home page)
+				if (page == null && route.PagePath == "")
 				{
 					page = pages.FirstOrDefault();
-					path = page.Path;
 				}
                 editmode = false;
             }
@@ -286,7 +216,7 @@
                         Modules = modules,
                         Uri = new Uri(_absoluteUri, UriKind.Absolute),
                         QueryString = querystring,
-                        UrlParameters = urlparameters,
+                        UrlParameters = route.UrlParameters,
                         ModuleId = moduleid,
                         Action = action,
                         EditMode = editmode,
@@ -302,12 +232,12 @@
                 if (user == null)
                 {
                     // redirect to login page
-                    NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "login", "?returnurl=" + path));
+                    NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "login", "?returnurl=" + route.AbsolutePath));
                 }
                 else
                 {
-                    await LogService.Log(null, null, user.UserId, GetType().AssemblyQualifiedName, Utilities.GetTypeNameLastSegment(GetType().AssemblyQualifiedName, 1), LogFunction.Security, LogLevel.Error, null, "Page Does Not Exist Or User Is Not Authorized To View Page {Path}", path);
-                    if (path != "")
+                    await LogService.Log(null, null, user.UserId, GetType().AssemblyQualifiedName, Utilities.GetTypeNameLastSegment(GetType().AssemblyQualifiedName, 1), LogFunction.Security, LogLevel.Error, null, "Page Does Not Exist Or User Is Not Authorized To View Page {Path}", route.PagePath);
+                    if (route.PagePath != "")
                     {
                         // redirect to home page
                         NavigationManager.NavigateTo(Utilities.NavigateUrl(SiteState.Alias.Path, "", ""));

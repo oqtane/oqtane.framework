@@ -9,12 +9,14 @@
     <meta name="viewport" content="width=device-width">
     <title>@Model.Title</title>
     <base href="~/" />
-    <link id="app-favicon" rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
-    <!-- stub the PWA manifest but defer the assignment of href -->
-    <link id="app-manifest" rel="manifest" />
-    <link rel="stylesheet" href="css/app.css" />
+    <link id="app-favicon" rel="shortcut icon" type="image/x-icon" href="@Model.FavIcon" />
+	@if (!string.IsNullOrEmpty(Model.PWAScript))
+	{
+		<link id="app-manifest" rel="manifest" />
+	}
     <script src="js/app.js"></script>
     <script src="js/loadjs.min.js"></script>
+    <link rel="stylesheet" href="css/app.css" />
     @Html.Raw(@Model.HeadResources)
 </head>
 <body>
@@ -44,6 +46,10 @@
     {
         <script src="_framework/blazor.server.js"></script>
     }
+	@if (!string.IsNullOrEmpty(Model.PWAScript))
+	{
+		@Model.PWAScript
+	}
     @Html.Raw(@Model.BodyResources)
 </body>
 </html>
