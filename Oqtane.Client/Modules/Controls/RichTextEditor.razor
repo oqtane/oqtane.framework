@@ -120,9 +120,23 @@
         new Resource { ResourceType = ResourceType.Script, Bundle = "Quill", Url = "js/quill-interop.js" }
     };
 
-    protected override void OnInitialized()
+    protected override async Task OnParametersSetAsync()
     {
-        _content = Content; // raw HTML
+        _content = Content;  // raw HTML
+        try
+        {
+            var interop = new RichTextEditorInterop(JSRuntime);
+            // preserve a copy of the rich text content ( Quill sanitizes content so we need to retrieve it from the editor )
+            _original = await interop.GetHtml(_editorElement);
+
+            await RefreshRichText();
+            await RefreshRawHtml();            
+        }
+        catch(Exception ex)
+        {
+            // Handle the error.
+        }
+
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
