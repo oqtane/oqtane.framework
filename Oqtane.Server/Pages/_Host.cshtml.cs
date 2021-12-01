@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace Oqtane.Pages
 {
@@ -24,8 +25,9 @@ namespace Oqtane.Pages
         private readonly ILanguageRepository _languages;
         private readonly IAntiforgery _antiforgery;
         private readonly ISiteRepository _sites;
+        private readonly IPageRepository _pages;
 
-        public HostModel(IConfiguration configuration, ITenantManager tenantManager, ILocalizationManager localizationManager, ILanguageRepository languages, IAntiforgery antiforgery, ISiteRepository sites)
+        public HostModel(IConfiguration configuration, ITenantManager tenantManager, ILocalizationManager localizationManager, ILanguageRepository languages, IAntiforgery antiforgery, ISiteRepository sites, IPageRepository pages)
         {
             _configuration = configuration;
             _tenantManager = tenantManager;
@@ -33,6 +35,7 @@ namespace Oqtane.Pages
             _languages = languages;
             _antiforgery = antiforgery;
             _sites = sites;
+            _pages = pages;
         }
 
         public string AntiForgeryToken = "";
@@ -41,6 +44,9 @@ namespace Oqtane.Pages
         public string HeadResources = "";
         public string BodyResources = "";
         public string Title = "";
+        public string FavIcon = "favicon.ico";
+        public string PWAScript = "";
+        public string ThemeType = "";
 
         public void OnGet()
         {
@@ -55,14 +61,6 @@ namespace Oqtane.Pages
             {
                 RenderMode = (RenderMode)Enum.Parse(typeof(RenderMode), _configuration.GetSection("RenderMode").Value, true);
             }
-            
-            var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
-            foreach (Assembly assembly in assemblies)
-            {
-                ProcessHostResources(assembly);
-                ProcessModuleControls(assembly);
-                ProcessThemeControls(assembly);
-            }
 
             // if framework is installed 
             if (!string.IsNullOrEmpty(_configuration.GetConnectionString("DefaultConnection")))
@@ -70,6 +68,8 @@ namespace Oqtane.Pages
                 var alias = _tenantManager.GetAlias();
                 if (alias != null)
                 {
+                    Route route = new Route(HttpContext.Request.GetEncodedUrl(), alias.Path);
+
                     var site = _sites.GetSite(alias.SiteId);
                     if (site != null)
                     {
@@ -81,10 +81,48 @@ namespace Oqtane.Pages
                         {
                             RenderMode = (RenderMode)Enum.Parse(typeof(RenderMode), site.RenderMode, true);
                         }
+                        if (site.FaviconFileId != null)
+                        {
+                            FavIcon = Utilities.ContentUrl(alias, site.FaviconFileId.Value);
+                        }
+                        if (site.PwaIsEnabled && site.PwaAppIconFileId != null && site.PwaSplashIconFileId != null)
+                        {
+                            PWAScript = CreatePWAScript(alias, site, route);
+                        }
                         Title = site.Name;
+                        ThemeType = site.DefaultThemeType;
+
+                        var page = _pages.GetPage(route.PagePath, site.SiteId);
+                        if (page != null)
+                        {
+                            // set page title
+                            if (!string.IsNullOrEmpty(page.Title))
+                            {
+                                Title = page.Title;
+                            }
+                            else
+                            {
+                                Title = Title + " - " + page.Name;
+                            }
+
+                            // include theme resources
+                            if (!string.IsNullOrEmpty(page.ThemeType))
+                            {
+                                ThemeType = page.ThemeType;
+                            }
+                        }
                     }
 
-                    // if culture not specified
+                    // include global resources
+                    var assemblies = AppDomain.CurrentDomain.GetOqtaneAssemblies();
+                    foreach (Assembly assembly in assemblies)
+                    {
+                        ProcessHostResources(assembly);
+                        ProcessModuleControls(assembly);
+                        ProcessThemeControls(assembly);
+                    }
+
+                    // set culture if not specified
                     if (HttpContext.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName] == null)
                     {
                         // set default language for site if the culture is not supported
@@ -101,6 +139,44 @@ namespace Oqtane.Pages
                     }
                 }
             }
+        }
+
+        private string CreatePWAScript(Alias alias, Site site, Route route)
+        {
+            return
+            "<script>" +
+                "setTimeout(() => { " +
+                    "var manifest = { " +
+                        "\"name\": \"" + site.Name + "\", " +
+                        "\"short_name\": \"" + site.Name + "\", " +
+                        "\"start_url\": \"" + route.Scheme + "://" + route.Authority + "/\", " +
+                        "\"display\": \"standalone\", " +
+                        "\"background_color\": \"#fff\", " +
+                        "\"description\": \"" + site.Name + "\", " +
+                        "\"icons\": [{ " +
+                            "\"src\": \"" + route.Scheme + "://" + route.Authority + Utilities.ContentUrl(alias, site.PwaAppIconFileId.Value) + "\", " +
+                            "\"sizes\": \"192x192\", " +
+                            "\"type\": \"image/png\" " +
+                            "}, { " +
+                            "\"src\": \"" + route.Scheme + "://" + route.Authority + Utilities.ContentUrl(alias, site.PwaSplashIconFileId.Value) + "\", " +
+                            "\"sizes\": \"512x512\", " +
+                            "\"type\": \"image/png\" " +
+                        "}] " +
+                    "}; " +
+                    "const serialized = JSON.stringify(manifest); " +
+                    "const blob = new Blob([serialized], {type: 'application/javascript'}); " +
+                    "const url = URL.createObjectURL(blob); " +
+                    "document.getElementById('app-manifest').setAttribute('href', url); " +
+                "} " +
+                ", 1000);" +
+                "if ('serviceWorker' in navigator) { " +
+                    "navigator.serviceWorker.register('/service-worker.js').then(function(registration) { " +
+                        "console.log('ServiceWorker Registration Successful'); " +
+                    "}).catch (function(err) { " +
+                        "console.log('ServiceWorker Registration Failed ', err); " +
+                    "}); " +
+                "};" +
+            "</script>";
         }
 
         private void ProcessHostResources(Assembly assembly)
@@ -151,7 +227,7 @@ namespace Oqtane.Pages
                 {
                     foreach (var resource in obj.Resources)
                     {
-                        if (resource.Declaration == ResourceDeclaration.Global)
+                        if (resource.Declaration == ResourceDeclaration.Global || (Utilities.GetFullTypeName(type.AssemblyQualifiedName) == ThemeType && resource.ResourceType == ResourceType.Stylesheet))
                         {
                             ProcessResource(resource);
                         }
@@ -166,7 +242,8 @@ namespace Oqtane.Pages
                 case ResourceType.Stylesheet:
                     if (!HeadResources.Contains(resource.Url, StringComparison.OrdinalIgnoreCase))
                     {
-                        HeadResources += "<link rel=\"stylesheet\" href=\"" + resource.Url + "\"" + CrossOrigin(resource.CrossOrigin) + Integrity(resource.Integrity) + " />" + Environment.NewLine;
+                        var id = (resource.Declaration == ResourceDeclaration.Global) ? "" : "id=\"app-stylesheet-" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + "-00\" ";
+                        HeadResources += "<link " + id + "rel=\"stylesheet\" href=\"" + resource.Url + "\"" + CrossOrigin(resource.CrossOrigin) + Integrity(resource.Integrity) + " />" + Environment.NewLine;
                     }
                     break;
                 case ResourceType.Script:

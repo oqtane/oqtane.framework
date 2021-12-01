@@ -170,7 +170,7 @@
                         <td><ActionLink Action="Settings" Text="Edit" ModuleId="@context.ModuleId" Security="SecurityAccessLevel.Edit" Permissions="@context.Permissions" ResourceKey="ModuleSettings" /></td>
                         <td><ActionDialog Header="Delete Module" Message="Are You Sure You Wish To Delete This Module?" Action="Delete" Security="SecurityAccessLevel.Edit" Permissions="@context.Permissions" Class="btn btn-danger" OnClick="@(async () => await DeleteModule(context))" ResourceKey="DeleteModule" /></td>
                         <td>@context.Title</td>
-                        <td>@context.ModuleDefinition.Name</td>
+                        <td>@context.ModuleDefinition?.Name</td>
                     </Row>
                 </Pager>
             }
