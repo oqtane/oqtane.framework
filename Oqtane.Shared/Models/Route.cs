@@ -4,12 +4,16 @@ using Oqtane.Shared;
 namespace Oqtane.Models
 {
     /// <summary>
-    /// A route is comprised of multiple components:
+    /// A route is comprised of multiple components ( some optional depending on context )
     /// {scheme}://{hostname}/{aliaspath}/{pagepath}/*/{moduleid}/{action}/!/{urlparameters}?{query}#{fragment}
     /// </summary>
     public class Route
     {
-        // default constructor accepts an absolute route url and alias
+        /// <summary>
+        /// default constructor
+        /// the route parameter can be obtained from NavigationManager.Uri on client or HttpContext.Request.GetEncodedUrl() on server
+        /// the aliaspath parameter can be obtained from PageState.Alias.Path on client or TenantManager.GetAlias().Path on server
+        /// </summary>
         public Route(string route, string aliaspath)
         {
             Uri uri = new Uri(route);
@@ -120,5 +124,27 @@ namespace Oqtane.Models
         /// A route may contain a fragment located after the # delimiter
         /// </summary>
         public string Fragment { get; set; }
+
+        /// <summary>
+        /// The root url contains the resource identifier for the root of an Oqtane installation ( including scheme )
+        /// </summary>
+        public string RootUrl
+        {
+            get
+            {
+                return Scheme + "://" + Authority;
+            }
+        }
+
+        /// <summary>
+        /// The site url contains the resource identifier for the home page of a specific Oqtane site ( including scheme and possibly an alias path )
+        /// </summary>
+        public string SiteUrl
+        {
+            get
+            {
+                return Scheme + "://" + Authority + ((!string.IsNullOrEmpty(AliasPath)) ? "/" + AliasPath : "");
+            }
+        }
     }
 }

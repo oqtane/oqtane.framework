@@ -149,16 +149,16 @@ namespace Oqtane.Pages
                     "var manifest = { " +
                         "\"name\": \"" + site.Name + "\", " +
                         "\"short_name\": \"" + site.Name + "\", " +
-                        "\"start_url\": \"" + route.Scheme + "://" + route.Authority + "/\", " +
+                        "\"start_url\": \"" + route.SiteUrl + "/\", " +
                         "\"display\": \"standalone\", " +
                         "\"background_color\": \"#fff\", " +
                         "\"description\": \"" + site.Name + "\", " +
                         "\"icons\": [{ " +
-                            "\"src\": \"" + route.Scheme + "://" + route.Authority + Utilities.ContentUrl(alias, site.PwaAppIconFileId.Value) + "\", " +
+                            "\"src\": \"" + route.RootUrl + Utilities.ContentUrl(alias, site.PwaAppIconFileId.Value) + "\", " +
                             "\"sizes\": \"192x192\", " +
                             "\"type\": \"image/png\" " +
                             "}, { " +
-                            "\"src\": \"" + route.Scheme + "://" + route.Authority + Utilities.ContentUrl(alias, site.PwaSplashIconFileId.Value) + "\", " +
+                            "\"src\": \"" + route.RootUrl + Utilities.ContentUrl(alias, site.PwaSplashIconFileId.Value) + "\", " +
                             "\"sizes\": \"512x512\", " +
                             "\"type\": \"image/png\" " +
                         "}] " +
