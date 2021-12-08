@@ -1,7 +1,5 @@
 @namespace [Owner].[Module]
 @inherits ModuleBase
-@inject ISettingService SettingService
-@inject IStringLocalizer<Settings> Localizer
 
 <div class="container">
     <div class="row mb-1 align-items-center">
@@ -11,36 +9,3 @@
             </div>
     </div>
 </div>
-
-@code {
-    public override string Title => "[Module] Settings";
-
-    string _value;
-
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            Dictionary<string, string> settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
-            _value = SettingService.GetSetting(settings, "SettingName", "");
-        }
-        catch (Exception ex)
-        {
-            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
-        }
-    }
-
-    public async Task UpdateSettings()
-    {
-        try
-        {
-            Dictionary<string, string> settings = await SettingService.GetModuleSettingsAsync(ModuleState.ModuleId);
-            SettingService.SetSetting(settings, "SettingName", _value);
-            await SettingService.UpdateModuleSettingsAsync(settings, ModuleState.ModuleId);
-        }
-        catch (Exception ex)
-        {
-            ModuleInstance.AddModuleMessage(ex.Message, MessageType.Error);
-        }
-    }
-}

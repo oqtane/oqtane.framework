@@ -1,11 +1,5 @@
-@using [Owner].[Module].Services
-@using [Owner].[Module].Models
-
 @namespace [Owner].[Module]
 @inherits ModuleBase
-@inject I[Module]Service [Module]Service
-@inject NavigationManager NavigationManager
-@inject IStringLocalizer<Index> Localizer
 
 @if (_[Module]s == null)
 {
@@ -34,44 +28,5 @@ else
     else
     {
         <p>@Localizer["Message.DisplayNone"]</p>
-    }
-}
-
-@code {
-    public override List<Resource> Resources => new List<Resource>()
-    {
-        new Resource { ResourceType = ResourceType.Stylesheet, Url = ModulePath() + "Module.css" },
-        new Resource { ResourceType = ResourceType.Script, Url = ModulePath() + "Module.js" }
-    };
-
-    List<[Module]> _[Module]s;
-
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            _[Module]s = await [Module]Service.Get[Module]sAsync(ModuleState.ModuleId);
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Loading [Module] {Error}", ex.Message);
-            AddModuleMessage(Localizer["Message.LoadError"], MessageType.Error);
-        }
-    }
-
-    private async Task Delete([Module] [Module])
-    {
-        try
-        {
-            await [Module]Service.Delete[Module]Async([Module].[Module]Id, ModuleState.ModuleId);
-            await logger.LogInformation("[Module] Deleted {[Module]}", [Module]);
-            _[Module]s = await [Module]Service.Get[Module]sAsync(ModuleState.ModuleId);
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            await logger.LogError(ex, "Error Deleting [Module] {[Module]} {Error}", [Module], ex.Message);
-            AddModuleMessage(Localizer["Message.DeleteError"], MessageType.Error);
-        }
     }
 }
