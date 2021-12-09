@@ -9,7 +9,7 @@ namespace Oqtane.Repository
         IEnumerable<Setting> GetSettings(string entityName, int entityId);
         Setting AddSetting(Setting setting);
         Setting UpdateSetting(Setting setting);
-        Setting GetSetting(int settingId);
-        void DeleteSetting(int settingId);
+        Setting GetSetting(string entityName, int settingId);
+        void DeleteSetting(string entityName, int settingId);
     }
 }

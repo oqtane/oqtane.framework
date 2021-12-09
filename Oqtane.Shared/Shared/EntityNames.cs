@@ -11,5 +11,6 @@ namespace Oqtane.Shared
         public const string Folder = "Folder";
         public const string User = "User";
         public const string Visitor = "Visitor";
+        public const string Host = "Host";
     }
 }

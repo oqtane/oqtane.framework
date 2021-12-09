@@ -18,7 +18,6 @@ namespace Oqtane.Repository
         public virtual DbSet<Page> Page { get; set; }
         public virtual DbSet<PageModule> PageModule { get; set; }
         public virtual DbSet<Module> Module { get; set; }
-        public virtual DbSet<ModuleDefinition> ModuleDefinition { get; set; }
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<Profile> Profile { get; set; }
         public virtual DbSet<Role> Role { get; set; }
