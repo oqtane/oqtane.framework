@@ -15,7 +15,7 @@
             <div style="@_display">
                 <CascadingAuthenticationState>
                     <CascadingValue Value="@PageState">
-                        <SiteRouter Runtime="@Runtime" RenderMode="@RenderMode" OnStateChange="@ChangeState" />
+                        <SiteRouter Runtime="@Runtime" RenderMode="@RenderMode" VisitorId="@VisitorId" OnStateChange="@ChangeState" />
                     </CascadingValue>
                 </CascadingAuthenticationState>
             </div>
@@ -38,6 +38,9 @@
 
     [Parameter]
     public string RenderMode { get; set; }
+
+    [Parameter]
+    public int VisitorId { get; set; }
 
     private bool _initialized = false;
     private string _display = "display: none;";

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using Oqtane.Extensions;
 using Oqtane.Models;
 using Oqtane.Repository;
 using Oqtane.Shared;
@@ -37,9 +38,6 @@ namespace Oqtane.Infrastructure
 
                 switch (version)
                 {
-                    case "1.0.0":
-                        Upgrade_1_0_0(tenant, scope);
-                        break;
                     case "2.0.2":
                         Upgrade_2_0_2(tenant, scope);
                         break;
@@ -49,59 +47,11 @@ namespace Oqtane.Infrastructure
                     case "2.2.0":
                         Upgrade_2_2_0(tenant, scope);
                         break;
+                    case "3.0.1":
+                        Upgrade_3_0_1(tenant, scope);
+                        break;
                 }
             }
-        }
-
-        /// <summary>
-        /// **Note: this code is commented out on purpose - it provides an example of how to programmatically add a page to all existing sites on upgrade
-        /// </summary>
-        /// <param name="tenant"></param>
-        /// <param name="scope"></param>
-        private void Upgrade_1_0_0(Tenant tenant, IServiceScope scope)
-        {
-            //var pageTemplates = new List<PageTemplate>();
-            //
-            //pageTemplates.Add(new PageTemplate
-            //{
-            //    Name = "Test",
-            //    Parent = "",
-            //    Order = 1,
-            //    Path = "test",
-            //    Icon = Icons.Badge,
-            //    IsNavigation = true,
-            //    IsPersonalizable = false,
-            //    IsClickable = true,
-            //    PagePermissions = new List<Permission>
-            //    {
-            //        new Permission(PermissionNames.View, RoleNames.Admin, true),
-            //        new Permission(PermissionNames.View, RoleNames.Everyone, true),
-            //        new Permission(PermissionNames.Edit, RoleNames.Admin, true)
-            //    }.EncodePermissions(),
-            //            PageTemplateModules = new List<PageTemplateModule>
-            //    {
-            //        new PageTemplateModule
-            //        {
-            //            ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Login.Index).ToModuleDefinitionName(), Title = "Test", Pane = "Content",
-            //            ModulePermissions = new List<Permission>
-            //            {
-            //                new Permission(PermissionNames.View, RoleNames.Admin, true),
-            //                new Permission(PermissionNames.View, RoleNames.Everyone, true),
-            //                new Permission(PermissionNames.Edit, RoleNames.Admin, true)
-            //            }.EncodePermissions(),
-            //            Content = ""
-            //        }
-            //    }
-            //});
-            //
-            //if (pageTemplates.Count != 0)
-            //{
-            //    var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
-            //    foreach (Site site in sites.GetSites().ToList())
-            //    {
-            //        sites.CreatePages(site, pageTemplates);
-            //    }
-            //}
         }
 
         private void Upgrade_2_0_2(Tenant tenant, IServiceScope scope)
@@ -161,6 +111,75 @@ namespace Oqtane.Infrastructure
                 {
                     _configManager.AddOrUpdateSetting("Logging:LogLevel:Default", "Information", true);
                 }
+            }
+        }
+
+        private void Upgrade_3_0_1(Tenant tenant, IServiceScope scope)
+        {
+            var pageTemplates = new List<PageTemplate>();
+
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Url Mappings",
+                Parent = "Admin",
+                Order = 33,
+                Path = "admin/urlmappings",
+                Icon = Icons.LinkBroken,
+                IsNavigation = true,
+                IsPersonalizable = false,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, RoleNames.Admin, true),
+                    new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.UrlMappings.Index).ToModuleDefinitionName(), Title = "Url Mappings", Pane = PaneNames.Admin,
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, RoleNames.Admin, true),
+                            new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            });
+
+            pageTemplates.Add(new PageTemplate
+            {
+                Name = "Visitor Management",
+                Parent = "Admin",
+                Order = 35,
+                Path = "admin/visitors",
+                Icon = Icons.Eye,
+                IsNavigation = true,
+                IsPersonalizable = false,
+                PagePermissions = new List<Permission>
+                {
+                    new Permission(PermissionNames.View, RoleNames.Admin, true),
+                    new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                }.EncodePermissions(),
+                PageTemplateModules = new List<PageTemplateModule>
+                {
+                    new PageTemplateModule
+                    {
+                        ModuleDefinitionName = typeof(Oqtane.Modules.Admin.Visitors.Index).ToModuleDefinitionName(), Title = "Visitor Management", Pane = PaneNames.Admin,
+                        ModulePermissions = new List<Permission>
+                        {
+                            new Permission(PermissionNames.View, RoleNames.Admin, true),
+                            new Permission(PermissionNames.Edit, RoleNames.Admin, true)
+                        }.EncodePermissions(),
+                        Content = ""
+                    }
+                }
+            });
+
+            var sites = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
+            foreach (Site site in sites.GetSites().ToList())
+            {
+                sites.CreatePages(site, pageTemplates);
             }
         }
     }

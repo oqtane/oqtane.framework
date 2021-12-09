@@ -35,15 +35,6 @@
                 </div>
             </div>
             <div class="row mb-1 align-items-center">
-                <Label Class="col-sm-3" For="allowRegister" HelpText="Do you want the users to be able to register for an account on the site" ResourceKey="AllowRegistration">Allow User Registration? </Label>
-                <div class="col-sm-9">
-                    <select id="allowRegister" class="form-select" @bind="@_allowregistration" required>
-                        <option value="True">@SharedLocalizer["Yes"]</option>
-                        <option value="False">@SharedLocalizer["No"]</option>
-                    </select>
-                </div>
-            </div>
-            <div class="row mb-1 align-items-center">
                 <Label Class="col-sm-3" For="isDeleted" HelpText="Is this site deleted?" ResourceKey="IsDeleted">Is Deleted? </Label>
                 <div class="col-sm-9">
                     <select id="isDeleted" class="form-select" @bind="@_isdeleted" required>
@@ -258,7 +249,6 @@
 	private string _themetype = "-";
 	private string _containertype = "-";
 	private string _admincontainertype = "-";
-	private string _allowregistration;
 	private string _smtphost = string.Empty;
 	private string _smtpport = string.Empty;
 	private string _smtpssl = "False";
@@ -294,7 +284,6 @@
 				_name = site.Name;
 				_runtime = site.Runtime;
 				_prerender = site.RenderMode.Replace(_runtime, "");
-				_allowregistration = site.AllowRegistration.ToString();
 				_isdeleted = site.IsDeleted.ToString();
 
 				if (UserSecurity.IsAuthorized(PageState.User, RoleNames.Host))
@@ -437,7 +426,6 @@
 									reload = true; // needs to be reloaded on server
 								}
 							}
-							site.AllowRegistration = (_allowregistration == null ? true : Boolean.Parse(_allowregistration));
 							site.IsDeleted = (_isdeleted == null ? true : Boolean.Parse(_isdeleted));
 
 							site.LogoFileId = null;

@@ -1,0 +1,140 @@
+@namespace Oqtane.Modules.Admin.Visitors
+@inherits ModuleBase
+@inject IVisitorService VisitorService
+@inject ISiteService SiteService
+@inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+@if (_visitors == null)
+{
+    <p><em>@SharedLocalizer["Loading"]</em></p>
+}
+else
+{
+    <TabStrip>
+        <TabPanel Name="Visitors" Heading="Visitors" ResourceKey="Visitors">
+			<div class="container">
+				<div class="row mb-1 align-items-center">
+					<div class="col-sm-6">
+						<select id="type" class="form-select custom-select" @onchange="(e => TypeChanged(e))">
+							<option value="false">@Localizer["AllVisitors"]</option>
+							<option value="true">@Localizer["UsersOnly"]</option>
+						</select>
+					</div>
+					<div class="col-sm-6">
+						<select id="type" class="form-select custom-select" @onchange="(e => DateChanged(e))">
+							<option value="1">@Localizer["PastDay"]</option>
+							<option value="7">@Localizer["PastWeek"]</option>
+							<option value="30">@Localizer["PastMonth"]</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<br/>
+			<Pager Items="@_visitors">
+				<Header>
+					<th>@Localizer["IP"]</th>
+					<th>@Localizer["User"]</th>
+					<th>@Localizer["Language"]</th>
+					<th>@Localizer["Visits"]</th>
+					<th>@Localizer["Visited"]</th>
+				</Header>
+				<Row>
+					<td>@context.IPAddress</td>
+					<td>
+						@if (context.UserId != null)
+						{
+							@context.User.DisplayName
+						}
+					</td>
+					<td>@context.Language</td>
+					<td>@context.Visits</td>
+					<td>@context.VisitedOn</td>
+				</Row>
+			</Pager>
+	</TabPanel>
+        <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings">
+			<div class="container">
+				<div class="row mb-1 align-items-center">
+					<Label Class="col-sm-3" For="visitortracking" HelpText="Specify if visitor tracking is enabled" ResourceKey="VisitorTracking">Visitor Tracking Enabled? </Label>
+					<div class="col-sm-9">
+						<select id="visitortracking" class="form-select" @bind="@_visitortracking" >
+							<option value="True">@SharedLocalizer["Yes"]</option>
+							<option value="False">@SharedLocalizer["No"]</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<br />
+			<button type="button" class="btn btn-success" @onclick="SaveSiteSettings">@SharedLocalizer["Save"]</button>
+		</TabPanel>
+	</TabStrip>
+}
+
+@code {
+	private bool _users = false;
+	private int _days = 1;
+	private List<Visitor> _visitors;
+	private string _visitortracking;
+
+	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+
+	protected override async Task OnParametersSetAsync()
+	{
+		await GetVisitors();
+		_visitortracking = PageState.Site.VisitorTracking.ToString();
+	}
+
+	private async void TypeChanged(ChangeEventArgs e)
+	{
+		try
+		{
+			_users = bool.Parse(e.Value.ToString());
+			await GetVisitors();
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error On TypeChanged");
+		}
+	}
+
+	private async void DateChanged(ChangeEventArgs e)
+	{
+		try
+		{
+			_days = int.Parse(e.Value.ToString());
+			await GetVisitors();
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error On DateChanged");
+		}
+	}
+
+	private async Task GetVisitors()
+	{
+		_visitors = await VisitorService.GetVisitorsAsync(PageState.Site.SiteId, DateTime.UtcNow.AddDays(-_days));
+		if (_users)
+		{
+			_visitors = _visitors.Where(item => item.UserId != null).ToList();
+		}
+    }
+
+	private async Task SaveSiteSettings()
+	{
+		try
+		{
+			var site = PageState.Site;
+			site.VisitorTracking = bool.Parse(_visitortracking);
+			await SiteService.UpdateSiteAsync(site);
+			AddModuleMessage(Localizer["Success.SaveSiteSettings"], MessageType.Success);
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Saving Site Settings {Error}", ex.Message);
+			AddModuleMessage(Localizer["Error.SaveSiteSettings"], MessageType.Error);
+		}
+	}
+}

@@ -1,0 +1,83 @@
+@namespace Oqtane.Modules.Admin.UrlMappings
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject IUrlMappingService UrlMappingService
+@inject IStringLocalizer<Edit> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+<form @ref="form" class="@(validated ? "was-validated" : "needs-validation")" novalidate>
+    <div class="container">
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="url" HelpText="A fully qualified Url for this site" ResourceKey="Url">Url:</Label>
+            <div class="col-sm-9">
+                <input id="url" class="form-control" @bind="@_url" maxlength="500" readonly />
+            </div>
+        </div>
+        <div class="row mb-1 align-items-center">
+            <Label Class="col-sm-3" For="mappedurl" HelpText="A fully qualified Url where the user will be redirected" ResourceKey="MappedUrl">Redirect To:</Label>
+            <div class="col-sm-9">
+                <input id="mappedurl" class="form-control" @bind="@_mappedurl" maxlength="500" required />
+            </div>
+        </div>
+        <br /><br />
+        <button type="button" class="btn btn-success" @onclick="SaveUrlMapping">@SharedLocalizer["Save"]</button>
+        <NavLink class="btn btn-secondary" href="@NavigateUrl()">@SharedLocalizer["Cancel"]</NavLink>
+    </div>
+</form>
+
+@code {
+    private ElementReference form;
+    private bool validated = false;
+
+    private int _urlmappingid;
+    private string _url = string.Empty;
+    private string _mappedurl = string.Empty;
+
+    public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _urlmappingid = Int32.Parse(PageState.QueryString["id"]);
+            var urlmapping = await UrlMappingService.GetUrlMappingAsync(_urlmappingid);
+            if (urlmapping != null)
+            {
+                _url = urlmapping.Url;
+                _mappedurl = urlmapping.MappedUrl;
+            }
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading UrlMapping {UrlMappingId} {Error}", _urlmappingid, ex.Message);
+            AddModuleMessage(Localizer["Error.LoadUrlMapping"], MessageType.Error);
+        }
+    }
+
+    private async Task SaveUrlMapping()
+    {
+        validated = true;
+        var interop = new Interop(JSRuntime);
+        if (await interop.FormValid(form))
+        {
+            var urlmapping = await UrlMappingService.GetUrlMappingAsync(_urlmappingid);
+            urlmapping.MappedUrl = _mappedurl;
+
+            try
+            {
+                urlmapping = await UrlMappingService.UpdateUrlMappingAsync(urlmapping);
+                await logger.LogInformation("UrlMapping Saved {UrlMapping}", urlmapping);
+                NavigationManager.NavigateTo(NavigateUrl());
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Saving UrlMapping {UrlMapping} {Error}", urlmapping, ex.Message);
+                AddModuleMessage(Localizer["Error.SaveUrlMapping"], MessageType.Error);
+            }
+        }
+        else
+        {
+            AddModuleMessage(SharedLocalizer["Message.InfoRequired"], MessageType.Warning);
+        }
+    }
+}

@@ -49,9 +49,19 @@ namespace Oqtane.Models
         public int? PwaSplashIconFileId { get; set; }
 
         /// <summary>
-        /// Determines if users may register / create accounts
+        /// Determines if visitors may register / create user accounts
         /// </summary>
         public bool AllowRegistration { get; set; }
+
+        /// <summary>
+        /// Determines if visitors will be tracked
+        /// </summary>
+        public bool VisitorTracking { get; set; }
+
+        /// <summary>
+        /// Determines if broken urls (404s) will be captured automatically
+        /// </summary>
+        public bool CaptureBrokenUrls { get; set; }
 
         /// <summary>
         /// Unique GUID to identify the Site.

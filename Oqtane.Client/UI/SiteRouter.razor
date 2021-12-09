@@ -25,6 +25,9 @@
 	[Parameter]
 	public string RenderMode { get; set; }
 
+	[Parameter]
+	public int VisitorId { get; set; }
+
 	[CascadingParameter]
 	PageState PageState { get; set; }
 
@@ -221,7 +224,8 @@
                         Action = action,
                         EditMode = editmode,
                         LastSyncDate = lastsyncdate,
-                        Runtime = runtime
+                        Runtime = runtime,
+						VisitorId = VisitorId
                     };
 
                     OnStateChange?.Invoke(_pagestate);

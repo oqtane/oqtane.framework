@@ -98,6 +98,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<ISqlRepository, SqlRepository>();
             services.AddTransient<IUpgradeManager, UpgradeManager>();
             services.AddTransient<ILanguageRepository, LanguageRepository>();
+            services.AddTransient<IVisitorRepository, VisitorRepository>();
+            services.AddTransient<IUrlMappingRepository, UrlMappingRepository>();
             // obsolete - replaced by ITenantManager
             services.AddTransient<ITenantResolver, TenantResolver>();
 

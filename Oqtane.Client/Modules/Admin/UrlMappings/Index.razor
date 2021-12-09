@@ -1,0 +1,134 @@
+@namespace Oqtane.Modules.Admin.UrlMappings
+@inherits ModuleBase
+@inject IUrlMappingService UrlMappingService
+@inject ISiteService SiteService
+@inject IStringLocalizer<Index> Localizer
+@inject IStringLocalizer<SharedResources> SharedLocalizer
+
+@if (_urlMappings == null)
+{
+    <p><em>@SharedLocalizer["Loading"]</em></p>
+}
+else
+{
+    <TabStrip>
+        <TabPanel Name="Urls" Heading="Urls" ResourceKey="Urls">
+			<div class="container">
+				<div class="row mb-1 align-items-center">
+					<div class="col-sm-6">
+						<ActionLink Action="Add" Text="Add Url Mapping" ResourceKey="AddUrlMapping" />
+					</div>
+					<div class="col-sm-6">
+						<select id="type" class="form-select custom-select" @onchange="(e => MappedChanged(e))">
+							<option value="true">@Localizer["Mapped"]</option>
+							<option value="false">@Localizer["Broken"]</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<br/>
+			<Pager Items="@_urlMappings">
+				<Header>
+					<th style="width: 1px;">&nbsp;</th>
+					<th style="width: 1px;">&nbsp;</th>
+					<th>@Localizer["Url"]</th>
+					<th>@Localizer["Requests"]</th>
+					<th>@Localizer["Requested"]</th>
+				</Header>
+				<Row>
+					<td><ActionLink Action="Edit" Parameters="@($"id=" + context.UrlMappingId.ToString())" ResourceKey="Edit" /></td>
+					<td><ActionDialog Header="Delete Url Mapping" Message="@string.Format(Localizer["Confirm.DeleteUrlMapping"], context.Url)" Action="Delete" Security="SecurityAccessLevel.Admin" Class="btn btn-danger" OnClick="@(async () => await DeleteUrlMapping(context))" ResourceKey="DeleteUrlMapping" /></td>
+					<td>
+						@context.Url
+						@if (_mapped)
+						{
+							@((MarkupString)"<br />&gt;&gt;&nbsp;")@context.MappedUrl
+						}
+					</td>
+					<td>@context.Requests</td>
+					<td>@context.RequestedOn</td>
+				</Row>
+			</Pager>
+		</TabPanel>
+        <TabPanel Name="Settings" Heading="Settings" ResourceKey="Settings">
+			<div class="container">
+				<div class="row mb-1 align-items-center">
+					<Label Class="col-sm-3" For="capturebrokenurls" HelpText="Specify if broken Urls should be captured automatically and saved in Url Mappings" ResourceKey="CaptureBrokenUrls">Capture Broken Urls? </Label>
+					<div class="col-sm-9">
+						<select id="capturebrokenurls" class="form-select" @bind="@_capturebrokenurls" >
+							<option value="True">@SharedLocalizer["Yes"]</option>
+							<option value="False">@SharedLocalizer["No"]</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<br />
+			<button type="button" class="btn btn-success" @onclick="SaveSiteSettings">@SharedLocalizer["Save"]</button>
+		</TabPanel>
+	</TabStrip>
+}
+
+@code {
+	private bool _mapped = true;
+	private List<UrlMapping> _urlMappings;
+	private string _capturebrokenurls;
+
+	public override SecurityAccessLevel SecurityAccessLevel => SecurityAccessLevel.Admin;
+
+	protected override async Task OnParametersSetAsync()
+	{
+		await GetUrlMappings();
+		_capturebrokenurls = PageState.Site.CaptureBrokenUrls.ToString();
+	}
+
+	private async void MappedChanged(ChangeEventArgs e)
+	{
+		try
+		{
+			_mapped = bool.Parse(e.Value.ToString());
+			await GetUrlMappings();
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error On TypeChanged");
+		}
+	}
+
+	private async Task DeleteUrlMapping(UrlMapping urlMapping)
+	{
+		try
+		{
+			await UrlMappingService.DeleteUrlMappingAsync(urlMapping.UrlMappingId);
+			await logger.LogInformation("UrlMapping Deleted {UrlMapping}", urlMapping);
+			await GetUrlMappings();
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Deleting UrlMapping {UrlMapping} {Error}", urlMapping, ex.Message);
+			AddModuleMessage(Localizer["Error.DeleteUrlMapping"], MessageType.Error);
+		}
+	}
+
+	private async Task GetUrlMappings()
+	{
+		_urlMappings = await UrlMappingService.GetUrlMappingsAsync(PageState.Site.SiteId, _mapped);
+	}
+
+	private async Task SaveSiteSettings()
+	{
+		try
+		{
+			var site = PageState.Site;
+			site.CaptureBrokenUrls = bool.Parse(_capturebrokenurls);
+			await SiteService.UpdateSiteAsync(site);
+			AddModuleMessage(Localizer["Success.SaveSiteSettings"], MessageType.Success);
+		}
+		catch (Exception ex)
+		{
+			await logger.LogError(ex, "Error Saving Site Settings {Error}", ex.Message);
+			AddModuleMessage(Localizer["Error.SaveSiteSettings"], MessageType.Error);
+		}
+	}
+}
