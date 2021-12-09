@@ -1,4 +1,5 @@
 using Oqtane.Models;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -129,6 +130,19 @@ namespace Oqtane.Services
         Task UpdateFolderSettingsAsync(Dictionary<string, string> folderSettings, int folderId);
 
         /// <summary>
+        /// Returns a key-value dictionary of all tenant settings
+        /// </summary>
+        /// <returns></returns>
+        Task<Dictionary<string, string>> GetHostSettingsAsync();
+
+        /// <summary>
+        /// Updates a host setting
+        /// </summary>
+        /// <param name="hostSettings"></param>
+        /// <returns></returns>
+        Task UpdateHostSettingsAsync(Dictionary<string, string> hostSettings);
+
+        /// <summary>
         /// Returns a key-value dictionary of all settings for the given entityName
         /// </summary>
         /// <param name="pageId"></param>
@@ -150,7 +164,7 @@ namespace Oqtane.Services
         /// </summary>
         /// <param name="settingId"></param>
         /// <returns></returns>
-        Task<Setting> GetSettingAsync(int settingId);
+        Task<Setting> GetSettingAsync(string entityName, int settingId);
 
 
         /// <summary>
@@ -172,7 +186,7 @@ namespace Oqtane.Services
         /// </summary>
         /// <param name="settingId"></param>
         /// <returns></returns>
-        Task DeleteSettingAsync(int settingId);
+        Task DeleteSettingAsync(string entityName, int settingId);
 
         /// <summary>
         /// Gets the value of the given settingName (key) from the given key-value dictionary 
@@ -195,5 +209,13 @@ namespace Oqtane.Services
         Dictionary<string, string> SetSetting(Dictionary<string, string> settings, string settingName, string settingValue, bool isPublic);
 
         Dictionary<string, string> MergeSettings(Dictionary<string, string> settings1, Dictionary<string, string> settings2);
-}
+
+
+        [Obsolete("GetSettingAsync(int settingId) is deprecated. Use GetSettingAsync(string entityName, int settingId) instead.", false)]
+        Task<Setting> GetSettingAsync(int settingId);
+
+        [Obsolete("DeleteSettingAsync(int settingId) is deprecated. Use DeleteSettingAsync(string entityName, int settingId) instead.", false)]
+        Task DeleteSettingAsync(int settingId);
+
+    }
 }

@@ -52,11 +52,11 @@ namespace Oqtane.Controllers
             return settings;
         }
 
-        // GET api/<controller>/5
-        [HttpGet("{id}")]
-        public Setting Get(int id)
+        // GET api/<controller>/5/xxx
+        [HttpGet("{id}/{entityName}")]
+        public Setting Get(int id, string entityName)
         {
-            Setting setting = _settings.GetSetting(id);
+            Setting setting = _settings.GetSetting(entityName, id);
             if (IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.View))
             {
                 if (setting.EntityName == EntityNames.Site && !User.IsInRole(RoleNames.Admin) && !setting.IsPublic)
@@ -111,14 +111,14 @@ namespace Oqtane.Controllers
             return setting;
         }
 
-        // DELETE api/<controller>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        // DELETE api/<controller>/5/xxx
+        [HttpDelete("{id}/{entityName}")]
+        public void Delete(string entityName, int id)
         {
-            Setting setting = _settings.GetSetting(id);
+            Setting setting = _settings.GetSetting(entityName, id);
             if (IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.Edit))
             {
-                _settings.DeleteSetting(id);
+                _settings.DeleteSetting(setting.EntityName, id);
                 AddSyncEvent(setting.EntityName);
                 _logger.Log(LogLevel.Information, this, LogFunction.Delete, "Setting Deleted {Setting}", setting);
             }
@@ -140,6 +140,8 @@ namespace Oqtane.Controllers
             switch (entityName)
             {
                 case EntityNames.Tenant:
+                case EntityNames.ModuleDefinition:
+                case EntityNames.Host:
                     authorized = User.IsInRole(RoleNames.Host);
                     break;
                 case EntityNames.Site:
@@ -154,9 +156,6 @@ namespace Oqtane.Controllers
                     break;
                 case EntityNames.Page:
                 case EntityNames.Module:
-                case EntityNames.ModuleDefinition:
-                    authorized = User.IsInRole(RoleNames.Host);
-                    break;
                 case EntityNames.Folder:
                     authorized = _userPermissions.IsAuthorized(User, entityName, entityId, permissionName);
                     break;
