@@ -14,6 +14,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace Oqtane.Pages
 {
@@ -26,8 +30,10 @@ namespace Oqtane.Pages
         private readonly IAntiforgery _antiforgery;
         private readonly ISiteRepository _sites;
         private readonly IPageRepository _pages;
+        private readonly IUrlMappingRepository _urlMappings;
+        private readonly IVisitorRepository _visitors;
 
-        public HostModel(IConfiguration configuration, ITenantManager tenantManager, ILocalizationManager localizationManager, ILanguageRepository languages, IAntiforgery antiforgery, ISiteRepository sites, IPageRepository pages)
+        public HostModel(IConfiguration configuration, ITenantManager tenantManager, ILocalizationManager localizationManager, ILanguageRepository languages, IAntiforgery antiforgery, ISiteRepository sites, IPageRepository pages, IUrlMappingRepository urlMappings, IVisitorRepository visitors)
         {
             _configuration = configuration;
             _tenantManager = tenantManager;
@@ -36,11 +42,14 @@ namespace Oqtane.Pages
             _antiforgery = antiforgery;
             _sites = sites;
             _pages = pages;
+            _urlMappings = urlMappings;
+            _visitors = visitors;
         }
 
         public string AntiForgeryToken = "";
         public string Runtime = "Server";
         public RenderMode RenderMode = RenderMode.Server;
+        public int VisitorId = -1;
         public string HeadResources = "";
         public string BodyResources = "";
         public string Title = "";
@@ -48,7 +57,7 @@ namespace Oqtane.Pages
         public string PWAScript = "";
         public string ThemeType = "";
 
-        public void OnGet()
+        public IActionResult OnGet()
         {
             AntiForgeryToken = _antiforgery.GetAndStoreTokens(HttpContext).RequestToken;
 
@@ -92,6 +101,11 @@ namespace Oqtane.Pages
                         Title = site.Name;
                         ThemeType = site.DefaultThemeType;
 
+                        if (site.VisitorTracking)
+                        {
+                            TrackVisitor(site.SiteId);
+                        }
+
                         var page = _pages.GetPage(route.PagePath, site.SiteId);
                         if (page != null)
                         {
@@ -109,6 +123,37 @@ namespace Oqtane.Pages
                             if (!string.IsNullOrEmpty(page.ThemeType))
                             {
                                 ThemeType = page.ThemeType;
+                            }
+                        }
+                        else
+                        {
+                            // page does not exist
+                            var url = route.SiteUrl + "/" + route.PagePath;
+                            var urlMapping = _urlMappings.GetUrlMapping(site.SiteId, url);
+                            if (urlMapping == null)
+                            {
+                                if (site.CaptureBrokenUrls)
+                                {
+                                    urlMapping = new UrlMapping();
+                                    urlMapping.SiteId = site.SiteId;
+                                    urlMapping.Url = url;
+                                    urlMapping.MappedUrl = "";
+                                    urlMapping.Requests = 1;
+                                    urlMapping.CreatedOn = DateTime.UtcNow;
+                                    urlMapping.RequestedOn = DateTime.UtcNow;
+                                    _urlMappings.AddUrlMapping(urlMapping);
+                                }
+                            }
+                            else
+                            {
+                                urlMapping.Requests += 1;
+                                urlMapping.RequestedOn = DateTime.UtcNow;
+                                _urlMappings.UpdateUrlMapping(urlMapping);
+
+                                if (!string.IsNullOrEmpty(urlMapping.MappedUrl))
+                                {
+                                    return RedirectPermanent(urlMapping.MappedUrl);
+                                }
                             }
                         }
                     }
@@ -137,6 +182,64 @@ namespace Oqtane.Pages
                             SetLocalizationCookie(_localizationManager.GetDefaultCulture());
                         }
                     }
+                }
+            }
+            return Page();
+        }
+
+        private void TrackVisitor(int SiteId)
+        {
+            var VisitorCookie = "APP_VISITOR_" + SiteId.ToString();
+            if (!int.TryParse(Request.Cookies[VisitorCookie], out VisitorId))
+            {
+                var visitor = new Visitor();
+                visitor.SiteId = SiteId;
+                visitor.IPAddress = HttpContext.Connection.RemoteIpAddress.ToString();
+                visitor.UserAgent = Request.Headers[HeaderNames.UserAgent];
+                visitor.Language = Request.Headers[HeaderNames.AcceptLanguage];
+                if (visitor.Language.Contains(","))
+                {
+                    visitor.Language = visitor.Language.Substring(0, visitor.Language.IndexOf(","));
+                }
+                visitor.UserId = null;
+                visitor.Visits = 1;
+                visitor.CreatedOn = DateTime.UtcNow;
+                visitor.VisitedOn = DateTime.UtcNow;
+                visitor = _visitors.AddVisitor(visitor);
+
+                Response.Cookies.Append(
+                    VisitorCookie,
+                    visitor.VisitorId.ToString(),
+                    new CookieOptions()
+                    {
+                        Expires = DateTimeOffset.UtcNow.AddYears(1),
+                        IsEssential = true
+                    }
+                );
+            }
+            else
+            {
+                var visitor = _visitors.GetVisitor(VisitorId);
+                if (visitor != null)
+                {
+                    visitor.IPAddress = HttpContext.Connection.RemoteIpAddress.ToString();
+                    visitor.UserAgent = Request.Headers[HeaderNames.UserAgent];
+                    visitor.Language = Request.Headers[HeaderNames.AcceptLanguage];
+                    if (visitor.Language.Contains(","))
+                    {
+                        visitor.Language = visitor.Language.Substring(0, visitor.Language.IndexOf(","));
+                    }
+                    if (User.HasClaim(item => item.Type == ClaimTypes.PrimarySid))
+                    {
+                        visitor.UserId = int.Parse(User.Claims.First(item => item.Type == ClaimTypes.PrimarySid).Value);
+                    }
+                    visitor.Visits += 1;
+                    visitor.VisitedOn = DateTime.UtcNow;
+                    _visitors.UpdateVisitor(visitor);
+                }
+                else
+                {
+                    Response.Cookies.Delete(VisitorCookie);
                 }
             }
         }

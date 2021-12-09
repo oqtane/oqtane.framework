@@ -117,31 +117,22 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Confirm.User.Delete" xml:space="preserve">
-    <value>Are You Sure You Wish To Delete {0}?</value>
+  <data name="MappedUrl.Text" xml:space="preserve">
+    <value>Redirect To:</value>
   </data>
-  <data name="AddUser.Text" xml:space="preserve">
-    <value>Add User</value>
+  <data name="MappedUrl.HelpText" xml:space="preserve">
+    <value>A fully qualified Url where the user will be redirected</value>
   </data>
-  <data name="DeleteUser.Header" xml:space="preserve">
-    <value>Delete User</value>
+  <data name="Url.HelpText" xml:space="preserve">
+    <value>A fully qualified Url for this site</value>
   </data>
-  <data name="AllowRegistration.HelpText" xml:space="preserve">
-    <value>Do you want the users to be able to register for an account on the site</value>
+  <data name="Url.Text" xml:space="preserve">
+    <value>Url:</value>
   </data>
-  <data name="AllowRegistration.Text" xml:space="preserve">
-    <value>Allow User Registration? </value>
+  <data name="Error.SaveUrlMapping" xml:space="preserve">
+    <value>Error Saving Url Mapping</value>
   </data>
-  <data name="Error.SaveSiteSettings" xml:space="preserve">
-    <value>Error Saving Settings</value>
-  </data>
-  <data name="Settings.Heading" xml:space="preserve">
-    <value>Settings</value>
-  </data>
-  <data name="Success.SaveSiteSettings" xml:space="preserve">
-    <value>Settings Saved Successfully</value>
-  </data>
-  <data name="Users.Heading" xml:space="preserve">
-    <value>Users</value>
+  <data name="Message.InfoRequired" xml:space="preserve">
+    <value>Please Provide All Required Information</value>
   </data>
 </root>
