@@ -70,7 +70,7 @@ namespace Oqtane.Services
         /// <summary>
         /// Returns a key-value dictionary of all module settings for the given module
         /// </summary>
-        /// <param name="pageId"></param>
+        /// <param name="moduleId"></param>
         /// <returns></returns>
         Task<Dictionary<string, string>> GetModuleSettingsAsync(int moduleId);
 
@@ -81,6 +81,21 @@ namespace Oqtane.Services
         /// <param name="moduleId"></param>
         /// <returns></returns>
         Task UpdateModuleSettingsAsync(Dictionary<string, string> moduleSettings, int moduleId);
+
+        /// <summary>
+        /// Returns a key-value dictionary of all module settings for the given module
+        /// </summary>
+        /// <param name="moduleDefinitionId"></param>
+        /// <returns></returns>
+        Task<Dictionary<string, string>> GetModuleDefinitionSettingsAsync(int moduleDefinitionId);
+
+        /// <summary>
+        /// Updates a module setting
+        /// </summary>
+        /// <param name="moduleDefinitionSettings"></param>
+        /// <param name="moduleDefinitionId"></param>
+        /// <returns></returns>
+        Task UpdateModuleDefinitionSettingsAsync(Dictionary<string, string> moduleDefinitionSettings, int moduleDefinitionId);
 
         /// <summary>
         /// Returns a key-value dictionary of all user settings for the given user

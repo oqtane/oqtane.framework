@@ -154,6 +154,9 @@ namespace Oqtane.Controllers
                     break;
                 case EntityNames.Page:
                 case EntityNames.Module:
+                case EntityNames.ModuleDefinition:
+                    authorized = User.IsInRole(RoleNames.Host);
+                    break;
                 case EntityNames.Folder:
                     authorized = _userPermissions.IsAuthorized(User, entityName, entityId, permissionName);
                     break;
