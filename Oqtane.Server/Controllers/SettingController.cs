@@ -33,20 +33,35 @@ namespace Oqtane.Controllers
 
         // GET: api/<controller>
         [HttpGet]
-        public IEnumerable<Setting> Get(string entityname, int entityid)
+        public IEnumerable<Setting> Get(string entityName, int entityid)
         {
             List<Setting> settings = new List<Setting>();
-            if (IsAuthorized(entityname, entityid, PermissionNames.View))
+            if (IsAuthorized(entityName, entityid, PermissionNames.View))
             {
-                settings = _settings.GetSettings(entityname, entityid).ToList();
-                if (entityname == EntityNames.Site && !User.IsInRole(RoleNames.Admin))
+                settings = _settings.GetSettings(entityName, entityid).ToList();
+
+                // ispublic filter 
+                switch (entityName)
                 {
-                    settings = settings.Where(item => item.IsPublic).ToList();
+                    case EntityNames.Tenant:
+                    case EntityNames.ModuleDefinition:
+                    case EntityNames.Host:
+                        if (!User.IsInRole(RoleNames.Host))
+                        {
+                            settings = settings.Where(item => item.IsPublic).ToList();
+                        }
+                        break;
+                    case EntityNames.Site:
+                        if (!User.IsInRole(RoleNames.Admin))
+                        {
+                            settings = settings.Where(item => item.IsPublic).ToList();
+                        }
+                        break;
                 }
             }
             else
             {
-                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Settings {EntityName} {EntityId}", entityname, entityid);
+                _logger.Log(LogLevel.Error, this, LogFunction.Read, "User Not Authorized To Access Settings {EntityName} {EntityId}", entityName, entityid);
                 HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
             return settings;
@@ -59,10 +74,25 @@ namespace Oqtane.Controllers
             Setting setting = _settings.GetSetting(entityName, id);
             if (IsAuthorized(setting.EntityName, setting.EntityId, PermissionNames.View))
             {
-                if (setting.EntityName == EntityNames.Site && !User.IsInRole(RoleNames.Admin) && !setting.IsPublic)
+                // ispublic filter
+                switch (entityName)
                 {
-                    setting = null;
+                    case EntityNames.Tenant:
+                    case EntityNames.ModuleDefinition:
+                    case EntityNames.Host:
+                        if (!User.IsInRole(RoleNames.Host) && !setting.IsPublic)
+                        {
+                            setting = null;
+                        }
+                        break;
+                    case EntityNames.Site:
+                        if (!User.IsInRole(RoleNames.Admin) && !setting.IsPublic)
+                        {
+                            setting = null;
+                        }
+                        break;
                 }
+
                 return setting;
             }
             else
@@ -142,7 +172,14 @@ namespace Oqtane.Controllers
                 case EntityNames.Tenant:
                 case EntityNames.ModuleDefinition:
                 case EntityNames.Host:
-                    authorized = User.IsInRole(RoleNames.Host);
+                    if (permissionName == PermissionNames.Edit)
+                    {
+                        authorized = User.IsInRole(RoleNames.Host);
+                    }
+                    else
+                    {
+                        authorized = true;
+                    }
                     break;
                 case EntityNames.Site:
                     if (permissionName == PermissionNames.Edit)
