@@ -211,7 +211,7 @@ namespace Oqtane.Infrastructure
                             File.Delete(filepath);
                             if (!Directory.EnumerateFiles(Path.GetDirectoryName(filepath)).Any())
                             {
-                                Directory.Delete(Path.GetDirectoryName(filepath));
+                                Directory.Delete(Path.GetDirectoryName(filepath), true);
                             }
                         }
                     }
