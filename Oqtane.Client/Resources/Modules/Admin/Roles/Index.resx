@@ -129,4 +129,13 @@
   <data name="DeleteRole.Header" xml:space="preserve">
     <value>Delete Role</value>
   </data>
+  <data name="DeleteRole.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Edit.Text" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Users.Text" xml:space="preserve">
+    <value>Users</value>
+  </data>
 </root>

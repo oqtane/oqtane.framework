@@ -159,4 +159,10 @@
   <data name="Type" xml:space="preserve">
     <value>Type</value>
   </data>
+  <data name="DeleteFile.Text" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="UploadFiles.Text" xml:space="preserve">
+    <value>Upload Files</value>
+  </data>
 </root>

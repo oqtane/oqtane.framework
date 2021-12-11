@@ -210,7 +210,7 @@
   <data name="Personalizable.Text" xml:space="preserve">
     <value>Personalizable? </value>
   </data>
-  <data name="Appearance.Name" xml:space="preserve">
+  <data name="Appearance.Heading" xml:space="preserve">
     <value>Appearance</value>
   </data>
   <data name="ThisLocation.Keep" xml:space="preserve">
@@ -243,7 +243,7 @@
   <data name="ModuleSettings.Text" xml:space="preserve">
     <value>Edit</value>
   </data>
-    <data name="DeleteModule.Header" xml:space="preserve">
+  <data name="DeleteModule.Header" xml:space="preserve">
     <value>Delete Module</value>
   </data>
   <data name="DeleteModule.Message" xml:space="preserve">
@@ -251,5 +251,20 @@
   </data>
   <data name="DeleteModule.Text" xml:space="preserve">
     <value>Delete</value>
+  </data>
+  <data name="Permissions.Heading" xml:space="preserve">
+    <value>Permissions</value>
+  </data>
+  <data name="ThemeSettings.Heading" xml:space="preserve">
+    <value>Theme Settings</value>
+  </data>
+  <data name="Appearance.Hea" xml:space="preserve">
+    <value />
+  </data>
+  <data name="Clickable.HelpText" xml:space="preserve">
+    <value>Select whether the link in the site navigation is enabled or disabled</value>
+  </data>
+  <data name="Clickable.Text" xml:space="preserve">
+    <value>Clickable?</value>
   </data>
 </root>

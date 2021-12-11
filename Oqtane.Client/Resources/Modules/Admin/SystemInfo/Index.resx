@@ -204,10 +204,10 @@
   <data name="Critical" xml:space="preserve">
     <value>Critical</value>
   </data>
-  <data name="Info" xml:space="preserve">
+  <data name="Info.Heading" xml:space="preserve">
     <value>Info</value>
   </data>
-  <data name="Options" xml:space="preserve">
+  <data name="Options.Heading" xml:space="preserve">
     <value>Options</value>
   </data>
   <data name="Register" xml:space="preserve">
@@ -227,5 +227,8 @@
   </data>
   <data name="Swagger.Text" xml:space="preserve">
     <value>Swagger Enabled?</value>
+  </data>
+  <data name="RestartApplication.Text" xml:space="preserve">
+    <value>Restart Application</value>
   </data>
 </root>

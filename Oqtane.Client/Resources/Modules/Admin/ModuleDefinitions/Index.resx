@@ -147,4 +147,7 @@
   <data name="InUse" xml:space="preserve">
     <value>In Use</value>
   </data>
+  <data name="EditModule.Text" xml:space="preserve">
+    <value>Edit</value>
+  </data>
 </root>
