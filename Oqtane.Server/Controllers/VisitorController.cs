@@ -42,5 +42,33 @@ namespace Oqtane.Controllers
                 return null;
             }
         }
+
+        // GET api/<controller>/5
+        [HttpGet("{id}")]
+        public Visitor Get(int id)
+        {
+            bool authorized;
+            var visitorCookie = "APP_VISITOR_" + _alias.SiteId.ToString();
+            if (int.TryParse(Request.Cookies[visitorCookie], out int visitorId))
+            {
+                authorized = (visitorId == id);
+            }
+            else
+            {
+                authorized = User.IsInRole(RoleNames.Admin);
+            }
+
+            var visitor = _visitors.GetVisitor(id);
+            if (authorized && visitor != null && visitor.SiteId == _alias.SiteId)
+            {
+                return visitor;
+            }
+            else
+            {
+                _logger.Log(LogLevel.Error, this, LogFunction.Security, "Unauthorized Visitor Get Attempt {VisitorId}", id);
+                HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return null;
+            }
+        }
     }
 }

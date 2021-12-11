@@ -29,19 +29,29 @@ namespace Oqtane.Models
         public int Visits { get; set; }
 
         /// <summary>
-        /// IP Address of visitor
+        /// Last recorded IP Address of visitor
         /// </summary>
         public string IPAddress { get; set; }
 
         /// <summary>
-        /// User agent of visitor
+        /// Last recorded user agent of visitor
         /// </summary>
         public string UserAgent { get; set; }
 
         /// <summary>
-        /// Language of visitor
+        /// Last recorded language of visitor
         /// </summary>
         public string Language { get; set; }
+
+        /// <summary>
+        /// Last recorded Url of visitor
+        /// </summary>
+        public string Url { get; set; }
+
+        /// <summary>
+        /// Last recorded Referrer of visitor
+        /// </summary>
+        public string Referrer { get; set; }
 
         /// <summary>
         /// Date the visitor first visited the site

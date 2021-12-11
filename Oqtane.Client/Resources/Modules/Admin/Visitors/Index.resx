@@ -120,11 +120,11 @@
   <data name="Url" xml:space="preserve">
     <value>Url</value>
   </data>
-  <data name="Requested" xml:space="preserve">
-    <value>Requested</value>
+  <data name="Visited" xml:space="preserve">
+    <value>Visited</value>
   </data>
-  <data name="Requests" xml:space="preserve">
-    <value>Requests</value>
+  <data name="Visits" xml:space="preserve">
+    <value>Visits</value>
   </data>
   <data name="AllVisitors" xml:space="preserve">
     <value>All Visitors</value>
@@ -168,10 +168,7 @@
   <data name="User" xml:space="preserve">
     <value>User</value>
   </data>
-  <data name="Visited" xml:space="preserve">
-    <value>Visited</value>
-  </data>
-  <data name="Visits" xml:space="preserve">
-    <value>Visits</value>
+  <data name="Created" xml:space="preserve">
+    <value>Created</value>
   </data>
 </root>

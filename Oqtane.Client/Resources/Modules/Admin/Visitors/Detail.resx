@@ -117,58 +117,61 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Confirm.DeleteUrlMapping" xml:space="preserve">
-    <value>Are You Sure You Wish To Delete {0}?</value>
+  <data name="IP.Text" xml:space="preserve">
+    <value>IP Address:</value>
   </data>
-  <data name="AddUrlMapping.Text" xml:space="preserve">
-    <value>Add Url Mapping</value>
+  <data name="IP.HelpText" xml:space="preserve">
+    <value>The last recorded IP address for this visitor</value>
   </data>
-  <data name="DeleteUrlMapping.Header" xml:space="preserve">
-    <value>Delete Url Mapping</value>
+  <data name="Language.HelpText" xml:space="preserve">
+    <value>The last recorded language for this visitor</value>
   </data>
-  <data name="IP" xml:space="preserve">
-    <value>IP</value>
+  <data name="Language.Text" xml:space="preserve">
+    <value>Language:</value>
   </data>
-  <data name="User" xml:space="preserve">
-    <value>User</value>
+  <data name="Error.LoadVisitor" xml:space="preserve">
+    <value>Error Loading Visitor</value>
   </data>
-  <data name="Requested" xml:space="preserve">
-    <value>Requested</value>
+  <data name="Created.HelpText" xml:space="preserve">
+    <value>The frst recorded date/time when the visitor visited the site</value>
   </data>
-  <data name="Requests" xml:space="preserve">
-    <value>Requests</value>
+  <data name="Created.Text" xml:space="preserve">
+    <value>Created:</value>
   </data>
-  <data name="Mapped" xml:space="preserve">
-    <value>Mapped Urls</value>
+  <data name="Referrer.HelpText" xml:space="preserve">
+    <value>The last recorded referrer for this visitor</value>
   </data>
-  <data name="Broken" xml:space="preserve">
-    <value>Broken Urls</value>
+  <data name="Referrer.Text" xml:space="preserve">
+    <value>Referrer:</value>
   </data>
-  <data name="CaptureBrokenUrls.HelpText" xml:space="preserve">
-    <value>Specify if broken Urls should be captured automatically and saved in Url Mappings</value>
+  <data name="Url.HelpText" xml:space="preserve">
+    <value>The last recorded Url for this visitor</value>
   </data>
-  <data name="CaptureBrokenUrls.Text" xml:space="preserve">
-    <value>Capture Broken Urls?</value>
+  <data name="Url.Text" xml:space="preserve">
+    <value>Url:</value>
   </data>
-  <data name="Error.SaveSiteSettings" xml:space="preserve">
-    <value>Error Saving Settings</value>
+  <data name="User.HelpText" xml:space="preserve">
+    <value>The last recorded user associated with this visitor</value>
   </data>
-  <data name="Settings.Heading" xml:space="preserve">
-    <value>Settings</value>
+  <data name="User.Text" xml:space="preserve">
+    <value>User:</value>
   </data>
-  <data name="Success.SaveSiteSettings" xml:space="preserve">
-    <value>Settings Saved Successfully</value>
+  <data name="UserAgent.HelpText" xml:space="preserve">
+    <value>The last recorded user agent for this visitor</value>
   </data>
-  <data name="Urls.Heading" xml:space="preserve">
-    <value>Urls</value>
+  <data name="UserAgent.Text" xml:space="preserve">
+    <value>User Agent:</value>
   </data>
-  <data name="Requested" xml:space="preserve">
-    <value>Requested</value>
+  <data name="Visited.HelpText" xml:space="preserve">
+    <value>The last recorded date/time when the visitor visited the site</value>
   </data>
-  <data name="Requests" xml:space="preserve">
-    <value>Requests</value>
+  <data name="Visited.Text" xml:space="preserve">
+    <value>Visited:</value>
   </data>
-  <data name="Url" xml:space="preserve">
-    <value>Url</value>
+  <data name="Visits.HelpText" xml:space="preserve">
+    <value>The total number of visits by this visitor all time</value>
+  </data>
+  <data name="Visits.Text" xml:space="preserve">
+    <value>Visits:</value>
   </data>
 </root>
