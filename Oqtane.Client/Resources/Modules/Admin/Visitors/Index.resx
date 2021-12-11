@@ -162,4 +162,16 @@
   <data name="VisitorTracking.Text" xml:space="preserve">
     <value>Visitor Tracking Enabled?</value>
   </data>
+  <data name="IP" xml:space="preserve">
+    <value>IP</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>User</value>
+  </data>
+  <data name="Visited" xml:space="preserve">
+    <value>Visited</value>
+  </data>
+  <data name="Visits" xml:space="preserve">
+    <value>Visits</value>
+  </data>
 </root>
