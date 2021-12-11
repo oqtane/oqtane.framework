@@ -126,12 +126,6 @@
   <data name="DeleteUrlMapping.Header" xml:space="preserve">
     <value>Delete Url Mapping</value>
   </data>
-  <data name="IP" xml:space="preserve">
-    <value>IP</value>
-  </data>
-  <data name="User" xml:space="preserve">
-    <value>User</value>
-  </data>
   <data name="Requested" xml:space="preserve">
     <value>Requested</value>
   </data>
@@ -161,12 +155,6 @@
   </data>
   <data name="Urls.Heading" xml:space="preserve">
     <value>Urls</value>
-  </data>
-  <data name="Requested" xml:space="preserve">
-    <value>Requested</value>
-  </data>
-  <data name="Requests" xml:space="preserve">
-    <value>Requests</value>
   </data>
   <data name="Url" xml:space="preserve">
     <value>Url</value>
